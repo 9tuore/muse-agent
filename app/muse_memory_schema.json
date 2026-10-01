@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:muse:memory:1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "subject_id": {"type": "string", "minLength": 1, "maxLength": 160},
+    "predicate": {"type": "string", "minLength": 1, "maxLength": 160},
+    "value": {"type": "string", "maxLength": 4000},
+    "epistemic_type": {"enum": ["fact", "user_statement", "external_claim", "inference"]},
+    "source_ids": {"type": "array", "maxItems": 16, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 160}},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "valid_from": {"type": ["string", "null"], "format": "date-time"},
+    "valid_until": {"type": ["string", "null"], "format": "date-time"},
+    "relations": {"type": "array", "maxItems": 32,
+      "items": {"type": "object", "additionalProperties": false,
+        "properties": {
+          "kind": {"enum": ["supports", "contradicts", "supersedes", "related_to"]},
+          "target_id": {"type": "string", "minLength": 1, "maxLength": 160}
+        }, "required": ["kind", "target_id"]}},
+    "deleted": {"type": "boolean"}
+  },
+  "required": ["subject_id", "predicate", "value", "epistemic_type", "source_ids",
+    "observed_at", "valid_from", "valid_until", "relations", "deleted"]
+}

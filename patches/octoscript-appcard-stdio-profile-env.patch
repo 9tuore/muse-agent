@@ -1,0 +1,15 @@
+diff --git a/app/app/src/lib.rs b/app/app/src/lib.rs
+index b6a2a3e3..dae753f9 100644
+--- a/app/app/src/lib.rs
++++ b/app/app/src/lib.rs
+@@ -6321,7 +6321,9 @@ impl App {
+             return TransportConfig {
+                 base_url: url::Url::parse("http://127.0.0.1").unwrap(),
+                 bearer: SecretString::new(String::new()),
+-                profile_id: TransportProfileId::new("_main"),
++                profile_id: TransportProfileId::new(
++                    std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "_main".to_string()),
++                ),
+                 cursor: None,
+                 cursor_file: Self::cursor_file_path(),
+                 requested_capabilities: Capabilities::requested(),

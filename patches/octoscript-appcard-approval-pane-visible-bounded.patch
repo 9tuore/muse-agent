@@ -1,0 +1,42 @@
+diff --git a/app/app/src/app/approvals.rs b/app/app/src/app/approvals.rs
+--- a/app/app/src/app/approvals.rs
++++ b/app/app/src/app/approvals.rs
+@@ -175,15 +175,15 @@
+             width: Fill height: Fit flow: Right align: Align{y: 0.5} spacing: 6 visible: false
+             decided_label := SubLabel {}
+         }
+     }
+     mod.widgets.ApprovalsPane = #(crate::app::approvals::ApprovalsPane::register_widget(vm)) {
+-        width: Fill height: Fit flow: Down spacing: 4
++        width: Fill height: 250 flow: Down spacing: 4
+         padding: Inset{left: 8 right: 8 top: 4 bottom: 4}
+         visible: false
+         list := PortalList {
+-            width: Fill height: Fit flow: Down drag_scrolling: false auto_tail: false
++            width: Fill height: Fill flow: Down drag_scrolling: false auto_tail: false
+             // `use mod.widgets.*` at the head of this script_mod imports
+             // widgets that were already in `mod.widgets` *before* the block
+             // ran; `ApprovalCardView` is registered three statements up,
+             // inside this same block, so the bareword lookup misses it.
+             // Reference it by its fully-qualified registry path.
+diff --git a/app/app/src/lib.rs b/app/app/src/lib.rs
+--- a/app/app/src/lib.rs
++++ b/app/app/src/lib.rs
+@@ -10740,10 +10740,17 @@
+                     // instead of being silently dropped.
+                 }
+             }
+         }
+ 
++        // The approval pane starts hidden. Its own draw callback cannot make
++        // it visible until the parent includes it in the widget tree.
++        let approval_pending = APP_STATE.read()
++            .map(|state| state.approvals.pending_count() > 0)
++            .unwrap_or(false);
++        self.ui.widget(cx, ids!(approvals_pane)).set_visible(cx, approval_pending);
++
+         // Layer 3 — flush any switcher badge/title changes accumulated during
+         // this drain (batched so background streaming doesn't re-sync per delta).
+         if self.tabs_dirty {
+             self.tabs_dirty = false;
+             self.sync_app_tabs(cx);

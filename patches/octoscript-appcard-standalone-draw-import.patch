@@ -1,0 +1,10 @@
+diff --git a/app/app/src/lib.rs b/app/app/src/lib.rs
+--- a/app/app/src/lib.rs
++++ b/app/app/src/lib.rs
+@@ -4595,5 +4595,6 @@ pub mod standalone_root {
+     script_mod! {
+         use mod.prelude.widgets.*
+         use mod.widgets.*
++        use mod.draw.*
+ 
+         startup() do #(App::script_component(vm)){

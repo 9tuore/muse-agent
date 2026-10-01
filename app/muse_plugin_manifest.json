@@ -1,0 +1,33 @@
+{
+  "manifest_version": 1,
+  "id": "builtin.text_stats",
+  "version": "1.0.0",
+  "name": "文本字符与行数",
+  "description": "只统计调用者提供文本的字符数与行数；不读取文件或网络。",
+  "capabilities": ["text.stats"],
+  "permissions": {
+    "filesystem": "none",
+    "network": false,
+    "process": false,
+    "secrets": false
+  },
+  "input_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["text"],
+    "properties": {
+      "text": {"type": "string", "maxLength": 2000}
+    }
+  },
+  "output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["characters", "lines"],
+    "properties": {
+      "characters": {"type": "integer", "minimum": 0, "maximum": 2000},
+      "lines": {"type": "integer", "minimum": 0, "maximum": 2000}
+    }
+  }
+}

@@ -1,0 +1,151 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 24a6532a..b3c870da 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -4570,6 +4570,7 @@ dependencies = [
+  "tree-sitter-rust",
+  "tree-sitter-typescript",
+  "url",
++ "uuid",
+  "webbrowser",
+  "which 7.0.3",
+  "wiremock",
+diff --git a/crates/octos-agent/Cargo.toml b/crates/octos-agent/Cargo.toml
+index 5aca61c7..f7094b6a 100644
+--- a/crates/octos-agent/Cargo.toml
++++ b/crates/octos-agent/Cargo.toml
+@@ -19,6 +19,7 @@ async-trait = { workspace = true }
+ tokio = { workspace = true }
+ serde = { workspace = true }
+ serde_json = { workspace = true }
++uuid = { workspace = true }
+ toml = { workspace = true }
+ chrono = { workspace = true }
+ eyre = { workspace = true }
+diff --git a/crates/octos-agent/src/mcp.rs b/crates/octos-agent/src/mcp.rs
+index 68a8eaa3..03ab8388 100644
+--- a/crates/octos-agent/src/mcp.rs
++++ b/crates/octos-agent/src/mcp.rs
+@@ -21,7 +21,7 @@ use std::time::Duration;
+ 
+ use async_trait::async_trait;
+ use eyre::{Result, WrapErr};
+-use rmcp::model::{CallToolRequestParams, ClientInfo, Implementation};
++use rmcp::model::{CallToolRequestParams, ClientInfo, Implementation, Meta};
+ use rmcp::service::{RoleClient, RunningService, serve_client};
+ use rmcp::transport::StreamableHttpClientTransport;
+ use rmcp::transport::child_process::TokioChildProcess;
+@@ -31,7 +31,7 @@ use tokio::time::timeout;
+ use tracing::{info, warn};
+ 
+ use crate::subprocess_env::{EnvAllowlist, sanitize_command_env, should_forward_env_name};
+-use crate::tools::{Tool, ToolRegistry, ToolResult};
++use crate::tools::{Tool, ToolContext, ToolRegistry, ToolResult};
+ 
+ /// A live rmcp client session (any transport). Kept alive behind an `Arc`; when
+ /// the last reference drops, rmcp closes the transport and (stdio) reaps the
+@@ -565,27 +565,11 @@ struct McpTool {
+     concurrency_class: crate::tools::ConcurrencyClass,
+ }
+ 
+-#[async_trait]
+-impl Tool for McpTool {
+-    fn name(&self) -> &str {
+-        &self.name
+-    }
+-
+-    fn description(&self) -> &str {
+-        &self.description
+-    }
+-
+-    fn concurrency_class(&self) -> crate::tools::ConcurrencyClass {
+-        self.concurrency_class
+-    }
+-
+-    fn input_schema(&self) -> serde_json::Value {
+-        self.input_schema.clone()
+-    }
+-
+-    async fn execute(&self, args: &serde_json::Value) -> Result<ToolResult> {
++impl McpTool {
++    async fn call(&self, args: &serde_json::Value, meta: Option<Meta>) -> Result<ToolResult> {
+         let mut param = CallToolRequestParams::new(self.name.clone());
+         param.arguments = args.as_object().cloned();
++        param.meta = meta;
+ 
+         let result = timeout(TOOL_CALL_TIMEOUT, self.service.call_tool(param))
+             .await
+@@ -597,8 +581,6 @@ impl Tool for McpTool {
+             })?
+             .map_err(|e| eyre::eyre!("MCP tool '{}' call failed: {e}", self.name))?;
+ 
+-        // Flatten text content parts; non-text parts (images/resources) are
+-        // dropped as the agent tool surface is text-only.
+         let output = result
+             .content
+             .iter()
+@@ -614,6 +596,64 @@ impl Tool for McpTool {
+     }
+ }
+ 
++#[async_trait]
++impl Tool for McpTool {
++    fn name(&self) -> &str {
++        &self.name
++    }
++
++    fn description(&self) -> &str {
++        &self.description
++    }
++
++    fn concurrency_class(&self) -> crate::tools::ConcurrencyClass {
++        self.concurrency_class
++    }
++
++    fn input_schema(&self) -> serde_json::Value {
++        self.input_schema.clone()
++    }
++
++    async fn execute(&self, args: &serde_json::Value) -> Result<ToolResult> {
++        if self.name == "muse_goal_step" {
++            eyre::bail!("muse_context_required");
++        }
++        self.call(args, None).await
++    }
++
++    async fn execute_with_context(
++        &self,
++        ctx: &ToolContext,
++        args: &serde_json::Value,
++    ) -> Result<ToolResult> {
++        if self.name != "muse_goal_step" {
++            return self.call(args, None).await;
++        }
++        let router = octos_llm::current_router_context();
++        let session = router.session_id.ok_or_else(|| eyre::eyre!("muse_session_missing"))?;
++        let turn = router.turn_id.ok_or_else(|| eyre::eyre!("muse_turn_missing"))?;
++        let parent = ctx
++            .parent_session_key
++            .as_deref()
++            .ok_or_else(|| eyre::eyre!("muse_parent_session_missing"))?;
++        if session != parent {
++            eyre::bail!("muse_session_context_mismatch");
++        }
++        if ctx.tool_id.is_empty() {
++            eyre::bail!("muse_tool_call_missing");
++        }
++        let mut meta = Meta::new();
++        meta.0.insert("muse_host_session_id".into(), session.into());
++        meta.0.insert("muse_host_turn_id".into(), turn.into());
++        meta.0.insert("muse_host_tool_call_id".into(), ctx.tool_id.clone().into());
++        meta.0.insert(
++            "muse_host_call_nonce".into(),
++            uuid::Uuid::new_v4().to_string().into(),
++        );
++        self.call(args, Some(meta)).await
++    }
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;

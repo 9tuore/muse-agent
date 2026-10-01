@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:muse:capability:1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "capability_id": {"type": "string", "minLength": 3, "maxLength": 80},
+    "version": {"type": "string", "minLength": 1, "maxLength": 40},
+    "input_schema": {"type": "object", "maxProperties": 32},
+    "output_schema": {"type": "object", "maxProperties": 32},
+    "target_app": {"type": ["string", "null"], "maxLength": 160},
+    "required_permissions": {"type": "array", "maxItems": 32, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 160}},
+    "risk": {"enum": ["read", "local_write", "external_write", "sensitive"]},
+    "preconditions": {"type": "array", "maxItems": 16,
+      "items": {"type": "string", "minLength": 1, "maxLength": 160}},
+    "adapter": {"type": "string", "minLength": 1, "maxLength": 160},
+    "verification": {"type": "object", "maxProperties": 16},
+    "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+    "idempotent": {"type": "boolean"},
+    "compensation": {"type": ["string", "null"], "maxLength": 160}
+  },
+  "required": ["capability_id", "version", "input_schema", "output_schema", "target_app",
+    "required_permissions", "risk", "preconditions", "adapter", "verification",
+    "timeout_seconds", "idempotent", "compensation"]
+}

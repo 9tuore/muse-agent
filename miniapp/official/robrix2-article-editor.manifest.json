@@ -1,0 +1,53 @@
+{
+  "prototype": true,
+  "verified": false,
+  "protocol": "robrix2-native-article-editor",
+  "status": "project-example-only",
+  "source": {
+    "official_repo": "robrix2",
+    "official_revision": "05daf9bdb05fafc6d8f04dcb312a35f1d46a661e",
+    "app_card_path": "resources/mini_apps/article-editor/app.card",
+    "app_id": "org.octosense.article-editor",
+    "version": 1,
+    "source_hash_algorithm": "blake3",
+    "source_hash": "51dede1519be70e6897c9d125cd881122cda165b3dd3ed969d06d1eb22c06105"
+  },
+  "card": {
+    "msgtype": "rs.robius.robrix.article_app",
+    "data_key": "app",
+    "package_fields": ["app_id", "version", "source_hash"],
+    "body": "[Mini app] Article editor · Markdown / native preview"
+  },
+  "entrypoints": [
+    {"surface": "discover", "host_action": "ArticleAction::Open"},
+    {"surface": "room_input_plus", "host_action": "ArticleAction::Open"},
+    {"surface": "received_article_card", "host_action": "ArticleAction::Open"}
+  ],
+  "proposed_host_operations": {
+    "origin": "Robrix2 ADR 0002; names are design proposals, not an implemented JSON API",
+    "operations": ["account.identity.read", "draft.read", "draft.write", "post.prepare", "post.publish"]
+  },
+  "authorization_boundary": {
+    "kind": "per-open-host-grant",
+    "implemented_shape": "article_app::Grant",
+    "sender_grant_shared": false,
+    "matrix_credentials_exposed": false,
+    "backend_login_required_for_native_editor": false,
+    "final_publish_requires_host_confirmation": true
+  },
+  "result_boundary": {
+    "channel": "Makepad Cx action Sent",
+    "binding_fields": ["instance", "transaction"],
+    "success_payload": "Result<(), String>",
+    "matrix_event_id_exposed": false,
+    "external_callback": false,
+    "retry_uses_same_transaction": true
+  },
+  "unverified_items": [
+    "Robrix2 GUI launch on this machine",
+    "Matrix login and recipient consent",
+    "live share/publish in a Matrix room",
+    "cross-host OctoSense AppCard result bridge",
+    "official manifest loading of this project example"
+  ]
+}

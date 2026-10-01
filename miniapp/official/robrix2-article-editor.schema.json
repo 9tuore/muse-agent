@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-app-hackathon:prototype:robrix2-article-editor",
+  "title": "Robrix2 native article-editor prototype manifest",
+  "description": "Project-only prototype documentation. This is not an official Robrix2 manifest schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["prototype", "verified", "protocol", "source", "card", "entrypoints", "authorization_boundary", "result_boundary"],
+  "properties": {
+    "prototype": {"const": true},
+    "verified": {"const": false},
+    "protocol": {"const": "robrix2-native-article-editor"},
+    "status": {"type": "string"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["official_repo", "official_revision", "app_card_path", "app_id", "version", "source_hash_algorithm", "source_hash"],
+      "properties": {
+        "official_repo": {"const": "robrix2"},
+        "official_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "app_card_path": {"type": "string"},
+        "app_id": {"const": "org.octosense.article-editor"},
+        "version": {"const": 1},
+        "source_hash_algorithm": {"const": "blake3"},
+        "source_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "card": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["msgtype", "data_key", "package_fields", "body"],
+      "properties": {
+        "msgtype": {"const": "rs.robius.robrix.article_app"},
+        "data_key": {"const": "app"},
+        "package_fields": {"const": ["app_id", "version", "source_hash"]},
+        "body": {"type": "string"}
+      }
+    },
+    "entrypoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["surface", "host_action"],
+        "properties": {
+          "surface": {"type": "string"},
+          "host_action": {"const": "ArticleAction::Open"}
+        }
+      }
+    },
+    "proposed_host_operations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "operations"],
+      "properties": {
+        "origin": {"type": "string"},
+        "operations": {
+          "const": ["account.identity.read", "draft.read", "draft.write", "post.prepare", "post.publish"]
+        }
+      }
+    },
+    "authorization_boundary": {"type": "object"},
+    "result_boundary": {"type": "object"},
+    "unverified_items": {"type": "array", "items": {"type": "string"}}
+  }
+}

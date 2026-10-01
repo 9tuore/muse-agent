@@ -1,0 +1,22 @@
+{
+  "schema": "local-host-adapter/appcard-v0",
+  "prototype": true,
+  "app_id": "g02.local.agent",
+  "title": "G-02 Local Agent",
+  "host_contract": {
+    "review": "required",
+    "capability_grant": "explicit_user_confirmation",
+    "external_tool_execution": "deferred_only",
+    "lifecycle": ["claim", "dispatch", "complete"]
+  },
+  "capabilities": [
+    {
+      "name": "terminal.exec",
+      "allowlist": ["mkdir", "touch"],
+      "shell": false,
+      "timeout_seconds": 10,
+      "max_output_chars": 8192
+    }
+  ],
+  "events": ["user_input", "terminal_request", "confirm", "health"]
+}

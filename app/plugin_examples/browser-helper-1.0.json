@@ -1,0 +1,13 @@
+{
+  "manifest_version": 1,
+  "id": "example.browser-helper",
+  "version": "1.0.0",
+  "source": "reviewed-builtin",
+  "minimum_host_version": "0.2.0",
+  "description": "Delegates one public Python.org page read to the approved browser.research Capability DSL.",
+  "capabilities": ["browser.research"],
+  "permissions": {"filesystem": "none", "network": true, "process": true, "secrets": false, "browser_profile": "isolated", "allowed_domains": ["python.org"]},
+  "action": {"kind": "delegate_capability", "capability_id": "browser.research"},
+  "input_schema": {"type": "object", "additionalProperties": false, "required": ["query", "engine", "max_pages"], "properties": {"query": {"type": "string", "maxLength": 120}, "engine": {"type": "string", "maxLength": 20}, "max_pages": {"type": "integer", "minimum": 1, "maximum": 1}}},
+  "output_schema": {"type": "object", "additionalProperties": true, "required": ["query", "sources"], "properties": {"query": {"type": "string", "maxLength": 120}, "sources": {"type": "array", "minItems": 1, "maxItems": 1}}}
+}

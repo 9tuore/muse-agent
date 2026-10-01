@@ -1,0 +1,389 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:muse:goal:0.1",
+  "title": "Muse GoalSpec v0.1 reference, not an authority grant",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "muse.goal/0.1"
+    },
+    "goal_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "priority": {
+      "enum": [
+        "low",
+        "normal",
+        "high"
+      ]
+    },
+    "deadline": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timezone": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "triggers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "interval"
+              },
+              "every_seconds": {
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 604800
+              }
+            },
+            "required": [
+              "kind",
+              "every_seconds"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "event"
+              },
+              "topic": {
+                "enum": [
+                  "mail.received",
+                  "file.changed",
+                  "calendar.changed",
+                  "user.message",
+                  "system.service_changed"
+                ]
+              },
+              "source_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "kind",
+              "topic",
+              "source_ref"
+            ]
+          }
+        ]
+      }
+    },
+    "context_refs": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "purpose": {
+            "type": "string",
+            "maxLength": 800
+          }
+        },
+        "required": [
+          "ref",
+          "purpose"
+        ]
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "capability": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+            "maxLength": 80
+          },
+          "args": {
+            "type": "object",
+            "maxProperties": 32
+          },
+          "input_refs": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        },
+        "required": [
+          "id",
+          "capability",
+          "args"
+        ]
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+            "maxLength": 80
+          }
+        },
+        "resource_refs": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "send_message": {
+          "enum": [
+            "deny",
+            "confirm",
+            "approved_rule"
+          ]
+        },
+        "send_rule_ref": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 160
+        },
+        "cloud_context": {
+          "enum": [
+            "none",
+            "task_minimal"
+          ]
+        }
+      },
+      "required": [
+        "capabilities",
+        "resource_refs",
+        "send_message",
+        "send_rule_ref",
+        "cloud_context"
+      ]
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "period": {
+          "enum": [
+            "goal",
+            "day"
+          ]
+        },
+        "money": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "capped"
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                "amount": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "mode",
+                "currency",
+                "amount"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "unlimited"
+                }
+              },
+              "required": [
+                "mode"
+              ]
+            }
+          ]
+        },
+        "max_model_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "max_searches": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "max_run_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        }
+      },
+      "required": [
+        "period",
+        "money",
+        "max_model_tokens",
+        "max_searches",
+        "max_run_seconds"
+      ]
+    },
+    "verification": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "enum": [
+              "file_content",
+              "source_records",
+              "record_readback",
+              "state_match"
+            ]
+          },
+          "target_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "expected": {
+            "type": "object",
+            "maxProperties": 16
+          }
+        },
+        "required": [
+          "type",
+          "target_ref",
+          "expected"
+        ]
+      }
+    },
+    "notify": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "on_major_update": {
+          "type": "boolean"
+        },
+        "on_need_decision": {
+          "const": true
+        },
+        "on_complete": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "on_major_update",
+        "on_need_decision",
+        "on_complete"
+      ]
+    },
+    "failure_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "escalate": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "max_retries",
+        "escalate"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "goal_id",
+    "revision",
+    "title",
+    "objective",
+    "priority",
+    "deadline",
+    "timezone",
+    "triggers",
+    "context_refs",
+    "steps",
+    "permissions",
+    "budget",
+    "verification",
+    "notify",
+    "failure_policy"
+  ]
+}

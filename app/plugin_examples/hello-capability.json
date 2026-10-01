@@ -1,0 +1,13 @@
+{
+  "manifest_version": 1,
+  "id": "example.hello-capability",
+  "version": "1.0.0",
+  "source": "reviewed-builtin",
+  "minimum_host_version": "0.2.0",
+  "description": "Greets a supplied name without filesystem, network, process or secret access.",
+  "capabilities": ["plugin.hello"],
+  "permissions": {"filesystem": "none", "network": false, "process": false, "secrets": false},
+  "action": {"kind": "host_hello"},
+  "input_schema": {"type": "object", "additionalProperties": false, "required": ["name"], "properties": {"name": {"type": "string", "maxLength": 80}}},
+  "output_schema": {"type": "object", "additionalProperties": false, "required": ["message"], "properties": {"message": {"type": "string", "maxLength": 120}}}
+}
