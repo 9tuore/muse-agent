@@ -1,0 +1,12 @@
+// ios_app_clip — flutter/samples/ios_app_clip
+//
+// Not a UI port: this sample is configuration, tooling or prose. It states
+// what the counterpart on this stack is rather than dismissing it.
+
+fn screen_ios_app_clip() {
+    return counterpart_screen("iOS App Clip",
+        "Producing an iOS App Clip target rendered by Flutter: a small, instantly-launchable slice of an app, under a size budget, with its own entitlements and App Store association.",
+        "HarmonyOS has exactly this concept — an atomic service, installed on demand and launched without a full install, under its own size budget. It is the platform's App Clip. This app is not one: module.json5 declares `\"type\": \"entry\"`, a normal installed entry module, so the counterpart exists on the platform but is not configured here.",
+        ["No atomic service is configured, so there is nothing running to show.",
+         "The Xcode target, entitlements and App Store association that are most of the sample are Apple-specific and have no OpenHarmony form."])
+}

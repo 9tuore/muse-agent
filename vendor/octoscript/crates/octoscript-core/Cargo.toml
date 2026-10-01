@@ -1,0 +1,15 @@
+[package]
+name = "octoscript-core"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Bounded, host-neutral Octoscript VM runtime"
+
+[lints]
+workspace = true
+
+[dependencies]
+octoscript-ui-l0 = { path = "../octoscript-ui-l0" }
+makepad-script = { git = "https://github.com/OctoSense-org/makepad.git", rev = "bb45d4115762d27f05137d1420907fa166831bd0" }
+serde_json = "1.0.150"

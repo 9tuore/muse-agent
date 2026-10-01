@@ -1,0 +1,593 @@
+use crate::{
+    cx_2d::*,
+    makepad_platform::*,
+    shader::draw_vector::DrawVector,
+    svg::{self, SvgDocument},
+    turtle::*,
+};
+use makepad_svg::document::Transform2d;
+use makepad_svg::units::viewbox_transform;
+
+script_mod! {
+    use mod.pod.*
+    use mod.math.*
+    use mod.shader.*
+    use mod.draw
+    use mod.geom
+    use mod.res
+
+    mod.draw.DrawSvg = mod.std.set_type_default() do #(DrawSvg::script_shader(vm)){
+        ..mod.draw.DrawVector
+
+        // color: vec4(-1,-1,-1,-1) means "use original SVG colors"
+        // Any non-negative color replaces the SVG color, preserving per-vertex alpha.
+        color: vec4(-1.0, -1.0, -1.0, -1.0)
+        opacity: 1.0
+
+        // GPU-side transform for cached SVG geometry
+        svg_scale: uniform(vec2(1.0, 1.0))
+        svg_offset: uniform(vec2(0.0, 0.0))
+
+        // Animation time in seconds, available for custom shader effects
+        svg_time: uniform(float(0.0))
+        // A turn about the rect's centre, in radians (`DrawSvg::rotation`):
+        // an app icon's jiggle in a home screen's edit mode.
+        svg_rotation: uniform(float(0.0))
+
+        // Hook to allow custom transformations on the SVG geometry. The
+        // default turns the geometry by `svg_rotation` about the rect's centre.
+        transform_svg_point: fn(pos: vec2) -> vec2 {
+            let c = self.rect_size * 0.5
+            let d = pos - c
+            let s = sin(self.svg_rotation)
+            let co = cos(self.svg_rotation)
+            return vec2(d.x * co - d.y * s, d.x * s + d.y * co) + c
+        }
+
+        vertex: fn() {
+            var pos = vec2(self.geom.x, self.geom.y);
+            // SVG fill uses pre-computed fringe (not GPU-expand), so fringe
+            // vertices already have physically offset positions. No GPU-side
+            // expansion needed.
+            // Keep tessellated SVG geometry relative and apply rect_pos as the
+            // final anchor so turtle alignment can move it like DrawQuad.
+            let transformed_local = self.transform_svg_point(pos * self.svg_scale + self.svg_offset);
+            let transformed = transformed_local + self.rect_pos;
+            let g_uv = unpack2f16(self.geom.uv)
+            let g_color = unpack4u8(self.geom.color)
+            let g_p0s = unpack2f16(self.geom.p0s)
+            let g_p12 = unpack2f16(self.geom.p12)
+            let g_p3c = unpack2f16(self.geom.p3c)
+            self.v_tcoord = g_uv;
+            self.v_color = g_color;
+            self.v_stroke_mult = self.geom.stroke_mult;
+            self.v_stroke_dist = self.geom.stroke_dist;
+            self.v_shape_id = g_p0s.y;
+            self.v_param0 = g_p0s.x;
+            self.v_param5 = self.geom.param5;
+            // Transform gradient geometry params by svg_scale/svg_offset and custom hook
+            let grad_type = g_p0s.x;
+            if self.geom.stroke_mult < -0.5 && self.geom.stroke_mult > -1.5 {
+                // Analytic rectangle shadows store center/half-size/radius/
+                // sigma in these slots (cx, cy, hx, hy, corner, blur), rather
+                // than gradient parameters; scale them like the geometry.
+                let center = self.transform_svg_point(vec2(g_p0s.x, g_p12.x) * self.svg_scale + self.svg_offset) + self.rect_pos;
+                let scale = abs(self.svg_scale);
+                self.v_param0 = center.x;
+                self.v_param1 = center.y;
+                self.v_param2 = g_p12.y * scale.x;
+                self.v_param3 = g_p3c.x * scale.y;
+                self.v_param4 = self.geom.param4 * max(scale.x, scale.y);
+                self.v_param5 = self.geom.param5 * max(scale.x, scale.y);
+            } else if grad_type > 0.5 && grad_type < 1.5 {
+                // Linear gradient: p1,p2 = start point, p3,p4 = end point
+                let p0 = self.transform_svg_point(g_p12 * self.svg_scale + self.svg_offset) + self.rect_pos;
+                let p1 = self.transform_svg_point(vec2(g_p3c.x, self.geom.param4) * self.svg_scale + self.svg_offset) + self.rect_pos;
+                self.v_param1 = p0.x;
+                self.v_param2 = p0.y;
+                self.v_param3 = p1.x;
+                self.v_param4 = p1.y;
+            } else if grad_type > 1.5 {
+                // Radial gradient: p1,p2 = center, p3,p4 = rx, ry
+                let center = self.transform_svg_point(g_p12 * self.svg_scale + self.svg_offset) + self.rect_pos;
+                self.v_param1 = center.x;
+                self.v_param2 = center.y;
+                self.v_param3 = g_p3c.x * self.svg_scale.x;
+                self.v_param4 = self.geom.param4 * self.svg_scale.y;
+            } else if g_p0s.y > 0.5 {
+                // Effect shape with bbox in params: transform bbox by svg_scale/svg_offset
+                let bbox_min = self.transform_svg_point(g_p12 * self.svg_scale + self.svg_offset) + self.rect_pos;
+                let bbox_max = self.transform_svg_point(vec2(g_p3c.x, self.geom.param4) * self.svg_scale + self.svg_offset) + self.rect_pos;
+                self.v_param1 = bbox_min.x;
+                self.v_param2 = bbox_min.y;
+                self.v_param3 = bbox_max.x;
+                self.v_param4 = bbox_max.y;
+            } else {
+                self.v_param1 = g_p12.x;
+                self.v_param2 = g_p12.y;
+                self.v_param3 = g_p3c.x;
+                self.v_param4 = self.geom.param4;
+            }
+            let shifted = transformed + self.draw_list.view_shift;
+            self.v_world = shifted;
+
+            // Early clip rejection in final draw space.
+            let cr = g_p3c.y * max(abs(self.svg_scale.x), abs(self.svg_scale.y));
+            let is_shadow = self.geom.stroke_mult < -0.5;
+            if cr > 0.0 && !is_shadow {
+                let clip = vec4(
+                    max(self.draw_clip.x, self.draw_list.view_clip.x - self.draw_list.view_shift.x),
+                    max(self.draw_clip.y, self.draw_list.view_clip.y - self.draw_list.view_shift.y),
+                    min(self.draw_clip.z, self.draw_list.view_clip.z - self.draw_list.view_shift.x),
+                    min(self.draw_clip.w, self.draw_list.view_clip.w - self.draw_list.view_shift.y)
+                );
+                if transformed.x + cr < clip.x || transformed.y + cr < clip.y
+                    || transformed.x - cr > clip.z || transformed.y - cr > clip.w {
+                    self.vertex_pos = vec4(2.0, 2.0, 2.0, 1.0);
+                    return
+                }
+            }
+
+            let world = self.draw_list.view_transform * vec4(
+                shifted.x
+                shifted.y
+                self.draw_depth + self.draw_call.zbias + self.geom.zbias
+                1.
+            );
+            self.v_world_clip = world;
+            self.vertex_pos = self.draw_pass.camera_projection * (self.draw_pass.camera_view * world)
+        }
+
+        get_color: fn() {
+            let base = self.eval_gradient()
+            if self.color.x >= 0.0 {
+                return vec4(self.color.rgb * self.color.a * base.a, self.color.a * base.a) * self.opacity
+            }
+            return base * self.opacity
+        }
+    }
+}
+
+/// One tessellation of the document at one device scale, on the GPU. The
+/// fringe and flatten tolerance are baked for that scale (see
+/// [`DrawSvg::render_to_rect`]), so a draw at a scale more than 5% away gets
+/// a mesh of its own; at most [`DrawSvg::MAX_MESHES`] are kept, the least
+/// recently drawn going first.
+#[derive(Debug)]
+struct SvgMesh {
+    scale: f32,
+    geometry: Geometry,
+    /// The `redraw_id` of the last frame that drew it.
+    last_drawn: u64,
+}
+
+/// How one `render_to_rect` draws, decided before the uniforms are set and
+/// carried out after them (the draw call copies the uniforms it is issued
+/// with).
+enum SvgDraw {
+    /// An animated document: the fresh tessellation goes into the per-frame
+    /// geometry pool, as any `DrawVector` session does.
+    Pool,
+    /// A kept mesh of this scale: a draw call and an instance, nothing more.
+    Kept(GeometryId),
+    /// A fresh tessellation into a geometry of its own, kept afterwards.
+    Keep(Geometry),
+    /// A fresh tessellation into a geometry of its own for this draw call
+    /// only (the kept meshes are all in use this redraw).
+    Once(Geometry),
+    /// The document has no geometry.
+    Nothing,
+}
+
+#[derive(Script, ScriptHook, Debug)]
+#[repr(C)]
+pub struct DrawSvg {
+    #[live]
+    pub svg: Option<ScriptHandleRef>,
+    #[rust]
+    pub svg_doc: Option<SvgDocument>,
+    // The svg handle currently parsed into `svg_doc`,
+    // so we can detect when the svg has been changed and reload it.
+    #[rust]
+    loaded_handle: Option<ScriptHandle>,
+    // Content bounding box after viewbox transform at 1:1 scale.
+    // This is the actual extent of rendered geometry.
+    #[rust]
+    pub content_bounds: (f32, f32, f32, f32), // (min_x, min_y, max_x, max_y)
+    /// A turn about the rect's centre, radians, applied by the shader.
+    #[rust]
+    pub rotation: f32,
+    #[rust]
+    pub content_size: DVec2,
+    /// The document's meshes, one per device scale it has been drawn at,
+    /// each tessellated and uploaded once (see [`SvgMesh`]). A static icon
+    /// drawn every frame — the phone desk's, moving under a finger — costs
+    /// an instance per frame; a caller that draws one `DrawSvg` at several
+    /// sizes in a frame (a tile, a grid cell and a dock slot of the same
+    /// app) keeps a mesh for each instead of re-tessellating at every call.
+    #[rust]
+    meshes: Vec<SvgMesh>,
+    /// False drops every mesh before the next draw: set by whoever changes
+    /// the document, its bounds or anything else baked into the vertices.
+    /// Dropping a mesh is safe at any time: the geometry pool defers frees
+    /// until no live draw call names the slot (`CxGeometryPool`), so a draw
+    /// call recorded earlier this redraw, or one in a draw list not redrawn
+    /// since, keeps drawing the mesh it was recorded with.
+    #[rust]
+    pub cache_valid: bool,
+    #[rust]
+    pub has_animations: bool,
+    #[live(true)]
+    pub preserve_aspect: bool,
+    /// Keep source canvas padding instead of fitting to visible geometry.
+    #[live(false)]
+    pub preserve_viewbox: bool,
+    #[live(1.0)]
+    pub scale: f64,
+    #[deref]
+    pub draw_super: DrawVector,
+    #[live(vec4(-1.0, -1.0, -1.0, -1.0))]
+    pub color: Vec4f,
+    #[live(1.0)]
+    pub opacity: f32,
+}
+
+impl DrawSvg {
+    pub fn draw_walk(&mut self, cx: &mut Cx2d, walk: Walk) -> Rect {
+        self.load_svg(cx);
+        if self.svg_doc.is_none() {
+            return Rect::default();
+        }
+        let walk = cx.resolve_walk(walk, ResolveAt::BeforeBegin);
+        let walk = self.resolve_walk(walk);
+        let rect = cx.walk_turtle(walk);
+        self.render_to_rect(cx, &rect, 0.0);
+        rect
+    }
+
+    pub fn draw_walk_time(&mut self, cx: &mut Cx2d, walk: Walk, time: f32) -> Rect {
+        self.load_svg(cx);
+        if self.svg_doc.is_none() {
+            return Rect::default();
+        }
+        let walk = cx.resolve_walk(walk, ResolveAt::BeforeBegin);
+        let walk = self.resolve_walk(walk);
+        let rect = cx.walk_turtle(walk);
+        self.render_to_rect(cx, &rect, time);
+        rect
+    }
+
+    pub fn draw_abs(&mut self, cx: &mut Cx2d, rect: Rect) {
+        self.load_svg(cx);
+        if self.svg_doc.is_none() {
+            return;
+        };
+        self.render_to_rect(cx, &rect, 0.0);
+    }
+
+    pub fn render_to_rect(&mut self, cx: &mut Cx2d, rect: &Rect, time: f32) {
+        self.draw_super.rect_pos = rect.pos.into();
+        self.draw_super.rect_size = rect.size.into();
+
+        let Some(doc) = self.svg_doc.take() else {
+            return;
+        };
+
+        let (lw, lh) = doc.logical_size();
+
+        // Device-pixel scale (svg_scale * dpi) the AA fringe + tolerance below are sized against.
+        let cbw = self.content_bounds.2 - self.content_bounds.0;
+        let cbh = self.content_bounds.3 - self.content_bounds.1;
+        let dpi = cx.current_dpi_factor() as f32;
+        let device_scale = if cbw > 0.0 && cbh > 0.0 {
+            let tw = rect.size.x as f32;
+            let th = rect.size.y as f32;
+            let s = if self.preserve_aspect {
+                (tw / cbw).min(th / cbh)
+            } else {
+                // Non-uniform scale: the X and Y fringes differ, so there is no single correct
+                // value. Use the geometric mean as an average compromise (the baked fringe is
+                // ~1 device px on average across the two axes).
+                ((tw / cbw) * (th / cbh)).max(0.0).sqrt()
+            };
+            (s * dpi).max(0.0001)
+        } else {
+            dpi.max(0.0001)
+        };
+        // AA fringe width, in path-LOCAL (content) units. The fringe's on-screen HALF-width is
+        // `fill_aa * 0.5 * device_scale` device px, and the analytic coverage in draw_vector.rs
+        // (`alpha = clamp(d / fwidth(d))`) self-normalizes to a ~1px ramp, so this constant only
+        // controls WHERE the 50%-coverage contour sits relative to the path's true edge:
+        //   * a half-width of ~0.5 device px puts 50% coverage ON the true edge  -> centered AA,
+        //     no size distortion. That needs `fill_aa * 0.5 * device_scale = 0.5`, i.e. 1/device_scale.
+        //   * a wider fringe pushes the 50% contour OUTSIDE the true edge, dilating fills and — worse
+        //     — fattening strokes, whose half-width is `w/2 + aa/2` (tessellate.rs): at `2/device_scale`
+        //     every stroke gained a full device px per side and looked thick/chunky (robrix #926).
+        // So target 1.0/device_scale (the old 2.0 was 2x too wide).
+        //
+        // The cap must also be in content units: an absolute cap (the old `4.0`) means wildly
+        // different things across icons. A large-viewBox icon (forbidden.svg is 512×512) drawn at
+        // ~24px has a tiny device_scale, so `1.0/device_scale` blows past `4.0` and would clamp to a
+        // *sub-pixel* fringe — and a sub-pixel fringe makes the coverage (coarse on OpenGL-ES/Wayland)
+        // collapse to a hard, aliased step. Scaling the cap with the content keeps the fringe ~0.5
+        // device px regardless of viewBox, so icon SVGs need no particular size/viewBox to look right.
+        // `4.0` was tuned for a 24-unit icon (download.svg), i.e. ~content/6; `.max(4.0)` floors it.
+        let content_ref = cbw.min(cbh).max(1.0);
+        let fill_aa = (1.0 / device_scale).clamp(0.2, (content_ref / 6.0).max(4.0));
+        // Curve flatten tolerance ~0.05 device px so curves/round caps stay smooth at any icon size.
+        let tolerance = (0.05 / device_scale).clamp(0.01, 0.25);
+
+        let redraw_id = cx.cx.cx.redraw_id;
+        if !self.cache_valid {
+            self.meshes.clear();
+            self.cache_valid = true;
+        }
+        // What this frame draws. An animated document is tessellated every
+        // frame into the per-frame pool; a static one draws the kept mesh of
+        // this scale, or tessellates one now — into a geometry of its own,
+        // kept for the next frames. A mesh whose baked fringe would be
+        // noticeably off (the scale moved more than 5%) does not count. The
+        // draw call itself is issued after the uniforms below are set.
+        let plan = if self.has_animations {
+            self.tessellate(&doc, lw, lh, fill_aa, tolerance, time);
+            SvgDraw::Pool
+        } else if let Some(index) = self
+            .meshes
+            .iter()
+            .position(|mesh| (mesh.scale - device_scale).abs() <= device_scale * 0.05)
+        {
+            self.meshes[index].last_drawn = redraw_id;
+            SvgDraw::Kept(self.meshes[index].geometry.geometry_id())
+        } else {
+            self.tessellate(&doc, lw, lh, fill_aa, tolerance, time);
+            if !self.draw_super.has_geometry() {
+                SvgDraw::Nothing
+            } else if self.meshes.len() < Self::MAX_MESHES {
+                SvgDraw::Keep(Geometry::new(cx.cx.cx))
+            } else if let Some(oldest) = self
+                .meshes
+                .iter()
+                .enumerate()
+                // A mesh drawn earlier in THIS redraw stays: a draw call of
+                // this frame names it.
+                .filter(|(_, mesh)| mesh.last_drawn != redraw_id)
+                .min_by_key(|(_, mesh)| mesh.last_drawn)
+                .map(|(index, _)| index)
+            {
+                self.meshes.swap_remove(oldest);
+                SvgDraw::Keep(Geometry::new(cx.cx.cx))
+            } else {
+                // Every kept mesh was drawn this redraw: a fifth size in one
+                // frame gets a geometry of its own for this draw call, not
+                // kept — never the per-frame pool, whose slots are rewritten
+                // next redraw under a draw list that may not be.
+                SvgDraw::Once(Geometry::new(cx.cx.cx))
+            }
+        };
+
+        // Compute GPU-side scale + offset from content bounds to target rect
+        let (bmin_x, bmin_y, bmax_x, bmax_y) = self.content_bounds;
+        let bw = bmax_x - bmin_x;
+        let bh = bmax_y - bmin_y;
+
+        if bw > 0.0 && bh > 0.0 {
+            let tw = rect.size.x as f32;
+            let th = rect.size.y as f32;
+
+            let (sx, sy) = if self.preserve_aspect {
+                let s = (tw / bw).min(th / bh);
+                (s, s)
+            } else {
+                (tw / bw, th / bh)
+            };
+
+            // Keep geometry local; rect_pos is the final anchor applied in the shader.
+            let offset_x = (tw - bw * sx) * 0.5 - bmin_x * sx;
+            let offset_y = (th - bh * sy) * 0.5 - bmin_y * sy;
+
+            // svg_scale at uniform offset 0..1, svg_offset at 2..3, svg_time
+            // at 4, svg_rotation at 5
+            let uniforms = &mut self.draw_super.draw_vars.dyn_uniforms;
+            uniforms[0] = sx;
+            uniforms[1] = sy;
+            uniforms[2] = offset_x;
+            uniforms[3] = offset_y;
+            uniforms[4] = time;
+            uniforms[5] = self.rotation;
+        } else {
+            let uniforms = &mut self.draw_super.draw_vars.dyn_uniforms;
+            uniforms[0] = 1.0;
+            uniforms[1] = 1.0;
+            uniforms[2] = 0.0;
+            uniforms[3] = 0.0;
+            uniforms[4] = time;
+            uniforms[5] = self.rotation;
+        }
+
+        match plan {
+            SvgDraw::Pool => self.draw_super.end(cx),
+            SvgDraw::Kept(geometry_id) => self.draw_super.submit_geometry(cx, geometry_id),
+            SvgDraw::Keep(geometry) => {
+                self.draw_super.end_into(cx, &geometry);
+                self.meshes.push(SvgMesh { scale: device_scale, geometry, last_drawn: redraw_id });
+            }
+            // Dropped here; its slot is freed once no draw call names it.
+            SvgDraw::Once(geometry) => self.draw_super.end_into(cx, &geometry),
+            SvgDraw::Nothing => {}
+        }
+        self.svg_doc = Some(doc);
+    }
+
+    /// Meshes kept per `DrawSvg`: the sizes one icon is drawn at in a frame
+    /// (a tile, a grid cell, a dock slot) plus a spare. Beyond that, the
+    /// least recently drawn mesh of an EARLIER redraw is dropped; when every
+    /// kept mesh was drawn this redraw, the extra size gets a one-off
+    /// geometry instead, so the kept ones are not thrashed within a frame.
+    const MAX_MESHES: usize = 4;
+
+    /// Tessellates the document at the fringe and tolerance of one device
+    /// scale into `draw_super`'s accumulators; whoever calls this ends the
+    /// session with `end`, `end_into` or not at all.
+    fn tessellate(&mut self, doc: &SvgDocument, lw: f32, lh: f32, fill_aa: f32, tolerance: f32, time: f32) {
+        self.draw_super.cur_fill_aa = fill_aa;
+        self.draw_super.cur_stroke_aa = fill_aa;
+        self.draw_super.cur_tolerance = tolerance;
+        self.draw_super.begin();
+        svg::render_svg(&mut self.draw_super, doc, 0.0, 0.0, lw, lh, time);
+    }
+
+    fn resolve_walk(&self, walk: Walk) -> Walk {
+        let sw = self.content_size.x * self.scale;
+        let sh = self.content_size.y * self.scale;
+        if sw <= 0.0 || sh <= 0.0 {
+            return walk;
+        }
+
+        if self.preserve_aspect {
+            let aspect = sw / sh;
+            match (walk.width, walk.height) {
+                (Size::Fit { .. }, Size::Fit { .. }) => Walk {
+                    width: Size::Fixed(sw),
+                    height: Size::Fixed(sh),
+                    ..walk
+                },
+                (Size::Fixed(w), Size::Fit { .. }) => Walk {
+                    width: Size::Fixed(w),
+                    height: Size::Fixed(w / aspect),
+                    ..walk
+                },
+                (Size::Fit { .. }, Size::Fixed(h)) => Walk {
+                    width: Size::Fixed(h * aspect),
+                    height: Size::Fixed(h),
+                    ..walk
+                },
+                _ => walk,
+            }
+        } else {
+            Walk {
+                width: match walk.width {
+                    Size::Fit { .. } => Size::Fixed(sw),
+                    other => other,
+                },
+                height: match walk.height {
+                    Size::Fit { .. } => Size::Fixed(sh),
+                    other => other,
+                },
+                ..walk
+            }
+        }
+    }
+
+    fn load_svg(&mut self, cx: &mut Cx) {
+        let current_handle = self.svg.as_ref().map(|h| h.as_handle());
+        // Do nothing if the SVG handle hasn't changed since it was last loaded.
+        if self.loaded_handle == current_handle {
+            return;
+        }
+
+        let Some(handle) = current_handle else {
+            self.loaded_handle = None;
+            return;
+        };
+
+        let heap_key = self.svg.as_ref().map(|h| h.heap_key()).unwrap_or(0);
+        let data = if let Some(data) = cx.get_resource(heap_key, handle) {
+            data
+        } else {
+            cx.load_script_resource(heap_key, handle);
+            match cx.get_resource(heap_key, handle) {
+                Some(data) => data,
+                // Resource isn't yet available (may be loading via HTTP),
+                // so don't set loaded_handle to ensure we retry on the next draw after data arrives.
+                None => return,
+            }
+        };
+
+        self.loaded_handle = Some(handle);
+
+        let svg_str = match std::str::from_utf8(&data) {
+            Ok(s) => s,
+            Err(_) => return,
+        };
+
+        let doc = svg::parse_svg(svg_str);
+        self.set_doc_bounds(&doc);
+        self.has_animations = doc.has_animations();
+        self.svg_doc = Some(doc);
+        self.cache_valid = false;
+    }
+
+    pub fn load_from_str(&mut self, svg_str: &str) {
+        let doc = svg::parse_svg(svg_str);
+        self.set_doc_bounds(&doc);
+        self.has_animations = doc.has_animations();
+        self.svg_doc = Some(doc);
+        // Loaded from a raw string, so the doc corresponds to no svg handle.
+        self.loaded_handle = None;
+        self.cache_valid = false;
+    }
+
+    pub fn set_doc_bounds(&mut self, doc: &SvgDocument) {
+        // Compute the viewbox transform at 1:1 logical size
+        let (lw, lh) = doc.logical_size();
+        if self.preserve_viewbox {
+            self.content_bounds = (0.0, 0.0, lw, lh);
+            self.content_size = dvec2(lw as f64, lh as f64);
+            return;
+        }
+        let base_xf = if let Some(ref vb) = doc.viewbox {
+            let (sx, sy, tx, ty) = viewbox_transform(vb, lw, lh);
+            Transform2d {
+                a: sx,
+                c: 0.0,
+                e: tx,
+                b: 0.0,
+                d: sy,
+                f: ty,
+            }
+        } else {
+            Transform2d::identity()
+        };
+
+        // Compute content bounds with viewbox transform applied
+        if let Some((min_x, min_y, max_x, max_y)) = doc.compute_bounds_with_transform(&base_xf) {
+            self.content_bounds = (min_x, min_y, max_x, max_y);
+            let w = max_x - min_x;
+            let h = max_y - min_y;
+            self.content_size = dvec2(w as f64, h as f64);
+        } else {
+            self.content_bounds = (0.0, 0.0, lw, lh);
+            self.content_size = dvec2(lw as f64, lh as f64);
+        }
+    }
+
+    /// The document has been tessellated for at least one device scale:
+    /// what a readiness check asks before trusting a drawn frame.
+    pub fn has_mesh(&self) -> bool {
+        !self.meshes.is_empty()
+    }
+
+    pub fn svg_size(&self) -> Option<DVec2> {
+        if self.svg_doc.is_some() {
+            Some(self.content_size)
+        } else {
+            None
+        }
+    }
+
+    /// The box this icon wants for `walk`, loading the document if it has not
+    /// been loaded yet. `None` when there is no SVG, or when the walk leaves
+    /// a side up to a turtle this measurement has no access to.
+    ///
+    /// For a caller that must RESERVE room for an icon in one turtle and
+    /// paint it with [`Self::draw_abs`] somewhere else — a glass button, say,
+    /// whose face is drawn twice over.
+    pub fn measure(&mut self, cx: &mut Cx, walk: Walk) -> Option<DVec2> {
+        self.load_svg(cx);
+        self.svg_doc.as_ref()?;
+        match self.resolve_walk(walk) {
+            Walk { width: Size::Fixed(w), height: Size::Fixed(h), .. } => Some(dvec2(w, h)),
+            _ => None,
+        }
+    }
+}

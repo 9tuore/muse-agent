@@ -1,0 +1,4615 @@
+package dev.makepad.android;
+
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ComponentCallbacks2;
+import android.content.Context;
+import android.app.NotificationManager;
+import android.app.NotificationChannel;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.net.Uri;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.Manifest;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Insets;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.hardware.input.InputManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
+import android.media.MediaFormat;
+import android.media.midi.MidiDevice;
+import android.media.midi.MidiDeviceInfo;
+import android.media.midi.MidiManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.util.Log;
+import android.view.ActionMode;
+import android.view.Display;
+import android.view.InputDevice;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.PixelCopy;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.ImageReader;
+import android.media.Image;
+import android.graphics.ImageFormat;
+import android.util.Size;
+import android.view.Surface;
+import java.util.Arrays;
+import java.nio.ByteBuffer;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.ExtractedText;
+import android.view.inputmethod.ExtractedTextRequest;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.Selection;
+import android.text.SpannableStringBuilder;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.view.Gravity;
+import android.util.TypedValue;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceError;
+import android.webkit.JavascriptInterface;
+
+// note: //% is a special miniquad's pre-processor for plugins
+// when there are no plugins - //% whatever will be replaced to an empty string
+// before compiling
+
+//% IMPORTS
+
+class MakepadImeInsets {
+    private static final int MIN_KEYBOARD_HEIGHT_DP = 80;
+
+    // True while a soft-keyboard (IME) show/hide animation is running. While an
+    // animation is in flight the per-frame WindowInsetsAnimation callback
+    // (onProgress/onEnd) is the authoritative inset source; the layout-driven
+    // fallbacks (onApplyWindowInsets, onGlobalLayout) observe a contradictory
+    // mix of target and stale insets mid-animation, so they defer to it.
+    static boolean imeAnimationInProgress = false;
+
+    private static int keyboardThresholdPx(View view) {
+        return Math.max(1, (int) (view.getResources().getDisplayMetrics().density * MIN_KEYBOARD_HEIGHT_DP));
+    }
+
+    private static int rootHeightPx(View view) {
+        View root = view.getRootView();
+        return root == null ? 0 : root.getHeight();
+    }
+
+    // Distance in pixels from the bottom edge of the render surface up to the
+    // bottom edge of the window. Zero when the window is edge-to-edge; equal to
+    // the navigation-bar height when it is not (the framework then lays the
+    // surface out above the navigation bar). The IME and visible-frame
+    // measurements below are relative to the window bottom, so this gap must be
+    // subtracted to get the IME's overlap with the surface itself.
+    private static int surfaceBottomGapPx(View view) {
+        View root = view.getRootView();
+        if (root == null || root.getHeight() <= 0 || view.getHeight() <= 0) {
+            return 0;
+        }
+        int[] loc = new int[2];
+        view.getLocationInWindow(loc);
+        int surfaceBottom = loc[1] + view.getHeight();
+        return Math.max(0, root.getHeight() - surfaceBottom);
+    }
+
+    private static int clampToRootHeight(View view, int overlap) {
+        int rootHeight = rootHeightPx(view);
+        if (rootHeight <= 0 || overlap <= 0) {
+            return 0;
+        }
+        return Math.min(overlap, rootHeight);
+    }
+
+    private static boolean isNearFullHeightOverlap(View view, int overlap) {
+        int rootHeight = rootHeightPx(view);
+        return rootHeight > 0 && rootHeight - overlap <= keyboardThresholdPx(view);
+    }
+
+    private static int visibleFrameBottomOverlapPx(View view) {
+        Rect visibleFrame = new Rect();
+        view.getWindowVisibleDisplayFrame(visibleFrame);
+
+        View root = view.getRootView();
+        if (root == null || root.getHeight() <= 0) {
+            return 0;
+        }
+
+        int[] rootLocation = new int[2];
+        root.getLocationOnScreen(rootLocation);
+        if (visibleFrame.isEmpty() || visibleFrame.bottom <= rootLocation[1]) {
+            return 0;
+        }
+
+        int rootBottomOnScreen = rootLocation[1] + root.getHeight();
+        // visibleFrame.bottom is relative to the window; subtract the gap below
+        // the surface so the fallback also measures overlap with the surface.
+        return Math.max(0, rootBottomOnScreen - visibleFrame.bottom - surfaceBottomGapPx(view));
+    }
+
+    static int bottomOverlapPx(View view, WindowInsets insets) {
+        int imeBottom = 0;
+        if (Build.VERSION.SDK_INT >= 30 && insets != null) {
+            Insets imeInsets = insets.getInsets(WindowInsets.Type.ime());
+            // imeInsets.bottom is measured from the window bottom; subtract the
+            // gap below the surface so only the IME's overlap with the surface
+            // shifts content (a non-edge-to-edge window would otherwise
+            // over-shift the content by the navigation-bar height).
+            int imeOverlap = Math.max(0, imeInsets.bottom - surfaceBottomGapPx(view));
+            imeBottom = clampToRootHeight(view, imeOverlap);
+        }
+
+        if (imeBottom > 0 && !isNearFullHeightOverlap(view, imeBottom)) {
+            return imeBottom;
+        }
+
+        // Fallback for Android/OEM paths where Type.ime().bottom reports 0,
+        // most commonly landscape keyboards. Using only the bottom edge avoids
+        // counting status-bar differences at the top of the window.
+        int fallback = visibleFrameBottomOverlapPx(view);
+        if (fallback <= keyboardThresholdPx(view)) {
+            return 0;
+        }
+
+        // A visible frame that is basically empty is not a keyboard measurement;
+        // it is a transient/invalid layout result. Do not turn it into a
+        // near-full-screen IME height.
+        if (isNearFullHeightOverlap(view, fallback)) {
+            return 0;
+        }
+        return clampToRootHeight(view, fallback);
+    }
+
+    // Whether the IME should be reported as "open" to native code.
+    //
+    // This must reflect the *target* (settled) IME visibility, not the
+    // per-frame animated inset. During a show animation onProgress() delivers
+    // insets whose IME height ramps up from 0, and at height 0 those animated
+    // insets report isVisible(ime)==false — treating that first frame as
+    // "closed" makes showing the keyboard look like an instant dismissal (and
+    // the native side then actually hides it). getRootWindowInsets() reflects
+    // the requested IME visibility and stays stable for the whole animation,
+    // so it is the authoritative source for the open/closed flag; the
+    // per-frame bottomOverlap height still drives the content-shift animation.
+    static boolean isVisible(View view, int bottomOverlapPx) {
+        if (Build.VERSION.SDK_INT >= 30 && view != null) {
+            WindowInsets root = view.getRootWindowInsets();
+            if (root != null && root.isVisible(WindowInsets.Type.ime())) {
+                // Target is "shown": open for the whole show animation, even
+                // while the animated height is still ramping up from 0.
+                return true;
+            }
+        }
+        // Target is "hidden" (or pre-API-30): still open while the IME
+        // occupies space, so a hide animation reports open until it finishes
+        // collapsing and then closed.
+        return bottomOverlapPx > 0;
+    }
+
+    static void report(View view, WindowInsets insets, String src) {
+        // While an IME animation is running, only the per-frame
+        // WindowInsetsAnimation callback (onProgress/onEnd) is authoritative.
+        // The layout-driven fallbacks (onApplyWindowInsets, onGlobalLayout) see
+        // contradictory insets mid-animation and would fight the animation
+        // callback, so they defer to it.
+        if (imeAnimationInProgress
+                && (src.equals("onApplyWindowInsets") || src.equals("onGlobalLayout"))) {
+            return;
+        }
+        int bottomOverlap = bottomOverlapPx(view, insets);
+        boolean visible = isVisible(view, bottomOverlap);
+        MakepadNative.surfaceOnResizeTextIME(bottomOverlap, visible);
+
+        // Reuse the same computed IME overlap to lift the native floating
+        // composer pill above the soft keyboard, so it tracks the show/hide
+        // animation (the window is SOFT_INPUT_ADJUST_NOTHING — nothing else
+        // moves for the keyboard). The report View's context is the activity.
+        if (view != null && view.getContext() instanceof MakepadActivity) {
+            ((MakepadActivity) view.getContext()).positionComposerForKeyboard(bottomOverlap);
+        }
+    }
+}
+
+class MakepadSystemInsets {
+    final float top;
+    final float right;
+    final float bottom;
+    final float left;
+
+    private MakepadSystemInsets(float top, float right, float bottom, float left) {
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.left = left;
+    }
+
+    // Computes the safe-area insets the render surface actually needs.
+    //
+    // The system-bar + display-cutout insets describe bands at the *window*
+    // edges. When the window is not edge-to-edge (the default below Android 15
+    // / API 35, where targetSdk-35 edge-to-edge enforcement does not apply),
+    // the framework already lays our content out *inside* the system bars, so
+    // the surface does not overlap them at all. Reporting the raw window-edge
+    // insets there would pad the content twice — once by the OS, once by
+    // Makepad — leaving an oversized gap. To stay correct in both regimes we
+    // report only the part of each bar band that actually overlaps the
+    // surface's on-screen rectangle (the same overlap approach used for the
+    // IME inset). Edge-to-edge: overlap == full bar size. Content inside the
+    // bars: overlap == 0.
+    @SuppressWarnings("deprecation")
+    static MakepadSystemInsets from(View view, WindowInsets insets, float density) {
+        if (insets == null || view == null || density <= 0.0f) {
+            return new MakepadSystemInsets(0, 0, 0, 0);
+        }
+
+        // Raw system-bar + display-cutout insets, in pixels, at the window edges.
+        int barTop, barRight, barBottom, barLeft;
+        if (Build.VERSION.SDK_INT >= 30) {
+            Insets bars = insets.getInsets(
+                WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()
+            );
+            barTop = bars.top;
+            barRight = bars.right;
+            barBottom = bars.bottom;
+            barLeft = bars.left;
+        } else {
+            barTop = insets.getSystemWindowInsetTop();
+            barRight = insets.getSystemWindowInsetRight();
+            barBottom = insets.getSystemWindowInsetBottom();
+            barLeft = insets.getSystemWindowInsetLeft();
+        }
+
+        View root = view.getRootView();
+        if (root == null || root.getWidth() <= 0 || root.getHeight() <= 0) {
+            return new MakepadSystemInsets(0, 0, 0, 0);
+        }
+        int windowWidth = root.getWidth();
+        int windowHeight = root.getHeight();
+
+        // The surface rectangle in window coordinates (same space as the
+        // system-bar insets above). An un-laid-out view yields a degenerate
+        // rect, which the intersections below collapse to zero insets.
+        int[] loc = new int[2];
+        view.getLocationInWindow(loc);
+        int surfaceLeft = loc[0];
+        int surfaceTop = loc[1];
+        int surfaceRight = surfaceLeft + view.getWidth();
+        int surfaceBottom = surfaceTop + view.getHeight();
+
+        // Intersection length of each window-edge bar band with the surface.
+        int top = Math.max(0,
+            Math.min(barTop, surfaceBottom) - Math.max(0, surfaceTop));
+        int left = Math.max(0,
+            Math.min(barLeft, surfaceRight) - Math.max(0, surfaceLeft));
+        int bottom = Math.max(0,
+            Math.min(windowHeight, surfaceBottom) - Math.max(windowHeight - barBottom, surfaceTop));
+        int right = Math.max(0,
+            Math.min(windowWidth, surfaceRight) - Math.max(windowWidth - barRight, surfaceLeft));
+
+        return new MakepadSystemInsets(
+            top / density,
+            right / density,
+            bottom / density,
+            left / density
+        );
+    }
+
+    // Computes the safe-area (system-bar + display-cutout) insets and pushes
+    // them to native code. Called from both ResizingLayout.onApplyWindowInsets
+    // (the primary inset dispatch) and MakepadSurface.onGlobalLayout (a
+    // per-layout fallback). The fallback is what makes the safe area correct
+    // from launch: onApplyWindowInsets is not reliably dispatched with settled
+    // system-bar insets on a cold start, so without the fallback the app
+    // renders edge-to-edge (content under the status bar) until an IME show or
+    // a rotation forces a fresh inset dispatch. The native side dedups
+    // unchanged values, so calling this on every layout pass is cheap.
+    static void report(View view, WindowInsets insets) {
+        float density = view.getResources().getDisplayMetrics().density;
+        MakepadSystemInsets i = MakepadSystemInsets.from(view, insets, density);
+        MakepadNative.surfaceOnSafeAreaInsets(i.top, i.right, i.bottom, i.left, density);
+    }
+}
+
+class MakepadSurface
+    extends
+        SurfaceView
+    implements
+        View.OnTouchListener,
+        View.OnKeyListener,
+        View.OnLongClickListener,
+        ViewTreeObserver.OnGlobalLayoutListener,
+        SurfaceHolder.Callback
+{
+    // IME InputConnection for handling composition text
+    private MakepadInputConnection mInputConnection;
+    // Whether Rust currently owns a text editor, including IME start/restart.
+    private boolean mImeTextActive;
+    private long mEditorSession;
+    private long mInputConnectionEpoch;
+    private long mOptimisticEditSequence;
+    void acceptedEditorOperation(long sequence) {mOptimisticEditSequence=sequence;}
+    long editorSession() { return mEditorSession; }
+    long connectionEpoch() { return mInputConnectionEpoch; }
+    void retireInputConnection() {
+        // Every handle for the current editor retires together, including
+        // an earlier onCreateInputConnection result still held by the IME.
+        mInputConnectionEpoch++;
+        if(mInputConnection!=null) mInputConnection.closeConnection();
+    }
+    boolean applyingEditorState;
+
+
+    void setImeTextActive(boolean active) { mImeTextActive = active; }
+
+    // Shared Editable buffer for IME - this is the source of truth for Java side
+    private SpannableStringBuilder mEditable = new SpannableStringBuilder();
+
+    // Keyboard configuration constants (must match Rust KeyboardType enum)
+    static final int INPUT_MODE_TEXT = 0;
+    static final int INPUT_MODE_ASCII = 1;
+    static final int INPUT_MODE_URL = 2;
+    static final int INPUT_MODE_NUMERIC = 3;
+    static final int INPUT_MODE_TEL = 4;
+    static final int INPUT_MODE_EMAIL = 5;
+    static final int INPUT_MODE_DECIMAL = 6;
+    static final int INPUT_MODE_SEARCH = 7;
+    static final int INPUT_MODE_NONE = 8;
+
+    // Autocapitalize constants (must match Rust Autocapitalize enum)
+    static final int AUTOCAP_NONE = 0;
+    static final int AUTOCAP_WORDS = 1;
+    static final int AUTOCAP_SENTENCES = 2;
+    static final int AUTOCAP_ALL = 3;
+
+    // Autocorrect constants (must match Rust Autocorrect enum)
+    static final int AUTOCORRECT_DEFAULT = 0;
+    static final int AUTOCORRECT_YES = 1;
+    static final int AUTOCORRECT_NO = 2;
+
+    // Return key type constants (must match Rust ReturnKeyType enum)
+    static final int RETURN_KEY_DEFAULT = 0;
+    static final int RETURN_KEY_GO = 1;
+    static final int RETURN_KEY_SEARCH = 2;
+    static final int RETURN_KEY_SEND = 3;
+    static final int RETURN_KEY_NEXT = 4;
+    static final int RETURN_KEY_DONE = 5;
+    static final int RETURN_KEY_NONE = 6;
+    static final int RETURN_KEY_PREVIOUS = 7;
+
+    // Keyboard configuration (set by Rust via configureKeyboard)
+    private int mInputMode = INPUT_MODE_TEXT;
+    private int mAutocapitalize = AUTOCAP_SENTENCES;
+    private int mAutocorrect = AUTOCORRECT_DEFAULT;
+    private int mReturnKeyType = RETURN_KEY_DEFAULT;
+    // Match Rust TextInputConfig::default(), avoiding a needless first-focus restart.
+    private boolean mIsMultiline = false;
+    private boolean mIsSecure = false;
+
+    // Package-private getters for MakepadInputConnection to access shared state
+    Editable getEditable() {
+        return mEditable;
+    }
+
+    int getInputMode() {
+        return mInputMode;
+    }
+
+    boolean isMultiline() {
+        return mIsMultiline;
+    }
+
+    // The X,Y coordinates and pointer ID of the most recent ACTION_DOWN touch.
+    private float latestDownTouchX = Float.NaN;
+    private float latestDownTouchY = Float.NaN;
+    private int latestDownTouchPointerId = -1;
+
+    // The X,Y coordinates and pointer ID of the most recent non-ACTION_DOWN touch event.
+    private float latestTouchX = Float.NaN;
+    private float latestTouchY = Float.NaN;
+    private int latestTouchPointerId = -1;
+
+
+    public MakepadSurface(Context context){
+        super(context);
+        getHolder().addCallback(this);
+
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+        requestFocus();
+        setOnTouchListener(this);
+        setOnKeyListener(this);
+        setOnLongClickListener(this);
+
+        getViewTreeObserver().addOnGlobalLayoutListener(this);
+
+        Selection.setSelection(mEditable, 0, 0);
+    }
+
+    // Whether the activity owning this view still speaks for the native
+    // side; a superseded activity's surface is not the one being drawn.
+    private boolean surfaceIsNative() {
+        Context context = getContext();
+        return !(context instanceof MakepadActivity)
+            || !((MakepadActivity) context).isSupersededForNative();
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        if (!surfaceIsNative()) {
+            return;
+        }
+        Surface surface = holder.getSurface();
+        //surface.setFrameRate(120f,0);
+        MakepadNative.surfaceOnSurfaceCreated(surface);
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        if (!surfaceIsNative()) {
+            return;
+        }
+        Context context = getContext();
+        if (context instanceof MakepadActivity) {
+            MakepadActivity activity = (MakepadActivity) context;
+            if (activity.hasRecoverySnapshotAvailable()) {
+                activity.setSurfaceCoverVisible(true);
+            }
+        }
+        Surface surface = holder.getSurface();
+        MakepadNative.surfaceOnSurfaceDestroyed(surface);
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder,
+                               int format,
+                               int width,
+                               int height) {
+        if (!surfaceIsNative()) {
+            return;
+        }
+        Surface surface = holder.getSurface();
+        //surface.setFrameRate(120f,0);
+        MakepadNative.surfaceOnSurfaceChanged(surface, width, height);
+
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        // By default, we return false so that `onLongClick` will trigger.
+        boolean retval = false;
+
+        int actionMasked = event.getActionMasked();
+        int index = event.getActionIndex();
+        int pointerId = event.getPointerId(index);
+
+        // Save the details of the latest touch-down event,
+        // such that we can use them in the `onLongClick` method.
+        if (actionMasked == MotionEvent.ACTION_DOWN) {
+            latestDownTouchX = event.getX(index);
+            latestDownTouchY = event.getY(index);
+            latestDownTouchPointerId = pointerId;
+            // Re-set the latestTouchX/Y values on each down-touch.
+            latestTouchX = latestDownTouchX;
+            latestTouchY = latestDownTouchY;
+            latestTouchPointerId = -1;
+        }
+        else if (actionMasked == MotionEvent.ACTION_MOVE) {
+            latestTouchX = event.getX(index);
+            latestTouchY = event.getY(index);
+            latestTouchPointerId = pointerId;
+            if (pointerId == latestDownTouchPointerId) {
+                if (isTouchBeyondSlopDistance(view)) {
+                    retval = true;
+                }
+            }
+        }
+
+        if (actionMasked==MotionEvent.ACTION_DOWN || actionMasked==MotionEvent.ACTION_UP || actionMasked==MotionEvent.ACTION_CANCEL) MakepadNative.beginInput();
+        MakepadNative.surfaceOnTouch(event);
+        return retval;
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        long timeMillis = SystemClock.uptimeMillis();
+
+        if (isTouchBeyondSlopDistance(view)) {
+            return false;
+        }
+
+        // Here: a valid long click did occur, and we should send that event to makepad.
+
+        // Use the latest touch coordinates if they're the same pointer ID as the initial down touch.
+        if (latestTouchPointerId == latestDownTouchPointerId) {
+            MakepadNative.surfaceOnLongClick(latestTouchX, latestTouchY, latestDownTouchPointerId, timeMillis);
+        }
+        // Otherwise, use the coordinates from the original down touch.
+        else {
+            MakepadNative.surfaceOnLongClick(latestDownTouchX, latestDownTouchY, latestDownTouchPointerId, timeMillis);
+        }
+
+        // Returning true here indicates that we have handled the long click event,
+        // which triggers the haptic feedback (vibration motor) to buzz.
+        return true;
+    }
+
+    // Returns true if the distance from the latest touch event to the prior down-touch event
+    // is greated than the touch slop distance.
+    //
+    // If true, this indicates that the touch event shouldn't be considered a press/tap,
+    // and is likely a drag or swipe.
+    private boolean isTouchBeyondSlopDistance(View view) {
+        int touchSlop = ViewConfiguration.get(view.getContext()).getScaledTouchSlop();
+        float deltaX = latestTouchX - latestDownTouchX;
+        float deltaY = latestTouchY - latestDownTouchY;
+        double dist = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+        return dist > touchSlop;
+    }
+
+    @Override
+    public void onGlobalLayout() {
+        // Fallback path: the parent ResizingLayout's OnApplyWindowInsetsListener
+        // is the primary source of IME inset updates (it fires per-frame during
+        // the keyboard animation on API 30+). This handler stays as a safety
+        // net for layout changes that arrive without an inset dispatch, for
+        // example, a focus change that retargets the IME to a different field.
+        WindowInsets insets = this.getRootWindowInsets();
+        MakepadImeInsets.report(this, insets, "onGlobalLayout");
+        // Safe-area insets also flow through here. onApplyWindowInsets is not
+        // reliably dispatched with settled system-bar insets on a cold start,
+        // so without this the app renders edge-to-edge (content under the
+        // status bar) until an IME show or rotation forces a fresh inset
+        // dispatch. onGlobalLayout fires on every layout pass and picks up the
+        // real insets as soon as the window settles.
+        MakepadSystemInsets.report(this, insets);
+    }
+
+    // docs says getCharacters are deprecated
+    // but somehow on non-latyn input all keyCode and all the relevant fields in the KeyEvent are zeros
+    // and only getCharacters has some usefull data
+    @SuppressWarnings("deprecation")
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        // Surface key events can interleave with InputConnection edits during
+        // IME start/restart. Keep both paths in the same Editable: a later full
+        // IME snapshot must not overwrite separately delivered Rust characters.
+        if (mImeTextActive) {
+            // Hardware events can precede Android’s replacement IC after
+            // resume/restart. A provisional connection carries ordered edits;
+            // stale IME-held connections remain retired.
+            if(mInputConnection==null || !mInputConnection.ownsEditor()) {
+                mInputConnection=new MakepadInputConnection(this,true);
+            }
+            if ((event.getAction() == KeyEvent.ACTION_DOWN || event.getAction() == KeyEvent.ACTION_UP)
+                    && (keyCode == KeyEvent.KEYCODE_DEL || keyCode == KeyEvent.KEYCODE_FORWARD_DEL
+                    || keyCode == KeyEvent.KEYCODE_ENTER || mInputConnection.isTextKey(event))) {
+                return mInputConnection.sendKeyEvent(event);
+            }
+            if (event.getAction() == KeyEvent.ACTION_MULTIPLE && event.getCharacters() != null) {
+                return mInputConnection.commitText(event.getCharacters(), 1);
+            }
+        }
+
+        MakepadNative.beginInput();
+        if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode != 0) {
+            int metaState = event.getMetaState();
+            boolean isRepeat = event.getRepeatCount() > 0;
+            MakepadNative.surfaceOnKeyDown(keyCode, metaState, isRepeat);
+        }
+
+        if (event.getAction() == KeyEvent.ACTION_UP && keyCode != 0) {
+            int metaState = event.getMetaState();
+            MakepadNative.surfaceOnKeyUp(keyCode, metaState);
+        }
+
+        // Match MakepadInputConnection.sendKeyEvent: insert text on DOWN only.
+        // Android can switch the receiving path between DOWN and UP when the
+        // IME starts or restarts. Inserting on UP here duplicated (or lost) a
+        // key whose other edge was handled by the input connection.
+        if (event.getAction() == KeyEvent.ACTION_DOWN || event.getAction() == KeyEvent.ACTION_MULTIPLE) {
+            int character = event.getUnicodeChar();
+            if (character == 0) {
+                String characters = event.getCharacters();
+                if (characters != null && characters.length() > 0) {
+                    character = characters.charAt(0);
+                }
+            }
+
+            if (character != 0) {
+                MakepadNative.surfaceOnCharacter(character);
+            }
+        }
+
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
+            return super.onKeyUp(keyCode, event);
+        }
+
+        return true;
+    }
+
+    // There is an Android bug when screen is in landscape,
+    // the keyboard inset height is reported as 0.
+    // This code is a workaround which fixes the bug.
+    // See https://groups.google.com/g/android-developers/c/50XcWooqk7I
+    // For some reason it only works if placed here and not in the parent layout.
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        int inputType = InputType.TYPE_CLASS_TEXT;
+
+        switch (mInputMode) {
+            case INPUT_MODE_NONE:
+                inputType = InputType.TYPE_NULL;
+                break;
+            case INPUT_MODE_ASCII:
+                // TYPE_TEXT_VARIATION_VISIBLE_PASSWORD shows ASCII keyboard without masking
+                // This is the closest Android equivalent to iOS's UIKeyboardTypeASCIICapable
+                inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
+                break;
+            case INPUT_MODE_URL:
+                inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI;
+                break;
+            case INPUT_MODE_NUMERIC:
+                inputType = InputType.TYPE_CLASS_NUMBER;
+                break;
+            case INPUT_MODE_TEL:
+                inputType = InputType.TYPE_CLASS_PHONE;
+                break;
+            case INPUT_MODE_EMAIL:
+                inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+                break;
+            case INPUT_MODE_DECIMAL:
+                inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED;
+                break;
+            case INPUT_MODE_SEARCH:
+                inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT;
+                break;
+            default: // INPUT_MODE_TEXT
+                inputType = InputType.TYPE_CLASS_TEXT;
+                break;
+        }
+
+        if ((inputType & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_TEXT) {
+            // Autocapitalization
+            switch (mAutocapitalize) {
+                case AUTOCAP_NONE:
+                    // No flag needed
+                    break;
+                case AUTOCAP_WORDS:
+                    inputType |= InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+                    break;
+                case AUTOCAP_SENTENCES:
+                    inputType |= InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+                    break;
+                case AUTOCAP_ALL:
+                    inputType |= InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
+                    break;
+            }
+
+            // Autocorrect
+            switch (mAutocorrect) {
+                case AUTOCORRECT_DEFAULT:
+                    break;
+                case AUTOCORRECT_YES:
+                    inputType |= InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+                    break;
+                case AUTOCORRECT_NO:
+                    inputType |= InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+                    break;
+            }
+
+            // Multiline - important for SwiftKey vertical cursor control
+            if (mIsMultiline) {
+                inputType |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+            }
+
+            // Secure/password
+            if (mIsSecure) {
+                // Clear variation bits and set password variation
+                inputType = (inputType & ~InputType.TYPE_MASK_VARIATION) | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+            }
+        }
+
+        outAttrs.inputType = inputType;
+
+        int imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_FLAG_NO_EXTRACT_UI;
+
+        // Return key type
+        switch (mReturnKeyType) {
+            case RETURN_KEY_NONE:
+                imeOptions |= EditorInfo.IME_ACTION_NONE;
+                break;
+            case RETURN_KEY_GO:
+                imeOptions |= EditorInfo.IME_ACTION_GO;
+                break;
+            case RETURN_KEY_SEARCH:
+                imeOptions |= EditorInfo.IME_ACTION_SEARCH;
+                break;
+            case RETURN_KEY_SEND:
+                imeOptions |= EditorInfo.IME_ACTION_SEND;
+                break;
+            case RETURN_KEY_NEXT:
+                imeOptions |= EditorInfo.IME_ACTION_NEXT;
+                break;
+            case RETURN_KEY_DONE:
+                imeOptions |= EditorInfo.IME_ACTION_DONE;
+                break;
+            case RETURN_KEY_PREVIOUS:
+                imeOptions |= EditorInfo.IME_ACTION_PREVIOUS;
+                break;
+            default: // RETURN_KEY_DEFAULT
+                if (!mIsMultiline) {
+                    imeOptions |= EditorInfo.IME_ACTION_DONE;
+                } else {
+                    imeOptions |= EditorInfo.IME_FLAG_NO_ENTER_ACTION;
+                }
+                break;
+        }
+
+        // Prevent personalized learning for secure/password fields
+        if (mIsSecure) {
+            imeOptions |= EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING;
+        }
+
+        // Add IME_FLAG_FORCE_ASCII for ASCII input mode
+        if (mInputMode == INPUT_MODE_ASCII) {
+            imeOptions |= EditorInfo.IME_FLAG_FORCE_ASCII;
+        }
+
+        outAttrs.imeOptions = imeOptions;
+
+        // Set initial selection from our Editable
+        int selStart = Selection.getSelectionStart(mEditable);
+        int selEnd = Selection.getSelectionEnd(mEditable);
+        outAttrs.initialSelStart = Math.max(0, selStart);
+        outAttrs.initialSelEnd = Math.max(0, selEnd);
+        // EditorInfo.setInitialSurroundingSubText is API 30+. It's only an
+        // optimization (it hands the IME the surrounding text up-front); on
+        // older devices the IME just queries it on demand through the
+        // InputConnection. Calling it unconditionally crashes API 26-29 with
+        // NoSuchMethodError.
+        if (Build.VERSION.SDK_INT >= 30) {
+            outAttrs.setInitialSurroundingSubText(mEditable, 0);
+        }
+
+        // Create InputConnection with fullEditor=true since we have an Editable
+        mInputConnection = new MakepadInputConnection(this, true);
+
+        return mInputConnection;
+    }
+
+    // Configure keyboard settings - called from Rust before showing keyboard
+    public void configureKeyboard(int inputMode, int autocapitalize, int autocorrect,
+                                  int returnKeyType, boolean isMultiline, boolean isSecure) {
+        boolean changed = (mInputMode != inputMode || mAutocapitalize != autocapitalize ||
+                          mAutocorrect != autocorrect || mReturnKeyType != returnKeyType ||
+                          mIsMultiline != isMultiline || mIsSecure != isSecure);
+
+        mInputMode = inputMode;
+        mAutocapitalize = autocapitalize;
+        mAutocorrect = autocorrect;
+        mReturnKeyType = returnKeyType;
+        mIsMultiline = isMultiline;
+        mIsSecure = isSecure;
+
+        // If config changed and keyboard is already showing, restart input to apply new settings
+        if (changed && mInputConnection != null) {
+            // Finalize any in-progress composition before restart to avoid stale state
+            BaseInputConnection.removeComposingSpans(mEditable);
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.restartInput(this);
+            }
+        }
+    }
+
+    // Called from Rust to update text state (for programmatic changes, not IME input)
+    public void updateImeTextState(long throughSequence,long session,boolean active,String fullText, int selStart, int selEnd,
+                                   int composingStart, int composingEnd) {
+        if (session<mEditorSession) return;
+        if (session!=mEditorSession) {
+            boolean initial=mEditorSession==0 && session==1;
+            mEditorSession=session;
+            if (mInputConnection!=null) {
+                if (initial) mInputConnection.bindInitialSession(session);
+                else {
+                    InputMethodManager imm=(InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if(imm!=null) imm.restartInput(this);
+                }
+            }
+        }
+        if (!active) {
+            // No editor has existed in session0. An initial empty observation
+            // must not close Android's pre-focus input connections.
+            if(session!=0) retireInputConnection();
+            mImeTextActive=false;
+            mEditable.clear();
+            BaseInputConnection.removeComposingSpans(mEditable);
+            Selection.setSelection(mEditable,0);
+            return;
+        }
+        // Newer optimistic edits are already in the Rust input queue. Their
+        // canonical reply will include them; an older clear/selection cannot
+        // overwrite the Java Editable in the meantime.
+        if (throughSequence<mOptimisticEditSequence) return;
+        mImeTextActive = true;
+        String currentText = mEditable.toString();
+        boolean textChanged = !currentText.equals(fullText);
+        applyingEditorState=true;
+        try {
+        // Clamp selection
+        int textLen = textChanged ? fullText.length() : currentText.length();
+        selStart = Math.max(0, Math.min(selStart, textLen));
+        selEnd = Math.max(selStart, Math.min(selEnd, textLen));
+        boolean hasComposition = composingStart >= 0 && composingEnd >= composingStart;
+        if (hasComposition) {
+            composingStart = Math.max(0, Math.min(composingStart, textLen));
+            composingEnd = Math.max(composingStart, Math.min(composingEnd, textLen));
+        } else {
+            composingStart = -1;
+            composingEnd = -1;
+        }
+
+        if (textChanged) {
+            // Text content changed - update Editable and notify IME
+            BaseInputConnection.removeComposingSpans(mEditable);
+            mEditable.replace(0, mEditable.length(), fullText);
+            Selection.setSelection(mEditable, selStart, selEnd);
+            if (hasComposition && mInputConnection != null) {
+                mInputConnection.setComposingRegion(composingStart, composingEnd);
+            }
+
+            // Notify IME of text change without restarting input
+            // restartInput() destroys composition state and causes IME flicker;
+            // updateExtractedText() + updateSelection() is the lightweight alternative
+            if (mInputConnection != null) {
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    if (mInputConnection.mExtractedTextRequest != null) {
+                        ExtractedText et = new ExtractedText();
+                        et.text = fullText;
+                        et.startOffset = 0;
+                        et.selectionStart = selStart;
+                        et.selectionEnd = selEnd;
+                        imm.updateExtractedText(this, mInputConnection.mExtractedTextToken, et);
+                    }
+                    imm.updateSelection(this, selStart, selEnd, composingStart, composingEnd);
+                }
+            }
+        } else {
+            // Only selection changed - just update selection, no restart needed
+            int currentSelStart = Selection.getSelectionStart(mEditable);
+            int currentSelEnd = Selection.getSelectionEnd(mEditable);
+            int currentCompStart = BaseInputConnection.getComposingSpanStart(mEditable);
+            int currentCompEnd = BaseInputConnection.getComposingSpanEnd(mEditable);
+            if (currentSelStart != selStart || currentSelEnd != selEnd
+                    || currentCompStart != composingStart || currentCompEnd != composingEnd) {
+                if (hasComposition && mInputConnection != null) {
+                    mInputConnection.setComposingRegion(composingStart, composingEnd);
+                } else {
+                    BaseInputConnection.removeComposingSpans(mEditable);
+                }
+                Selection.setSelection(mEditable, selStart, selEnd);
+                // Notify IME of selection change without restart
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.updateSelection(this, selStart, selEnd, composingStart, composingEnd);
+                }
+            }
+        }
+        } finally { applyingEditorState=false; }
+    }
+
+    public Surface getNativeSurface() {
+        return getHolder().getSurface();
+    }
+
+    // Select all text in the InputConnection's Editable and notify IME
+    // Used by ActionMode's Select All to sync Java-side selection with Rust
+    public void selectAllInEditable() {
+        int len = mEditable.length();
+        Selection.setSelection(mEditable, 0, len);
+        // Notify IME of the selection change
+        if (mInputConnection != null) {
+            mInputConnection.notifyImeOfSelectionUpdate();
+        }
+    }
+}
+
+class CameraPreviewSurface extends SurfaceView implements SurfaceHolder.Callback {
+    private final long mVideoId;
+
+    public CameraPreviewSurface(Context context, long videoId) {
+        super(context);
+        mVideoId = videoId;
+        getHolder().addCallback(this);
+        setZOrderMediaOverlay(true);
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        Surface surface = holder.getSurface();
+        if (surface != null) {
+            MakepadNative.onCameraPreviewSurfaceReady(mVideoId, surface, getWidth(), getHeight());
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        Surface surface = holder.getSurface();
+        if (surface != null) {
+            MakepadNative.onCameraPreviewSurfaceReady(mVideoId, surface, width, height);
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        MakepadNative.onCameraPreviewSurfaceDestroyed(mVideoId);
+    }
+}
+
+class SelectionHandleView extends View {
+    public SelectionHandleView(Context context, int color, int sizePx) {
+        super(context);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setColor(color);
+        setBackground(bg);
+        setClickable(true);
+        setFocusable(false);
+        setLayoutParams(new FrameLayout.LayoutParams(sizePx, sizePx));
+    }
+}
+
+class ResizingLayout
+    extends
+        LinearLayout
+    implements
+        View.OnApplyWindowInsetsListener {
+
+    public ResizingLayout(Context context){
+        super(context);
+        // Keep a stable non-black fallback behind the SurfaceView for task snapshots
+        // and system transition frames that cannot capture the separate surface layer.
+        setBackgroundResource(R.drawable.makepad_launch_background);
+        setOnApplyWindowInsetsListener(this);
+
+        // The IME animation API (API 30+) gives us an authoritative per-frame
+        // dispatch of the IME inset that does NOT depend on softInputMode or
+        // on the listener returning the right thing. `onApplyWindowInsets`
+        // alone is unreliable across Android versions and orientations
+        // (we've observed it firing in landscape but not portrait, and on
+        // some OEMs not at all). With this callback attached we are
+        // guaranteed to hear about every IME show / hide / animation
+        // progress event.
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            setWindowInsetsAnimationCallback(
+                new android.view.WindowInsetsAnimation.Callback(
+                    android.view.WindowInsetsAnimation.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE
+                ) {
+                    @Override
+                    public void onPrepare(android.view.WindowInsetsAnimation animation) {
+                        if ((animation.getTypeMask() & WindowInsets.Type.ime()) != 0) {
+                            MakepadImeInsets.imeAnimationInProgress = true;
+                        }
+                    }
+
+                    @Override
+                    public android.view.WindowInsets onProgress(
+                        android.view.WindowInsets insets,
+                        java.util.List<android.view.WindowInsetsAnimation> runningAnimations
+                    ) {
+                        MakepadImeInsets.report(ResizingLayout.this, insets, "onProgress");
+                        return insets;
+                    }
+
+                    @Override
+                    public void onEnd(android.view.WindowInsetsAnimation animation) {
+                        if ((animation.getTypeMask() & WindowInsets.Type.ime()) != 0) {
+                            MakepadImeInsets.imeAnimationInProgress = false;
+                        }
+                        // The framework usually delivers a final-state inset
+                        // through onProgress just before onEnd, but on some
+                        // OEM devices it skips that last frame. Fetch the
+                        // current insets directly to make sure native code
+                        // sees the settled state.
+                        android.view.WindowInsets insets = getRootWindowInsets();
+                        if (insets == null) return;
+                        MakepadImeInsets.report(ResizingLayout.this, insets, "onEnd");
+                    }
+                }
+            );
+        }
+    }
+
+    @Override
+    public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+        // Report IME inset directly to native code. The in-app KeyboardView
+        // is the single source of truth for shifting content above the soft
+        // keyboard. We do not shrink the SurfaceView via setPadding; that
+        // would double-count the obstruction (system shrinks the surface
+        // *and* the KeyboardView shifts). The activity is configured with
+        // `windowSoftInputMode="adjustNothing"` in the manifest, so the
+        // system doesn't auto-resize either.
+        MakepadImeInsets.report(v, insets, "onApplyWindowInsets");
+
+        // Safe-area (system-bar + display-cutout) insets. Also reported from
+        // MakepadSurface.onGlobalLayout as a cold-start fallback — see
+        // MakepadSystemInsets.report.
+        MakepadSystemInsets.report(v, insets);
+
+        return insets;
+    }
+}
+
+public class MakepadActivity
+    extends Activity
+    implements MidiManager.OnDeviceOpenedListener
+{
+    private static final String LOG_TAG = "Makepad";
+    private static final long SURFACE_COVER_FADE_OUT_MS = 100;
+    private static final long WARM_RESUME_SNAPSHOT_MAX_AGE_MS = 10000;
+    private static final int TASK_DESCRIPTION_BACKGROUND_COLOR = 0xFFF5F7FA;
+    private static Bitmap sWarmResumeSurfaceSnapshot;
+    private static long sWarmResumeSurfaceSnapshotUptimeMs;
+    private static int sWarmResumeSurfaceSnapshotOrientation = android.content.res.Configuration.ORIENTATION_UNDEFINED;
+    //% MAIN_ACTIVITY_BODY
+
+    private MakepadSurface view;
+    // The instance the native side draws through. Android can create a
+    // second instance of this activity in the same process: a Home app
+    // started by a plain component intent (`am start -n`) lives in a
+    // standard task, and the system's HOME start never reuses that task,
+    // so the Home button creates another instance in the home task. The
+    // native side keeps one Cx and one surface, so the newer instance
+    // takes over and the older one is superseded: its surface and
+    // lifecycle callbacks no longer reach native (its surfaceDestroyed
+    // would tear down the surface the new instance draws into, its onStop
+    // would background the app and its onDestroy would shut it down), and
+    // it finishes.
+    private static MakepadActivity sNativeActivity;
+    private boolean mSuperseded;
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private InputManager mInputManager;
+    private InputManager.InputDeviceListener mInputDeviceListener;
+    private Boolean mPhysicalKeyboardConnected;
+
+    // video playback
+    Handler mVideoPlaybackHandler;
+    HandlerThread mVideoPlaybackThread;
+    HashMap<Long, VideoPlayerRunnable> mVideoPlayerRunnables;
+
+    // networking, make these static because of activity switching
+    static HandlerThread mWebSocketsThread;
+    static Handler mWebSocketsHandler;
+    static HashMap<Long, MakepadWebSocket> mActiveWebsockets = new HashMap<>();
+    static HashMap<Long, MakepadWebSocketReader> mActiveWebsocketsReaders = new HashMap<>();
+    static HashMap<Long, MakepadSocketStream> mActiveSocketStreams = new HashMap<>();
+    private boolean mIsSwitchingActivity = false;
+
+    // Desired system-bar (status/navigation bar) icon tint, set from Rust via
+    // setSystemBarAppearance(). true = dark icons (for light app backgrounds).
+    private boolean mSystemBarDarkIcons = false;
+
+    // File/folder dialogs (Storage Access Framework). Request codes we handed
+    // out and are still waiting on; anything else arriving in onActivityResult
+    // belongs to somebody else and must be left alone.
+    private final HashSet<Integer> mFileDialogRequests = new HashSet<>();
+
+    // clipboard actions (ActionMode for copy/paste/cut)
+    private ActionMode mActionMode;
+    private boolean mHasSelection = false;
+    private int[] mSelectionBounds = new int[4]; // left, top, right, bottom
+    private int mKeyboardShift = 0; // keyboard shift amount from Rust
+
+    // native camera preview overlays
+    private FrameLayout mRootLayout;
+    private FrameLayout mApplicationOverlay;
+    private ApplicationExtension mApplicationExtension;
+    private boolean mApplicationTouchBlocked;
+
+    /** Optional app Java client. Implementations enqueue blocking work on workers. */
+    public interface ApplicationExtension {
+        void command(String channel, String payload);
+        void onResume();
+        void onPause();
+        void onIntent(Intent intent);
+        void onDestroy();
+        default boolean onActivityResult(int requestCode, int resultCode, Intent data) { return false; }
+        default boolean onBackPressed() { return false; }
+        /** The extension owns Android 13+ Back through its system dispatcher. */
+        default boolean usesSystemBackCallback() { return false; }
+        /** Runs before native views or the renderer receive a touch. */
+        default boolean filterTouchEvent(MotionEvent event) { return true; }
+    }
+
+    @Override public boolean dispatchTouchEvent(MotionEvent event) {
+        if (mApplicationExtension != null && !mApplicationExtension.filterTouchEvent(event)) {
+            if (!mApplicationTouchBlocked) {
+                // Cancel any press already delivered before an overlay appeared.
+                MotionEvent cancel = MotionEvent.obtain(event);
+                cancel.setAction(MotionEvent.ACTION_CANCEL);
+                super.dispatchTouchEvent(cancel);
+                cancel.recycle();
+            }
+            mApplicationTouchBlocked = true;
+            return true;
+        }
+        mApplicationTouchBlocked = false;
+        return super.dispatchTouchEvent(event);
+    }
+
+    private void createApplicationExtension() {
+        try {
+            Class<?> type = Class.forName(getPackageName() + ".MakepadAppExtension");
+            mApplicationExtension = (ApplicationExtension) type
+                .getConstructor(MakepadActivity.class).newInstance(this);
+        } catch (ClassNotFoundException absent) {
+            // Ordinary Makepad applications do not need an extension.
+        } catch (ReflectiveOperationException | ClassCastException failure) {
+            Log.e("Makepad", "Application extension could not initialize", failure);
+        }
+    }
+
+    /** Child views own only their bounds; empty overlay space passes touches through. */
+    public FrameLayout getApplicationOverlay() {
+        if (mApplicationOverlay == null) {
+            mApplicationOverlay = new FrameLayout(this);
+            mApplicationOverlay.setClipChildren(false);
+            mRootLayout.addView(mApplicationOverlay, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+        return mApplicationOverlay;
+    }
+
+    public void androidIntegrationCommand(final String channel, final String payload) {
+        if (channel == null || payload == null || channel.length() > 128
+                || payload.length() > 256 * 1024) return;
+        runOnUiThread(() -> {
+            if (mApplicationExtension != null) {
+                mApplicationExtension.command(channel, payload);
+            } else {
+                MakepadNative.onAndroidIntegrationEvent("integration",
+                    "{\"kind\":\"unavailable\",\"reason\":\"extension_absent\"}");
+            }
+        });
+    }
+    private FrameLayout mSurfaceCoverOverlay;
+    private ImageView mSurfaceSnapshotBackdrop;
+    private ImageView mSurfaceSnapshotOverlay;
+    private FrameLayout mCameraPreviewOverlay;
+    private HashMap<Long, CameraPreviewSurface> mCameraPreviewViews = new HashMap<>();
+    // Native WebView overlays for web app cards (see spawnSystemBrowser).
+    private FrameLayout mSystemBrowserOverlay;
+    private HashMap<Long, WebView> mSystemBrowserViews = new HashMap<>();
+    // Per browser: may it leave the document it was opened with? A web app
+    // card may not; a reader showing pages off the open web must, or a
+    // redirector URL never reaches the page it points at.
+    private HashMap<Long, Boolean> mSystemBrowserNavigable = new HashMap<>();
+    // Fullscreen video state for web app cards (WebChromeClient custom view).
+    private View mSystemBrowserCustomView;
+    private WebChromeClient.CustomViewCallback mSystemBrowserCustomViewCallback;
+    private Bitmap mLatestSurfaceSnapshot;
+    private int mLatestSurfaceSnapshotOrientation = android.content.res.Configuration.ORIENTATION_UNDEFINED;
+    private boolean mSurfaceSnapshotCopyInFlight = false;
+    private boolean mSurfaceRecoveryOverlayVisible = false;
+
+    // selection handles overlay
+    private static final int SELECTION_HANDLE_START = 0;
+    private static final int SELECTION_HANDLE_END = 1;
+    private static final int SELECTION_DRAG_BEGIN = 0;
+    private static final int SELECTION_DRAG_MOVE = 1;
+    private static final int SELECTION_DRAG_END = 2;
+    private FrameLayout mSelectionHandleOverlay;
+    private SelectionHandleView mSelectionHandleStart;
+    private SelectionHandleView mSelectionHandleEnd;
+    private int mSelectionHandleSizePx;
+
+    // Native floating chat composer overlay. `mComposerOverlay` is a
+    // MATCH_PARENT, non-clickable FrameLayout sibling stacked above the GL
+    // surface (same pattern as `mSelectionHandleOverlay`). `mComposerPill` is
+    // the rounded EditText+send pill anchored to the bottom that gets lifted
+    // above the soft keyboard; `mComposerInput` is its EditText. Because the
+    // Android view tree dispatches touches, taps on the pill are consumed by
+    // it *before* Makepad's routing runs, and taps elsewhere fall through the
+    // non-clickable overlay to the full-screen Splash card.
+    private FrameLayout mComposerOverlay;
+    private LinearLayout mComposerPill;
+    private EditText mComposerInput;
+    // Collapsed state: a small round "+" button (bottom-right). Tapping it
+    // expands back to the full pill. Rust drives the collapse (while a card
+    // generates / after it renders) via expand/collapseComposer().
+    private TextView mComposerFab;
+    // QR scanner (LLM provisioning): a full-screen camera overlay that streams
+    // luma frames to Rust for a pure-Rust QR decode (see onQrCameraFrame).
+    private FrameLayout mQrScanOverlay;
+    private CameraDevice mQrCameraDevice;
+    private CameraCaptureSession mQrCaptureSession;
+    private ImageReader mQrImageReader;
+    private HandlerThread mQrBgThread;
+    private Handler mQrBgHandler;
+    private volatile boolean mQrScanning = false;
+    // A CAMERA request for the scanner is in flight (dedupes repeat requests).
+    private boolean mQrPermPending = false;
+    private long mQrLastFrameMs = 0;
+    private static final int QR_CAMERA_PERM_REQ = 0x51A2;
+
+    // GPS location (AppCard, automatic) — a LocationListener feeds each fix to Rust via
+    // MakepadNative.onLocation; the Splash sys.gps(...) helper reads it.
+    private LocationManager mGpsLocationManager;
+    private LocationListener mGpsLocationListener;
+    private static final int LOCATION_PERM_REQ = 0x10CA;
+    // Guard so the location runtime permission is requested AT MOST ONCE per
+    // process. startGpsLocationUpdates() runs on every onResume(); without this,
+    // a user who has DENIED location makes every resume call requestPermissions()
+    // again, and each call bounces activity focus (pause→resume→focus-change).
+    // That storm pins the window's HWUI layer redrawing continuously (~30fps on
+    // a static screen) — the composer/whole-screen flicker. Requesting once, then
+    // leaving the user's decision alone, lets the window go idle.
+    private boolean mLocationPermissionRequested = false;
+
+    static {
+        System.loadLibrary("makepad");
+    }
+
+    private boolean isPhysicalTextKeyboard(InputDevice device) {
+        return device != null
+            && device.isEnabled()
+            && !device.isVirtual()
+            && device.supportsSource(InputDevice.SOURCE_KEYBOARD)
+            && device.getKeyboardType() == InputDevice.KEYBOARD_TYPE_ALPHABETIC;
+    }
+
+    private boolean hasPhysicalTextKeyboard() {
+        if (mInputManager == null) {
+            return false;
+        }
+        for (int id : mInputManager.getInputDeviceIds()) {
+            if (isPhysicalTextKeyboard(mInputManager.getInputDevice(id))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void reportPhysicalKeyboardIfChanged() {
+        boolean connected = hasPhysicalTextKeyboard();
+        if (mPhysicalKeyboardConnected != null
+                && mPhysicalKeyboardConnected.booleanValue() == connected) {
+            return;
+        }
+        mPhysicalKeyboardConnected = Boolean.valueOf(connected);
+        MakepadNative.surfaceOnPhysicalKeyboardChanged(connected);
+    }
+
+    private void registerPhysicalKeyboardListener() {
+        if (mInputManager == null) {
+            mInputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
+        }
+        if (mInputManager == null) {
+            return;
+        }
+        if (mInputDeviceListener == null) {
+            mInputDeviceListener = new InputManager.InputDeviceListener() {
+                @Override
+                public void onInputDeviceAdded(int deviceId) {
+                    reportPhysicalKeyboardIfChanged();
+                }
+
+                @Override
+                public void onInputDeviceRemoved(int deviceId) {
+                    reportPhysicalKeyboardIfChanged();
+                }
+
+                @Override
+                public void onInputDeviceChanged(int deviceId) {
+                    reportPhysicalKeyboardIfChanged();
+                }
+            };
+            mInputManager.registerInputDeviceListener(mInputDeviceListener, mHandler);
+        }
+        reportPhysicalKeyboardIfChanged();
+    }
+
+    private void unregisterPhysicalKeyboardListener() {
+        if (mInputManager != null && mInputDeviceListener != null) {
+            mInputManager.unregisterInputDeviceListener(mInputDeviceListener);
+        }
+        mInputDeviceListener = null;
+        mInputManager = null;
+    }
+
+    private void cacheWarmResumeSurfaceSnapshot(Bitmap snapshot) {
+        if (snapshot == null) {
+            return;
+        }
+        sWarmResumeSurfaceSnapshot = snapshot;
+        sWarmResumeSurfaceSnapshotUptimeMs = SystemClock.uptimeMillis();
+        sWarmResumeSurfaceSnapshotOrientation = getResources().getConfiguration().orientation;
+    }
+
+    private boolean canRestoreWarmResumeSurfaceSnapshot() {
+        if (sWarmResumeSurfaceSnapshot == null) {
+            return false;
+        }
+        if (SystemClock.uptimeMillis() - sWarmResumeSurfaceSnapshotUptimeMs > WARM_RESUME_SNAPSHOT_MAX_AGE_MS) {
+            clearWarmResumeSurfaceSnapshot();
+            return false;
+        }
+        int orientation = getResources().getConfiguration().orientation;
+        return sWarmResumeSurfaceSnapshotOrientation == android.content.res.Configuration.ORIENTATION_UNDEFINED
+            || sWarmResumeSurfaceSnapshotOrientation == orientation;
+    }
+
+    private void clearWarmResumeSurfaceSnapshot() {
+        sWarmResumeSurfaceSnapshot = null;
+        sWarmResumeSurfaceSnapshotUptimeMs = 0;
+        sWarmResumeSurfaceSnapshotOrientation = android.content.res.Configuration.ORIENTATION_UNDEFINED;
+    }
+
+    private void clearLatestSurfaceSnapshot() {
+        mLatestSurfaceSnapshot = null;
+        mLatestSurfaceSnapshotOrientation = android.content.res.Configuration.ORIENTATION_UNDEFINED;
+    }
+
+    private void trimSurfaceSnapshotCaches() {
+        clearWarmResumeSurfaceSnapshot();
+        clearLatestSurfaceSnapshot();
+
+        if (mSurfaceSnapshotBackdrop != null) {
+            mSurfaceSnapshotBackdrop.setImageBitmap(null);
+            mSurfaceSnapshotBackdrop.setVisibility(View.GONE);
+        }
+        if (mSurfaceSnapshotOverlay != null) {
+            mSurfaceSnapshotOverlay.animate().cancel();
+            mSurfaceSnapshotOverlay.setImageBitmap(null);
+            mSurfaceSnapshotOverlay.setAlpha(1.0f);
+            mSurfaceSnapshotOverlay.setVisibility(View.GONE);
+        }
+        if (mSurfaceRecoveryOverlayVisible && mSurfaceCoverOverlay != null) {
+            mSurfaceCoverOverlay.animate().cancel();
+            mSurfaceCoverOverlay.setAlpha(1.0f);
+            mSurfaceCoverOverlay.setVisibility(View.VISIBLE);
+            mSurfaceCoverOverlay.bringToFront();
+        }
+    }
+
+    boolean hasRecoverySnapshotAvailable() {
+        return mLatestSurfaceSnapshot != null;
+    }
+
+    private boolean hasCurrentOrientationRecoverySnapshot() {
+        if (mLatestSurfaceSnapshot == null) {
+            return false;
+        }
+        int orientation = getResources().getConfiguration().orientation;
+        return mLatestSurfaceSnapshotOrientation == android.content.res.Configuration.ORIENTATION_UNDEFINED
+            || mLatestSurfaceSnapshotOrientation == orientation;
+    }
+
+    private void restoreWarmResumeSurfaceSnapshotIfAvailable() {
+        if (!canRestoreWarmResumeSurfaceSnapshot()) {
+            return;
+        }
+        mLatestSurfaceSnapshot = sWarmResumeSurfaceSnapshot;
+        mLatestSurfaceSnapshotOrientation = getResources().getConfiguration().orientation;
+        updateSurfaceSnapshotBackdrop();
+        clearWarmResumeSurfaceSnapshot();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        if (mWebSocketsThread == null || !mWebSocketsThread.isAlive()) {
+            mWebSocketsThread = new HandlerThread("WebSocketsThread");
+            mWebSocketsThread.start();
+            mWebSocketsHandler = new Handler(mWebSocketsThread.getLooper());
+        }
+
+        // On API 30+, Theme.NoTitleBar.Fullscreen sets FLAG_FULLSCREEN which positions
+        // the window below the status bar, conflicting with the modern WindowInsetsController.
+        // Switch from the launch theme to the app theme and handle fullscreen programmatically.
+        if (Build.VERSION.SDK_INT >= 30) {
+            setTheme(R.style.MakepadAppTheme);
+        }
+
+        super.onCreate(savedInstanceState);
+
+        // Route the app's OWN http (card background images fetched via
+        // MakepadNetwork's HttpURLConnection) through the same proxy as the
+        // embedded octos server when `--es makepad.OCTOS_PROXY http://host:port`
+        // is set — needed when the device has no direct internet route (e.g. an
+        // adb-reverse tunnel to the dev host). HttpURLConnection honours these
+        // JVM proxy system properties, so no per-request change is needed.
+        try {
+            Intent launchIntent = getIntent();
+            String proxy = launchIntent != null
+                ? launchIntent.getStringExtra("makepad.OCTOS_PROXY") : null;
+            if (proxy != null && proxy.length() > 0) {
+                String hp = proxy.replaceFirst("^https?://", "").replaceAll("/.*$", "");
+                int colon = hp.lastIndexOf(':');
+                if (colon > 0) {
+                    String host = hp.substring(0, colon);
+                    String port = hp.substring(colon + 1);
+                    System.setProperty("http.proxyHost", host);
+                    System.setProperty("http.proxyPort", port);
+                    System.setProperty("https.proxyHost", host);
+                    System.setProperty("https.proxyPort", port);
+                }
+            }
+        } catch (Exception e) { /* proxy is best-effort */ }
+
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setSoftInputMode(
+            LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+                | LayoutParams.SOFT_INPUT_STATE_UNCHANGED
+        );
+
+        // Default state: content below system bars (status bar visible).
+        // Apps that want fullscreen can request CxOsOp::FullscreenWindow which
+        // calls applyFullScreen(true) to hide bars and extend content behind them.
+
+        view = new MakepadSurface(this);
+        // Put it inside a parent layout which can resize it using padding
+        ResizingLayout layout = new ResizingLayout(this);
+        FrameLayout surfaceContentLayout = new FrameLayout(this);
+        surfaceContentLayout.setLayoutParams(new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        surfaceContentLayout.setBackgroundResource(R.drawable.makepad_launch_background);
+
+        mSurfaceSnapshotBackdrop = new ImageView(this);
+        mSurfaceSnapshotBackdrop.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        mSurfaceSnapshotBackdrop.setBackgroundResource(R.drawable.makepad_launch_background);
+        mSurfaceSnapshotBackdrop.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        mSurfaceSnapshotBackdrop.setClickable(false);
+        mSurfaceSnapshotBackdrop.setFocusable(false);
+        mSurfaceSnapshotBackdrop.setVisibility(View.GONE);
+        surfaceContentLayout.addView(mSurfaceSnapshotBackdrop);
+
+        view.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        surfaceContentLayout.addView(view);
+        layout.addView(surfaceContentLayout);
+
+        mRootLayout = new FrameLayout(this);
+        mRootLayout.addView(layout);
+
+        mSurfaceCoverOverlay = new FrameLayout(this);
+        mSurfaceCoverOverlay.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        mSurfaceCoverOverlay.setBackgroundResource(R.drawable.makepad_launch_background);
+        mSurfaceCoverOverlay.setClickable(false);
+        mSurfaceCoverOverlay.setFocusable(false);
+        mSurfaceCoverOverlay.setAlpha(1.0f);
+        mSurfaceCoverOverlay.setVisibility(View.GONE);
+        mRootLayout.addView(mSurfaceCoverOverlay);
+
+        mSurfaceSnapshotOverlay = new ImageView(this);
+        mSurfaceSnapshotOverlay.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        mSurfaceSnapshotOverlay.setBackgroundResource(R.drawable.makepad_launch_background);
+        mSurfaceSnapshotOverlay.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        mSurfaceSnapshotOverlay.setClickable(false);
+        mSurfaceSnapshotOverlay.setFocusable(false);
+        mSurfaceSnapshotOverlay.setAlpha(1.0f);
+        mSurfaceSnapshotOverlay.setVisibility(View.GONE);
+        mRootLayout.addView(mSurfaceSnapshotOverlay);
+
+        mCameraPreviewOverlay = new FrameLayout(this);
+        mRootLayout.addView(mCameraPreviewOverlay);
+
+        // Web app card overlays sit above the GL surface and camera previews,
+        // but below the selection handles and the chat composer.
+        mSystemBrowserOverlay = new FrameLayout(this);
+        mRootLayout.addView(mSystemBrowserOverlay);
+
+        mSelectionHandleOverlay = new FrameLayout(this);
+        mSelectionHandleOverlay.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        mSelectionHandleOverlay.setClickable(false);
+        mSelectionHandleOverlay.setFocusable(false);
+        mSelectionHandleOverlay.setVisibility(View.GONE);
+        mRootLayout.addView(mSelectionHandleOverlay);
+
+        mSelectionHandleSizePx = Math.max(24, (int) (getResources().getDisplayMetrics().density * 24.0f));
+        mSelectionHandleStart = new SelectionHandleView(this, 0xFF4A90E2, mSelectionHandleSizePx);
+        mSelectionHandleEnd = new SelectionHandleView(this, 0xFF4A90E2, mSelectionHandleSizePx);
+        mSelectionHandleStart.setOnTouchListener(createSelectionHandleDragListener(SELECTION_HANDLE_START));
+        mSelectionHandleEnd.setOnTouchListener(createSelectionHandleDragListener(SELECTION_HANDLE_END));
+        mSelectionHandleOverlay.addView(mSelectionHandleStart);
+        mSelectionHandleOverlay.addView(mSelectionHandleEnd);
+
+        setupComposerOverlay();
+
+        setContentView(mRootLayout);
+        restoreWarmResumeSurfaceSnapshotIfAvailable();
+        updateTaskDescription();
+
+        MakepadActivity previous = sNativeActivity;
+        sNativeActivity = this;
+        if (previous != null && previous != this) {
+            previous.supersede();
+        }
+        MakepadNative.activityOnCreate(this);
+        createApplicationExtension();
+        registerPhysicalKeyboardListener();
+
+        mVideoPlaybackThread = new HandlerThread("VideoPlayerThread");
+        mVideoPlaybackThread.start(); // TODO: only start this if its needed.
+        mVideoPlaybackHandler = new Handler(mVideoPlaybackThread.getLooper());
+        mVideoPlayerRunnables = new HashMap<Long, VideoPlayerRunnable>();
+
+
+
+        String cache_path = this.getCacheDir().getAbsolutePath();
+        String data_path = this.getFilesDir().getAbsolutePath();
+        float density = getResources().getDisplayMetrics().density;
+        boolean isEmulator = this.isEmulator();
+        String androidVersion = Build.VERSION.RELEASE;
+        String buildNumber = Build.DISPLAY;
+        String kernelVersion = this.getKernelVersion();
+        int sdkVersion = Build.VERSION.SDK_INT;
+
+        MakepadNative.onAndroidParams(cache_path, data_path, density, isEmulator, androidVersion, buildNumber, kernelVersion);
+
+        // Set volume keys to control music stream, we might want make this flexible for app devs
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        float refreshRate = getDeviceRefreshRate();
+        MakepadNative.initChoreographer(refreshRate, sdkVersion);
+        //% MAIN_ACTIVITY_ON_CREATE
+        
+    }
+
+    // A newer instance of this activity took over the native side (see
+    // sNativeActivity). Nothing this instance reports from now on concerns
+    // the app, and its task has no reason to stay in Recents.
+    private void supersede() {
+        if (mSuperseded) {
+            return;
+        }
+        mSuperseded = true;
+        Log.i(LOG_TAG, "activity superseded by a newer instance; finishing");
+        if (!isFinishing()) {
+            finish();
+        }
+    }
+
+    // Whether the native side still listens to this instance. The surface
+    // view asks before forwarding its callbacks.
+    boolean isSupersededForNative() {
+        return mSuperseded;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mSuperseded) {
+            return;
+        }
+        restoreSurfaceViewForWarmResumeIfNeeded();
+        MakepadNative.activityOnStart();
+    }
+
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        if (mSuperseded) return;
+        float density = getResources().getDisplayMetrics().density;
+        MakepadNative.onDisplayDensity(density);
+        int handleSize = Math.max(24, Math.round(density * 24.0f));
+        if (handleSize != mSelectionHandleSizePx) {
+            mSelectionHandleSizePx = handleSize;
+            if (mSelectionHandleStart != null)
+                mSelectionHandleStart.setLayoutParams(new FrameLayout.LayoutParams(handleSize, handleSize));
+            if (mSelectionHandleEnd != null)
+                mSelectionHandleEnd.setLayoutParams(new FrameLayout.LayoutParams(handleSize, handleSize));
+        }
+        if (view != null) {
+            MakepadSystemInsets.report(view, view.getRootWindowInsets());
+            view.requestApplyInsets();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mSuperseded) {
+            return;
+        }
+        restoreSurfaceViewForWarmResumeIfNeeded();
+        updateTaskDescription();
+        MakepadNative.activityOnResume();
+        if (mApplicationExtension != null) mApplicationExtension.onResume();
+        reportPhysicalKeyboardIfChanged();
+        startGpsLocationUpdates();
+
+        //% MAIN_ACTIVITY_ON_RESUME
+    }
+    @Override
+    protected void onPause() {
+        if (mSuperseded) {
+            super.onPause();
+            stopGpsLocationUpdates();
+            return;
+        }
+        // Never hold the camera in the background: close an open QR scanner.
+        if (mQrScanning) closeQrScanner("interrupted");
+        prepareSurfaceSnapshotOverlayForPause();
+        super.onPause();
+        if(view!=null) view.retireInputConnection();
+        MakepadNative.activityOnPause();
+        if (mApplicationExtension != null) mApplicationExtension.onPause();
+        stopGpsLocationUpdates();
+
+        //% MAIN_ACTIVITY_ON_PAUSE
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mSuperseded) {
+            return;
+        }
+        MakepadNative.activityOnStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mApplicationExtension != null) {
+            mApplicationExtension.onDestroy();
+            mApplicationExtension = null;
+        }
+        unregisterPhysicalKeyboardListener();
+        if (mCameraPreviewOverlay != null) {
+            for (Long videoId : mCameraPreviewViews.keySet()) {
+                MakepadNative.onCameraPreviewSurfaceDestroyed(videoId);
+            }
+            mCameraPreviewViews.clear();
+            mCameraPreviewOverlay.removeAllViews();
+        }
+        if (mSelectionHandleOverlay != null) {
+            mSelectionHandleOverlay.removeAllViews();
+            mSelectionHandleOverlay = null;
+            mSelectionHandleStart = null;
+            mSelectionHandleEnd = null;
+        }
+        if (mSurfaceCoverOverlay != null) {
+            mRootLayout.removeView(mSurfaceCoverOverlay);
+            mSurfaceCoverOverlay = null;
+        }
+        if (mSurfaceSnapshotBackdrop != null) {
+            mSurfaceSnapshotBackdrop.setImageBitmap(null);
+            mSurfaceSnapshotBackdrop = null;
+        }
+        if (mSurfaceSnapshotOverlay != null) {
+            mSurfaceSnapshotOverlay.setImageBitmap(null);
+            mRootLayout.removeView(mSurfaceSnapshotOverlay);
+            mSurfaceSnapshotOverlay = null;
+        }
+        clearLatestSurfaceSnapshot();
+        mSurfaceSnapshotCopyInFlight = false;
+        if (mSpeech != null) {
+            mSpeech.shutdown();
+        }
+        cleanupVideoPlaybackState();
+        shutdownVideoPlaybackThread();
+        // The network state is static and shared with the instance that
+        // took over, as it is across an activity switch.
+        if (!mIsSwitchingActivity && !mSuperseded) {
+            cleanupNetworkState();
+            shutdownWebSocketsThread();
+        }
+        super.onDestroy();
+        if (mSuperseded) {
+            return;
+        }
+        if (sNativeActivity == this) {
+            sNativeActivity = null;
+        }
+        MakepadNative.activityOnDestroy();
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        switch (level) {
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
+            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
+            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
+                trimSurfaceSnapshotCaches();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        trimSurfaceSnapshotCaches();
+    }
+
+    // Back closes an open QR scanner (and releases the camera). Intercepted
+    // here, before the view tree: the focused MakepadSurface consumes every
+    // key (BACK included) and forwards it to Rust, so onBackPressed never runs.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        // System Back invokes the registered callback separately. Forwarding
+        // its compatibility key to the surface would navigate twice.
+        if (android.os.Build.VERSION.SDK_INT >= 33 && event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && mApplicationExtension != null && mApplicationExtension.usesSystemBackCallback()) {
+            return true;
+        }
+        if (mQrScanning && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            if (event.getAction() == KeyEvent.ACTION_UP) closeQrScanner("cancelled");
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onBackPressed() {
+        if (mQrScanning) { closeQrScanner("cancelled"); return; }
+        if (mApplicationExtension != null && mApplicationExtension.onBackPressed()) return;
+        super.onBackPressed();
+        MakepadNative.onBackPressed();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (mSuperseded) {
+            return;
+        }
+        MakepadNative.activityOnWindowFocusChanged(hasFocus);
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        prepareSurfaceSnapshotOverlayForPause();
+        super.onUserLeaveHint();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (mApplicationExtension != null) mApplicationExtension.onIntent(intent);
+        // The device's Home button or gesture, with this app as the Home
+        // app: the running activity is told, so a shell can show its home
+        // page (Event::HomeIntent on the Rust side).
+        if (intent != null && Intent.ACTION_MAIN.equals(intent.getAction())
+                && intent.hasCategory(Intent.CATEGORY_HOME)) {
+            MakepadNative.onHomeIntent();
+        }
+        restoreSurfaceViewForWarmResumeIfNeeded();
+        handleDeepLinkIntent(intent);
+    }
+
+    // Extract a URL from an ACTION_VIEW deep link or an ACTION_SEND share and hand
+    // it to Rust (delivered to the app as an AndroidDeepLink action). E.g. a YouTube
+    // link shared from another app → the youtube card plays it.
+    private void handleDeepLinkIntent(Intent intent) {
+        if (intent == null) return;
+        String action = intent.getAction();
+        String url = null;
+        if (Intent.ACTION_VIEW.equals(action)) {
+            url = intent.getDataString();
+        } else if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(intent.getType())) {
+            url = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
+        if (url != null && url.length() > 0) {
+            try { MakepadNative.onDeepLink(url); } catch (Throwable t) {}
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (mApplicationExtension != null
+                && mApplicationExtension.onActivityResult(requestCode, resultCode, data)) return;
+        if (mFileDialogRequests.remove(requestCode)) {
+            handleFileDialogResult(requestCode, resultCode, data);
+            return;
+        }
+        //% MAIN_ACTIVITY_ON_ACTIVITY_RESULT
+        if (requestCode == OCTOS_DIALOG_REQ) {
+            long callId = mPendingDialogCallId;
+            mPendingDialogCallId = 0;
+            try {
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                    Uri uri = data.getData();
+                    String name = "";
+                    try {
+                        android.database.Cursor c = getContentResolver().query(uri, null, null, null, null);
+                        if (c != null) {
+                            int idx = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                            if (c.moveToFirst() && idx >= 0) name = c.getString(idx);
+                            c.close();
+                        }
+                    } catch (Throwable ignore) {}
+                    String content = readUriText(uri);
+                    MakepadNative.onDialogResult(callId, name, content, false, null);
+                } else {
+                    MakepadNative.onDialogResult(callId, null, null, true, null);
+                }
+            } catch (Throwable t) {
+                MakepadNative.onDialogResult(callId, null, null, false, "read failed: " + t.toString());
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestId, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestId, permissions, grantResults);
+
+        for (int i = 0; i < permissions.length; i++) {
+            int status;
+            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                status = 1; // Granted
+            } else {
+                // Permission denied - check if we can ask again
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(permissions[i])) {
+                    status = 2; // DeniedCanRetry (can show rationale and retry)
+                } else {
+                    status = 3; // DeniedPermanent (user selected "Don't ask again" or hit limit)
+                }
+            }
+            
+            // Use the new unified callback
+            MakepadNative.onPermissionResult(permissions[i], requestId, status);
+        }
+
+        // QR-scanner camera permission: open the scanner once granted, else
+        // report the refusal so the caller is not left waiting.
+        if (requestId == QR_CAMERA_PERM_REQ) {
+            mQrPermPending = false;
+            boolean granted = false;
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.CAMERA.equals(permissions[i])
+                    && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    granted = true;
+                }
+            }
+            if (granted) {
+                showQrScanner();
+            } else {
+                MakepadNative.onQrCancelled("permission_denied");
+            }
+        }
+
+        // Location permission granted → start GPS updates.
+        if (requestId == LOCATION_PERM_REQ) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    startGpsLocationUpdates();
+                    break;
+                }
+            }
+        }
+    }
+
+    public int checkPermission(String permission) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+                return 1; // Granted
+            } else {
+                // Check if permission was previously denied
+                if (shouldShowRequestPermissionRationale(permission)) {
+                    return 2; // DeniedCanRetry (user previously declined but can show rationale)
+                } else {
+                    // This could be either:
+                    // - NotDetermined (never asked before) 
+                    // - DeniedPermanent (user selected "Don't ask again" or hit Android 11+ limit)
+                    // We return 0 for NotDetermined as the safest assumption - let the app request and find out
+                    return 0; // NotDetermined (assume we can still ask)
+                }
+            }
+        } else {
+            // Permissions are granted at install time on older Android versions
+            return 1; // Granted
+        }
+    }
+
+    public void requestPermission(String permission, int requestId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{permission}, requestId);
+            } else {
+                // Permission already granted
+                MakepadNative.onPermissionResult(permission, requestId, 1); // 1 = Granted
+            }
+        } else {
+            // Permissions are granted at install time on older Android versions
+            MakepadNative.onPermissionResult(permission, requestId, 1); // 1 = Granted
+        }
+    }
+
+    // Storage Access Framework picker. Called from Rust on the render thread,
+    // from inside the platform-op drain that holds the Cx borrow, so the Intent
+    // is built and started on the looper: Activity methods are main-thread only,
+    // and startActivityForResult must not run under that borrow.
+    //
+    // kind: 0 = ACTION_OPEN_DOCUMENT, 1 = ACTION_CREATE_DOCUMENT,
+    //       2 = ACTION_OPEN_DOCUMENT_TREE.
+    public void openFileDialog(
+        final int requestCode,
+        final int kind,
+        final String mimeType,
+        final String[] mimeTypes,
+        final boolean allowMultiple,
+        final String fileName
+    ) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Intent intent;
+                    if (kind == 2) {
+                        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    } else if (kind == 1) {
+                        intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType(mimeType);
+                        if (fileName != null && !fileName.isEmpty()) {
+                            intent.putExtra(Intent.EXTRA_TITLE, fileName);
+                        }
+                    } else {
+                        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType(mimeType);
+                        if (allowMultiple) {
+                            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                        }
+                    }
+                    if (kind != 2 && mimeTypes != null && mimeTypes.length > 0) {
+                        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                    }
+                    // Ask for a grant that outlives this process, so a URI handed
+                    // to Rust is still openable after the app is killed and
+                    // relaunched (see takePersistableUriPermission below).
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                    if (kind != 0) {
+                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    }
+                    mFileDialogRequests.add(requestCode);
+                    startActivityForResult(intent, requestCode);
+                } catch (Throwable e) {
+                    // No document provider on the device, or the activity is
+                    // gone. Cancelling is the honest answer: the user gets no
+                    // picker, and Rust must not be left waiting forever.
+                    Log.e(LOG_TAG, "openFileDialog failed", e);
+                    mFileDialogRequests.remove(requestCode);
+                    MakepadNative.onFileDialogResult(requestCode, new String[0]);
+                }
+            }
+        });
+    }
+
+    // An empty URI array means cancelled, which is a normal outcome.
+    private void handleFileDialogResult(int requestCode, int resultCode, Intent data) {
+        ArrayList<String> uris = new ArrayList<>();
+        if (resultCode == RESULT_OK && data != null) {
+            ClipData clip = data.getClipData();
+            if (clip != null) {
+                // Multi-select answers through ClipData; single-select through
+                // getData(). A picker set to allow multiple still uses getData()
+                // when the user picked exactly one.
+                for (int i = 0; i < clip.getItemCount(); i++) {
+                    Uri uri = clip.getItemAt(i).getUri();
+                    if (uri != null) {
+                        takePersistableUriPermission(uri, data.getFlags());
+                        uris.add(uri.toString());
+                    }
+                }
+            } else if (data.getData() != null) {
+                Uri uri = data.getData();
+                takePersistableUriPermission(uri, data.getFlags());
+                uris.add(uri.toString());
+            }
+        }
+        MakepadNative.onFileDialogResult(requestCode, uris.toArray(new String[0]));
+    }
+
+    private void takePersistableUriPermission(Uri uri, int intentFlags) {
+        int grant = intentFlags
+            & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        if (grant == 0) {
+            return;
+        }
+        try {
+            getContentResolver().takePersistableUriPermission(uri, grant);
+        } catch (Throwable e) {
+            // Not every provider offers a persistable grant. The URI is still
+            // usable for this run, which is all most callers need.
+            Log.w(LOG_TAG, "takePersistableUriPermission failed: " + e);
+        }
+    }
+
+    // ---- GPS location updates ----
+    // octos has no simulated location, so this feeds the DEVICE's real fix to the
+    // nav card (via sys.gps). Started in onResume once the runtime permission is
+    // granted, stopped in onPause so GPS isn't polled while backgrounded.
+    private void startGpsLocationUpdates() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+            && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Request only once per process. Re-requesting on every onResume()
+            // when the user has declined creates a pause/resume/focus storm that
+            // pins the window redrawing (the flicker). If granted later,
+            // onRequestPermissionsResult re-invokes this and the checks above pass.
+            if (!mLocationPermissionRequested) {
+                mLocationPermissionRequested = true;
+                requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                }, LOCATION_PERM_REQ);
+            }
+            return; // re-invoked from onRequestPermissionsResult once granted
+        }
+        if (mGpsLocationManager == null) {
+            mGpsLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
+        if (mGpsLocationManager == null) {
+            return;
+        }
+        if (mGpsLocationListener == null) {
+            mGpsLocationListener = new LocationListener() {
+                @Override public void onLocationChanged(Location loc) {
+                    if (loc == null) return;
+                    final double lat = loc.getLatitude();
+                    final double lon = loc.getLongitude();
+                    final float acc = loc.hasAccuracy() ? loc.getAccuracy() : 0.0f;
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            // Apps that do not consume location don't implement the
+                            // native onLocation; a stray fix must not crash them.
+                            try { MakepadNative.onLocation(lat, lon, acc); }
+                            catch (Throwable t) { /* no location consumer */ }
+                        }
+                    });
+                }
+                // Required by the LocationListener interface on older API levels.
+                @Override public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
+                @Override public void onProviderEnabled(String provider) {}
+                @Override public void onProviderDisabled(String provider) {}
+                // API 31 added a BATCHED overload as an interface DEFAULT method.
+                // Leaving it to the default is what crashed the app: D8 rewrites a
+                // call to an interface default into its synthesised companion
+                // `LocationListener$-CC`, that class was not in the APK, and the
+                // first fix delivered after granting the location permission died
+                // with NoClassDefFoundError on the main looper — taking the whole
+                // process with it.
+                //
+                // Implementing it means D8 never needs the companion. No
+                // `@Override`: on an SDK where the interface does not declare this
+                // overload it is a harmless extra method, and annotating it would
+                // fail to compile there.
+                public void onLocationChanged(java.util.List<Location> locations) {
+                    if (locations == null || locations.isEmpty()) return;
+                    onLocationChanged(locations.get(locations.size() - 1));
+                }
+                // Same companion-class hazard as the batched overload above, so
+                // implement it too — and for the same reason, no `@Override`.
+                public void onFlushComplete(int requestCode) {}
+            };
+        }
+        try {
+            // Seed immediately with the freshest last-known fix so the card has a
+            // location before the first live update lands.
+            Location last = null;
+            for (String p : new String[]{ LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER }) {
+                if (mGpsLocationManager.isProviderEnabled(p)) {
+                    Location l = mGpsLocationManager.getLastKnownLocation(p);
+                    if (l != null && (last == null || l.getTime() > last.getTime())) {
+                        last = l;
+                    }
+                }
+            }
+            if (last != null) {
+                mGpsLocationListener.onLocationChanged(last);
+            }
+            // Subscribe to both providers: NETWORK is fast + coarse, GPS is precise.
+            for (String p : new String[]{ LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER }) {
+                if (mGpsLocationManager.isProviderEnabled(p)) {
+                    mGpsLocationManager.requestLocationUpdates(p, 2000L, 5.0f, mGpsLocationListener);
+                }
+            }
+        } catch (SecurityException e) {
+            // permission revoked between the check and the call — ignore
+        } catch (IllegalArgumentException e) {
+            // a provider is missing on this device — ignore
+        }
+    }
+
+    private void stopGpsLocationUpdates() {
+        if (mGpsLocationManager != null && mGpsLocationListener != null) {
+            try {
+                mGpsLocationManager.removeUpdates(mGpsLocationListener);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    public void setFullScreen(final boolean fullscreen) {
+        runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    applyFullScreen(fullscreen);
+                }
+            });
+    }
+
+    // Tints the system bar (status/navigation bar) icons and text. A "light"
+    // system bar has a light background, so it needs dark icons for contrast;
+    // we therefore request dark icons when the app's background is light.
+    public void setSystemBarAppearance(final boolean darkIcons) {
+        runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSystemBarDarkIcons = darkIcons;
+                    applySystemBarAppearance();
+                }
+            });
+    }
+
+    // Applies the currently desired system-bar icon tint (mSystemBarDarkIcons)
+    // to the window. Safe to call repeatedly. It is also re-invoked from
+    // applyFullScreen(), because the legacy (pre-API-30) fullscreen path
+    // rewrites the whole systemUiVisibility bitmask and would otherwise drop
+    // the light-status/navigation-bar bits.
+    @SuppressWarnings("deprecation")
+    private void applySystemBarAppearance() {
+        Window window = getWindow();
+        if (window == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                int mask = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                    | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+                controller.setSystemBarsAppearance(mSystemBarDarkIcons ? mask : 0, mask);
+            }
+        } else {
+            View decorView = window.getDecorView();
+            int lightBars = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            int flags = decorView.getSystemUiVisibility();
+            if (mSystemBarDarkIcons) {
+                flags |= lightBars;
+            } else {
+                flags &= ~lightBars;
+            }
+            decorView.setSystemUiVisibility(flags);
+        }
+    }
+
+    private boolean canCaptureSurfaceSnapshot() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return false;
+        }
+        if (view == null || view.getWidth() <= 0 || view.getHeight() <= 0) {
+            return false;
+        }
+        Surface surface = view.getHolder().getSurface();
+        return surface != null && surface.isValid();
+    }
+
+    private void refreshSurfaceSnapshotCache() {
+        if (!canCaptureSurfaceSnapshot() || mSurfaceSnapshotCopyInFlight) {
+            return;
+        }
+        mSurfaceSnapshotCopyInFlight = true;
+
+        final Bitmap snapshot = Bitmap.createBitmap(
+            view.getWidth(),
+            view.getHeight(),
+            Bitmap.Config.ARGB_8888
+        );
+        PixelCopy.request(view, snapshot, copyResult -> {
+            mSurfaceSnapshotCopyInFlight = false;
+            if (copyResult != PixelCopy.SUCCESS) {
+                return;
+            }
+            mLatestSurfaceSnapshot = snapshot;
+            mLatestSurfaceSnapshotOrientation = getResources().getConfiguration().orientation;
+            cacheWarmResumeSurfaceSnapshot(snapshot);
+            updateSurfaceSnapshotBackdrop();
+            if (mSurfaceRecoveryOverlayVisible) {
+                showSurfaceRecoverySnapshotIfAvailable();
+            }
+        }, mHandler);
+    }
+
+    private void prepareSurfaceSnapshotOverlayForPause() {
+        if (mSurfaceRecoveryOverlayVisible && view != null && view.getVisibility() != View.VISIBLE) {
+            return;
+        }
+        if (!hasRecoverySnapshotAvailable()) {
+            refreshSurfaceSnapshotCache();
+            return;
+        }
+        mSurfaceRecoveryOverlayVisible = true;
+        cacheWarmResumeSurfaceSnapshot(mLatestSurfaceSnapshot);
+        updateSurfaceSnapshotBackdrop();
+        // Don't hide the SurfaceView or make it invisible. That destroys its surface
+        // and causes visual flashing behind any system overlay (like a share sheet).
+        showSurfaceRecoverySnapshotIfAvailable();
+        refreshSurfaceSnapshotCache();
+    }
+
+    private void restoreSurfaceViewForWarmResumeIfNeeded() {
+        if (!mSurfaceRecoveryOverlayVisible || view == null) {
+            return;
+        }
+
+        Surface surface = view.getHolder().getSurface();
+        boolean surfaceValid = surface != null && surface.isValid();
+        if (view.getVisibility() == View.VISIBLE && surfaceValid) {
+            return;
+        }
+
+        // Keep the recovery overlay visible, but restore the SurfaceView itself
+        // so Android can recreate its surface on same-activity warm resumes.
+        view.setVisibility(View.VISIBLE);
+        if (!showSurfaceRecoverySnapshotIfAvailable() && mSurfaceCoverOverlay != null) {
+            mSurfaceCoverOverlay.setAlpha(1.0f);
+            mSurfaceCoverOverlay.setVisibility(View.VISIBLE);
+            mSurfaceCoverOverlay.bringToFront();
+        }
+        updateSurfaceSnapshotBackdrop();
+    }
+
+    private Bitmap createTaskDescriptionIconBitmap() {
+        int iconResId = getApplicationIconResId();
+        if (iconResId == 0) {
+            return null;
+        }
+        Drawable drawable = getDrawable(iconResId);
+        if (drawable == null) {
+            return null;
+        }
+        int width = Math.max(1, drawable.getIntrinsicWidth());
+        int height = Math.max(1, drawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, width, height);
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
+    @SuppressWarnings("deprecation")
+    private void updateTaskDescription() {
+        try {
+            String label = getApplicationName();
+            int iconResId = getApplicationIconResId();
+            ActivityManager.TaskDescription taskDescription;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                taskDescription = new ActivityManager.TaskDescription.Builder()
+                    .setLabel(label)
+                    .setIcon(iconResId)
+                    .setPrimaryColor(TASK_DESCRIPTION_BACKGROUND_COLOR)
+                    .setBackgroundColor(TASK_DESCRIPTION_BACKGROUND_COLOR)
+                    .build();
+            }
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                taskDescription = new ActivityManager.TaskDescription(
+                    label,
+                    iconResId,
+                    TASK_DESCRIPTION_BACKGROUND_COLOR
+                );
+            }
+            else {
+                taskDescription = new ActivityManager.TaskDescription(
+                    label,
+                    createTaskDescriptionIconBitmap(),
+                    TASK_DESCRIPTION_BACKGROUND_COLOR
+                );
+            }
+            setTaskDescription(taskDescription);
+        }
+        catch (Throwable throwable) {
+            Log.w(LOG_TAG, "Failed to update task description", throwable);
+        }
+    }
+
+    private void updateSurfaceSnapshotBackdrop() {
+        if (mSurfaceSnapshotBackdrop == null) {
+            return;
+        }
+
+        if (hasCurrentOrientationRecoverySnapshot()) {
+            mSurfaceSnapshotBackdrop.setImageBitmap(mLatestSurfaceSnapshot);
+            mSurfaceSnapshotBackdrop.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        mSurfaceSnapshotBackdrop.setImageBitmap(null);
+        mSurfaceSnapshotBackdrop.setVisibility(View.GONE);
+    }
+
+    private boolean showSurfaceRecoverySnapshotIfAvailable() {
+        if (mSurfaceSnapshotOverlay == null || mSurfaceCoverOverlay == null) {
+            return false;
+        }
+
+        if (hasCurrentOrientationRecoverySnapshot()) {
+            mSurfaceSnapshotOverlay.setImageBitmap(mLatestSurfaceSnapshot);
+            mSurfaceSnapshotOverlay.setAlpha(1.0f);
+            mSurfaceSnapshotOverlay.setVisibility(View.VISIBLE);
+            mSurfaceSnapshotOverlay.bringToFront();
+            mSurfaceCoverOverlay.setVisibility(View.GONE);
+            mSurfaceCoverOverlay.setAlpha(1.0f);
+            return true;
+        }
+
+        mSurfaceSnapshotOverlay.setImageBitmap(null);
+        mSurfaceSnapshotOverlay.setVisibility(View.GONE);
+        return false;
+    }
+
+    private void applySurfaceCoverVisibility(boolean visible) {
+        if (mSurfaceCoverOverlay == null || mSurfaceSnapshotOverlay == null) {
+            return;
+        }
+
+        boolean wasRecoveryOverlayVisible = mSurfaceRecoveryOverlayVisible;
+        if (visible && !hasRecoverySnapshotAvailable()) {
+            mSurfaceRecoveryOverlayVisible = true;
+            if (view != null) {
+                view.setVisibility(View.INVISIBLE);
+            }
+            mSurfaceCoverOverlay.animate().cancel();
+            mSurfaceSnapshotOverlay.animate().cancel();
+            mSurfaceSnapshotOverlay.setImageBitmap(null);
+            mSurfaceSnapshotOverlay.setVisibility(View.GONE);
+            mSurfaceSnapshotOverlay.setAlpha(1.0f);
+            mSurfaceCoverOverlay.setAlpha(1.0f);
+            mSurfaceCoverOverlay.setVisibility(View.VISIBLE);
+            mSurfaceCoverOverlay.bringToFront();
+            if (!wasRecoveryOverlayVisible) {
+                refreshSurfaceSnapshotCache();
+            }
+            return;
+        }
+        mSurfaceRecoveryOverlayVisible = visible;
+        if (view != null) {
+            view.setVisibility(visible ? View.INVISIBLE : view.getVisibility());
+        }
+        if (visible && !wasRecoveryOverlayVisible) {
+            refreshSurfaceSnapshotCache();
+        }
+
+        mSurfaceCoverOverlay.animate().cancel();
+        mSurfaceSnapshotOverlay.animate().cancel();
+        if (visible) {
+            if (showSurfaceRecoverySnapshotIfAvailable()) {
+                return;
+            }
+            mSurfaceCoverOverlay.setAlpha(1.0f);
+            mSurfaceCoverOverlay.setVisibility(View.VISIBLE);
+            mSurfaceCoverOverlay.bringToFront();
+            return;
+        }
+
+        if (mSurfaceCoverOverlay.getVisibility() != View.VISIBLE
+            && mSurfaceSnapshotOverlay.getVisibility() != View.VISIBLE) {
+            mSurfaceCoverOverlay.setAlpha(1.0f);
+            mSurfaceSnapshotOverlay.setAlpha(1.0f);
+            if (view != null) {
+                view.setVisibility(View.VISIBLE);
+            }
+            clearWarmResumeSurfaceSnapshot();
+            return;
+        }
+
+        final FrameLayout surfaceCoverOverlay = mSurfaceCoverOverlay;
+        final ImageView surfaceSnapshotOverlay = mSurfaceSnapshotOverlay;
+        if (surfaceSnapshotOverlay.getVisibility() == View.VISIBLE) {
+            surfaceCoverOverlay.setVisibility(View.GONE);
+            surfaceCoverOverlay.setAlpha(1.0f);
+            surfaceSnapshotOverlay.animate()
+                .alpha(0.0f)
+                .setDuration(SURFACE_COVER_FADE_OUT_MS)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mSurfaceCoverOverlay != surfaceCoverOverlay
+                            || mSurfaceSnapshotOverlay != surfaceSnapshotOverlay) {
+                            return;
+                        }
+                        surfaceSnapshotOverlay.setVisibility(View.GONE);
+                        surfaceSnapshotOverlay.setAlpha(1.0f);
+                        if (view != null) {
+                            view.setVisibility(View.VISIBLE);
+                        }
+                        clearWarmResumeSurfaceSnapshot();
+                    }
+                });
+            return;
+        }
+
+        surfaceCoverOverlay.animate()
+            .alpha(0.0f)
+            .setDuration(SURFACE_COVER_FADE_OUT_MS)
+            .withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    if (mSurfaceCoverOverlay != surfaceCoverOverlay) {
+                        return;
+                    }
+                    surfaceCoverOverlay.setVisibility(View.GONE);
+                    surfaceCoverOverlay.setAlpha(1.0f);
+                    if (view != null) {
+                        view.setVisibility(View.VISIBLE);
+                    }
+                    clearWarmResumeSurfaceSnapshot();
+                }
+            });
+    }
+
+    public void setSurfaceCoverVisible(final boolean visible) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            applySurfaceCoverVisibility(visible);
+            return;
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                applySurfaceCoverVisibility(visible);
+            }
+        });
+    }
+
+    public void requestSurfaceSnapshotRefresh() {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            refreshSurfaceSnapshotCache();
+            return;
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                refreshSurfaceSnapshotCache();
+            }
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void applyFullScreen(boolean fullscreen) {
+        View decorView = getWindow().getDecorView();
+
+        if (fullscreen) {
+            // WindowManager.LayoutParams.layoutInDisplayCutoutMode is API 28+
+            // (display cutouts didn't exist before Android 9). Touching the
+            // field at all on API 26-27 throws NoSuchFieldError, so guard it.
+            // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS = 3 is API 30+; on 28-29 we
+            // fall back to SHORT_EDGES.
+            if (Build.VERSION.SDK_INT >= 28) {
+                getWindow().getAttributes().layoutInDisplayCutoutMode =
+                    Build.VERSION.SDK_INT >= 30 ? 3 : LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            }
+            if (Build.VERSION.SDK_INT >= 30) {
+                getWindow().setDecorFitsSystemWindows(false);
+                android.view.WindowInsetsController controller = getWindow().getInsetsController();
+                if (controller != null) {
+                    controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                    // BEHAVIOR_SHOW_TRANSIENT_BARS_BY_GESTURE = 2
+                    controller.setSystemBarsBehavior(2);
+                }
+            } else {
+                int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                decorView.setSystemUiVisibility(uiOptions);
+            }
+        }
+        else {
+            if (Build.VERSION.SDK_INT >= 30) {
+                getWindow().setDecorFitsSystemWindows(true);
+                android.view.WindowInsetsController controller = getWindow().getInsetsController();
+                if (controller != null) {
+                    controller.show(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                }
+            } else {
+                decorView.setSystemUiVisibility(0);
+            }
+        }
+
+        // The legacy (pre-API-30) branches above replace the entire
+        // systemUiVisibility bitmask, so re-assert the system-bar icon tint
+        // on top of the new flags. On API 30+ this is an independent,
+        // idempotent re-apply.
+        applySystemBarAppearance();
+
+        // Force a layout pass so the SurfaceView gets the new dimensions
+        if (view != null) {
+            view.requestLayout();
+        }
+    }
+    
+    public void switchActivityClass(Class c){
+        mIsSwitchingActivity = true;
+        Intent intent = new Intent(getApplicationContext(), c);
+        Intent currentIntent = getIntent();
+        if (currentIntent != null && currentIntent.getExtras() != null) {
+            intent.putExtras(currentIntent.getExtras());
+        }
+        startActivity(intent);
+        finish();
+    }
+
+    private void cleanupVideoPlaybackState() {
+        if (mVideoPlayerRunnables != null) {
+            ArrayList<Long> videoIds = new ArrayList<>(mVideoPlayerRunnables.keySet());
+            for (Long videoId : videoIds) {
+                cleanupVideoPlaybackResources(videoId);
+            }
+            mVideoPlayerRunnables.clear();
+        }
+        if (mVideoPlaybackHandler != null) {
+            mVideoPlaybackHandler.removeCallbacksAndMessages(null);
+        }
+    }
+
+    private void shutdownVideoPlaybackThread() {
+        if (mVideoPlaybackThread == null) {
+            mVideoPlaybackHandler = null;
+            return;
+        }
+        mVideoPlaybackThread.quitSafely();
+        try {
+            mVideoPlaybackThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        mVideoPlaybackThread = null;
+        mVideoPlaybackHandler = null;
+    }
+
+    private static void cleanupNetworkState() {
+        for (MakepadWebSocket socket : new ArrayList<>(mActiveWebsockets.values())) {
+            if (socket != null) {
+                socket.closeSocketAndClearCallback();
+            }
+        }
+        mActiveWebsockets.clear();
+        mActiveWebsocketsReaders.clear();
+
+        for (MakepadSocketStream socket : new ArrayList<>(mActiveSocketStreams.values())) {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+        mActiveSocketStreams.clear();
+
+        if (mWebSocketsHandler != null) {
+            mWebSocketsHandler.removeCallbacksAndMessages(null);
+        }
+    }
+
+    private static void shutdownWebSocketsThread() {
+        if (mWebSocketsThread == null) {
+            mWebSocketsHandler = null;
+            return;
+        }
+        mWebSocketsThread.quitSafely();
+        try {
+            mWebSocketsThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        mWebSocketsThread = null;
+        mWebSocketsHandler = null;
+    }
+    
+    // Configure keyboard settings before showing - called from Rust
+    public void configureKeyboard(final int keyboardType, final int autocapitalize,
+                                   final int autocorrect, final int returnKeyType,
+                                   final boolean isMultiline, final boolean isSecure) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (view != null) {
+                    view.configureKeyboard(keyboardType, autocapitalize, autocorrect,
+                                          returnKeyType, isMultiline, isSecure);
+                }
+            }
+        });
+    }
+
+    public void showKeyboard(final boolean show) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (view != null) view.setImeTextActive(show);
+                if (show) {
+                    if (view == null || view.getInputMode() == MakepadSurface.INPUT_MODE_NONE) {
+                        return;
+                    }
+                    // The IME only shows for the view that currently holds
+                    // focus and is "served" by the InputMethodManager. The
+                    // SurfaceView can end up not focused (window-focus churn,
+                    // surface re-creation, returning from another activity,
+                    // etc.); after that, showSoftInput() is silently ignored —
+                    // logcat shows "Ignoring showSoftInput() as view=... is
+                    // not served". Re-focus the SurfaceView before every show
+                    // so it becomes the served editor. This is the canonical
+                    // precondition for showSoftInput(); the previous code
+                    // relied on the view simply staying focused from the
+                    // one-time requestFocus() in the MakepadSurface
+                    // constructor, which is not guaranteed.
+                    view.requestFocus();
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(view, 0);
+                } else {
+                    // Hiding the IME via the legacy InputMethodManager
+                    // .hideSoftInputFromWindow() is unreliable on modern Android:
+                    // with an edge-to-edge window (targetSdk 35) and on
+                    // OEM-customized builds (e.g. OxygenOS / OnePlus) the request
+                    // is silently dropped and the keyboard stays up. The
+                    // WindowInsetsController.hide(ime()) path is the canonical
+                    // API 30+ way, and matches how this app already drives the
+                    // system bars and reads IME insets.
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        android.view.WindowInsetsController controller = getWindow().getInsetsController();
+                        if (controller != null) {
+                            controller.hide(WindowInsets.Type.ime());
+                        }
+                    } else {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null && view != null) {
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Canonical editor acknowledgement, including programmatic changes.
+    // Sequence counts applied operations, never merely received queue markers.
+    public void updateImeTextState(final long throughSequence, final long session, final boolean active, final String fullText, final int selStart, final int selEnd,
+                                   final int composingStart, final int composingEnd) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (view != null) {
+                    view.updateImeTextState(
+                        throughSequence, session, active, fullText,
+                        selStart,
+                        selEnd,
+                        composingStart,
+                        composingEnd
+                    );
+                }
+            }
+        });
+    }
+
+    public void copyToClipboard(String content) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        // User-facing description of the clipboard content
+        String clipLabel = getApplicationName() + " clip";
+        ClipData clip = ClipData.newPlainText(clipLabel, content);
+        clipboard.setPrimaryClip(clip);
+    }
+
+    // Post a system notification. Called from Rust via
+    // android_jni::to_java_show_notification (the card's octos.invoke("notify", ...)).
+    public void showNotification(final String title, final String body) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    String chId = "octos_default";
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        NotificationChannel ch = new NotificationChannel(chId, "octos",
+                            NotificationManager.IMPORTANCE_DEFAULT);
+                        nm.createNotificationChannel(ch);
+                    }
+                    Intent open = new Intent(MakepadActivity.this, MakepadActivity.this.getClass());
+                    open.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+                    if (android.os.Build.VERSION.SDK_INT >= 23) piFlags |= PendingIntent.FLAG_IMMUTABLE;
+                    PendingIntent pi = PendingIntent.getActivity(MakepadActivity.this, 0, open, piFlags);
+                    Notification.Builder b = (android.os.Build.VERSION.SDK_INT >= 26)
+                        ? new Notification.Builder(MakepadActivity.this, chId)
+                        : new Notification.Builder(MakepadActivity.this);
+                    b.setSmallIcon(getApplicationInfo().icon)
+                        .setContentTitle(title == null ? "" : title)
+                        .setContentText(body == null ? "" : body)
+                        .setAutoCancel(true)
+                        .setContentIntent(pi);
+                    nm.notify((int) (System.currentTimeMillis() & 0x7fffffff), b.build());
+                } catch (Throwable t) {
+                    Log.e("Makepad", "showNotification failed: " + t.toString());
+                }
+            }
+        });
+    }
+
+    // Native file picker (Storage Access Framework). One dialog at a time; the
+    // pending call id is stored and read back in onActivityResult. Called from Rust
+    // via to_java_open_file_dialog (the card's octos.invoke("dialog.open", {mime})).
+    private static final int OCTOS_DIALOG_REQ = 0x0CD0;
+    private long mPendingDialogCallId = 0;
+    public void openFileDialog(final long callId, final String mime) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mPendingDialogCallId = callId;
+                    Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType((mime == null || mime.length() == 0) ? "*/*" : mime);
+                    startActivityForResult(i, OCTOS_DIALOG_REQ);
+                } catch (Throwable t) {
+                    MakepadNative.onDialogResult(callId, null, null, false, "open failed: " + t.toString());
+                }
+            }
+        });
+    }
+
+    // Read a content:// URI as UTF-8 text (bounded to ~8 MB to protect the bridge).
+    private String readUriText(Uri uri) throws Exception {
+        InputStream in = getContentResolver().openInputStream(uri);
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[16384];
+            int n; int total = 0;
+            while ((n = in.read(buf)) != -1) {
+                total += n;
+                if (total > 8 * 1024 * 1024) throw new Exception("file too large (>8MB)");
+                out.write(buf, 0, n);
+            }
+            return new String(out.toByteArray(), "UTF-8");
+        } finally {
+            if (in != null) in.close();
+        }
+    }
+
+    // Stream a URL to a file on a background thread (constant memory — the bytes
+    // never touch JS). Reports progress + completion to Rust. Called from Rust via
+    // to_java_download_file (the card's octos.invoke("download", {url, dest})).
+    public void downloadFile(final long callId, final String url, final String dest) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                java.net.HttpURLConnection conn = null;
+                InputStream in = null;
+                java.io.OutputStream out = null;
+                try {
+                    java.io.File f = new java.io.File(dest);
+                    java.io.File parent = f.getParentFile();
+                    if (parent != null) parent.mkdirs();
+                    java.net.URL u = new java.net.URL(url);
+                    conn = (java.net.HttpURLConnection) u.openConnection();
+                    conn.setInstanceFollowRedirects(true);
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(30000);
+                    conn.connect();
+                    int code = conn.getResponseCode();
+                    if (code < 200 || code >= 300) {
+                        MakepadNative.onDownloadComplete(callId, null, "HTTP " + code);
+                        return;
+                    }
+                    long total = conn.getContentLengthLong();
+                    in = conn.getInputStream();
+                    out = new java.io.FileOutputStream(f);
+                    byte[] buf = new byte[65536];
+                    long done = 0, lastReport = 0;
+                    int n;
+                    while ((n = in.read(buf)) != -1) {
+                        out.write(buf, 0, n);
+                        done += n;
+                        if (done - lastReport >= 262144) { // ~every 256 KB
+                            lastReport = done;
+                            MakepadNative.onDownloadProgress(callId, done, total);
+                        }
+                    }
+                    out.flush();
+                    MakepadNative.onDownloadProgress(callId, done, total);
+                    MakepadNative.onDownloadComplete(callId, dest, null);
+                } catch (Throwable t) {
+                    MakepadNative.onDownloadComplete(callId, null, "download failed: " + t.toString());
+                } finally {
+                    try { if (out != null) out.close(); } catch (Throwable ignore) {}
+                    try { if (in != null) in.close(); } catch (Throwable ignore) {}
+                    if (conn != null) conn.disconnect();
+                }
+            }
+        }).start();
+    }
+
+    // Fire the system share sheet (ACTION_SEND) for social sharing. Called
+    // from Rust via `android_jni::to_java_share_text`.
+    public void shareText(String content) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, content);
+            Intent chooser = Intent.createChooser(intent, "Share");
+            startActivity(chooser);
+        } catch (Exception e) {
+            Log.e("Makepad", "shareText failed: " + e.toString());
+        }
+    }
+
+    public String pasteFromClipboard() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard.hasPrimaryClip()) {
+            ClipData clipData = clipboard.getPrimaryClip();
+            if (clipData != null && clipData.getItemCount() > 0) {
+                ClipData.Item item = clipData.getItemAt(0);
+                CharSequence text = item.getText();
+                if (text != null) {
+                    return text.toString();
+                }
+            }
+        }
+        return "";
+    }
+
+    private String getApplicationName() {
+        ApplicationInfo applicationInfo = getApplicationContext().getApplicationInfo();
+        CharSequence appName = applicationInfo.loadLabel(getPackageManager());
+        return appName.toString();
+    }
+
+    private int getApplicationIconResId() {
+        ApplicationInfo applicationInfo = getApplicationContext().getApplicationInfo();
+        return applicationInfo.icon;
+    }
+
+    public void showClipboardActions(final boolean hasSelection, final int left, final int top, final int right, final int bottom, final int keyboardShift) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mHasSelection = hasSelection;
+                mSelectionBounds[0] = left;
+                mSelectionBounds[1] = top;
+                mSelectionBounds[2] = right;
+                mSelectionBounds[3] = bottom;
+                mKeyboardShift = keyboardShift;
+
+                // If ActionMode is already showing, finish it first
+                if (mActionMode != null) {
+                    mActionMode.finish();
+                }
+
+                // Start ActionMode with our callback
+                // Use TYPE_FLOATING (API 23+) to show near finger, falls back to primary for older versions
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    mActionMode = startActionMode(new ActionMode.Callback2() {
+                        @Override
+                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                            return onCreateActionModeInternal(mode, menu);
+                        }
+
+                        @Override
+                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                            return onPrepareActionModeInternal(mode, menu);
+                        }
+
+                        @Override
+                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                            return onActionItemClickedInternal(mode, item);
+                        }
+
+                        @Override
+                        public void onDestroyActionMode(ActionMode mode) {
+                            onDestroyActionModeInternal(mode);
+                        }
+
+                        @Override
+                        public void onGetContentRect(ActionMode mode, View view, android.graphics.Rect outRect) {
+                            // The content rect tells Android what area to AVOID covering (not where to position)
+                            // Android's FloatingToolbar will automatically position itself above or below this rect
+                            // based on available screen space
+
+                            // Use asymmetric padding: more above (for better spacing when popup appears above),
+                            // less below (already looks good), and some on sides for visual balance
+                            int topPadding = 16;      // More padding above pushes popup higher
+                            int bottomPadding = 2;    // Minimal padding below (already good spacing)
+                            int sidePadding = 2;      // Horizontal padding for visual balance
+
+                            int left = mSelectionBounds[0] - sidePadding;
+                            int top = mSelectionBounds[1] - topPadding;
+                            int right = mSelectionBounds[2] + sidePadding;
+                            int bottom = mSelectionBounds[3] + bottomPadding;
+
+                            outRect.set(left, top, right, bottom);
+                        }
+                    }, ActionMode.TYPE_FLOATING);
+                } else {
+                    mActionMode = startActionMode(new ActionMode.Callback() {
+                        @Override
+                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                            return onCreateActionModeInternal(mode, menu);
+                        }
+
+                        @Override
+                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                            return onPrepareActionModeInternal(mode, menu);
+                        }
+
+                        @Override
+                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                            return onActionItemClickedInternal(mode, item);
+                        }
+
+                        @Override
+                        public void onDestroyActionMode(ActionMode mode) {
+                            onDestroyActionModeInternal(mode);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    public void dismissClipboardActions() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mActionMode != null) {
+                    mActionMode.finish();
+                    mActionMode = null;
+                }
+            }
+        });
+    }
+
+    // Helper methods for ActionMode callbacks (shared between Callback and Callback2)
+    private boolean onCreateActionModeInternal(ActionMode mode, Menu menu) {
+        // Add menu items: Copy, Cut, Paste, Select All
+        menu.add(0, android.R.id.copy, 0, android.R.string.copy);
+        menu.add(0, android.R.id.cut, 0, android.R.string.cut);
+        menu.add(0, android.R.id.paste, 0, android.R.string.paste);
+        menu.add(0, android.R.id.selectAll, 0, android.R.string.selectAll);
+        return true;
+    }
+
+    private boolean onPrepareActionModeInternal(ActionMode mode, Menu menu) {
+        boolean hasSelection = mHasSelection;
+        boolean hasClipboard = false;
+
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard.hasPrimaryClip()) {
+            hasClipboard = true;
+        }
+
+        MenuItem copyItem = menu.findItem(android.R.id.copy);
+        MenuItem cutItem = menu.findItem(android.R.id.cut);
+        MenuItem pasteItem = menu.findItem(android.R.id.paste);
+
+        if (copyItem != null) copyItem.setVisible(hasSelection);
+        if (cutItem != null) cutItem.setVisible(hasSelection);
+        if (pasteItem != null) pasteItem.setVisible(hasClipboard);
+
+        return true;
+    }
+
+    private boolean onActionItemClickedInternal(ActionMode mode, MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.copy) {
+            MakepadNative.onClipboardAction("copy");
+            mode.finish();
+            return true;
+        } else if (id == android.R.id.cut) {
+            MakepadNative.onClipboardAction("cut");
+            mode.finish();
+            return true;
+        } else if (id == android.R.id.paste) {
+            String content = pasteFromClipboard();
+            MakepadNative.onClipboardPaste(content);
+            mode.finish();
+            return true;
+        } else if (id == android.R.id.selectAll) {
+            MakepadNative.onClipboardAction("select_all");
+            // Sync Java-side selection with Rust so backspace/delete will work
+            // This updates mEditable's selection and notifies the IME
+            view.selectAllInEditable();
+            mode.finish();
+            return true;
+        }
+        return false;
+    }
+
+    private void onDestroyActionModeInternal(ActionMode mode) {
+        mActionMode = null;
+        mHasSelection = false;
+    }
+
+    private View.OnTouchListener createSelectionHandleDragListener(final int handleKind) {
+        return new View.OnTouchListener() {
+            private final int[] rootLocation = new int[2];
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (mRootLayout == null) {
+                    return false;
+                }
+                mRootLayout.getLocationOnScreen(rootLocation);
+                float absX = event.getRawX() - rootLocation[0];
+                float absY = event.getRawY() - rootLocation[1];
+                int action = event.getActionMasked();
+
+                if (action == MotionEvent.ACTION_DOWN) {
+                    setSelectionHandlePosition(v, absX, absY);
+                    MakepadNative.beginInput();
+                    MakepadNative.onSelectionHandleDrag(handleKind, SELECTION_DRAG_BEGIN, absX, absY, event.getEventTime());
+                    return true;
+                }
+                if (action == MotionEvent.ACTION_MOVE) {
+                    setSelectionHandlePosition(v, absX, absY);
+                    MakepadNative.beginInput();
+                    MakepadNative.onSelectionHandleDrag(handleKind, SELECTION_DRAG_MOVE, absX, absY, event.getEventTime());
+                    return true;
+                }
+                if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                    setSelectionHandlePosition(v, absX, absY);
+                    MakepadNative.beginInput();
+                    MakepadNative.onSelectionHandleDrag(handleKind, SELECTION_DRAG_END, absX, absY, event.getEventTime());
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    private void setSelectionHandlePosition(View handle, float x, float y) {
+        if (handle == null) {
+            return;
+        }
+        handle.setX(x - (mSelectionHandleSizePx * 0.5f));
+        handle.setY(y - (mSelectionHandleSizePx * 0.5f));
+    }
+
+    public void showSelectionHandles(final float startX, final float startY, final float endX, final float endY) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSelectionHandleOverlay == null || mSelectionHandleStart == null || mSelectionHandleEnd == null) {
+                    return;
+                }
+                mSelectionHandleOverlay.setVisibility(View.VISIBLE);
+                setSelectionHandlePosition(mSelectionHandleStart, startX, startY);
+                setSelectionHandlePosition(mSelectionHandleEnd, endX, endY);
+                mSelectionHandleStart.setVisibility(View.VISIBLE);
+                mSelectionHandleEnd.setVisibility(View.VISIBLE);
+                mSelectionHandleOverlay.bringToFront();
+            }
+        });
+    }
+
+    public void updateSelectionHandles(final float startX, final float startY, final float endX, final float endY) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSelectionHandleOverlay == null || mSelectionHandleStart == null || mSelectionHandleEnd == null) {
+                    return;
+                }
+                mSelectionHandleOverlay.setVisibility(View.VISIBLE);
+                setSelectionHandlePosition(mSelectionHandleStart, startX, startY);
+                setSelectionHandlePosition(mSelectionHandleEnd, endX, endY);
+                mSelectionHandleStart.setVisibility(View.VISIBLE);
+                mSelectionHandleEnd.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    public void hideSelectionHandles() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSelectionHandleOverlay == null || mSelectionHandleStart == null || mSelectionHandleEnd == null) {
+                    return;
+                }
+                mSelectionHandleStart.setVisibility(View.GONE);
+                mSelectionHandleEnd.setVisibility(View.GONE);
+                mSelectionHandleOverlay.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    // ---- Native floating chat composer overlay ---------------------------
+    // Built once here from onCreate. A rounded translucent pill (EditText +
+    // send button) anchored to the bottom of a MATCH_PARENT, non-clickable
+    // overlay that floats over the full-screen GL surface. Its touches are
+    // dispatched by the Android view tree, so the pill consumes its own taps
+    // *before* Makepad's routing runs (the full-screen card's PortalList can't
+    // swallow them); taps outside the pill fall through to the card.
+    private void setupComposerOverlay() {
+        final float d = getResources().getDisplayMetrics().density;
+
+        mComposerOverlay = new FrameLayout(this);
+        mComposerOverlay.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        mComposerOverlay.setClickable(false);
+        mComposerOverlay.setFocusable(false);
+        mComposerOverlay.setVisibility(View.GONE);
+        // NOTE: do NOT promote this MATCH_PARENT overlay to a hardware layer. A
+        // full-window hardware layer stacked over the punch-through GL SurfaceView
+        // defeats Android's static-window compositing optimisation — the window's
+        // RenderThread must re-sync the window-sized GPU layer with the surface
+        // every frame, so the native window redraws continuously (~22fps, janky)
+        // even on a static screen and the composer/FAB flicker. Independent
+        // SurfaceFlinger composition (no layer) stays idle when nothing changes.
+
+        // The pill: horizontal EditText + send button, translucent teal to
+        // match the app's liquid-glass composer so the card shows through.
+        mComposerPill = new LinearLayout(this);
+        mComposerPill.setOrientation(LinearLayout.HORIZONTAL);
+        mComposerPill.setGravity(Gravity.CENTER_VERTICAL);
+        GradientDrawable pillBg = new GradientDrawable();
+        pillBg.setColor(0xE60B4035);                    // ~90% opaque #0B4035
+        pillBg.setCornerRadius(24.0f * d);
+        pillBg.setStroke(Math.max(1, (int) (1.5f * d)), 0x5572E4FF);
+        mComposerPill.setBackground(pillBg);
+        int padH = (int) (16.0f * d);
+        int padV = (int) (8.0f * d);
+        mComposerPill.setPadding(padH, padV, (int) (8.0f * d), padV);
+        // Tap anywhere on the pill focuses the input + raises the keyboard;
+        // being clickable also stops card taps leaking through the pill band.
+        mComposerPill.setClickable(true);
+        mComposerPill.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                focusComposerInput();
+            }
+        });
+
+        FrameLayout.LayoutParams pillLp = new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        pillLp.gravity = Gravity.BOTTOM;
+        int side = (int) (12.0f * d);
+        pillLp.setMargins(side, 0, side, (int) (12.0f * d));
+        mComposerPill.setLayoutParams(pillLp);
+
+        // EditText: the SOLE IME client while the composer is up. Makepad keeps
+        // no TextInput focused, so Rust never issues a competing ShowTextIME
+        // and there is no two-controller keyboard race.
+        mComposerInput = new EditText(this);
+        mComposerInput.setBackground(null);
+        // Placeholder "问任何事…" (matches the app's Makepad composer). The
+        // cargo-makepad javac runs under file.encoding=UTF-8, so the literal
+        // UTF-8 source is decoded correctly.
+        mComposerInput.setHint("问任何事…");
+        mComposerInput.setHintTextColor(0x88F3E3C7);
+        mComposerInput.setTextColor(0xFFF3E3C7);
+        mComposerInput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16.0f);
+        // Single line so the IME shows a "Send" action key (a multiline flag
+        // turns it into a newline key). Prompts here are short.
+        mComposerInput.setSingleLine(true);
+        mComposerInput.setInputType(InputType.TYPE_CLASS_TEXT
+            | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        mComposerInput.setImeOptions(EditorInfo.IME_ACTION_SEND);
+        LinearLayout.LayoutParams inputLp = new LinearLayout.LayoutParams(
+            0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f
+        );
+        mComposerInput.setLayoutParams(inputLp);
+        mComposerInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEND
+                    || (event != null
+                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                        && event.getAction() == KeyEvent.ACTION_DOWN)) {
+                    submitComposer();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // Send button — gold paper-plane glyph.
+        TextView send = new TextView(this);
+        send.setText("➤");                                    // ➤
+        send.setTextColor(0xFFF3E3C7);
+        send.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0f);
+        send.setGravity(Gravity.CENTER);
+        int sendSize = (int) (40.0f * d);
+        send.setLayoutParams(new LinearLayout.LayoutParams(sendSize, sendSize));
+        send.setClickable(true);
+        send.setFocusable(true);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                submitComposer();
+            }
+        });
+
+        // Layer 3 — new-app (＋) and switch (⟳) controls sit LEFT of the input,
+        // so all app-management lives in the composer (the rest of the screen is
+        // just the a2app card). They fold away with the pill; collapsed shows
+        // only the "+" FAB. Order: [＋][⟳][input][➤].
+        int ctlSize = (int) (40.0f * d);
+        TextView newAppBtn = new TextView(this);
+        newAppBtn.setText("＋");
+        newAppBtn.setTextColor(0xFF72E4FF);
+        newAppBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19.0f);
+        newAppBtn.setGravity(Gravity.CENTER);
+        newAppBtn.setLayoutParams(new LinearLayout.LayoutParams(ctlSize, ctlSize));
+        newAppBtn.setClickable(true);
+        newAppBtn.setFocusable(true);
+        newAppBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MakepadNative.onComposerNewApp();
+            }
+        });
+        TextView switchBtn = new TextView(this);
+        switchBtn.setText("⟳");
+        switchBtn.setTextColor(0xFFF3E3C7);
+        switchBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19.0f);
+        switchBtn.setGravity(Gravity.CENTER);
+        switchBtn.setLayoutParams(new LinearLayout.LayoutParams(ctlSize, ctlSize));
+        switchBtn.setClickable(true);
+        switchBtn.setFocusable(true);
+        switchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MakepadNative.onComposerSwitch();
+            }
+        });
+        // QR scan (⛶) — opens the camera to scan an LLM-provisioning QR (see
+        // showQrScanner). Sits left of the input: [＋][⟳][⛶][input][➤].
+        TextView qrBtn = new TextView(this);
+        qrBtn.setText("⛶");
+        qrBtn.setTextColor(0xFFF3E3C7);
+        qrBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19.0f);
+        qrBtn.setGravity(Gravity.CENTER);
+        qrBtn.setLayoutParams(new LinearLayout.LayoutParams(ctlSize, ctlSize));
+        qrBtn.setClickable(true);
+        qrBtn.setFocusable(true);
+        qrBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestQrScanner();
+            }
+        });
+
+        mComposerPill.addView(newAppBtn);
+        mComposerPill.addView(switchBtn);
+        mComposerPill.addView(qrBtn);
+        mComposerPill.addView(mComposerInput);
+        mComposerPill.addView(send);
+        mComposerOverlay.addView(mComposerPill);
+
+        // Collapsed "+" button — a round FAB in the bottom-right that replaces
+        // the pill when the composer collapses. Hidden by default (starts
+        // expanded, matching the app's composer_shown=true); tapping it expands.
+        mComposerFab = new TextView(this);
+        mComposerFab.setText("+");
+        mComposerFab.setTextColor(0xFFF3E3C7);
+        mComposerFab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28.0f);
+        mComposerFab.setGravity(Gravity.CENTER);
+        mComposerFab.setIncludeFontPadding(false);
+        GradientDrawable fabBg = new GradientDrawable();
+        fabBg.setShape(GradientDrawable.OVAL);
+        fabBg.setColor(0xE60B4035);                    // matches the pill teal
+        fabBg.setStroke(Math.max(1, (int) (1.5f * d)), 0x5572E4FF);
+        mComposerFab.setBackground(fabBg);
+        int fabSize = (int) (52.0f * d);
+        FrameLayout.LayoutParams fabLp = new FrameLayout.LayoutParams(fabSize, fabSize);
+        fabLp.gravity = Gravity.BOTTOM | Gravity.END;
+        int fabMargin = (int) (16.0f * d);
+        fabLp.setMargins(0, 0, fabMargin, fabMargin);
+        mComposerFab.setLayoutParams(fabLp);
+        mComposerFab.setClickable(true);
+        mComposerFab.setFocusable(true);
+        // Folded by default: only the round "+" FAB shows; the input pill stays
+        // hidden until the user taps "+" to unfold it. (Rust's boot
+        // composer_shown=false + sync_composer also drives this, but starting
+        // folded here avoids a launch flash of the expanded pill.)
+        mComposerFab.setVisibility(View.VISIBLE);
+        mComposerPill.setVisibility(View.GONE);
+        mComposerFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Explicit intent to type: show the pill AND raise the keyboard.
+                // (onClick already runs on the UI thread.)
+                mComposerFab.setVisibility(View.GONE);
+                mComposerPill.setVisibility(View.VISIBLE);
+                focusComposerInput();
+                // Keep the app's composer_shown state in sync with this manual
+                // unfold, so a later sync_composer won't re-fold the pill the
+                // user just opened.
+                MakepadNative.onComposerExpand();
+            }
+        });
+        mComposerOverlay.addView(mComposerFab);
+
+        mRootLayout.addView(mComposerOverlay);
+    }
+
+    // Open the QR scanner overlay: the single entry point for both the
+    // composer's ⛶ button and Rust's `Cx::show_qr_scanner` (CxOsOp::ShowQrScanner).
+    // Safe to call from any thread. Every open ends in exactly one
+    // MakepadNative.onQrCameraFrame hit (-> NativeQrScanned) or
+    // onQrCancelled(reason) (-> NativeQrCancelled).
+    public void requestQrScanner() {
+        runOnUiThread(new Runnable() { public void run() { showQrScanner(); } });
+    }
+
+    // UI thread: ask for CAMERA first when needed, then open the overlay. Rust
+    // decodes the streamed frames (see onQrCameraFrame).
+    private void showQrScanner() {
+        if (mQrScanning || mQrPermPending) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+            && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            mQrPermPending = true;
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, QR_CAMERA_PERM_REQ);
+            return; // re-opened from onRequestPermissionsResult once granted
+        }
+        startQrScanner();
+    }
+
+    private void startQrScanner() {
+        if (mQrScanning) return;
+        mQrScanning = true;
+        final float d = getResources().getDisplayMetrics().density;
+        final SurfaceView sv = new SurfaceView(this);
+        mQrScanOverlay = new FrameLayout(this);
+        mQrScanOverlay.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mQrScanOverlay.setBackgroundColor(0xFF000000);
+        mQrScanOverlay.addView(sv, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        TextView hint = new TextView(this);
+        hint.setText("Scan your LLM QR   ·   tap to cancel");
+        hint.setTextColor(0xFFFFFFFF);
+        hint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16.0f);
+        hint.setGravity(Gravity.CENTER);
+        hint.setPadding(0, (int) (56 * d), 0, 0);
+        FrameLayout.LayoutParams hintLp = new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        hintLp.gravity = Gravity.TOP;
+        mQrScanOverlay.addView(hint, hintLp);
+        mQrScanOverlay.setClickable(true);
+        mQrScanOverlay.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { closeQrScanner("cancelled"); }
+        });
+        mRootLayout.addView(mQrScanOverlay);
+
+        mQrBgThread = new HandlerThread("qr-camera");
+        mQrBgThread.start();
+        mQrBgHandler = new Handler(mQrBgThread.getLooper());
+
+        sv.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override public void surfaceCreated(SurfaceHolder holder) {
+                openQrCamera2(holder.getSurface());
+            }
+            @Override public void surfaceChanged(SurfaceHolder holder, int fmt, int w, int h) {}
+            @Override public void surfaceDestroyed(SurfaceHolder holder) {}
+        });
+    }
+
+    // Camera2 capture: a preview on `previewSurface` + an ImageReader (YUV_420_888)
+    // whose Y plane (luma) is streamed to Rust for a pure-Rust QR decode. Camera2
+    // attributes via the app Context, unlike the deprecated `Camera` API (which is
+    // frame-blocked on some OEMs).
+    private void openQrCamera2(final Surface previewSurface) {
+        try {
+            final CameraManager mgr = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+            String backId = null;
+            for (String id : mgr.getCameraIdList()) {
+                Integer f = mgr.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING);
+                if (f != null && f == CameraCharacteristics.LENS_FACING_BACK) { backId = id; break; }
+            }
+            if (backId == null) {
+                String[] ids = mgr.getCameraIdList();
+                if (ids.length == 0) { closeQrScanner("camera_error"); return; }
+                backId = ids[0];
+            }
+            StreamConfigurationMap map = mgr.getCameraCharacteristics(backId)
+                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            Size chosen = new Size(640, 480);
+            if (map != null) {
+                Size[] sizes = map.getOutputSizes(ImageFormat.YUV_420_888);
+                if (sizes != null) {
+                    for (Size s : sizes) {
+                        if (s.getWidth() <= 1280 && s.getWidth() * s.getHeight()
+                                > chosen.getWidth() * chosen.getHeight()) {
+                            chosen = s;
+                        }
+                    }
+                }
+            }
+            mQrImageReader = ImageReader.newInstance(
+                chosen.getWidth(), chosen.getHeight(), ImageFormat.YUV_420_888, 2);
+            mQrImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+                @Override public void onImageAvailable(ImageReader reader) {
+                    Image img = null;
+                    try {
+                        img = reader.acquireLatestImage();
+                        if (img == null || !mQrScanning) return;
+                        long now = System.currentTimeMillis();
+                        if (now - mQrLastFrameMs < 200) return; // ~5 fps
+                        mQrLastFrameMs = now;
+                        int w = img.getWidth(), h = img.getHeight();
+                        Image.Plane yp = img.getPlanes()[0];
+                        ByteBuffer buf = yp.getBuffer();
+                        int rowStride = yp.getRowStride();
+                        int pixStride = yp.getPixelStride();
+                        byte[] luma = new byte[w * h];
+                        byte[] rowBuf = new byte[rowStride];
+                        int out = 0;
+                        for (int row = 0; row < h; row++) {
+                            int toRead = Math.min(rowStride, buf.remaining());
+                            buf.get(rowBuf, 0, toRead);
+                            for (int col = 0; col < w; col++) luma[out++] = rowBuf[col * pixStride];
+                        }
+                        if (MakepadNative.onQrCameraFrame(luma, w, h)) {
+                            // Rust already posted NativeQrScanned: close silently.
+                            mQrScanning = false;
+                            closeQrScanner(null);
+                        }
+                    } catch (Exception e) {
+                        // transient frame errors are fine; keep scanning
+                    } finally {
+                        if (img != null) img.close();
+                    }
+                }
+            }, mQrBgHandler);
+
+            mgr.openCamera(backId, new CameraDevice.StateCallback() {
+                @Override public void onOpened(CameraDevice device) {
+                    mQrCameraDevice = device;
+                    try {
+                        final CaptureRequest.Builder rb =
+                            device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                        rb.addTarget(previewSurface);
+                        rb.addTarget(mQrImageReader.getSurface());
+                        rb.set(CaptureRequest.CONTROL_AF_MODE,
+                            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                        device.createCaptureSession(
+                            Arrays.asList(previewSurface, mQrImageReader.getSurface()),
+                            new CameraCaptureSession.StateCallback() {
+                                @Override public void onConfigured(CameraCaptureSession session) {
+                                    if (mQrCameraDevice == null) return;
+                                    mQrCaptureSession = session;
+                                    try { session.setRepeatingRequest(rb.build(), null, mQrBgHandler); }
+                                    catch (Exception e) { closeQrScanner("camera_error"); }
+                                }
+                                @Override public void onConfigureFailed(CameraCaptureSession s) {
+                                    closeQrScanner("camera_error");
+                                }
+                            }, mQrBgHandler);
+                    } catch (Exception e) {
+                        android.util.Log.e("Makepad", "QR camera2 session failed: " + e);
+                        closeQrScanner("camera_error");
+                    }
+                }
+                @Override public void onDisconnected(CameraDevice device) {
+                    // Another client took the camera (or it went away): the
+                    // overlay would be a dead black screen, so close it.
+                    device.close();
+                    closeQrScanner("camera_error");
+                }
+                @Override public void onError(CameraDevice device, int error) {
+                    android.util.Log.e("Makepad", "QR camera2 error: " + error);
+                    device.close();
+                    closeQrScanner("camera_error");
+                }
+            }, mQrBgHandler);
+        } catch (Exception e) {
+            android.util.Log.e("Makepad", "QR camera2 open failed: " + e);
+            closeQrScanner("camera_error");
+        }
+    }
+
+    // Close the scanner (reported to Rust as cancelled) + release the camera.
+    // Safe to call from any thread.
+    public void hideQrScanner() {
+        closeQrScanner("cancelled");
+    }
+
+    // Close the scanner + release the camera. Safe to call from any thread.
+    // A non-null `reason` is reported once via onQrCancelled if the scanner was
+    // still open; null closes silently (after a successful decode).
+    private void closeQrScanner(final String reason) {
+        runOnUiThread(new Runnable() { public void run() {
+            boolean wasScanning = mQrScanning;
+            mQrScanning = false;
+            if (wasScanning && reason != null) {
+                MakepadNative.onQrCancelled(reason);
+            }
+            try { if (mQrCaptureSession != null) mQrCaptureSession.close(); } catch (Exception ignore) {}
+            mQrCaptureSession = null;
+            try { if (mQrCameraDevice != null) mQrCameraDevice.close(); } catch (Exception ignore) {}
+            mQrCameraDevice = null;
+            try { if (mQrImageReader != null) mQrImageReader.close(); } catch (Exception ignore) {}
+            mQrImageReader = null;
+            if (mQrBgThread != null) {
+                try { mQrBgThread.quitSafely(); } catch (Exception ignore) {}
+                mQrBgThread = null;
+                mQrBgHandler = null;
+            }
+            if (mQrScanOverlay != null && mRootLayout != null) {
+                mRootLayout.removeView(mQrScanOverlay);
+                mQrScanOverlay = null;
+            }
+        }});
+    }
+
+    private void focusComposerInput() {
+        if (mComposerInput == null) {
+            return;
+        }
+        mComposerInput.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.showSoftInput(mComposerInput, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
+    private void submitComposer() {
+        if (mComposerInput == null) {
+            return;
+        }
+        String text = mComposerInput.getText().toString();
+        if (text.trim().length() == 0) {
+            return;
+        }
+        mComposerInput.setText("");
+        // Hand the text to Rust → the app's send path.
+        MakepadNative.onComposerSubmit(text);
+        // A card will render behind — collapse to the "+" button (this also drops
+        // the keyboard) so it's full-screen. Rust re-asserts this via sync_composer
+        // when streaming starts; collapsing here gives instant feedback on send.
+        collapseComposer();
+    }
+
+    private void hideComposerKeyboard() {
+        if (mComposerInput != null) {
+            mComposerInput.clearFocus();
+        }
+        // Match showKeyboard()'s hide path: WindowInsetsController on API 30+,
+        // where the legacy hideSoftInputFromWindow is unreliable (OxygenOS /
+        // edge-to-edge).
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.ime());
+            }
+        } else {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null && mComposerInput != null) {
+                imm.hideSoftInputFromWindow(mComposerInput.getWindowToken(), 0);
+            }
+        }
+    }
+
+    // Called from Rust via `android_jni::to_java_show_composer`.
+    public void showComposer() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mComposerOverlay == null) {
+                    return;
+                }
+                mComposerOverlay.setVisibility(View.VISIBLE);
+                mComposerOverlay.bringToFront();
+            }
+        });
+    }
+
+    // Called from Rust via `android_jni::to_java_hide_composer`.
+    public void hideComposer() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mComposerOverlay == null) {
+                    return;
+                }
+                hideComposerKeyboard();
+                mComposerOverlay.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    // Called from Rust via `android_jni::to_java_expand_composer`. Swap the "+"
+    // button for the full input pill. Does NOT raise the keyboard — this is used
+    // to reflect state (e.g. at boot), and popping the IME on launch is wrong.
+    // The FAB's own onClick raises the keyboard (explicit user intent to type).
+    public void expandComposer() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mComposerPill == null || mComposerFab == null) {
+                    return;
+                }
+                mComposerFab.setVisibility(View.GONE);
+                mComposerPill.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    // Called from Rust via `android_jni::to_java_collapse_composer`. Drop the
+    // keyboard, hide the pill, show the "+" button. The draft text is preserved
+    // (we never clear mComposerInput here) so expanding restores it.
+    public void collapseComposer() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mComposerPill == null || mComposerFab == null) {
+                    return;
+                }
+                hideComposerKeyboard();
+                mComposerPill.setVisibility(View.GONE);
+                mComposerFab.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    // Lift the composer pill above the soft keyboard. Driven by the IME inset
+    // the host already computes (`MakepadImeInsets.report`), so the pill tracks
+    // the keyboard's show/hide animation. `keyboardOverlapPx` is the keyboard's
+    // overlap with the surface bottom (0 when the keyboard is down). Already on
+    // the UI thread (report() runs from layout / inset callbacks).
+    //
+    // We lift via the overlay's *bottom padding* (a real layout change) rather
+    // than `setTranslationY` on the pill: a translated wide ViewGroup with a
+    // drawable background does not recomposite over the GL SurfaceView (it stays
+    // functionally present but invisible), whereas a genuine relayout redraws it
+    // at the new position. The pill is BOTTOM-gravity inside the overlay, so
+    // bottom padding pushes it up above the keyboard.
+    public void positionComposerForKeyboard(int keyboardOverlapPx) {
+        if (mComposerOverlay == null) {
+            return;
+        }
+        int pad = Math.max(0, keyboardOverlapPx);
+        if (mComposerOverlay.getPaddingBottom() != pad) {
+            mComposerOverlay.setPadding(0, 0, 0, pad);
+        }
+    }
+
+    public void requestHttp(long id, long metadataId, String url, String method, String headers, byte[] body) {
+        // Per-request tracing, off unless the device asks for it:
+        //   adb shell setprop log.tag.MakepadHttp DEBUG
+        final boolean trace = android.util.Log.isLoggable("MakepadHttp", android.util.Log.DEBUG);
+        final long started = System.currentTimeMillis();
+        if (trace) {
+            android.util.Log.i("MakepadHttp", "start #" + id + " " + method + " " + url
+                    + " headers=[" + headers.replace("\r\n", " | ") + "]");
+        }
+        try {
+            MakepadNetwork network = new MakepadNetwork();
+
+            CompletableFuture<HttpResponse> future = network.performHttpRequest(url, method, headers, body);
+
+            future.thenAccept(response -> {
+                if (trace) {
+                    android.util.Log.i("MakepadHttp", "done #" + id + " status=" + response.getStatusCode()
+                            + " bytes=" + (response.getBody() == null ? -1 : response.getBody().length)
+                            + " ms=" + (System.currentTimeMillis() - started));
+                }
+                runOnUiThread(() -> MakepadNative.onHttpResponse(id, metadataId, response.getStatusCode(), response.getHeaders(), response.getBody()));
+            }).exceptionally(ex -> {
+                if (trace) {
+                    android.util.Log.w("MakepadHttp", "fail #" + id + " ms=" + (System.currentTimeMillis() - started) + " " + ex);
+                }
+                runOnUiThread(() -> MakepadNative.onHttpRequestError(id, metadataId, ex.toString()));
+                return null;
+            });
+        } catch (Exception e) {
+            if (trace) {
+                android.util.Log.w("MakepadHttp", "throw #" + id + " " + e);
+            }
+            MakepadNative.onHttpRequestError(id, metadataId, e.toString());
+        }
+    }
+
+    public void openWebSocket(long id, String url, long callback) {
+        MakepadWebSocket webSocket = new MakepadWebSocket(id, url, callback);
+        mActiveWebsockets.put(id, webSocket);
+        webSocket.connect();
+
+        if (webSocket.isConnected()) {
+            MakepadWebSocketReader reader = new MakepadWebSocketReader(this, webSocket);
+            mWebSocketsHandler.post(reader);
+            mActiveWebsocketsReaders.put(id, reader);
+        } else {
+            Log.e("Makepad", "openWebSocket failed id=" + id + " url=" + url);
+        }
+    }
+
+    public void sendWebSocketMessage(long id, byte[] message) {
+      
+        MakepadWebSocket webSocket = mActiveWebsockets.get(id);
+        if (webSocket != null) {
+            webSocket.sendMessage(message);
+        }
+    }
+
+    public void closeWebSocket(long id) {
+        
+        MakepadWebSocket socket = mActiveWebsockets.get(id);
+        if (socket != null) {
+            socket.closeSocketAndClearCallback();
+        }
+        MakepadWebSocketReader reader = mActiveWebsocketsReaders.get(id);
+        if (reader != null) {
+            mWebSocketsHandler.removeCallbacks(reader);
+        }
+        
+        mActiveWebsocketsReaders.remove(id);
+        mActiveWebsockets.remove(id);
+    }
+
+    public boolean openSocketStream(long id, String host, int port, boolean useTls, boolean ignoreSslCert) {
+        MakepadSocketStream socket = new MakepadSocketStream();
+        if (!socket.connect(host, port, useTls, ignoreSslCert)) {
+            return false;
+        }
+        mActiveSocketStreams.put(id, socket);
+        return true;
+    }
+
+    public byte[] socketStreamRead(long id, int maxBytes) {
+        MakepadSocketStream socket = mActiveSocketStreams.get(id);
+        if (socket == null) {
+            return null;
+        }
+        return socket.read(maxBytes);
+    }
+
+    public int socketStreamWrite(long id, byte[] message) {
+        MakepadSocketStream socket = mActiveSocketStreams.get(id);
+        if (socket == null) {
+            return -1;
+        }
+        return socket.write(message);
+    }
+
+    public void socketStreamSetReadTimeout(long id, int timeoutMs) {
+        MakepadSocketStream socket = mActiveSocketStreams.get(id);
+        if (socket != null) {
+            socket.setReadTimeout(timeoutMs);
+        }
+    }
+
+    public void socketStreamSetWriteTimeout(long id, int timeoutMs) {
+        MakepadSocketStream socket = mActiveSocketStreams.get(id);
+        if (socket != null) {
+            socket.setWriteTimeout(timeoutMs);
+        }
+    }
+
+    public void closeSocketStream(long id) {
+        MakepadSocketStream socket = mActiveSocketStreams.get(id);
+        if (socket != null) {
+            socket.close();
+            mActiveSocketStreams.remove(id);
+        }
+    }
+
+    public void webSocketConnectionDone(long id, long callback) {
+        mActiveWebsockets.remove(id);
+        MakepadNative.onWebSocketClosed(callback);
+    }
+
+    public String[] getAudioDevices(long flag){
+        try{
+
+            AudioManager am = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
+            AudioDeviceInfo[] devices = null;
+            ArrayList<String> out = new ArrayList<String>();
+            if(flag == 0){
+                devices = am.getDevices(AudioManager.GET_DEVICES_INPUTS);
+            }
+            else{
+                devices = am.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+            }
+            for(AudioDeviceInfo device: devices){
+                int[] channel_counts = device.getChannelCounts();
+                for(int cc: channel_counts){
+                    out.add(String.format(
+                        "%d$$%d$$%d$$%s",
+                        device.getId(),
+                        device.getType(),
+                        cc,
+                        device.getProductName().toString()
+                    ));
+                }
+            }
+            return out.toArray(new String[0]);
+        }
+        catch(Exception e){
+            Log.e("Makepad", "exception: " + e.getMessage());
+            Log.e("Makepad", "exception: " + e.toString());
+            return null;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    public void openAllMidiDevices(long delay){
+        Runnable runnable = () -> {
+            try{
+                BluetoothManager bm = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+                BluetoothAdapter ba = bm.getAdapter();
+                Set<BluetoothDevice> bluetooth_devices = ba.getBondedDevices();
+                ArrayList<String> bt_names = new ArrayList<String>();
+                MidiManager mm = (MidiManager)this.getSystemService(Context.MIDI_SERVICE);
+                for(BluetoothDevice device: bluetooth_devices){
+                    if(device.getType() == BluetoothDevice.DEVICE_TYPE_LE){
+                        String name =device.getName();
+                        bt_names.add(name);
+                        mm.openBluetoothDevice(device, this, mHandler);
+                    }
+                }
+                // this appears to give you nonworking BLE midi devices. So we skip those by name (not perfect but ok)
+                for (MidiDeviceInfo info : mm.getDevices()){
+                    String name = info.getProperties().getCharSequence(MidiDeviceInfo.PROPERTY_NAME).toString();
+                    boolean found = false;
+                    for (String bt_name : bt_names){
+                        if (bt_name.equals(name)){
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found){
+                        mm.openDevice(info, this, mHandler);
+                    }
+                }
+            }
+            catch(Exception e){
+                Log.e("Makepad", "exception: " + e.getMessage());
+                Log.e("Makepad", "exception: " + e.toString());
+            }
+        };
+        if(delay != 0){
+            mHandler.postDelayed(runnable, delay);
+        }
+        else{ // run now
+            runnable.run();
+        }
+    }
+
+    public void onDeviceOpened(MidiDevice device) {
+        if(device == null){
+            return;
+        }
+        MidiDeviceInfo info = device.getInfo();
+        if(info != null){
+            String name = info.getProperties().getCharSequence(MidiDeviceInfo.PROPERTY_NAME).toString();
+            MakepadNative.onMidiDeviceOpened(name, device);
+        }
+    }
+
+    // location (Cx::start_location_updates)
+    private LocationManager mLocationManager;
+    private LocationListener mLocationListener;
+
+    private void sendLocationUpdate(Location loc) {
+        MakepadNative.onLocationUpdate(
+            loc.getLongitude(), loc.getLatitude(), loc.getAccuracy(),
+            loc.hasAltitude(), loc.getAltitude(),
+            loc.hasSpeed(), loc.getSpeed(),
+            loc.hasBearing(), loc.getBearing(),
+            loc.getTime());
+    }
+
+    public void startLocationUpdates(final long minIntervalMs, final float minDistanceM) {
+        runOnUiThread(() -> {
+            if (mLocationListener != null) {
+                return; // already running
+            }
+            try {
+                mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if (mLocationManager == null) {
+                    MakepadNative.onLocationError(2, "no location service");
+                    return;
+                }
+                LocationListener listener = new LocationListener() {
+                    @Override
+                    public void onLocationChanged(Location loc) {
+                        sendLocationUpdate(loc);
+                    }
+                    @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
+                    @Override public void onProviderEnabled(String provider) {}
+                    @Override public void onProviderDisabled(String provider) {}
+                };
+                boolean any = false;
+                if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    mLocationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, minIntervalMs, minDistanceM,
+                        listener, Looper.getMainLooper());
+                    any = true;
+                }
+                if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                    mLocationManager.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER, minIntervalMs, minDistanceM,
+                        listener, Looper.getMainLooper());
+                    any = true;
+                }
+                if (!any) {
+                    MakepadNative.onLocationError(2, "location providers disabled");
+                    return;
+                }
+                mLocationListener = listener;
+                // seed with the last known fix so the app has a position immediately
+                Location last = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (last == null) {
+                    last = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                }
+                if (last != null) {
+                    sendLocationUpdate(last);
+                }
+            }
+            catch (SecurityException e) {
+                mLocationListener = null;
+                MakepadNative.onLocationError(1, "location permission missing");
+            }
+            catch (Exception e) {
+                mLocationListener = null;
+                MakepadNative.onLocationError(2, e.toString());
+            }
+        });
+    }
+
+    public void stopLocationUpdates() {
+        runOnUiThread(() -> {
+            try {
+                if (mLocationManager != null && mLocationListener != null) {
+                    mLocationManager.removeUpdates(mLocationListener);
+                }
+            }
+            catch (Exception e) {
+                Log.e("Makepad", "stopLocationUpdates: " + e.toString());
+            }
+            mLocationListener = null;
+        });
+    }
+
+    // The OS speech engines (makepad-system-speech). Everything real lives in
+    // MakepadSpeech; these are just the names the JNI side resolves on the
+    // activity, because a natively attached thread's class loader cannot find
+    // app classes with FindClass.
+    private MakepadSpeech mSpeech;
+
+    private synchronized MakepadSpeech speech() {
+        if (mSpeech == null) {
+            mSpeech = new MakepadSpeech(this);
+        }
+        return mSpeech;
+    }
+
+    public boolean speechSttAvailable() {
+        return speech().sttAvailable();
+    }
+
+    public void speechSttStart(long session, String languageTag, boolean partial, boolean preferOffline) {
+        speech().sttStart(session, languageTag, partial, preferOffline);
+    }
+
+    public void speechSttStop(long session) {
+        speech().sttStop(session);
+    }
+
+    public boolean speechTtsAvailable() {
+        return speech().ttsAvailable();
+    }
+
+    public String[] speechTtsVoices() {
+        return speech().ttsVoices();
+    }
+
+    public byte[] speechTtsSynthesize(String text, String voiceName, String languageTag, float rate, float pitch) {
+        return speech().ttsSynthesize(text, voiceName, languageTag, rate, pitch);
+    }
+
+    public String speechTtsLastError() {
+        return speech().ttsLastError();
+    }
+
+    public void attachCameraNativePreview(final long videoId, final int left, final int top, final int right, final int bottom) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mCameraPreviewOverlay == null) {
+                    return;
+                }
+                CameraPreviewSurface preview = mCameraPreviewViews.get(videoId);
+                if (preview == null) {
+                    preview = new CameraPreviewSurface(MakepadActivity.this, videoId);
+                    mCameraPreviewViews.put(videoId, preview);
+                    mCameraPreviewOverlay.addView(preview);
+                }
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    Math.max(1, right - left),
+                    Math.max(1, bottom - top)
+                );
+                lp.leftMargin = left;
+                lp.topMargin = top;
+                preview.setLayoutParams(lp);
+                preview.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    public void updateCameraNativePreview(final long videoId, final int left, final int top, final int right, final int bottom, final boolean visible) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                CameraPreviewSurface preview = mCameraPreviewViews.get(videoId);
+                if (preview == null) {
+                    if (visible) {
+                        attachCameraNativePreview(videoId, left, top, right, bottom);
+                    }
+                    return;
+                }
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    Math.max(1, right - left),
+                    Math.max(1, bottom - top)
+                );
+                lp.leftMargin = left;
+                lp.topMargin = top;
+                preview.setLayoutParams(lp);
+                preview.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+            }
+        });
+    }
+
+    // ---- System browser (web app card) overlays ----
+    //
+    // A web app card is an LLM-generated, self-contained HTML document rendered
+    // in a real android.webkit.WebView floated over the GL surface. Content is
+    // loaded with loadDataWithBaseURL against an https base so the document has
+    // a proper origin (YouTube and other referer-gated embeds refuse file:// /
+    // null-origin pages).
+
+    private WebView ensureSystemBrowser(long browserId) {
+        WebView view = mSystemBrowserViews.get(browserId);
+        if (view != null) {
+            return view;
+        }
+        // Remote debugging for web app cards (chrome://inspect via adb).
+        WebView.setWebContentsDebuggingEnabled(true);
+        WebView web = new WebView(this);
+        WebSettings settings = web.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setAllowFileAccess(false);
+        settings.setAllowContentAccess(false);
+        settings.setMediaPlaybackRequiresUserGesture(false);
+        // The page's own viewport rules: with overview mode a page whose DOM
+        // overflows its declared width (GitHub's does) is zoomed out to fit
+        // the overflow, painting at a fraction of the view; without it a
+        // `width=device-width` page stays at scale 1 and the overflow pans.
+        // Pinch zoom is on for the pages that still need it, without the
+        // on-screen zoom buttons.
+        settings.setLoadWithOverviewMode(false);
+        settings.setUseWideViewPort(true);
+        settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        web.setBackgroundColor(0xFF101418);
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback) {
+                // Fullscreen <video>: float the player's custom view over
+                // EVERYTHING (it is added last, so it is topmost) and hide the
+                // system bars while it is up.
+                if (mSystemBrowserCustomView != null) {
+                    callback.onCustomViewHidden();
+                    return;
+                }
+                mSystemBrowserCustomView = view;
+                mSystemBrowserCustomViewCallback = callback;
+                view.setBackgroundColor(0xFF000000);
+                mRootLayout.addView(view, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                ));
+                applyFullScreen(true);
+            }
+
+            @Override
+            public void onHideCustomView() {
+                if (mSystemBrowserCustomView == null) {
+                    return;
+                }
+                mRootLayout.removeView(mSystemBrowserCustomView);
+                mSystemBrowserCustomView = null;
+                if (mSystemBrowserCustomViewCallback != null) {
+                    mSystemBrowserCustomViewCallback.onCustomViewHidden();
+                    mSystemBrowserCustomViewCallback = null;
+                }
+                applyFullScreen(false);
+            }
+        });
+        final long boundBrowserId = browserId;
+        web.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView v, String url) {
+                // This callback sees every navigation the WebView starts for
+                // itself: a link tap, a script navigation, and a server
+                // redirect. Returning true cancels it, which is what a card
+                // wants — a stray link should not hijack the card into a full
+                // browsing session. A navigable browser returns false and
+                // follows the hop; embeds/iframes are unaffected either way.
+                boolean blocked = !isSystemBrowserNavigable(boundBrowserId);
+                if (blocked) {
+                    // Without this the cancel is completely silent, which is
+                    // indistinguishable from a page that simply did not load.
+                    Log.i("MakepadWeb", "navigation blocked id=" + boundBrowserId + " url=" + url);
+                }
+                return blocked;
+            }
+
+            @Override
+            public void onReceivedError(WebView v, WebResourceRequest request, WebResourceError error) {
+                // Main frame only: a failed image or tracker is not a failed
+                // page, and reporting those would flicker the host's error view.
+                if (request == null || !request.isForMainFrame()) {
+                    return;
+                }
+                String url = request.getUrl() == null ? "" : request.getUrl().toString();
+                String description = error == null || error.getDescription() == null
+                    ? "" : error.getDescription().toString();
+                int code = error == null ? 0 : error.getErrorCode();
+                Log.i("MakepadWeb", "page error id=" + boundBrowserId + " code=" + code + " url=" + url);
+                MakepadNative.onSystemBrowserPageError(boundBrowserId, code, description, url);
+            }
+        });
+        // JS→native bridge: the card calls window.octos_native.invoke(callId, tool, args);
+        // we forward it to Rust (WebCard widget dispatches the tool and resolves the
+        // card promise via evalSystemBrowserJs). @JavascriptInterface runs on a WebView
+        // worker thread, so this returns immediately — the result comes back async.
+        web.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void invoke(long callId, String tool, String args) {
+                MakepadNative.onSystemBrowserInvoke(boundBrowserId, callId, tool, args);
+            }
+        }, "octos_native");
+        Log.i("MakepadWeb", "create id=" + browserId + " navigable=" + isSystemBrowserNavigable(browserId));
+        mSystemBrowserViews.put(browserId, web);
+        if (mSystemBrowserOverlay != null) {
+            mSystemBrowserOverlay.addView(web);
+        }
+        return web;
+    }
+
+    // Run JS inside a card's WebView (native→card channel). Called from Rust via
+    // android_jni::to_java_eval_system_browser_js to resolve octos.invoke promises.
+    public void evalSystemBrowserJs(final long browserId, final String js) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebView web = mSystemBrowserViews.get(browserId);
+                if (web != null) {
+                    web.evaluateJavascript(js, null);
+                }
+            }
+        });
+    }
+
+    // Whether this browser may navigate away from the document it was opened
+    // with. Read by the WebViewClient, which outlives any single load, so the
+    // policy lives in a map rather than in the client instance.
+    private boolean isSystemBrowserNavigable(long browserId) {
+        return Boolean.TRUE.equals(mSystemBrowserNavigable.get(browserId));
+    }
+
+    public void spawnSystemBrowser(final long browserId, final String url, final boolean navigable) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Set before the view exists: ensureSystemBrowser's client
+                // reads the policy on every navigation, including the first.
+                mSystemBrowserNavigable.put(browserId, navigable);
+                WebView web = ensureSystemBrowser(browserId);
+                if (url != null && !url.isEmpty() && !url.equals("about:blank")) {
+                    web.loadUrl(url);
+                }
+            }
+        });
+    }
+
+    public void updateSystemBrowser(final long browserId, final int left, final int top, final int right, final int bottom, final boolean visible) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebView web = mSystemBrowserViews.get(browserId);
+                if (web == null) {
+                    return;
+                }
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    Math.max(1, right - left),
+                    Math.max(1, bottom - top)
+                );
+                lp.leftMargin = left;
+                lp.topMargin = top;
+                web.setLayoutParams(lp);
+                web.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+            }
+        });
+    }
+
+    public void detachSystemBrowser(final long browserId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebView web = mSystemBrowserViews.get(browserId);
+                if (web != null) {
+                    web.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    public void closeSystemBrowser(final long browserId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebView web = mSystemBrowserViews.remove(browserId);
+                mSystemBrowserNavigable.remove(browserId);
+                if (web != null) {
+                    if (mSystemBrowserOverlay != null) {
+                        mSystemBrowserOverlay.removeView(web);
+                    }
+                    web.destroy();
+                }
+            }
+        });
+    }
+
+    public void setSystemBrowserUrl(final long browserId, final String url) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebView web = ensureSystemBrowser(browserId);
+                web.loadUrl(url);
+            }
+        });
+    }
+
+    public void setSystemBrowserHtml(final long browserId, final String html, final String baseUrl) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebView web = ensureSystemBrowser(browserId);
+                String base = (baseUrl == null || baseUrl.isEmpty()) ? "https://octos-one.app/" : baseUrl;
+                web.loadDataWithBaseURL(base, html, "text/html", "utf-8", null);
+            }
+        });
+    }
+
+    public void detachCameraNativePreview(final long videoId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                CameraPreviewSurface preview = mCameraPreviewViews.remove(videoId);
+                if (preview != null && mCameraPreviewOverlay != null) {
+                    mCameraPreviewOverlay.removeView(preview);
+                }
+            }
+        });
+    }
+
+    private static boolean codecLooksSoftware(MediaCodecInfo info) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (info.isSoftwareOnly()) return true;
+            if (info.isHardwareAccelerated()) return false;
+        }
+        String name = info.getName().toLowerCase();
+        return name.startsWith("omx.google.") || name.startsWith("c2.android.") || name.contains("sw");
+    }
+
+    private static boolean codecLooksHardware(MediaCodecInfo info) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (info.isHardwareAccelerated()) return true;
+            if (info.isSoftwareOnly()) return false;
+        }
+        return !codecLooksSoftware(info);
+    }
+
+    public int[] queryH264CodecSupport() {
+        boolean encHw = false;
+        boolean encSw = false;
+        boolean decHw = false;
+        boolean decSw = false;
+        int maxWidth = 0;
+        int maxHeight = 0;
+        int maxFps = 0;
+        int maxBitrate = 0;
+        int widthAlign = 2;
+        int heightAlign = 2;
+
+        try {
+            MediaCodecList list = new MediaCodecList(MediaCodecList.ALL_CODECS);
+            for (MediaCodecInfo info : list.getCodecInfos()) {
+                String[] types = info.getSupportedTypes();
+                boolean supportsAvc = false;
+                for (String t : types) {
+                    if ("video/avc".equalsIgnoreCase(t)) {
+                        supportsAvc = true;
+                        break;
+                    }
+                }
+                if (!supportsAvc) {
+                    continue;
+                }
+
+                boolean hw = codecLooksHardware(info);
+                boolean sw = codecLooksSoftware(info);
+
+                boolean probeOk = false;
+                MediaCodec codec = null;
+                try {
+                    codec = MediaCodec.createByCodecName(info.getName());
+                    probeOk = codec != null;
+                } catch (Throwable ignored) {
+                    probeOk = false;
+                } finally {
+                    if (codec != null) {
+                        try { codec.release(); } catch (Throwable ignored) {}
+                    }
+                }
+                if (!probeOk) {
+                    continue;
+                }
+
+                try {
+                    MediaCodecInfo.CodecCapabilities caps = info.getCapabilitiesForType("video/avc");
+                    if (caps != null && caps.getVideoCapabilities() != null) {
+                        MediaCodecInfo.VideoCapabilities vc = caps.getVideoCapabilities();
+                        maxWidth = Math.max(maxWidth, vc.getSupportedWidths().getUpper().intValue());
+                        maxHeight = Math.max(maxHeight, vc.getSupportedHeights().getUpper().intValue());
+                        maxBitrate = Math.max(maxBitrate, vc.getBitrateRange().getUpper().intValue());
+                        maxFps = Math.max(maxFps, vc.getSupportedFrameRates().getUpper().intValue());
+                        widthAlign = Math.max(widthAlign, vc.getWidthAlignment());
+                        heightAlign = Math.max(heightAlign, vc.getHeightAlignment());
+                    }
+                } catch (Throwable ignored) {}
+
+                if (info.isEncoder()) {
+                    if (hw) encHw = true;
+                    if (sw) encSw = true;
+                } else {
+                    if (hw) decHw = true;
+                    if (sw) decSw = true;
+                }
+            }
+        } catch (Throwable ignored) {}
+
+        return new int[] {
+            encHw ? 1 : 0,
+            encSw ? 1 : 0,
+            decHw ? 1 : 0,
+            decSw ? 1 : 0,
+            maxWidth,
+            maxHeight,
+            maxFps,
+            maxBitrate,
+            widthAlign,
+            heightAlign,
+        };
+    }
+
+    public void prepareVideoPlayback(long videoId, Object source, int externalTextureHandle, boolean autoplay, boolean shouldLoop) {
+        VideoPlayer VideoPlayer = new VideoPlayer(this, videoId);
+        VideoPlayer.setSource(source);
+        VideoPlayer.setExternalTextureHandle(externalTextureHandle);
+        VideoPlayer.setAutoplay(autoplay);
+        VideoPlayer.setShouldLoop(shouldLoop);
+        VideoPlayerRunnable runnable = new VideoPlayerRunnable(VideoPlayer);
+
+        mVideoPlayerRunnables.put(videoId, runnable);
+        mVideoPlaybackHandler.post(runnable);
+    }
+
+    public void beginVideoPlayback(long videoId) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            runnable.beginPlayback();
+        }
+    }
+
+    public void pauseVideoPlayback(long videoId) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            runnable.pausePlayback();
+        }
+    }
+
+    public void resumeVideoPlayback(long videoId) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            runnable.resumePlayback();
+        }
+    }
+
+    public void muteVideoPlayback(long videoId) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            runnable.mute();
+        }
+    }
+
+    public void unmuteVideoPlayback(long videoId) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            runnable.unmute();
+        }
+    }
+
+    public void setVideoPlaybackRate(long videoId, double rate) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            runnable.setPlaybackRate(rate);
+        }
+    }
+
+    public void seekVideoPlayback(long videoId, long positionMs) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            runnable.seekToPosition(positionMs);
+        }
+    }
+
+    public long getVideoPlaybackPosition(long videoId) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.get(videoId);
+        if(runnable != null) {
+            return runnable.getCurrentPositionMs();
+        }
+        return 0;
+    }
+
+    public void cleanupVideoPlaybackResources(long videoId) {
+        VideoPlayerRunnable runnable = mVideoPlayerRunnables.remove(videoId);
+        if(runnable != null) {
+            runnable.cleanupVideoPlaybackResources();
+            runnable = null;
+        }
+        detachCameraNativePreview(videoId);
+    }
+    
+                
+    public boolean isEmulator() {
+        // hints that the app is running on emulator
+        return Build.MODEL.startsWith("sdk")
+            || "google_sdk".equals(Build.MODEL)
+            || Build.MODEL.contains("Emulator")
+            || Build.MODEL.contains("Android SDK")
+            || Build.MODEL.toLowerCase().contains("droid4x")
+            || Build.FINGERPRINT.startsWith("generic")
+            || Build.PRODUCT == "sdk"
+            || Build.PRODUCT == "google_sdk"
+            || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"));
+    }
+
+    private String getKernelVersion() {
+        try {
+            Process process = Runtime.getRuntime().exec("uname -r");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            return "Unknown";
+        }
+    }
+    
+    
+
+    @SuppressWarnings("deprecation")
+    public float getDeviceRefreshRate() {
+        float refreshRate = 60.0f;  // Default to a common refresh rate
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Use getDisplay() API on Android 11 and above
+            Display display = getDisplay();
+            if (display != null) {
+                refreshRate = display.getRefreshRate();
+            }
+        } else {
+            // Use the old method for Android 10 and below
+            WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+            if (windowManager != null) {
+                Display display = windowManager.getDefaultDisplay();
+                refreshRate = display.getRefreshRate();
+            }
+        }
+
+        return refreshRate;
+    }
+}

@@ -1,0 +1,42 @@
+[workspace]
+members = [
+    "crates/octoscript-core",
+    "crates/octoscript-ui-l0",
+    "crates/octoscript-linux-seccomp",
+    "crates/octoscript-linux-project-quota",
+    "crates/octoscript-capabilities",
+    "crates/octoscript-protocol",
+    "crates/octoscript-schema",
+    "crates/octoscript-sandbox",
+    "crates/octoscript-storage",
+    "crates/octoscript-worker",
+    "crates/octoscript-workflow",
+    "crates/octoscript-cli",
+    "crates/octoscript-lsp",
+    "crates/octoscript-media-host",
+]
+default-members = [
+    "crates/octoscript-core",
+    "crates/octoscript-linux-seccomp",
+    "crates/octoscript-linux-project-quota",
+    "crates/octoscript-capabilities",
+    "crates/octoscript-protocol",
+    "crates/octoscript-schema",
+    "crates/octoscript-sandbox",
+    "crates/octoscript-storage",
+    "crates/octoscript-worker",
+    "crates/octoscript-workflow",
+    "crates/octoscript-cli",
+    "crates/octoscript-lsp",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/OctoSense-org/Octoscript"
+rust-version = "1.85"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fuzzing)"] }

@@ -1,0 +1,642 @@
+# L0 constructor catalog — the normative argument contract for
+# docs/ui-profile-l0.md. Derived from the three reference cards in
+# octos-one/docs/l0/, not invented: every constructor and argument here is one
+# they use.
+#
+# TOKENS ARE LEXICALLY MARKED with a leading dot: `.fill`, `.money`, `.center`.
+#
+# This supersedes amendment #9's resolution. That rule said a bare identifier
+# resolved by the argument's declared shape — which fails the moment one
+# argument admits both, and `unit` does: `unit: units` is a path to card state,
+# `unit: .pct` is a token. Marking tokens removes the ambiguity at the lexical
+# level rather than the semantic one, so a prop named `fill` can never collide
+# with `.fill`, and the catalog only has to say which tokens are LEGAL rather
+# than disambiguate what a name means.
+#
+# kinds:
+#   token       one of `tokens`, written with a leading dot
+#   path        a bound path — source, state, prop, copy or loop binder
+#   event       a declared event name (local or received as a prop)
+#   number/text/bool   a literal of that type, or a path of that shape
+#   data        a bound path that renders a FACT. Distinct from `number`
+#               because `gap: 6` is layout the card may choose and
+#               `value: 41.2` is a measurement it may not (§4 no-facts)
+#   any         path or literal
+#   record/collection  component props only
+
+# ─── containers ───────────────────────────────────────────────────────────────
+
+# A registered theme-kit component. The host supplies its checked definition;
+# an instance names a source-linked placement, not a widget implementation.
+[Kit]
+component = { kind = "text" }
+instance = { kind = "text" }
+part = { kind = "text" }
+text = { kind = "text" }
+placeholder = { kind = "text" }
+enabled = { kind = "bool" }
+checked = { kind = "bool" }
+selected = { kind = "bool" }
+index = { kind = "number" }
+value = { kind = "number" }
+value2 = { kind = "number" }
+focused = { kind = "bool" }
+password = { kind = "bool" }
+
+[Surface]
+pad = { kind = "token", tokens = ["page", "tight", "none"] }
+
+[Photo]
+src = { kind = "path" }
+pad = { kind = "token", tokens = ["page", "tight", "none"] }
+
+# A map. The card names the TRIP; the widget fetches its own route.
+#
+# The same correction `AqiContour` and `StockPlot` already took, and for the same
+# reason. The shipping nav card calls `sys.navroute` itself, hand-builds a marker
+# string, and pushes both into the widget through imperative setters from inside
+# a per-frame `tick()` — which is the card doing the widget's job, and is most of
+# why that card classifies at L2. A route is not a card's to compute.
+[Map]
+mode = { kind = "token", tokens = ["plan", "drive", "flat"] }
+from = { kind = "path" }
+to   = { kind = "path" }
+via  = { kind = "path" }
+# A SECOND fixed slot. Not a list: role arguments route through the expression
+# grammar, so admitting one there is a change to the whole grammar for one argument.
+# The app being replaced has exactly two waypoint slots and hides "add stop" when
+# both are full.
+via2 = { kind = "path" }
+# The live position the camera follows — a source answering `lat`/`lon`, in
+# practice `sys.gps`. This is what makes `.drive` mean the chase camera instead of
+# the static preview: without it there is no measured position and a follow camera
+# could only animate on a timer, drawing motion the user is not making. With it,
+# every frame the map spends is one a real fix earned.
+at   = { kind = "path" }
+# Flat or tilted, while driving. R8.1 of the shipping app's contract is a tilted
+# 2.5D chase view; `.flat` is the heading-up 2D one. Ignored without `at:`, because
+# a preview has no camera to tilt.
+view = { kind = "mapview" }
+zoom = { kind = "number" }
+# The controls the map offers. `.zoom` is a +/- pill; `.all` adds a recenter
+# button. The card NAMES the affordance and the theme draws it — which is the whole
+# reason these are expressible here at all. The L2 card draws its own pill and
+# writes `on_click: || ui.themap.nav_zoom_by("0.7")`: a method call on a named
+# widget, and the imperative wiring this profile exists to exclude. "This map can be
+# zoomed" is a capability; the button, the glyph and the call are presentation.
+controls = { kind = "token", tokens = ["none", "zoom", "all"] }
+# The start as TWO NUMBERS, for a trip that begins where the device is. `from:`
+# names a source that answers a coordinate, which is right whenever a place was
+# searched for; a position captured from the fix has no such place. Without these
+# the map geocoded the empty origin — `sys.navroute(sys.searchnum("", …))` — so the
+# summary said "from here" and the line drew a route from nowhere.
+# The trip whose cost labels the drawn route — a source, so the bubble and the line
+# describe one journey.
+summary = { kind = "path" }
+from_lat = { kind = "data" }
+from_lon = { kind = "data" }
+
+# A text field — the one role that lets a card receive something the user typed.
+#
+# `text` is a path into declared card state, never a free binding, and
+# `on_commit` carries the typed value as `$value` to a declared transition. So
+# text enters through the same total, declared path a tap does, and §4's
+# `user-copy` class already names what it is. Without this, a card cannot have a
+# search box, which is the other half of why nav could not be written here.
+[Field]
+text        = { kind = "path" }
+placeholder = { kind = "data" }
+on_commit   = { kind = "event" }
+# Per KEYSTROKE, where on_commit is per return — results while you type. Costs a
+# card re-resolve per character: 18-19 ms on a OnePlus 6 planning screen.
+on_change   = { kind = "event" }
+width       = { kind = "width" }
+
+# Where a panel sits when the card is a MAP.
+#
+# A map card is an overlay: the map fills it and the panels float over it (see
+# `l0_surface_map`). `.top` is the band a turn instruction belongs in and `.bottom`
+# is the summary sheet — which is how the app this replaces arranges its driving
+# screen, and how every map app does. Ignored by a card with no map, where panels
+# simply stack.
+[Panel]
+dock = { kind = "token", tokens = ["top", "bottom", "right"] }
+
+[Card]
+on_tap = { kind = "event" }
+value  = { kind = "any" }
+tint   = { kind = "token" }
+
+# `width` says which column absorbs the leftover space. A row of columns has to
+# divide the line somehow, and only the card knows which one should yield.
+[Col]
+align = { kind = "token", tokens = ["start", "center", "end"] }
+gap   = { kind = "number" }
+width = { kind = "width" }
+
+# `width` says whether this row FILLS. It fills by default, because a list row
+# must — and that defeats a centred parent, which was the one thing a card could
+# not say about a row.
+[Row]
+width  = { kind = "width" }
+align  = { kind = "token", tokens = ["start", "center", "end", "baseline"] }
+gap    = { kind = "number" }
+on_tap = { kind = "event" }
+value  = { kind = "any" }
+
+[Grid]
+cols = { kind = "number" }
+
+# Content that a swipe reveals.
+#
+# Inside a docked panel, everything in a `Reveal` starts hidden and a swipe up on the
+# panel shows it; a swipe down hides it again. That is the shipping nav app's drive
+# sheet: a compact time-remaining chip by default, `End` revealed on demand.
+#
+# It is not card STATE. A state change re-resolves the card, which re-parses the
+# document and rebuilds the `MapView` inside it — measured at up to 327 ms of frozen
+# map. The reveal is a visibility toggle the renderer wires directly, exactly as the
+# L2 card does with `ui.endrow.set_visible`, so the map is never touched.
+[Reveal]
+
+[Rule]
+
+# A flexible blank: absorbs the leftover height of the column it sits in.
+# Before a bottom bar it pins the bar to the bottom; around a centered stack it
+# centers the stack vertically. Zero arguments — its whole meaning is "the
+# height that is left".
+[Space]
+
+# A full-bleed inverse section band — a month strip, a dark app-bar stripe.
+[Band]
+text = { kind = "text" }
+
+# One chat message; the side is who said it, the theme styles the parties.
+[Bubble]
+text = { kind = "text" }
+side = { kind = "token" }
+
+# The floating round action button, pinned over the page corner.
+[Fab]
+name = { kind = "token" }
+
+# The bottom tab bar and its tabs, pinned to the page floor.
+[TabBar]
+
+[Tab]
+icon   = { kind = "token" }
+label  = { kind = "text" }
+active = { kind = "token" }
+
+# ─── text roles ───────────────────────────────────────────────────────────────
+# Seven ROLES. A role says what a piece of text is FOR; the active theme decides
+# what it looks like (profile §1.1). `TextHero` is "the one number this card
+# exists to show", not white-at-62pt — a different theme answers the same role
+# differently, and a card written today should survive that.
+#
+# A role is a constructor rather than a `font` argument for the same reason: a
+# model-authored font_family once dropped CJK coverage and rendered 上海 as tofu.
+# Naming the role lets the theme carry the whole glyph fallback chain.
+
+[TextHero]
+text   = { kind = "text" }
+value  = { kind = "data" }
+unit   = { kind = "unit" }
+format = { kind = "format" }
+on_tap = { kind = "event" }
+
+[TextTitle]
+text  = { kind = "text" }
+width = { kind = "width" }
+
+[TextBody]
+text  = { kind = "text" }
+width = { kind = "width" }
+
+[TextStat]
+value  = { kind = "data" }
+format = { kind = "format" }
+tint   = { kind = "path" }
+
+[TextRow]
+text  = { kind = "text" }
+width = { kind = "width" }
+
+# The small tracked-caps line above a hero — "T O K Y O". The card supplies
+# the words; the caps and the tracking are the theme's.
+[TextEyebrow]
+text = { kind = "text" }
+
+[TextCaption]
+text   = { kind = "text" }
+value  = { kind = "data" }
+glyph  = { kind = "text" }
+suffix = { kind = "text" }
+unit   = { kind = "unit" }
+width  = { kind = "width" }
+
+[TextValue]
+value  = { kind = "data" }
+unit   = { kind = "unit" }
+format = { kind = "format" }
+tint   = { kind = "path" }
+
+[Tile]
+label  = { kind = "text" }
+value  = { kind = "data" }
+unit   = { kind = "unit" }
+format = { kind = "format" }
+glyph  = { kind = "text" }
+shape  = { kind = "token" }
+
+[Icon]
+name = { kind = "token" }
+size = { kind = "token" }
+
+[Avatar]
+text = { kind = "text" }
+
+[Chip]
+text   = { kind = "text" }
+on_tap = { kind = "event" }
+value  = { kind = "any" }
+active = { kind = "bool" }        # a predicate is a bool operand
+# What the action MEANS, not what it looks like. `.danger` is the one that ends
+# something — the theme decides that reads red and full-width, because a card that
+# named a colour would be stating presentation, which §4 keeps out of the ledger.
+tone   = { kind = "token", tokens = ["normal", "primary", "danger"] }
+# `.fit` on a danger chip names the compact row-scoped variant; without it a
+# danger chip is a screen action and spans the sheet (nav's Stop).
+width  = { kind = "token", tokens = ["fill", "fit", "day", "rank", "temp", "label"] }
+
+# ─── data-visualisation roles ─────────────────────────────────────────────────
+# Every argument is a path. These render live data and hold no authored values —
+# the class of bug that put an invented `condition` and invented `wmin`/`wmax`
+# into shipped cards.
+#
+# These six cannot be theme compositions (profile §1.1): a gradient bar or a sun
+# arc is a fragment shader parameterised by data, and `octoscript-render` notes that
+# a DSL node cannot carry shader source, because MPSL compiles at build time.
+#
+# HOW they reach a backend is unsettled. An earlier version of this comment said
+# each backend implements them "exactly as it already does for Map", which
+# asserted a contract that does not exist: five of the six are absent from
+# octoscript-render's tag table, and its fallback drops the node. Six of six are
+# implemented in octos-one today and one in Octoscript-Makepad, so the pipeline
+# should be proven there before the vocabulary is fixed.
+#
+# The card still names only a role and its data. Colour, thickness and cap shape
+# remain the backend's, so §1.1 holds here as everywhere else.
+
+[WeatherIcon]
+cond = { kind = "path" }
+size = { kind = "token", tokens = ["hero", "row", "tile"] }
+
+[TempBar]
+lo  = { kind = "path" }
+hi  = { kind = "path" }
+min = { kind = "path" }
+max = { kind = "path" }
+
+[SunArc]
+rise = { kind = "path" }
+set  = { kind = "path" }
+now  = { kind = "path" }
+
+[MoonPhase]
+phase = { kind = "path" }
+illum = { kind = "path" }
+
+# The card supplies a LOCATION, never the field. An earlier version took
+# `field`/`index`/`band`, which described an interface the widget deliberately
+# abandoned: supplying the field meant sixteen scalar uniforms in the card, and
+# as the widget's own comment puts it, "that put a GPU uniform layout into the
+# authoring language — it is not a widget contract, it is an ABI". The widget
+# fetches its own field now, so a card cannot express one wrongly.
+# Live satellite cloud imagery (卫星云图) over a place. Names WHERE; the helper
+# answers the image, so a card shows the sky without stating what is in it.
+[Satellite]
+lat = { kind = "path" }
+lon = { kind = "path" }
+
+[AqiContour]
+lat  = { kind = "path" }
+lon  = { kind = "path" }
+span = { kind = "number" }
+
+# Likewise: the card names WHICH series, and the widget fetches it. Passing
+# `points`/`min`/`max` made the card responsible for a scaled series it has no
+# way to compute — §4's no-facts rule with the arithmetic hidden in the host.
+# Several countries' series on one axis, with a legend. Names WHAT to plot;
+# the widget fetches it and scales every series to one viewport.
+# A list row's image: a fixed 16:9 tile. `Photo` fills its width (it is a
+# backdrop); a row needs a thumbnail beside its text.
+[Thumb]
+src   = { kind = "path" }
+shape = { kind = "token" }
+
+# One YouTube search result. `embed` is a player url ready for sys.link — a
+# card cannot build one, because L0 has no string concatenation.
+[sources."sys.video"]
+args = ["query", "count", "fields"]
+answers = ["id", "title", "channel", "length", "views", "age", "thumb", "embed"]
+
+[IndicatorPlot]
+countries = { kind = "path" }
+indicator = { kind = "path" }
+years     = { kind = "path" }
+
+[StockPlot]
+symbol = { kind = "path" }
+range  = { kind = "unit" }
+
+# ─── shared token sets ────────────────────────────────────────────────────────
+# Named kinds referenced above, so a token set is defined once rather than
+# repeated at every argument that admits it.
+
+[kinds.unit]
+# Admits a token OR a path: `unit: .pct` is fixed, `unit: units` follows card
+# state. This is the argument that forced tokens to be lexically marked.
+#
+# `unit` APPENDS. It is for a value that arrives as a bare number, and a source
+# that already formats its answer must not be given one: `sys.route("duration")`
+# answers "30 min", so `unit: .duration` on it renders "30 min min". Check what
+# the source answers with before adding a unit — `sys.navstep("eta")` answers a
+# bare "30" and does need it.
+#
+# `index` was here and is gone: an index is dimensionless, so there is no honest
+# suffix to render — the tile's LABEL says which index it is. A token this list
+# admits and no lowering decorates renders nothing, silently.
+accepts = ["token", "path"]
+tokens  = ["c", "f", "pct", "speed", "pressure", "distance", "money", "duration"]
+
+[kinds.format]
+accepts = ["token"]
+tokens  = ["money", "signed_money", "signed_pct", "compact", "ratio", "time", "date"]
+
+# Flat or tilted, while driving. A token OR a path, so a card can fix the camera or
+# let its own state choose — which is what makes an on-map 2D/3D toggle a state and a
+# guard rather than a whole `Map` per branch.
+[kinds.mapview]
+accepts = ["token", "path"]
+tokens  = ["flat", "tilted"]
+
+[kinds.width]
+accepts = ["token", "number"]
+tokens  = ["fill", "fit", "day", "rank", "temp", "label"]
+
+# ─── source capabilities ──────────────────────────────────────────────────────
+# The CLOSED set of helpers a `source` may name. Like the constructor catalog
+# above, this is derived from the reference cards rather than invented.
+#
+# Without it, `source_plan` hands an arbitrary dotted name to the host as the
+# function to resolve, and a card can write
+#
+#     source leak sys.shell(command: "cat /etc/passwd")
+#
+# which parses clean and produces a well-formed request. Confinement then rests
+# entirely on the host having its own allowlist — the policy boundary §1 claims
+# L0 removes. A card must not be able to NAME a capability it was not granted,
+# and that is a property the profile can decide rather than delegate.
+#
+# `args` lists the argument names each helper accepts. An argument outside the
+# list is rejected: a helper that silently ignores an unknown argument is how a
+# card asks for something it did not get and renders as though it did.
+
+[sources."sys.geocode"]
+args = ["name"]
+answers = ["lat", "lon", "name", "country", "admin1", "timezone", "population"]
+
+# Live topic detail from Wikipedia's page-summary endpoint. Declared with the
+# subject only — `source d sys.wiki(query: "Dune")` — and read as `d.extract`,
+# `d.title`, the same shape as any other record source.
+[sources."sys.wiki"]
+args = ["query"]
+answers = ["title", "extract", "description"]
+
+[sources."sys.weather"]
+# `day` selects which day the DAILY fields describe: 0 (default) is today,
+# 1 is tomorrow. The current-conditions fields (temp, feels, humidity, wind,
+# pressure) have no future form — there is no "current" tomorrow — so a card
+# that names day: 1 must read `hi`/`lo` instead of `temp`, and the lowering
+# refuses to translate a current field under a future day rather than serve
+# today's reading beneath a label that says otherwise.
+args = ["lat", "lon", "days", "fields", "aggregate", "day"]
+answers = ["temp", "feels", "hi", "lo", "cond", "humidity", "wind", "pressure", "uv", "visibility", "precip", "dayname", "days"]
+aggregates = ["min_lo", "max_hi"]
+
+[sources."sys.daylight"]
+args = ["lat", "lon"]
+answers = ["rise", "set", "now"]
+
+[sources."sys.airquality"]
+args = ["lat", "lon"]
+answers = ["aqi", "pm25", "pm10", "ozone"]
+
+[sources."sys.moonphase"]
+args = ["lat", "lon"]
+answers = ["phase", "illumination", "name"]
+
+[sources."sys.photo"]
+# `query` is a SCENE, not a place. Asked for "Beijing" a generative image model
+# invents a city, and it invented one that reads as Taipei — a fabricated
+# depiction of a real place, rendering as a plausible photograph, with nothing on
+# screen saying it is synthetic. A card that names a place in its title must not
+# name it here.
+#
+# `cond` is what keeps the backdrop honest about the day: pass the forecast's
+# condition and the host folds it into the prompt, so a card reading 92 % rain
+# does not sit under a sunlit wallpaper. The SCENE is the card's words; the
+# WEATHER is the host's fact, and neither writes the other's half.
+args = ["query", "cond"]
+answers = []
+
+[sources."sys.locale"]
+args = []
+answers = ["lang", "temp_unit"]
+
+# Nearby venues of one category, around a point. The card names WHERE and WHAT
+# KIND; the host answers with a collection.
+#
+# `sys.places` in the app-card framework is indexed — `sys.places(lat, lon, cat,
+# i, "name")` — with a companion `sys.placesnum` for the count and a `-9999`
+# sentinel while the fetch is in flight. Neither survives into L0 and neither
+# should: a card iterates a declared collection here, and §5.9's `$state` says
+# "not yet" without a magic number standing in for it.
+# The device's own position. No arguments: a card does not get to ask where
+# something else is.
+[sources."sys.gps"]
+args = []
+answers = ["lat", "lon", "accuracy", "ok"]
+
+# Free-text place search, for what a `Field` collected. The query is a path into
+# declared state, so the card cannot search for something it did not first
+# receive from the user.
+[sources."sys.search"]
+args = ["query", "count", "fields"]
+answers = ["id", "name", "label", "query", "lat", "lon", "distance"]
+
+# A trip's facts — duration, distance, the step list. The ROUTE ITSELF is the
+# `Map` widget's to fetch; this is what the card needs to write on the screen
+# beside it, and asking twice is cheaper than making the card carry a polyline.
+# COORDINATES, not places: a route needs four numbers and an argument carries one
+# value, so place names could never resolve into a call.
+[sources."sys.route"]
+args = ["from_lat", "from_lon", "to_lat", "to_lon", "via", "mode", "fields"]
+answers = ["duration", "distance", "steps"]
+
+# Where you are ON a route: the next instruction, and what is left of the trip.
+#
+# This is the half of navigation a route cannot answer. `sys.route` describes the
+# whole trip and never changes as you drive it; this takes the SAME four trip
+# coordinates plus the device's own two, and answers relative to them.
+#
+# `at_lat`/`at_lon` are what keep it honest. The original nav app fed its
+# instruction a timer — `sys.navsecs(period) * speed` — so the card announced
+# turns for a vehicle moving at an assumed 34 mph whether or not anything moved.
+# Progress here is measured: the position is projected onto the route, so an
+# instruction only advances because the device did.
+[sources."sys.step"]
+args = ["from_lat", "from_lon", "to_lat", "to_lon", "at_lat", "at_lon", "via", "fields"]
+answers = ["instruction", "remaining", "progress", "eta"]
+
+[sources."sys.places"]
+args = ["lat", "lon", "category", "count", "fields"]
+answers = ["id", "name", "distance", "lat", "lon", "category"]
+
+[sources."sys.news"]
+args = ["count", "offset", "fields"]
+answers = ["id", "title", "author", "points", "comments", "url"]
+
+[sources."sys.quakes"]
+# The USGS M2.5+ feed of the last 24 hours, newest first. Row-shaped like
+# `sys.news`, and for the same reason: a feed is a list, and `offset` is what
+# lets a card show a lead event above the rest without repeating it.
+#
+# `id` is the row's index as a string. USGS ids are opaque and the card only
+# needs identity for a `key`, which is what a `for` requires.
+args = ["count", "offset", "fields"]
+answers = ["id", "mag", "place", "depth", "ago", "lat", "lon"]
+
+[sources."sys.news_item"]
+args = ["id", "fields"]
+answers = ["id", "title", "author", "points", "comments", "url"]
+
+[sources."sys.movers"]
+# `symbols` names the universe to rank; omitted means the whole market. Without
+# it a themed request ("top AI movers") could only render market-wide gainers
+# under a themed title.
+args = ["count", "fields", "symbols"]
+answers = ["ticker", "name", "last", "change", "pct", "open", "high", "low", "prev", "volume", "mktcap", "pe", "currency", "exchange"]
+
+[sources."sys.quote"]
+args = ["ticker", "fields"]
+answers = ["ticker", "name", "last", "change", "pct", "open", "high", "low", "prev", "volume", "mktcap", "pe", "currency", "exchange"]
+
+[sources."sys.series"]
+args = ["ticker", "range", "points", "fields", "aggregate"]
+# `points` was here and nothing could answer it: a series is not a value, and
+# `StockPlot` fetches its own. A catalog entry nothing can deliver is a card the
+# checker accepts and the screen renders as em dashes.
+answers = ["min", "max"]
+aggregates = ["min", "max"]
+
+# ─── durable capabilities (profile §5.12) ─────────────────────────────────────
+# Backed by a store rather than by a fetch, and the only ones a transition may
+# write. What is STORED is references — a ticker, a token — never the values
+# rendered beside them: §4's no-facts rule does not stop applying because the
+# data went to disk, and a stored price is wrong a second after it is written.
+#
+# `sys.watchlist` takes no selector because it IS the user's list. The host reads
+# the stored tickers, fetches each quote, and returns the rows — so a card asks
+# for the fields it wants to show and never learns a store exists.
+# The reading list — §5.12 for NEWS. What is stored is the story's Algolia id,
+# an identity the item endpoint serves forever; title, points and the rest are
+# fetched by id at read time, so a bookmark saved last month shows today's
+# comment count and never a stale copy.
+[sources."sys.reading"]
+args = ["fields"]
+answers = ["id", "title", "author", "points", "comments", "url"]
+writes = ["append", "remove"]
+
+# Followed topics. The store keeps only the topic word; top_title/top_points/
+# top_id are the first hit of a search run when the row is read.
+[sources."sys.topics"]
+args = ["fields"]
+answers = ["name", "top_title", "top_points", "top_id"]
+writes = ["append", "remove"]
+
+# The in-app reader. Writing a url opens the host's native web overlay over
+# the card; clear (or system back, host-owned) closes it. `url` answers the
+# page currently open, "" when closed.
+[sources."sys.link"]
+args = ["fields"]
+answers = ["url"]
+writes = ["set", "clear"]
+
+# One country's reading of a World Bank indicator (keyless). Rows are indexed
+# in the order the card listed its countries, so row 0 is the first one named.
+# The SERIES itself belongs to IndicatorPlot, which fetches it: a card that
+# carried the numbers would be stating facts that go stale on revision.
+[sources."sys.indicator"]
+args = ["countries", "indicator", "years", "fields"]
+answers = ["name", "latest", "first", "change", "min", "max", "year", "title"]
+
+[sources."sys.watchlist"]
+# `ticker` turns the source into a membership probe: `has` answers "1" when
+# that ticker is in the user's list, else "0" — what lets a quote page show
+# Add or Remove for the stock it is looking at.
+args = ["ticker", "fields"]
+answers = ["ticker", "name", "last", "change", "pct", "open", "high", "low", "prev", "volume", "mktcap", "pe", "currency", "exchange", "has"]
+writes = ["append", "remove"]
+
+# READ-ONLY for now. A preference write must name WHICH preference, and a
+# transition targets a bare source name — `prefs: set($value)` cannot say
+# `units`. That needs a dotted target, which does not exist yet, so a card may
+# read a preference and not yet change one.
+[sources."sys.prefs"]
+args = ["fields"]
+# `home`/`work`/`mode` joined `units`/`range` when preferences became writable:
+# a place the user calls home, one they call work (both stored as the place's
+# NAME — identity, never coordinates the search can't refind), and a default
+# travel mode.
+answers = ["units", "range", "home", "work", "mode"]
+# A write names its key through the DECLARATION: `set`/`clear` are accepted only
+# on a prefs source declaring exactly one field, and that field is the key the
+# write lands under. `source home_pref sys.prefs(fields: [home])` +
+# `home_pref: set($value)` writes `home`; a multi-field source stays read-only.
+writes = ["set", "clear"]
+
+# Free-text TICKER lookup. `sys.search` is the PLACE search and answers a
+# different question; a card asking a geocoder for a company gets nonsense, so
+# they are named apart.
+#
+# Verified against the live endpoint: `longname` is null for many listings, so
+# `name` falls back to the short one. `kind` separates an equity from a crypto
+# or an ETF — a search for "nvid" returns all three, and a card that cannot say
+# which is offering the user a coin.
+[sources."sys.symbol_search"]
+args = ["query", "count", "fields"]
+answers = ["ticker", "name", "exchange", "kind"]
+
+# The user's saved PLACES. Same shape as `sys.watchlist` — no selector, because
+# it IS the list — and the host joins each stored place to a live reading.
+#
+# A place is stored as a NAME and nothing else — the purest form of the rule
+# that a durable collection keeps references, never facts. Coordinates and every
+# reading are resolved by the host: geocode the name, then read the weather at
+# what comes back, each fetch URL-cached.
+#
+# An earlier design stored `name|lat|lon` to save the geocode. The card cannot
+# produce that: L0 has no way to build a composite value, which is exactly the
+# point of it having no expression form. The language was right.
+[sources."sys.cities"]
+args = ["fields", "unit"]
+answers = ["name", "lat", "lon", "temp", "feels", "feels_delta", "hi", "lo", "cond", "humidity", "wind"]
+writes = ["append", "remove"]
+
+# Pure conversion; supported pairs and coefficients are owned by the runtime.
+# direction is fwd (default) or rev. Unsupported pairs have no value.
+[sources."sys.convert"]
+args = ["amount", "from", "to", "direction", "fields"]
+answers = ["amount", "value"]

@@ -1,0 +1,142 @@
+[package]
+name = "octoscript-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fuzzing)"] }
+
+[dependencies]
+libfuzzer-sys = "0.4"
+lsp-server = "0.9.0"
+lsp-types = "0.97.0"
+serde_json = "1.0.150"
+octoscript-capabilities = { version = "0.1.0", path = "../crates/octoscript-capabilities", features = ["durable-audit-journal", "http-endpoint-catalog", "json-line-worker"] }
+octoscript-core = { path = "../crates/octoscript-core" }
+octoscript-protocol = { version = "0.1.0", path = "../crates/octoscript-protocol" }
+octoscript-sandbox = { version = "0.1.0", path = "../crates/octoscript-sandbox" }
+octoscript-schema = { version = "0.1.0", path = "../crates/octoscript-schema" }
+octoscript-storage = { version = "0.1.0", path = "../crates/octoscript-storage" }
+octoscript-worker = { version = "0.1.0", path = "../crates/octoscript-worker" }
+octoscript-workflow = { version = "0.1.0", path = "../crates/octoscript-workflow" }
+
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "syntax"
+path = "fuzz_targets/syntax.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lsp_document"
+path = "fuzz_targets/lsp_document.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "mobile_dataflow"
+path = "fuzz_targets/mobile_dataflow.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "mobile_workflow"
+path = "fuzz_targets/mobile_workflow.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "execution"
+path = "fuzz_targets/execution.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "execution_replay"
+path = "fuzz_targets/execution_replay.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "execution_limits"
+path = "fuzz_targets/execution_limits.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "workflow_draft"
+path = "fuzz_targets/workflow_draft.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "capability_lease"
+path = "fuzz_targets/capability_lease.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "workflow_external_operation"
+path = "fuzz_targets/workflow_external_operation.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "workflow_event_journal"
+path = "fuzz_targets/workflow_event_journal.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "capability_audit_journal"
+path = "fuzz_targets/capability_audit_journal.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "cross_stream_telemetry"
+path = "fuzz_targets/cross_stream_telemetry.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "durable_cross_stream_telemetry"
+path = "fuzz_targets/durable_cross_stream_telemetry.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "json_line_worker"
+path = "fuzz_targets/json_line_worker.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "bubblewrap_policy"
+path = "fuzz_targets/bubblewrap_policy.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "http_origin_policy"
+path = "fuzz_targets/http_origin_policy.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "secret_broker"
+path = "fuzz_targets/secret_broker.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "rollback_anchor_service"
+path = "fuzz_targets/rollback_anchor_service.rs"
+test = false
+doc = false

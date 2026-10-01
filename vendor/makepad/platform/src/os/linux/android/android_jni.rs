@@ -1,0 +1,3168 @@
+use crate::module_loader::ModuleLoader;
+use makepad_jni_sys as jni_sys;
+
+use {
+    self::super::{ndk_sys, ndk_utils},
+    crate::{
+        area::Area,
+        cx::AndroidParams,
+        event::{SelectionHandleKind, SelectionHandlePhase, TouchPoint, TouchState, VideoSource},
+        ime::{AutoCapitalize, AutoCorrect, InputMode, ReturnKeyType, TextInputConfig},
+        makepad_live_id::*,
+        makepad_math::*,
+        makepad_network::HttpRequest,
+        makepad_network::WebSocketMessage,
+    },
+    makepad_android_state::{get_activity, get_java_vm},
+    std::ffi::c_uint,
+    std::sync::{Arc, Condvar, Mutex},
+    std::time::Duration,
+    std::{
+        cell::Cell,
+        ffi::CString,
+        sync::mpsc::{self, Sender},
+    },
+};
+
+/// Synchronous-handshake primitive used by the JNI layer to wait for the
+/// render thread to acknowledge a `SurfaceDestroyed` event before returning to
+/// Java.
+///
+/// On Android, when `SurfaceHolder.Callback.surfaceDestroyed` returns, the
+/// system is free to release the underlying buffer queue immediately. If our
+/// render thread is mid-frame when that happens, it will issue GL/Vulkan calls
+/// against torn-down buffers and the GPU driver will SIGSEGV. The standard
+/// fix (used by `android.opengl.GLSurfaceView` and every well-behaved native
+/// renderer) is to make `surfaceDestroyed` block on the render thread until
+/// it has finished its current frame and released the surface.
+///
+/// We give the render thread a 2-second budget — well under Android's 5-second
+/// ANR threshold — and silently fall through if it misses the deadline. A
+/// missed deadline is logged so it shows up in logcat for diagnosis.
+pub type SurfaceAck = Arc<(Mutex<bool>, Condvar)>;
+
+/// Maximum time the JNI thread will wait for the render thread to ack a
+/// `SurfaceDestroyed`. Must stay safely below the Android ANR threshold (5s).
+pub const SURFACE_DESTROYED_ACK_TIMEOUT: Duration = Duration::from_millis(2000);
+
+pub fn new_surface_ack() -> SurfaceAck {
+    Arc::new((Mutex::new(false), Condvar::new()))
+}
+
+/// Called by the render thread once it has finished tearing down the surface.
+pub fn signal_surface_ack(ack: &SurfaceAck) {
+    let (lock, cvar) = &**ack;
+    if let Ok(mut done) = lock.lock() {
+        *done = true;
+        cvar.notify_all();
+    }
+}
+
+/// Called by the JNI thread inside `surfaceOnSurfaceDestroyed` to wait for the
+/// render thread's acknowledgement. Returns `true` if the render thread acked
+/// in time, `false` if the wait timed out.
+pub fn wait_surface_ack(ack: &SurfaceAck, timeout: Duration) -> bool {
+    let (lock, cvar) = &**ack;
+    let Ok(guard) = lock.lock() else {
+        return false;
+    };
+    let result = cvar.wait_timeout_while(guard, timeout, |done| !*done);
+    match result {
+        Ok((guard, wait_result)) => {
+            if wait_result.timed_out() {
+                false
+            } else {
+                *guard
+            }
+        }
+        Err(_) => false,
+    }
+}
+
+#[derive(Debug)]
+pub enum TouchPhase {
+    Moved,
+    Ended,
+    Started,
+    Cancelled,
+}
+
+#[derive(Debug)]
+pub enum FromJavaMessage {
+    Init(AndroidParams),
+    DisplayDensity { density: f64 },
+    SwitchedActivity(jni_sys::jobject, u64),
+    InputSequence(u64),
+    ImeOperation {sequence:u64, session:u64, hardware:bool, edit:super::android_ime::Edit},
+    BackPressed,
+    /// The activity received a new HOME intent while running: the device's
+    /// Home button or gesture, with this app as the Home app.
+    HomeIntent,
+    AndroidIntegration { channel: String, payload: String, generation: u32 },
+    SurfaceChanged {
+        window: *mut ndk_sys::ANativeWindow,
+        width: i32,
+        height: i32,
+    },
+    SurfaceCreated {
+        window: *mut ndk_sys::ANativeWindow,
+    },
+    /// Sent by the JNI layer when Android invokes
+    /// `SurfaceHolder.Callback.surfaceDestroyed`. The `ack` channel lets the
+    /// render thread tell the JNI thread when it's safe to return to Java —
+    /// i.e. when the surface has been fully torn down on our side.
+    SurfaceDestroyed {
+        ack: SurfaceAck,
+    },
+    /// The Choreographer's vsync beat: dispatch, then paint.
+    RenderLoop,
+    /// A thread woke the UI (`SignalToUI`, a scheduler timer): dispatch what
+    /// it signalled, but leave painting to the next vsync beat. Waking with
+    /// `RenderLoop` painted off-beat: with a frame loop running, every worker
+    /// signal drew and swapped an extra frame that blocked in eglSwapBuffers
+    /// until the next vsync and pushed the real beat's frame one vsync late.
+    Wake,
+    LongClick {
+        abs: Vec2d,
+        pointer_id: u64,
+        // The SystemClock time (in seconds) when the LongClick occurred.
+        time: f64,
+    },
+    Touch { touches: Vec<TouchPoint>, cancelled: bool },
+    Character {
+        character: u32,
+    },
+    KeyDown {
+        keycode: u32,
+        meta_state: u32,
+        is_repeat: bool,
+    },
+    KeyUp {
+        keycode: u32,
+        meta_state: u32,
+    },
+    ResizeTextIME {
+        keyboard_height: u32,
+        is_open: bool,
+    },
+    PhysicalKeyboard {
+        connected: bool,
+    },
+    SafeAreaInsets {
+        density: f64,
+        // Native Android logical points (`px / density`). Rust converts these
+        // through the active window before exposing them as Makepad layout points.
+        top: f64,
+        right: f64,
+        bottom: f64,
+        left: f64,
+    },
+    HttpResponse {
+        request_id: u64,
+        metadata_id: u64,
+        status_code: u16,
+        headers: String,
+        body: Vec<u8>,
+    },
+    HttpRequestError {
+        request_id: u64,
+        metadata_id: u64,
+        error: String,
+    },
+    WebSocketMessage {
+        message: Vec<u8>,
+        sender: Box<(u64, Sender<WebSocketMessage>)>,
+    },
+    WebSocketClosed {
+        sender: Box<(u64, Sender<WebSocketMessage>)>,
+    },
+    WebSocketError {
+        error: String,
+        sender: Box<(u64, Sender<WebSocketMessage>)>,
+    },
+    MidiDeviceOpened {
+        name: String,
+        midi_device: jni_sys::jobject,
+    },
+    PermissionResult {
+        permission: String,
+        request_id: i32,
+        status: i32, // 0=NotDetermined, 1=Granted, 2=DeniedCanRetry, 3=DeniedPermanent
+    },
+    LocationUpdate {
+        lon: f64,
+        lat: f64,
+        accuracy_m: f32,
+        altitude_m: Option<f64>,
+        speed_mps: Option<f32>,
+        heading_deg: Option<f32>,
+        time_ms: i64,
+    },
+    LocationError {
+        code: i32, // 1 = permission denied, 2 = unavailable
+        message: String,
+    },
+    VideoPlaybackPrepared {
+        video_id: u64,
+        video_width: u32,
+        video_height: u32,
+        duration: u128,
+        surface_texture: jni_sys::jobject,
+    },
+    VideoPlaybackCompleted {
+        video_id: u64,
+    },
+    VideoPlayerReleased {
+        video_id: u64,
+    },
+    VideoDecodingError {
+        video_id: u64,
+        error: String,
+    },
+    CameraPreviewSurfaceReady {
+        video_id: u64,
+        window: *mut ndk_sys::ANativeWindow,
+        width: i32,
+        height: i32,
+    },
+    CameraPreviewSurfaceDestroyed {
+        video_id: u64,
+    },
+    Pause,
+    Resume,
+    Start,
+    Stop,
+    Destroy,
+    WindowFocusChanged {
+        has_focus: bool,
+    },
+    ClipboardAction {
+        action: String, // "copy", "cut", "select_all"
+    },
+    ClipboardPaste {
+        content: String,
+    },
+    SelectionHandleDrag {
+        handle: SelectionHandleKind,
+        phase: SelectionHandlePhase,
+        abs: Vec2d,
+        time: f64,
+    },
+    // ---- posted by the buildtool's octos Java (composer overlay, deep links,
+    // QR scanner, file picker, streaming download, runhtml card bridge) ----
+    ComposerSubmit { text: String },
+    ComposerNewApp,
+    ComposerSwitch,
+    ComposerExpand,
+    QrScanned { json: String },
+    QrCancelled { reason: String },
+    SystemBrowserInvoke { browser_id: i64, call_id: i64, tool: String, args: String },
+    SystemBrowserPageError { browser_id: i64, code: i32, description: String, url: String },
+    DeepLink { url: String },
+    DialogResult { call_id: i64, name: String, content: String, cancelled: bool, error: String },
+    DownloadProgress { call_id: i64, done: i64, total: i64 },
+    DownloadComplete { call_id: i64, path: String, error: String },
+}
+unsafe impl Send for FromJavaMessage {}
+
+// Lifecycle callbacks can precede render-queue initialization on cold start.
+static ACTIVITY_RESUMED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+pub fn activity_is_resumed() -> bool { ACTIVITY_RESUMED.load(std::sync::atomic::Ordering::Acquire) }
+
+static MESSAGES_TX: Mutex<Option<mpsc::Sender<FromJavaMessage>>> = Mutex::new(None);
+static INTEGRATION_PENDING: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+pub fn integration_message_consumed(generation: u32) {
+    let _ = INTEGRATION_PENDING.fetch_update(std::sync::atomic::Ordering::AcqRel,
+        std::sync::atomic::Ordering::Acquire, |state| {
+            ((state >> 32) as u32 == generation && state as u32 > 0).then(|| state - 1)
+        });
+}
+
+pub fn send_from_java_message(message: FromJavaMessage) {
+    if let Ok(mut tx) = MESSAGES_TX.lock() {
+        if let Some(tx) = tx.as_mut() {
+            tx.send(message).ok();
+        } else {
+            crate::log!(
+                "Receiving message from java whilst already shutdown {:?}",
+                message
+            );
+        }
+    }
+}
+
+// Defined in https://developer.android.com/reference/android/view/KeyEvent#META_CTRL_MASK
+pub const ANDROID_META_CTRL_MASK: u32 = 28672;
+// Defined in  https://developer.android.com/reference/android/view/KeyEvent#META_SHIFT_MASK
+pub const ANDROID_META_SHIFT_MASK: u32 = 193;
+// Defined in  https://developer.android.com/reference/android/view/KeyEvent#META_ALT_MASK
+pub const ANDROID_META_ALT_MASK: u32 = 50;
+
+pub static mut SET_ACTIVITY_FN: unsafe fn(jni_sys::jobject) = |_| {};
+
+pub fn from_java_messages_already_set() -> bool {
+    MESSAGES_TX.lock().unwrap().is_some()
+}
+
+pub fn from_java_messages_clear() {
+    *MESSAGES_TX.lock().unwrap() = None;
+}
+
+pub fn jni_update_activity(activity_handle: jni_sys::jobject) {
+    unsafe { SET_ACTIVITY_FN(activity_handle) };
+}
+
+pub fn jni_set_activity(activity_handle: jni_sys::jobject) {
+    unsafe {
+        if let Some(func) = makepad_android_state::get_activity_setter_fn() {
+            SET_ACTIVITY_FN = func;
+        }
+        SET_ACTIVITY_FN(activity_handle);
+    }
+}
+
+pub fn jni_set_from_java_tx(from_java_tx: mpsc::Sender<FromJavaMessage>) {
+    let mut tx = MESSAGES_TX.lock().unwrap();
+    *tx = Some(from_java_tx);
+    let _ = INTEGRATION_PENDING.fetch_update(std::sync::atomic::Ordering::AcqRel,
+        std::sync::atomic::Ordering::Acquire, |state| {
+            Some((((state >> 32) as u32).wrapping_add(1) as u64) << 32)
+        });
+}
+
+pub unsafe fn fetch_activity_handle(activity: *const std::ffi::c_void) -> jni_sys::jobject {
+    let env = attach_jni_env();
+    (**env).NewGlobalRef.unwrap()(env, activity as jni_sys::jobject)
+}
+
+unsafe fn get_intent_string_extra(
+    env: *mut jni_sys::JNIEnv,
+    activity: jni_sys::jobject,
+    key: &str,
+) -> Option<String> {
+    let intent =
+        ndk_utils::call_object_method!(env, activity, "getIntent", "()Landroid/content/Intent;");
+    if intent.is_null() {
+        return None;
+    }
+    let key = CString::new(key).ok()?;
+    let key = ((**env).NewStringUTF.unwrap())(env, key.as_ptr());
+    if key.is_null() {
+        return None;
+    }
+    let value = ndk_utils::call_object_method!(
+        env,
+        intent,
+        "getStringExtra",
+        "(Ljava/lang/String;)Ljava/lang/String;",
+        key
+    );
+    if value.is_null() {
+        return None;
+    }
+    Some(jstring_to_string(env, value))
+}
+
+const MAKEPAD_PREFS_NAME: &str = "makepad";
+const MAKEPAD_STUDIO_HOST_PREF_KEY: &str = "studio_host";
+const MAKEPAD_STUDIO_CRATE_PREF_KEY: &str = "studio_crate";
+const ANDROID_MODE_PRIVATE: i32 = 0;
+
+unsafe fn new_jstring(env: *mut jni_sys::JNIEnv, value: &str) -> Option<jni_sys::jstring> {
+    let value = CString::new(value).ok()?;
+    let value = ((**env).NewStringUTF.unwrap())(env, value.as_ptr());
+    if value.is_null() {
+        None
+    } else {
+        Some(value)
+    }
+}
+
+/// Split a proxy spec like `http://127.0.0.1:8899` (or a bare `127.0.0.1:8899`)
+/// into `("127.0.0.1", "8899")`. Returns `None` if there is no numeric port —
+/// the JVM proxy properties are useless without one, so we'd rather leave them
+/// unset (direct connect) than set a half-configured proxy.
+fn parse_proxy_host_port(proxy: &str) -> Option<(String, String)> {
+    let s = proxy.trim();
+    let s = s
+        .strip_prefix("http://")
+        .or_else(|| s.strip_prefix("https://"))
+        .unwrap_or(s);
+    let s = s.split('/').next().unwrap_or(s); // drop any trailing path
+    let (host, port) = s.rsplit_once(':')?;
+    if host.is_empty() || port.is_empty() || !port.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    Some((host.to_string(), port.to_string()))
+}
+
+/// Call `System.setProperty(key, value)` via JNI. `System` is a class with only
+/// static methods, so this resolves the class + static method id directly rather
+/// than using the instance-method `call_method!` macros. Best-effort: any JNI
+/// failure just leaves the property unset.
+unsafe fn set_java_system_property(env: *mut jni_sys::JNIEnv, key: &str, value: &str) {
+    let (Some(k), Some(v)) = (new_jstring(env, key), new_jstring(env, value)) else {
+        return;
+    };
+    let cls_name = match CString::new("java/lang/System") {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+    let cls = ((**env).FindClass.unwrap())(env, cls_name.as_ptr());
+    if cls.is_null() {
+        return;
+    }
+    let m_name = match CString::new("setProperty") {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+    let m_sig = match CString::new("(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;") {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+    let mid = ((**env).GetStaticMethodID.unwrap())(env, cls, m_name.as_ptr(), m_sig.as_ptr());
+    if mid.is_null() {
+        return;
+    }
+    // CallStaticObjectMethod is C-variadic in jni_sys; pass the two jstrings.
+    let _prev = ((**env).CallStaticObjectMethod.unwrap())(env, cls, mid, k, v);
+}
+
+unsafe fn get_prefs_object(
+    env: *mut jni_sys::JNIEnv,
+    activity: jni_sys::jobject,
+) -> Option<jni_sys::jobject> {
+    let prefs_name = new_jstring(env, MAKEPAD_PREFS_NAME)?;
+    let prefs = ndk_utils::call_object_method!(
+        env,
+        activity,
+        "getSharedPreferences",
+        "(Ljava/lang/String;I)Landroid/content/SharedPreferences;",
+        prefs_name,
+        ANDROID_MODE_PRIVATE
+    );
+    if prefs.is_null() {
+        None
+    } else {
+        Some(prefs)
+    }
+}
+
+unsafe fn get_persisted_string_pref(
+    env: *mut jni_sys::JNIEnv,
+    activity: jni_sys::jobject,
+    key: &str,
+) -> Option<String> {
+    let prefs = get_prefs_object(env, activity)?;
+    let key = new_jstring(env, key)?;
+    let default = new_jstring(env, "")?;
+    let value = ndk_utils::call_object_method!(
+        env,
+        prefs,
+        "getString",
+        "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+        key,
+        default
+    );
+    if value.is_null() {
+        return None;
+    }
+
+    let value = jstring_to_string(env, value);
+    let value = value.trim();
+    if value.is_empty() {
+        None
+    } else {
+        Some(value.to_string())
+    }
+}
+
+unsafe fn persist_string_pref(
+    env: *mut jni_sys::JNIEnv,
+    activity: jni_sys::jobject,
+    key: &str,
+    value: &str,
+) -> bool {
+    let prefs = match get_prefs_object(env, activity) {
+        Some(v) => v,
+        None => return false,
+    };
+
+    let editor = ndk_utils::call_object_method!(
+        env,
+        prefs,
+        "edit",
+        "()Landroid/content/SharedPreferences$Editor;"
+    );
+    if editor.is_null() {
+        return false;
+    }
+
+    let key = match new_jstring(env, key) {
+        Some(v) => v,
+        None => return false,
+    };
+    let value = match new_jstring(env, value) {
+        Some(v) => v,
+        None => return false,
+    };
+    let editor = ndk_utils::call_object_method!(
+        env,
+        editor,
+        "putString",
+        "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;",
+        key,
+        value
+    );
+    if editor.is_null() {
+        return false;
+    }
+
+    ndk_utils::call_void_method!(env, editor, "apply", "()V");
+    true
+}
+
+pub unsafe fn apply_studio_env_from_activity(activity: *const std::ffi::c_void) {
+    if activity.is_null() {
+        return;
+    }
+    let env = attach_jni_env();
+    let activity = activity as jni_sys::jobject;
+
+    std::env::remove_var("STUDIO");
+    std::env::remove_var("STUDIO_BUILD");
+    std::env::remove_var("STUDIO_HOST");
+    std::env::remove_var("STUDIO_CRATE");
+
+    let intent_studio_host = get_intent_string_extra(env, activity, "makepad.STUDIO_HOST")
+        .filter(|v| !v.trim().is_empty());
+    let intent_studio_crate = get_intent_string_extra(env, activity, "makepad.STUDIO_CRATE")
+        .filter(|v| !v.trim().is_empty());
+
+    if let Some(studio_host) = intent_studio_host {
+        let _ = persist_string_pref(env, activity, MAKEPAD_STUDIO_HOST_PREF_KEY, &studio_host);
+        std::env::set_var("STUDIO_HOST", &studio_host);
+    } else if let Some(studio_host) =
+        get_persisted_string_pref(env, activity, MAKEPAD_STUDIO_HOST_PREF_KEY)
+    {
+        std::env::set_var("STUDIO_HOST", &studio_host);
+    }
+
+    if let Some(studio_crate) = intent_studio_crate {
+        let _ = persist_string_pref(env, activity, MAKEPAD_STUDIO_CRATE_PREF_KEY, &studio_crate);
+        std::env::set_var("STUDIO_CRATE", &studio_crate);
+    } else if let Some(studio_crate) =
+        get_persisted_string_pref(env, activity, MAKEPAD_STUDIO_CRATE_PREF_KEY)
+    {
+        std::env::set_var("STUDIO_CRATE", &studio_crate);
+    }
+
+    // Generic app-config passthrough: `--es makepad.APP_CONFIG <value>`
+    // surfaces to the app as the MAKEPAD_APP_CONFIG env var. Unlike the
+    // studio extras this is intentionally not persisted in prefs — it is a
+    // one-shot provisioning channel (e.g. octos-app's login-free server
+    // bootstrap); apps persist what they need themselves.
+    std::env::remove_var("MAKEPAD_APP_CONFIG");
+    if let Some(app_config) = get_intent_string_extra(env, activity, "makepad.APP_CONFIG")
+        .filter(|v| !v.trim().is_empty())
+    {
+        std::env::set_var("MAKEPAD_APP_CONFIG", &app_config);
+    }
+
+    // LLM provisioning passthrough: `--es makepad.PROVISION_CONFIG '<json>'` → the
+    // MAKEPAD_PROVISION_CONFIG env var. The JSON is the same self-contained payload
+    // the composer's QR scan yields ({"llm_family":..,"llm_model":..,"llm_key":..});
+    // the app writes it into the octos profile config on boot (bring-your-own-key).
+    std::env::remove_var("MAKEPAD_PROVISION_CONFIG");
+    if let Some(prov) = get_intent_string_extra(env, activity, "makepad.PROVISION_CONFIG")
+        .filter(|v| !v.trim().is_empty())
+    {
+        std::env::set_var("MAKEPAD_PROVISION_CONFIG", &prov);
+    }
+
+    // TEST-ONLY passthrough: `--es makepad.SEED_CARD_FILE <path>` → the
+    // MAKEPAD_SEED_CARD_FILE env var, so the app can seed a canned card from a
+    // file (bypassing the server/LLM) for on-device render/scroll/map tests.
+    std::env::remove_var("MAKEPAD_SEED_CARD_FILE");
+    if let Some(seed) = get_intent_string_extra(env, activity, "makepad.SEED_CARD_FILE")
+        .filter(|v| !v.trim().is_empty())
+    {
+        std::env::set_var("MAKEPAD_SEED_CARD_FILE", &seed);
+    }
+    // TEST-ONLY passthrough: `--es makepad.SEED_L0_FILE <card>` plus
+    // `--es makepad.SEED_L0_DATA <json>` → the matching env vars, so the app can
+    // seed an L0 LEDGER rather than an already-lowered card.
+    //
+    // The distinction matters: SEED_CARD_FILE above pushes lowered DSL, which is
+    // inert by construction — nothing on device knows which card produced it, so
+    // a tap has nowhere to land. Seeding the ledger lets the app hold the source
+    // and re-realize it, which is what makes an interaction local.
+    //
+    // `SEED_L0_EVENT`/`SEED_L0_VALUE` open the card on a state a tap would have
+    // reached. They were passed by the harness and dropped HERE, which is why
+    // every "detail view" capture was silently a capture of the list — the
+    // screenshot looked like a card, so nothing said the event never arrived.
+    //
+    // `FAKE_GPS_FILE`/`FAKE_GPS_MS` walk a track of `lat,lon` lines as if the
+    // device were driving it. That is the only way to test that navigation MOVES:
+    // everything downstream of `sys.gps` can be verified correct and frozen, and a
+    // handset sitting 3.7 km from the nearest routable road reports zero progress —
+    // correctly — so a working follow camera and a broken one are the same
+    // screenshot. The fixes go through `set_gps_fix`, the same function the
+    // `LocationListener` calls, so nothing above the platform can tell them apart.
+    //
+    // They are dropped here rather than read directly for the reason the two above
+    // it were: `SEED_L0_EVENT`/`SEED_L0_VALUE` were passed by the harness and not
+    // listed, so every "detail view" capture was silently a capture of the list.
+    // The screenshot looked like a card, so nothing said the extra never arrived —
+    // which is exactly how the first FAKE_GPS run failed, with no log line at all.
+    for name in [
+        "SEED_L0_FILE",
+        "SEED_L0_DATA",
+        "SEED_L0_EVENT",
+        "SEED_L0_VALUE",
+        "FAKE_GPS_FILE",
+        "FAKE_GPS_MS",
+        // The self-evolving-app harness: names the on-device dev master's
+        // mission file. Added the day the comment above came true AGAIN — the
+        // extra was passed, not listed, and round 1 never started, with no log
+        // line saying why.
+        "DEV_GOAL_FILE",
+        // `--es makepad.TRACE shader.wgsl` → MAKEPAD_TRACE: the platform's
+        // trace topics (frames / startup / shader.wgsl …), which otherwise
+        // cannot be set on a device — there is no shell env for an app.
+        "TRACE",
+    ] {
+        let var = format!("MAKEPAD_{name}");
+        std::env::remove_var(&var);
+        if let Some(v) = get_intent_string_extra(env, activity, &format!("makepad.{name}"))
+            .filter(|v| !v.trim().is_empty())
+        {
+            std::env::set_var(&var, &v);
+        }
+    }
+    // LOCAL DEBUG: per-draw GL tracing on device (emulator paint diagnosis).
+    if let Some(v) = get_intent_string_extra(env, activity, "makepad.GL_DRAW_TRACE")
+    {
+        std::env::set_var("MAKEPAD_GL_DRAW_TRACE", &v);
+    }
+
+    // TEST/automation passthrough: `--es makepad.AUTO_PROMPT "<text>"` → the
+    // MAKEPAD_AUTO_PROMPT env var, so the app can auto-submit one prompt on boot
+    // (a real LLM generation) without driving the native composer via adb input.
+    std::env::remove_var("MAKEPAD_AUTO_PROMPT");
+    if let Some(p) = get_intent_string_extra(env, activity, "makepad.AUTO_PROMPT")
+        .filter(|v| !v.trim().is_empty())
+    {
+        std::env::set_var("MAKEPAD_AUTO_PROMPT", &p);
+    }
+
+    // Passthrough: `--es makepad.OCTOS_PROXY <url>` → MAKEPAD_OCTOS_PROXY. Routes
+    // BOTH the embedded octos server's LLM HTTPS (via the env vars stdio_spawn
+    // sets on the kernel child) AND the app's OWN live-data fetches (sys.weather
+    // / sys.stock / sys.places — made by THIS process's HttpURLConnection, not
+    // the kernel) through a proxy — e.g. an `adb reverse` tunnel to the dev host
+    // — when the device has no direct internet route. Without the app-side leg,
+    // a Wi-Fi-less phone generates cards fine (LLM tunneled) but every `sys.*`
+    // fetch fails DNS, so cards render with "—"/empty rows.
+    std::env::remove_var("MAKEPAD_OCTOS_PROXY");
+    // `direct` / `none` / `off` / empty (or no extra at all) => NO proxy: both the
+    // octos LLM leg and the app-side sys.* fetches go straight out over the
+    // device's own network (Wi-Fi). Any other value is a proxy URL to tunnel.
+    let proxy = get_intent_string_extra(env, activity, "makepad.OCTOS_PROXY").filter(|v| {
+        let t = v.trim().to_ascii_lowercase();
+        !t.is_empty() && t != "direct" && t != "none" && t != "off"
+    });
+    if let Some(proxy) = proxy {
+        std::env::set_var("MAKEPAD_OCTOS_PROXY", &proxy);
+        // App-side leg: MakepadNetwork opens connections with a bare
+        // `url.openConnection()`, which consults the JVM proxy system
+        // properties. Parse `http://host:port` and set them so every
+        // app-initiated HTTP(S) request CONNECT-tunnels through the proxy.
+        if let Some((host, port)) = parse_proxy_host_port(&proxy) {
+            for scheme in ["http", "https"] {
+                set_java_system_property(env, &format!("{scheme}.proxyHost"), &host);
+                set_java_system_property(env, &format!("{scheme}.proxyPort"), &port);
+            }
+            crate::log!("app HTTP proxy set: {}:{} (card data fetches tunneled)", host, port);
+        }
+    } else {
+        // No proxy requested. A warm-started process can carry stale JVM proxy
+        // props over from a previous (proxied) launch, so CLEAR them — otherwise
+        // app-side fetches keep tunneling to a now-dead proxy and every sys.*
+        // call fails. An empty host makes the HTTP stack connect directly.
+        for scheme in ["http", "https"] {
+            set_java_system_property(env, &format!("{scheme}.proxyHost"), "");
+            set_java_system_property(env, &format!("{scheme}.proxyPort"), "");
+        }
+        crate::log!("app HTTP proxy cleared: direct connections (device Wi-Fi)");
+    }
+
+    // Passthrough: `--es makepad.PROVISION_DIR <path>` → MAKEPAD_PROVISION_DIR.
+    // Names a world-readable staging dir whose tree is deployed into octos-home
+    // on boot — provisions a non-rooted device (GLM profile + a2app memory).
+    std::env::remove_var("MAKEPAD_PROVISION_DIR");
+    if let Some(dir) = get_intent_string_extra(env, activity, "makepad.PROVISION_DIR")
+        .filter(|v| !v.trim().is_empty())
+    {
+        std::env::set_var("MAKEPAD_PROVISION_DIR", &dir);
+    }
+}
+
+pub unsafe fn attach_jni_env() -> *mut jni_sys::JNIEnv {
+    let mut env: *mut jni_sys::JNIEnv = std::ptr::null_mut();
+    let attach_current_thread = (**get_java_vm()).AttachCurrentThread.unwrap();
+
+    let res = attach_current_thread(get_java_vm(), &mut env, std::ptr::null_mut());
+    assert!(res == 0);
+
+    env
+}
+
+/// Returns the device's physical RAM through ActivityManager. Android 8 is
+/// the minimum supported release, so MemoryInfo.totalMem is always present.
+pub fn physical_memory_bytes() -> Option<u64> {
+    unsafe {
+        let env = attach_jni_env();
+        let activity = get_activity();
+        if env.is_null() || activity.is_null() {
+            return None;
+        }
+
+        let activity_class = ((**env).GetObjectClass.unwrap())(env, activity);
+        let get_system_service = ((**env).GetMethodID.unwrap())(
+            env,
+            activity_class,
+            b"getSystemService\0".as_ptr() as _,
+            b"(Ljava/lang/String;)Ljava/lang/Object;\0".as_ptr() as _,
+        );
+        let service_name = new_jstring(env, "activity")?;
+        let manager = ((**env).CallObjectMethod.unwrap())(
+            env,
+            activity,
+            get_system_service,
+            service_name,
+        );
+        if manager.is_null() {
+            return None;
+        }
+
+        let info_class = ((**env).FindClass.unwrap())(
+            env,
+            b"android/app/ActivityManager$MemoryInfo\0".as_ptr() as _,
+        );
+        if info_class.is_null() {
+            return None;
+        }
+        let constructor = ((**env).GetMethodID.unwrap())(
+            env,
+            info_class,
+            b"<init>\0".as_ptr() as _,
+            b"()V\0".as_ptr() as _,
+        );
+        let info = ((**env).NewObject.unwrap())(env, info_class, constructor);
+        if info.is_null() {
+            return None;
+        }
+        let get_memory_info = ((**env).GetMethodID.unwrap())(
+            env,
+            ((**env).GetObjectClass.unwrap())(env, manager),
+            b"getMemoryInfo\0".as_ptr() as _,
+            b"(Landroid/app/ActivityManager$MemoryInfo;)V\0".as_ptr() as _,
+        );
+        ((**env).CallVoidMethod.unwrap())(env, manager, get_memory_info, info);
+        let total_mem = ((**env).GetFieldID.unwrap())(
+            env,
+            info_class,
+            b"totalMem\0".as_ptr() as _,
+            b"J\0".as_ptr() as _,
+        );
+        let bytes = ((**env).GetLongField.unwrap())(env, info, total_mem);
+        (bytes > 0).then_some(bytes as u64)
+    }
+}
+
+unsafe fn create_native_window(surface: jni_sys::jobject) -> *mut ndk_sys::ANativeWindow {
+    let env = attach_jni_env();
+
+    create_native_window_with_env(env, surface)
+}
+
+unsafe fn create_native_window_with_env(
+    env: *mut jni_sys::JNIEnv,
+    surface: jni_sys::jobject,
+) -> *mut ndk_sys::ANativeWindow {
+    ndk_sys::ANativeWindow_fromSurface(env, surface)
+}
+
+#[cfg(not(no_android_choreographer))]
+static mut CHOREOGRAPHER: *mut ndk_sys::AChoreographer = std::ptr::null_mut();
+
+/// Whether a render loop (a Choreographer callback chain or the paced
+/// thread) is running. Every activity instance's `onCreate` calls
+/// `initChoreographer`, and a second instance can be created while the
+/// first, and the app behind it, live on (`MakepadActivity.sNativeActivity`);
+/// one loop is enough, two would double the beat. A loop clears this when
+/// it stops, which it does once the message channel is gone.
+static RENDER_LOOP_ACTIVE: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+#[cfg(not(no_android_choreographer))]
+static mut CHOREOGRAPHER_POST_CALLBACK_FN: Option<
+    unsafe extern "C" fn(
+        *mut ndk_sys::AChoreographer,
+        Option<
+            unsafe extern "C" fn(
+                *mut ndk_sys::AChoreographerFrameCallbackData,
+                *mut std::ffi::c_void,
+            ),
+        >,
+        *mut std::ffi::c_void,
+    ) -> i32,
+> = None;
+
+/// Initializes the render loop which used the Android Choreographer when available to ensure proper vsync.
+/// If `no_android_choreographer` is present (e.g. OHOS with non-compatiblity), we fallback to a simple loop with frame pacing.
+/// This will be replaced by proper a vsync mechanism once we firgure it out for that OHOS.
+#[allow(unused)]
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_initChoreographer(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    device_refresh_rate: jni_sys::jfloat,
+    sdk_version: jni_sys::jint,
+) {
+    if RENDER_LOOP_ACTIVE.swap(true, std::sync::atomic::Ordering::SeqCst) {
+        return;
+    }
+    // If the Choreographer is not available (e.g. OHOS), use a manual render loop
+    #[cfg(no_android_choreographer)]
+    {
+        init_simple_render_loop(device_refresh_rate);
+        return;
+    }
+    #[allow(unused)]
+    #[cfg(not(no_android_choreographer))]
+    {
+        // Otherwise use the actual Choreographer.
+        CHOREOGRAPHER = ndk_sys::AChoreographer_getInstance();
+        // AChoreographer_postFrameCallback64 (API 29) and
+        // AChoreographer_postVsyncCallback (API 33) must be resolved via dlsym,
+        // never declared as `extern "C"` — see the note in ndk_sys.rs. On API
+        // 26-28 neither symbol exists, so the callback fn stays None and we
+        // fall back to the manual frame loop below.
+        if sdk_version >= 29 {
+            if let Ok(lib) = ModuleLoader::load("libandroid.so") {
+                // Prefer the newer vsync callback (API 33+); fall back to the
+                // API 29 frame callback when it isn't available.
+                let vsync: Option<ndk_sys::AChoreographerPostCallbackFn> = if sdk_version >= 33 {
+                    lib.get_symbol("AChoreographer_postVsyncCallback").ok()
+                } else {
+                    None
+                };
+                let frame_callback_64: Option<ndk_sys::AChoreographerPostCallbackFn> =
+                    lib.get_symbol("AChoreographer_postFrameCallback64").ok();
+                CHOREOGRAPHER_POST_CALLBACK_FN = vsync.or(frame_callback_64);
+            }
+        }
+        match CHOREOGRAPHER_POST_CALLBACK_FN {
+            Some(_) => post_vsync_callback(),
+            None => init_simple_render_loop(device_refresh_rate),
+        }
+    }
+}
+
+#[cfg(not(no_android_choreographer))]
+unsafe extern "C" fn vsync_callback(
+    _data: *mut ndk_sys::AChoreographerFrameCallbackData,
+    _user_data: *mut std::ffi::c_void,
+) {
+    send_from_java_message(FromJavaMessage::RenderLoop);
+    post_vsync_callback();
+}
+
+#[cfg(not(no_android_choreographer))]
+pub unsafe fn post_vsync_callback() {
+    if let Some(post_callback) = CHOREOGRAPHER_POST_CALLBACK_FN {
+        if !CHOREOGRAPHER.is_null() && from_java_messages_already_set() {
+            post_callback(CHOREOGRAPHER, Some(vsync_callback), std::ptr::null_mut());
+            return;
+        }
+    }
+    // The chain ends here: the next `initChoreographer` starts a new one.
+    RENDER_LOOP_ACTIVE.store(false, std::sync::atomic::Ordering::SeqCst);
+}
+
+/// Fallback render loop used when the Android Choreographer isn't available
+/// (API < 29, and `no_android_choreographer` builds such as OHOS). A dedicated
+/// thread paces frames manually, since there is no system vsync callback.
+fn init_simple_render_loop(device_refresh_rate: f32) {
+    std::thread::spawn(move || {
+        let mut last_frame_time = std::time::Instant::now();
+        let target_frame_time = std::time::Duration::from_secs_f32(1.0 / device_refresh_rate);
+        loop {
+            // Exit the thread once the app has shut down and the Java->native
+            // message channel has been torn down by `from_java_messages_clear()`
+            // (called when the main event loop quits). This mirrors
+            // `post_vsync_callback`, which likewise stops re-arming the
+            // Choreographer once `from_java_messages_already_set()` is false.
+            //
+            // Without this, the thread spins forever after the activity is
+            // destroyed, sending `RenderLoop` into a dead channel and spamming
+            // "Receiving message from java whilst already shutdown" until the
+            // OS reclaims the process.
+            //
+            // This check is safe at startup: `MESSAGES_TX` is installed
+            // synchronously in the JNI bootstrap (`jni_set_from_java_tx`),
+            // before the Makepad thread is spawned and well before
+            // `initChoreographer` spawns this loop — so it is always `Some`
+            // here on the first iteration and only becomes `None` at genuine
+            // shutdown. The check is at the top of the loop, before the send,
+            // so a shutdown during the sleep produces no stray send.
+            if !from_java_messages_already_set() {
+                RENDER_LOOP_ACTIVE.store(false, std::sync::atomic::Ordering::SeqCst);
+                break;
+            }
+
+            let now = std::time::Instant::now();
+            let elapsed = now - last_frame_time;
+
+            if elapsed >= target_frame_time {
+                let frame_start = std::time::Instant::now();
+                send_from_java_message(FromJavaMessage::RenderLoop);
+                let frame_duration = frame_start.elapsed();
+
+                // Adaptive sleep: sleep less if the last frame took longer to process
+                if frame_duration < target_frame_time {
+                    std::thread::sleep(target_frame_time - frame_duration);
+                }
+
+                last_frame_time = now;
+            } else {
+                std::thread::sleep(target_frame_time - elapsed);
+            }
+        }
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onAndroidParams(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    cache_path: jni_sys::jstring,
+    data_path: jni_sys::jstring,
+    density: jni_sys::jfloat,
+    is_emulator: jni_sys::jboolean,
+    android_version: jni_sys::jstring,
+    build_number: jni_sys::jstring,
+    kernel_version: jni_sys::jstring,
+) {
+    send_from_java_message(FromJavaMessage::Init(AndroidParams {
+        cache_path: jstring_to_string(env, cache_path),
+        data_path: jstring_to_string(env, data_path),
+        density: density as f64,
+        is_emulator: is_emulator != 0,
+        android_version: jstring_to_string(env, android_version),
+        build_number: jstring_to_string(env, build_number),
+        kernel_version: jstring_to_string(env, kernel_version),
+        #[cfg(quest)]
+        has_xr_mode: true,
+        #[cfg(not(quest))]
+        has_xr_mode: false,
+    }));
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onBackPressed(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    // crate::log!("Java_dev_makepad_android_MakepadNative_onBackPressed");
+    send_from_java_message(FromJavaMessage::BackPressed);
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onHomeIntent(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    send_from_java_message(FromJavaMessage::HomeIntent);
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onAndroidIntegrationEvent(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    channel: jni_sys::jstring,
+    payload: jni_sys::jstring,
+) -> jni_sys::jboolean {
+    let channel = jstring_to_string(env, channel);
+    let payload = jstring_to_string(env, payload);
+    if channel.is_empty() || channel.len() > 128 || payload.len() > 256 * 1024 { return 0; }
+    let Ok(previous) = INTEGRATION_PENDING.fetch_update(std::sync::atomic::Ordering::AcqRel,
+        std::sync::atomic::Ordering::Acquire, |state| ((state as u32) < 64).then_some(state + 1)) else { return 0; };
+    let generation = (previous >> 32) as u32;
+    // The UI must never wait for another producer holding the JNI sender.
+    if let Ok(tx) = MESSAGES_TX.try_lock() {
+        if let Some(tx) = tx.as_ref() {
+            if (INTEGRATION_PENDING.load(std::sync::atomic::Ordering::Acquire) >> 32) as u32 == generation
+                && tx.send(FromJavaMessage::AndroidIntegration { channel, payload, generation }).is_ok() { return 1; }
+        }
+    }
+    integration_message_consumed(generation);
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_activityOnStart(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    send_from_java_message(FromJavaMessage::Start);
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_activityOnResume(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    ACTIVITY_RESUMED.store(true,std::sync::atomic::Ordering::Release);
+    send_from_java_message(FromJavaMessage::Resume);
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_activityOnPause(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    ACTIVITY_RESUMED.store(false,std::sync::atomic::Ordering::Release);
+    send_from_java_message(FromJavaMessage::Pause);
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_activityOnStop(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    send_from_java_message(FromJavaMessage::Stop);
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_activityOnDestroy(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    send_from_java_message(FromJavaMessage::Destroy);
+}
+
+#[no_mangle]
+unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_activityOnWindowFocusChanged(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    has_focus: jni_sys::jboolean,
+) {
+    send_from_java_message(FromJavaMessage::WindowFocusChanged {
+        has_focus: has_focus != 0,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnSurfaceCreated(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    surface: jni_sys::jobject,
+) {
+    let window = unsafe { create_native_window_with_env(env, surface) };
+    send_from_java_message(FromJavaMessage::SurfaceCreated { window });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnSurfaceDestroyed(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    // Synchronously hand off to the render thread and wait until it confirms
+    // it has released the EGL/Vulkan window surface. Without this, Android
+    // would be free to recycle the underlying buffer queue the moment we
+    // return, while the render thread is still issuing GL draw calls against
+    // it — which crashes Mali/Adreno drivers (SIGSEGV inside `render_view`).
+    let ack = new_surface_ack();
+    send_from_java_message(FromJavaMessage::SurfaceDestroyed { ack: ack.clone() });
+    if !wait_surface_ack(&ack, SURFACE_DESTROYED_ACK_TIMEOUT) {
+        // Render thread didn't ack in time. Don't hang the UI thread further;
+        // log so the missed deadline shows up in logcat.
+        crate::log!(
+            "surfaceOnSurfaceDestroyed: render thread did not acknowledge within {:?}; \
+             returning to Android anyway",
+            SURFACE_DESTROYED_ACK_TIMEOUT
+        );
+    }
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnSurfaceChanged(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    surface: jni_sys::jobject,
+    width: jni_sys::jint,
+    height: jni_sys::jint,
+) {
+    let window = unsafe { create_native_window_with_env(env, surface) };
+
+    send_from_java_message(FromJavaMessage::SurfaceChanged {
+        window,
+        width: width as _,
+        height: height as _,
+    });
+}
+
+#[no_mangle]
+pub extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnLongClick(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    x: jni_sys::jfloat,
+    y: jni_sys::jfloat,
+    pointer_id: jni_sys::jint,
+    time_millis: jni_sys::jlong,
+) {
+    send_from_java_message(FromJavaMessage::LongClick {
+        abs: Vec2d {
+            x: x as f64,
+            y: y as f64,
+        },
+        pointer_id: pointer_id as u64,
+        time: time_millis as f64 / 1000.0,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnTouch(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    event: jni_sys::jobject,
+) {
+    let action_masked =
+        unsafe { ndk_utils::call_int_method!(env, event, "getActionMasked", "()I") };
+    let action_index = unsafe { ndk_utils::call_int_method!(env, event, "getActionIndex", "()I") };
+    let touch_count = unsafe { ndk_utils::call_int_method!(env, event, "getPointerCount", "()I") };
+
+    let time = unsafe { ndk_utils::call_long_method!(env, event, "getEventTime", "()J") } as i64;
+
+    let mut touches = Vec::with_capacity(touch_count as usize);
+    for touch_index in 0..touch_count {
+        let id =
+            unsafe { ndk_utils::call_int_method!(env, event, "getPointerId", "(I)I", touch_index) };
+        let x = unsafe { ndk_utils::call_float_method!(env, event, "getX", "(I)F", touch_index) };
+        let y = unsafe { ndk_utils::call_float_method!(env, event, "getY", "(I)F", touch_index) };
+        let rotation_angle = unsafe {
+            ndk_utils::call_float_method!(env, event, "getOrientation", "(I)F", touch_index)
+        } as f64;
+        let force = unsafe {
+            ndk_utils::call_float_method!(env, event, "getPressure", "(I)F", touch_index)
+        } as f64;
+
+        // Get actual touch size from Android (returns diameter in pixels)
+        let touch_major = unsafe {
+            ndk_utils::call_float_method!(env, event, "getTouchMajor", "(I)F", touch_index)
+        } as f64;
+        let touch_minor = unsafe {
+            ndk_utils::call_float_method!(env, event, "getTouchMinor", "(I)F", touch_index)
+        } as f64;
+        // Convert diameter to radius
+        let radius = dvec2(touch_major / 2.0, touch_minor / 2.0);
+
+        touches.push(TouchPoint {
+            state: {
+                if action_masked == 3 {
+                    // ACTION_CANCEL terminates every pointer without a click.
+                    TouchState::Stop
+                } else if action_index == touch_index {
+                    match action_masked {
+                        0 | 5 => TouchState::Start,
+                        1 | 6 => TouchState::Stop,
+                        2 => TouchState::Move,
+                        _ => return,
+                    }
+                } else {
+                    TouchState::Move
+                }
+            },
+            uid: id as u64,
+            rotation_angle,
+            force,
+            radius,
+            handled: Cell::new(Area::Empty),
+            sweep_lock: Cell::new(Area::Empty),
+            abs: dvec2(x as f64, y as f64),
+            time: time as f64 / 1000.0,
+        });
+    }
+    send_from_java_message(FromJavaMessage::Touch { touches, cancelled: action_masked == 3 });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnKeyDown(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    keycode: jni_sys::jint,
+    meta_state: jni_sys::jint,
+    is_repeat: jni_sys::jboolean,
+) {
+    send_from_java_message(FromJavaMessage::KeyDown {
+        keycode: keycode as u32,
+        meta_state: meta_state as u32,
+        is_repeat: is_repeat != 0,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnKeyUp(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    keycode: jni_sys::jint,
+    meta_state: jni_sys::jint,
+) {
+    send_from_java_message(FromJavaMessage::KeyUp {
+        keycode: keycode as u32,
+        meta_state: meta_state as u32,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnCharacter(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    character: jni_sys::jint,
+) {
+    send_from_java_message(FromJavaMessage::Character {
+        character: character as u32,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnResizeTextIME(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    keyboard_height: jni_sys::jint,
+    is_open: jni_sys::jboolean,
+) {
+    send_from_java_message(FromJavaMessage::ResizeTextIME {
+        keyboard_height: keyboard_height as u32,
+        is_open: is_open != 0,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnPhysicalKeyboardChanged(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    connected: jni_sys::jboolean,
+) {
+    send_from_java_message(FromJavaMessage::PhysicalKeyboard {
+        connected: connected != 0,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_surfaceOnSafeAreaInsets(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    top: jni_sys::jfloat,
+    right: jni_sys::jfloat,
+    bottom: jni_sys::jfloat,
+    left: jni_sys::jfloat,
+    density: jni_sys::jfloat,
+) {
+    send_from_java_message(FromJavaMessage::SafeAreaInsets {
+        density: density as f64,
+        top: top as f64,
+        right: right as f64,
+        bottom: bottom as f64,
+        left: left as f64,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onDisplayDensity(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    density: jni_sys::jfloat,
+) {
+    send_from_java_message(FromJavaMessage::DisplayDensity { density: density as f64 });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onRenderLoop(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+) {
+    send_from_java_message(FromJavaMessage::RenderLoop);
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onHttpResponse(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    request_id: jni_sys::jlong,
+    metadata_id: jni_sys::jlong,
+    status_code: jni_sys::jint,
+    headers: jni_sys::jstring,
+    body: jni_sys::jobject,
+) {
+    let headers = unsafe { jstring_to_string(env, headers) };
+    let body = unsafe { java_byte_array_to_vec(env, body) };
+    let request_id = LiveId(request_id as u64);
+    let metadata_id = LiveId(metadata_id as u64);
+
+    if super::android_network::try_handle_http_response(
+        request_id,
+        metadata_id,
+        status_code as u16,
+        &headers,
+        &body,
+    ) {
+        return;
+    }
+
+    send_from_java_message(FromJavaMessage::HttpResponse {
+        request_id: request_id.0,
+        metadata_id: metadata_id.0,
+        status_code: status_code as u16,
+        headers,
+        body,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onHttpRequestError(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    request_id: jni_sys::jlong,
+    metadata_id: jni_sys::jlong,
+    error: jni_sys::jstring,
+) {
+    let error = unsafe { jstring_to_string(env, error) };
+    let request_id = LiveId(request_id as u64);
+    let metadata_id = LiveId(metadata_id as u64);
+
+    if super::android_network::try_handle_http_error(request_id, metadata_id, &error) {
+        return;
+    }
+
+    send_from_java_message(FromJavaMessage::HttpRequestError {
+        request_id: request_id.0,
+        metadata_id: metadata_id.0,
+        error,
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onWebSocketMessage(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    message: jni_sys::jobject,
+    callback: jni_sys::jlong,
+) {
+    if callback == 0 {
+        return;
+    }
+    let message = unsafe { java_byte_array_to_vec(env, message) };
+    let sender = unsafe { &*(callback as *const Box<(u64, Sender<WebSocketMessage>)>) };
+
+    if super::android_network::try_handle_websocket_message(sender.0, &message, &sender.1) {
+        return;
+    }
+
+    send_from_java_message(FromJavaMessage::WebSocketMessage {
+        message,
+        sender: sender.clone(),
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onWebSocketClosed(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    callback: jni_sys::jlong,
+) {
+    if callback == 0 {
+        return;
+    }
+    let sender = unsafe { &*(callback as *const Box<(u64, Sender<WebSocketMessage>)>) };
+
+    if super::android_network::try_handle_websocket_closed(sender.0, &sender.1) {
+        return;
+    }
+
+    send_from_java_message(FromJavaMessage::WebSocketClosed {
+        sender: sender.clone(),
+    });
+}
+
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onWebSocketError(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    _error: jni_sys::jstring,
+    callback: jni_sys::jlong,
+) {
+    if callback == 0 {
+        return;
+    }
+    let error = unsafe { jstring_to_string(_env, _error) };
+    //let error = unsafe { jstring_to_string(env, error) };
+    let sender = unsafe { &*(callback as *const Box<(u64, Sender<WebSocketMessage>)>) };
+
+    if super::android_network::try_handle_websocket_error(sender.0, &error, &sender.1) {
+        return;
+    }
+
+    send_from_java_message(FromJavaMessage::WebSocketError {
+        error,
+        sender: sender.clone(),
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onVideoPlaybackPrepared(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    video_id: jni_sys::jlong,
+    video_width: jni_sys::jint,
+    video_height: jni_sys::jint,
+    duration: jni_sys::jlong,
+    surface_texture: jni_sys::jobject,
+) {
+    let env = attach_jni_env();
+
+    let global_ref = (**env).NewGlobalRef.unwrap()(env, surface_texture);
+
+    send_from_java_message(FromJavaMessage::VideoPlaybackPrepared {
+        video_id: video_id as u64,
+        video_width: video_width as u32,
+        video_height: video_height as u32,
+        duration: duration as u128,
+        surface_texture: global_ref,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onVideoPlaybackCompleted(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    video_id: jni_sys::jlong,
+) {
+    send_from_java_message(FromJavaMessage::VideoPlaybackCompleted {
+        video_id: video_id as u64,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onVideoPlayerReleased(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    video_id: jni_sys::jlong,
+) {
+    send_from_java_message(FromJavaMessage::VideoPlayerReleased {
+        video_id: video_id as u64,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onVideoDecodingError(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    video_id: jni_sys::jlong,
+    error: jni_sys::jstring,
+) {
+    let error_string = unsafe { jstring_to_string(env, error) };
+    send_from_java_message(FromJavaMessage::VideoDecodingError {
+        video_id: video_id as u64,
+        error: error_string,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onH264EncoderPacket(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    encoder_id: jni_sys::jlong,
+    pts_us: jni_sys::jlong,
+    flags: jni_sys::jint,
+    data: jni_sys::jobject,
+) {
+    let bytes = java_byte_array_to_vec(env, data);
+    crate::video_encode::camera_video_encoder::on_android_h264_packet(
+        encoder_id as u64,
+        pts_us as i64,
+        flags as i32,
+        bytes,
+    );
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onH264EncoderError(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    encoder_id: jni_sys::jlong,
+    error: jni_sys::jstring,
+) {
+    let message = jstring_to_string(env, error);
+    crate::video_encode::camera_video_encoder::on_android_h264_error(encoder_id as u64, message);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onCameraPreviewSurfaceReady(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    video_id: jni_sys::jlong,
+    surface: jni_sys::jobject,
+    width: jni_sys::jint,
+    height: jni_sys::jint,
+) {
+    let window = create_native_window(surface);
+    send_from_java_message(FromJavaMessage::CameraPreviewSurfaceReady {
+        video_id: video_id as u64,
+        window,
+        width: width as i32,
+        height: height as i32,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onCameraPreviewSurfaceDestroyed(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    video_id: jni_sys::jlong,
+) {
+    send_from_java_message(FromJavaMessage::CameraPreviewSurfaceDestroyed {
+        video_id: video_id as u64,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onMidiDeviceOpened(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    name: jni_sys::jstring,
+    midi_device: jni_sys::jobject,
+) {
+    send_from_java_message(FromJavaMessage::MidiDeviceOpened {
+        name: jstring_to_string(env, name),
+        midi_device,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onPermissionResult(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    permission: jni_sys::jstring,
+    request_id: jni_sys::jint,
+    status: jni_sys::jint,
+) {
+    send_from_java_message(FromJavaMessage::PermissionResult {
+        permission: jstring_to_string(env, permission),
+        request_id: request_id as i32,
+        status,
+    });
+}
+
+/// The answer to a file/folder dialog, from `MakepadActivity.onActivityResult`.
+///
+/// An empty `uris` array is a cancel — which is a normal outcome, not an
+/// error. Answering straight from here rather than through
+/// `FromJavaMessage` is deliberate: `Cx::post_action` is the platform-wide
+/// contract for a dialog answer and is already cross-thread safe, so a hop
+/// through the render-thread queue would buy nothing.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onFileDialogResult(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    request_code: jni_sys::jint,
+    uris: jni_sys::jobjectArray,
+) {
+    super::android_file_dialog::on_result(
+        request_code as i32,
+        java_string_array_to_vec(env, uris),
+    );
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onLocationUpdate(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    longitude: jni_sys::jdouble,
+    latitude: jni_sys::jdouble,
+    accuracy: jni_sys::jfloat,
+    has_altitude: jni_sys::jboolean,
+    altitude: jni_sys::jdouble,
+    has_speed: jni_sys::jboolean,
+    speed: jni_sys::jfloat,
+    has_bearing: jni_sys::jboolean,
+    bearing: jni_sys::jfloat,
+    time_millis: jni_sys::jlong,
+) {
+    send_from_java_message(FromJavaMessage::LocationUpdate {
+        lon: longitude,
+        lat: latitude,
+        accuracy_m: accuracy,
+        altitude_m: if has_altitude != 0 { Some(altitude) } else { None },
+        speed_mps: if has_speed != 0 { Some(speed) } else { None },
+        heading_deg: if has_bearing != 0 { Some(bearing) } else { None },
+        time_ms: time_millis,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onLocationError(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    code: jni_sys::jint,
+    message: jni_sys::jstring,
+) {
+    send_from_java_message(FromJavaMessage::LocationError {
+        code,
+        message: jstring_to_string(env, message),
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onPermissionDenied(
+    env: *mut jni_sys::JNIEnv,
+    class: jni_sys::jclass,
+    permission: jni_sys::jstring,
+    request_id: jni_sys::jint,
+) {
+    Java_dev_makepad_android_MakepadNative_onPermissionResult(
+        env, class, permission, request_id, 3,
+    ); // 3 = DeniedPermanent (assume worst case)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onClipboardAction(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    action: jni_sys::jstring,
+) {
+    send_from_java_message(FromJavaMessage::ClipboardAction {
+        action: jstring_to_string(env, action),
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onClipboardPaste(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    content: jni_sys::jstring,
+) {
+    send_from_java_message(FromJavaMessage::ClipboardPaste {
+        content: jstring_to_string(env, content),
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onSelectionHandleDrag(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    handle: jni_sys::jint,
+    phase: jni_sys::jint,
+    x: jni_sys::jfloat,
+    y: jni_sys::jfloat,
+    time_millis: jni_sys::jlong,
+) {
+    let Some(handle) = (match handle {
+        0 => Some(SelectionHandleKind::Start),
+        1 => Some(SelectionHandleKind::End),
+        _ => None,
+    }) else {
+        return;
+    };
+
+    let Some(phase) = (match phase {
+        0 => Some(SelectionHandlePhase::Begin),
+        1 => Some(SelectionHandlePhase::Move),
+        2 => Some(SelectionHandlePhase::End),
+        _ => None,
+    }) else {
+        return;
+    };
+
+    send_from_java_message(FromJavaMessage::SelectionHandleDrag {
+        handle,
+        phase,
+        abs: dvec2(x as f64, y as f64),
+        time: time_millis as f64 / 1000.0,
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onInputSequence(
+    _: *mut jni_sys::JNIEnv, _:jni_sys::jclass, sequence:jni_sys::jlong,
+) { if sequence>0 {send_from_java_message(FromJavaMessage::InputSequence(sequence as u64));} }
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onImeOperation(
+    env:*mut jni_sys::JNIEnv, _:jni_sys::jclass, sequence:jni_sys::jlong,
+    session:jni_sys::jlong, hardware:jni_sys::jboolean, kind:jni_sys::jint,
+    text:jni_sys::jstring, start:jni_sys::jint, end:jni_sys::jint, cursor:jni_sys::jint,
+) {
+    if sequence<=0||session<0||text.is_null(){return;}
+    let len=(**env).GetStringLength.unwrap()(env,text);
+    if len<0||len>2*1024*1024{return;}
+    let chars=(**env).GetStringChars.unwrap()(env,text,std::ptr::null_mut());
+    if chars.is_null(){return;}
+    let decoded=String::from_utf16(std::slice::from_raw_parts(chars,len as usize));
+    (**env).ReleaseStringChars.unwrap()(env,text,chars);
+    if let Ok(text)=decoded {send_from_java_message(FromJavaMessage::ImeOperation {sequence:sequence as u64,session:session as u64,hardware:hardware!=0,edit:super::android_ime::Edit {kind,text,start,end,cursor}});}
+}
+
+unsafe fn jstring_to_string(env: *mut jni_sys::JNIEnv, java_string: jni_sys::jstring) -> String {
+    let chars = (**env).GetStringUTFChars.unwrap()(env, java_string, std::ptr::null_mut());
+    let rust_string = std::ffi::CStr::from_ptr(chars)
+        .to_str()
+        .unwrap()
+        .to_string();
+    (**env).ReleaseStringUTFChars.unwrap()(env, java_string, chars);
+    rust_string
+}
+
+unsafe fn java_string_array_to_vec(
+    env: *mut jni_sys::JNIEnv,
+    object_array: jni_sys::jobject,
+) -> Vec<String> {
+    if object_array == std::ptr::null_mut() {
+        return Vec::new();
+    }
+    let mut out = Vec::new();
+    let length = (**env).GetArrayLength.unwrap()(env, object_array);
+    for i in 0..length {
+        let string = (**env).GetObjectArrayElement.unwrap()(env, object_array, i as jni_sys::jsize);
+        out.push(jstring_to_string(env, string));
+    }
+    out
+}
+
+unsafe fn java_byte_array_to_vec(
+    env: *mut jni_sys::JNIEnv,
+    byte_array: jni_sys::jobject,
+) -> Vec<u8> {
+    let bytes = (**env).GetByteArrayElements.unwrap()(env, byte_array, std::ptr::null_mut());
+    let length = (**env).GetArrayLength.unwrap()(env, byte_array);
+    let mut out_bytes = Vec::new();
+    let slice = std::slice::from_raw_parts(bytes as *const u8, length as usize);
+    out_bytes.extend_from_slice(slice);
+    (**env).ReleaseByteArrayElements.unwrap()(env, byte_array, bytes, jni_sys::JNI_ABORT);
+    out_bytes
+}
+
+pub unsafe fn to_java_set_full_screen(env: *mut jni_sys::JNIEnv, fullscreen: bool) {
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "setFullScreen",
+        "(Z)V",
+        fullscreen as i32
+    );
+}
+
+pub unsafe fn to_java_set_system_bar_appearance(env: *mut jni_sys::JNIEnv, dark_icons: bool) {
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "setSystemBarAppearance",
+        "(Z)V",
+        dark_icons as i32
+    );
+}
+
+pub unsafe fn to_java_set_surface_cover_visible(visible: bool) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "setSurfaceCoverVisible",
+        "(Z)V",
+        visible as i32
+    );
+}
+
+pub unsafe fn to_java_request_surface_snapshot_refresh() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "requestSurfaceSnapshotRefresh", "()V");
+}
+
+pub unsafe fn to_java_switch_activity(env: *mut jni_sys::JNIEnv) {
+    ndk_utils::call_void_method!(env, get_activity(), "switchActivity", "()V");
+}
+
+pub(crate) unsafe fn to_java_load_asset(filepath: &str) -> Option<Vec<u8>> {
+    let env = attach_jni_env();
+
+    let get_method_id = (**env).GetMethodID.unwrap();
+    let get_object_class = (**env).GetObjectClass.unwrap();
+    let call_object_method = (**env).CallObjectMethod.unwrap();
+
+    let mid = (get_method_id)(
+        env,
+        get_object_class(env, get_activity()),
+        b"getAssets\0".as_ptr() as _,
+        b"()Landroid/content/res/AssetManager;\0".as_ptr() as _,
+    );
+    let asset_manager = (call_object_method)(env, get_activity(), mid);
+    let mgr = ndk_sys::AAssetManager_fromJava(env, asset_manager);
+    let file_path = CString::new(filepath).unwrap();
+    let asset =
+        ndk_sys::AAssetManager_open(mgr, file_path.as_ptr(), ndk_sys::AASSET_MODE_BUFFER as _);
+    if asset.is_null() {
+        return None;
+    }
+    let length = ndk_sys::AAsset_getLength64(asset);
+
+    let mut buffer = Vec::new();
+    buffer.resize(length as usize, 0u8);
+    if ndk_sys::AAsset_read(asset, buffer.as_ptr() as *mut _, length as _) > 0 {
+        ndk_sys::AAsset_close(asset);
+        return Some(buffer);
+    }
+    return None;
+}
+
+pub unsafe fn to_java_show_keyboard(visible: bool) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "showKeyboard", "(Z)V", visible as i32);
+}
+
+pub unsafe fn to_java_copy_to_clipboard(content: String) {
+    let env = attach_jni_env();
+    let content = CString::new(content.clone()).unwrap();
+    let content = ((**env).NewStringUTF.unwrap())(env, content.as_ptr());
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "copyToClipboard",
+        "(Ljava/lang/String;)V",
+        content
+    );
+}
+
+pub unsafe fn to_java_paste_from_clipboard() -> String {
+    let env = attach_jni_env();
+    let result = ndk_utils::call_object_method!(
+        env,
+        get_activity(),
+        "pasteFromClipboard",
+        "()Ljava/lang/String;"
+    );
+    if result.is_null() {
+        return String::new();
+    }
+    jstring_to_string(env, result)
+}
+
+pub unsafe fn to_java_show_clipboard_actions(
+    has_selection: bool,
+    rect: crate::makepad_math::Rect,
+    keyboard_shift: f64,
+    dpi_factor: f64,
+) {
+    let env = attach_jni_env();
+    // Convert Makepad layout points to Android physical pixels.
+    let left = (rect.pos.x * dpi_factor) as i32;
+    let top = (rect.pos.y * dpi_factor) as i32;
+    let right = ((rect.pos.x + rect.size.x) * dpi_factor) as i32;
+    let bottom = ((rect.pos.y + rect.size.y) * dpi_factor) as i32;
+    let shift = (keyboard_shift * dpi_factor) as i32;
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "showClipboardActions",
+        "(ZIIIII)V",
+        has_selection as jni_sys::jboolean as std::ffi::c_uint,
+        left,
+        top,
+        right,
+        bottom,
+        shift
+    );
+}
+
+pub unsafe fn to_java_dismiss_clipboard_actions() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "dismissClipboardActions", "()V");
+}
+
+pub unsafe fn to_java_show_selection_handles(start: Vec2d, end: Vec2d) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "showSelectionHandles",
+        "(FFFF)V",
+        start.x as jni_sys::jdouble,
+        start.y as jni_sys::jdouble,
+        end.x as jni_sys::jdouble,
+        end.y as jni_sys::jdouble
+    );
+}
+
+pub unsafe fn to_java_update_selection_handles(start: Vec2d, end: Vec2d) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "updateSelectionHandles",
+        "(FFFF)V",
+        start.x as jni_sys::jdouble,
+        start.y as jni_sys::jdouble,
+        end.x as jni_sys::jdouble,
+        end.y as jni_sys::jdouble
+    );
+}
+
+pub unsafe fn to_java_hide_selection_handles() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "hideSelectionHandles", "()V");
+}
+
+pub unsafe fn to_java_http_request(request_id: LiveId, request: HttpRequest) {
+    let env = attach_jni_env();
+    let url = CString::new(request.url.clone()).unwrap();
+    let url = ((**env).NewStringUTF.unwrap())(env, url.as_ptr());
+
+    let method = CString::new(request.method.to_string()).unwrap();
+    let method = ((**env).NewStringUTF.unwrap())(env, method.as_ptr());
+
+    let headers_string = request.get_headers_string();
+    let headers = CString::new(headers_string.clone()).unwrap();
+    let headers = ((**env).NewStringUTF.unwrap())(env, headers.as_ptr());
+
+    let java_body = match &request.body {
+        Some(body) => {
+            let java_body = (**env).NewByteArray.unwrap()(env, body.len() as i32);
+            (**env).SetByteArrayRegion.unwrap()(
+                env,
+                java_body,
+                0,
+                body.len() as i32,
+                body.as_ptr() as *const jni_sys::jbyte,
+            );
+            java_body
+        }
+        None => std::ptr::null_mut(),
+    };
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "requestHttp",
+        "(JJLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)V",
+        request_id.get_value() as jni_sys::jlong,
+        request.metadata_id.get_value() as jni_sys::jlong,
+        url,
+        method,
+        headers,
+        java_body as jni_sys::jobject
+    );
+}
+
+pub unsafe fn to_java_websocket_open(
+    request_id: LiveId,
+    request: HttpRequest,
+    recv: *const Box<(u64, std::sync::mpsc::Sender<WebSocketMessage>)>,
+) {
+    let env = attach_jni_env();
+    let url = CString::new(request.url.clone()).unwrap();
+    let url = ((**env).NewStringUTF.unwrap())(env, url.as_ptr());
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "openWebSocket",
+        "(JLjava/lang/String;J)V",
+        request_id.get_value() as jni_sys::jlong,
+        url,
+        recv as jni_sys::jlong
+    );
+}
+
+pub unsafe fn to_java_websocket_send_message(request_id: LiveId, message: Vec<u8>) {
+    let env = attach_jni_env();
+    let message_bytes = (**env).NewByteArray.unwrap()(env, message.len() as i32);
+    (**env).SetByteArrayRegion.unwrap()(
+        env,
+        message_bytes,
+        0,
+        message.len() as i32,
+        message.as_ptr() as *const jni_sys::jbyte,
+    );
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "sendWebSocketMessage",
+        "(J[B)V",
+        request_id.get_value() as jni_sys::jlong,
+        message_bytes as jni_sys::jobject
+    );
+}
+
+pub unsafe fn to_java_websocket_close(request_id: LiveId) {
+    let env = attach_jni_env();
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "closeWebSocket",
+        "(J)V",
+        request_id.get_value() as jni_sys::jlong
+    );
+}
+
+pub unsafe fn to_java_socket_stream_open(
+    stream_id: LiveId,
+    host: &str,
+    port: i32,
+    use_tls: bool,
+    ignore_ssl_cert: bool,
+) -> bool {
+    let env = attach_jni_env();
+    let host = CString::new(host).unwrap();
+    let host = ((**env).NewStringUTF.unwrap())(env, host.as_ptr());
+
+    let opened = ndk_utils::call_bool_method!(
+        env,
+        get_activity(),
+        "openSocketStream",
+        "(JLjava/lang/String;IZZ)Z",
+        stream_id.get_value() as jni_sys::jlong,
+        host,
+        port as jni_sys::jint,
+        use_tls as jni_sys::jboolean as std::ffi::c_uint,
+        ignore_ssl_cert as jni_sys::jboolean as std::ffi::c_uint
+    ) != 0;
+
+    (**env).DeleteLocalRef.unwrap()(env, host);
+    opened
+}
+
+pub unsafe fn to_java_socket_stream_read(stream_id: LiveId, max_bytes: i32) -> Option<Vec<u8>> {
+    let env = attach_jni_env();
+    let data = ndk_utils::call_object_method!(
+        env,
+        get_activity(),
+        "socketStreamRead",
+        "(JI)[B",
+        stream_id.get_value() as jni_sys::jlong,
+        max_bytes as jni_sys::jint
+    );
+
+    if data.is_null() {
+        return None;
+    }
+    let bytes = java_byte_array_to_vec(env, data);
+    (**env).DeleteLocalRef.unwrap()(env, data);
+    Some(bytes)
+}
+
+pub unsafe fn to_java_socket_stream_write(stream_id: LiveId, message: Vec<u8>) -> i32 {
+    let env = attach_jni_env();
+    let message_bytes = (**env).NewByteArray.unwrap()(env, message.len() as i32);
+    (**env).SetByteArrayRegion.unwrap()(
+        env,
+        message_bytes,
+        0,
+        message.len() as i32,
+        message.as_ptr() as *const jni_sys::jbyte,
+    );
+
+    let written = ndk_utils::call_int_method!(
+        env,
+        get_activity(),
+        "socketStreamWrite",
+        "(J[B)I",
+        stream_id.get_value() as jni_sys::jlong,
+        message_bytes as jni_sys::jobject
+    ) as i32;
+
+    (**env).DeleteLocalRef.unwrap()(env, message_bytes as jni_sys::jobject);
+    written
+}
+
+pub unsafe fn to_java_socket_stream_set_read_timeout(stream_id: LiveId, timeout_ms: i32) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "socketStreamSetReadTimeout",
+        "(JI)V",
+        stream_id.get_value() as jni_sys::jlong,
+        timeout_ms as jni_sys::jint
+    );
+}
+
+pub unsafe fn to_java_socket_stream_set_write_timeout(stream_id: LiveId, timeout_ms: i32) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "socketStreamSetWriteTimeout",
+        "(JI)V",
+        stream_id.get_value() as jni_sys::jlong,
+        timeout_ms as jni_sys::jint
+    );
+}
+
+pub unsafe fn to_java_socket_stream_close(stream_id: LiveId) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "closeSocketStream",
+        "(J)V",
+        stream_id.get_value() as jni_sys::jlong
+    );
+}
+
+pub fn to_java_get_audio_devices(flag: jni_sys::jlong) -> Vec<String> {
+    unsafe {
+        let env = attach_jni_env();
+        let string_array = ndk_utils::call_object_method!(
+            env,
+            get_activity(),
+            "getAudioDevices",
+            "(J)[Ljava/lang/String;",
+            flag
+        );
+        return java_string_array_to_vec(env, string_array);
+    }
+}
+
+pub fn to_java_open_all_midi_devices(delay: jni_sys::jlong) {
+    unsafe {
+        let env = attach_jni_env();
+        ndk_utils::call_void_method!(env, get_activity(), "openAllMidiDevices", "(J)V", delay);
+    }
+}
+
+pub unsafe fn to_java_attach_camera_preview(
+    video_id: LiveId,
+    left: i32,
+    top: i32,
+    right: i32,
+    bottom: i32,
+) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "attachCameraNativePreview",
+        "(JIIII)V",
+        video_id.get_value() as jni_sys::jlong,
+        left,
+        top,
+        right,
+        bottom
+    );
+}
+
+pub unsafe fn to_java_update_camera_preview(
+    video_id: LiveId,
+    left: i32,
+    top: i32,
+    right: i32,
+    bottom: i32,
+    visible: bool,
+) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "updateCameraNativePreview",
+        "(JIIIIZ)V",
+        video_id.get_value() as jni_sys::jlong,
+        left,
+        top,
+        right,
+        bottom,
+        visible as jni_sys::jboolean as std::ffi::c_uint
+    );
+}
+
+pub unsafe fn to_java_detach_camera_preview(video_id: LiveId) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "detachCameraNativePreview",
+        "(J)V",
+        video_id.get_value() as jni_sys::jlong
+    );
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct AndroidH264CodecProbe {
+    pub encode_hardware: bool,
+    pub encode_software: bool,
+    pub decode_hardware: bool,
+    pub decode_software: bool,
+    pub max_width: u32,
+    pub max_height: u32,
+    pub max_fps: u32,
+    pub max_bitrate: u32,
+    pub width_alignment: u32,
+    pub height_alignment: u32,
+}
+
+pub unsafe fn to_java_query_h264_codec_support() -> Option<AndroidH264CodecProbe> {
+    let env = attach_jni_env();
+    let result =
+        ndk_utils::call_object_method!(env, get_activity(), "queryH264CodecSupport", "()[I");
+    if result.is_null() {
+        return None;
+    }
+
+    let length = (**env).GetArrayLength.unwrap()(env, result);
+    if length < 10 {
+        (**env).DeleteLocalRef.unwrap()(env, result);
+        return None;
+    }
+
+    let elems = (**env).GetIntArrayElements.unwrap()(env, result, std::ptr::null_mut());
+    if elems.is_null() {
+        (**env).DeleteLocalRef.unwrap()(env, result);
+        return None;
+    }
+
+    let vals = std::slice::from_raw_parts(elems as *const i32, length as usize);
+    let probe = AndroidH264CodecProbe {
+        encode_hardware: vals[0] != 0,
+        encode_software: vals[1] != 0,
+        decode_hardware: vals[2] != 0,
+        decode_software: vals[3] != 0,
+        max_width: vals[4].max(0) as u32,
+        max_height: vals[5].max(0) as u32,
+        max_fps: vals[6].max(0) as u32,
+        max_bitrate: vals[7].max(0) as u32,
+        width_alignment: vals[8].max(0) as u32,
+        height_alignment: vals[9].max(0) as u32,
+    };
+
+    (**env).ReleaseIntArrayElements.unwrap()(env, result, elems, jni_sys::JNI_ABORT);
+    (**env).DeleteLocalRef.unwrap()(env, result);
+    Some(probe)
+}
+
+pub unsafe fn to_java_prepare_video_playback(
+    env: *mut jni_sys::JNIEnv,
+    video_id: LiveId,
+    source: VideoSource,
+    external_texture_handle: u32,
+    autoplay: bool,
+    should_loop: bool,
+) {
+    let video_source = match source {
+        VideoSource::InMemory(data) => {
+            let source = &*data;
+
+            let java_body = (**env).NewByteArray.unwrap()(env, source.len() as i32);
+            (**env).SetByteArrayRegion.unwrap()(
+                env,
+                java_body,
+                0,
+                source.len() as i32,
+                source.as_ptr() as *const jni_sys::jbyte,
+            );
+
+            java_body as jni_sys::jobject
+        }
+        VideoSource::Network(url) | VideoSource::Filesystem(url) => {
+            let url = CString::new(url.clone()).unwrap();
+            let url = ((**env).NewStringUTF.unwrap())(env, url.as_ptr());
+            url
+        }
+        VideoSource::Camera(..) => {
+            crate::error!("VIDEO: Camera source not supported on Android");
+            return;
+        }
+        VideoSource::PlaybackSession(..) | VideoSource::Session(..) => {
+            crate::error!("VIDEO: session sources are handled by the software video player");
+            return;
+        }
+    };
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "prepareVideoPlayback",
+        "(JLjava/lang/Object;IZZ)V",
+        video_id.get_value() as jni_sys::jlong,
+        video_source,
+        external_texture_handle as jni_sys::jint,
+        autoplay as jni_sys::jboolean as std::ffi::c_uint,
+        should_loop as jni_sys::jboolean as std::ffi::c_uint
+    );
+
+    (**env).DeleteLocalRef.unwrap()(env, video_source);
+}
+
+pub unsafe fn to_java_update_tex_image(
+    env: *mut jni_sys::JNIEnv,
+    video_decoder_ref: jni_sys::jobject,
+) -> bool {
+    let updated =
+        ndk_utils::call_bool_method!(env, video_decoder_ref, "maybeUpdateTexImage", "()Z");
+    updated != 0
+}
+
+pub unsafe fn to_java_begin_video_playback(env: *mut jni_sys::JNIEnv, video_id: LiveId) {
+    ndk_utils::call_void_method!(env, get_activity(), "beginVideoPlayback", "(J)V", video_id);
+}
+
+pub unsafe fn to_java_pause_video_playback(env: *mut jni_sys::JNIEnv, video_id: LiveId) {
+    ndk_utils::call_void_method!(env, get_activity(), "pauseVideoPlayback", "(J)V", video_id);
+}
+
+pub unsafe fn to_java_resume_video_playback(env: *mut jni_sys::JNIEnv, video_id: LiveId) {
+    ndk_utils::call_void_method!(env, get_activity(), "resumeVideoPlayback", "(J)V", video_id);
+}
+
+pub unsafe fn to_java_mute_video_playback(env: *mut jni_sys::JNIEnv, video_id: LiveId) {
+    ndk_utils::call_void_method!(env, get_activity(), "muteVideoPlayback", "(J)V", video_id);
+}
+
+pub unsafe fn to_java_unmute_video_playback(env: *mut jni_sys::JNIEnv, video_id: LiveId) {
+    ndk_utils::call_void_method!(env, get_activity(), "unmuteVideoPlayback", "(J)V", video_id);
+}
+
+pub unsafe fn to_java_set_video_playback_rate(
+    env: *mut jni_sys::JNIEnv,
+    video_id: LiveId,
+    rate: f64,
+) {
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "setVideoPlaybackRate",
+        "(JD)V",
+        video_id,
+        rate as jni_sys::jdouble
+    );
+}
+
+pub unsafe fn to_java_seek_video_playback(
+    env: *mut jni_sys::JNIEnv,
+    video_id: LiveId,
+    position_ms: u64,
+) {
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "seekVideoPlayback",
+        "(JJ)V",
+        video_id,
+        position_ms as jni_sys::jlong
+    );
+}
+
+pub unsafe fn to_java_get_video_position(env: *mut jni_sys::JNIEnv, video_id: LiveId) -> i64 {
+    ndk_utils::call_long_method!(
+        env,
+        get_activity(),
+        "getVideoPlaybackPosition",
+        "(J)J",
+        video_id
+    )
+}
+
+pub unsafe fn to_java_cleanup_video_playback_resources(
+    env: *mut jni_sys::JNIEnv,
+    video_id: LiveId,
+) {
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "cleanupVideoPlaybackResources",
+        "(J)V",
+        video_id
+    );
+}
+
+pub unsafe fn to_java_cleanup_video_decoder_ref(
+    env: *mut jni_sys::JNIEnv,
+    video_decoder_ref: jni_sys::jobject,
+) {
+    (**env).DeleteGlobalRef.unwrap()(env, video_decoder_ref);
+}
+
+/// Create an [`OesDecodeSurface`] for MediaCodec zero-copy present.
+///
+/// Returns a JNI **global** ref to the bridge object, or `None` on failure.
+/// Caller must eventually call [`to_java_release_oes_decode_surface`].
+pub unsafe fn to_java_create_oes_decode_surface(
+    env: *mut jni_sys::JNIEnv,
+    oes_tex_id: u32,
+) -> Option<jni_sys::jobject> {
+    if oes_tex_id == 0 {
+        return None;
+    }
+    let bridge = crate::new_object!(
+        env,
+        "dev/makepad/android/OesDecodeSurface",
+        "(I)V",
+        oes_tex_id as jni_sys::jint
+    );
+    if bridge.is_null() {
+        return None;
+    }
+    let ready = ndk_utils::call_bool_method!(env, bridge, "isReady", "()Z");
+    if ready == 0 {
+        (**env).DeleteLocalRef.unwrap()(env, bridge);
+        return None;
+    }
+    let global = (**env).NewGlobalRef.unwrap()(env, bridge);
+    (**env).DeleteLocalRef.unwrap()(env, bridge);
+    if global.is_null() {
+        None
+    } else {
+        Some(global)
+    }
+}
+
+/// Borrow the `android.view.Surface` from an OES decode bridge (new local ref).
+/// Caller should `NewGlobalRef` if it must outlive the current JNI scope, or
+/// pass the local ref to the hard-decode path only while the bridge stays alive.
+pub unsafe fn to_java_oes_decode_surface_get_surface(
+    env: *mut jni_sys::JNIEnv,
+    bridge: jni_sys::jobject,
+) -> Option<jni_sys::jobject> {
+    let surface = ndk_utils::call_object_method!(
+        env,
+        bridge,
+        "getSurface",
+        "()Landroid/view/Surface;"
+    );
+    if surface.is_null() {
+        None
+    } else {
+        Some(surface)
+    }
+}
+
+/// Drain all pending SurfaceTexture frames onto the OES texture (GL thread).
+/// Returns `(frames_drained, column_major_4x4_transform)`.
+pub unsafe fn to_java_oes_decode_surface_drain(
+    env: *mut jni_sys::JNIEnv,
+    bridge: jni_sys::jobject,
+) -> (u32, [f32; 16]) {
+    let drained =
+        ndk_utils::call_int_method!(env, bridge, "drainTexImage", "()I").max(0) as u32;
+    let mut matrix = [
+        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+    ];
+    if drained > 0 {
+        let arr = ndk_utils::call_object_method!(env, bridge, "getTransformMatrix", "()[F");
+        if !arr.is_null() {
+            let arr = arr as jni_sys::jfloatArray;
+            let len = (**env).GetArrayLength.unwrap()(env, arr);
+            if len >= 16 {
+                let mut is_copy: jni_sys::jboolean = 0;
+                let elems =
+                    (**env).GetFloatArrayElements.unwrap()(env, arr, &mut is_copy);
+                if !elems.is_null() {
+                    for i in 0..16 {
+                        matrix[i] = *elems.add(i);
+                    }
+                    (**env).ReleaseFloatArrayElements.unwrap()(
+                        env,
+                        arr,
+                        elems,
+                        jni_sys::JNI_ABORT,
+                    );
+                }
+            }
+            (**env).DeleteLocalRef.unwrap()(env, arr as jni_sys::jobject);
+        }
+    }
+    (drained, matrix)
+}
+
+pub unsafe fn to_java_oes_decode_surface_set_default_buffer_size(
+    env: *mut jni_sys::JNIEnv,
+    bridge: jni_sys::jobject,
+    width: i32,
+    height: i32,
+) {
+    if width <= 0 || height <= 0 {
+        return;
+    }
+    ndk_utils::call_void_method!(
+        env,
+        bridge,
+        "setDefaultBufferSize",
+        "(II)V",
+        width as jni_sys::jint,
+        height as jni_sys::jint
+    );
+}
+
+pub unsafe fn to_java_release_oes_decode_surface(
+    env: *mut jni_sys::JNIEnv,
+    bridge: jni_sys::jobject,
+) {
+    ndk_utils::call_void_method!(env, bridge, "release", "()V");
+    (**env).DeleteGlobalRef.unwrap()(env, bridge);
+}
+
+pub unsafe fn to_java_check_permission(permission: &str) -> i32 {
+    let env = attach_jni_env();
+    let permission_str = CString::new(permission).unwrap();
+    let permission_jstr = ((**env).NewStringUTF.unwrap())(env, permission_str.as_ptr());
+
+    let result = ndk_utils::call_int_method!(
+        env,
+        get_activity(),
+        "checkPermission",
+        "(Ljava/lang/String;)I",
+        permission_jstr
+    );
+
+    (**env).DeleteLocalRef.unwrap()(env, permission_jstr);
+    result
+}
+
+/// Ask the activity to start a Storage Access Framework picker.
+///
+/// The activity hops onto its own looper before it touches the Intent (see
+/// `MakepadActivity.openFileDialog`): `startActivityForResult` is an
+/// Activity call, and this runs on the render thread from inside the
+/// platform-op drain, which holds the `Cx` borrow.
+pub unsafe fn to_java_open_file_dialog(
+    request_code: i32,
+    kind: i32,
+    mime_type: &str,
+    mime_types: &[String],
+    allow_multiple: bool,
+    file_name: &str,
+) {
+    let env = attach_jni_env();
+    let mime_jstr = new_java_string(env, mime_type);
+    let mime_types_array = new_java_string_array(env, mime_types);
+    let file_name_jstr = new_java_string(env, file_name);
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "openFileDialog",
+        "(IILjava/lang/String;[Ljava/lang/String;ZLjava/lang/String;)V",
+        request_code as jni_sys::jint,
+        kind as jni_sys::jint,
+        mime_jstr,
+        mime_types_array,
+        allow_multiple as std::os::raw::c_int,
+        file_name_jstr
+    );
+
+    (**env).DeleteLocalRef.unwrap()(env, file_name_jstr);
+    (**env).DeleteLocalRef.unwrap()(env, mime_types_array);
+    (**env).DeleteLocalRef.unwrap()(env, mime_jstr);
+}
+
+unsafe fn new_java_string(env: *mut jni_sys::JNIEnv, value: &str) -> jni_sys::jstring {
+    // An interior NUL cannot reach Java through the modified-UTF8 API at
+    // all; an empty string is the harmless reading of a filename or MIME
+    // type that malformed.
+    let value = CString::new(value).unwrap_or_default();
+    ((**env).NewStringUTF.unwrap())(env, value.as_ptr())
+}
+
+unsafe fn new_java_string_array(
+    env: *mut jni_sys::JNIEnv,
+    values: &[String],
+) -> jni_sys::jobjectArray {
+    let class = ((**env).FindClass.unwrap())(env, b"java/lang/String\0".as_ptr() as _);
+    let array = ((**env).NewObjectArray.unwrap())(
+        env,
+        values.len() as jni_sys::jsize,
+        class,
+        std::ptr::null_mut(),
+    );
+    for (index, value) in values.iter().enumerate() {
+        let value = new_java_string(env, value);
+        ((**env).SetObjectArrayElement.unwrap())(env, array, index as jni_sys::jsize, value);
+        (**env).DeleteLocalRef.unwrap()(env, value);
+    }
+    (**env).DeleteLocalRef.unwrap()(env, class);
+    array
+}
+
+pub unsafe fn to_java_start_location_updates(min_interval_ms: i64, min_distance_m: f32) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "startLocationUpdates",
+        "(JF)V",
+        min_interval_ms as jni_sys::jlong,
+        min_distance_m as std::os::raw::c_double
+    );
+}
+
+pub unsafe fn to_java_stop_location_updates() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "stopLocationUpdates", "()V");
+}
+
+pub unsafe fn to_java_request_permission(permission: &str, request_id: i32) {
+    let env = attach_jni_env();
+    let permission_str = CString::new(permission).unwrap();
+    let permission_jstr = ((**env).NewStringUTF.unwrap())(env, permission_str.as_ptr());
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "requestPermission",
+        "(Ljava/lang/String;I)V",
+        permission_jstr,
+        request_id as jni_sys::jint
+    );
+
+    (**env).DeleteLocalRef.unwrap()(env, permission_jstr);
+}
+
+/// Configure keyboard/IME settings before showing the keyboard
+pub unsafe fn to_java_configure_keyboard(config: &TextInputConfig) {
+    let env = attach_jni_env();
+
+    let input_mode = match config.soft_keyboard.input_mode {
+        InputMode::Text => 0,
+        InputMode::Ascii => 1,
+        InputMode::Url => 2,
+        InputMode::Numeric => 3,
+        InputMode::Tel => 4,
+        InputMode::Email => 5,
+        InputMode::Decimal => 6,
+        InputMode::Search => 7,
+        InputMode::None => 8,
+    };
+
+    let autocapitalize = match config.soft_keyboard.autocapitalize {
+        AutoCapitalize::None => 0,
+        AutoCapitalize::Words => 1,
+        AutoCapitalize::Sentences => 2,
+        AutoCapitalize::AllCharacters => 3,
+    };
+
+    let autocorrect = match config.soft_keyboard.autocorrect {
+        AutoCorrect::Default => 0,
+        AutoCorrect::Enabled => 1,
+        AutoCorrect::Disabled => 2,
+    };
+
+    let return_key_type = match config.soft_keyboard.return_key_type {
+        ReturnKeyType::Default => 0,
+        ReturnKeyType::None => 6,
+        ReturnKeyType::Go => 1,
+        ReturnKeyType::Google => 2,
+        ReturnKeyType::Join => 1,
+        ReturnKeyType::Next => 4,
+        ReturnKeyType::Route => 1,
+        ReturnKeyType::Search => 2,
+        ReturnKeyType::Send => 3,
+        ReturnKeyType::Yahoo => 2,
+        ReturnKeyType::Done => 5,
+        ReturnKeyType::EmergencyCall => 5,
+        ReturnKeyType::Continue => 4,
+        ReturnKeyType::Previous => 7,
+    };
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "configureKeyboard",
+        "(IIIIZZ)V",
+        input_mode as jni_sys::jint,
+        autocapitalize as jni_sys::jint,
+        autocorrect as jni_sys::jint,
+        return_key_type as jni_sys::jint,
+        config.is_multiline as jni_sys::jboolean as c_uint,
+        config.is_secure as jni_sys::jboolean as c_uint
+    );
+}
+
+/// Update IME text state for programmatic changes (Rust→Java)
+pub unsafe fn to_java_update_ime_text_state(
+    sequence:u64, session:u64, active:bool,
+    full_text: &str,
+    selection_start: i32,
+    selection_end: i32,
+    composing_start: i32,
+    composing_end: i32,
+) {
+    let env = attach_jni_env();
+    let utf16:Vec<u16>=full_text.encode_utf16().collect();
+    let text_jstr=((**env).NewString.unwrap())(env,utf16.as_ptr(),utf16.len() as i32);
+
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "updateImeTextState",
+        "(JJZLjava/lang/String;IIII)V",
+        sequence as jni_sys::jlong, session as jni_sys::jlong,
+        active as jni_sys::jboolean as c_uint, text_jstr,
+        selection_start as jni_sys::jint,
+        selection_end as jni_sys::jint,
+        composing_start as jni_sys::jint,
+        composing_end as jni_sys::jint
+    );
+
+    (**env).DeleteLocalRef.unwrap()(env, text_jstr);
+}
+
+// ===========================================================================
+// Inbound: natives the buildtool's octos Java calls. Each converts its
+// arguments and posts a FromJavaMessage; android.rs turns that into the
+// matching Native* action and drains it the same tick.
+// ===========================================================================
+
+// A GPS fix from the Java LocationListener. Written straight into the
+// platform-global last fix so the Splash `sys.gps(...)` helper can read it
+// synchronously during card evaluation, without a trip through the queue.
+#[no_mangle]
+extern "C" fn Java_dev_makepad_android_MakepadNative_onLocation(
+    _: *mut jni_sys::JNIEnv,
+    _: jni_sys::jobject,
+    lat: jni_sys::jdouble,
+    lon: jni_sys::jdouble,
+    acc: jni_sys::jfloat,
+) {
+    crate::gps::set_gps_fix_from_listener(lat as f64, lon as f64, acc as f32);
+}
+
+// The native floating chat composer (an Android view floating over the GL
+// surface, see `MakepadActivity`) submitted its text — the user tapped the
+// send button or pressed the IME "Send" action key.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onComposerSubmit(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    text: jni_sys::jstring,
+) {
+    let text = jstring_to_string(env, text);
+    send_from_java_message(FromJavaMessage::ComposerSubmit { text });
+}
+
+/// The native composer's "＋" (open another app) button was tapped.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onComposerNewApp(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+) {
+    send_from_java_message(FromJavaMessage::ComposerNewApp);
+}
+
+/// The native composer's "⟳" (switch to next app) button was tapped.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onComposerSwitch(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+) {
+    send_from_java_message(FromJavaMessage::ComposerSwitch);
+}
+
+/// The native composer's collapsed "+" FAB was tapped to UNFOLD the composer.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onComposerExpand(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+) {
+    send_from_java_message(FromJavaMessage::ComposerExpand);
+}
+
+/// A `runhtml` card's JS called `octos.invoke(tool, args)` — bridged here via the
+/// WebView's `octos_native` JavascriptInterface. Delivered to the WebCard widget
+/// as a `NativeSystemBrowserInvoke` action; the widget dispatches `tool` and
+/// resolves the card-side promise (`call_id`) with `evalSystemBrowserJs`.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onSystemBrowserInvoke(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    browser_id: jni_sys::jlong,
+    call_id: jni_sys::jlong,
+    tool: jni_sys::jstring,
+    args: jni_sys::jstring,
+) {
+    let tool = jstring_to_string(env, tool);
+    let args = jstring_to_string(env, args);
+    send_from_java_message(FromJavaMessage::SystemBrowserInvoke {
+        browser_id: browser_id as i64,
+        call_id: call_id as i64,
+        tool,
+        args,
+    });
+}
+
+/// A system browser's main-frame load failed (see `MakepadActivity`'s
+/// WebViewClient). Delivered as a `NativeSystemBrowserPageError` action so the
+/// widget hosting the browser can show that the page did not load, instead of
+/// leaving its background on screen.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onSystemBrowserPageError(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    browser_id: jni_sys::jlong,
+    code: jni_sys::jint,
+    description: jni_sys::jstring,
+    url: jni_sys::jstring,
+) {
+    let description = jstring_to_string(env, description);
+    let url = jstring_to_string(env, url);
+    send_from_java_message(FromJavaMessage::SystemBrowserPageError {
+        browser_id: browser_id as i64,
+        code: code as i32,
+        description,
+        url,
+    });
+}
+
+/// The app was launched/resumed via a deep link or share intent (ACTION_VIEW URL
+/// or ACTION_SEND text). Delivered to the app as a `NativeDeepLink` action.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onDeepLink(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    url: jni_sys::jstring,
+) {
+    let url = jstring_to_string(env, url);
+    send_from_java_message(FromJavaMessage::DeepLink { url });
+}
+
+/// Result of a native file picker (see `to_java_open_file_dialog`). Delivered to
+/// the WebCard widget as a `NativeDialogResult` action, which resolves the
+/// card's `octos.invoke("dialog.open", …)` promise (`call_id`).
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onDialogResult(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    call_id: jni_sys::jlong,
+    name: jni_sys::jstring,
+    content: jni_sys::jstring,
+    cancelled: jni_sys::jboolean,
+    error: jni_sys::jstring,
+) {
+    let name = if name.is_null() { String::new() } else { jstring_to_string(env, name) };
+    let content = if content.is_null() { String::new() } else { jstring_to_string(env, content) };
+    let error = if error.is_null() { String::new() } else { jstring_to_string(env, error) };
+    send_from_java_message(FromJavaMessage::DialogResult {
+        call_id: call_id as i64,
+        name,
+        content,
+        cancelled: cancelled != 0,
+        error,
+    });
+}
+
+/// Progress of a native streaming download → `NativeDownloadProgress` action.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onDownloadProgress(
+    _env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    call_id: jni_sys::jlong,
+    done: jni_sys::jlong,
+    total: jni_sys::jlong,
+) {
+    send_from_java_message(FromJavaMessage::DownloadProgress {
+        call_id: call_id as i64,
+        done: done as i64,
+        total: total as i64,
+    });
+}
+
+/// Completion of a native streaming download → `NativeDownloadComplete` action.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onDownloadComplete(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    call_id: jni_sys::jlong,
+    path: jni_sys::jstring,
+    error: jni_sys::jstring,
+) {
+    let path = if path.is_null() { String::new() } else { jstring_to_string(env, path) };
+    let error = if error.is_null() { String::new() } else { jstring_to_string(env, error) };
+    send_from_java_message(FromJavaMessage::DownloadComplete {
+        call_id: call_id as i64,
+        path,
+        error,
+    });
+}
+
+/// A camera frame (NV21 luma plane) from the QR scanner overlay. Decoded with
+/// the pure-Rust `rqrr`; on a hit, post the decoded string (the app applies it
+/// as an LLM-provisioning payload) and return JNI_TRUE so Java closes the scanner.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onQrCameraFrame(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    luma: jni_sys::jbyteArray,
+    width: jni_sys::jint,
+    height: jni_sys::jint,
+) -> jni_sys::jboolean {
+    let (w, h) = (width as usize, height as usize);
+    let len = (**env).GetArrayLength.unwrap()(env, luma) as usize;
+    if w == 0 || h == 0 || len < w * h {
+        return 0; // JNI_FALSE
+    }
+    let mut buf = vec![0i8; w * h];
+    (**env).GetByteArrayRegion.unwrap()(env, luma, 0, (w * h) as jni_sys::jsize, buf.as_mut_ptr());
+    let luma_u8 = std::slice::from_raw_parts(buf.as_ptr() as *const u8, w * h);
+    match decode_qr_luma(luma_u8, w, h) {
+        Some(json) => {
+            send_from_java_message(FromJavaMessage::QrScanned { json });
+            1 // JNI_TRUE
+        }
+        None => 0, // JNI_FALSE
+    }
+}
+
+/// The QR scanner overlay closed without a decode (back / tap / app paused /
+/// camera error / CAMERA permission denied). `reason` is the short code
+/// documented on `Cx::show_qr_scanner`.
+#[no_mangle]
+pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onQrCancelled(
+    env: *mut jni_sys::JNIEnv,
+    _: jni_sys::jclass,
+    reason: jni_sys::jstring,
+) {
+    let reason = if reason.is_null() {
+        "cancelled".to_string()
+    } else {
+        jstring_to_string(env, reason)
+    };
+    send_from_java_message(FromJavaMessage::QrCancelled { reason });
+}
+
+/// Detect + decode a QR from an 8-bit greyscale (luma) buffer. Returns the
+/// complete decoded text (rqrr decodes every segment of any version, so a
+/// 1000+ character alphanumeric payload comes back whole, not truncated).
+fn decode_qr_luma(luma: &[u8], w: usize, h: usize) -> Option<String> {
+    let mut img = rqrr::PreparedImage::prepare_from_greyscale(w, h, |x, y| luma[y * w + x]);
+    for grid in img.detect_grids() {
+        if let Ok((_meta, content)) = grid.decode() {
+            if !content.is_empty() {
+                return Some(content);
+            }
+        }
+    }
+    None
+}
+
+// ===========================================================================
+// Outbound: calls into the buildtool's octos Java (MakepadActivity).
+// ===========================================================================
+
+pub unsafe fn to_java_share_text(content: String) {
+    let env = attach_jni_env();
+    // Strip interior NULs: a NUL in a Java string aborts in NewStringUTF.
+    let content = CString::new(content.replace('\0', "")).unwrap();
+    let content = ((**env).NewStringUTF.unwrap())(env, content.as_ptr());
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "shareText",
+        "(Ljava/lang/String;)V",
+        content
+    );
+}
+
+pub unsafe fn to_java_show_notification(title: String, body: String) {
+    let env = attach_jni_env();
+    let title = new_java_string(env, &title);
+    let body = new_java_string(env, &body);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "showNotification",
+        "(Ljava/lang/String;Ljava/lang/String;)V",
+        title,
+        body
+    );
+}
+
+pub unsafe fn to_java_android_integration(channel: &str, payload: &str) {
+    let env = attach_jni_env();
+    let channel = new_java_string(env, channel);
+    let payload = new_java_string(env, payload);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "androidIntegrationCommand",
+        "(Ljava/lang/String;Ljava/lang/String;)V",
+        channel,
+        payload
+    );
+    ((**env).DeleteLocalRef.unwrap())(env, channel);
+    ((**env).DeleteLocalRef.unwrap())(env, payload);
+}
+
+// The octos buildtool's picker: `openFileDialog(long callId, String mime)`,
+// answered through `onDialogResult`. Distinct from upstream's own
+// `to_java_open_file_dialog`, which drives a different Java entry point.
+pub unsafe fn to_java_open_file_dialog_mime(call_id: i64, mime: &str) {
+    let env = attach_jni_env();
+    let mime = new_java_string(env, mime);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "openFileDialog",
+        "(JLjava/lang/String;)V",
+        call_id as jni_sys::jlong,
+        mime
+    );
+}
+
+pub unsafe fn to_java_download_file(call_id: i64, url: &str, dest: &str) {
+    let env = attach_jni_env();
+    let url = new_java_string(env, url);
+    let dest = new_java_string(env, dest);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "downloadFile",
+        "(JLjava/lang/String;Ljava/lang/String;)V",
+        call_id as jni_sys::jlong,
+        url,
+        dest
+    );
+}
+
+// The native floating chat composer: a Java view over the GL surface, so
+// Makepad's touch routing can't swallow taps meant for it.
+pub unsafe fn to_java_show_composer() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "showComposer", "()V");
+}
+
+pub unsafe fn to_java_hide_composer() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "hideComposer", "()V");
+}
+
+pub unsafe fn to_java_expand_composer() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "expandComposer", "()V");
+}
+
+pub unsafe fn to_java_collapse_composer() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "collapseComposer", "()V");
+}
+
+// The full-screen QR scanner (`MakepadActivity.requestQrScanner`): asks for
+// CAMERA if needed, then reports back via onQrCameraFrame / onQrCancelled.
+pub unsafe fn to_java_request_qr_scanner() {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(env, get_activity(), "requestQrScanner", "()V");
+}
+
+// The system browser is a Java WebView the activity hosts over the GL surface
+// (`MakepadActivity.spawnSystemBrowser` and friends).
+pub unsafe fn to_java_spawn_system_browser(browser_id: LiveId, url: &str, navigable: bool) {
+    let env = attach_jni_env();
+    let url = new_java_string(env, url);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "spawnSystemBrowser",
+        "(JLjava/lang/String;Z)V",
+        browser_id.get_value() as jni_sys::jlong,
+        url,
+        navigable as jni_sys::jboolean as std::ffi::c_uint
+    );
+}
+
+pub unsafe fn to_java_update_system_browser(
+    browser_id: LiveId,
+    left: i32,
+    top: i32,
+    right: i32,
+    bottom: i32,
+    visible: bool,
+) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "updateSystemBrowser",
+        "(JIIIIZ)V",
+        browser_id.get_value() as jni_sys::jlong,
+        left,
+        top,
+        right,
+        bottom,
+        visible as jni_sys::jboolean as std::ffi::c_uint
+    );
+}
+
+pub unsafe fn to_java_detach_system_browser(browser_id: LiveId) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "detachSystemBrowser",
+        "(J)V",
+        browser_id.get_value() as jni_sys::jlong
+    );
+}
+
+pub unsafe fn to_java_close_system_browser(browser_id: LiveId) {
+    let env = attach_jni_env();
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "closeSystemBrowser",
+        "(J)V",
+        browser_id.get_value() as jni_sys::jlong
+    );
+}
+
+pub unsafe fn to_java_set_system_browser_url(browser_id: LiveId, url: &str) {
+    let env = attach_jni_env();
+    let url = new_java_string(env, url);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "setSystemBrowserUrl",
+        "(JLjava/lang/String;)V",
+        browser_id.get_value() as jni_sys::jlong,
+        url
+    );
+}
+
+pub unsafe fn to_java_set_system_browser_html(browser_id: LiveId, html: &str, base_url: &str) {
+    let env = attach_jni_env();
+    let html = new_java_string(env, html);
+    let base_url = new_java_string(env, base_url);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "setSystemBrowserHtml",
+        "(JLjava/lang/String;Ljava/lang/String;)V",
+        browser_id.get_value() as jni_sys::jlong,
+        html,
+        base_url
+    );
+}
+
+pub unsafe fn to_java_eval_system_browser_js(browser_id: LiveId, js: &str) {
+    let env = attach_jni_env();
+    let js = new_java_string(env, js);
+    ndk_utils::call_void_method!(
+        env,
+        get_activity(),
+        "evalSystemBrowserJs",
+        "(JLjava/lang/String;)V",
+        browser_id.get_value() as jni_sys::jlong,
+        js
+    );
+}

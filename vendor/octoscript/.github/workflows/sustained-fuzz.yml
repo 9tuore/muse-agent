@@ -1,0 +1,152 @@
+name: Sustained Fuzzing
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parser-and-vm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - run: cargo install cargo-fuzz --version 0.13.2 --locked
+      - run: cargo +nightly fmt --manifest-path fuzz/Cargo.toml --check
+      - run: RUSTFLAGS='--cfg fuzzing' cargo +nightly check --locked --manifest-path fuzz/Cargo.toml
+      - name: Differential canonical profile and VM fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none syntax --
+          -max_total_time=600 -timeout=5 -rss_limit_mb=1024 -max_len=16384
+          -dict=$GITHUB_WORKSPACE/fuzz/dictionaries/syntax.dict
+        working-directory: fuzz
+      - name: LSP document lifecycle fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none lsp_document --
+          -max_total_time=120 -timeout=5 -rss_limit_mb=1024 -max_len=16384
+          -dict=$GITHUB_WORKSPACE/fuzz/dictionaries/syntax.dict
+        working-directory: fuzz
+      - name: Sealed mobile JSON dataflow fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none mobile_dataflow --
+          -max_total_time=120 -timeout=5 -rss_limit_mb=1024 -max_len=16384
+          -dict=$GITHUB_WORKSPACE/fuzz/dictionaries/syntax.dict
+        working-directory: fuzz
+      - name: Sealed mobile workflow fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none mobile_workflow --
+          -max_total_time=120 -timeout=5 -rss_limit_mb=1024 -max_len=16384
+          -dict=$GITHUB_WORKSPACE/fuzz/dictionaries/syntax.dict
+        working-directory: fuzz
+      - name: Bounded evaluator fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none execution --
+          -max_total_time=600 -timeout=5 -rss_limit_mb=1024 -max_len=8192
+          -dict=$GITHUB_WORKSPACE/fuzz/dictionaries/syntax.dict
+        working-directory: fuzz
+      - name: Capability-free evaluator replay fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none execution_replay --
+          -max_total_time=120 -timeout=5 -rss_limit_mb=1024 -max_len=8192
+          -dict=$GITHUB_WORKSPACE/fuzz/dictionaries/syntax.dict
+        working-directory: fuzz
+      - name: Variable-limit evaluator fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none execution_limits --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=8192
+          -dict=$GITHUB_WORKSPACE/fuzz/dictionaries/syntax.dict
+        working-directory: fuzz
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sustained-fuzz-artifacts-${{ github.run_id }}
+          path: fuzz/artifacts
+          if-no-files-found: ignore
+          retention-days: 14
+
+  authority-and-durability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - run: cargo install cargo-fuzz --version 0.13.2 --locked
+      - run: cargo +nightly fmt --manifest-path fuzz/Cargo.toml --check
+      - run: RUSTFLAGS='--cfg fuzzing' cargo +nightly check --locked --manifest-path fuzz/Cargo.toml
+      - name: Capability lease fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none capability_lease --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=8192
+        working-directory: fuzz
+      - name: Bubblewrap policy compiler fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none bubblewrap_policy --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=64
+        working-directory: fuzz
+      - name: Exact-origin HTTP policy fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none http_origin_policy --
+          -max_total_time=120 -timeout=5 -rss_limit_mb=1024 -max_len=4096
+        working-directory: fuzz
+      - name: Capability secret-broker fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none secret_broker --
+          -max_total_time=120 -timeout=5 -rss_limit_mb=1024 -max_len=1024
+        working-directory: fuzz
+      - name: Rollback-anchor service fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none rollback_anchor_service --
+          -max_total_time=120 -timeout=5 -rss_limit_mb=1024 -max_len=8192
+        working-directory: fuzz
+      - name: Workflow draft fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none workflow_draft --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=65536
+        working-directory: fuzz
+      - name: Workflow external-operation fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none workflow_external_operation --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=65536
+        working-directory: fuzz
+      - name: Workflow event-journal fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none workflow_event_journal --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=196608
+        working-directory: fuzz
+      - name: Capability audit-journal fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none capability_audit_journal --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=196608
+        working-directory: fuzz
+      - name: Cross-stream telemetry fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none cross_stream_telemetry --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=4096
+        working-directory: fuzz
+      - name: Durable cross-stream telemetry fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none durable_cross_stream_telemetry --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=196608
+        working-directory: fuzz
+      - name: JSON-line worker fuzzing
+        run: >
+          RUSTFLAGS='--cfg fuzzing' cargo +nightly fuzz run --sanitizer none json_line_worker --
+          -max_total_time=180 -timeout=5 -rss_limit_mb=1024 -max_len=1048578
+        working-directory: fuzz
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sustained-authority-fuzz-artifacts-${{ github.run_id }}
+          path: fuzz/artifacts
+          if-no-files-found: ignore
+          retention-days: 14
