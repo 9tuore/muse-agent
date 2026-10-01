@@ -1,0 +1,237 @@
+--- a/platform/src/os/apple/metal.rs
++++ b/platform/src/os/apple/metal.rs
+@@ -3562,113 +3562,131 @@
+             if let (Some(vertex_function), Some(fragment_function)) =
+                 (vertex_function, fragment_function)
+             {
+-                // Independent descriptors: a driver may consume them after this
+-                // call returns. Never mutate a submitted descriptor for a variant.
+-                for blend in [true, false] {
+-                    let descriptor = RcObjcId::from_owned(unsafe {
+-                        msg_send![class!(MTLRenderPipelineDescriptor), new]
+-                    });
+-                    unsafe {
+-                        let _: () = msg_send![descriptor.as_id(), setVertexFunction: vertex_function.as_id()];
+-                        let _: () = msg_send![descriptor.as_id(), setFragmentFunction: fragment_function.as_id()];
++                // Metal's compiler reply queue can block on its request queue.
++                // Submit pipeline requests after this library callback returns.
++                let thread_ready = ready.clone();
++                let thread_device = callback_device.clone();
++                let thread_source = callback_source.clone();
++                let submit = std::thread::Builder::new()
++                    .name("makepad-metal-pipeline".into())
++                    .spawn(move || {
++                        let pool: ObjcId = unsafe { msg_send![class!(NSAutoreleasePool), new] };
++                        let callback_device = thread_device;
++                        let callback_source = thread_source;
++                        // Independent descriptors: a driver may consume them after this
++                        // call returns. Never mutate a submitted descriptor for a variant.
++                        for blend in [true, false] {
++                            let descriptor = RcObjcId::from_owned(unsafe {
++                                msg_send![class!(MTLRenderPipelineDescriptor), new]
++                            });
++                            unsafe {
++                                let _: () = msg_send![descriptor.as_id(), setVertexFunction: vertex_function.as_id()];
++                                let _: () = msg_send![descriptor.as_id(), setFragmentFunction: fragment_function.as_id()];
+ 
+-                        let color_attachments: ObjcId =
+-                            msg_send![descriptor.as_id(), colorAttachments];
+-                        let color_attachment: ObjcId =
+-                            msg_send![color_attachments, objectAtIndexedSubscript: 0];
+-                        match color_format {
+-                            crate::draw_shader::DrawShaderColorFormat::Bgra8Unorm => {
+-                                let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::BGRA8Unorm];
+-                                let () = msg_send![color_attachment, setBlendingEnabled: YES];
+-                                let () = msg_send![color_attachment, setRgbBlendOperation: MTLBlendOperation::Add];
+-                                let () = msg_send![color_attachment, setAlphaBlendOperation: MTLBlendOperation::Add];
+-                                let () = msg_send![color_attachment, setSourceRGBBlendFactor: MTLBlendFactor::One];
+-                                let () = msg_send![color_attachment, setSourceAlphaBlendFactor: MTLBlendFactor::One];
+-                                let () = msg_send![color_attachment, setDestinationRGBBlendFactor: MTLBlendFactor::OneMinusSourceAlpha];
+-                                let () = msg_send![color_attachment, setDestinationAlphaBlendFactor: MTLBlendFactor::OneMinusSourceAlpha];
+-                            }
+-                            crate::draw_shader::DrawShaderColorFormat::Bgra8NoBlend => {
+-                                // Raw-write data pass: alpha is payload, and the over
+-                                // blend can only ever GROW dst alpha.
+-                                let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::BGRA8Unorm];
+-                                let () = msg_send![color_attachment, setBlendingEnabled: NO];
+-                            }
+-                            crate::draw_shader::DrawShaderColorFormat::Rf32 => {
+-                                // Float data target (TextureFormat::RenderRf32): no
+-                                // blending — these are data passes, and float-target
+-                                // blending is not universal across GPU families.
+-                                let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::R32Float];
+-                                let () = msg_send![color_attachment, setBlendingEnabled: NO];
+-                            }
+-                            crate::draw_shader::DrawShaderColorFormat::Rgba16F => {
+-                                // Four-channel float sim target (RenderRGBAf16); data
+-                                // pass, no blending (same law as Rf32).
+-                                let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::RGBA16Float];
+-                                let () = msg_send![color_attachment, setBlendingEnabled: NO];
++                                let color_attachments: ObjcId =
++                                    msg_send![descriptor.as_id(), colorAttachments];
++                                let color_attachment: ObjcId =
++                                    msg_send![color_attachments, objectAtIndexedSubscript: 0];
++                                match color_format {
++                                    crate::draw_shader::DrawShaderColorFormat::Bgra8Unorm => {
++                                        let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::BGRA8Unorm];
++                                        let () = msg_send![color_attachment, setBlendingEnabled: YES];
++                                        let () = msg_send![color_attachment, setRgbBlendOperation: MTLBlendOperation::Add];
++                                        let () = msg_send![color_attachment, setAlphaBlendOperation: MTLBlendOperation::Add];
++                                        let () = msg_send![color_attachment, setSourceRGBBlendFactor: MTLBlendFactor::One];
++                                        let () = msg_send![color_attachment, setSourceAlphaBlendFactor: MTLBlendFactor::One];
++                                        let () = msg_send![color_attachment, setDestinationRGBBlendFactor: MTLBlendFactor::OneMinusSourceAlpha];
++                                        let () = msg_send![color_attachment, setDestinationAlphaBlendFactor: MTLBlendFactor::OneMinusSourceAlpha];
++                                    }
++                                    crate::draw_shader::DrawShaderColorFormat::Bgra8NoBlend => {
++                                        // Raw-write data pass: alpha is payload, and the over
++                                        // blend can only ever GROW dst alpha.
++                                        let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::BGRA8Unorm];
++                                        let () = msg_send![color_attachment, setBlendingEnabled: NO];
++                                    }
++                                    crate::draw_shader::DrawShaderColorFormat::Rf32 => {
++                                        // Float data target (TextureFormat::RenderRf32): no
++                                        // blending — these are data passes, and float-target
++                                        // blending is not universal across GPU families.
++                                        let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::R32Float];
++                                        let () = msg_send![color_attachment, setBlendingEnabled: NO];
++                                    }
++                                    crate::draw_shader::DrawShaderColorFormat::Rgba16F => {
++                                        // Four-channel float sim target (RenderRGBAf16); data
++                                        // pass, no blending (same law as Rf32).
++                                        let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::RGBA16Float];
++                                        let () = msg_send![color_attachment, setBlendingEnabled: NO];
++                                    }
++                                    crate::draw_shader::DrawShaderColorFormat::Rgba32F => {
++                                        // Four-channel float sim target (RenderRGBAf32); data
++                                        // pass, no blending. Consumers read with sample_nearest —
++                                        // Apple GPUs do not filter 32-bit float textures.
++                                        let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::RGBA32Float];
++                                        let () = msg_send![color_attachment, setBlendingEnabled: NO];
++                                    }
++                                }
++
++                                let () = msg_send![descriptor.as_id(), setDepthAttachmentPixelFormat: MTLPixelFormat::Depth32Float];
++
++                                if !blend {
++                                    let attachments: ObjcId =
++                                        msg_send![descriptor.as_id(), colorAttachments];
++                                    let attachment: ObjcId =
++                                        msg_send![attachments, objectAtIndexedSubscript: 0];
++                                    let _: () = msg_send![attachment, setBlendingEnabled: NO];
++                                }
+                             }
+-                            crate::draw_shader::DrawShaderColorFormat::Rgba32F => {
+-                                // Four-channel float sim target (RenderRGBAf32); data
+-                                // pass, no blending. Consumers read with sample_nearest —
+-                                // Apple GPUs do not filter 32-bit float textures.
+-                                let () = msg_send![color_attachment, setPixelFormat: MTLPixelFormat::RGBA32Float];
+-                                let () = msg_send![color_attachment, setBlendingEnabled: NO];
+-                            }
+-                        }
++                            let ready = thread_ready.clone();
++                            let pipeline_started = Instant::now();
++                            let source_len = callback_source.len();
++                            let completion = objc_block!(move |pipeline: ObjcId, error: ObjcId| {
++                                let pipeline_ms = pipeline_started.elapsed().as_secs_f64() * 1000.0;
++                                crate::startup_acc("metal newRenderPipelineState", pipeline_ms);
++                                if crate::makepad_error_log::trace_enabled("shader.bench") {
++                                    crate::trace!(
++                                        "shader.bench",
++                                        "src={} bytes blend={} lib={:.2}ms pipeline={:.2}ms total={:.2}ms",
++                                        source_len,
++                                        blend,
++                                        library_ms,
++                                        pipeline_ms,
++                                        started.elapsed().as_secs_f64() * 1000.0
++                                    );
++                                }
+ 
+-                        let () = msg_send![descriptor.as_id(), setDepthAttachmentPixelFormat: MTLPixelFormat::Depth32Float];
+-
+-                        if !blend {
+-                            let attachments: ObjcId =
+-                                msg_send![descriptor.as_id(), colorAttachments];
+-                            let attachment: ObjcId =
+-                                msg_send![attachments, objectAtIndexedSubscript: 0];
+-                            let _: () = msg_send![attachment, setBlendingEnabled: NO];
+-                        }
+-                    }
+-                    let ready = ready.clone();
+-                    let pipeline_started = Instant::now();
+-                    let source_len = callback_source.len();
+-                    let completion = objc_block!(move |pipeline: ObjcId, error: ObjcId| {
+-                        let pipeline_ms = pipeline_started.elapsed().as_secs_f64() * 1000.0;
+-                        crate::startup_acc("metal newRenderPipelineState", pipeline_ms);
+-                        if crate::makepad_error_log::trace_enabled("shader.bench") {
+-                            crate::trace!(
+-                                "shader.bench",
+-                                "src={} bytes blend={} lib={:.2}ms pipeline={:.2}ms total={:.2}ms",
+-                                source_len,
+-                                blend,
+-                                library_ms,
+-                                pipeline_ms,
+-                                started.elapsed().as_secs_f64() * 1000.0
+-                            );
+-                        }
+-
+-                        let result = if let Some(pipeline) = NonNull::new(pipeline) {
+-                            Ok(RcObjcId::from_unowned(pipeline))
+-                        } else {
+-                            let message = if error == nil {
+-                                "Metal returned no pipeline".into()
+-                            } else {
+-                                nsstring_to_string(unsafe {
+-                                    msg_send![error, localizedDescription]
+-                                })
+-                            };
+-                            crate::shader_error::note(message.clone());
+-                            crate::error!("Metal pipeline: {}", message);
+-                            Err(message)
+-                        };
+-                        let _ = if blend {
+-                            ready.blend.set(result)
+-                        } else {
+-                            ready.solid.set(result)
+-                        };
+-                        crate::thread::SignalToUI::set_ui_signal();
++                                let result = if let Some(pipeline) = NonNull::new(pipeline) {
++                                    Ok(RcObjcId::from_unowned(pipeline))
++                                } else {
++                                    let message = if error == nil {
++                                        "Metal returned no pipeline".into()
++                                    } else {
++                                        nsstring_to_string(unsafe {
++                                            msg_send![error, localizedDescription]
++                                        })
++                                    };
++                                    crate::shader_error::note(message.clone());
++                                    crate::error!("Metal pipeline: {}", message);
++                                    Err(message)
++                                };
++                                let _ = if blend {
++                                    ready.blend.set(result)
++                                } else {
++                                    ready.solid.set(result)
++                                };
++                                crate::thread::SignalToUI::set_ui_signal();
++                            });
++                            unsafe {
++                                let _: () = msg_send![callback_device.as_id(),
++                                    newRenderPipelineStateWithDescriptor: descriptor.as_id()
++                                    completionHandler: &completion];
++                            }
++                        }
++                        unsafe {
++                            let _: () = msg_send![pool, release];
++                        }
+                     });
+-                    unsafe {
+-                        let _: () = msg_send![callback_device.as_id(),
+-                            newRenderPipelineStateWithDescriptor: descriptor.as_id()
+-                            completionHandler: &completion];
+-                    }
++                if let Err(error) = submit {
++                    ready.failure(format!("Metal pipeline worker spawn failed: {}", error));
+                 }
+             } else {
+                 ready.failure("Metal library is missing vertex_main or fragment_main".into());

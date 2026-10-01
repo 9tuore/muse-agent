@@ -1,0 +1,99 @@
+From 81561192b36ed87ef989f6ff00681446cace406b Mon Sep 17 00:00:00 2001
+From: 9tuore <305543099+9tuore@users.noreply.github.com>
+Date: Wed, 30 Sep 2026 13:24:41 +0800
+Subject: [PATCH 1/2] feat: declare calendar capability for local host
+ extension
+
+---
+ crates/app-hub/src/index.rs          | 1 +
+ crates/app-policy/src/listing.rs     | 1 +
+ crates/app-policy/src/manifest.rs    | 3 +++
+ crates/app-policy/tests/admission.rs | 8 ++++++++
+ 4 files changed, 13 insertions(+)
+
+diff --git a/crates/app-hub/src/index.rs b/crates/app-hub/src/index.rs
+index def2053..a45b130 100644
+--- a/crates/app-hub/src/index.rs
++++ b/crates/app-hub/src/index.rs
+@@ -97,6 +97,7 @@ impl Entry {
+                 "microphone" => "Use the microphone".to_string(),
+                 "library" => "Save to your photo library, where other apps can see it".to_string(),
+                 "mail" => "Read and send mail from accounts you sign in to on the device".to_string(),
++                "calendar" => "Read and change events in system calendars you allow".to_string(),
+                 "llm" => "Manage the assistant's AI providers, whose keys stay with the device".to_string(),
+                 "news" => "Read news the device collects from its feeds and topics".to_string(),
+                 "glance" => "Show cards on your glance screen".to_string(),
+diff --git a/crates/app-policy/src/listing.rs b/crates/app-policy/src/listing.rs
+index a3ca1ad..d84f543 100644
+--- a/crates/app-policy/src/listing.rs
++++ b/crates/app-policy/src/listing.rs
+@@ -162,6 +162,7 @@ pub fn privacy_summary(manifest: &AppManifest) -> Vec<String> {
+         ("microphone", "Records sound with videos."),
+         ("library", "Saves photos and videos to your photo library."),
+         ("mail", "Reads and sends mail from accounts you add; it never sees your password."),
++        ("calendar", "Reads and changes system calendar events after you grant calendar access."),
+         ("llm", "Manages the assistant's AI providers; it never sees your API keys."),
+         ("news", "Reads news the device collects from its feeds and topics."),
+         ("glance", "Shows short cards on your glance screen; each opens only this app."),
+diff --git a/crates/app-policy/src/manifest.rs b/crates/app-policy/src/manifest.rs
+index e5858a2..694d33f 100644
+--- a/crates/app-policy/src/manifest.rs
++++ b/crates/app-policy/src/manifest.rs
+@@ -44,6 +44,9 @@ pub const KNOWN_CAPABILITIES: &[&str] = &[
+     // person signs in to on the host's own sheet. The app never holds the
+     // password or the connection.
+     "mail",
++    // Access system calendars through the host's EventKit service. The host
++    // checks its own OS permission and the selected calendar on each call.
++    "calendar",
+     // See and arrange the assistant's LLM providers through the host's llm
+     // service. Keys are typed, shown as a QR and scanned only on the host's
+     // own sheets; the app sees masked status, never a key.
+diff --git a/crates/app-policy/tests/admission.rs b/crates/app-policy/tests/admission.rs
+index aba8461..1bb8072 100644
+--- a/crates/app-policy/tests/admission.rs
++++ b/crates/app-policy/tests/admission.rs
+@@ -82,6 +82,14 @@ fn an_unknown_capability_is_refused() {
+     assert!(err.contains("unknown capability"), "{err}");
+ }
+ 
++#[test]
++fn calendar_requires_an_explicit_capability() {
++    assert!(!resolve("").unwrap().allows("calendar"));
++    assert!(resolve(r#""capabilities":["calendar"]"#).unwrap().allows("calendar"));
++    let err = resolve(r#""capabilities":["calendar.write.all"]"#).unwrap_err();
++    assert!(err.contains("unknown capability"), "{err}");
++}
++
+ #[test]
+ fn prompting_is_a_capability_of_its_own() {
+     assert!(!resolve(r#""capabilities":["storage"]"#).unwrap().may_prompt);
+-- 
+2.39.5 (Apple Git-154)
+
+
+From 29bfc0fee826299c26fc3402b449917b98cba209 Mon Sep 17 00:00:00 2001
+From: 9tuore <305543099+9tuore@users.noreply.github.com>
+Date: Wed, 30 Sep 2026 13:55:13 +0800
+Subject: [PATCH 2/2] build: reconcile App Hub lock for local CLI
+
+---
+ Cargo.lock | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Cargo.lock b/Cargo.lock
+index f83b22c..9ab954f 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -803,6 +803,8 @@ dependencies = [
+  "makepad-live-id",
+  "makepad-micro-serde",
+  "makepad-script",
++ "rustls",
++ "webpki-roots",
+  "windows",
+ ]
+ 
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,10 @@
+// Synthetic backup probe. No write action besides its test result.
+fn probe_backup(){
+    let goals_ok = core_boot_goals()
+    let activity_ok = core_boot_activity()
+    let memory_ok = core_boot_memory()
+    fs.write("test-backup.json", {goals_ok: goals_ok activity_ok: activity_ok memory_ok: memory_ok
+        goal_count: goals.len() activity_count: activity.len() memory_count: memory.len()}.to_json())
+}
+start_timeout(0.05, || probe_backup())
+View{width: Fill height: Fill Label{text: "Backup records test"}}

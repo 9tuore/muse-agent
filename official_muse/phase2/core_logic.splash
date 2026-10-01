@@ -1,0 +1,707 @@
+// Phase 2 state logic. Inline above the root widget in main.splash.
+// The UI owns rendering and host calls. This file never performs an external action.
+
+let goals = []
+let runs = []
+let actions = []
+let selected_id = ""
+let task = nil
+let activity = []
+let memory = []
+let memory_sources = []
+let memory_forget = []
+let core_error = ""
+let core_storage_ready = false
+let core_memory_ready = false
+let core_activity_ready = false
+let core_last_goals = ""
+let core_last_memory = ""
+let core_last_activity = ""
+
+fn core_goal_index(id){
+    for i in goals.len() { if goals[i].id == id { return i } }
+    return -1
+}
+
+fn core_run_index(id){
+    for i in runs.len() { if runs[i].id == id { return i } }
+    return -1
+}
+
+fn core_action_index(id){
+    for i in actions.len() { if actions[i].id == id { return i } }
+    return -1
+}
+
+fn core_goals_valid(saved){
+    if saved == nil { return false }
+    let raw = saved.to_json()
+    if raw.split("\"schema\":").len() < 2 || raw.split("\"goals\":").len() < 2
+        || raw.split("\"runs\":").len() < 2 || raw.split("\"actions\":").len() < 2
+        || raw.split("\"selected_id\":").len() < 2 { return false }
+    return saved.schema == 2 && saved.goals != nil && saved.runs != nil
+        && saved.actions != nil && saved.selected_id != nil
+}
+
+fn core_memory_valid(saved){
+    if saved == nil { return false }
+    let raw = saved.to_json()
+    if raw.split("\"schema\":").len() < 2 || raw.split("\"claims\":").len() < 2
+        || raw.split("\"sources\":").len() < 2 || raw.split("\"forget\":").len() < 2 {
+        return false
+    }
+    return saved.schema == 1 && saved.claims != nil && saved.sources != nil && saved.forget != nil
+}
+
+fn core_activity_valid(saved){
+    if saved == nil { return false }
+    for item in saved {
+        let raw = item.to_json()
+        if raw.split("\"kind\":").len() < 2 || raw.split("\"detail\":").len() < 2
+            || raw.split("\"at\":").len() < 2 { return false }
+    }
+    return true
+}
+
+fn core_restore_goals(){
+    if core_last_goals == "" { return }
+    let saved = core_last_goals.parse_json()
+    if saved == nil { return }
+    goals = saved.goals
+    runs = saved.runs
+    actions = saved.actions
+    selected_id = saved.selected_id
+    task = nil
+    let i = core_goal_index(selected_id)
+    if i >= 0 { task = goals[i] }
+}
+
+fn core_commit_goals(next_goals,next_runs,next_actions,next_selected){
+    if !core_storage_ready { core_error = "多目标存储未就绪；原文件仍保留。" return false }
+    if next_goals.len() > 32 || next_runs.len() > 128 || next_actions.len() > 128 {
+        core_error = "目标、执行或外部动作已达本地容量上限。"
+        return false
+    }
+    let serialized = {schema: 2 goals: next_goals runs: next_runs actions: next_actions
+        selected_id: next_selected}.to_json()
+    if serialized.len() > 900000 { core_error = "多目标记录接近 1 MiB 存储上限。" return false }
+    if core_last_goals != "" {
+        let backup_error = fs.write("goals.backup.json",core_last_goals)
+        if backup_error != nil || fs.read("goals.backup.json") != core_last_goals {
+            core_error = "无法保存目标回退快照，写入已停止。"
+            core_restore_goals()
+            return false
+        }
+    }
+    let error = fs.write("goals.json",serialized)
+    if error != nil || fs.read("goals.json") != serialized {
+        core_error = "目标写入或回读失败；可由回退快照恢复。"
+        core_restore_goals()
+        return false
+    }
+    goals = next_goals
+    runs = next_runs
+    actions = next_actions
+    selected_id = next_selected
+    core_last_goals = serialized
+    task = nil
+    let selected_index = core_goal_index(selected_id)
+    if selected_index >= 0 { task = goals[selected_index] }
+    core_error = ""
+    return true
+}
+
+fn core_boot_goals(){
+    core_storage_ready = true
+    let saved = nil
+    let primary_present = fs.exists("goals.json")
+    let backup_present = fs.exists("goals.backup.json")
+    if primary_present {
+        let candidate = fs.read("goals.json").parse_json()
+        if core_goals_valid(candidate) { saved = candidate }
+    }
+    if saved == nil && backup_present {
+        let candidate = fs.read("goals.backup.json").parse_json()
+        if core_goals_valid(candidate) {
+            saved = candidate
+            core_error = "目标主记录损坏；已从备份读取，尚未重写。"
+        }
+    }
+    if saved != nil {
+        goals = saved.goals
+        runs = saved.runs
+        actions = saved.actions
+        selected_id = saved.selected_id
+        core_last_goals = saved.to_json()
+        let i = core_goal_index(selected_id)
+        if i >= 0 { task = goals[i] }
+        // A lost callback is not proof of external failure or success.
+        for j in actions.len() {
+            if actions[j].status == "in_flight" {
+                let revised = core_last_goals.parse_json()
+                revised.actions[j].status = "unknown"
+                if !core_commit_goals(revised.goals,revised.runs,revised.actions,revised.selected_id) { return false }
+            }
+        }
+        return true
+    }
+    if primary_present || backup_present {
+        core_storage_ready = false
+        core_error = "目标主记录和备份均不可读；已停止迁移，避免丢失较新目标。"
+        return false
+    }
+    if fs.exists("current.json") {
+        let old = fs.read("current.json").parse_json()
+        if old == nil || old.id == nil || old.result_path == nil {
+            core_storage_ready = false
+            core_error = "旧版目标记录无效，未迁移也未覆盖。"
+            return false
+        }
+        old += {archived: false}
+        let imported_runs = []
+        if old.status == "running" || old.status == "completed" || old.status == "failed" {
+            let finished = 0
+            if old.status != "running" { finished = old.updated_at }
+            imported_runs.push({id: "legacy:" + old.id goal_id: old.id plan_revision: old.version
+                request_id: "legacy:" + old.id status: old.status started_at: old.approved_at
+                finished_at: finished result_path: old.result_path})
+        }
+        if !core_commit_goals([old],imported_runs,[],old.id) {
+            core_storage_ready = false
+            task = old
+            return false
+        }
+    }
+    return true
+}
+
+fn core_add_goal(new_task){
+    if new_task == nil || new_task.id == nil || core_goal_index(new_task.id) >= 0 {
+        core_error = "目标 ID 缺失或重复。"
+        return false
+    }
+    let candidate = []
+    for item in goals { candidate.push(item) }
+    let added = new_task.to_json().parse_json()
+    added += {archived: false}
+    candidate.push(added)
+    return core_commit_goals(candidate,runs,actions,added.id)
+}
+
+fn core_select_goal(id){
+    if core_goal_index(id) < 0 { core_error = "目标不存在。" return false }
+    return core_commit_goals(goals,runs,actions,id)
+}
+
+fn core_upsert_goal(updated_task){
+    if updated_task == nil || updated_task.id == nil { core_error = "目标缺少 ID。" return false }
+    let i = core_goal_index(updated_task.id)
+    if i < 0 { core_error = "目标不存在。" return false }
+    let candidate = []
+    for j in goals.len() {
+        if j == i { candidate.push(updated_task.to_json().parse_json()) }
+        else { candidate.push(goals[j]) }
+    }
+    return core_commit_goals(candidate,runs,actions,selected_id)
+}
+
+fn core_replan_goal(goal_id,next_task){
+    let i = core_goal_index(goal_id)
+    if i < 0 || goals[i].status == "running" || next_task == nil || next_task.id != goal_id
+        || next_task.version != goals[i].version + 1 || next_task.status != "planned"
+        || next_task.result_path == goals[i].result_path {
+        core_error = "新计划必须保留 Goal ID、增加版本并使用新结果路径。"
+        return false
+    }
+    let revised = next_task.to_json().parse_json()
+    revised.archived = false
+    revised.approved_at = 0
+    return core_upsert_goal(revised)
+}
+
+fn core_update_model_summary(goal_id,plan_revision,summary){
+    let i = core_goal_index(goal_id)
+    if i < 0 || goals[i].version != plan_revision || goals[i].status != "planned"
+        || summary == nil || summary.len() > 180 {
+        core_error = "模型回复对应的目标或计划版本已失效。"
+        return false
+    }
+    let revised = goals[i].to_json().parse_json()
+    revised.model_summary = summary
+    revised.updated_at = time_now()
+    return core_upsert_goal(revised)
+}
+
+fn core_archive_goal(id){
+    let i = core_goal_index(id)
+    if i < 0 || goals[i].status == "running" { core_error = "运行中的目标不可归档。" return false }
+    let revised = goals[i].to_json().parse_json()
+    revised.archived = true
+    revised.updated_at = time_now()
+    return core_upsert_goal(revised)
+}
+
+fn core_cancel_goal(id){
+    let i = core_goal_index(id)
+    if i < 0 || goals[i].status == "running" || goals[i].status == "completed" {
+        core_error = "该目标当前不能取消。"
+        return false
+    }
+    let revised = goals[i].to_json().parse_json()
+    revised.status = "cancelled"
+    revised.updated_at = time_now()
+    return core_upsert_goal(revised)
+}
+
+fn core_start_run(goal_id,plan_revision,request_id){
+    let i = core_goal_index(goal_id)
+    if i < 0 || goals[i].status != "planned" || goals[i].version != plan_revision || request_id == "" {
+        core_error = "计划已变化或目标不在待批准状态。"
+        return nil
+    }
+    let run_id = "run:" + floor(time_now()) + "-" + random_u32()
+    let next_goals = []
+    for j in goals.len() {
+        if j == i {
+            let revised = goals[j].to_json().parse_json()
+            revised.status = "running"
+            revised.approved_at = time_now()
+            revised.updated_at = time_now()
+            next_goals.push(revised)
+        } else { next_goals.push(goals[j]) }
+    }
+    let next_runs = []
+    for item in runs { next_runs.push(item) }
+    next_runs.push({id: run_id goal_id: goal_id plan_revision: plan_revision
+        request_id: request_id status: "running" started_at: time_now()
+        finished_at: 0 result_path: goals[i].result_path})
+    if !core_commit_goals(next_goals,next_runs,actions,selected_id) { return nil }
+    return run_id
+}
+
+fn core_finish_run(goal_id,run_id,status,result_path){
+    let ri = core_run_index(run_id)
+    let gi = core_goal_index(goal_id)
+    if ri < 0 || gi < 0 || runs[ri].goal_id != goal_id || runs[ri].status != "running"
+        || goals[gi].version != runs[ri].plan_revision || goals[gi].status != "running" {
+        core_error = "执行 ID 或计划版本已失效；未回写到当前所选目标。"
+        return false
+    }
+    if status != "completed" && status != "failed" { core_error = "执行结果状态无效。" return false }
+    if status == "completed" {
+        if result_path != runs[ri].result_path || !fs.exists(result_path) {
+            core_error = "执行产物路径不一致或不存在。"
+            return false
+        }
+        let readback = fs.read(result_path).parse_json()
+        if readback == nil || readback.task_id != goal_id {
+            core_error = "执行产物独立回读未匹配目标 ID。"
+            return false
+        }
+    }
+    let next_goals = []
+    for j in goals.len() {
+        if j == gi {
+            let revised = goals[j].to_json().parse_json()
+            revised.status = status
+            revised.updated_at = time_now()
+            next_goals.push(revised)
+        } else { next_goals.push(goals[j]) }
+    }
+    let next_runs = []
+    for j in runs.len() {
+        if j == ri {
+            let revised = runs[j].to_json().parse_json()
+            revised.status = status
+            revised.finished_at = time_now()
+            next_runs.push(revised)
+        } else { next_runs.push(runs[j]) }
+    }
+    return core_commit_goals(next_goals,next_runs,actions,selected_id)
+}
+
+fn core_begin_action(goal_id,run_id,plan_revision,service,action_scope,request_id,payload_json){
+    if service == "" || action_scope == "" || request_id == "" || payload_json == ""
+        || payload_json.len() > 12000 || core_action_index(request_id) >= 0 {
+        core_error = "外部动作关联或请求 ID 无效；未调用宿主。"
+        return false
+    }
+    if goal_id == "" && run_id == "" {
+        if plan_revision != 0 { core_error = "独立动作计划版本必须为零。" return false }
+    } else {
+        let gi = core_goal_index(goal_id)
+        let ri = core_run_index(run_id)
+        if gi < 0 || ri < 0 || runs[ri].goal_id != goal_id || runs[ri].plan_revision != plan_revision
+            || goals[gi].version != plan_revision || goals[gi].status != "running"
+            || runs[ri].status != "running" {
+            core_error = "外部动作未绑定仍在执行的原始 Goal/Run。"
+            return false
+        }
+    }
+    let next_actions = []
+    for item in actions { next_actions.push(item) }
+    next_actions.push({id: request_id goal_id: goal_id run_id: run_id
+        plan_revision: plan_revision service: service target_scope: action_scope
+        payload_json: payload_json status: "in_flight"
+        started_at: time_now() finished_at: 0})
+    return core_commit_goals(goals,runs,next_actions,selected_id)
+}
+
+fn core_finish_action(request_id,status){
+    let i = core_action_index(request_id)
+    if i < 0 { core_error = "动作不存在。" return false }
+    if status != "accepted" && status != "verified" && status != "failed" && status != "unknown" {
+        core_error = "动作结果状态无效。"
+        return false
+    }
+    let previous = actions[i].status
+    if previous != "in_flight" && !(previous == "accepted" && (status == "verified" || status == "unknown"))
+        && !(previous == "unknown" && (status == "verified" || status == "failed" || status == "accepted")) {
+        core_error = "动作状态变化需要新的外部对账证据。"
+        return false
+    }
+    let next_actions = []
+    for j in actions.len() {
+        if j == i {
+            let revised = actions[j].to_json().parse_json()
+            revised.status = status
+            revised.finished_at = time_now()
+            next_actions.push(revised)
+        } else { next_actions.push(actions[j]) }
+    }
+    return core_commit_goals(goals,runs,next_actions,selected_id)
+}
+
+fn core_record_event(kind,detail,goal_id,run_id,request_id,account_scope){
+    if !core_activity_ready { core_error = "活动记录不可读，已停止写入以保护历史。" return false }
+    if kind == "" || detail.len() > 500 || activity.len() >= 200 {
+        core_error = "活动记录已达上限或内容过长；事件未伪造为已保存。"
+        return false
+    }
+    let candidate = []
+    for item in activity { candidate.push(item) }
+    candidate.push({kind: kind detail: detail at: time_now() goal_id: goal_id
+        run_id: run_id request_id: request_id account_scope: account_scope})
+    let serialized = candidate.to_json()
+    if serialized.len() > 900000 { core_error = "活动记录接近 1 MiB 上限。" return false }
+    if core_last_activity != "" {
+        let backup_error = fs.write("activity.backup.json",core_last_activity)
+        if backup_error != nil || fs.read("activity.backup.json") != core_last_activity {
+            core_error = "活动回退快照保存失败。" return false
+        }
+    }
+    let error = fs.write("activity.json",serialized)
+    if error != nil || fs.read("activity.json") != serialized {
+        core_error = "活动写入或回读失败。" return false
+    }
+    activity = candidate
+    core_last_activity = serialized
+    core_error = ""
+    return true
+}
+
+fn core_boot_activity(){
+    core_activity_ready = true
+    let saved = nil
+    let primary_present = fs.exists("activity.json")
+    let backup_present = fs.exists("activity.backup.json")
+    if primary_present {
+        let candidate = fs.read("activity.json").parse_json()
+        if core_activity_valid(candidate) { saved = candidate }
+    }
+    if saved == nil && backup_present {
+        let candidate = fs.read("activity.backup.json").parse_json()
+        if core_activity_valid(candidate) {
+            saved = candidate
+            core_error = "活动记录从备份读取。"
+        }
+    }
+    if saved != nil {
+        let normalized = []
+        for item in saved {
+            let raw = item.to_json()
+            let goal_id = ""
+            let run_id = ""
+            let request_id = ""
+            let account_scope = ""
+            if raw.split("\"goal_id\":").len() > 1 { goal_id = item.goal_id }
+            else if raw.split("\"task_id\":").len() > 1 { goal_id = item.task_id }
+            if raw.split("\"run_id\":").len() > 1 { run_id = item.run_id }
+            if raw.split("\"request_id\":").len() > 1 { request_id = item.request_id }
+            if raw.split("\"account_scope\":").len() > 1 { account_scope = item.account_scope }
+            normalized.push({kind: item.kind detail: item.detail at: item.at
+                goal_id: goal_id run_id: run_id request_id: request_id account_scope: account_scope})
+        }
+        activity = normalized
+        core_last_activity = normalized.to_json()
+        return true
+    }
+    if primary_present || backup_present { core_activity_ready = false core_error = "活动记录和备份均不可读，未覆盖。" return false }
+    return true
+}
+
+// ISO UTC is generated from Unix seconds, independent of the host's UI timezone.
+fn core_two(n){ if n < 10 { return "0" + n } return "" + n }
+
+fn core_utc_iso(epoch){
+    let day = floor(epoch / 86400)
+    let second = floor(epoch - day * 86400)
+    let z = day + 719468
+    let era = floor(z / 146097)
+    let doe = z - era * 146097
+    let yoe = floor((doe - floor(doe / 1460) + floor(doe / 36524) - floor(doe / 146096)) / 365)
+    let year = yoe + era * 400
+    let doy = doe - (365 * yoe + floor(yoe / 4) - floor(yoe / 100))
+    let mp = floor((5 * doy + 2) / 153)
+    let day_of_month = doy - floor((153 * mp + 2) / 5) + 1
+    let month = mp + 3
+    if mp >= 10 { month = mp - 9 }
+    if month <= 2 { year = year + 1 }
+    let hour = floor(second / 3600)
+    let minute = floor((second - hour * 3600) / 60)
+    let sec = second - hour * 3600 - minute * 60
+    return year + "-" + core_two(month) + "-" + core_two(day_of_month) + "T"
+        + core_two(hour) + ":" + core_two(minute) + ":" + core_two(sec) + "Z"
+}
+
+fn core_memory_scope(account_scope){
+    return {project: "muse-goals" account: account_scope visibility: "personal"}
+}
+
+fn core_memory_index(id,account_scope){
+    for i in memory.len() {
+        if memory[i].document.id == id && memory[i].document["scope"].account == account_scope { return i }
+    }
+    return -1
+}
+
+fn core_source_index(source_id,account_scope){
+    for i in memory_sources.len() {
+        if memory_sources[i].source_id == source_id && memory_sources[i]["scope"].account == account_scope { return i }
+    }
+    return -1
+}
+
+fn core_is_forgotten(source_id,subject_id,predicate,account_scope){
+    for item in memory_forget {
+        if item.source_id == source_id && item.subject_id == subject_id
+            && item.predicate == predicate && item.account_scope == account_scope { return true }
+    }
+    return false
+}
+
+fn core_restore_memory(){
+    if core_last_memory == "" { return }
+    let saved = core_last_memory.parse_json()
+    if saved == nil { return }
+    memory = saved.claims
+    memory_sources = saved.sources
+    memory_forget = saved.forget
+}
+
+fn core_commit_memory(next_claims,next_sources,next_forget){
+    if !core_memory_ready { core_error = "记忆记录不可读，已停止写入以保护历史。" return false }
+    if next_claims.len() > 64 || next_sources.len() > 128 || next_forget.len() > 256 {
+        core_error = "记忆、来源或墓碑达到本地容量上限。"
+        return false
+    }
+    let serialized = {schema: 1 claims: next_claims sources: next_sources forget: next_forget}.to_json()
+    if serialized.len() > 900000 { core_error = "记忆记录接近 1 MiB 存储上限。" return false }
+    if core_last_memory != "" {
+        let backup_error = fs.write("memory.backup.json",core_last_memory)
+        if backup_error != nil || fs.read("memory.backup.json") != core_last_memory {
+            core_error = "记忆回退快照保存失败。"
+            core_restore_memory()
+            return false
+        }
+    }
+    let error = fs.write("memory.json",serialized)
+    if error != nil || fs.read("memory.json") != serialized {
+        core_error = "记忆写入或回读失败。"
+        core_restore_memory()
+        return false
+    }
+    memory = next_claims
+    memory_sources = next_sources
+    memory_forget = next_forget
+    core_last_memory = serialized
+    core_error = ""
+    return true
+}
+
+fn core_boot_memory(){
+    core_memory_ready = true
+    let saved = nil
+    let primary_present = fs.exists("memory.json")
+    let backup_present = fs.exists("memory.backup.json")
+    if primary_present {
+        let candidate = fs.read("memory.json").parse_json()
+        if core_memory_valid(candidate) { saved = candidate }
+    }
+    if saved == nil && backup_present {
+        let candidate = fs.read("memory.backup.json").parse_json()
+        if core_memory_valid(candidate) {
+            saved = candidate
+            core_error = "记忆主记录损坏；已从备份读取。"
+        }
+    }
+    if saved != nil {
+        memory = saved.claims
+        memory_sources = saved.sources
+        memory_forget = saved.forget
+        core_last_memory = saved.to_json()
+        return true
+    }
+    if primary_present || backup_present { core_memory_ready = false core_error = "记忆主记录和备份均不可读。" return false }
+    return true
+}
+
+fn core_add_source(source){
+    if source == nil || source.source_id == nil || source.kind == nil || source.locator == nil
+        || source.observed_at == nil || source["scope"] == nil || source["scope"].account == nil
+        || source["scope"].account == "" || source["scope"].project != "muse-goals"
+        || source["scope"].visibility != "personal"
+        || source.support_excerpt == nil || source.source_id == "" || source.locator == ""
+        || source.support_excerpt.len() > 500 {
+        core_error = "来源字段不足或摘要过长。"
+        return false
+    }
+    if source.kind != "user" && source.kind != "runtime_receipt" && source.kind != "url" && source.kind != "file" {
+        core_error = "来源类型不在既有 Memory DSL 范围内。"
+        return false
+    }
+    let i = core_source_index(source.source_id,source["scope"].account)
+    if i >= 0 {
+        if memory_sources[i].locator == source.locator
+            && memory_sources[i].content_sha256 == source.content_sha256
+            && memory_sources[i].support_excerpt == source.support_excerpt { return true }
+        core_error = "同一来源 ID 指向不同位置。"
+        return false
+    }
+    let next_sources = []
+    for item in memory_sources { next_sources.push(item) }
+    next_sources.push(source)
+    return core_commit_memory(memory,next_sources,memory_forget)
+}
+
+fn core_add_claim(document){
+    if document == nil || document.schema_version != "muse.dsl/1" || document.kind != "memory"
+        || document.revision != 1 || document["scope"] == nil || document["scope"].project != "muse-goals"
+        || document["scope"].visibility != "personal" || document.id == nil
+        || document.payload == nil || document.payload.deleted != false
+        || document.payload.value == nil || document.payload.value == ""
+        || document.payload.value.len() > 4000 || document.payload.subject_id == nil
+        || document.payload.predicate == nil || document.payload.source_ids == nil
+        || document.payload.source_ids.len() == 0 || document.payload.source_ids.len() > 16 {
+        core_error = "记忆 DSL 字段无效；未写入。"
+        return false
+    }
+    let account_scope = document["scope"].account
+    if core_memory_index(document.id,account_scope) >= 0 {
+        core_error = "记忆 ID 已存在或已删除，不能复活。"
+        return false
+    }
+    for source_id in document.payload.source_ids {
+        if core_source_index(source_id,account_scope) < 0
+            || core_is_forgotten(source_id,document.payload.subject_id,document.payload.predicate,account_scope) {
+            core_error = "来源不存在、跨账号或已被遗忘。"
+            return false
+        }
+    }
+    let next_claims = []
+    for item in memory { next_claims.push(item) }
+    next_claims.push({document: document pinned: false source_history: document.payload.source_ids})
+    return core_commit_memory(next_claims,memory_sources,memory_forget)
+}
+
+fn core_find_memory(query,account_scope,goal_id){
+    let found = []
+    if account_scope == "" { return found }
+    for entry in memory {
+        let doc = entry.document
+        if doc["scope"].account == account_scope && !doc.payload.deleted
+            && (goal_id == "" || doc.payload.subject_id == goal_id)
+            && (query == "" || doc.payload.value.split(query).len() > 1
+                || doc.payload.predicate.split(query).len() > 1) {
+            found.push(entry)
+        }
+    }
+    return found
+}
+
+fn core_correct_memory(id,value,account_scope){
+    let i = core_memory_index(id,account_scope)
+    if i < 0 || memory[i].document.payload.deleted || value.trim() == "" || value.len() > 4000 {
+        core_error = "记忆不存在、已删除或更正内容无效。"
+        return false
+    }
+    let current = memory[i]
+    let next_claims = []
+    let now = core_utc_iso(time_now())
+    let source_id = "source:user:" + floor(time_now()) + "-" + random_u32()
+    let source = {source_id: source_id kind: "user" locator: "user-correction:" + id
+        content_sha256: nil observed_at: now updated_at: now support_excerpt: value}
+    source["scope"] = core_memory_scope(account_scope)
+    let next_sources = []
+    for item in memory_sources { next_sources.push(item) }
+    next_sources.push(source)
+    for j in memory.len() {
+        if j == i {
+            let revised = current.to_json().parse_json()
+            revised.document.revision = revised.document.revision + 1
+            revised.document.updated_at = now
+            revised.document.origin = {type: "user" ref: "muse-ui"}
+            revised.document.payload.value = value.trim()
+            revised.document.payload.epistemic_type = "user_statement"
+            revised.document.payload.source_ids = [source_id]
+            revised.document.payload.observed_at = now
+            revised.source_history.push(source_id)
+            next_claims.push(revised)
+        } else { next_claims.push(memory[j]) }
+    }
+    return core_commit_memory(next_claims,next_sources,memory_forget)
+}
+
+fn core_pin_memory(id,pinned,account_scope){
+    let i = core_memory_index(id,account_scope)
+    if i < 0 || memory[i].document.payload.deleted { core_error = "记忆不存在或已删除。" return false }
+    let next_claims = []
+    for j in memory.len() {
+        if j == i {
+            let revised = memory[j].to_json().parse_json()
+            revised.pinned = pinned
+            next_claims.push(revised)
+        } else { next_claims.push(memory[j]) }
+    }
+    return core_commit_memory(next_claims,memory_sources,memory_forget)
+}
+
+fn core_delete_memory(id,account_scope){
+    let i = core_memory_index(id,account_scope)
+    if i < 0 || memory[i].document.payload.deleted { core_error = "记忆不存在或已删除。" return false }
+    let old = memory[i]
+    let next_forget = []
+    for item in memory_forget { next_forget.push(item) }
+    for source_id in old.source_history {
+        if !core_is_forgotten(source_id,old.document.payload.subject_id,old.document.payload.predicate,account_scope) {
+            next_forget.push({source_id: source_id subject_id: old.document.payload.subject_id
+                predicate: old.document.payload.predicate account_scope: account_scope at: core_utc_iso(time_now())})
+        }
+    }
+    let next_claims = []
+    for j in memory.len() {
+        if j == i {
+            let revised = old.to_json().parse_json()
+            revised.document.revision = revised.document.revision + 1
+            revised.document.updated_at = core_utc_iso(time_now())
+            revised.document.payload.value = ""
+            revised.document.payload.source_ids = []
+            revised.document.payload.relations = []
+            revised.document.payload.deleted = true
+            revised.pinned = false
+            revised.source_history = []
+            next_claims.push(revised)
+        } else { next_claims.push(memory[j]) }
+    }
+    return core_commit_memory(next_claims,memory_sources,next_forget)
+}

@@ -1,0 +1,19 @@
+// Synthetic corrupt-record probe. Never points at a user's app jail.
+fn probe_corrupt(){
+    let goals_ok = core_boot_goals()
+    let activity_ok = core_boot_activity()
+    let memory_ok = core_boot_memory()
+    let added = core_add_goal({id: "new" version: 1 goal: "不得写入" status: "planned"
+        result_path: "results/new.json" updated_at: time_now()})
+    let event = core_record_event("fixture", "不得写入", "", "", "", "")
+    let now = core_utc_iso(time_now())
+    let source = {source_id: "source:bad" kind: "user" locator: "fixture:bad"
+        content_sha256: nil observed_at: now updated_at: now support_excerpt: "不得写入"}
+    source["scope"] = core_memory_scope("local")
+    let source_added = core_add_source(source)
+    fs.write("test-corrupt.json", {goals_ok: goals_ok activity_ok: activity_ok memory_ok: memory_ok
+        added: added event: event source_added: source_added storage_ready: core_storage_ready
+        activity_ready: core_activity_ready memory_ready: core_memory_ready}.to_json())
+}
+start_timeout(0.05, || probe_corrupt())
+View{width: Fill height: Fill Label{text: "Corrupt records test"}}

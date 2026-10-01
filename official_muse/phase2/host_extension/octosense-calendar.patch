@@ -1,0 +1,792 @@
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -7294,7 +7294,6 @@
+ [[package]]
+ name = "octosense-app-hub"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=e8601b80ce104db2e48208094714bdcffdce6b5a#e8601b80ce104db2e48208094714bdcffdce6b5a"
+ dependencies = [
+  "base64 0.22.1",
+  "blake3",
+@@ -7310,7 +7309,6 @@
+ [[package]]
+ name = "octosense-app-hub-app"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=e8601b80ce104db2e48208094714bdcffdce6b5a#e8601b80ce104db2e48208094714bdcffdce6b5a"
+ dependencies = [
+  "makepad-app-module",
+  "makepad-widgets",
+@@ -7338,7 +7336,6 @@
+ [[package]]
+ name = "octosense-app-policy"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=e8601b80ce104db2e48208094714bdcffdce6b5a#e8601b80ce104db2e48208094714bdcffdce6b5a"
+ dependencies = [
+  "blake3",
+  "makepad-widgets",
+@@ -7359,7 +7356,6 @@
+ [[package]]
+ name = "octosense-appstore"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=e8601b80ce104db2e48208094714bdcffdce6b5a#e8601b80ce104db2e48208094714bdcffdce6b5a"
+ dependencies = [
+  "makepad-app-module",
+  "makepad-widgets",
+@@ -7368,6 +7364,17 @@
+  "octosense-app-hub",
+  "octosense-app-policy",
+  "serde_json",
++]
++
++[[package]]
++name = "octosense-calendar-service"
++version = "0.1.0"
++dependencies = [
++ "cc",
++ "chrono",
++ "octosense-appstore",
++ "serde_json",
++ "sha2 0.10.9",
+ ]
+ 
+ [[package]]
+@@ -7506,6 +7513,7 @@
+  "octosense-app-policy",
+  "octosense-appcard",
+  "octosense-appstore",
++ "octosense-calendar-service",
+  "octosense-mail-service",
+  "octosense-news-service",
+  "octosense-reference",
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -29,6 +29,7 @@
+     "apps/reference",
+     "apps/news/host-service",
+     "apps/mail/host-service",
++    "apps/calendar/host-service",
+     "apps/ai-providers/config",
+     "apps/ai-providers/host-service",
+     "apps/appcard/module",
+@@ -123,6 +124,7 @@
+ octosense-llm-config = { path = "apps/ai-providers/config" }
+ octosense-llm-service = { path = "apps/ai-providers/host-service" }
+ octosense-mail-service = { path = "apps/mail/host-service" }
++octosense-calendar-service = { path = "apps/calendar/host-service" }
+ octosense-news-service = { path = "apps/news/host-service" }
+ octos-app = { path = "apps/appcard/app/app", default-features = false }
+ octos-app-store = { path = "apps/appcard/app/crates/octos-app-store" }
+@@ -190,6 +192,14 @@
+ # One Makepad and one OctoScript: every crate the graph pulls by these URLs
+ # (the shells', AppCard's, App Hub's, Rinx's) resolves to the checkouts
+ # tools/setup.py prepares in .sources/ (with the reviewed runtime patch).
++# Local calendar extension only: all App Hub users resolve to one reviewed
++# checkout of e8601b80 plus the separate capability patch at .sources/app-hub.
++[patch."https://github.com/OctoSense-org/OctoSense-App-Hub"]
++octosense-app-hub-app = { path = ".sources/app-hub/crates/app-hub-app" }
++octosense-app-hub = { path = ".sources/app-hub/crates/app-hub" }
++octosense-appstore = { path = ".sources/app-hub/crates/appstore" }
++octosense-app-policy = { path = ".sources/app-hub/crates/app-policy" }
++
+ [patch."https://github.com/OctoSense-org/makepad.git"]
+ makepad-script = { path = ".sources/makepad/platform/script" }
+ makepad-widgets = { path = ".sources/makepad/widgets" }
+--- a/crates/shell/Cargo.toml
++++ b/crates/shell/Cargo.toml
+@@ -46,6 +46,7 @@
+ octoscript-ui-l0 = { workspace = true }
+ octosense-ai-host = { workspace = true }
+ octosense-mail-service = { workspace = true, optional = true }
++octosense-calendar-service = { workspace = true, optional = true }
+ octosense-news-service = { workspace = true, optional = true }
+ # App Hub's host-service registry: the `glance` service registers into it.
+ octosense-appstore = { workspace = true, optional = true }
+@@ -104,7 +105,7 @@
+ app-sheets = ["dep:makepad-sheets"]
+ app-terminal = ["dep:makepad-terminal"]
+ app-appcard = ["dep:octosense-appcard", "octos-core"]
+-app-hub = ["dep:octosense-app-hub-app", "dep:octosense-appstore", "dep:octosense-app-policy", "dep:octosense-app-hub", "dep:octosense-mail-service", "dep:octosense-news-service", "octosense-ai-host/llm"]
++app-hub = ["dep:octosense-app-hub-app", "dep:octosense-appstore", "dep:octosense-app-policy", "dep:octosense-app-hub", "dep:octosense-mail-service", "dep:octosense-calendar-service", "dep:octosense-news-service", "octosense-ai-host/llm"]
+ # END native-apps: features
+ # The aichat module, seated in the pane in-process.
+ app-aichat = ["dep:makepad-aichat"]
+--- a/crates/shell/src/apps.rs
++++ b/crates/shell/src/apps.rs
+@@ -147,6 +147,7 @@
+         } else {
+             octosense_mail_service::register()
+         }
++        octosense_calendar_service::register();
+         register_news();
+     });
+ }
+--- a/native-apps.json
++++ b/native-apps.json
+@@ -103,7 +103,7 @@
+       "bin": null,
+       "default_features": true,
+       "crate_features": [],
+-      "implies": ["dep:octosense-appstore", "dep:octosense-app-policy", "dep:octosense-app-hub", "dep:octosense-mail-service", "dep:octosense-news-service", "octosense-ai-host/llm"],
++      "implies": ["dep:octosense-appstore", "dep:octosense-app-policy", "dep:octosense-app-hub", "dep:octosense-mail-service", "dep:octosense-calendar-service", "dep:octosense-news-service", "octosense-ai-host/llm"],
+       "hosting": { "macos": "module", "windows": "module", "linux": "module", "android": "module", "ios": "module", "ohos": "module" },
+       "shells": { "desktop": "default", "phone": "default" },
+       "native_mobile": "always",
+--- /dev/null
++++ b/apps/calendar/host-service/Cargo.toml
+@@ -0,0 +1,15 @@
++[package]
++name = "octosense-calendar-service"
++version = "0.1.0"
++edition = "2021"
++license = "Apache-2.0"
++publish = false
++
++[dependencies]
++octosense-appstore = { workspace = true }
++serde_json = "1"
++sha2 = "0.10"
++chrono = "0.4"
++
++[target.'cfg(target_os = "macos")'.build-dependencies]
++cc = "1"
+--- /dev/null
++++ b/apps/calendar/host-service/build.rs
+@@ -0,0 +1,13 @@
++fn main() {
++    #[cfg(target_os = "macos")]
++    {
++        println!("cargo:rerun-if-changed=src/eventkit.m");
++        cc::Build::new()
++            .file("src/eventkit.m")
++            .flag("-fobjc-arc")
++            .warnings(true)
++            .compile("octosense_calendar_eventkit");
++        println!("cargo:rustc-link-lib=framework=Foundation");
++        println!("cargo:rustc-link-lib=framework=EventKit");
++    }
++}
+--- /dev/null
++++ b/apps/calendar/host-service/src/lib.rs
+@@ -0,0 +1,319 @@
++//! A bounded EventKit service for contained apps granted `calendar`.
++//! The policy isolate checks the capability; EventKit checks macOS access.
++//! Mutations have a durable host-side request journal so an uncertain result
++//! is never silently retried after a crash or storage failure.
++
++use chrono::{DateTime, FixedOffset};
++use octosense_appstore::services::{HostService, Replier, ServiceCall, ServiceHost};
++use serde_json::{json, Value};
++use sha2::{Digest, Sha256};
++use std::collections::BTreeMap;
++use std::path::{Path, PathBuf};
++use std::sync::Mutex;
++
++static ACTION_LOCK: Mutex<()> = Mutex::new(());
++
++pub fn register() {
++    octosense_appstore::services::register_host_service(Box::new(CalendarService));
++}
++
++struct CalendarService;
++
++impl HostService for CalendarService {
++    fn family(&self) -> &'static str {
++        "calendar"
++    }
++
++    fn call(&mut self, call: ServiceCall, reply: Replier, _host: &mut dyn ServiceHost) {
++        // EventKit queries and the system permission prompt never block the UI.
++        std::thread::spawn(move || reply.send(handle(call)));
++    }
++}
++
++fn text<'a>(args: &'a Value, key: &str) -> Result<&'a str, String> {
++    args.get(key)
++        .and_then(Value::as_str)
++        .map(str::trim)
++        .filter(|s| !s.is_empty())
++        .ok_or_else(|| format!("{key} is required"))
++}
++
++fn bounded_text(args: &Value, key: &str, max: usize) -> Result<(), String> {
++    let value = text(args, key)?;
++    if value.len() > max || value.contains(['\r', '\n']) {
++        return Err(format!("{key} is too long or contains a line break"));
++    }
++    Ok(())
++}
++
++fn time(args: &Value, key: &str) -> Result<DateTime<FixedOffset>, String> {
++    DateTime::parse_from_rfc3339(text(args, key)?).map_err(|_| format!("{key} must be RFC 3339 with a UTC offset"))
++}
++
++fn valid_range(args: &Value) -> Result<(), String> {
++    let start = time(args, "start")?;
++    let end = time(args, "end")?;
++    let seconds = (end - start).num_seconds();
++    if seconds <= 0 || seconds > 31 * 86_400 {
++        return Err("The date range must be positive and at most 31 days".into());
++    }
++    Ok(())
++}
++
++fn valid_request(args: &Value) -> Result<(), String> {
++    let id = text(args, "request_id")?;
++    if id.len() > 100 || id.len() < 8 || !id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-') {
++        return Err("request_id must be 8-100 ASCII letters, digits, _ or -".into());
++    }
++    Ok(())
++}
++
++fn validate(method: &str, args: &Value) -> Result<(), String> {
++    match method {
++        "status" | "request_access" => Ok(()),
++        "list" => {
++            bounded_text(args, "calendar_id", 512)?;
++            valid_range(args)?;
++            let limit = args.get("limit").and_then(Value::as_u64).unwrap_or(50);
++            if limit == 0 || limit > 100 {
++                return Err("limit must be 1-100".into());
++            }
++            Ok(())
++        }
++        "get" => {
++            bounded_text(args, "calendar_id", 512)?;
++            bounded_text(args, "event_id", 512)
++        }
++        "create" => {
++            valid_request(args)?;
++            bounded_text(args, "calendar_id", 512)?;
++            bounded_text(args, "title", 200)?;
++            bounded_text(args, "time_zone", 100)?;
++            valid_range(args)?;
++            if args.get("location").is_some() && !args["location"].is_null() {
++                if args["location"].as_str().is_none_or(|s| s.len() > 500) {
++                    return Err("location must be text of at most 500 bytes".into());
++                }
++            }
++            Ok(())
++        }
++        "update" => {
++            valid_request(args)?;
++            bounded_text(args, "calendar_id", 512)?;
++            bounded_text(args, "event_id", 512)?;
++            bounded_text(args, "expected_version", 64)?;
++            let changes = args.get("changes").and_then(Value::as_object).ok_or("changes must be an object")?;
++            if changes.is_empty() || changes.keys().any(|key| !["title", "start", "end", "time_zone", "location"].contains(&key.as_str())) {
++                return Err("changes must contain only title, start, end, time_zone or location".into());
++            }
++            for (key, value) in changes {
++                if value.as_str().is_none_or(|s| s.len() > 500 || s.contains(['\r', '\n'])) {
++                    return Err(format!("invalid {key} change"));
++                }
++            }
++            Ok(())
++        }
++        "delete" => {
++            valid_request(args)?;
++            bounded_text(args, "calendar_id", 512)?;
++            bounded_text(args, "event_id", 512)?;
++            bounded_text(args, "expected_version", 64)
++        }
++        _ => Err(format!("calendar has no method {method:?}")),
++    }
++}
++
++fn digest(data: &[u8]) -> String {
++    format!("{:x}", Sha256::digest(data))
++}
++
++fn version(event: &Value) -> String {
++    digest(event.to_string().as_bytes())
++}
++
++fn decorate(mut event: Value) -> Value {
++    let v = version(&event);
++    event["version"] = json!(v);
++    event
++}
++
++fn native_request(method: &str, args: &Value) -> Result<Value, String> {
++    native::call(&json!({"method": method, "args": args}))
++}
++
++fn journal_path(host_dir: &Path, app_id: &str) -> PathBuf {
++    host_dir.join("calendar").join(format!("{}.json", digest(app_id.as_bytes())))
++}
++
++fn read_journal(path: &Path) -> Result<BTreeMap<String, Value>, String> {
++    match std::fs::read(path) {
++        Ok(bytes) => serde_json::from_slice(&bytes).map_err(|e| format!("calendar journal is damaged: {e}")),
++        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(BTreeMap::new()),
++        Err(e) => Err(format!("cannot read calendar journal: {e}")),
++    }
++}
++
++fn write_journal(path: &Path, journal: &BTreeMap<String, Value>) -> Result<(), String> {
++    let parent = path.parent().ok_or("invalid calendar journal path")?;
++    std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
++    let temp = path.with_extension(format!("{}.tmp", std::process::id()));
++    let bytes = serde_json::to_vec(journal).map_err(|e| e.to_string())?;
++    let mut file = std::fs::File::create(&temp).map_err(|e| e.to_string())?;
++    use std::io::Write;
++    file.write_all(&bytes).and_then(|_| file.sync_all()).map_err(|e| e.to_string())?;
++    std::fs::rename(&temp, path).map_err(|e| e.to_string())?;
++    std::fs::File::open(parent).and_then(|file| file.sync_all()).map_err(|e| e.to_string())?;
++    Ok(())
++}
++
++fn handle(call: ServiceCall) -> Result<Value, String> {
++    let method = call.method().to_string();
++    validate(&method, &call.args)?;
++    match method.as_str() {
++        "status" | "request_access" => native_request(&method, &call.args),
++        "list" => {
++            let mut result = native_request(&method, &call.args)?;
++            if let Some(events) = result["events"].as_array_mut() {
++                for event in events {
++                    *event = decorate(event.take());
++                }
++            }
++            Ok(result)
++        }
++        "get" => {
++            let mut result = native_request("get", &call.args)?;
++            if result["found"] == true {
++                let event = result["event"].take();
++                result["event"] = decorate(event);
++            }
++            Ok(result)
++        }
++        "create" | "update" | "delete" => mutate(&call, &method),
++        _ => Err("unknown calendar method".into()),
++    }
++}
++
++fn mutate(call: &ServiceCall, method: &str) -> Result<Value, String> {
++    let _lock = ACTION_LOCK.lock().map_err(|_| "calendar action lock poisoned")?;
++    let path = journal_path(&call.host_dir, &call.app_id);
++    let mut journal = read_journal(&path)?;
++    let request_id = text(&call.args, "request_id")?;
++    let fingerprint = digest(json!({"method": method, "args": call.args}).to_string().as_bytes());
++    if let Some(previous) = journal.get(request_id) {
++        if previous["fingerprint"] != fingerprint {
++            return Err("request_id was already used with different calendar content".into());
++        }
++        return if previous["state"] == "done" {
++            Ok(previous["result"].clone())
++        } else {
++            Err("Calendar action outcome is uncertain; check the system calendar before a new request".into())
++        };
++    }
++
++    let mut args = call.args.clone();
++    args["owner"] = json!(digest(call.app_id.as_bytes()));
++    if method != "create" {
++        let read = native_request("get", &args)?;
++        if read["found"] != true {
++            return Err("Calendar event no longer exists; review before acting".into());
++        }
++        let current = &read["event"];
++        if version(&current) != text(&args, "expected_version")? {
++            return Err("Calendar event changed; review it again before acting".into());
++        }
++        args["expected_last_modified"] = current["last_modified"].clone();
++    }
++
++    journal.insert(request_id.into(), json!({"fingerprint": fingerprint, "state": "pending"}));
++    write_journal(&path, &journal)?;
++    let raw = native_request(method, &args);
++    let result = match raw {
++        Ok(event) if method == "delete" => event,
++        Ok(event) => {
++            let event = decorate(event);
++            json!({"event_id": event["id"], "version": event["version"]})
++        }
++        Err(e) => return Err(format!("Calendar action may have changed the system calendar; reconcile before retry: {e}")),
++    };
++    journal.insert(request_id.into(), json!({"fingerprint": fingerprint, "state": "done", "result": result}));
++    write_journal(&path, &journal).map_err(|e| format!("Calendar changed, but saving its result failed; reconcile before retry: {e}"))?;
++    Ok(result)
++}
++
++#[cfg(target_os = "macos")]
++mod native {
++    use serde_json::Value;
++    use std::ffi::{c_char, CStr, CString};
++
++    unsafe extern "C" {
++        fn muse_calendar_call(request: *const c_char) -> *mut c_char;
++        fn muse_calendar_free(result: *mut c_char);
++    }
++
++    pub fn call(request: &Value) -> Result<Value, String> {
++        let json = CString::new(request.to_string()).map_err(|e| e.to_string())?;
++        let pointer = unsafe { muse_calendar_call(json.as_ptr()) };
++        if pointer.is_null() {
++            return Err("EventKit bridge returned no response".into());
++        }
++        let answer = unsafe { CStr::from_ptr(pointer).to_string_lossy().into_owned() };
++        unsafe { muse_calendar_free(pointer) };
++        let value: Value = serde_json::from_str(&answer).map_err(|e| format!("invalid EventKit response: {e}"))?;
++        if let Some(error) = value["error"].as_str() {
++            Err(error.into())
++        } else {
++            value.get("result").cloned().ok_or_else(|| "EventKit response has no result".into())
++        }
++    }
++}
++
++#[cfg(not(target_os = "macos"))]
++mod native {
++    use serde_json::Value;
++    pub fn call(_request: &Value) -> Result<Value, String> {
++        Err("Calendar EventKit service is available only on macOS in this build".into())
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn invalid_ranges_and_duplicate_ids_are_refused_before_eventkit() {
++        assert!(validate("list", &json!({"calendar_id":"c","start":"2026-10-01T10:00:00+08:00","end":"2026-10-01T09:00:00+08:00"})).is_err());
++        assert!(validate("create", &json!({"calendar_id":"c","title":"T","start":"2026-10-01T10:00:00+08:00","end":"2026-10-01T11:00:00+08:00","time_zone":"Asia/Shanghai","request_id":"bad/../id"})).is_err());
++    }
++
++    #[test]
++    fn damaged_journal_fails_closed() {
++        let path = std::env::temp_dir().join(format!("muse-calendar-journal-{}", std::process::id()));
++        std::fs::write(&path, b"not-json").unwrap();
++        assert!(read_journal(&path).unwrap_err().contains("damaged"));
++        std::fs::remove_file(path).unwrap();
++    }
++
++    #[test]
++    fn completed_request_is_replayed_only_for_identical_content() {
++        let host_dir = std::env::temp_dir().join(format!("muse-calendar-actions-{}", std::process::id()));
++        let args = json!({"calendar_id":"c","title":"Test","start":"2026-10-01T10:00:00+08:00",
++            "end":"2026-10-01T11:00:00+08:00","time_zone":"Asia/Shanghai","request_id":"phase2-test-1"});
++        let call = ServiceCall { app_id: "muse.test".into(), service: "calendar.create".into(),
++            args: args.clone(), from_sheet: false, host_dir: host_dir.clone() };
++        let path = journal_path(&host_dir, &call.app_id);
++        let fingerprint = digest(json!({"method":"create","args":args}).to_string().as_bytes());
++        let mut journal = BTreeMap::new();
++        journal.insert("phase2-test-1".into(), json!({"fingerprint":fingerprint,"state":"done",
++            "result":{"event_id":"event-1","version":"v1"}}));
++        write_journal(&path, &journal).unwrap();
++        assert_eq!(mutate(&call, "create").unwrap()["event_id"], "event-1");
++        let mut changed = call.clone();
++        changed.args["title"] = json!("Different");
++        assert!(mutate(&changed, "create").unwrap_err().contains("different calendar content"));
++        assert_ne!(journal_path(&host_dir, "other.app"), path);
++        journal.get_mut("phase2-test-1").unwrap()["state"] = json!("pending");
++        write_journal(&path, &journal).unwrap();
++        assert!(mutate(&call, "create").unwrap_err().contains("uncertain"));
++        std::fs::remove_dir_all(host_dir).unwrap();
++    }
++}
+--- /dev/null
++++ b/apps/calendar/host-service/src/eventkit.m
+@@ -0,0 +1,218 @@
++#import <Foundation/Foundation.h>
++#import <EventKit/EventKit.h>
++#include <math.h>
++#include <string.h>
++
++static NSString *text(NSDictionary *object, NSString *key) {
++    id value = object[key];
++    return [value isKindOfClass:[NSString class]] ? value : nil;
++}
++
++static NSDictionary *failure(NSString *message) {
++    return @{ @"error": message ?: @"Calendar operation failed" };
++}
++
++static NSString *permission(void) {
++    EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
++    switch (status) {
++        case EKAuthorizationStatusNotDetermined: return @"not_determined";
++        case EKAuthorizationStatusRestricted: return @"restricted";
++        case EKAuthorizationStatusDenied: return @"denied";
++        case EKAuthorizationStatusFullAccess: return @"full_access";
++        case EKAuthorizationStatusWriteOnly: return @"write_only";
++    }
++    return @"unavailable";
++}
++
++static NSISO8601DateFormatter *formatter(void) {
++    NSISO8601DateFormatter *fmt = [[NSISO8601DateFormatter alloc] init];
++    fmt.formatOptions = NSISO8601DateFormatWithInternetDateTime;
++    fmt.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
++    return fmt;
++}
++
++static NSDate *parseDate(NSString *value) {
++    if (!value) return nil;
++    NSISO8601DateFormatter *fmt = formatter();
++    NSDate *date = [fmt dateFromString:value];
++    if (date) return date;
++    fmt.formatOptions = NSISO8601DateFormatWithInternetDateTime | NSISO8601DateFormatWithFractionalSeconds;
++    return [fmt dateFromString:value];
++}
++
++static NSDictionary *eventValue(EKEvent *event) {
++    NSISO8601DateFormatter *fmt = formatter();
++    NSString *start = event.startDate ? [fmt stringFromDate:event.startDate] : @"";
++    NSString *end = event.endDate ? [fmt stringFromDate:event.endDate] : @"";
++    return @{
++        @"id": event.eventIdentifier ?: @"",
++        @"calendar_id": event.calendar.calendarIdentifier ?: @"",
++        @"title": event.title ?: @"",
++        @"start": start,
++        @"end": end,
++        @"time_zone": event.timeZone.name ?: @"",
++        @"location": event.location ?: @"",
++        @"last_modified": @([event.lastModifiedDate timeIntervalSince1970]),
++    };
++}
++
++static EKCalendar *calendar(EKEventStore *store, NSDictionary *args) {
++    NSString *identifier = text(args, @"calendar_id");
++    return identifier ? [store calendarWithIdentifier:identifier] : nil;
++}
++
++static EKEvent *event(EKEventStore *store, NSDictionary *args) {
++    NSString *identifier = text(args, @"event_id");
++    EKCalendar *wanted = calendar(store, args);
++    EKEvent *found = identifier && wanted ? [store eventWithIdentifier:identifier] : nil;
++    if (found && ![found.calendar.calendarIdentifier isEqualToString:wanted.calendarIdentifier]) return nil;
++    return found;
++}
++
++static BOOL owned(EKEvent *event, NSString *owner) {
++    NSURL *url = event.URL;
++    return owner && [url.scheme isEqualToString:@"muse-calendar"] && [url.host isEqualToString:owner];
++}
++
++static BOOL mayModify(EKEvent *event) {
++    return event && event.calendar.allowsContentModifications && event.recurrenceRules.count == 0 &&
++           event.attendees.count == 0 && !event.isDetached;
++}
++
++static NSDictionary *perform(NSDictionary *request) {
++    NSString *method = text(request, @"method");
++    NSDictionary *args = request[@"args"];
++    if (![args isKindOfClass:[NSDictionary class]]) args = @{};
++    if ([method isEqualToString:@"status"]) {
++        EKEventStore *store = [[EKEventStore alloc] init];
++        NSString *access = permission();
++        NSMutableArray *calendars = [NSMutableArray array];
++        if ([access isEqualToString:@"full_access"]) {
++            for (EKCalendar *item in [store calendarsForEntityType:EKEntityTypeEvent]) {
++                [calendars addObject:@{ @"id": item.calendarIdentifier ?: @"",
++                                        @"title": item.title ?: @"",
++                                        @"writable": @(item.allowsContentModifications) }];
++            }
++        }
++        return @{ @"result": @{ @"permission": access, @"calendars": calendars } };
++    }
++
++    EKEventStore *store = [[EKEventStore alloc] init];
++    if ([method isEqualToString:@"request_access"]) {
++        dispatch_semaphore_t done = dispatch_semaphore_create(0);
++        __block NSString *message = nil;
++        if (@available(macOS 14.0, *)) {
++            [store requestFullAccessToEventsWithCompletion:^(BOOL granted, NSError *error) {
++                (void)granted;
++                if (error) message = error.localizedDescription;
++                dispatch_semaphore_signal(done);
++            }];
++        } else {
++            return failure(@"Full calendar access requires macOS 14 or newer in this build");
++        }
++        if (dispatch_semaphore_wait(done, dispatch_time(DISPATCH_TIME_NOW, 120 * NSEC_PER_SEC)) != 0)
++            return failure(@"Calendar permission request timed out; check the system prompt");
++        if (message) return failure(message);
++        [store reset];
++        return @{ @"result": @{ @"permission": permission() } };
++    }
++
++    if (![permission() isEqualToString:@"full_access"])
++        return failure(@"Full calendar access is required; write-only is insufficient for readback");
++
++    EKCalendar *target = calendar(store, args);
++    if (!target) return failure(@"The selected system calendar is unavailable");
++
++    if ([method isEqualToString:@"list"]) {
++        NSDate *start = parseDate(text(args, @"start"));
++        NSDate *end = parseDate(text(args, @"end"));
++        if (!start || !end || [end timeIntervalSinceDate:start] <= 0 || [end timeIntervalSinceDate:start] > 31 * 86400)
++            return failure(@"Invalid calendar date range");
++        NSUInteger limit = [args[@"limit"] respondsToSelector:@selector(unsignedIntegerValue)] ? [args[@"limit"] unsignedIntegerValue] : 50;
++        if (limit == 0 || limit > 100) return failure(@"Calendar limit must be 1-100");
++        NSPredicate *predicate = [store predicateForEventsWithStartDate:start endDate:end calendars:@[target]];
++        NSArray<EKEvent *> *found = [store eventsMatchingPredicate:predicate];
++        NSMutableArray *events = [NSMutableArray array];
++        for (EKEvent *item in found) {
++            if (events.count == limit) break;
++            [events addObject:eventValue(item)];
++        }
++        return @{ @"result": @{ @"calendar_id": target.calendarIdentifier,
++                                  @"start": text(args, @"start"), @"end": text(args, @"end"),
++                                  @"events": events, @"truncated": @(found.count > limit) } };
++    }
++
++    if ([method isEqualToString:@"get"]) {
++        EKEvent *found = event(store, args);
++        return found ? @{ @"result": @{ @"found": @YES, @"event": eventValue(found) } }
++                     : @{ @"result": @{ @"found": @NO } };
++    }
++
++    NSString *owner = text(args, @"owner");
++    NSString *requestID = text(args, @"request_id");
++    if (owner.length != 64 || requestID.length < 8) return failure(@"Missing host action identity");
++    if (!target.allowsContentModifications) return failure(@"The selected calendar is read-only");
++
++    if ([method isEqualToString:@"create"]) {
++        NSDate *start = parseDate(text(args, @"start"));
++        NSDate *end = parseDate(text(args, @"end"));
++        NSTimeZone *zone = [NSTimeZone timeZoneWithName:text(args, @"time_zone")];
++        if (!start || !end || [end timeIntervalSinceDate:start] <= 0 || !zone)
++            return failure(@"Invalid event time or time zone");
++        EKEvent *created = [EKEvent eventWithEventStore:store];
++        created.calendar = target;
++        created.title = text(args, @"title");
++        created.startDate = start;
++        created.endDate = end;
++        created.timeZone = zone;
++        created.location = text(args, @"location") ?: @"";
++        created.URL = [NSURL URLWithString:[NSString stringWithFormat:@"muse-calendar://%@/%@", owner, requestID]];
++        NSError *error = nil;
++        if (![store saveEvent:created span:EKSpanThisEvent error:&error])
++            return failure(error.localizedDescription ?: @"EventKit could not create the event");
++        return @{ @"result": eventValue(created) };
++    }
++
++    if ([method isEqualToString:@"update"] || [method isEqualToString:@"delete"]) {
++        EKEvent *found = event(store, args);
++        if (!mayModify(found) || !owned(found, owner))
++            return failure(@"Only a nonrepeating, attendee-free event created by this app may be changed");
++        NSNumber *expected = args[@"expected_last_modified"];
++        if (![expected isKindOfClass:[NSNumber class]] || fabs([found.lastModifiedDate timeIntervalSince1970] - expected.doubleValue) > 0.001)
++            return failure(@"The system event changed; review it again");
++        NSError *error = nil;
++        if ([method isEqualToString:@"delete"]) {
++            if (![store removeEvent:found span:EKSpanThisEvent error:&error])
++                return failure(error.localizedDescription ?: @"EventKit could not delete the event");
++            return @{ @"result": @{ @"deleted": @YES } };
++        }
++        NSDictionary *changes = args[@"changes"];
++        if (![changes isKindOfClass:[NSDictionary class]]) return failure(@"Invalid event changes");
++        if (changes[@"title"]) found.title = text(changes, @"title");
++        if (changes[@"start"]) found.startDate = parseDate(text(changes, @"start"));
++        if (changes[@"end"]) found.endDate = parseDate(text(changes, @"end"));
++        if (changes[@"time_zone"]) found.timeZone = [NSTimeZone timeZoneWithName:text(changes, @"time_zone")];
++        if (changes[@"location"]) found.location = text(changes, @"location");
++        if (!found.startDate || !found.endDate || !found.timeZone || [found.endDate timeIntervalSinceDate:found.startDate] <= 0)
++            return failure(@"Invalid updated event time or time zone");
++        if (![store saveEvent:found span:EKSpanThisEvent error:&error])
++            return failure(error.localizedDescription ?: @"EventKit could not update the event");
++        return @{ @"result": eventValue(found) };
++    }
++    return failure(@"Unknown calendar method");
++}
++
++char *muse_calendar_call(const char *request) {
++    @autoreleasepool {
++        NSString *input = request ? [NSString stringWithUTF8String:request] : nil;
++        NSData *data = [input dataUsingEncoding:NSUTF8StringEncoding];
++        NSDictionary *parsed = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
++        NSDictionary *result = [parsed isKindOfClass:[NSDictionary class]] ? perform(parsed) : failure(@"Invalid calendar request");
++        NSData *encoded = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
++        return encoded ? strdup([[NSString alloc] initWithData:encoded encoding:NSUTF8StringEncoding].UTF8String) : strdup("{\"error\":\"Calendar response encoding failed\"}");
++    }
++}
++
++void muse_calendar_free(char *result) {
++    free(result);
++}
+--- /dev/null
++++ b/tools/package_calendar_candidate.py
+@@ -0,0 +1,79 @@
++#!/usr/bin/env python3
++"""Package the isolated Calendar Shell candidate for local macOS testing."""
++
++import argparse
++import hashlib
++import plistlib
++import shutil
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parents[1]
++MAKEPAD_WIDGETS = ROOT.parent / "makepad-splash-budget/widgets/resources"
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--release", action="store_true")
++    parser.add_argument("--output", type=Path, help="New isolated .app path")
++    options = parser.parse_args()
++    profile = "release" if options.release else "debug"
++    binary = ROOT / f"target/{profile}/octosense"
++    base_plist = ROOT / f"target/{profile}/Info.plist"
++    bundle = options.output or ROOT / "target/muse-calendar-test" / (
++        "OctoSense Calendar Release Candidate.app" if options.release
++        else "OctoSense Calendar Candidate.app"
++    )
++    if not binary.is_file() or not base_plist.is_file():
++        raise SystemExit("Build the isolated octosense binary first")
++    shell_resources = ROOT / "crates/shell/resources"
++    hub_resources = ROOT / ".sources/app-hub/crates/app-hub-app/resources"
++    if not MAKEPAD_WIDGETS.is_dir() or not shell_resources.is_dir() or not hub_resources.is_dir():
++        raise SystemExit("Locked Makepad widgets, OctoSense Shell or App Hub resources are missing")
++    if bundle.exists():
++        raise SystemExit(f"Candidate already exists: {bundle}")
++
++    macos = bundle / "Contents/MacOS"
++    macos.mkdir(parents=True)
++    executable = macos / "octosense"
++    shutil.copy2(binary, executable)
++    resources = bundle / "Contents/Resources"
++    for crate, source in (
++        ("makepad_widgets", MAKEPAD_WIDGETS),
++        ("octosense_shell", shell_resources),
++        ("octosense_app_hub_app", hub_resources),
++    ):
++        shutil.copytree(source, resources / crate / "resources")
++        # This candidate is a normal Cargo binary: Makepad also searches
++        # beside the executable unless compiled with apple_bundle.
++        (macos / crate).symlink_to(Path("../Resources") / crate, target_is_directory=True)
++    with base_plist.open("rb") as source:
++        info = plistlib.load(source)
++    info.update(
++        {
++            "CFBundleIdentifier": (
++                "dev.makepad.octosense.musecalendar.release.local" if options.release
++                else "dev.makepad.octosense.musecalendar.local"
++            ),
++            "CFBundleExecutable": "octosense",
++            "CFBundlePackageType": "APPL",
++            "CFBundleVersion": "1",
++            "CFBundleShortVersionString": "0.1.0",
++            "NSCalendarsFullAccessUsageDescription": (
++                "Muse 在你确认后读取、创建或修改系统日历事件，并读回结果。"
++            ),
++        }
++    )
++    with (bundle / "Contents/Info.plist").open("wb") as destination:
++        plistlib.dump(info, destination)
++    subprocess.run(["codesign", "--force", "--sign", "-", str(bundle)], check=True)
++    subprocess.run(["codesign", "--verify", "--verbose=1", str(bundle)], check=True)
++    print(f"candidate: {bundle}")
++    print(f"binary_sha256: {hashlib.sha256(binary.read_bytes()).hexdigest()}")
++    print(f"signed_executable_sha256: {hashlib.sha256(executable.read_bytes()).hexdigest()}")
++    print("resource_roots: makepad_widgets, octosense_shell, octosense_app_hub_app")
++
++
++if __name__ == "__main__":
++    main()

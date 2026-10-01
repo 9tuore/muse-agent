@@ -1,0 +1,91 @@
+// Isolated card-host fixture; no Mail or Calendar service is called.
+fn probe(){
+    let boot_ok = core_boot_goals()
+    core_boot_activity()
+    core_boot_memory()
+    if !boot_ok { fs.write("test-report.json",{stage: "boot" error: core_error}.to_json()) return }
+    if fs.exists("test-report.json") {
+        let a = core_action_index("req:g3")
+        let m = core_find_memory("", "local", "")
+        fs.write("test-restart.json",{goal_count: goals.len() selected_id: selected_id
+            old_result: fs.read("results/old.json") action_status: actions[a].status
+            memory_count: m.len() forgotten: memory_forget.len()
+            standalone_status: actions[core_action_index("req:mail")].status}.to_json())
+        return
+    }
+    let old_ok = goals.len() == 1 && goals[0].id == "g1" && fs.exists("current.json")
+        && core_run_index("legacy:g1") >= 0
+    let legacy_activity = activity.len() == 1 && activity[0].goal_id == "g1"
+        && activity[0].run_id == "" && activity[0].kind == "Goal created"
+    let legacy_recovered = core_finish_run("g1","legacy:g1","completed","results/old.json")
+    let g2 = {id: "g2" version: 1 goal: "二号目标" status: "planned" result_path: "results/g2.json" updated_at: time_now()}
+    let g3 = {id: "g3" version: 1 goal: "三号目标" status: "planned" result_path: "results/g3.json" updated_at: time_now()}
+    let second = core_add_goal(g2)
+    let third = core_add_goal(g3)
+    let select = core_select_goal("g1")
+    let run2 = core_start_run("g2",1,"req:g2")
+    let write = fs.write("results/g2.json",{task_id: "g2" result: "fixture"}.to_json())
+    let finish2 = core_finish_run("g2",run2,"completed","results/g2.json")
+    let double_finish_rejected = !core_finish_run("g2",run2,"completed","results/g2.json")
+    let isolated = task.id == "g1" && goals[core_goal_index("g2")].status == "completed"
+    let g2_replan = {id: "g2" version: 2 goal: "二号目标后续" status: "planned" result_path: "results/g2-v2.json" updated_at: time_now()}
+    let replanned = core_replan_goal("g2",g2_replan)
+    let old_revision_rejected = core_start_run("g2",1,"req:stale") == nil
+    let run2_again = core_start_run("g2",2,"req:g2-v2")
+    let standalone = core_begin_action("","",0,"mail.send","acct:test","req:mail","{\"to\":\"test@example.invalid\"}")
+    let duplicate_send_rejected = !core_begin_action("","",0,"mail.send","acct:test","req:mail","same request")
+    let verify_started = core_begin_action("","",0,"calendar.create","test-calendar","req:verify","fixture")
+    let accepted = core_finish_action("req:verify","accepted")
+    let verified = core_finish_action("req:verify","verified")
+    let double_verify_rejected = !core_finish_action("req:verify","verified")
+    let model_isolated = core_update_model_summary("g3",1,"三号目标的合成模型建议")
+        && task.id == "g1" && goals[core_goal_index("g3")].model_summary == "三号目标的合成模型建议"
+    let run3 = core_start_run("g3",1,"req:g3-run")
+    let action = core_begin_action("g3",run3,1,"calendar.create","test-calendar","req:g3","fixture-payload")
+    let now = core_utc_iso(time_now())
+    let source = {source_id: "source:test-1" kind: "user" locator: "fixture:note-1"
+        content_sha256: nil observed_at: now updated_at: now support_excerpt: "合成来源"
+        }
+    source["scope"] = core_memory_scope("local")
+    let added_source = core_add_source(source)
+    let document = {schema_version: "muse.dsl/1" kind: "memory" id: "memory:test-1" revision: 1
+        created_at: now updated_at: now
+        origin: {type: "user" ref: "muse-ui"}
+        payload: {subject_id: "g1" predicate: "note" value: "原记忆" epistemic_type: "user_statement"
+            source_ids: ["source:test-1"] observed_at: now valid_from: nil valid_until: nil
+            relations: [] deleted: false}}
+    document["scope"] = core_memory_scope("local")
+    let added_claim = core_add_claim(document)
+    let found = core_find_memory("原记忆","local","g1").len() == 1
+    let other_account_hidden = core_find_memory("","another-account","").len() == 0
+    let corrected = core_correct_memory("memory:test-1","更正记忆","local")
+    let pinned = core_pin_memory("memory:test-1",true,"local")
+    let corrected_found = core_find_memory("更正记忆","local","g1").len() == 1
+    let deleted = core_delete_memory("memory:test-1","local")
+    let after_delete = core_find_memory("","local","g1").len() == 0
+    let reimport_doc = {schema_version: "muse.dsl/1" kind: "memory" id: "memory:test-2" revision: 1
+        created_at: now updated_at: now
+        origin: {type: "user" ref: "muse-ui"}
+        payload: {subject_id: "g1" predicate: "note" value: "旧来源回流" epistemic_type: "user_statement"
+            source_ids: ["source:test-1"] observed_at: now valid_from: nil valid_until: nil
+            relations: [] deleted: false}}
+    reimport_doc["scope"] = core_memory_scope("local")
+    let reimport = core_add_claim(reimport_doc)
+    let activity_ok = core_record_event("fixture.probe","隔离专项验证","g2",run2,"req:g2","local")
+    fs.write("test-report.json",{old_ok: old_ok legacy_activity: legacy_activity
+        legacy_recovered: legacy_recovered
+        second: second third: third select: select
+        write_ok: write == nil finish2: finish2 double_finish_rejected: double_finish_rejected
+        isolated: isolated action: action old_revision_rejected: old_revision_rejected
+        duplicate_send_rejected: duplicate_send_rejected verify_started: verify_started
+        accepted: accepted verified: verified double_verify_rejected: double_verify_rejected
+        model_isolated: model_isolated
+        other_account_hidden: other_account_hidden
+        added_source: added_source added_claim: added_claim found: found corrected: corrected
+        pinned: pinned corrected_found: corrected_found deleted: deleted
+        after_delete: after_delete reimport_rejected: !reimport activity_ok: activity_ok
+        goal_count: goals.len() run_count: runs.len() replanned: replanned
+        run2_again: run2_again != nil standalone: standalone core_error: core_error}.to_json())
+}
+start_timeout(0.05, || probe())
+View{width: Fill height: Fill Label{text: "Goals Memory Activity 专项状态测试"}}
