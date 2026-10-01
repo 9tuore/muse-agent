@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-official-migration/Agent APP黑客松/official_muse/phase2/tests/live_calendar_crud.py", line 112, in <module>
+    main()
+  File "/Users/mima0000/.codex/worktrees/muse-official-migration/Agent APP黑客松/official_muse/phase2/tests/live_calendar_crud.py", line 89, in main
+    text(remote, "calendar_title", args.test_id + ("-UPDATED" if args.stage == "update" else ""))
+  File "/Users/mima0000/.codex/worktrees/muse-official-migration/Agent APP黑客松/official_muse/phase2/tests/live_calendar_crud.py", line 32, in text
+    reach(remote, key)
+  File "/Users/mima0000/.codex/worktrees/muse-official-migration/Agent APP黑客松/official_muse/phase2/tests/live_calendar_crud.py", line 23, in reach
+    raise AssertionError(f"unreachable Calendar control: {key}")
+AssertionError: unreachable Calendar control: calendar_title

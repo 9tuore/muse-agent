@@ -1,0 +1,35 @@
+{
+  "evidence": "LOCAL manual source and live-window review; not automated reviewer or upstream decision",
+  "version": "0.2.8",
+  "route": "human-review",
+  "questions": [
+    {
+      "question": "Does the app do what its name, subtitle and description claim? Cite the text in its source.",
+      "answer": "Muse 的中文对话、多Goal、来源记忆、Activity及系统Calendar CRUD在0.2.8实机执行；Mail本人账号尚未登录。连续追问三次验收2次正确、1次错误，不能宣称稳定1:1。listing标记本地扩展候选。"
+    },
+    {
+      "question": "Do the listing's platforms and category fit an app of this kind?",
+      "answer": "仅 macos / productivity 与本次 EventKit 和打包运行匹配，其他平台未声称测试。"
+    },
+    {
+      "question": "Do the granted capabilities match what the app visibly does? For a script app, name every host it requests and why. Name any grant nothing on screen needs.",
+      "answer": "model.complete 用于对话/Goal建议/邮件日程候选；storage 用于应用隔离账本与结果；mail.* 为账号、同步、列表、正文和单独批准发送；calendar.* 为权限、列表、系统 CRUD 与独立 get。manifest 无 network.hosts；未新增 Browser/Terminal capability。"
+    },
+    {
+      "question": "Is any part of the interface deceptive: imitating a system prompt, a payment sheet, a login, or another brand?",
+      "answer": "Muse 自身不接收密码或模仿 OS 授权。Mail 登录由官方 Host sheet、日历许可由实际 macOS prompt 提供。能力 Granted、系统权限、账号和服务状态分开显示。"
+    },
+    {
+      "question": "Does any text in the source or its data (not agent_files) read as an instruction to an assistant rather than content for a person?",
+      "answer": "源码含固定 model.complete task 提示，是产品调用的明确任务指令；数据来源当作输入且用户需单独批准外部动作。未发现诱导审查 Agent 忽略规则的文本。"
+    },
+    {
+      "question": "Is any wording abusive, or aimed at a private individual?",
+      "answer": "界面与本次合成测试材料未发现针对私人个人的辱骂。未纳入真实邮件正文或秘密。"
+    },
+    {
+      "question": "Route: pass, human-review, or reject. Give reasons a publisher can act on.",
+      "answer": "human-review：本地扩展尚未获上游准入，publisher/privacy/support 仍是本地演练占位，Mail真实收发与同Goal联动未验收，Qwen语义未稳定。只能做本地开发验收；正式提交前需真人核对发布信息与剩余矩阵。"
+    }
+  ]
+}
