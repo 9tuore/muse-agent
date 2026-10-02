@@ -46,6 +46,11 @@ def main() -> None:
     remote.click("生成计划")
     wait_notice(remote, "计划已生成", 10)
 
+    # The same visible pane may retain a scroll position from a previous
+    # long Goal or layout test. Return to its top before locating Plan actions.
+    x, y, width, height = remote.find("detail_view")["r"]
+    remote.scroll(int(x + width - 8), int(y + height / 2), -10000)
+
     if args.model:
         remote.click_scroll("请模型给建议", "detail_view")
         wait_notice(remote, "模型建议已返回", 120)

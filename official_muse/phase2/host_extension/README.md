@@ -1,3 +1,11 @@
+# 最终候选 0.2.9 来源摘要补丁（2026-10-01）
+
+`makepad-storage-sha256.patch` 为锁定 Makepad 的 `widgets/src/splash_storage.rs` 增加 `fs.sha256(text)`：返回精确 UTF-8 字节的 SHA-256 小写十六进制，最多 64 KiB，只对已有 storage jail 的 isolate 开放。该函数不读文件、不联网、不改变 grants 或路径准入。未修改原版安装包及生产 Memory；不是上游已经接受的新接口。
+
+未修改文件 SHA-256：`a0f15e96e7fd5c990ab010fa9dce6d1d2c7d4c7dff32390cf26cf1fed217e7cf`。应用补丁后须重新 locked 构建 Shell 和 card-host，旧宿主不能直接用于这轮来源 hash 验收。Pure Splash SHA 试验对短向量正确，但长文触发原有运行预算；正式应用未引入该实现，也未提高预算。
+
+验证命令及最终宿主 SHA 以 `PHASE2_FINAL_TEST_REPORT.md` 为准；构建正在进行，不能提前标通过。应用 envelope 沿用 `muse.dsl/1`，来源 hash 不自动回填或覆盖历史记录。
+
 # 当前实机更新：Muse 0.2.8（2026-10-01）
 
 最终真实打包Shell中，三个新模型Goal与23文件正常重启核验通过；Calendar full_access，合成事件create/get/update/get/delete/get通过并清理。Chat指定三轮复测2/3，仍不稳定；真实Mail与邮件→日历同Goal未验收。原版Gate拒calendar，扩展签名check通过；scan自审human-review。最终报告见仓库根目录PHASE2_LIVE_TEST_REPORT.md。以下保留基线、补丁构建过程与历史观察；0.2.1/2/3/7状态不代表最终8。
@@ -72,3 +80,40 @@ The final runtime is `OctoSense Muse Phase2 Live 0.2.7.app`, launched normally t
 Actual 0.2.5 EventKit create/get/update/get/delete/get receipts were verified and both earlier synthetic test events were removed. Final 0.2.7 repeats and the independent restart checks are recorded in the repository root `PHASE2_LIVE_TEST_REPORT.md`; that report supersedes historical “unverified” status above. Mail remains blocked on person-only account login and a designated test recipient. Native role history reaches the real Qwen model, but its three-turn no-repeat/counting instruction is not stable, so the overall result remains PARTIAL.
 
 Final 0.2.7 packaged EventKit create/get/update/get/delete/get passed for `MUSE-CALENDAR-TEST-20261001-027`, including independent `found=false` after delete. The 0.2.6 test event was also removed after repairing the app test-ID check. Three fresh 0.2.7 model-backed Goals completed with one Run each. Main Splash SHA-256: `776809486924a9d91ae42aaf38d0af2ca2731bbfb8747401d8c7732ff7f2a6e5`; bundle BLAKE3: `cb3cacdd3716ef5048eee4780c921d58b0f3a2dd7b52f59c225b89091352d2c0`.
+
+## Final 0.2.9 candidate (2026-10-02)
+
+The final main source is product commit `17e63c5`, SHA-256 `eb0e32778c03ea4cc7e331a63ad9aee7bd36bdf5c541e1ec61d99502199b1489`. The signed and installed source matches byte for byte. Packaged Shell executable SHA-256 is `56ad9012c8dae9387c690d3fd896efc2e67e0806b91e097ad0342567df2f7e2f`; patched card-host SHA-256 is `dcebb3e8a4c50b6702526b52d8aaa3a015e63feba8159b8aff9682cd9ea83987`.
+
+The isolated `makepad-splash-budget` tree now includes the UTF-8 `fs.sha256` patch. An explicit Cargo config, `official_muse/app/build/phase2-029-cargo.toml`, resolves the eight Makepad patch packages to this tree. The card-host was built using that config with `build --offline --locked --release --target-dir ../OctoSense/target -p octosense-card-host`; native digest vectors and over-64-KiB refusal passed in that exact runtime. No script/time/heap budget increase was used.
+
+Final visible Shell tests passed three model-backed Goals, a long-text Goal, source Memory edits, five window requests and normal restart with seven file hashes unchanged. Chat transport is verified; numeric-count semantics remain limited. The new packaged binary returns `calendar.status=not_determined`, and Mail has no signed-in account. Final Calendar CRUD, real Mail delivery and the linked external task are pending person-only nodes. Historical 0.2.7 CRUD is not counted as a 0.2.9 pass.
+
+See the root `PHASE2_FINAL_ACCEPTANCE.md`, `PHASE2_FINAL_TEST_REPORT.md` and `PHASE2_FINAL_EVIDENCE_INDEX.md`. This remains a local ad hoc runtime and signed rehearsal catalog. Stock Gate still refuses calendar; neither Calendar nor the SHA interface is presented as accepted upstream.
+
+## 0.2.10 Chinese presentation patch (2026-10-02)
+
+Apply `octosense-zh-ui.patch` inside the isolated OctoSense export and
+`app-hub-zh-ui.patch` inside its paired App Hub checkout, **after** the existing
+Phase 2 patches described above. Both apply checks passed against the saved
+pre-localization baseline. App Hub source commit: `97d75ac`.
+
+These patches translate Muse-facing Mail and model settings sheets, App Hub
+navigation/permission descriptions, Shell menus, launcher labels, weekday and
+startup presentation. Protocol fields, persisted states, manifest capabilities,
+consent hashes, credential namespaces and model route decisions stay unchanged.
+Only host display JSON fields receive Chinese labels. No new grant is added.
+
+Build using the same locked local Makepad source with
+`cargo build --offline --locked --release -p octosense --no-default-features --features app-hub`.
+Package into a new path with the existing `tools/package_calendar_candidate.py`.
+The accepted package is `OctoSense Muse 中文版 0.2.10-r2.app`, locally ad hoc signed,
+executable SHA-256 `24bcaddaee2297a1fe524a2cebc380814e1987d609e89e2cfb4a8efac9ebd10f`.
+
+Mail unit tests: 8 passed/2 ignored; model unit tests: 27 passed/1 ignored;
+App Hub unit tests: 36 passed. Final visible Shell passed eight Chinese pages,
+empty Mail validation/protocol switching, five requested layouts, real model
+chat, a real model Goal and restart with nine durable file hashes unchanged.
+Model format rejection is recorded separately; real Mail send and final system
+Calendar CRUD remain unverified. See `MUSE_CHINESE_UI_REPORT.md`. This is a local
+extension and rehearsal catalog, not upstream acceptance or distribution signing.

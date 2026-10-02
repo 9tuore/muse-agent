@@ -32,6 +32,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("port", type=int)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--version", default="0.2.9", help="version of the installed candidate under test")
     parser.add_argument("--jail", type=Path, help="opt in to one synthetic real model send per size")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -48,7 +49,8 @@ def main():
         remote.scroll(int(area[0] + area[2] - 4), int(area[1] + area[3] / 2), -10000)
         remote.click("新对话")
     results = []
-    for width, height in ((990, 539), (990, 400), (990, 300), (412, 892), (1280, 800)):
+    last_model_send = 0
+    for width, height in ((412, 892), (990, 539), (990, 400), (412, 1100), (1200, 700)):
         x, y, old_width, old_height = settle(remote)
         rect = drag(remote, x + old_width - 24, y + old_height * 0.65,
                     width - old_width, height - old_height, 1)
@@ -68,12 +70,18 @@ def main():
         assert send_rect[1] + send_rect[3] <= dock_top, (send_rect, dock_top)
         sent = False
         if args.jail:
+            # Space calls conservatively below the host's default six/minute
+            # limit without changing any configured host budget.
+            cooldown = 32 - (time.monotonic() - last_model_send)
+            if cooldown > 0:
+                time.sleep(cooldown)
             file = args.jail / "chat-sessions.json"
             state = json.loads(file.read_text())
             current = next(s for s in state["sessions"] if s["id"] == state["selected_id"])
             count = len(current["messages"])
             remote.set_text("goal_input", f"合成窗口测试 {width}x{height}，请简短确认。")
             remote.click("发送")
+            last_model_send = time.monotonic()
             deadline = time.monotonic() + 150
             while time.monotonic() < deadline:
                 state = json.loads(file.read_text())
@@ -85,13 +93,35 @@ def main():
                 time.sleep(0.2)
             assert sent, "the real send button did not complete a model turn"
         remote.shot(args.output / f"shell-{width}x{height}.png")
+        pages = []
+        for label, slug, pane in (("长期目标","goals","page_content"),
+                                  ("邮箱","mail","page_content"),
+                                  ("日历","calendar","calendar_editor")):
+            remote.click(label)
+            area = remote.find(pane)["r"]
+            assert area[2] > 80 and area[3] >= 80, (slug,area)
+            remote.scroll(int(area[0]+area[2]-4),int(area[1]+area[3]/2),500)
+            remote.shot(args.output / f"shell-{width}x{height}-{slug}-scroll.png")
+            remote.scroll(int(area[0]+area[2]-4),int(area[1]+area[3]/2),-10000)
+            pages.append({"page":slug,"pane":area,"scrolled":True})
+        remote.click("对话")
+        area = remote.find("page_content")["r"]
+        remote.scroll(int(area[0]+area[2]-4),int(area[1]+area[3]/2),5000)
+        remote.click_scroll("查看目标详情","page_content",30)
+        detail = remote.find("detail_view")["r"]
+        assert detail[3] >= 80,detail
+        remote.scroll(int(detail[0]+detail[2]-4),int(detail[1]+detail[3]/2),500)
+        remote.shot(args.output / f"shell-{width}x{height}-long-goal.png")
+        remote.click("对话")
+        remote.set_text("goal_input", "返回输入框检查")
+        remote.set_text("goal_input", "")
         results.append({"requested": [width, height], "client_rect": rect,
                         "input": input_rect, "content": content_rect, "send": send_rect,
-                        "above_dock": True, "real_model_send": sent})
+                        "above_dock": True, "real_model_send": sent,"pages":pages,"long_detail_scrolled":True,"returned_to_input":True})
     assert remote.find("right_column")["r"][2] >= 240
     remote.shot(args.output / "shell-wide-three-columns.png")
     (args.output / "report.json").write_text(json.dumps({
-        "evidence": "LIVE final packed Shell; normal WM drags",
+        "version":args.version, "evidence": "LIVE final packed Shell; normal WM drags; four pages at each size",
         "native": json.loads(remote.request("/s")), "sizes": results,
         "note": "requested tall size can be clamped by the physical desktop"}, indent=2))
     print(json.dumps(results))

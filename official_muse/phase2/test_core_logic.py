@@ -22,8 +22,8 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 WS = HERE.parents[2] / "official-ws"
 OCTO = WS / "OctoScript-App-Design-Flow/tools/octo"
-HUB = WS / "target/release/hub"
-CARD_HOST = WS / "target/release/card-host"
+HUB = WS.parent / "phase2-host/OctoSense-App-Hub/target/debug/hub"
+CARD_HOST = WS.parent / "phase2-host/OctoSense/target/release/card-host"
 
 
 def wait_file(path: Path, timeout: float = 8) -> dict:
@@ -61,7 +61,7 @@ def assert_all(report: dict) -> None:
                 "other_account_hidden", "isolated", "replanned", "run2_again", "standalone", "action",
                 "added_source", "added_claim", "found", "corrected", "pinned",
                 "corrected_found", "deleted", "after_delete", "reimport_rejected",
-                "activity_ok")
+                "activity_ok", "alias_added", "alias_reimport_rejected", "missing_hash_rejected", "pinned_added", "hash_matches")
     for key in expected:
         assert report.get(key) is True, f"{key}: {report}"
     assert report.get("goal_count") == 3, report
@@ -110,7 +110,7 @@ def run(port: int) -> dict:
         assert restart["old_result"] == old_result, restart
         assert restart["action_status"] == "unknown", restart
         assert restart["standalone_status"] == "unknown", restart
-        assert restart["memory_count"] == 0 and restart["forgotten"] == 2, restart
+        assert restart["memory_count"] == 1 and restart["pinned_restored"] is True and restart["forgotten"] == 2, restart
     finally:
         quit_host(port)
 
@@ -120,6 +120,17 @@ def run(port: int) -> dict:
     memory = json.loads(jail.joinpath("memory.json").read_text())
     assert memory["claims"][0]["document"]["payload"]["deleted"] is True
     validate_document(memory["claims"][0]["document"])
+    from muse_memory_graph import MemoryGraph
+    graph = MemoryGraph(root / "compatibility.sqlite")
+    for source in memory["sources"]:
+        graph.put_source({key: source[key] for key in
+                          ("source_id", "kind", "locator", "content_sha256", "observed_at", "updated_at")},
+                         source["scope"])
+    active = [claim for claim in memory["claims"] if not claim["document"]["payload"]["deleted"]]
+    for claim in active:
+        validate_document(claim["document"])
+        graph.put_claim(claim["document"])
+        assert graph.get_claim(claim["document"]["id"], claim["document"]["scope"]) == claim["document"]
     assert jail.joinpath("current.json").read_text() == json.dumps(old, ensure_ascii=False)
 
     # Malformed records must fail closed and remain byte-for-byte untouched.
@@ -169,6 +180,7 @@ def run(port: int) -> dict:
     outcome = {"evidence": "LOCAL/FIXTURE card-host, not Shell or live service",
                "first_boot": report, "restart": restart,
                "old_result_preserved": True, "dsl_tombstone_valid": True,
+               "desktop_source_and_claim_compatible": True,
                "malformed_records_protected": corrupt,
                "valid_backup_recovered": backup}
     root.joinpath("result.json").write_text(json.dumps(outcome, ensure_ascii=False, indent=2))

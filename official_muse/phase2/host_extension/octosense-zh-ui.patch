@@ -1,0 +1,2872 @@
+diff --git a/apps/ai-providers/bundle/main.splash b/apps/ai-providers/bundle/main.splash
+--- a/apps/ai-providers/bundle/main.splash
++++ b/apps/ai-providers/bundle/main.splash
+@@ -39,10 +39,10 @@
+         ui.scan.set_visible(scanner)
+         ui.paste.set_visible(!scanner)
+         image_picker = r.data.image_picker == true
+-        if image_picker { ui.paste.set_text("Import code from image") } else { ui.paste.set_text("Paste code") }
+-        if store == "profile" { ui.where.set_text("Keys stay in the assistant's private settings on this device.") } else { ui.where.set_text("Keys stay in the " + store + ".") }
++        if image_picker { ui.paste.set_text("从图片导入二维码") } else { ui.paste.set_text("粘贴导入码") }
++        if store == "profile" { ui.where.set_text("密钥保存在本机助手的私有设置中。") } else { ui.where.set_text("密钥保存位置：" + store + ".") }
+         ui.filter_box.set_visible(list.len() > 5)
+-        if list.len() == 0 { ui.count.set_text("") } else { if list.len() == 1 { ui.count.set_text("1 model") } else { ui.count.set_text(list.len() + " models") } }
++        if list.len() == 0 { ui.count.set_text("") } else { if list.len() == 1 { ui.count.set_text("1 个模型") } else { ui.count.set_text(list.len() + " 个模型") } }
+         apply_filter()
+     })
+ }
+@@ -82,9 +82,9 @@
+     ui.rows.render()
+ }
+ fn add_model(){
+-    status("Choose the model on the sheet OctoSense shows.")
++    status("请在 OctoSense 弹出的面板中选择模型。")
+     host.request("llm.add_provider", {}, fn(r){
+-        if r.is_ok { status("Added " + r.data.label) } else { status(r.error) }
++        if r.is_ok { status("已添加 " + r.data.label) } else { status(r.error) }
+         load()
+     })
+ }
+@@ -92,17 +92,17 @@
+     status("")
+     menu_for = ""
+     host.request("llm.edit_provider", {id: p.id}, fn(r){
+-        if r.is_ok { status("Saved " + r.data.label) } else { status(r.error) }
++        if r.is_ok { status("已保存 " + r.data.label) } else { status(r.error) }
+         load()
+     })
+ }
+ fn run_test(p){
+     if state_of(p.id) == "testing" { return }
+-    set_result(p.id, "Testing the connection…", "testing")
++    set_result(p.id, "正在测试连接…", "testing")
+     host.request("llm.test", {id: p.id}, fn(r){
+         if r.is_ok {
+-            if r.data.error == nil { set_result(p.id, "Connected · " + r.data.ms + " ms", "ok") } else { set_result_detail(p.id, "Couldn't connect: " + r.data.reason, r.data.error, "fail") }
+-        } else { set_result_detail(p.id, "Couldn't connect", r.error, "fail") }
++            if r.data.error == nil { set_result(p.id, "已连接 · " + r.data.ms + " 毫秒", "ok") } else { set_result_detail(p.id, "连接失败：" + r.data.reason, r.data.error, "fail") }
++        } else { set_result_detail(p.id, "连接失败", r.error, "fail") }
+     })
+ }
+ fn change(method, args, done){
+@@ -114,14 +114,14 @@
+     })
+ }
+ fn move_to(p, to){ change("llm.move", {id: p.id to: to}, || status("")) }
+-fn make_primary(p){ change("llm.set_primary", {id: p.id}, || status(p.model_label + " answers first now.")) }
++fn make_primary(p){ change("llm.set_primary", {id: p.id}, || status(p.model_label + "已设为首选回复模型。")) }
+ fn remove_provider(p){
+     if confirm_remove != p.id {
+         confirm_remove = p.id
+         ui.rows.render()
+         return
+     }
+-    change("llm.remove", {id: p.id}, || status("Removed " + p.model_label))
++    change("llm.remove", {id: p.id}, || status("已移除 " + p.model_label))
+ }
+ // The model pull-down: the family's catalog models, the saved one ticked.
+ fn toggle_menu(p){
+@@ -138,11 +138,11 @@
+ fn pick_model(p, m){
+     menu_for = ""
+     if m.id == p.model { ui.rows.render() return }
+-    change("llm.set_model", {id: p.id model: m.id}, || status(p.label + " now uses " + m.label + "."))
++    change("llm.set_model", {id: p.id model: m.id}, || status(p.label + "当前使用 " + m.label + "."))
+ }
+ fn show_qr(){
+-    if providers.len() == 0 { status("Add a model first.") return }
+-    status("The code is on the sheet OctoSense shows.")
++    if providers.len() == 0 { status("请先添加模型。") return }
++    status("导入码显示在 OctoSense 的专用面板中。")
+     host.request("llm.export_qr", {}, fn(r){
+         if r.is_ok { status("") } else { status(r.error) }
+     })
+@@ -162,10 +162,10 @@
+     return text
+ }
+ fn key_text(p){
+-    if p.key == "not needed" { return "No key needed" }
+-    if p.key == "missing" { return "Key missing" }
+-    if p.key == "keychain locked" { return "Keychain locked" }
+-    return "Key " + p.key.strip_prefix("set ")
++    if p.key == "not needed" { return "无需密钥" }
++    if p.key == "missing" { return "未设置密钥" }
++    if p.key == "keychain locked" { return "钥匙串已锁定" }
++    return "密钥 " + p.key.strip_prefix("set ")
+ }
+ 
+ start_timeout(0.05, || load())
+@@ -223,40 +223,40 @@
+ SolidView{width: Fill height: Fill flow: Down draw_bg.color: page
+     ScrollYView{width: Fill height: Fill flow: Down spacing: 10 padding: Inset{left: 16 right: 16 top: 16 bottom: 20}
+         View{width: Fill height: Fit flow: Down spacing: 4
+-            Label{text: "AI providers" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 26}}
+-            Label{width: Fill text: "The assistant answers with the primary model, and tries the fallbacks in order when it fails."
++            Label{text: "AI 模型设置" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 26}}
++            Label{width: Fill text: "助手优先使用首选模型；失败时依次尝试备用模型。"
+                 draw_text.color: secondary draw_text.text_style.font_size: 13}
+         }
+-        Big{text: "Add model" on_click: || add_model()}
+-        Quiet{text: "Talk to Octos" on_click: || {
++        Big{text: "添加模型" on_click: || add_model()}
++        Quiet{text: "连接 Octos 助手" on_click: || {
+             host.request("llm.connect_client", {}, fn(r){ if !r.is_ok { status(r.error) } })
+         }}
+         View{width: Fill height: Fit flow: Right align: Align{y: 1.0} padding: Inset{top: 4}
+-            Section{text: "SAVED MODELS"}
++            Section{text: "已保存模型"}
+             View{width: Fill height: 1}
+             count := Label{text: "" draw_text.color: faint draw_text.text_style.font_size: 12}
+         }
+         filter_box := View{visible: false width: Fill height: Fit
+-            Field{empty_text: "Filter saved models" on_change: |text| set_query(text)}
++            Field{empty_text: "筛选已保存模型" on_change: |text| set_query(text)}
+         }
+         rows := View{width: Fill height: Fit flow: Down spacing: 10 on_render: || {
+             // Always one child: a render that yields none keeps the last rows.
+             View{width: Fill height: 1}
+             if providers.len() == 0 {
+                 Card{align: Align{x: 0.5} padding: Inset{left: 20 right: 20 top: 28 bottom: 28} spacing: 6
+-                    Label{width: Fill align: Align{x: 0.5} text: "No models yet" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 16}}
+-                    Label{width: Fill align: Align{x: 0.5} text: "Add a model so the assistant can answer, or import the ones saved on another device."
++                    Label{width: Fill align: Align{x: 0.5} text: "尚未添加模型" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 16}}
++                    Label{width: Fill align: Align{x: 0.5} text: "添加模型后助手即可回复，也可从其他设备导入模型配置。"
+                         draw_text.color: secondary draw_text.text_style.font_size: 13}
+                 }
+             }
+             if providers.len() > 0 && shown.len() == 0 {
+-                Label{width: Fill text: "No saved model matches the filter." draw_text.color: secondary draw_text.text_style.font_size: 13}
++                Label{width: Fill text: "没有匹配的已保存模型。" draw_text.color: secondary draw_text.text_style.font_size: 13}
+             }
+             for p in shown {
+                 Card{
+                     View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
+-                        if p.index == 0 { Badge{BadgeText{text: "Primary"}} }
+-                        else { BadgeGrey{BadgeGreyText{text: "Fallback " + p.index}} }
++                        if p.index == 0 { Badge{BadgeText{text: "首选"}} }
++                        else { BadgeGrey{BadgeGreyText{text: "备用 " + p.index}} }
+                         Label{width: Fill text: subtitle(p) draw_text.color: secondary draw_text.text_style.font_size: 13}
+                         if p.key == "missing" || p.key == "keychain locked" { KeyBad{text: key_text(p)} }
+                         else { if p.key == "not needed" { KeyNone{text: key_text(p)} } else { KeyOk{text: key_text(p)} } }
+@@ -267,8 +267,8 @@
+                             // shows each model once and this asks.
+                             if menu_for == p.id {
+                                 View{width: Fill height: Fit flow: Down spacing: 2
+-                                    Label{width: Fill text: "Choose a model" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 16}}
+-                                    Label{width: Fill text: p.label + "'s catalog · the route and key stay" draw_text.color: faint draw_text.text_style.font_size: 12}
++                                    Label{width: Fill text: "选择模型" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 16}}
++                                    Label{width: Fill text: p.label + "的模型目录 · 保留原有线路和密钥" draw_text.color: faint draw_text.text_style.font_size: 12}
+                                 }
+                             } else {
+                                 View{width: Fill height: Fit flow: Down spacing: 2
+@@ -281,14 +281,14 @@
+                     }
+                     if menu_for == p.id {
+                         View{width: Fill height: Fit flow: Down spacing: 4
+-                            if menu_models.len() == 0 { Label{text: "Loading models…" draw_text.color: faint draw_text.text_style.font_size: 12} }
++                            if menu_models.len() == 0 { Label{text: "正在加载模型…" draw_text.color: faint draw_text.text_style.font_size: 12} }
+                             for m in menu_models {
+                                 GestureView{width: Fill height: Fit on_tap: |x, y| pick_model(p, m)
+                                     Opt{
+                                         View{width: Fill height: Fit flow: Down spacing: 2
+                                             View{width: Fill height: Fit flow: Right spacing: 6 align: Align{y: 0.5}
+                                                 if m.id == p.model { OptTitleOn{text: m.label} } else { OptTitle{text: m.label} }
+-                                                if m.default == true { Tag{TagText{text: "Recommended"}} }
++                                                if m.default == true { Tag{TagText{text: "推荐"}} }
+                                             }
+                                             OptNote{text: m.detail}
+                                         }
+@@ -296,7 +296,7 @@
+                                     }
+                                 }
+                             }
+-                            Label{width: Fill text: "Another route, a custom model or a new key: Edit." draw_text.color: faint draw_text.text_style.font_size: 11}
++                            Label{width: Fill text: "需要更换线路、自定义模型或新密钥时，请点击“编辑”。" draw_text.color: faint draw_text.text_style.font_size: 11}
+                         }
+                     }
+                     if state_of(p.id) == "testing" { Label{width: Fill text: result_of(p.id) draw_text.color: faint draw_text.text_style.font_size: 12} }
+@@ -316,30 +316,30 @@
+                         }
+                     }
+                     View{width: Fill height: Fit flow: Flow.Right{wrap: true} spacing: 6 padding: Inset{top: 2}
+-                        TestAct{text: "Test connection" on_click: || run_test(p)}
+-                        Act{text: "Edit" on_click: || edit(p)}
+-                        if p.index > 0 { Act{text: "Make primary" on_click: || make_primary(p)} }
+-                        if p.index > 0 { Act{text: "Up" on_click: || move_to(p, p.index - 1)} }
+-                        if p.index < providers.len() - 1 { Act{text: "Down" on_click: || move_to(p, p.index + 1)} }
+-                        if (confirm_remove == p.id) { ActDanger{text: "Tap again to remove" on_click: || remove_provider(p)} }
+-                        else { ActDanger{text: "Remove" on_click: || remove_provider(p)} }
++                        TestAct{text: "测试连接" on_click: || run_test(p)}
++                        Act{text: "编辑" on_click: || edit(p)}
++                        if p.index > 0 { Act{text: "设为首选" on_click: || make_primary(p)} }
++                        if p.index > 0 { Act{text: "上移" on_click: || move_to(p, p.index - 1)} }
++                        if p.index < providers.len() - 1 { Act{text: "下移" on_click: || move_to(p, p.index + 1)} }
++                        if (confirm_remove == p.id) { ActDanger{text: "再次点击以移除" on_click: || remove_provider(p)} }
++                        else { ActDanger{text: "移除" on_click: || remove_provider(p)} }
+                     }
+                 }
+             }
+         }}
+         View{width: Fill height: Fit flow: Down spacing: 8 padding: Inset{top: 8}
+-            Section{text: "ANOTHER DEVICE"}
++            Section{text: "其他设备"}
+             // Stacked: side by side, a phone's width clips both labels.
+-            Quiet{text: "Show QR for phone" on_click: || show_qr()}
+-            scan := Quiet{visible: false text: "Scan QR from desktop" on_click: || import_code()}
+-            paste := Quiet{text: "Paste code" on_click: || import_code()}
++            Quiet{text: "显示手机导入二维码" on_click: || show_qr()}
++            scan := Quiet{visible: false text: "扫描电脑二维码" on_click: || import_code()}
++            paste := Quiet{text: "粘贴导入码" on_click: || import_code()}
+             where := Label{width: Fill text: "" draw_text.color: faint draw_text.text_style.font_size: 12}
+         }
+     }
+     banner := View{visible: false width: Fill height: Fit padding: Inset{left: 12 right: 12 top: 6 bottom: 10}
+         RoundedView{width: Fill height: Fit flow: Right align: Align{y: 0.5} padding: Inset{left: 14 right: 6 top: 4 bottom: 4} show_bg: true draw_bg.color: #x1c1c1e draw_bg.border_radius: 12.0
+             status := Label{width: Fill text: "" draw_text.color: #xffffff draw_text.text_style.font_size: 13}
+-            ButtonFlat{height: 34 padding: Inset{left: 10 right: 10} text: "OK" on_click: || status("")
++            ButtonFlat{height: 34 padding: Inset{left: 10 right: 10} text: "知道了" on_click: || status("")
+                 draw_bg +: {color: #x00000000 color_focus: #x00000000 color_hover: #xffffff22 color_down: #xffffff33 border_size: 0.0}
+                 draw_text +: {color: #x64d2ff color_focus: #x64d2ff color_hover: #x64d2ff color_down: #x64d2ff text_style: theme.font_bold{font_size: 13}}}
+         }
+diff --git a/apps/ai-providers/bundle/manifest.json b/apps/ai-providers/bundle/manifest.json
+--- a/apps/ai-providers/bundle/manifest.json
++++ b/apps/ai-providers/bundle/manifest.json
+@@ -2,7 +2,7 @@
+   "schema": 1,
+   "id": "os.ai-providers",
+   "version": "1.0.0",
+-  "name": "AI providers",
++  "name": "AI 模型设置",
+   "integrity": { "bundle_blake3": "" },
+   "capabilities": ["storage", "llm"]
+ }
+diff --git a/apps/ai-providers/host-service/src/lib.rs b/apps/ai-providers/host-service/src/lib.rs
+--- a/apps/ai-providers/host-service/src/lib.rs
++++ b/apps/ai-providers/host-service/src/lib.rs
+@@ -170,10 +170,10 @@
+     /// Where keys go. `None`: [`vault::platform`] for the core dir.
+     pub vault: Option<Arc<dyn Vault>>,
+     /// The camera scanner, where the device has one: the import sheet then
+-    /// scans, and the app offers "Scan QR from desktop".
++    /// scans, and the app offers "扫描电脑二维码".
+     pub scanner: Option<Arc<dyn QrScanner>>,
+     /// The image picker, where the shell has one: the import sheet then
+-    /// offers "Choose image" and reads the QR out of the chosen picture.
++    /// offers "选择图片" and reads the QR out of the chosen picture.
+     pub image_picker: Option<Arc<dyn QrImagePicker>>,
+     /// The shell passes image files dropped on the app to [`offer_image`]
+     /// (a desktop): the import sheet then says a screenshot can be dropped
+@@ -390,7 +390,7 @@
+             let needs_pin = qr::format_of(&code) == Some(qr::Format::Encrypted);
+             match pending.lock().unwrap().as_mut() {
+                 Some(Pending { kind: Kind::Import { scanned }, .. }) => *scanned = Some(code),
+-                _ => return image_answer(false, false, Some("No app is waiting for this sheet.".into())),
++                _ => return image_answer(false, false, Some("当前没有应用等待此面板。".into())),
+             }
+             image_answer(needs_pin, false, None)
+         }
+@@ -422,8 +422,8 @@
+ 
+ fn label_of(p: &Provider) -> String {
+     match model::effective_model(p) {
+-        Some(m) => format!("{} · {m}", model::family_label(&p.family)),
+-        None => model::family_label(&p.family),
++        Some(m) => format!("{} · {m}", display_words(&model::family_label(&p.family))),
++        None => display_words(&model::family_label(&p.family)),
+     }
+ }
+ 
+@@ -434,14 +434,14 @@
+     json!({
+         "id": model::id_of(p),
+         "family": registry::lookup(&p.family).map(|f| f.id).unwrap_or(p.family.as_str()),
+-        "label": model::family_label(&p.family),
++        "label": display_words(&model::family_label(&p.family)),
+         "model": model,
+-        "model_label": model::model_label(p),
++        "model_label": display_words(&model::model_label(p)),
+         "custom_model": p.model.is_some(),
+         "route": model::route_choice(p),
+-        "route_label": model::route_label(p),
+-        "context": known.map(catalog::Model::context_text).unwrap_or_default(),
+-        "price": known.map(catalog::Model::price_text).unwrap_or_default(),
++        "route_label": display_words(&model::route_label(p)),
++        "context": known.map(|m| display_words(&m.context_text())).unwrap_or_default(),
++        "price": known.map(|m| display_words(&m.price_text())).unwrap_or_default(),
+         "tier": known.map(|m| m.tier.as_str()).unwrap_or(""),
+         "base_url": p.base_url,
+         "api_type": p.api_type.map(|t| t.as_str()),
+@@ -488,50 +488,62 @@
+             let n = f.models.len();
+             let default = f.default_model();
+             json!({
+-                "id": fam.id, "label": fam.label, "models": n,
+-                "models_text": if n == 1 { "1 model".to_string() } else { format!("{n} models") },
++                "id": fam.id, "label": display_words(&fam.label), "models": n,
++                "models_text": if n == 1 { "1 个模型".to_string() } else { format!("{n} 个模型") },
+                 "default_model": default,
+                 "default_label": default.map(catalog::model_label),
+                 "key_required": fam.key_required, "key_env": key_env, "has_key": fam.key_env.is_some(),
+                 "default_base_url": fam.default_base_url,
+                 "configured": configured,
+-                "key_text": if !fam.key_required { "No key needed" } else if configured { "Key saved" } else { "Needs a key" },
++                "key_text": if !fam.key_required { "无需密钥" } else if configured { "已保存密钥" } else { "需要密钥" },
+             })
+         })
+         .collect::<Vec<_>>())
+ }
+ 
++// Display words only: route ids and persisted configuration remain unchanged.
++fn display_words(text: &str) -> String {
++    match text {
++        "Server default" => "服务端默认模型".into(),
++        "Local (llama.cpp / LM Studio)" => "本地模型（llama.cpp / LM Studio）".into(),
++        "Official API" => "官方 API".into(), "Local server" => "本地服务".into(),
++        "Custom endpoint" => "自定义端点".into(), "Included in plan" => "套餐内包含".into(),
++        "Runs locally" => "本地运行".into(), "Free" => "免费".into(),
++        _ => text.replace(" context", " 上下文").replace(" per 1M", " / 每百万词元"),
++    }
++}
++
+ /// A route's second line: where it goes.
+ fn route_detail(family: &registry::Family, r: &catalog::Route) -> String {
+-    let url = r.base_url.as_deref().or(family.default_base_url).unwrap_or("your endpoint");
++    let url = r.base_url.as_deref().or(family.default_base_url).unwrap_or("你的服务端点");
+     url.trim_start_matches("https://").trim_start_matches("http://").split('/').next().unwrap_or(url).to_string()
+ }
+ 
+ fn route_json(family: &registry::Family, r: &catalog::Route) -> Value {
+-    json!({"id": r.id, "label": r.label, "detail": route_detail(family, r)})
++    json!({"id": r.id, "label": display_words(&r.label), "detail": route_detail(family, r)})
+ }
+ 
+ /// A family's catalog models for a pull-down (the default first marked),
+ /// those matching `query`, with each model's routes.
+ fn models(family: &str, query: &str) -> Result<Value, String> {
+-    let f = catalog::family(family).ok_or("There is no such provider.")?;
++    let f = catalog::family(family).ok_or("模型提供方不存在。")?;
+     let query = query.trim().to_lowercase();
+     let rows: Vec<Value> = f
+         .models
+         .iter()
+         .filter(|m| query.is_empty() || m.id.to_lowercase().contains(&query) || m.label.to_lowercase().contains(&query))
+         .map(|m| {
+-            let (context, price) = (m.context_text(), m.price_text());
++            let (context, price) = (display_words(&m.context_text()), display_words(&m.price_text()));
+             let detail = [context.as_str(), price.as_str()].iter().filter(|s| !s.is_empty()).cloned().collect::<Vec<_>>().join(" · ");
+             json!({
+-                "id": m.id, "label": m.label, "context": context, "price": price, "detail": detail,
++                "id": m.id, "label": display_words(&m.label), "context": context, "price": price, "detail": detail,
+                 "tier": m.tier.as_str(), "default": m.default,
+                 "routes": m.routes().iter().map(|r| route_json(f.family, r)).collect::<Vec<_>>(),
+             })
+         })
+         .collect();
+     Ok(json!({
+-        "family": f.id(), "label": f.label(), "key_required": f.family.key_required,
++        "family": f.id(), "label": display_words(&f.label()), "key_required": f.family.key_required,
+         "default_model": f.default_model(),
+         "models": rows,
+         "routes": f.routes().iter().map(|r| route_json(f.family, r)).collect::<Vec<_>>(),
+@@ -546,11 +558,11 @@
+ 
+ fn scan_error(reason: &str) -> String {
+     match reason {
+-        "cancelled" | "interrupted" => "Scan cancelled.".into(),
+-        "permission_denied" => "OctoSense may not use the camera. Allow it in Settings, or paste the code.".into(),
+-        "camera_error" => "The camera is unavailable. Paste the code instead.".into(),
+-        "unsupported" => "This device cannot scan. Paste the code instead.".into(),
+-        other => format!("Scan failed ({other})."),
++        "cancelled" | "interrupted" => "已取消扫描。".into(),
++        "permission_denied" => "OctoSense 未获摄像头权限。请在系统设置中授权，或直接粘贴导入码。".into(),
++        "camera_error" => "摄像头不可用，请粘贴导入码。".into(),
++        "unsupported" => "此设备不支持扫描，请粘贴导入码。".into(),
++        other => format!("扫描失败（{other}）。"),
+     }
+ }
+ 
+@@ -558,7 +570,7 @@
+     /// Raise `sheet` for `app_id`, replacing any sheet already waiting.
+     fn raise(&mut self, app_id: &str, reply: Replier, kind: Kind, sheet: String, host: &mut dyn ServiceHost) {
+         if let Some(earlier) = self.pending.lock().unwrap().take() {
+-            earlier.reply.send(Err("Another sheet replaced this one.".into()));
++            earlier.reply.send(Err("已打开新面板，当前操作已结束。".into()));
+         }
+         *self.export.lock().unwrap() = None;
+         IMAGE_WAITER.lock().unwrap().take();
+@@ -589,7 +601,7 @@
+     fn form_key(args: &Value) -> Result<String, String> {
+         let key = text(args, "key").trim().to_string();
+         if key.chars().any(char::is_control) || key.len() > 16 * 1024 {
+-            return Err("That key is not acceptable text.".into());
++            return Err("密钥文本格式无效。".into());
+         }
+         Ok(key)
+     }
+@@ -608,7 +620,7 @@
+         let edit = match self.pending_kind() {
+             Some(Kind::Add) => None,
+             Some(Kind::Edit(id)) => Some(id),
+-            _ => return reply.send(Err("No app is waiting for this sheet.".into())),
++            _ => return reply.send(Err("当前没有应用等待此面板。".into())),
+         };
+         let mut route = match Self::form_route(args) {
+             Ok(p) => p,
+@@ -628,14 +640,14 @@
+                     let saved = store.key(&route);
+                     let key = Some(key.as_str()).filter(|k| !k.is_empty()).or(saved.as_deref());
+                     if key.is_none() && model::key_required(&route.family) {
+-                        return Err("Type the provider's API key.".to_string());
++                        return Err("请输入模型提供方的 API 密钥。".to_string());
+                     }
+                     Ok(probe::run_within(&route, key, std::time::Duration::from_secs(10)))
+                 });
+                 match tested.and_then(|t| t) {
+                     Err(e) => return reply.send(Err(e)),
+                     Ok(t) if t["ok"] != true => {
+-                        let error = t["error"].as_str().unwrap_or("The test failed.");
++                        let error = t["error"].as_str().unwrap_or("测试失败。");
+                         return reply.send(Ok(json!({"saved": false, "error": error, "network": t["network"] == true})));
+                     }
+                     Ok(_) => {}
+@@ -647,19 +659,19 @@
+                     Some(id) => {
+                         let at = model::index_of(list, id)?;
+                         if list.iter().enumerate().any(|(i, p)| i != at && model::id_of(p) == model::id_of(&route)) {
+-                            return Err("That provider is already in the list.".into());
++                            return Err("此模型提供方已在列表中。".into());
+                         }
+                         list[at] = route.clone();
+                     }
+                     None => {
+                         if list.iter().any(|p| model::id_of(p) == model::id_of(&route)) {
+-                            return Err("That provider is already in the list.".into());
++                            return Err("此模型提供方已在列表中。".into());
+                         }
+                         list.push(route.clone());
+                     }
+                 }
+                 if key.is_empty() && model::key_required(&route.family) && store.key(&route).is_none() {
+-                    return Err("Type the provider's API key.".into());
++                    return Err("请输入模型提供方的 API 密钥。".into());
+                 }
+                 let keys = if key.is_empty() { BTreeMap::new() } else { [(route.key_env.clone(), key)].into() };
+                 Ok((keys, json!({"id": model::id_of(&route), "label": label_of(&route)})))
+@@ -677,13 +689,13 @@
+         });
+     }
+ 
+-    /// "Test connection" on the sheet: the form's route with the typed key,
++    /// "测试连接" on the sheet: the form's route with the typed key,
+     /// else the saved one.
+     fn sheet_test(&mut self, args: &Value, reply: Replier) {
+         let edit = match self.pending_kind() {
+             Some(Kind::Add) => None,
+             Some(Kind::Edit(id)) => Some(id),
+-            _ => return reply.send(Err("No app is waiting for this sheet.".into())),
++            _ => return reply.send(Err("当前没有应用等待此面板。".into())),
+         };
+         let (route, key) = match Self::form_route(args).and_then(|r| Ok((r, Self::form_key(args)?))) {
+             Ok(v) => v,
+@@ -697,18 +709,18 @@
+                 let saved = store.key(&route);
+                 let key = Some(key.as_str()).filter(|k| !k.is_empty()).or(saved.as_deref());
+                 if key.is_none() && model::key_required(&route.family) {
+-                    return json!({"ok": false, "ms": 0, "error": "Type the provider's API key first.", "network": false, "reason": "no key"});
++                    return json!({"ok": false, "ms": 0, "error": "请先输入模型提供方的 API 密钥。", "network": false, "reason": "no key"});
+                 }
+                 probe::run(&route, key)
+             }))
+         });
+     }
+ 
+-    /// "Fetch models from provider": the endpoint's own model list, with the
++    /// "从提供方获取模型列表": the endpoint's own model list, with the
+     /// typed key, else the saved one.
+     fn sheet_fetch_models(&mut self, args: &Value, reply: Replier) {
+         if !matches!(self.pending_kind(), Some(Kind::Add | Kind::Edit(_))) {
+-            return reply.send(Err("No app is waiting for this sheet.".into()));
++            return reply.send(Err("当前没有应用等待此面板。".into()));
+         }
+         // The list does not depend on the model: any id makes the route.
+         let mut form = args.clone();
+@@ -725,13 +737,13 @@
+                 let saved = store.key(&route);
+                 let key = Some(key.as_str()).filter(|k| !k.is_empty()).or(saved.as_deref());
+                 if key.is_none() && model::key_required(&route.family) {
+-                    return Err("Type the provider's API key first.".to_string());
++                    return Err("请先输入模型提供方的 API 密钥。".to_string());
+                 }
+                 let ids = probe::fetch_models(&route, key)?;
+                 let n = ids.len();
+                 Ok(json!({
+                     "models": ids.iter().map(|id| json!({"id": id, "label": catalog::model_label(id)})).collect::<Vec<_>>(),
+-                    "message": if n == 1 { "The provider lists 1 model.".to_string() } else { format!("The provider lists {n} models.") },
++                    "message": if n == 1 { "提供方返回了 1 个模型。".to_string() } else { format!("提供方返回了 {n} 个模型。") },
+                 }))
+             });
+             reply.send(answer);
+@@ -751,7 +763,7 @@
+             None => store.list.clone(),
+         };
+         if chosen.is_empty() {
+-            return reply.send(Err("There is no provider to show.".into()));
++            return reply.send(Err("没有可显示的模型提供方。".into()));
+         }
+         self.generation += 1;
+         let generation = self.generation;
+@@ -791,11 +803,11 @@
+     /// (`{ready}`); it then asks for it with `llm.sheet.show`.
+     fn export_ready(&mut self, reply: Replier) {
+         let Some(Kind::Export(generation)) = self.pending_kind() else {
+-            return reply.send(Err("No code is being prepared.".into()));
++            return reply.send(Err("当前未在生成导入码。".into()));
+         };
+         let export = self.export.lock().unwrap();
+         match export.as_ref().filter(|job| job.0 == generation) {
+-            None => reply.send(Err("No code is being prepared.".into())),
++            None => reply.send(Err("当前未在生成导入码。".into())),
+             Some((_, None)) => reply.send(Ok(json!({"ready": false}))),
+             Some((_, Some(Ok(_)))) => reply.send(Ok(json!({"ready": true}))),
+             Some((_, Some(Err(e)))) => reply.send(Err(e.clone())),
+@@ -806,11 +818,11 @@
+     /// and the PIN are not kept here after.
+     fn export_show(&mut self, reply: Replier, host: &mut dyn ServiceHost) {
+         let Some(Kind::Export(generation)) = self.pending_kind() else {
+-            return reply.send(Err("No code is being prepared.".into()));
++            return reply.send(Err("当前未在生成导入码。".into()));
+         };
+         let mut export = self.export.lock().unwrap();
+         if !matches!(export.as_ref(), Some((g, Some(Ok(_)))) if *g == generation) {
+-            return reply.send(Err("The code is not ready.".into()));
++            return reply.send(Err("导入码尚未准备好。".into()));
+         }
+         let Some((_, Some(Ok(sheet)))) = export.take() else { unreachable!() };
+         host.open_sheet(sheet);
+@@ -819,17 +831,17 @@
+ 
+     fn scan(&mut self, reply: Replier) {
+         if !matches!(self.pending_kind(), Some(Kind::Import { .. })) {
+-            return reply.send(Err("No app is waiting for this sheet.".into()));
++            return reply.send(Err("当前没有应用等待此面板。".into()));
+         }
+         let Some(scanner) = self.scanner.clone() else {
+-            return reply.send(Err("This device has no camera scanner. Paste the code instead.".into()));
++            return reply.send(Err("此设备没有摄像头扫描功能，请粘贴导入码。".into()));
+         };
+         let pending = self.pending.clone();
+         scanner.scan(Box::new(move |result| match result {
+             Err(reason) => reply.send(Err(scan_error(&reason))),
+             Ok(code) => {
+                 let Some(format) = qr::format_of(&code) else {
+-                    return reply.send(Err("That is not an OctoSense provider code.".into()));
++                    return reply.send(Err("这不是有效的 OctoSense 模型导入码。".into()));
+                 };
+                 if let Some(Pending { kind: Kind::Import { scanned }, .. }) = pending.lock().unwrap().as_mut() {
+                     *scanned = Some(code.trim().to_string());
+@@ -839,20 +851,20 @@
+         }));
+     }
+ 
+-    /// "Choose image": the shell's picker, then the code read out of the
++    /// "选择图片": the shell's picker, then the code read out of the
+     /// picture on a worker. Answers `{needs_pin, cancelled, error}` (after an
+     /// error the sheet stays up for another try).
+     fn pick(&mut self, reply: Replier) {
+         if !matches!(self.pending_kind(), Some(Kind::Import { .. })) {
+-            return reply.send(Err("No app is waiting for this sheet.".into()));
++            return reply.send(Err("当前没有应用等待此面板。".into()));
+         }
+         let Some(picker) = self.image_picker.clone() else {
+-            return reply.send(Err("This device cannot choose an image. Paste the code instead.".into()));
++            return reply.send(Err("此设备不支持选择图片，请粘贴导入码。".into()));
+         };
+         let pending = self.pending.clone();
+         picker.pick(Box::new(move |result| match result {
+             Err(PickError::Cancelled) => reply.send(Ok(image_answer(false, true, None))),
+-            Err(PickError::Failed(why)) => reply.send(Ok(image_answer(false, false, Some(format!("Could not open the image ({why})."))))),
++            Err(PickError::Failed(why)) => reply.send(Ok(image_answer(false, false, Some(format!("无法打开图片（{why}）。"))))),
+             Ok(bytes) => work(move || reply.send(Ok(read_image(&bytes, &pending)))),
+         }));
+     }
+@@ -860,7 +872,7 @@
+     /// The sheet waits for a dropped image; one waiter at a time.
+     fn await_image(&mut self, reply: Replier) {
+         if !self.image_drops || !matches!(self.pending_kind(), Some(Kind::Import { .. })) {
+-            return reply.send(Err("No image can be dropped here.".into()));
++            return reply.send(Err("当前面板不支持拖入图片。".into()));
+         }
+         if let Some((earlier, _)) = IMAGE_WAITER.lock().unwrap().replace((reply, self.pending.clone())) {
+             earlier.send(Err("replaced".into()));
+@@ -869,11 +881,11 @@
+ 
+     fn import(&mut self, args: &Value, reply: Replier) {
+         let Some(Kind::Import { scanned }) = self.pending_kind() else {
+-            return reply.send(Err("No app is waiting for this sheet.".into()));
++            return reply.send(Err("当前没有应用等待此面板。".into()));
+         };
+         let pasted = text(args, "text").trim().to_string();
+         let Some(code) = Some(pasted).filter(|c| !c.is_empty()).or(scanned) else {
+-            return reply.send(Err("Scan or paste a code first.".into()));
++            return reply.send(Err("请先扫描或粘贴导入码。".into()));
+         };
+         let pin = text(args, "pin").trim().to_string();
+         let (shared, pending) = (self.shared.clone(), self.pending.clone());
+@@ -892,18 +904,18 @@
+     let names = |list: &[Provider]| list.iter().map(label_of).collect::<Vec<_>>().join(", ");
+     let mut parts = Vec::new();
+     if let Some(primary) = &m.primary {
+-        parts.push(format!("Saved {} as primary", label_of(primary)));
++        parts.push(format!("已将 {} 保存为首选模型", label_of(primary)));
+     }
+     match m.added.len() {
+         0 => {}
+-        1 => parts.push(format!("Added {} as a fallback", names(&m.added))),
+-        _ => parts.push(format!("Added {} as fallbacks", names(&m.added))),
++        1 => parts.push(format!("已将 {} 添加为备用模型", names(&m.added))),
++        _ => parts.push(format!("已将 {} 添加为备用模型", names(&m.added))),
+     }
+     if !m.updated.is_empty() {
+-        parts.push(format!("Updated the key for {}", names(&m.updated)));
++        parts.push(format!("已更新 {} 的密钥", names(&m.updated)));
+     }
+     if parts.is_empty() {
+-        parts.push(format!("Already saved: {}", names(&m.unchanged)));
++        parts.push(format!("已保存：{}", names(&m.unchanged)));
+     }
+     parts.join(". ") + "."
+ }
+@@ -947,7 +959,7 @@
+         "sheet.client_rotate" => kernel::rotate_external_access()?,
+         "sheet.client_origin" => kernel::set_web_client_origin(text(args, "origin"))?,
+         "sheet.client_open" => {
+-            let ui = ui.ok_or("The host cannot open a browser.")?;
++            let ui = ui.ok_or("宿主无法打开浏览器。")?;
+             ui(ClientUiAction::OpenWeb(kernel::web_client_url()?));
+             return Ok(json!({}));
+         }
+@@ -994,12 +1006,12 @@
+ 
+ #[cfg(not(feature = "octos-core"))]
+ fn client_action(_method: &str, _args: &Value, _ui: Option<ClientUi>) -> Result<Value, String> {
+-    Err("This build does not include the Octos kernel service.".into())
++    Err("此版本未包含 Octos 内核服务。".into())
+ }
+ 
+ #[cfg(not(feature = "octos-core"))]
+ fn pairing_sheet(_lifetime: u64) -> Result<String, String> {
+-    Err("This build does not include the Octos kernel service.".into())
++    Err("此版本未包含 Octos 内核服务。".into())
+ }
+ 
+ /// The pairing code's sheet is up or being prepared: turn pairing off. The
+@@ -1033,7 +1045,7 @@
+ 
+     fn client_pair_ready(&self, reply: Replier) {
+         match self.pair.lock().unwrap().as_ref() {
+-            None => reply.send(Err("No pairing code is being prepared.".into())),
++            None => reply.send(Err("当前未在生成配对码。".into())),
+             Some((_, None)) => reply.send(Ok(json!({"ready": false}))),
+             Some((_, Some(Ok(_)))) => reply.send(Ok(json!({"ready": true}))),
+             Some((_, Some(Err(e)))) => reply.send(Err(e.clone())),
+@@ -1046,7 +1058,7 @@
+                 host.open_sheet(sheet);
+                 reply.send(Ok(json!({})));
+             }
+-            _ => reply.send(Err("The pairing code is not ready.".into())),
++            _ => reply.send(Err("配对码尚未准备好。".into())),
+         }
+     }
+ }
+@@ -1063,14 +1075,14 @@
+         let id = text(&call.args, "id").to_string();
+         match call.method() {
+             "connect_client" => {
+-                if call.app_id != "os.ai-providers" { return reply.send(Err("Open AI providers to connect a client.".into())); }
++                if call.app_id != "os.ai-providers" { return reply.send(Err("请打开“AI 模型设置”以连接客户端。".into())); }
+                 self.raise(&call.app_id, reply, Kind::Connect, sheets::connect_client(), host);
+             }
+             method if method.starts_with("sheet.client_") => {
+                 // Only the Talk to Octos sheet this app raised, never the app.
+                 let permitted = call.from_sheet && self.pending.lock().unwrap().as_ref()
+                     .is_some_and(|p| p.kind == Kind::Connect && p.app_id == call.app_id);
+-                if !permitted { return reply.send(Err("Open the Talk to Octos sheet first.".into())); }
++                if !permitted { return reply.send(Err("请先打开“连接 Octos 助手”面板。".into())); }
+                 match method {
+                     "sheet.client_pair" => self.client_pair(reply),
+                     "sheet.client_pair_ready" => self.client_pair_ready(reply),
+@@ -1131,11 +1143,11 @@
+                             "set_model" => {
+                                 let wanted = text(&args, "model").trim();
+                                 if wanted.len() > 512 || wanted.chars().any(char::is_control) {
+-                                    return Err("That model name is not acceptable text.".into());
++                                    return Err("模型名称文本格式无效。".into());
+                                 }
+                                 list[at].model = (!wanted.is_empty()).then(|| wanted.to_string());
+                                 if model::effective_model(&list[at]).is_none() {
+-                                    return Err("This provider needs a model.".into());
++                                    return Err("此提供方需要选择模型。".into());
+                                 }
+                                 answer = json!({"id": model::id_of(&list[at])});
+                             }
+@@ -1178,7 +1190,7 @@
+                 IMAGE_WAITER.lock().unwrap().take();
+                 if let Some(waiting) = self.pending.lock().unwrap().take() {
+                     // Closing the QR is how an export ends.
+-                    let answer = if matches!(waiting.kind, Kind::Export(_) | Kind::Connect) { Ok(json!({})) } else { Err("Cancelled.".into()) };
++                    let answer = if matches!(waiting.kind, Kind::Export(_) | Kind::Connect) { Ok(json!({})) } else { Err("已取消。".into()) };
+                     waiting.reply.send(answer);
+                 }
+                 reply.send(Ok(json!({})));
+diff --git a/apps/ai-providers/host-service/src/sheets.rs b/apps/ai-providers/host-service/src/sheets.rs
+--- a/apps/ai-providers/host-service/src/sheets.rs
++++ b/apps/ai-providers/host-service/src/sheets.rs
+@@ -67,7 +67,7 @@
+     let mut script = String::from(r#"
+ fn status(text){ ui.status.set_text(text) }
+ fn show(d){
+-    if d.enabled { ui.state.set_text("On") } else { ui.state.set_text("Off") }
++    if d.enabled { ui.state.set_text("已开启") } else { ui.state.set_text("已关闭") }
+     ui.turn_on.set_visible(d.enabled == false)
+     ui.on_box.set_visible(d.enabled == true)
+     ui.origin.set_text(d.origin)
+@@ -81,19 +81,19 @@
+     show(r.data)
+     status("")
+ }
+-fn refresh(){ status("Checking…") host.request("llm.sheet.client_info", {}, fn(r){ answer(r) }) }
++fn refresh(){ status("正在检查…") host.request("llm.sheet.client_info", {}, fn(r){ answer(r) }) }
+ fn enable(on){
+-    if on { status("Starting the Talk to Octos server…") } else { status("Stopping external access…") }
++    if on { status("正在启动助手连接服务…") } else { status("正在关闭外部访问…") }
+     host.request("llm.sheet.client_enable", {on: on}, fn(r){ answer(r) })
+ }
+ fn rotate(){
+-    status("Revoking…")
++    status("正在撤销…")
+     host.request("llm.sheet.client_rotate", {}, fn(r){
+         answer(r)
+-        if r.is_ok { status("Every paired client must pair again.") }
++        if r.is_ok { status("所有客户端均需重新配对。") }
+     })
+ }
+-fn save_origin(){ status("Saving…") host.request("llm.sheet.client_origin", {origin: ui.web_origin.text()}, fn(r){ answer(r) }) }
++fn save_origin(){ status("正在保存…") host.request("llm.sheet.client_origin", {origin: ui.web_origin.text()}, fn(r){ answer(r) }) }
+ fn open_web(){ host.request("llm.sheet.client_open", {}, fn(r){ if !r.is_ok { status(r.error) } }) }
+ fn poll_pair(){
+     host.request("llm.sheet.client_pair_ready", {}, fn(r){
+@@ -102,7 +102,7 @@
+         start_timeout(0.3, || poll_pair())
+     })
+ }
+-fn pair(){ status("Preparing a pairing code…") host.request("llm.sheet.client_pair", {}, fn(r){ if r.is_ok { poll_pair() } else { status(r.error) } }) }
++fn pair(){ status("正在生成配对码…") host.request("llm.sheet.client_pair", {}, fn(r){ if r.is_ok { poll_pair() } else { status(r.error) } }) }
+ fn close(){ host.request("llm.sheet.cancel", {}, nil) }
+ // The host's Back (phone) calls cancel(): closing ends any pairing code.
+ fn cancel(){ close() }
+@@ -110,37 +110,37 @@
+ "#);
+     script.push_str(STYLES);
+     script.push_str(&frame(
+-        r#"Plain{text: "Done" on_click: || close()}
++        r#"Plain{text: "完成" on_click: || close()}
+            View{width: Fill height: 1}"#,
+-        r#"Title{text: "Talk to Octos"}
+-        Note{text: "Let a web client or a terminal on this device talk to your assistant. Off by default; only this device's apps use it then."}
++        r#"Title{text: "连接 Octos 助手"}
++        Note{text: "允许本机网页客户端或终端与助手通信。默认关闭，关闭时仅供本机应用使用。"}
+         View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
+-            Caption{text: "Talk to Octos"}
++            Caption{text: "连接 Octos 助手"}
+             state := Label{text: "" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 13}}
+         }
+-        turn_on := Primary{text: "Turn on" on_click: || enable(true)}
+-        Note{text: "Turning on restarts the assistant: work in progress, in apps too, stops."}
++        turn_on := Primary{text: "开启" on_click: || enable(true)}
++        Note{text: "开启后会重启助手，应用内正在执行的任务也会停止。"}
+         on_box := View{visible: false width: Fill height: Fit flow: Down spacing: 8
+-            Primary{text: "Pair a web client" on_click: || pair()}
+-            Note{text: "Shows a one-time code and a QR of the web link. A code works once, for five minutes, only while its sheet is open."}
+-            Caption{text: "Web client origin · https, or http only for localhost"}
++            Primary{text: "配对网页客户端" on_click: || pair()}
++            Note{text: "显示一次性配对码和网页二维码。配对码有效期为 5 分钟，仅在此面板打开时有效。"}
++            Caption{text: "网页客户端来源地址 · 使用 HTTPS；仅本机可使用 HTTP"}
+             web_origin := Field{empty_text: "https://web.example"}
+-            Plain{text: "Save origin" on_click: || save_origin()}
+-            Note{text: "Saving a changed origin restarts the assistant: work in progress, in apps too, stops."}
+-            Plain{text: "Open web client" on_click: || open_web()}
+-            Caption{text: "Server · the web client pairs with it"}
++            Plain{text: "保存来源地址" on_click: || save_origin()}
++            Note{text: "更改来源地址后会重启助手，并停止正在执行的任务。"}
++            Plain{text: "打开网页客户端" on_click: || open_web()}
++            Caption{text: "服务器 · 网页客户端与其配对"}
+             origin := Field{is_read_only: true}
+-            Caption{text: "WebSocket endpoint · for a terminal client"}
++            Caption{text: "WebSocket 端点 · 供终端客户端使用"}
+             endpoint := Field{is_read_only: true}
+-            Caption{text: "Connection file · a terminal client of this user reads it"}
++            Caption{text: "连接文件 · 供当前用户的终端客户端读取"}
+             descriptor := Field{is_read_only: true}
+-            Caption{text: "System-agent conversation · profile _main"}
++            Caption{text: "系统助手对话 · 配置 _main"}
+             session := Field{is_read_only: true}
+-            Plain{text: "Revoke all clients" on_click: || rotate()}
+-            Note{text: "Revoking disconnects every client and makes each pair again. It restarts the assistant, and Turn off does too: work in progress, in apps too, stops."}
+-            Plain{text: "Turn off" on_click: || enable(false)}
++            Plain{text: "撤销全部客户端" on_click: || rotate()}
++            Note{text: "撤销会断开所有客户端并要求重新配对，同时重启助手。关闭服务也会停止正在执行的任务。"}
++            Plain{text: "关闭" on_click: || enable(false)}
+         }
+-        Note{text: "A paired client talks with the assistant in the system conversation and answers only its own requests' questions. It cannot see or drive the apps' assistants, touch this device's turns, change models, keys or skills, run commands or git, or stop the assistant. A computer reaches this device through a tunnel that keeps the port number."}
++        Note{text: "配对客户端只能使用系统助手对话，并回答自身请求中的问题。不能访问应用内助手、修改本机对话或模型与密钥、执行命令或停止助手。其他电脑需通过保留端口号的隧道连接。"}
+         status := Status{}"#,
+     ));
+     script
+@@ -178,7 +178,7 @@
+     if left <= 0 {{ back() return }}
+     let m = floor(left / 60)
+     let s = left - m * 60
+-    if s < 10 {{ ui.countdown.set_text("Expires in " + m + ":0" + s) }} else {{ ui.countdown.set_text("Expires in " + m + ":" + s) }}
++    if s < 10 {{ ui.countdown.set_text("剩余有效时间 " + m + ":0" + s) }} else {{ ui.countdown.set_text("剩余有效时间 " + m + ":" + s) }}
+     start_timeout(1, || count_down())
+ }}
+ start_timeout(1, || count_down())
+@@ -190,28 +190,28 @@
+     let expires = format!("{}:{:02}", lifetime_secs / 60, lifetime_secs % 60);
+     let qr = match qr {
+         Some((size, modules)) => format!(
+-            "        Note{{text: \"Scan it with the device where the web client runs, or open the web client and type the code.\"}}\n        View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}}\n{}        }}\n",
++            "        Note{{text: \"请用运行网页客户端的设备扫描，或在网页客户端输入配对码。\"}}\n        View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}}\n{}        }}\n",
+             qr_views(size, modules, module_px(size))
+         ),
+-        None => "        Note{text: \"Save the web client's origin on the previous page to get a QR of its link.\"}\n".to_string(),
++        None => "        Note{text: \"请在上一页保存网页客户端的来源地址，以生成二维码。\"}\n".to_string(),
+     };
+     let content = format!(
+-        r#"        Title{{text: "Pair a web client"}}
+-        Note{{text: "Open the web client, enter this device's server and type the code. The code gives that client access once."}}
+-{qr}        Caption{{text: "Code"}}
++        r#"        Title{{text: "配对网页客户端"}}
++        Note{{text: "打开网页客户端，填写本机服务器地址和配对码。配对码仅供一次授权使用。"}}
++{qr}        Caption{{text: "配对码"}}
+         code := Label{{width: Fill align: Align{{x: 0.5}} text: "{code}" draw_text.color: ink draw_text.text_style: theme.font_bold{{font_size: 30}}}}
+-        countdown := Caption{{text: "Expires in {expires}"}}
+-        Caption{{text: "Server"}}
++        countdown := Caption{{text: "剩余有效时间 {expires}"}}
++        Caption{{text: "服务器"}}
+         Note{{text: "{server}"}}
+         status := Status{{}}"#,
+         code = lit(code),
+         server = lit(server),
+     );
+     script.push_str(&frame(
+-        r#"            Plain{text: "Back" on_click: || back()}
++        r#"            Plain{text: "返回" on_click: || back()}
+             View{width: Fill height: 1}
+-            Plain{text: "New code" on_click: || again()}
+-            Primary{text: "Done" on_click: || close()}"#,
++            Plain{text: "重新生成" on_click: || again()}
++            Primary{text: "完成" on_click: || close()}"#,
+         &content,
+     ));
+     script
+@@ -225,16 +225,16 @@
+ ///    each with its model count and whether a key is saved.
+ /// 2. Choose model: a pull-down of the family's catalog models
+ ///    (`llm.models`: display name, context, price), the recommended one
+-///    preselected, "Custom model ID…", and "Fetch models from provider" (the
++///    preselected, "自定义模型标识…", and "从提供方获取模型列表" (the
+ ///    endpoint's own list, with the saved key).
+ /// 3. Choose provider route: a pull-down of the model's catalog endpoints
+-///    (Official API first) and "Custom endpoint…" (base URL and API protocol).
++///    (Official API first) and "自定义端点…" (base URL and API protocol).
+ /// 4. API key: write only; skipped for a keyless family; "Leave blank to keep
+ ///    the saved key" when editing or when the family has one.
+-/// 5. Test connection & save: a summary, a big "Test connection" button with
+-///    its live result, and the save ("Save as primary" into an empty list,
+-///    "Add as fallback" after it, "Save" when editing), enabled once a test
+-///    passes; after a network failure a small "Save without testing" saves
++/// 5. Test connection & save: a summary, a big "测试连接" button with
++///    its live result, and the save ("保存为首选模型" into an empty list,
++///    "添加为备用模型" after it, "保存" when editing), enabled once a test
++///    passes; after a network failure a small "跳过测试并保存" saves
+ ///    anyway.
+ ///
+ /// Pull-downs are drawn in the script (Makepad's DropDown has no Splash
+@@ -250,9 +250,9 @@
+         _ => "openai",
+     };
+     let (title, action) = match (existing.is_some(), has_primary) {
+-        (true, _) => ("Edit model", "Save"),
+-        (false, false) => ("Add a model", "Save as primary"),
+-        (false, true) => ("Add a model", "Add as fallback"),
++        (true, _) => ("编辑模型", "保存"),
++        (false, false) => ("添加模型", "保存为首选模型"),
++        (false, true) => ("添加模型", "添加为备用模型"),
+     };
+     ADD_SHEET
+         .replace("@STYLES@", STYLES)
+@@ -330,40 +330,40 @@
+ }
+ fn route_label(){
+     if route == nil { return "" }
+-    if route.id == "custom" { return "Custom endpoint · " + ui.base_url.text().trim() }
++    if route.id == "custom" { return "自定义端点 · " + ui.base_url.text().trim() }
+     return route.label + " · " + route.detail
+ }
+ fn key_summary(){
+-    if !fam.has_key { return "Not needed" }
+-    if ui.key.text().trim() != "" { return "New key typed" }
+-    if editing || fam.configured { return "Saved key" }
+-    return "Missing"
++    if !fam.has_key { return "无需密钥" }
++    if ui.key.text().trim() != "" { return "已输入新密钥" }
++    if editing || fam.configured { return "已保存密钥" }
++    return "未设置"
+ }
+ fn heading(){
+     if step == 1 {
+-        ui.step.set_text("Step 1 of 5 · Choose model family")
+-        ui.title.set_text("Choose a model family")
+-        ui.sub.set_text("The provider that serves the model. More can be added later as fallbacks.")
++        ui.step.set_text("第 1 步，共 5 步 · 选择模型系列")
++        ui.title.set_text("选择模型系列")
++        ui.sub.set_text("选择模型提供方。后续可添加备用模型。")
+     }
+     if step == 2 {
+-        ui.step.set_text("Step 2 of 5 · Choose model")
+-        ui.title.set_text("Choose a model")
+-        ui.sub.set_text(fam.label + " · " + fam.models_text + ". The recommended one is preselected.")
++        ui.step.set_text("第 2 步，共 5 步 · 选择模型")
++        ui.title.set_text("选择模型")
++        ui.sub.set_text(fam.label + " · " + fam.models_text + "。已预选推荐模型。")
+     }
+     if step == 3 {
+-        ui.step.set_text("Step 3 of 5 · Choose provider route")
+-        ui.title.set_text("Choose a provider route")
+-        ui.sub.set_text("Where requests for " + model_label() + " go.")
++        ui.step.set_text("第 3 步，共 5 步 · 选择服务线路")
++        ui.title.set_text("选择服务线路")
++        ui.sub.set_text("模型请求的服务线路：" + model_label() + "。")
+     }
+     if step == 4 {
+-        ui.step.set_text("Step 4 of 5 · API key")
+-        ui.title.set_text("API key")
+-        ui.sub.set_text("For " + fam.label + ". Typed here, kept by OctoSense; the app sees only that a key is set.")
++        ui.step.set_text("第 4 步，共 5 步 · API 密钥")
++        ui.title.set_text("API 密钥")
++        ui.sub.set_text("提供方：" + fam.label + "。密钥由 OctoSense 保管，应用只知道密钥是否已设置。")
+     }
+     if step == 5 {
+-        ui.step.set_text("Step 5 of 5 · Test connection & save")
+-        ui.title.set_text("Test connection & save")
+-        ui.sub.set_text("One tiny request checks the route and the key before anything is saved.")
++        ui.step.set_text("第 5 步，共 5 步 · 测试连接并保存")
++        ui.title.set_text("测试连接并保存")
++        ui.sub.set_text("保存前会发送一次小请求，验证服务线路与密钥。")
+         ui.sum_family.set_text(fam.label)
+         ui.sum_model.set_text(model_label())
+         ui.sum_route.set_text(route_label())
+@@ -403,7 +403,7 @@
+ }
+ fn next_text(){
+     if step == 5 { return "@ACTION@" }
+-    return "Next"
++    return "下一步"
+ }
+ fn next(){
+     if !valid() { return }
+@@ -425,10 +425,10 @@
+     ui.footer.render()
+ }
+ fn key_note(){
+-    if !fam.key_required { return "Optional for this provider." }
+-    if editing { return "Leave blank to keep the saved key." }
+-    if fam.configured { return "A key for " + fam.label + " is saved. Leave blank to keep it." }
+-    return "Required. Paste it from the provider's console."
++    if !fam.key_required { return "此提供方的密钥为选填。" }
++    if editing { return "留空即可保留已保存的密钥。" }
++    if fam.configured { return "已保存密钥：" + fam.label + "。留空即可保留。" }
++    return "必填。请从提供方控制台复制密钥。"
+ }
+ fn choose_family(f){
+     if fam != nil && fam.id == f.id { ui.fam_list.render() ui.footer.render() return }
+@@ -476,7 +476,7 @@
+         if route != nil && r.id == route.id { found = r }
+         if want_route != "" && r.id == want_route { found = r }
+     }
+-    if want_route == "custom" || (route != nil && route.id == "custom") { found = {id: "custom" label: "Custom endpoint" detail: "Your own base URL"} }
++    if want_route == "custom" || (route != nil && route.id == "custom") { found = {id: "custom" label: "自定义端点" detail: "自定义服务地址"} }
+     want_route = ""
+     if found == nil { found = first }
+     select_route(found)
+@@ -508,7 +508,7 @@
+     ui.route_list.render()
+     ui.footer.render()
+ }
+-fn custom_route(){ select_route({id: "custom" label: "Custom endpoint" detail: "Your own base URL"}) }
++fn custom_route(){ select_route({id: "custom" label: "自定义端点" detail: "自定义服务地址"}) }
+ fn toggle(which){
+     if open == which { open = "" } else { open = which }
+     ui.model_list.render()
+@@ -522,24 +522,24 @@
+ // A pull-down's button shows the choice while closed; open, the list below
+ // shows every option once (the chosen one ticked) and the button asks.
+ fn model_title(){
+-    if open == "model" { return "Choose a model" }
+-    if custom { return "Custom model ID" }
+-    if model == nil { return "Loading models…" }
++    if open == "model" { return "选择模型" }
++    if custom { return "自定义模型标识" }
++    if model == nil { return "正在加载模型…" }
+     return model.label
+ }
+ fn model_note(){
+-    if open == "model" { return fam.label + " · " + fam.models_text + " in the catalog" }
+-    if custom { return "Type the model's id below" }
++    if open == "model" { return fam.label + " · " + fam.models_text + "，来自模型目录" }
++    if custom { return "请在下方输入模型标识" }
+     if model == nil { return "" }
+     return model.id + " · " + model.detail
+ }
+ fn route_title(){
+-    if open == "route" { return "Choose a route" }
+-    if route == nil { return "Official API" }
++    if open == "route" { return "选择服务线路" }
++    if route == nil { return "官方 API" }
+     return route.label
+ }
+ fn route_note(){
+-    if open == "route" { return "Where requests for " + model_label() + " go" }
++    if open == "route" { return "模型请求的服务线路：" + model_label() + "" }
+     if route == nil { return "" }
+     return route.detail
+ }
+@@ -570,7 +570,7 @@
+     })
+ }
+ fn fetch_models(){
+-    show(ui.fetch_note, "Asking the provider for its models…")
++    show(ui.fetch_note, "正在向提供方请求模型列表…")
+     host.request("llm.sheet.fetch_models", form(false), fn(r){
+         if !r.is_ok { show(ui.fetch_note, r.error) return }
+         fetched = r.data.models
+@@ -647,7 +647,7 @@
+         View{width: Fill height: Fit flow: Down spacing: 6
+             View{width: Fill height: Fit flow: Right align: Align{y: 0.5}
+                 Caption{width: Fill padding: 0 text: "OctoSense · @TITLE@"}
+-                Link{text: "Cancel" on_click: || cancel()}
++                Link{text: "取消" on_click: || cancel()}
+             }
+             progress := View{width: Fill height: Fit flow: Right spacing: 6 on_render: || {
+                 if step >= 1 { BarOn{} } else { Bar{} }
+@@ -663,10 +663,10 @@
+         }
+         ScrollYView{width: Fill height: Fill flow: Down padding: Inset{top: 14 bottom: 8}
+             page1 := View{visible: false width: Fill height: Fit flow: Down spacing: 8
+-                search := Field{empty_text: "Search families or models" on_change: |text| load_families(text)}
++                search := Field{empty_text: "搜索模型系列或模型" on_change: |text| load_families(text)}
+                 fam_list := View{width: Fill height: Fit flow: Down spacing: 6 on_render: || {
+                     View{width: Fill height: 1}
+-                    if families.len() == 0 { Note{text: "No family or model matches."} }
++                    if families.len() == 0 { Note{text: "没有匹配的模型系列或模型。"} }
+                     for f in families {
+                         GestureView{width: Fill height: Fit on_tap: |x, y| choose_family(f)
+                             if fam != nil && fam.id == f.id {
+@@ -708,7 +708,7 @@
+                                     View{width: Fill height: Fit flow: Down spacing: 2
+                                         View{width: Fill height: Fit flow: Right spacing: 6 align: Align{y: 0.5}
+                                             if !custom && model != nil && model.id == m.id { OptTitleOn{text: m.label} } else { OptTitle{text: m.label} }
+-                                            if m.default == true { Tag{TagText{text: "Recommended"}} }
++                                            if m.default == true { Tag{TagText{text: "推荐"}} }
+                                         }
+                                         OptNote{text: m.detail}
+                                     }
+@@ -721,7 +721,7 @@
+                                 Opt{
+                                     View{width: Fill height: Fit flow: Down spacing: 2
+                                         OptTitle{text: f.label}
+-                                        OptNote{text: f.id + " · listed by the provider"}
++                                        OptNote{text: f.id + " · 来自提供方"}
+                                     }
+                                 }
+                             }
+@@ -729,8 +729,8 @@
+                         GestureView{width: Fill height: Fit on_tap: |x, y| use_custom("")
+                             Opt{
+                                 View{width: Fill height: Fit flow: Down spacing: 2
+-                                    OptTitle{text: "Custom model ID…"}
+-                                    OptNote{text: "Any model the route serves"}
++                                    OptTitle{text: "自定义模型标识…"}
++                                    OptNote{text: "服务线路支持的任意模型"}
+                                 }
+                                 if custom { Tick{text: "@CHECK@"} }
+                             }
+@@ -738,11 +738,11 @@
+                     }
+                 }}
+                 custom_box := View{visible: false width: Fill height: Fit flow: Down spacing: 4 padding: Inset{top: 4}
+-                    Section{text: "MODEL ID"}
+-                    custom_model := Field{empty_text: "e.g. deepseek-v4-pro" on_change: |text| changed()}
++                    Section{text: "模型标识"}
++                    custom_model := Field{empty_text: "例如 deepseek-v4-pro" on_change: |text| changed()}
+                 }
+                 View{width: Fill height: Fit flow: Right align: Align{y: 0.5} padding: Inset{top: 4}
+-                    Link{text: "Fetch models from provider" on_click: || fetch_models()}
++                    Link{text: "从提供方获取模型列表" on_click: || fetch_models()}
+                 }
+                 fetch_note := Caption{visible: false width: Fill}
+             }
+@@ -772,8 +772,8 @@
+                         GestureView{width: Fill height: Fit on_tap: |x, y| custom_route()
+                             Opt{
+                                 View{width: Fill height: Fit flow: Down spacing: 2
+-                                    OptTitle{text: "Custom endpoint…"}
+-                                    OptNote{text: "Your own base URL, OpenAI- or Anthropic-compatible"}
++                                    OptTitle{text: "自定义端点…"}
++                                    OptNote{text: "兼容 OpenAI 或 Anthropic 协议的自定义地址"}
+                                 }
+                                 if route != nil && route.id == "custom" { Tick{text: "@CHECK@"} }
+                             }
+@@ -781,9 +781,9 @@
+                     }
+                 }}
+                 endpoint_box := View{visible: false width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 6}
+-                    Section{text: "BASE URL"}
++                    Section{text: "服务地址"}
+                     base_url := Field{text: "@BASE@" empty_text: "https://…/v1" on_change: |text| changed()}
+-                    Section{text: "API PROTOCOL · COMPATIBLE WITH" padding: Inset{top: 6}}
++                    Section{text: "API 协议 · 兼容类型" padding: Inset{top: 6}}
+                     protocol_row := View{width: Fill height: Fit flow: Right spacing: 6 on_render: || {
+                         if protocol == "anthropic" { Seg{text: "OpenAI" on_click: || set_protocol("openai")} } else { SegOn{text: "OpenAI" on_click: || set_protocol("openai")} }
+                         if protocol == "anthropic" { SegOn{text: "Anthropic" on_click: || set_protocol("anthropic")} } else { Seg{text: "Anthropic" on_click: || set_protocol("anthropic")} }
+@@ -791,46 +791,46 @@
+                 }
+             }
+             page4 := View{visible: false width: Fill height: Fit flow: Down spacing: 8
+-                key := Field{empty_text: "Paste the key" is_password: true on_change: |text| changed() on_return: |text| next()}
++                key := Field{empty_text: "粘贴密钥" is_password: true on_change: |text| changed() on_return: |text| next()}
+                 key_note := Caption{visible: false width: Fill}
+             }
+             page5 := View{visible: false width: Fill height: Fit flow: Down spacing: 14
+                 test_box := View{width: Fill height: Fit flow: Down spacing: 10 on_render: || {
+-                    if tested == "testing" { TestOff{text: "Testing…"} } else { TestButton{text: "Test connection" on_click: || test()} }
++                    if tested == "testing" { TestOff{text: "正在测试…"} } else { TestButton{text: "测试连接" on_click: || test()} }
+                     if tested == "ok" {
+                         ResultOk{
+                             Icon{text: "@CHECK@" draw_text.color: #x248a3d}
+-                            Label{width: Fill padding: 0 text: "Connected · " + result_ms + " ms" draw_text.color: #x248a3d draw_text.text_style: theme.font_bold{font_size: 14}}
++                            Label{width: Fill padding: 0 text: "已连接 · " + result_ms + " 毫秒" draw_text.color: #x248a3d draw_text.text_style: theme.font_bold{font_size: 14}}
+                         }
+                     }
+                     if tested == "fail" || tested == "network" {
+                         ResultBad{
+                             View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
+                                 Icon{text: "@CROSS@" draw_text.color: #xff3b30}
+-                                Label{width: Fill padding: 0 text: "Couldn't connect: " + reason draw_text.color: #xc4281c draw_text.text_style: theme.font_bold{font_size: 14}}
++                                Label{width: Fill padding: 0 text: "连接失败：" + reason draw_text.color: #xc4281c draw_text.text_style: theme.font_bold{font_size: 14}}
+                             }
+                             Label{width: Fill padding: 0 text: result draw_text.color: #x6e2a24 draw_text.text_style.font_size: 12}
+                             if tested == "network" {
+-                                Label{width: Fill padding: 0 text: "The provider could not be reached from here. You can save without testing and test it later from the list." draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
+-                                Bypass{text: "Save without testing" on_click: || save()}
++                                Label{width: Fill padding: 0 text: "无法连接模型提供方。可先保存，稍后在列表中测试连接。" draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
++                                Bypass{text: "跳过测试并保存" on_click: || save()}
+                             } else {
+-                                Label{width: Fill padding: 0 text: "Fix the key or the route (Back), then test again." draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
++                                Label{width: Fill padding: 0 text: "请返回检查密钥或服务线路，然后重新测试。" draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
+                             }
+                         }
+                     }
+-                    if tested == "" { Caption{width: Fill text: "Save is available once the test passes."} }
+-                    if tested == "testing" { Caption{width: Fill text: "Sending one tiny request…"} }
++                    if tested == "" { Caption{width: Fill text: "测试通过后即可保存。"} }
++                    if tested == "testing" { Caption{width: Fill text: "正在发送测试请求…"} }
+                 }}
+                 RoundedView{width: Fill height: Fit flow: Down spacing: 4 padding: Inset{left: 14 right: 14 top: 10 bottom: 10} show_bg: true draw_bg.color: #xf9f9fb draw_bg.border_radius: 12.0
+-                    View{width: Fill height: Fit flow: Right SumKey{text: "Family"} sum_family := SumValue{}}
+-                    View{width: Fill height: Fit flow: Right SumKey{text: "Model"} sum_model := SumValue{}}
+-                    View{width: Fill height: Fit flow: Right SumKey{text: "Route"} sum_route := SumValue{}}
+-                    View{width: Fill height: Fit flow: Right SumKey{text: "API key"} sum_key := SumValue{}}
++                    View{width: Fill height: Fit flow: Right SumKey{text: "模型系列"} sum_family := SumValue{}}
++                    View{width: Fill height: Fit flow: Right SumKey{text: "模型"} sum_model := SumValue{}}
++                    View{width: Fill height: Fit flow: Right SumKey{text: "服务线路"} sum_route := SumValue{}}
++                    View{width: Fill height: Fit flow: Right SumKey{text: "API 密钥"} sum_key := SumValue{}}
+                 }
+             }
+         }
+         footer := View{width: Fill height: Fit flow: Right spacing: 10 align: Align{y: 0.5} padding: Inset{top: 12} on_render: || {
+-            if step == 1 { Back{text: "Cancel" on_click: || cancel()} } else { Back{text: "Back" on_click: || back()} }
++            if step == 1 { Back{text: "取消" on_click: || cancel()} } else { Back{text: "返回" on_click: || back()} }
+             View{width: Fill height: 1}
+             if valid() { Next{text: next_text() on_click: || next()} } else { NextOff{text: next_text()} }
+         }}
+@@ -861,10 +861,10 @@
+ {STYLES}"##
+     );
+     script.push_str(&frame(
+-        r#"            Plain{text: "Cancel" on_click: || cancel()}
++        r#"            Plain{text: "取消" on_click: || cancel()}
+             View{width: Fill height: 1}"#,
+-        r#"        Title{text: "OctoSense · Code for your phone"}
+-        Note{text: "Preparing the code…"}
++        r#"        Title{text: "OctoSense · 手机导入码"}
++        Note{text: "正在生成导入码…"}
+         status := Status{}"#,
+     ));
+     script
+@@ -939,7 +939,7 @@
+     if left <= 0 {{ close() return }}
+     let m = floor(left / 60)
+     let s = left - m * 60
+-    if s < 10 {{ ui.countdown.set_text("Expires in " + m + ":0" + s) }} else {{ ui.countdown.set_text("Expires in " + m + ":" + s) }}
++    if s < 10 {{ ui.countdown.set_text("剩余有效时间 " + m + ":0" + s) }} else {{ ui.countdown.set_text("剩余有效时间 " + m + ":" + s) }}
+     start_timeout(1, || count_down())
+ }}
+ start_timeout(1, || count_down())
+@@ -950,21 +950,21 @@
+     );
+     let expires = format!("{}:{:02}", lifetime_secs / 60, lifetime_secs % 60);
+     let content = format!(
+-        r#"        Title{{text: "OctoSense · Code for your phone"}}
+-        Note{{text: "On the phone, open AI providers and choose Scan QR from desktop, then type the PIN. The code carries your keys: close it when you are done."}}
++        r#"        Title{{text: "OctoSense · 手机导入码"}}
++        Note{{text: "在手机上打开“AI 模型设置”，选择“扫描电脑二维码”，然后输入验证码。二维码包含密钥，完成后请关闭。"}}
+         View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}}
+ {qr}        }}
+-        Caption{{text: "PIN"}}
++        Caption{{text: "验证码"}}
+         pin := Label{{width: Fill align: Align{{x: 0.5}} text: "{pin}" draw_text.color: ink draw_text.text_style: theme.font_bold{{font_size: 28}}}}
+-        countdown := Caption{{text: "Expires in {expires}"}}
+-        Note{{text: "Providers: {providers}"}}"#,
++        countdown := Caption{{text: "剩余有效时间 {expires}"}}
++        Note{{text: "模型提供方：{providers}"}}"#,
+         qr = qr_views(size, modules, module_px(size)),
+         pin = lit(pin),
+         providers = lit(&labels.join(", ")),
+     );
+     script.push_str(&frame(
+         r#"            View{width: Fill height: 1}
+-            Primary{text: "Close" on_click: || close()}"#,
++            Primary{text: "关闭" on_click: || close()}"#,
+         &content,
+     ));
+     script
+@@ -983,10 +983,10 @@
+ let can_drop = {can_drop}
+ fn scan(){{
+     ui.status.set_text("")
+-    ui.note.set_text("Point the camera at the code on your computer…")
++    ui.note.set_text("请将摄像头对准电脑上的二维码…")
+     host.request("llm.sheet.scan", {{}}, fn(r){{
+         if r.is_ok {{
+-            if r.data.needs_pin == true {{ ui.note.set_text("Code scanned. Type the PIN shown beside it.") }} else {{ ui.note.set_text("Code scanned. Tap Import.") }}
++            if r.data.needs_pin == true {{ ui.note.set_text("已扫描二维码，请输入旁边显示的验证码。") }} else {{ ui.note.set_text("已扫描二维码，请点击“导入”。") }}
+         }} else {{ ui.note.set_text("") ui.status.set_text(r.error) }}
+     }})
+ }}
+@@ -995,11 +995,11 @@
+     if r.data.cancelled == true {{ ui.note.set_text("") return }}
+     if r.data.error != nil {{ ui.note.set_text("") ui.status.set_text(r.data.error) return }}
+     ui.status.set_text("")
+-    if r.data.needs_pin == true {{ ui.note.set_text("Code read from the image. Type the PIN shown beside it.") }} else {{ ui.note.set_text("Code read from the image. Tap Import.") }}
++    if r.data.needs_pin == true {{ ui.note.set_text("已从图片读取二维码，请输入旁边显示的验证码。") }} else {{ ui.note.set_text("已从图片读取二维码，请点击“导入”。") }}
+ }}
+ fn pick(){{
+     ui.status.set_text("")
+-    ui.note.set_text("Choose a screenshot or photo of the code…")
++    ui.note.set_text("请选择包含二维码的截图或照片…")
+     host.request("llm.sheet.pick", {{}}, fn(r){{ read_image(r) }})
+ }}
+ fn await_drop(){{
+@@ -1012,7 +1012,7 @@
+ }}
+ fn submit(){{
+     ui.status.set_text("")
+-    ui.note.set_text("Checking the code…")
++    ui.note.set_text("正在验证导入码…")
+     host.request("llm.sheet.import", {{text: ui.code.text() pin: ui.pin.text()}}, fn(r){{
+         if r.is_ok {{ ui.note.set_text(r.data.message) }} else {{ ui.note.set_text("") ui.status.set_text(r.error) }}
+     }})
+@@ -1024,10 +1024,10 @@
+     );
+     let mut buttons = String::new();
+     if can_scan {
+-        buttons.push_str("\n            Choice{text: \"Scan again\" on_click: || scan()}");
++        buttons.push_str("\n            Choice{text: \"重新扫描\" on_click: || scan()}");
+     }
+     if can_pick {
+-        buttons.push_str("\n            pick_image := Choice{text: \"Choose image\" on_click: || pick()}");
++        buttons.push_str("\n            pick_image := Choice{text: \"选择图片\" on_click: || pick()}");
+     }
+     let buttons = if buttons.is_empty() {
+         String::new()
+@@ -1035,25 +1035,25 @@
+         format!("\n        View{{width: Fill height: Fit flow: Right spacing: 6{buttons}\n        }}")
+     };
+     let image_note = match (can_pick, can_drop) {
+-        (_, true) => "\n        Caption{text: \"Or drop a screenshot of the code on this sheet.\"}",
+-        (true, false) => "\n        Caption{text: \"Choose image reads the code from a screenshot or photo.\"}",
++        (_, true) => "\n        Caption{text: \"也可将二维码截图拖到此面板。\"}",
++        (true, false) => "\n        Caption{text: \"选择图片后，会从截图或照片中读取二维码。\"}",
+         _ => "",
+     };
+-    let paste = if can_scan || can_pick { "Or paste the code" } else { "Paste the code" };
++    let paste = if can_scan || can_pick { "或粘贴导入码" } else { "粘贴导入码" };
+     let content = format!(
+-        r#"        Title{{text: "OctoSense · Import providers"}}
+-        Note{{text: "Show the code on your computer: AI providers, Show QR for phone. Its providers are added after yours, as fallbacks; the keys it carries go to OctoSense, not to the app that asked."}}
++        r#"        Title{{text: "OctoSense · 导入模型配置"}}
++        Note{{text: "在电脑的“AI 模型设置”中选择“显示手机导入二维码”。导入的模型将作为备用模型；密钥仅交给 OctoSense 保管。"}}
+         status := Status{{}}
+         note := Note{{}}{buttons}{image_note}
+         Caption{{text: "{paste} (OCTOS1E:…)"}}
+         code := Field{{empty_text: "OCTOS1E:…"}}
+-        Caption{{text: "PIN"}}
++        Caption{{text: "验证码"}}
+         pin := Field{{empty_text: "XXXX-XXXX" is_password: true}}"#
+     );
+     script.push_str(&frame(
+-        r#"            Plain{text: "Cancel" on_click: || cancel()}
++        r#"            Plain{text: "取消" on_click: || cancel()}
+             View{width: Fill height: 1}
+-            import_btn := Primary{text: "Import" on_click: || submit()}"#,
++            import_btn := Primary{text: "导入" on_click: || submit()}"#,
+         &content,
+     ));
+     script
+@@ -1067,7 +1067,7 @@
+     fn the_pairing_sheet_shows_the_code_and_a_qr_of_the_link_only() {
+         let (size, modules) = octosense_llm_config::qr::render_matrix("https://web.example/?octos=http%3A%2F%2F127.0.0.1%3A4000&pair=ABCD2345").unwrap();
+         let sheet = pair_client("ABCD2345", "http://127.0.0.1:4000", Some((size, &modules)), 300);
+-        assert!(sheet.contains("ABCD2345") && sheet.contains("// qr-begin") && sheet.contains("Expires in 5:00"));
++        assert!(sheet.contains("ABCD2345") && sheet.contains("// qr-begin") && sheet.contains("剩余有效时间 5:00"));
+         assert!(sheet.contains("llm.sheet.client_back"), "leaving the code's sheet turns pairing off");
+         let without = pair_client("AB\"CD", "http://127.0.0.1:4000", None, 300);
+         assert!(!without.contains("// qr-begin") && !without.contains("AB\"CD"), "literals are sanitised");
+@@ -1097,9 +1097,9 @@
+         assert!(body.contains("llm.sheet.submit") && body.contains("llm.sheet.test") && body.contains("llm.sheet.fetch_models"));
+         assert!(!body.contains('@'), "every placeholder filled");
+         let add = edit(None, false);
+-        assert!(add.contains("return \"Save as primary\"") && add.contains("let want_family = \"\""));
+-        assert!(edit(None, true).contains("return \"Add as fallback\""));
+-        for step in ["Step 1 of 5 · Choose model family", "Step 2 of 5 · Choose model", "Step 3 of 5 · Choose provider route", "Step 4 of 5 · API key", "Step 5 of 5 · Test connection & save"] {
++        assert!(add.contains("return \"保存为首选模型\"") && add.contains("let want_family = \"\""));
++        assert!(edit(None, true).contains("return \"添加为备用模型\""));
++        for step in ["第 1 步，共 5 步 · 选择模型系列", "第 2 步，共 5 步 · 选择模型", "第 3 步，共 5 步 · 选择服务线路", "第 4 步，共 5 步 · API 密钥", "第 5 步，共 5 步 · 测试连接并保存"] {
+             assert!(add.contains(step), "{step}");
+         }
+     }
+diff --git a/apps/mail/host-service/src/imap.rs b/apps/mail/host-service/src/imap.rs
+--- a/apps/mail/host-service/src/imap.rs
++++ b/apps/mail/host-service/src/imap.rs
+@@ -47,7 +47,7 @@
+     fn greeted(mut wire: Wire) -> Result<Imap, String> {
+         let greeting = wire.line()?;
+         if !greeting.starts_with(b"* OK") && !greeting.starts_with(b"* PREAUTH") {
+-            return Err("Invalid IMAP greeting.".into());
++            return Err("IMAP 服务器握手响应无效。".into());
+         }
+         Ok(Imap { wire, tag: 0 })
+     }
+@@ -78,7 +78,7 @@
+                     self.wire.write(&line)?;
+                     let go = self.wire.line()?;
+                     if !go.starts_with(b"+") {
+-                        return Err("Mail server refused the request.".into());
++                        return Err("邮箱服务器拒绝请求。".into());
+                     }
+                     line = value.as_bytes().to_vec();
+                 }
+@@ -99,7 +99,7 @@
+                 if status.starts_with("OK") {
+                     return Ok(out);
+                 }
+-                return Err(format!("Mail server said: {}", status.trim()));
++                return Err(format!("邮箱服务器返回：{}", status.trim()));
+             }
+             let mut response = Untagged { text: String::new(), literals: Vec::new() };
+             let mut line = first;
+@@ -110,7 +110,7 @@
+                     Some(n) => {
+                         total += n;
+                         if total > MAX_MESSAGE * 4 {
+-                            return Err("Mail server sent more than expected.".into());
++                            return Err("邮箱服务器返回的数据超过限制。".into());
+                         }
+                         response.literals.push(self.wire.read_exact(n)?);
+                         line = self.wire.line()?;
+diff --git a/apps/mail/host-service/src/lib.rs b/apps/mail/host-service/src/lib.rs
+--- a/apps/mail/host-service/src/lib.rs
++++ b/apps/mail/host-service/src/lib.rs
+@@ -135,7 +135,7 @@
+             return fetched;
+         }
+         if folder != INBOX {
+-            return Err("This account reads the inbox only.".into());
++            return Err("此账号只能读取收件箱。".into());
+         }
+         let mut seen: Vec<Value> = state["seen"].as_array().cloned().unwrap_or_default();
+         let known: HashSet<String> = seen.iter().filter_map(|v| v.as_str().map(str::to_string)).collect();
+@@ -286,10 +286,10 @@
+             .accounts()
+             .into_iter()
+             .find(|a| text(a, "id") == id)
+-            .ok_or("There is no such account.")?;
++            .ok_or("账号不存在。")?;
+         let granted = account["apps"].as_array().is_some_and(|apps| apps.iter().any(|a| a == app_id));
+         if !granted {
+-            return Err("This app may not use that account.".into());
++            return Err("此应用未获该账号的访问授权。".into());
+         }
+         Ok(account)
+     }
+@@ -437,7 +437,7 @@
+             }
+             "add_account" => {
+                 if let Some((_, earlier)) = self.pending.lock().unwrap().take() {
+-                    earlier.send(Err("Another sign-in replaced this one.".into()));
++                    earlier.send(Err("已启动另一次登录，本次登录已结束。".into()));
+                 }
+                 *self.pending.lock().unwrap() = Some((call.app_id.clone(), reply));
+                 host.open_sheet(signin_sheet());
+@@ -445,14 +445,14 @@
+             "sheet.cancel" => {
+                 host.close_sheet();
+                 if let Some((_, pending)) = self.pending.lock().unwrap().take() {
+-                    pending.send(Err("Sign-in cancelled.".into()));
++                    pending.send(Err("已取消登录。".into()));
+                 }
+                 reply.send(Ok(json!({})));
+             }
+             "sheet.submit" => {
+                 let Some(app_id) = self.pending.lock().unwrap().as_ref().map(|(app, _)| app.clone()) else {
+                     host.close_sheet();
+-                    reply.send(Err("No app is waiting for this sign-in.".into()));
++                    reply.send(Err("当前没有应用等待登录。".into()));
+                     return;
+                 };
+                 let account = match account_from_form(&call.args) {
+@@ -587,7 +587,7 @@
+                     .as_array_mut()
+                     .and_then(|m| m.iter_mut().find(|m| text(m, "id") == wanted))
+                 else {
+-                    return reply.send(Err("There is no such message.".into()));
++                    return reply.send(Err("邮件不存在。".into()));
+                 };
+                 let was_unread = message["unread"].as_bool().unwrap_or(true);
+                 message["unread"] = json!(false);
+@@ -656,20 +656,20 @@
+     // Swap Gmail's servers for each other; anything typed stays.
+     let h = ui.pop_host.text()
+     if p == "imap" {
+-        ui.incoming.set_text("Incoming (IMAP, TLS)")
++        ui.incoming.set_text("收件服务器（IMAP，TLS）")
+         if h == "pop.gmail.com" || h == "" { ui.pop_host.set_text("imap.gmail.com") ui.pop_port.set_text("993") }
+     } else {
+-        ui.incoming.set_text("Incoming (POP3, TLS)")
++        ui.incoming.set_text("收件服务器（POP3，TLS）")
+         if h == "imap.gmail.com" || h == "" { ui.pop_host.set_text("pop.gmail.com") ui.pop_port.set_text("995") }
+     }
+ }
+ fn submit(){
+-    ui.status.set_text("Checking the account…")
++    ui.status.set_text("正在验证账号…")
+     host.request("mail.sheet.submit", {
+         address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
+         host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
+         smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
+-    }, fn(r){ if r.is_ok { ui.status.set_text("Signed in") } else { ui.status.set_text(r.error) } })
++    }, fn(r){ if r.is_ok { ui.status.set_text("登录成功") } else { ui.status.set_text(r.error) } })
+ }
+ fn cancel(){ host.request("mail.sheet.cancel", {}, fn(r){}) }
+ let Field = TextInput{width: Fill height: 40
+@@ -691,36 +691,36 @@
+     ScrollYView{width: Fill height: Fill flow: Down padding: Inset{left: 12 right: 12 top: 24 bottom: 24}
+     RoundedView{width: Fill height: Fit flow: Down spacing: 8 padding: 16 new_batch: true show_bg: true draw_bg.color: #xffffff draw_bg.border_radius: 18.0
+         View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
+-            ButtonFlat{text: "Cancel" height: 40 on_click: || cancel()
++            ButtonFlat{text: "取消" height: 40 on_click: || cancel()
+                 draw_bg +: {color: #x00000000 color_hover: #x0000000a color_down: #x00000014 border_size: 0.0}
+                 draw_text +: {color: #x007aff color_hover: #x007aff color_down: #x007aff text_style +: {font_size: 15}}}
+             View{width: Fill height: 1}
+-            ButtonFlat{text: "Sign in" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
++            ButtonFlat{text: "登录" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
+                 draw_bg +: {border_radius: 20.0 color: #x007aff color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
+                 draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff text_style +: {font_size: 15}}}
+         }
+-        Label{width: Fill text: "OctoSense · Add a mail account" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
+-        Label{width: Fill text: "Your password stays with OctoSense. The app that asked only gets your mail." draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
++        Label{width: Fill text: "OctoSense · 添加邮箱账号" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
++        Label{width: Fill text: "密码由 OctoSense 安全保管，Muse 只能访问获授权的邮件。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+         status := Label{width: Fill text: "" draw_text.color: #xff3b30 draw_text.text_style.font_size: 12}
+-        Caption{text: "Email address"}
+-        address := Field{empty_text: "you@example.com"}
+-        Caption{text: "Login (if not the address)"}
+-        username := Field{empty_text: "optional"}
+-        Caption{text: "Password or app password"}
+-        password := Field{empty_text: "password" is_password: true}
++        Caption{text: "邮箱地址"}
++        address := Field{empty_text: "例如 name@example.com"}
++        Caption{text: "登录用户名（与邮箱地址不同时填写）"}
++        username := Field{empty_text: "选填"}
++        Caption{text: "密码或邮箱应用专用密码"}
++        password := Field{empty_text: "请输入密码" is_password: true}
+         RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
+-            imap_on := Chosen{text: "IMAP: all folders"}
+-            imap_off := Choice{visible: false text: "IMAP: all folders" on_click: || choose("imap")}
+-            pop_on := Chosen{visible: false text: "POP3: inbox only"}
+-            pop_off := Choice{text: "POP3: inbox only" on_click: || choose("pop3")}
++            imap_on := Chosen{text: "IMAP：所有文件夹"}
++            imap_off := Choice{visible: false text: "IMAP：所有文件夹" on_click: || choose("imap")}
++            pop_on := Chosen{visible: false text: "POP3：仅收件箱"}
++            pop_off := Choice{text: "POP3：仅收件箱" on_click: || choose("pop3")}
+         }
+         View{width: Fill height: Fit flow: Right spacing: 8
+-            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "Incoming (IMAP, TLS)"} pop_host := Field{text: "imap.gmail.com"}}
+-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} pop_port := Field{text: "993"}}
++            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "收件服务器（IMAP，TLS）"} pop_host := Field{text: "imap.gmail.com"}}
++            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} pop_port := Field{text: "993"}}
+         }
+         View{width: Fill height: Fit flow: Right spacing: 8
+-            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "Outgoing (SMTP, TLS)"} smtp_host := Field{text: "smtp.gmail.com"}}
+-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} smtp_port := Field{text: "465"}}
++            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "发件服务器（SMTP，TLS）"} smtp_host := Field{text: "smtp.gmail.com"}}
++            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} smtp_port := Field{text: "465"}}
+         }
+     }
+     }
+@@ -849,7 +849,7 @@
+         assert!(!std::fs::read_to_string(dir.join("mail/accounts.json")).unwrap().contains("s3cret"), "no password in the account list");
+ 
+         // Another app cannot reach the account.
+-        assert!(ask(&dir, "os.other", "mail.list", json!({"account": id}), false, &mut host).unwrap_err().contains("may not use"));
++        assert!(ask(&dir, "os.other", "mail.list", json!({"account": id}), false, &mut host).unwrap_err().contains("未获该账号的访问授权"));
+         assert_eq!(ask(&dir, "os.other", "mail.accounts", Value::Null, false, &mut host).unwrap(), json!([]));
+         assert_eq!(ask(&dir, "os.mail", "mail.accounts", Value::Null, false, &mut host).unwrap()[0]["id"], id.as_str());
+ 
+diff --git a/apps/mail/host-service/src/network.rs b/apps/mail/host-service/src/network.rs
+--- a/apps/mail/host-service/src/network.rs
++++ b/apps/mail/host-service/src/network.rs
+@@ -62,11 +62,12 @@
+     for key in ["address", "username", "host", "smtp_host", "password"] {
+         let value = text(account, key);
+         if value.is_empty() || value.contains(['\r', '\n', '\0']) {
+-            return Err(format!("Enter a valid {key}."));
++            let field = match key { "address" => "邮箱地址", "username" => "登录用户名", "host" => "收件服务器地址", "smtp_host" => "发件服务器地址", "password" => "密码", _ => "账号字段" };
++            return Err(format!("请填写有效的{field}。"));
+         }
+     }
+     if !text(account, "address").contains('@') {
+-        return Err("Enter an email address.".into());
++        return Err("请填写邮箱地址。".into());
+     }
+     for key in ["port", "smtp_port"] {
+         if text(account, key)
+@@ -75,12 +76,12 @@
+             .filter(|n| *n > 0)
+             .is_none()
+         {
+-            return Err("Port must be between 1 and 65535.".into());
++            return Err("端口必须在 1 到 65535 之间。".into());
+         }
+     }
+     for key in ["security", "smtp_security"] {
+         if !matches!(text(account, key), "tls" | "starttls") {
+-            return Err("Choose TLS or STARTTLS.".into());
++            return Err("请选择 TLS 或 STARTTLS 加密。".into());
+         }
+     }
+     Ok(())
+@@ -94,7 +95,7 @@
+     pub(crate) fn connect(host: &str, port: u16) -> Result<Self, String> {
+         let addresses = (host, port)
+             .to_socket_addrs()
+-            .map_err(|_| "Cannot resolve the mail server. Check Wi-Fi.")?;
++            .map_err(|_| "无法解析邮箱服务器，请检查网络。")?;
+         let mut socket = None;
+         for address in addresses.take(4) {
+             if let Ok(stream) = TcpStream::connect_timeout(&address, Duration::from_secs(12)) {
+@@ -102,21 +103,21 @@
+                 break;
+             }
+         }
+-        let socket = socket.ok_or("Cannot connect to the mail server. Check Wi-Fi.")?;
++        let socket = socket.ok_or("无法连接邮箱服务器，请检查网络。")?;
+         socket
+             .set_read_timeout(Some(Duration::from_secs(20)))
+-            .map_err(|_| "Cannot configure mail connection.")?;
++            .map_err(|_| "无法配置邮箱连接。")?;
+         socket
+             .set_write_timeout(Some(Duration::from_secs(20)))
+-            .map_err(|_| "Cannot configure mail connection.")?;
++            .map_err(|_| "无法配置邮箱连接。")?;
+         Ok(Self::Plain(BufReader::new(socket)))
+     }
+     pub(crate) fn tls(self, host: &str) -> Result<Self, String> {
+         let Self::Plain(reader) = self else {
+-            return Err("Connection is already encrypted.".into());
++            return Err("此连接已经加密。".into());
+         };
+         if !reader.buffer().is_empty() {
+-            return Err("Unexpected bytes before TLS.".into());
++            return Err("TLS 加密前收到异常数据。".into());
+         }
+         let roots = rustls::RootCertStore {
+             roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
+@@ -125,18 +126,18 @@
+             rustls::crypto::ring::default_provider(),
+         ))
+         .with_safe_default_protocol_versions()
+-        .map_err(|_| "TLS configuration failed.")?
++        .map_err(|_| "TLS 加密配置失败。")?
+         .with_root_certificates(roots)
+         .with_no_client_auth();
+         let name = rustls::pki_types::ServerName::try_from(host.to_owned())
+-            .map_err(|_| "Invalid TLS server name.")?;
++            .map_err(|_| "TLS 服务器名称无效。")?;
+         let mut client = rustls::ClientConnection::new(Arc::new(config), name)
+-            .map_err(|_| "TLS setup failed.")?;
++            .map_err(|_| "TLS 加密连接失败。")?;
+         let mut socket = reader.into_inner();
+         while client.is_handshaking() {
+             client
+                 .complete_io(&mut socket)
+-                .map_err(|_| "TLS verification failed. Check server name and device date.")?;
++                .map_err(|_| "TLS 证书验证失败，请检查服务器名称和设备日期。")?;
+         }
+         Ok(Self::Tls(BufReader::new(rustls::StreamOwned::new(
+             client, socket,
+@@ -150,7 +151,7 @@
+         writer
+             .write_all(bytes)
+             .and_then(|_| writer.flush())
+-            .map_err(|_| "Connection interrupted while writing mail data.".into())
++            .map_err(|_| "发送邮件数据时连接中断。".into())
+     }
+     /// Exactly `n` bytes: an IMAP literal.
+     #[allow(dead_code)]
+@@ -162,7 +163,7 @@
+         let mut out = vec![0; n];
+         reader
+             .read_exact(&mut out)
+-            .map_err(|_| "Mail connection timed out or closed.")?;
++            .map_err(|_| "邮箱连接超时或已关闭。")?;
+         Ok(out)
+     }
+     pub(crate) fn line(&mut self) -> Result<Vec<u8>, String> {
+@@ -175,9 +176,9 @@
+         reader
+             .take(2_100_000)
+             .read_until(b'\n', &mut out)
+-            .map_err(|_| "Mail connection timed out or closed.")?;
++            .map_err(|_| "邮箱连接超时或已关闭。")?;
+         if !out.ends_with(b"\n") {
+-            return Err("Invalid or oversized mail response.".into());
++            return Err("邮箱响应无效或超过大小限制。".into());
+         }
+         Ok(out)
+     }
+@@ -186,7 +187,7 @@
+         let line = self.line()?;
+         if !line.starts_with(b"+OK") {
+             return Err(
+-                "Mail server rejected the request. Check account settings and app password.".into(),
++                "邮箱服务器拒绝请求，请检查账号设置和应用专用密码。".into(),
+             );
+         }
+         Ok(line)
+@@ -204,7 +205,7 @@
+             }
+             size += line.len();
+             if size > limit {
+-                return Err("Message exceeds the download limit.".into());
++                return Err("邮件超过下载大小限制。".into());
+             }
+             rows.push(line);
+         }
+@@ -219,7 +220,7 @@
+                 .unwrap_or(0);
+             if !expected.contains(&code) {
+                 return Err(
+-                    "Outgoing server rejected the request. Check its settings and app password."
++                    "发件服务器拒绝请求，请检查服务器设置和应用专用密码。"
+                         .into(),
+                 );
+             }
+@@ -227,7 +228,7 @@
+                 return Ok(());
+             }
+         }
+-        Err("Invalid outgoing server response.".into())
++        Err("发件服务器响应无效。".into())
+     }
+     fn smtp(&mut self, command: &str, expected: &[u16]) -> Result<(), String> {
+         self.write(format!("{command}\r\n").as_bytes())?;
+@@ -243,7 +244,7 @@
+         wire = wire.tls(host)?;
+     }
+     if !wire.line()?.starts_with(b"+OK") {
+-        return Err("Invalid POP3 greeting.".into());
++        return Err("POP3 服务器握手响应无效。".into());
+     }
+     if text(account, "security") == "starttls" {
+         wire.pop("STLS")?;
+@@ -267,7 +268,7 @@
+         .split_whitespace()
+         .nth(1)
+         .and_then(|s| s.parse::<usize>().ok())
+-        .ok_or("Invalid mailbox count.")?;
++        .ok_or("邮箱邮件数量无效。")?;
+     let _ = wire.pop("QUIT");
+     Ok(json!({"available":count,"tls_verified":true,"transport":"device-pop3"}))
+ }
+@@ -277,7 +278,7 @@
+         .split_whitespace()
+         .nth(1)
+         .and_then(|s| s.parse::<usize>().ok())
+-        .ok_or("Invalid mailbox count.")?;
++        .ok_or("邮箱邮件数量无效。")?;
+     wire.pop("UIDL")?;
+     let rows = wire.multiline(20_000_000)?;
+     wire.pop("LIST")?;
+@@ -368,7 +369,7 @@
+     }
+ }
+ pub fn decode(raw: &[u8], uid: &str) -> Result<Value, String> {
+-    let parsed = mailparse::parse_mail(raw).map_err(|_| "Cannot decode this email.")?;
++    let parsed = mailparse::parse_mail(raw).map_err(|_| "无法解析此邮件。")?;
+     let header = |name: &str| parsed.headers.get_first_value(name).unwrap_or_default();
+     let from = header("From");
+     let addresses = mailparse::addrparse(&from).ok();
+@@ -385,7 +386,7 @@
+         .filter(|s| !s.is_empty())
+         .unwrap_or_else(|| {
+             if address.is_empty() {
+-                "Unknown sender".into()
++                "未知发件人".into()
+             } else {
+                 address.clone()
+             }
+@@ -434,11 +435,11 @@
+     validate(account)?;
+     let to = text(draft, "to").trim();
+     if !to.contains('@') || to.contains(['\r', '\n', '<', '>', ' ', ',', ';']) {
+-        return Err("Enter one recipient email address.".into());
++        return Err("请填写一个收件人的邮箱地址。".into());
+     }
+     let subject = text(draft, "subject");
+     if subject.contains(['\r', '\n']) {
+-        return Err("Subject cannot contain line breaks.".into());
++        return Err("邮件主题不能包含换行。".into());
+     }
+     let host = text(account, "smtp_host");
+     let mut wire = Wire::connect(host, text(account, "smtp_port").parse().unwrap())?;
+diff --git a/apps/mail/host-service/src/vault.rs b/apps/mail/host-service/src/vault.rs
+--- a/apps/mail/host-service/src/vault.rs
++++ b/apps/mail/host-service/src/vault.rs
+@@ -17,7 +17,7 @@
+ }
+ 
+ fn missing() -> String {
+-    "The account's password is missing; sign in again.".into()
++    "账号密码缺失，请重新登录。".into()
+ }
+ 
+ fn secret_path(dir: &Path, id: &str) -> PathBuf {
+@@ -101,18 +101,18 @@
+     fn entry(dir: &Path, id: &str) -> Result<keyring::Entry, String> {
+         let dir = std::fs::canonicalize(dir).unwrap_or_else(|_| dir.to_path_buf());
+         let profile = crate::network::hash(&dir.to_string_lossy());
+-        keyring::Entry::new(&format!("OctoSense Mail {}", &profile[..12]), id).map_err(|e| format!("The keychain is unavailable: {e}"))
++        keyring::Entry::new(&format!("OctoSense Mail {}", &profile[..12]), id).map_err(|e| format!("钥匙串不可用：{e}"))
+     }
+ 
+     impl Vault for Keychain {
+         fn put(&self, dir: &Path, id: &str, secret: &str) -> Result<(), String> {
+-            entry(dir, id)?.set_password(secret).map_err(|e| format!("Cannot store the password in the keychain: {e}"))
++            entry(dir, id)?.set_password(secret).map_err(|e| format!("无法将密码保存到钥匙串：{e}"))
+         }
+         fn get(&self, dir: &Path, id: &str) -> Result<String, String> {
+             match entry(dir, id)?.get_password() {
+                 Ok(secret) => Ok(secret),
+                 Err(keyring::Error::NoEntry) => migrate(self, dir, id).ok_or_else(missing),
+-                Err(e) => Err(format!("Cannot read the password from the keychain: {e}")),
++                Err(e) => Err(format!("无法从钥匙串读取密码：{e}")),
+             }
+         }
+         fn remove(&self, dir: &Path, id: &str) {
+@@ -170,14 +170,14 @@
+     unsafe fn with_env<T>(f: impl FnOnce(*mut jni::JNIEnv) -> Result<T, String>) -> Result<T, String> {
+         let vm = makepad_android_state::get_java_vm();
+         if vm.is_null() {
+-            return Err("The Android keystore is unavailable.".into());
++            return Err("Android 密钥存储不可用。".into());
+         }
+         let mut env: *mut std::ffi::c_void = null_mut();
+         let attached_here = ((**vm).GetEnv.unwrap())(vm, &mut env, jni::JNI_VERSION_1_6) != 0;
+         if attached_here {
+             let mut fresh: *mut jni::JNIEnv = null_mut();
+             if ((**vm).AttachCurrentThread.unwrap())(vm, &mut fresh, null_mut()) != 0 {
+-                return Err("The Android keystore is unavailable.".into());
++                return Err("Android 密钥存储不可用。".into());
+             }
+             env = fresh as _;
+         }
+@@ -198,7 +198,7 @@
+     unsafe fn check(env: *mut jni::JNIEnv, what: &str) -> Result<(), String> {
+         if ((**env).ExceptionCheck.unwrap())(env) != 0 {
+             ((**env).ExceptionClear.unwrap())(env);
+-            return Err(format!("The Android keystore failed ({what})."));
++            return Err(format!("Android 密钥存储失败（{what}）。"));
+         }
+         Ok(())
+     }
+diff --git a/crates/shell/resources/startup.splash b/crates/shell/resources/startup.splash
+--- a/crates/shell/resources/startup.splash
++++ b/crates/shell/resources/startup.splash
+@@ -13,7 +13,7 @@
+     }
+     startup_icon := AppIcon{name: "app" width: 64 height: 64}
+     placeholder := Label{
+-        text: "Starting…"
++        text: "正在启动…"
+         draw_text +: {color: theme.color_text text_style: theme.font_bold{font_size: 14}}
+     }
+     status_line := Label{
+diff --git a/crates/shell/src/binds.rs b/crates/shell/src/binds.rs
+--- a/crates/shell/src/binds.rs
++++ b/crates/shell/src/binds.rs
+@@ -144,75 +144,75 @@
+     };
+     let mut binds = vec![
+         // ---- applications.lua
+-        Bind { layer: Super, key: ReturnKey, action: WmAction::LaunchTerminal, help: "Terminal" },
+-        Bind { layer: SuperShift, key: ReturnKey, action: WmAction::LaunchBrowser, help: "Browser" },
+-        Bind { layer: SuperShift, key: KeyB, action: WmAction::LaunchBrowser, help: "Browser" },
++        Bind { layer: Super, key: ReturnKey, action: WmAction::LaunchTerminal, help: "终端" },
++        Bind { layer: SuperShift, key: ReturnKey, action: WmAction::LaunchBrowser, help: "浏览器" },
++        Bind { layer: SuperShift, key: KeyB, action: WmAction::LaunchBrowser, help: "浏览器" },
+         // ---- tiling.lua
+-        Bind { layer: Super, key: KeyW, action: WmAction::CloseWindow, help: "Close window" },
+-        Bind { layer: Super, key: KeyQ, action: WmAction::CloseWindow, help: "Close window" },
+-        Bind { layer: CtrlAlt, key: Delete, action: WmAction::CloseAllWindows, help: "Close all windows" },
+-        Bind { layer: Super, key: KeyJ, action: WmAction::ToggleSplit, help: "Toggle window split" },
+-        Bind { layer: Super, key: KeyP, action: WmAction::TogglePseudo, help: "Pseudo window" },
+-        Bind { layer: Super, key: KeyT, action: WmAction::ToggleFloat, help: "Toggle window floating/tiling" },
+-        Bind { layer: Super, key: KeyF, action: WmAction::Fullscreen(FullscreenMode::Fullscreen), help: "Full screen" },
+-        Bind { layer: SuperCtrl, key: KeyF, action: WmAction::TiledFullscreen, help: "Tiled full screen" },
+-        Bind { layer: SuperAlt, key: KeyF, action: WmAction::Fullscreen(FullscreenMode::Maximized), help: "Full width" },
+-        Bind { layer: Super, key: KeyO, action: WmAction::PopOut, help: "Pop window out (float & pin)" },
+-        Bind { layer: Super, key: ArrowLeft, action: WmAction::FocusDir(Dir::Left), help: "Focus on left window" },
+-        Bind { layer: Super, key: ArrowRight, action: WmAction::FocusDir(Dir::Right), help: "Focus on right window" },
+-        Bind { layer: Super, key: ArrowUp, action: WmAction::FocusDir(Dir::Up), help: "Focus on above window" },
+-        Bind { layer: Super, key: ArrowDown, action: WmAction::FocusDir(Dir::Down), help: "Focus on below window" },
+-        Bind { layer: Super, key: KeyS, action: WmAction::ToggleScratchpad, help: "Toggle scratchpad" },
+-        Bind { layer: SuperAlt, key: KeyS, action: WmAction::MoveToScratchpad, help: "Move window to scratchpad" },
+-        Bind { layer: Super, key: KeyL, action: WmAction::ToggleWorkspaceLayout, help: "Toggle workspace layout" },
+-        Bind { layer: Super, key: Backtick, action: WmAction::ToggleScratchpad, help: "Toggle scratchpad" },
+-        Bind { layer: SuperShift, key: Backtick, action: WmAction::MoveToScratchpad, help: "Move window to scratchpad" },
+-        Bind { layer: Super, key: Tab, action: WmAction::WorkspaceNext, help: "Next workspace" },
+-        Bind { layer: SuperShift, key: Tab, action: WmAction::WorkspacePrev, help: "Previous workspace" },
+-        Bind { layer: SuperCtrl, key: Tab, action: WmAction::WorkspaceFormer, help: "Former workspace" },
+-        Bind { layer: SuperShift, key: ArrowLeft, action: WmAction::SwapDir(Dir::Left), help: "Swap window to the left" },
+-        Bind { layer: SuperShift, key: ArrowRight, action: WmAction::SwapDir(Dir::Right), help: "Swap window to the right" },
+-        Bind { layer: SuperShift, key: ArrowUp, action: WmAction::SwapDir(Dir::Up), help: "Swap window up" },
+-        Bind { layer: SuperShift, key: ArrowDown, action: WmAction::SwapDir(Dir::Down), help: "Swap window down" },
+-        Bind { layer: Alt, key: Tab, action: WmAction::CycleFocus(true), help: "Focus on next window" },
+-        Bind { layer: AltShift, key: Tab, action: WmAction::CycleFocus(false), help: "Focus on previous window" },
++        Bind { layer: Super, key: KeyW, action: WmAction::CloseWindow, help: "关闭窗口" },
++        Bind { layer: Super, key: KeyQ, action: WmAction::CloseWindow, help: "关闭窗口" },
++        Bind { layer: CtrlAlt, key: Delete, action: WmAction::CloseAllWindows, help: "关闭所有窗口" },
++        Bind { layer: Super, key: KeyJ, action: WmAction::ToggleSplit, help: "切换窗口分割" },
++        Bind { layer: Super, key: KeyP, action: WmAction::TogglePseudo, help: "切换伪平铺窗口" },
++        Bind { layer: Super, key: KeyT, action: WmAction::ToggleFloat, help: "切换浮动与平铺" },
++        Bind { layer: Super, key: KeyF, action: WmAction::Fullscreen(FullscreenMode::Fullscreen), help: "全屏" },
++        Bind { layer: SuperCtrl, key: KeyF, action: WmAction::TiledFullscreen, help: "平铺全屏" },
++        Bind { layer: SuperAlt, key: KeyF, action: WmAction::Fullscreen(FullscreenMode::Maximized), help: "最大化宽度" },
++        Bind { layer: Super, key: KeyO, action: WmAction::PopOut, help: "弹出窗口（浮动并固定）" },
++        Bind { layer: Super, key: ArrowLeft, action: WmAction::FocusDir(Dir::Left), help: "聚焦左侧窗口" },
++        Bind { layer: Super, key: ArrowRight, action: WmAction::FocusDir(Dir::Right), help: "聚焦右侧窗口" },
++        Bind { layer: Super, key: ArrowUp, action: WmAction::FocusDir(Dir::Up), help: "聚焦上方窗口" },
++        Bind { layer: Super, key: ArrowDown, action: WmAction::FocusDir(Dir::Down), help: "聚焦下方窗口" },
++        Bind { layer: Super, key: KeyS, action: WmAction::ToggleScratchpad, help: "显示或隐藏暂存窗口" },
++        Bind { layer: SuperAlt, key: KeyS, action: WmAction::MoveToScratchpad, help: "将窗口移入暂存区" },
++        Bind { layer: Super, key: KeyL, action: WmAction::ToggleWorkspaceLayout, help: "切换工作区布局" },
++        Bind { layer: Super, key: Backtick, action: WmAction::ToggleScratchpad, help: "显示或隐藏暂存窗口" },
++        Bind { layer: SuperShift, key: Backtick, action: WmAction::MoveToScratchpad, help: "将窗口移入暂存区" },
++        Bind { layer: Super, key: Tab, action: WmAction::WorkspaceNext, help: "下一个工作区" },
++        Bind { layer: SuperShift, key: Tab, action: WmAction::WorkspacePrev, help: "上一个工作区" },
++        Bind { layer: SuperCtrl, key: Tab, action: WmAction::WorkspaceFormer, help: "返回原工作区" },
++        Bind { layer: SuperShift, key: ArrowLeft, action: WmAction::SwapDir(Dir::Left), help: "与左侧窗口交换" },
++        Bind { layer: SuperShift, key: ArrowRight, action: WmAction::SwapDir(Dir::Right), help: "与右侧窗口交换" },
++        Bind { layer: SuperShift, key: ArrowUp, action: WmAction::SwapDir(Dir::Up), help: "与上方窗口交换" },
++        Bind { layer: SuperShift, key: ArrowDown, action: WmAction::SwapDir(Dir::Down), help: "与下方窗口交换" },
++        Bind { layer: Alt, key: Tab, action: WmAction::CycleFocus(true), help: "聚焦下一个窗口" },
++        Bind { layer: AltShift, key: Tab, action: WmAction::CycleFocus(false), help: "聚焦上一个窗口" },
+         // Omarchy: SUPER+code:20/21 = minus/equals, resize({x|y = ±N}).
+-        Bind { layer: Super, key: Minus, action: WmAction::ResizePx { axis: Axis::Horizontal, px: -100.0 }, help: "Expand window left" },
+-        Bind { layer: Super, key: Equals, action: WmAction::ResizePx { axis: Axis::Horizontal, px: 100.0 }, help: "Shrink window left" },
+-        Bind { layer: SuperShift, key: Minus, action: WmAction::ResizePx { axis: Axis::Vertical, px: -100.0 }, help: "Shrink window up" },
+-        Bind { layer: SuperShift, key: Equals, action: WmAction::ResizePx { axis: Axis::Vertical, px: 100.0 }, help: "Expand window down" },
+-        Bind { layer: SuperAlt, key: Minus, action: WmAction::ResizePx { axis: Axis::Horizontal, px: -25.0 }, help: "Expand window left a little" },
+-        Bind { layer: SuperAlt, key: Equals, action: WmAction::ResizePx { axis: Axis::Horizontal, px: 25.0 }, help: "Shrink window left a little" },
+-        Bind { layer: SuperShiftAlt, key: Minus, action: WmAction::ResizePx { axis: Axis::Vertical, px: -25.0 }, help: "Shrink window up a little" },
+-        Bind { layer: SuperShiftAlt, key: Equals, action: WmAction::ResizePx { axis: Axis::Vertical, px: 25.0 }, help: "Expand window down a little" },
+-        Bind { layer: SuperCtrl, key: Minus, action: WmAction::ResizePx { axis: Axis::Horizontal, px: -300.0 }, help: "Expand window left a lot" },
+-        Bind { layer: SuperCtrl, key: Equals, action: WmAction::ResizePx { axis: Axis::Horizontal, px: 300.0 }, help: "Shrink window left a lot" },
+-        Bind { layer: SuperShiftCtrl, key: Minus, action: WmAction::ResizePx { axis: Axis::Vertical, px: -300.0 }, help: "Shrink window up a lot" },
+-        Bind { layer: SuperShiftCtrl, key: Equals, action: WmAction::ResizePx { axis: Axis::Vertical, px: 300.0 }, help: "Expand window down a lot" },
++        Bind { layer: Super, key: Minus, action: WmAction::ResizePx { axis: Axis::Horizontal, px: -100.0 }, help: "向左扩大窗口" },
++        Bind { layer: Super, key: Equals, action: WmAction::ResizePx { axis: Axis::Horizontal, px: 100.0 }, help: "缩小窗口左侧" },
++        Bind { layer: SuperShift, key: Minus, action: WmAction::ResizePx { axis: Axis::Vertical, px: -100.0 }, help: "缩小窗口上方" },
++        Bind { layer: SuperShift, key: Equals, action: WmAction::ResizePx { axis: Axis::Vertical, px: 100.0 }, help: "向下扩大窗口" },
++        Bind { layer: SuperAlt, key: Minus, action: WmAction::ResizePx { axis: Axis::Horizontal, px: -25.0 }, help: "向左略微扩大窗口" },
++        Bind { layer: SuperAlt, key: Equals, action: WmAction::ResizePx { axis: Axis::Horizontal, px: 25.0 }, help: "略微缩小窗口左侧" },
++        Bind { layer: SuperShiftAlt, key: Minus, action: WmAction::ResizePx { axis: Axis::Vertical, px: -25.0 }, help: "略微缩小窗口上方" },
++        Bind { layer: SuperShiftAlt, key: Equals, action: WmAction::ResizePx { axis: Axis::Vertical, px: 25.0 }, help: "向下略微扩大窗口" },
++        Bind { layer: SuperCtrl, key: Minus, action: WmAction::ResizePx { axis: Axis::Horizontal, px: -300.0 }, help: "向左大幅扩大窗口" },
++        Bind { layer: SuperCtrl, key: Equals, action: WmAction::ResizePx { axis: Axis::Horizontal, px: 300.0 }, help: "大幅缩小窗口左侧" },
++        Bind { layer: SuperShiftCtrl, key: Minus, action: WmAction::ResizePx { axis: Axis::Vertical, px: -300.0 }, help: "大幅缩小窗口上方" },
++        Bind { layer: SuperShiftCtrl, key: Equals, action: WmAction::ResizePx { axis: Axis::Vertical, px: 300.0 }, help: "向下大幅扩大窗口" },
+         // Groups.
+-        Bind { layer: Super, key: KeyG, action: WmAction::ToggleGroup, help: "Toggle window grouping" },
+-        Bind { layer: SuperAlt, key: KeyG, action: WmAction::MoveOutOfGroup, help: "Move active window out of group" },
+-        Bind { layer: SuperAlt, key: ArrowLeft, action: WmAction::MoveIntoGroup(Dir::Left), help: "Move window to group on left" },
+-        Bind { layer: SuperAlt, key: ArrowRight, action: WmAction::MoveIntoGroup(Dir::Right), help: "Move window to group on right" },
+-        Bind { layer: SuperAlt, key: ArrowUp, action: WmAction::MoveIntoGroup(Dir::Up), help: "Move window to group on top" },
+-        Bind { layer: SuperAlt, key: ArrowDown, action: WmAction::MoveIntoGroup(Dir::Down), help: "Move window to group on bottom" },
+-        Bind { layer: SuperAlt, key: Tab, action: WmAction::GroupNext, help: "Next window in group" },
+-        Bind { layer: SuperShiftAlt, key: Tab, action: WmAction::GroupPrev, help: "Previous window in group" },
+-        Bind { layer: SuperCtrl, key: ArrowLeft, action: WmAction::GroupPrev, help: "Move grouped window focus left" },
+-        Bind { layer: SuperCtrl, key: ArrowRight, action: WmAction::GroupNext, help: "Move grouped window focus right" },
++        Bind { layer: Super, key: KeyG, action: WmAction::ToggleGroup, help: "切换窗口分组" },
++        Bind { layer: SuperAlt, key: KeyG, action: WmAction::MoveOutOfGroup, help: "将当前窗口移出分组" },
++        Bind { layer: SuperAlt, key: ArrowLeft, action: WmAction::MoveIntoGroup(Dir::Left), help: "移入左侧窗口组" },
++        Bind { layer: SuperAlt, key: ArrowRight, action: WmAction::MoveIntoGroup(Dir::Right), help: "移入右侧窗口组" },
++        Bind { layer: SuperAlt, key: ArrowUp, action: WmAction::MoveIntoGroup(Dir::Up), help: "移入上方窗口组" },
++        Bind { layer: SuperAlt, key: ArrowDown, action: WmAction::MoveIntoGroup(Dir::Down), help: "移入下方窗口组" },
++        Bind { layer: SuperAlt, key: Tab, action: WmAction::GroupNext, help: "组内下一个窗口" },
++        Bind { layer: SuperShiftAlt, key: Tab, action: WmAction::GroupPrev, help: "组内上一个窗口" },
++        Bind { layer: SuperCtrl, key: ArrowLeft, action: WmAction::GroupPrev, help: "聚焦组内左侧窗口" },
++        Bind { layer: SuperCtrl, key: ArrowRight, action: WmAction::GroupNext, help: "聚焦组内右侧窗口" },
+         // ---- utilities.lua
+-        Bind { layer: Super, key: Space, action: WmAction::Menu, help: "Omarchy menu" },
+-        Bind { layer: SuperAlt, key: Space, action: WmAction::AppsMenu, help: "Apps menu" },
+-        Bind { layer: Super, key: Escape, action: WmAction::SystemMenu, help: "System menu" },
+-        Bind { layer: Super, key: KeyK, action: WmAction::Keybindings, help: "Keybindings" },
+-        Bind { layer: SuperCtrl, key: KeyC, action: WmAction::MenuRoute("trigger.capture"), help: "Capture menu" },
+-        Bind { layer: SuperCtrl, key: KeyO, action: WmAction::MenuRoute("trigger.toggle"), help: "Toggle menu" },
+-        Bind { layer: SuperCtrl, key: KeyH, action: WmAction::MenuRoute("trigger.hardware"), help: "Hardware menu" },
+-        Bind { layer: SuperShift, key: Space, action: WmAction::ToggleBar, help: "Toggle top bar" },
+-        Bind { layer: SuperCtrl, key: Space, action: WmAction::BackgroundNext, help: "Background switcher" },
+-        Bind { layer: SuperShiftCtrl, key: Space, action: WmAction::ThemeMenu, help: "Theme menu" },
++        Bind { layer: Super, key: Space, action: WmAction::Menu, help: "主菜单" },
++        Bind { layer: SuperAlt, key: Space, action: WmAction::AppsMenu, help: "应用菜单" },
++        Bind { layer: Super, key: Escape, action: WmAction::SystemMenu, help: "系统菜单" },
++        Bind { layer: Super, key: KeyK, action: WmAction::Keybindings, help: "快捷键" },
++        Bind { layer: SuperCtrl, key: KeyC, action: WmAction::MenuRoute("trigger.capture"), help: "截取菜单" },
++        Bind { layer: SuperCtrl, key: KeyO, action: WmAction::MenuRoute("trigger.toggle"), help: "开关菜单" },
++        Bind { layer: SuperCtrl, key: KeyH, action: WmAction::MenuRoute("trigger.hardware"), help: "硬件菜单" },
++        Bind { layer: SuperShift, key: Space, action: WmAction::ToggleBar, help: "显示或隐藏顶部栏" },
++        Bind { layer: SuperCtrl, key: Space, action: WmAction::BackgroundNext, help: "切换背景" },
++        Bind { layer: SuperShiftCtrl, key: Space, action: WmAction::ThemeMenu, help: "主题菜单" },
+         // ---- nested-mode helper (see the module note).
+-        Bind { layer: Super, key: KeyA, action: WmAction::ArmAltLayer, help: "Arm the SUPER+ALT layer for one key" },
++        Bind { layer: Super, key: KeyA, action: WmAction::ArmAltLayer, help: "为下一次按键启用 SUPER+ALT 层" },
+     ];
+     // SUPER+1..0 workspaces; +SHIFT moves the window along, +SHIFT+ALT
+     // moves it silently. SUPER+ALT+1..5 selects the nth group member.
+@@ -233,26 +233,26 @@
+             layer: Layer::Super,
+             key,
+             action: WmAction::Workspace(i),
+-            help: "Switch to workspace N",
++            help: "切换到工作区 N",
+         });
+         binds.push(Bind {
+             layer: Layer::SuperShift,
+             key,
+             action: WmAction::MoveToWorkspace(i),
+-            help: "Move window to workspace N",
++            help: "将窗口移入工作区 N",
+         });
+         binds.push(Bind {
+             layer: Layer::SuperShiftAlt,
+             key,
+             action: WmAction::MoveToWorkspaceSilent(i),
+-            help: "Move window silently to workspace N",
++            help: "将窗口移入工作区 N 并保持当前聚焦",
+         });
+         if i < 5 {
+             binds.push(Bind {
+                 layer: Layer::SuperAlt,
+                 key,
+                 action: WmAction::GroupActive(i + 1),
+-                help: "Switch to group window N",
++                help: "切换到组内第 N 个窗口",
+             });
+         }
+     }
+diff --git a/crates/shell/src/desktop.rs b/crates/shell/src/desktop.rs
+--- a/crates/shell/src/desktop.rs
++++ b/crates/shell/src/desktop.rs
+@@ -1142,10 +1142,10 @@
+                     let hit_start = self.hits.len();
+                     if style == DesktopStyle::NextStep {
+                         let cell = h / n;
+-                        self.button(cx, rect(x,y,w,cell), ShelfHit::Launcher, Ico::Menu, "Workspace", false, style, opacity);
++                        self.button(cx, rect(x,y,w,cell), ShelfHit::Launcher, Ico::Menu, "工作区", false, style, opacity);
+                         for (i, app) in apps.iter().enumerate() {
+                             let id = app.id.trim_start_matches("apps.");
+-                            self.button(cx, rect(x,y+(i+1) as f64*cell,w,cell), ShelfHit::App(id.into()), app_icon(id), &app.label, clients.iter().any(|(_,a,_)| a==id), style, opacity);
++                            self.button(cx, rect(x,y+(i+1) as f64*cell,w,cell), ShelfHit::App(id.into()), app_icon(id), crate::shell::menu::application_label_zh(&app.label), clients.iter().any(|(_,a,_)| a==id), style, opacity);
+                         }
+                     } else if style == DesktopStyle::Windows2000 {
+                         self.button(
+@@ -1153,7 +1153,7 @@
+                             rect(x + 3.0, y + 3.0, 76.0, (h - 6.0).max(1.0)),
+                             ShelfHit::Launcher,
+                             Ico::Menu,
+-                            "Start",
++                            "开始",
+                             false,
+                             style,
+                             opacity,
+@@ -1194,9 +1194,9 @@
+                             ShelfHit::Launcher,
+                             Ico::Menu,
+                             if style.mac_family() {
+-                                "Applications"
++                                "应用程序"
+                             } else {
+-                                "Start"
++                                "开始"
+                             },
+                             false,
+                             style,
+@@ -1214,7 +1214,7 @@
+                                 ),
+                                 ShelfHit::App(id.into()),
+                                 app_icon(id),
+-                                &app.label,
++                                crate::shell::menu::application_label_zh(&app.label),
+                                 clients.iter().any(|(_, a, _)| a == id),
+                                 style,
+                                 opacity,
+diff --git a/crates/shell/src/host.rs b/crates/shell/src/host.rs
+--- a/crates/shell/src/host.rs
++++ b/crates/shell/src/host.rs
+@@ -73,14 +73,11 @@
+     let day_secs = secs.rem_euclid(86_400);
+     let (hours, minutes) = (day_secs / 3600, (day_secs % 3600) / 60);
+     // 1970-01-01 was a Thursday.
+-    const WEEKDAYS: [&str; 7] = ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"];
++    const WEEKDAYS: [&str; 7] = ["周四", "周五", "周六", "周日", "周一", "周二", "周三"];
+     let weekday = WEEKDAYS[days.rem_euclid(7) as usize];
+     if alt {
+         let (year, month, day) = civil_from_days(days);
+-        const MONTHS: [&str; 12] = [
+-            "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
+-        ];
+-        format!("{} {} {}", day, MONTHS[(month - 1) as usize], year)
++        format!("{year}年{month}月{day}日")
+     } else {
+         format!("{} {:02}:{:02}", weekday, hours, minutes)
+     }
+diff --git a/crates/shell/src/run_view.rs b/crates/shell/src/run_view.rs
+--- a/crates/shell/src/run_view.rs
++++ b/crates/shell/src/run_view.rs
+@@ -932,12 +932,12 @@
+             let headline = if let Some((_, line)) = &self.stopped {
+                 line.as_str()
+             } else if self.status_line.starts_with("compiling ") {
+-                "Compiling…"
++                "正在编译…"
+             } else if self.status_line.starts_with("waiting for another build") {
+-                "Waiting to compile…"
++                "正在等待编译…"
+             } else if self.status_line.starts_with("build failed") {
+-                "Could not build application"
+-            } else { "Starting…" };
++                "应用构建失败"
++            } else { "正在启动…" };
+             self.no_fb_view.label(cx, ids!(placeholder)).set_text(cx, headline);
+             let status = self.trimmed_status(rect.size.x);
+             self.no_fb_view
+diff --git a/crates/shell/src/shell/bar.rs b/crates/shell/src/shell/bar.rs
+--- a/crates/shell/src/shell/bar.rs
++++ b/crates/shell/src/shell/bar.rs
+@@ -176,19 +176,19 @@
+             icon: Ico::Record,
+             active_icon: Ico::Record,
+             active: false,
+-            tooltip: "Screen Recording",
++            tooltip: "屏幕录制",
+         },
+         Indicator {
+             icon: Ico::Moon,
+             active_icon: Ico::Moon,
+             active: false,
+-            tooltip: "Night Light",
++            tooltip: "夜间模式",
+         },
+         Indicator {
+             icon: Ico::Bell,
+             active_icon: Ico::BellOff,
+             active: false,
+-            tooltip: "Silence Notifications",
++            tooltip: "静音通知",
+         },
+     ]
+ }
+@@ -230,7 +230,13 @@
+ /// `date` reads). Forking `date` twice a second cost an idle phone 11% of a
+ /// core on this thread alone.
+ pub fn sample_clock(alt: bool) -> String {
+-    let fmt: &std::ffi::CStr = if alt { c"%-d %B W%V %Y" } else { c"%A %H:%M" };
++    let localized = |raw: String| -> String {
++        if alt { return raw; }
++        let (day, time) = raw.split_once(' ').unwrap_or(("", ""));
++        let label = match day { "0" => "周日", "1" => "周一", "2" => "周二", "3" => "周三", "4" => "周四", "5" => "周五", "6" => "周六", _ => return raw };
++        format!("{label} {time}")
++    };
++    let fmt: &std::ffi::CStr = if alt { c"%Y年%m月%d日 第%V周" } else { c"%w %H:%M" };
+     #[cfg(unix)]
+     {
+         let mut buf = [0u8; 64];
+@@ -242,14 +248,14 @@
+             }
+             libc::strftime(buf.as_mut_ptr() as *mut libc::c_char, buf.len(), fmt.as_ptr(), &tm)
+         };
+-        String::from_utf8_lossy(&buf[..written]).trim().to_string()
++        localized(String::from_utf8_lossy(&buf[..written]).trim().to_string())
+     }
+     #[cfg(not(unix))]
+     {
+         let fmt = format!("+{}", fmt.to_str().unwrap_or_default());
+-        run("date", &[&fmt])
++        localized(run("date", &[&fmt])
+             .map(|s| s.trim().to_string())
+-            .unwrap_or_default()
++            .unwrap_or_default())
+     }
+ }
+ 
+@@ -681,7 +687,7 @@
+         x += style_width + 6.0;
+ 
+         if self.data.style.supports_dark() {
+-            let label=if self.data.dark {"Dark"}else{"Light"};
++            let label=if self.data.dark {"深色"}else{"浅色"};
+             let width=self.d.measure(cx,false,tok.font.body,label)+18.0;
+             let button=rect(x,r.pos.y,width,r.size.y);
+             self.d.label(cx,button,false,tok.font.body,fg,super::ui::HAlign::Center,label);
+@@ -870,40 +876,40 @@
+     /// The tooltip a module shows after 400ms of hover.
+     fn tooltip_for(&self, module: BarModule) -> String {
+         match module {
+-            BarModule::Style => "Choose operating system style".into(),
+-            BarModule::Appearance => "Toggle light / dark appearance".into(),
+-            BarModule::Menu => "Applications".into(),
+-            BarModule::Workspace(i) => format!("Workspace {}", i + 1),
++            BarModule::Style => "选择桌面风格".into(),
++            BarModule::Appearance => "切换浅色／深色外观".into(),
++            BarModule::Menu => "应用程序".into(),
++            BarModule::Workspace(i) => format!("工作区 {}", i + 1),
+             BarModule::ActiveWindow => self
+                 .data
+                 .active_window
+                 .clone()
+                 .unwrap_or_default(),
+-            BarModule::Clock => "Calendar".into(),
+-            BarModule::KeyboardLayout => "Keyboard layout".into(),
+-            BarModule::Weather => "Weather".into(),
+-            BarModule::SystemUpdate => "Pending updates".into(),
+-            BarModule::Tray(_) => "Tray".into(),
++            BarModule::Clock => "日历".into(),
++            BarModule::KeyboardLayout => "键盘布局".into(),
++            BarModule::Weather => "天气".into(),
++            BarModule::SystemUpdate => "待安装更新".into(),
++            BarModule::Tray(_) => "状态栏".into(),
+             BarModule::Bluetooth => match self.data.bluetooth {
+-                Some(true) => "Bluetooth on".into(),
+-                Some(false) => "Bluetooth off".into(),
+-                None => "Bluetooth unavailable".into(),
++                Some(true) => "蓝牙已开启".into(),
++                Some(false) => "蓝牙已关闭".into(),
++                None => "蓝牙不可用".into(),
+             },
+             BarModule::Network => match self.data.network {
+-                Some(true) => "Connected".into(),
+-                Some(false) => "Not connected".into(),
+-                None => "Network unavailable".into(),
++                Some(true) => "已连接".into(),
++                Some(false) => "未连接".into(),
++                None => "网络不可用".into(),
+             },
+             BarModule::Audio => match (self.data.volume, self.data.muted) {
+-                (_, true) => "Muted".into(),
+-                (Some(v), _) => format!("Volume {}%", v),
+-                (None, _) => "Audio unavailable".into(),
++                (_, true) => "已静音".into(),
++                (Some(v), _) => format!("音量 {}%", v),
++                (None, _) => "音频不可用".into(),
+             },
+-            BarModule::Monitor => "Display".into(),
++            BarModule::Monitor => "显示器".into(),
+             BarModule::Power => match self.data.battery {
+-                Some(b) if b.charging => format!("Battery {}%, charging", b.percent),
+-                Some(b) => format!("Battery {}%", b.percent),
+-                None => "Power".into(),
++                Some(b) if b.charging => format!("电量 {}%，正在充电", b.percent),
++                Some(b) => format!("电量 {}%", b.percent),
++                None => "电源".into(),
+             },
+             BarModule::Indicator(i) => self
+                 .data
+@@ -911,11 +917,11 @@
+                 .get(i)
+                 .map(|ind| ind.tooltip.to_string())
+                 .unwrap_or_default(),
+-            BarModule::WindowMin => "Minimize".into(),
++            BarModule::WindowMin => "最小化".into(),
+             BarModule::WindowMax => {
+-                if self.data.maximized { "Restore".into() } else { "Maximize".into() }
+-            }
+-            BarModule::WindowClose => "Close".into(),
++                if self.data.maximized { "还原".into() } else { "最大化".into() }
++            }
++            BarModule::WindowClose => "关闭".into(),
+         }
+     }
+ 
+diff --git a/crates/shell/src/shell/launcher.rs b/crates/shell/src/shell/launcher.rs
+--- a/crates/shell/src/shell/launcher.rs
++++ b/crates/shell/src/shell/launcher.rs
+@@ -118,7 +118,7 @@
+         .filter(|app| !is_hidden(&app.id, &hides))
+         .map(|app| MenuItem {
+             id: format!("apps.{}", app.id),
+-            label: app.label.clone(),
++            label: super::menu::application_label_zh(&app.label).into(),
+             icon: icon_for(&app.id),
+             kind: MenuKind::App,
+             checked: false,
+@@ -162,8 +162,8 @@
+         let labels: Vec<String> = items.iter().map(|i| i.label.clone()).collect();
+         let registry_order: Vec<String> = clients::available_apps()
+             .iter()
+-            .filter(|a| labels.contains(&a.label))
+-            .map(|a| a.label.clone())
++            .filter(|a| labels.contains(&super::menu::application_label_zh(&a.label).to_string()))
++            .map(|a| super::menu::application_label_zh(&a.label).to_string())
+             .collect();
+         assert_eq!(labels, registry_order);
+         // Every row is an app row under the `apps` parent.
+diff --git a/crates/shell/src/shell/menu.rs b/crates/shell/src/shell/menu.rs
+--- a/crates/shell/src/shell/menu.rs
++++ b/crates/shell/src/shell/menu.rs
+@@ -132,16 +132,16 @@
+     let mut menu = |id: &str, label: &str, ico: Ico| {
+         v.push(MenuItem::new(id, label, MenuKind::Menu).icon(ico));
+     };
+-    menu("apps", "Apps", Ico::Menu);
+-    menu("learn", "Learn", Ico::Search);
+-    menu("trigger", "Trigger", Ico::Record);
+-    menu("style", "Style", Ico::Moon);
+-    menu("setup", "Setup", Ico::Keyboard);
+-    menu("install", "Install", Ico::Refresh);
+-    menu("remove", "Remove", Ico::Close);
+-    menu("update", "Update", Ico::Refresh);
+-    menu("about", "About", Ico::Dot);
+-    menu("system", "System", Ico::Power);
++    menu("apps", "应用", Ico::Menu);
++    menu("learn", "帮助", Ico::Search);
++    menu("trigger", "快捷操作", Ico::Record);
++    menu("style", "外观", Ico::Moon);
++    menu("setup", "设置", Ico::Keyboard);
++    menu("install", "安装", Ico::Refresh);
++    menu("remove", "移除", Ico::Close);
++    menu("update", "更新", Ico::Refresh);
++    menu("about", "关于", Ico::Dot);
++    menu("system", "系统", Ico::Power);
+ 
+     // Aliases the jsonc carries so typing "settings" finds Setup, etc.
+     for (id, aliases) in [
+@@ -159,111 +159,111 @@
+         v.push(MenuItem::new(&format!("{}.{}", parent, leaf), label, kind));
+     };
+     for (leaf, label) in [
+-        ("keybindings", "Keybindings"),
++        ("keybindings", "快捷键"),
+         ("omarchy", "Omarchy"),
+         ("hyprland", "Hyprland"),
+         ("neovim", "Neovim"),
+         ("bash", "Bash"),
+         ("tmux-keybindings", "Tmux"),
+         ("herdr-keybindings", "Herdr"),
+-        ("community", "Community"),
++        ("community", "社区"),
+     ] {
+         child("learn", leaf, label, MenuKind::Menu);
+     }
+     for (leaf, label) in [
+-        ("emoji", "Emoji"),
+-        ("reminder", "Reminder"),
+-        ("capture", "Capture"),
+-        ("transcode", "Transcode"),
+-        ("share", "Share"),
+-        ("toggle", "Toggle"),
+-        ("hardware", "Hardware"),
+-        ("tests", "Tests"),
++        ("emoji", "表情"),
++        ("reminder", "提醒"),
++        ("capture", "截图"),
++        ("transcode", "转码"),
++        ("share", "分享"),
++        ("toggle", "开关"),
++        ("hardware", "硬件"),
++        ("tests", "测试"),
+     ] {
+         child("trigger", leaf, label, MenuKind::Action);
+     }
+     for (leaf, label) in [
+-        ("theme", "Theme"),
+-        ("background", "Background"),
+-        ("unlock", "Unlock"),
+-        ("font", "Font"),
+-        ("bar", "Bar"),
++        ("theme", "主题"),
++        ("background", "背景"),
++        ("unlock", "解锁"),
++        ("font", "字体"),
++        ("bar", "顶部栏"),
+         ("hyprland", "Hyprland"),
+-        ("screensaver", "Screensaver"),
+-        ("about", "About"),
++        ("screensaver", "屏幕保护"),
++        ("about", "关于"),
+     ] {
+         child("style", leaf, label, MenuKind::Action);
+     }
+     for (leaf, label) in [
+-        ("monitors", "Monitors"),
+-        ("keybindings", "Keybindings"),
+-        ("input", "Input"),
+-        ("network", "Network"),
+-        ("default", "Defaults"),
+-        ("plugin", "Plugins"),
+-        ("security", "Security"),
+-        ("config", "Config"),
+-        ("direct-boot", "Direct Boot"),
+-        ("reset", "Reset"),
++        ("monitors", "显示器"),
++        ("keybindings", "快捷键"),
++        ("input", "输入"),
++        ("network", "网络"),
++        ("default", "默认设置"),
++        ("plugin", "插件"),
++        ("security", "安全"),
++        ("config", "配置"),
++        ("direct-boot", "直接启动"),
++        ("reset", "重置"),
+     ] {
+         child("setup", leaf, label, MenuKind::Menu);
+     }
+     for (leaf, label) in [
+-        ("package", "Package"),
++        ("package", "软件包"),
+         ("aur", "AUR"),
+         ("ai", "AI"),
+-        ("service", "Service"),
+-        ("development", "Development"),
+-        ("editor", "Editor"),
+-        ("style", "Style"),
+-        ("gaming", "Gaming"),
+-        ("browser", "Browser"),
+-        ("webapp", "Web App"),
+-        ("terminal", "Terminal"),
++        ("service", "服务"),
++        ("development", "开发"),
++        ("editor", "编辑器"),
++        ("style", "外观"),
++        ("gaming", "游戏"),
++        ("browser", "浏览器"),
++        ("webapp", "网页应用"),
++        ("terminal", "终端"),
+         ("tui", "TUI"),
+         ("windows", "Windows"),
+-        ("preinstalls", "Preinstalls"),
++        ("preinstalls", "预装应用"),
+     ] {
+         child("install", leaf, label, MenuKind::Menu);
+     }
+     for (leaf, label) in [
+-        ("package", "Package"),
++        ("package", "软件包"),
+         ("ai", "AI"),
+-        ("service", "Service"),
+-        ("development", "Development"),
+-        ("theme", "Theme"),
+-        ("gaming", "Gaming"),
+-        ("browser", "Browser"),
+-        ("webapp", "Web App"),
++        ("service", "服务"),
++        ("development", "开发"),
++        ("theme", "主题"),
++        ("gaming", "游戏"),
++        ("browser", "浏览器"),
++        ("webapp", "网页应用"),
+         ("tui", "TUI"),
+         ("windows", "Windows"),
+-        ("preinstalls", "Preinstalls"),
+-        ("security", "Security"),
++        ("preinstalls", "预装应用"),
++        ("security", "安全"),
+     ] {
+         child("remove", leaf, label, MenuKind::Menu);
+     }
+     for (leaf, label) in [
+         ("omarchy", "Omarchy"),
+-        ("channel", "Channel"),
+-        ("config", "Config"),
+-        ("themes", "Themes"),
+-        ("process", "Process"),
+-        ("hardware", "Hardware"),
+-        ("firmware", "Firmware"),
+-        ("password", "Password"),
+-        ("timezone", "Timezone"),
+-        ("time", "Time"),
++        ("channel", "更新渠道"),
++        ("config", "配置"),
++        ("themes", "主题"),
++        ("process", "进程"),
++        ("hardware", "硬件"),
++        ("firmware", "固件"),
++        ("password", "密码"),
++        ("timezone", "时区"),
++        ("time", "时间"),
+     ] {
+         child("update", leaf, label, MenuKind::Action);
+     }
+     for (leaf, label) in [
+-        ("screensaver", "Screensaver"),
+-        ("lock", "Lock"),
+-        ("suspend", "Suspend"),
+-        ("hibernate", "Hibernate"),
+-        ("logout", "Logout"),
+-        ("reboot", "Reboot"),
+-        ("shutdown", "Shutdown"),
++        ("screensaver", "屏幕保护"),
++        ("lock", "锁定"),
++        ("suspend", "睡眠"),
++        ("hibernate", "休眠"),
++        ("logout", "退出登录"),
++        ("reboot", "重新启动"),
++        ("shutdown", "关机"),
+     ] {
+         child("system", leaf, label, MenuKind::Action);
+     }
+@@ -276,28 +276,28 @@
+             MenuKind::Menu,
+             Some(Ico::Keyboard),
+             &["keys", "shortcuts"],
+-            "Every binding this desktop answers to",
++            "查看容器支持的全部快捷键",
+         ),
+         (
+             "style.theme",
+             MenuKind::Menu,
+             Some(Ico::Moon),
+             &["theme", "themes"],
+-            "Switch or import a theme",
++            "切换或导入主题",
+         ),
+         (
+             "style.background",
+             MenuKind::Action,
+             Some(Ico::Monitor),
+             &["wallpaper"],
+-            "Next background of this theme",
++            "切换当前主题的下一张背景",
+         ),
+         (
+             "style.bar",
+             MenuKind::Action,
+             Some(Ico::Menu),
+             &["bar", "top bar"],
+-            "Show or hide the top bar",
++            "显示或隐藏顶部栏",
+         ),
+         ("apps", MenuKind::Menu, Some(Ico::Menu), &[], ""),
+     ];
+@@ -353,7 +353,7 @@
+         })
+         .collect();
+     v.push(
+-        MenuItem::new("style.theme.import", "Import from omarchy…", MenuKind::Menu)
++        MenuItem::new("style.theme.import", "从 Omarchy 导入…", MenuKind::Menu)
+             .icon(Ico::Refresh)
+             .aliases(&["import", "omarchy"]),
+     );
+@@ -457,16 +457,16 @@
+     fn all_items(path: &str) -> Vec<MenuItem> {
+         let mut items = omarchy_tree();
+         items.retain(|item| !item.disabled);
+-        items.push(MenuItem::new("system.quit", "Quit OctoSense", MenuKind::Action).icon(Ico::Power));
++        items.push(MenuItem::new("system.quit", "退出 OctoSense", MenuKind::Action).icon(Ico::Power));
+         if path.starts_with("workspace") {
+             for (id, label, kind) in [
+-                ("workspace", "Workspace", MenuKind::Menu),
+-                ("workspace.files", "New Viewer", MenuKind::App),
+-                ("workspace.apps", "Applications", MenuKind::Menu),
+-                ("workspace.tools", "Tools", MenuKind::Menu),
+-                ("workspace.tools.terminal", "Console", MenuKind::App),
+-                ("workspace.tools.task", "Processes", MenuKind::App),
+-                ("workspace.desktop", "Appearance", MenuKind::Menu),
++                ("workspace", "工作区", MenuKind::Menu),
++                ("workspace.files", "新建查看窗口", MenuKind::App),
++                ("workspace.apps", "应用程序", MenuKind::Menu),
++                ("workspace.tools", "工具", MenuKind::Menu),
++                ("workspace.tools.terminal", "控制台", MenuKind::App),
++                ("workspace.tools.task", "进程", MenuKind::App),
++                ("workspace.desktop", "外观", MenuKind::Menu),
+             ] {
+                 // Appearance routes to the style rows the standalone shell lacks.
+                 if crate::MOBILE_ONLY && id == "workspace.desktop" { continue; }
+@@ -475,12 +475,12 @@
+         }
+         if path.starts_with("start") {
+             for (id,label,kind,icon) in [
+-                ("start.programs","Programs",MenuKind::Menu,Ico::Menu),
+-                ("start.documents","Documents",MenuKind::Action,Ico::Photo),
+-                ("start.settings","Settings",MenuKind::Menu,Ico::Monitor),
+-                ("start.search","Search",MenuKind::Menu,Ico::Search),
+-                ("start.run","Run…",MenuKind::Menu,Ico::Keyboard),
+-                ("start.power","Shut Down…",MenuKind::Action,Ico::Power),
++                ("start.programs","程序",MenuKind::Menu,Ico::Menu),
++                ("start.documents","文档",MenuKind::Action,Ico::Photo),
++                ("start.settings","设置",MenuKind::Menu,Ico::Monitor),
++                ("start.search","搜索",MenuKind::Menu,Ico::Search),
++                ("start.run","运行…",MenuKind::Menu,Ico::Keyboard),
++                ("start.power","关机…",MenuKind::Action,Ico::Power),
+             ] {items.push(MenuItem::new(id,label,kind).icon(icon));}
+         }
+         let available = launcher::apps();
+@@ -488,11 +488,11 @@
+         // system app (`os.ai-providers`): Appearance, then AI providers.
+         if path.starts_with("start") && available.iter().any(|app| app.id == AI_PROVIDERS) {
+             items.push(
+-                MenuItem::new("start.settings.style", "Appearance", MenuKind::Menu)
++                MenuItem::new("start.settings.style", "外观", MenuKind::Menu)
+                     .icon(Ico::Monitor),
+             );
+             items.push(
+-                MenuItem::new("start.settings.ai-providers", "AI providers", MenuKind::App)
++                MenuItem::new("start.settings.ai-providers", "AI 模型设置", MenuKind::App)
+                     .icon(Ico::Cpu),
+             );
+         }
+@@ -512,13 +512,13 @@
+         // The style rows: the standalone shell has one style and no menu for it.
+         #[cfg(not(mobile_only))]
+         {
+-            items.push(MenuItem::new("desktop","Desktop style",MenuKind::Menu));
++            items.push(MenuItem::new("desktop","桌面风格",MenuKind::Menu));
+             for style in crate::desktop::DesktopStyle::ALL {
+                 items.push(MenuItem::new(&format!("desktop.{}",style.id()),style.label(),MenuKind::Action));
+             }
+-            items.push(MenuItem::new("desktop.macos-dark","macOS · Dark",MenuKind::Action));
+-            items.push(MenuItem::new("desktop.windows-dark","Windows · Dark",MenuKind::Action));
+-            items.push(MenuItem::new("desktop.octosense-dark","OctoSense · Dark",MenuKind::Action));
++            items.push(MenuItem::new("desktop.macos-dark","macOS · 深色",MenuKind::Action));
++            items.push(MenuItem::new("desktop.windows-dark","Windows · 深色",MenuKind::Action));
++            items.push(MenuItem::new("desktop.octosense-dark","OctoSense · 深色",MenuKind::Action));
+         }
+         if crate::dev_mode::settings_available() {
+             let developer = developer_items(&items);
+@@ -606,7 +606,7 @@
+             return (self.filter.clone(), false);
+         }
+         let title = if self.path.is_empty() {
+-            "Menu".to_string()
++            "菜单".to_string()
+         } else {
+             self.items
+                 .iter()
+@@ -803,20 +803,20 @@
+ fn assistant_items(existing: &[MenuItem]) -> Vec<MenuItem> {
+     let mut items = Vec::new();
+     if !existing.iter().any(|item| item.id == "setup") {
+-        items.push(MenuItem::new("setup", "Setup", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
+-    }
+-    items.push(MenuItem::new("setup.assistant", "Assistant", MenuKind::Menu).icon(Ico::Cpu).aliases(&["assistant", "agents"]));
++        items.push(MenuItem::new("setup", "设置", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
++    }
++    items.push(MenuItem::new("setup.assistant", "助手", MenuKind::Menu).icon(Ico::Cpu).aliases(&["assistant", "agents"]));
+     items.push(
+-        MenuItem::new(APPROVALS_ROW, "Approvals", MenuKind::Action)
++        MenuItem::new(APPROVALS_ROW, "批准管理", MenuKind::Action)
+             .icon(Ico::Check)
+             .aliases(&["approvals", "rules", "consent"])
+-            .describe("Standing rules, app agents and recent automatic approvals"),
++            .describe("常驻规则、应用助手与最近的自动批准记录"),
+     );
+     items.push(
+-        MenuItem::new(SYSTEM_CHAT_ROW, "Assistant chat", MenuKind::Action)
++        MenuItem::new(SYSTEM_CHAT_ROW, "助手对话", MenuKind::Action)
+             .icon(Ico::Cpu)
+             .aliases(&["chat", "system agent", "assistant chat", "ask"])
+-            .describe("Talk to the system agent (F8)"),
++            .describe("与系统助手对话（F8）"),
+     );
+     items.extend(command_items());
+     items
+@@ -834,39 +834,39 @@
+ fn command_items_given(on: bool, terminal_process: bool) -> Vec<MenuItem> {
+     use crate::system_chat::grants;
+     let describe = match (on, terminal_process) {
+-        (_, false) => format!("{}: {}", if on { "On, but it" } else { "It" }, grants::NEEDS_PROCESS_TERMINAL),
+-        (true, true) => "On: each command asks you first".to_string(),
+-        (false, true) => "Off: the assistant runs no commands".to_string(),
++        (_, false) => format!("{}: {}", if on { "已开启，但服务" } else { "服务" }, grants::NEEDS_PROCESS_TERMINAL),
++        (true, true) => "已开启：每条命令都需本人确认".to_string(),
++        (false, true) => "已关闭：助手不能执行命令".to_string(),
+     };
+-    let mut items = vec![MenuItem::new(COMMANDS_ROW, "Command execution", MenuKind::Menu)
++    let mut items = vec![MenuItem::new(COMMANDS_ROW, "命令执行", MenuKind::Menu)
+         .icon(Ico::Keyboard)
+         .aliases(&["commands", "terminal", "run commands"])
+         .describe(&describe)];
+     if !terminal_process {
+         items.push(
+-            MenuItem::new(&format!("{COMMANDS_ROW}.needs"), "Command execution needs Terminal as a process on this device", MenuKind::Inert)
+-                .describe("Commands are typed into a Terminal that runs as its own sandboxed process; here the Terminal runs inside OctoSense (or not at all), so the assistant is not offered commands even if you allow them."),
++            MenuItem::new(&format!("{COMMANDS_ROW}.needs"), "此设备需以独立进程运行终端，才能执行命令", MenuKind::Inert)
++                .describe("命令需交给在独立沙箱进程中运行的终端。此处终端仅运行于 OctoSense 内或未运行，因此无法提供命令执行能力。"),
+         );
+     }
+-    items.push(MenuItem::new(&format!("{COMMANDS_ROW}.risk"), "What this allows", MenuKind::Inert).describe(grants::RISK));
++    items.push(MenuItem::new(&format!("{COMMANDS_ROW}.risk"), "授权范围", MenuKind::Inert).describe(grants::RISK));
+     if on {
+-        items.push(MenuItem::new(COMMANDS_OFF_ROW, "Turn off command execution", MenuKind::Action).icon(Ico::Close).describe("The assistant runs no commands"));
++        items.push(MenuItem::new(COMMANDS_OFF_ROW, "关闭命令执行", MenuKind::Action).icon(Ico::Close).describe("助手不能执行命令"));
+     } else {
+         items.push(
+-            MenuItem::new(COMMANDS_ALLOW_ROW, "Allow the assistant to run commands", MenuKind::Action)
++            MenuItem::new(COMMANDS_ALLOW_ROW, "允许助手执行命令", MenuKind::Action)
+                 .icon(Ico::Check)
+                 .aliases(&[grants::CONFIRM_PHRASE])
+-                .describe(&format!("Type \u{201c}{}\u{201d}, then choose this. Each command asks you on a sheet", grants::CONFIRM_PHRASE)),
++                .describe(&format!("输入 \u{201c}{}\u{201d} 后选择此项。每条命令仍需在确认面板中批准", grants::CONFIRM_PHRASE)),
+         );
+     }
+     match grants::applied() {
+         grants::Applied::NeedsRestart => items.push(
+-            MenuItem::new(ASSISTANT_RESTART_ROW, "Restart the assistant to apply", MenuKind::Action)
++            MenuItem::new(ASSISTANT_RESTART_ROW, "重启助手以应用设置", MenuKind::Action)
+                 .icon(Ico::Refresh)
+-                .describe("The running assistant started with the other setting"),
++                .describe("运行中的助手尚未使用此设置"),
+         ),
+-        grants::Applied::NextStart => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "Applies when the assistant starts", MenuKind::Inert)),
+-        grants::Applied::Yes => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "In effect", MenuKind::Inert)),
++        grants::Applied::NextStart => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "下次启动助手时生效", MenuKind::Inert)),
++        grants::Applied::Yes => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "已生效", MenuKind::Inert)),
+     }
+     items
+ }
+@@ -880,33 +880,33 @@
+     use crate::dev_mode;
+     let mut items = Vec::new();
+     if !existing.iter().any(|item| item.id == "setup") {
+-        items.push(MenuItem::new("setup", "Setup", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
++        items.push(MenuItem::new("setup", "设置", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
+     }
+     items.push(
+-        MenuItem::new("setup.developer", "Developer options", MenuKind::Menu)
++        MenuItem::new("setup.developer", "开发者选项", MenuKind::Menu)
+             .icon(Ico::Keyboard)
+             .aliases(&["developer", "dev mode"])
+-            .describe("Every app gets every grant, for building apps"),
++            .describe("为应用开发授予全部应用能力"),
+     );
+     match dev_mode::status() {
+         Some((active, profile)) => {
+             items.push(
+-                MenuItem::new("setup.developer.off", "Turn off developer mode", MenuKind::Action)
++                MenuItem::new("setup.developer.off", "关闭开发者模式", MenuKind::Action)
+                     .icon(Ico::Close)
+                     .describe(&format!("{} · {}", dev_mode::banner_text(&active), dev_mode::lasts_text(&active, profile, dev_mode::now()))),
+             );
+         }
+         None => {
+             items.push(
+-                MenuItem::new(DEVELOPER_ON, "Turn on for all apps", MenuKind::Action)
++                MenuItem::new(DEVELOPER_ON, "为所有应用启用", MenuKind::Action)
+                     .icon(Ico::Check)
+                     .aliases(&[dev_mode::CONFIRM_PHRASE])
+-                    .describe(&format!("Type \u{201c}{}\u{201d}, then choose this", dev_mode::CONFIRM_PHRASE)),
++                    .describe(&format!("输入 \u{201c}{}\u{201d} 后选择此项", dev_mode::CONFIRM_PHRASE)),
+             );
+-            let mut profile = MenuItem::new("setup.developer.profile", "Real accounts: ends after 8 hours", MenuKind::Inert)
+-                .describe("For longer, use a developer profile: its own OCTOSENSE_HOME with a developer-profile file");
++            let mut profile = MenuItem::new("setup.developer.profile", "真实账号：8 小时后结束", MenuKind::Inert)
++                .describe("如需长期启用，请使用带 developer-profile 标记的独立开发者配置。");
+             if std::path::Path::new(&crate::octosense::paths::home()).join(dev_mode::PROFILE_MARKER).exists() {
+-                profile.label = "Developer profile: stays on until turned off".into();
++                profile.label = "开发者配置：持续启用直到关闭".into();
+                 profile.description = String::new();
+             }
+             items.push(profile);
+@@ -1376,7 +1376,7 @@
+                 list.size.x,
+                 tok.font.title * 1.6,
+             );
+-            let text = format!("No matches for \"{}\"", self.model.filter);
++            let text = format!("没有匹配项：\"{}\"", self.model.filter);
+             self.d.label_elided(
+                 cx,
+                 msg,
+@@ -1771,7 +1771,7 @@
+         model.open_at("", MenuSkin::Menu);
+         model.sel = model.rows.iter().position(|r| r.target == "setup").expect("Setup is listed");
+         assert_eq!(model.activate(), None);
+-        model.sel = model.rows.iter().position(|r| r.target == "setup.developer").expect("Developer options");
++        model.sel = model.rows.iter().position(|r| r.target == "setup.developer").expect("开发者选项");
+         assert_eq!(model.activate(), None);
+         assert_eq!(model.path, "setup.developer");
+         // Chosen without the phrase: the row passes an empty confirmation.
+@@ -1795,11 +1795,11 @@
+         model.open_at("", MenuSkin::Menu);
+         model.sel = model.rows.iter().position(|r| r.target == "setup").expect("Setup is listed");
+         assert_eq!(model.activate(), None);
+-        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("Assistant");
++        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("助手");
+         assert_eq!(model.activate(), None);
+-        model.sel = model.rows.iter().position(|r| r.target == SYSTEM_CHAT_ROW).expect("Assistant chat");
++        model.sel = model.rows.iter().position(|r| r.target == SYSTEM_CHAT_ROW).expect("助手对话");
+         assert_eq!(model.activate().as_deref(), Some(SYSTEM_CHAT_ROW));
+-        model.sel = model.rows.iter().position(|r| r.target == COMMANDS_ROW).expect("Command execution");
++        model.sel = model.rows.iter().position(|r| r.target == COMMANDS_ROW).expect("命令执行");
+         assert_eq!(model.activate(), None);
+         model.sel = model.rows.iter().position(|r| r.target == COMMANDS_ALLOW_ROW).expect("Allow");
+         assert_eq!(model.activate().as_deref(), Some("setup.assistant.commands.allow:"), "chosen without the phrase");
+@@ -1823,7 +1823,7 @@
+         }
+         let items = command_items_given(true, true);
+         assert!(!text(&items).contains("needs Terminal as a process"), "{}", text(&items));
+-        assert!(text(&items).contains("On: each command asks you first"));
++        assert!(text(&items).contains("已开启：每条命令都需本人确认"));
+     }
+ 
+     /// Setup → Assistant → Approvals opens the Approvals page.
+@@ -1833,9 +1833,9 @@
+         model.open_at("", MenuSkin::Menu);
+         model.sel = model.rows.iter().position(|r| r.target == "setup").expect("Setup is listed");
+         assert_eq!(model.activate(), None);
+-        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("Assistant");
++        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("助手");
+         assert_eq!(model.activate(), None);
+-        model.sel = model.rows.iter().position(|r| r.target == APPROVALS_ROW).expect("Approvals");
++        model.sel = model.rows.iter().position(|r| r.target == APPROVALS_ROW).expect("批准管理");
+         assert_eq!(model.activate().as_deref(), Some(APPROVALS_ROW));
+     }
+ 
+@@ -1908,11 +1908,11 @@
+         let setup = usize::from(crate::dev_mode::settings_available());
+         assert_eq!(m.rows.len(), 4 + setup + styles);
+         assert_eq!(m.rows.iter().any(|r| r.target == "desktop"), styles == 1);
+-        assert_eq!(m.rows[0].label, "Apps");
++        assert_eq!(m.rows[0].label, "应用");
+         if setup == 1 {
+-            assert_eq!(m.rows[3].label, "Setup");
+-        }
+-        assert_eq!(m.rows[3 + setup].label, "System");
++            assert_eq!(m.rows[3].label, "设置");
++        }
++        assert_eq!(m.rows[3 + setup].label, "系统");
+         assert!(m.rows.iter().all(|r| !r.disabled));
+         // Submenu rows carry the chevron.
+         assert!(m.rows[0].has_children);
+@@ -1936,8 +1936,8 @@
+ 
+     #[test]
+     fn search_scores_the_way_menumodel_does() {
+-        let apps = MenuItem::new("apps", "Apps", MenuKind::Menu);
+-        let style = MenuItem::new("style", "Style", MenuKind::Menu);
++        let apps = MenuItem::new("apps", "应用", MenuKind::Menu);
++        let style = MenuItem::new("style", "外观", MenuKind::Menu);
+         // An exact top-level label match is tier 0, minus the menu nudge.
+         let exact = search_score(&apps, "apps", 0, 0).unwrap();
+         let prefix = search_score(&style, "st", 0, 3).unwrap();
+@@ -1945,11 +1945,11 @@
+         // A non-matching term drops the row entirely.
+         assert!(search_score(&apps, "zzz", 0, 0).is_none());
+         // Depth and declaration order break ties, in that order.
+-        let deep = MenuItem::new("style.theme", "Apps", MenuKind::Menu);
++        let deep = MenuItem::new("style.theme", "应用", MenuKind::Menu);
+         assert!(search_score(&apps, "apps", 0, 0).unwrap() < search_score(&deep, "apps", 1, 0).unwrap());
+         // Apps outrank menus at the same tier.
+-        let app = MenuItem::new("apps.terminal", "Terminal", MenuKind::App);
+-        let menu = MenuItem::new("terminal", "Terminal", MenuKind::Menu);
++        let app = MenuItem::new("apps.terminal", "终端", MenuKind::App);
++        let menu = MenuItem::new("terminal", "终端", MenuKind::Menu);
+         assert!(search_score(&app, "term", 1, 0).unwrap() < search_score(&menu, "term", 1, 0).unwrap());
+     }
+ 
+@@ -1958,10 +1958,10 @@
+         let mut m = MenuModel::default();
+         m.open_at("", MenuSkin::Menu);
+         m.sel = 2; // Style
+-        assert_eq!(m.rows[2].label, "Style");
++        assert_eq!(m.rows[2].label, "外观");
+         m.activate();
+         assert_eq!(m.path, "style");
+-        assert!(m.rows.iter().any(|r| r.label == "Theme"));
++        assert!(m.rows.iter().any(|r| r.label == "主题"));
+         assert!(m.back());
+         assert_eq!(m.path, "");
+         assert_eq!(m.sel, 2);
+@@ -1973,7 +1973,7 @@
+     fn checked_rows_get_the_tick_and_disabled_rows_are_skipped() {
+         let mut m = MenuModel::default();
+         m.open_at("system", MenuSkin::Menu);
+-        assert_eq!(m.rows[0].label, "Quit OctoSense");
++        assert_eq!(m.rows[0].label, "退出 OctoSense");
+         // Retain the navigation invariant using an explicit disabled fixture.
+         for row in &mut m.rows { row.disabled = true; }
+         assert!(m.rows.iter().all(|r| r.disabled));
+@@ -2055,3 +2055,17 @@
+         assert_eq!(classic.selected_background, rgb(0, 0, 128));
+     }
+ }
++
++/// Display labels only. Registry ids, launch commands and consent names stay intact.
++pub fn application_label_zh(label: &str) -> &str {
++    match label {
++        "Reference" => "参考资料", "Browser" => "浏览器", "Files" => "文件",
++        "Terminal" => "终端", "Mixer" => "音量混音器", "Task Manager" => "任务管理器",
++        "Sheets" => "表格", "Clock" => "时钟", "Weather" => "天气", "Notes" => "便笺",
++        "Calendar" => "日历", "Reminders" => "提醒事项", "Widgets" => "小组件",
++        "Music" => "音乐", "Video" => "视频", "News" => "资讯", "Photos" => "照片",
++        "Messages" => "消息", "Mail" => "邮箱", "App Hub" => "应用中心",
++        "OctoSense Settings" => "OctoSense 设置", "AI providers" => "AI 模型设置",
++        "AI" => "AI 助手", "VJ" => "视觉演出", _ => label,
++    }
++}
+diff --git a/tools/package_calendar_candidate.py b/tools/package_calendar_candidate.py
+--- a/tools/package_calendar_candidate.py
++++ b/tools/package_calendar_candidate.py
+@@ -59,6 +59,10 @@
+             "CFBundleExecutable": "octosense",
+             "CFBundlePackageType": "APPL",
+             "CFBundleVersion": "1",
++            "CFBundleDevelopmentRegion": "zh_CN",
++            "CFBundleLocalizations": ["zh_CN"],
++            "NSLocationUsageDescription": "在你授权后，用于在地图上显示你的位置。",
++            "NSLocationWhenInUseUsageDescription": "在你授权后，用于在地图上显示你的位置。",
+             "CFBundleShortVersionString": "0.1.0",
+             "NSCalendarsFullAccessUsageDescription": (
+                 "Muse 在你确认后读取、创建或修改系统日历事件，并读回结果。"

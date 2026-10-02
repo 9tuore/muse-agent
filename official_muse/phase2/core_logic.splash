@@ -483,11 +483,38 @@ fn core_source_index(source_id,account_scope){
 }
 
 fn core_is_forgotten(source_id,subject_id,predicate,account_scope){
+    let source_index = core_source_index(source_id,account_scope)
+    let hash = nil
+    if source_index >= 0 { hash = memory_sources[source_index].content_sha256 }
     for item in memory_forget {
-        if item.source_id == source_id && item.subject_id == subject_id
-            && item.predicate == predicate && item.account_scope == account_scope { return true }
+        if (item.source_id == source_id || (hash != nil && item["content_sha256"] == hash))
+            && item.subject_id == subject_id && item.predicate == predicate
+            && item.account_scope == account_scope { return true }
     }
     return false
+}
+
+fn core_excerpt(text){
+    let excerpt = "".to_chars()
+    let bytes = 0
+    for character in text.to_chars() {
+        let length = 1
+        if character > 127 { length = 2 }
+        if character > 2047 { length = 3 }
+        if character > 65535 { length = 4 }
+        if bytes + length > 480 { return excerpt.to_string() }
+        excerpt.push(character)
+        bytes = bytes + length
+    }
+    return excerpt.to_string()
+}
+
+fn core_hash_valid(value){
+    if value == nil || value.to_json().search("\"") != 0 || value.len() != 64 { return false }
+    for character in value.to_chars() {
+        if (character < 48 || character > 57) && (character < 97 || character > 102) { return false }
+    }
+    return true
 }
 
 fn core_restore_memory(){
@@ -562,7 +589,7 @@ fn core_add_source(source){
         || source["scope"].account == "" || source["scope"].project != "muse-goals"
         || source["scope"].visibility != "personal"
         || source.support_excerpt == nil || source.source_id == "" || source.locator == ""
-        || source.support_excerpt.len() > 500 {
+        || source.support_excerpt.len() > 500 || !core_hash_valid(source["content_sha256"]) {
         core_error = "来源字段不足或摘要过长。"
         return false
     }
@@ -591,12 +618,29 @@ fn core_add_claim(document){
         || document.payload == nil || document.payload.deleted != false
         || document.payload.value == nil || document.payload.value == ""
         || document.payload.value.len() > 4000 || document.payload.subject_id == nil
-        || document.payload.predicate == nil || document.payload.source_ids == nil
+        || document.payload.predicate == nil || document.payload.predicate == ""
+        || document.payload.subject_id == "" || document.created_at == nil || document.updated_at == nil
+        || document.origin == nil || document.payload.observed_at == nil
+        || document.payload.relations == nil || document.payload.relations.to_json().search("[") != 0
+        || document.payload.relations.len() > 32 || document.payload.source_ids == nil
         || document.payload.source_ids.len() == 0 || document.payload.source_ids.len() > 16 {
         core_error = "记忆 DSL 字段无效；未写入。"
         return false
     }
+    let epistemic = document.payload.epistemic_type
+    if epistemic != "fact" && epistemic != "user_statement" && epistemic != "external_claim" && epistemic != "inference" {
+        core_error = "记忆事实类型无效；未写入。" return false
+    }
     let account_scope = document["scope"].account
+    if account_scope == nil || account_scope == "" { core_error = "记忆账号作用域无效。" return false }
+    for relation in document.payload.relations {
+        let kind = relation["kind"]
+        let target = core_memory_index(relation["target_id"],account_scope)
+        if (kind != "supports" && kind != "contradicts" && kind != "supersedes" && kind != "related_to")
+            || target < 0 || memory[target].document.payload.deleted {
+            core_error = "记忆关系类型、目标或作用域无效。" return false
+        }
+    }
     if core_memory_index(document.id,account_scope) >= 0 {
         core_error = "记忆 ID 已存在或已删除，不能复活。"
         return false
@@ -640,7 +684,7 @@ fn core_correct_memory(id,value,account_scope){
     let now = core_utc_iso(time_now())
     let source_id = "source:user:" + floor(time_now()) + "-" + random_u32()
     let source = {source_id: source_id kind: "user" locator: "user-correction:" + id
-        content_sha256: nil observed_at: now updated_at: now support_excerpt: value}
+        content_sha256: fs.sha256(value.trim()) observed_at: now updated_at: now support_excerpt: core_excerpt(value.trim())}
     source["scope"] = core_memory_scope(account_scope)
     let next_sources = []
     for item in memory_sources { next_sources.push(item) }
@@ -685,7 +729,8 @@ fn core_delete_memory(id,account_scope){
     for source_id in old.source_history {
         if !core_is_forgotten(source_id,old.document.payload.subject_id,old.document.payload.predicate,account_scope) {
             next_forget.push({source_id: source_id subject_id: old.document.payload.subject_id
-                predicate: old.document.payload.predicate account_scope: account_scope at: core_utc_iso(time_now())})
+                predicate: old.document.payload.predicate account_scope: account_scope at: core_utc_iso(time_now())
+                content_sha256: memory_sources[core_source_index(source_id,account_scope)].content_sha256})
         }
     }
     let next_claims = []
@@ -704,4 +749,35 @@ fn core_delete_memory(id,account_scope){
         } else { next_claims.push(memory[j]) }
     }
     return core_commit_memory(next_claims,memory_sources,next_forget)
+}
+
+// Store only the verified receipt summary; source digest covers the exact stored artifact.
+fn core_remember_result(goal_id,run_id,path,account_scope,source_id,locator,prior_sources){
+    let memory_id = "memory:result:" + run_id
+    if core_memory_index(memory_id,account_scope) >= 0 { return true }
+    if !fs.exists(path) { core_error = "记忆来源产物不存在。" return false }
+    let text = fs.read(path)
+    let artifact = text.parse_json()
+    if text.len() > 65536 || artifact == nil || artifact.task_id != goal_id {
+        core_error = "记忆来源过长或不匹配当前 Goal。" return false
+    }
+    let now = core_utc_iso(time_now())
+    let value = "目标执行结果已保存并读回 · " + path
+    if artifact["event_id"] != nil {
+        value = value + "\n系统日历事件 · " + artifact.event_id
+            + "\n开始 · " + artifact.start + " 结束 · " + artifact.end
+    }
+    let source = {source_id: source_id kind: "runtime_receipt" locator: locator
+        content_sha256: fs.sha256(text) observed_at: now updated_at: now support_excerpt: core_excerpt(value)}
+    source["scope"] = core_memory_scope(account_scope)
+    if !core_add_source(source) { return false }
+    let source_ids = []
+    for id in prior_sources { source_ids.push(id) }
+    source_ids.push(source_id)
+    let doc = {schema_version: "muse.dsl/1" kind: "memory" id: memory_id revision: 1
+        created_at: now updated_at: now origin: {type: "local_runtime" ref: run_id}
+        payload: {subject_id: goal_id predicate: "verified_result" value: value epistemic_type: "fact"
+            source_ids: source_ids observed_at: now valid_from: nil valid_until: nil relations: [] deleted: false}}
+    doc["scope"] = core_memory_scope(account_scope)
+    return core_add_claim(doc)
 }

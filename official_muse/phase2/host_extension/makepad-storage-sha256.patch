@@ -1,0 +1,27 @@
+--- a/widgets/src/splash_storage.rs
++++ b/widgets/src/splash_storage.rs
+@@ -242,6 +242,24 @@
+ pub fn script_mod(vm: &mut ScriptVm) {
+     let fs = vm.new_module(id!(fs));
+ 
++    // Local UTF-8 provenance digest; available only to an already jailed isolate.
++    // No file path, network request, or additional host capability is involved.
++    vm.add_method(fs, id_lut!(sha256), script_args_def!(text = NIL), |vm, args| {
++        if root_for_vm(vm).is_none() {
++            return script_err_io!(vm.trap(), "storage not available in this context");
++        }
++        let text = script_value!(vm, args.text);
++        let digest = vm.string_with(text, |_vm, s| {
++            if s.len() > 65536 { return None; }
++            let bytes = crate::makepad_platform::makepad_network::digest::sha256_hash(s.as_bytes());
++            Some(bytes.iter().map(|byte| format!("{byte:02x}")).collect::<String>())
++        });
++        match digest {
++            Some(Some(value)) => vm.bx.heap.new_string_from_str(&value).into(),
++            _ => script_err_io!(vm.trap(), "sha256 requires UTF-8 text of at most 65536 bytes"),
++        }
++    });
++
+     vm.add_method(fs, id_lut!(read), script_args_def!(path = NIL), |vm, args| {
+         let path = script_value!(vm, args.path);
+         match target(vm, path) {

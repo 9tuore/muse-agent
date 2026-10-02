@@ -76,11 +76,12 @@ class Remote:
         """Scroll only within a real visible pane until the control is reachable."""
         for _ in range(attempts):
             try:
-                rect = self.find(key)["r"]
+                widget = self.find(key)
+                rect = widget["r"]
             except AssertionError:
                 pass
             else:
-                if rect[2] >= 2 and rect[3] >= 2:
+                if rect[2] >= 2 and rect[3] >= (24 if widget.get("ty") == "Button" else 2):
                     return self.click(key)
             x, y, width, height = self.find(area)["r"]
             self.scroll(int(x + width / 2), int(y + height / 2), 80)

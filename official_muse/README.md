@@ -1,4 +1,4 @@
-# Muse 官方应用源码 · 0.2.8
+# Muse 官方应用源码 · 0.2.12
 
 这是参赛应用的 OctoScript / Splash 源码与配套宿主补丁。应用在 OctoSense / App Hub 中运行，使用 Makepad 布局、manifest capability、官方存储和账号权限入口。整体验收状态为 **PARTIAL**；源码整理完成不等于比赛提交或官方准入完成。
 
@@ -10,13 +10,13 @@
 - 宿主补丁与构建边界：`official_muse/phase2/host_extension/README.md`。
 - 最终验收：根目录 `PHASE2_LIVE_ACCEPTANCE.md`、`PHASE2_LIVE_TEST_REPORT.md`、`PHASE2_LIVE_EVIDENCE_INDEX.md`。
 
-源码导出只包含官方应用与配套测试/补丁，不包含旧独立版安装包、生产数据、模型权重、账号、私钥和本机构建缓存。该导出尚未上传 GitHub。
+源码导出只包含官方应用与配套测试/补丁，不包含旧独立版安装包、生产数据、模型权重、账号、私钥和本机构建缓存。完整参赛源码与配套宿主源码集中在仓库根目录，最新交付边界见 `SOURCE_DELIVERY.md`。
 
 ## 已实测的功能
 
 中文八页、宽窗三栏、窄窗与矮窗滚动；真实模型对话、多会话历史；多 Goal 的计划、批准、模型建议、应用隔离写入与独立读回；来源记忆更正/置顶/遗忘；真实 Activity；系统日历查询、创建、修改、删除及每一步的独立读回。正常退出和重启后的完整结果以最终报告为准。
 
-Mail 使用官方 Host Service。本人登录、真实收发及邮件到系统日历的同 Goal 全链尚未验收。Qwen3-0.6B 的三轮对话语义复测为 2/3，不可宣称稳定通过。模型/provider/预算 UI 仍有只读差异，来源 content_sha256 尚未补齐。
+Mail 使用官方 Host Service；已获授权并实际读取邮箱。真实发送、收件核验与邮件到日历同 Goal 全链仍未验收。0.2.12 已安装，尚未完成该版本的完整回归；持续新邮件结果卡未实现。历史小模型语义和 Memory 验收请按对应报告的版本范围读取。
 
 ## 宿主基线与重现
 
@@ -51,4 +51,4 @@ python3 official_muse/phase2/tests/audit_state.py "$MUSE_JAIL" --min-goals 3 --r
 
 ## 提交前仍须完成
 
-补齐 Mail 与邮件→日历全链、处理模型语义稳定性及其余验收差异；补真实 publisher/support/privacy 信息；明确本地宿主扩展的主办方准入。然后确定要推送的最终版本及队伍名。当前不推送 GitHub，不在主办方 issue 留言。
+补齐 Mail 与邮件→日历全链、处理模型语义稳定性及其余验收差异；补真实 publisher/support/privacy 信息；明确本地宿主扩展的主办方准入。然后确定要推送的最终版本及队伍名。本次按用户要求将完整源码推送到 `9tuore/123`；主办方 issue 留言仍未授权，不随源码上传执行。

@@ -21,8 +21,8 @@ def main():
     x, y, width, height = remote.find("page_content")["r"]
     remote.scroll(int(x + width - 4), int(y + height / 2), -10000)
     remote.click("新对话")
-    questions = ["记住验证码 MUSE-8427，只用于这次测试。", "刚才的验证码是什么？",
-                 "不要再重复验证码，告诉我它有几位数字。"]
+    questions = ["请记住测试代号 MUSE-3147，不要解释。", "刚才的测试代号是什么？",
+                 "不要再重复完整代号，只告诉我其中有几位数字。"]
     replies = []
     for index, question in enumerate(questions, 1):
         state = json.loads((args.jail / "chat-sessions.json").read_text())
@@ -47,9 +47,9 @@ def main():
     answer3 = replies[2]["reply"]["text"]
     report = {"evidence": "LIVE visible Shell model.complete; synthetic inputs",
               "session_id": current["id"], "turns": replies,
-              "round2_recall": "MUSE-8427" in answer2,
+              "round2_recall": "MUSE-3147" in answer2,
               "round3_four": bool(re.search(r"(?:4|四)\s*(?:位|个)", answer3)),
-              "round3_no_code": "8427" not in answer3 and "MUSE-" not in answer3,
+              "round3_no_code": "3147" not in answer3 and "MUSE-" not in answer3,
               "all_model_success": all(t["reply"]["state"] == "success" for t in replies)}
     (args.output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     print(json.dumps(report, ensure_ascii=False), flush=True)

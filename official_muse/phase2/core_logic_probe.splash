@@ -10,7 +10,8 @@ fn probe(){
         fs.write("test-restart.json",{goal_count: goals.len() selected_id: selected_id
             old_result: fs.read("results/old.json") action_status: actions[a].status
             memory_count: m.len() forgotten: memory_forget.len()
-            standalone_status: actions[core_action_index("req:mail")].status}.to_json())
+            standalone_status: actions[core_action_index("req:mail")].status
+            pinned_restored: memory[core_memory_index("memory:pinned","local")].pinned}.to_json())
         return
     }
     let old_ok = goals.len() == 1 && goals[0].id == "g1" && fs.exists("current.json")
@@ -44,7 +45,7 @@ fn probe(){
     let action = core_begin_action("g3",run3,1,"calendar.create","test-calendar","req:g3","fixture-payload")
     let now = core_utc_iso(time_now())
     let source = {source_id: "source:test-1" kind: "user" locator: "fixture:note-1"
-        content_sha256: nil observed_at: now updated_at: now support_excerpt: "合成来源"
+        content_sha256: fs.sha256("合成来源") observed_at: now updated_at: now support_excerpt: "合成来源"
         }
     source["scope"] = core_memory_scope("local")
     let added_source = core_add_source(source)
@@ -71,6 +72,22 @@ fn probe(){
             relations: [] deleted: false}}
     reimport_doc["scope"] = core_memory_scope("local")
     let reimport = core_add_claim(reimport_doc)
+    let alias_source = source.to_json().parse_json()
+    alias_source.source_id = "source:alias"
+    let alias_added = core_add_source(alias_source)
+    let alias_doc = reimport_doc.to_json().parse_json()
+    alias_doc.id = "memory:alias"
+    alias_doc.payload.source_ids = [alias_source.source_id]
+    let alias_reimport_rejected = !core_add_claim(alias_doc)
+    let bad_source = source.to_json().parse_json()
+    bad_source.source_id = "source:bad"
+    bad_source.content_sha256 = nil
+    let missing_hash_rejected = !core_add_source(bad_source)
+    let pinned_doc = document.to_json().parse_json()
+    pinned_doc.id = "memory:pinned"
+    pinned_doc.payload.predicate = "pin-check"
+    let pinned_added = core_add_claim(pinned_doc) && core_pin_memory(pinned_doc.id,true,"local")
+    let corrected_source = memory_sources[core_source_index("source:test-1","local")].content_sha256 == fs.sha256("合成来源")
     let activity_ok = core_record_event("fixture.probe","隔离专项验证","g2",run2,"req:g2","local")
     fs.write("test-report.json",{old_ok: old_ok legacy_activity: legacy_activity
         legacy_recovered: legacy_recovered
@@ -84,6 +101,8 @@ fn probe(){
         added_source: added_source added_claim: added_claim found: found corrected: corrected
         pinned: pinned corrected_found: corrected_found deleted: deleted
         after_delete: after_delete reimport_rejected: !reimport activity_ok: activity_ok
+        alias_added: alias_added alias_reimport_rejected: alias_reimport_rejected
+        missing_hash_rejected: missing_hash_rejected pinned_added: pinned_added hash_matches: corrected_source
         goal_count: goals.len() run_count: runs.len() replanned: replanned
         run2_again: run2_again != nil standalone: standalone core_error: core_error}.to_json())
 }
