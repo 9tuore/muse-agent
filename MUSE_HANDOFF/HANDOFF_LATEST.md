@@ -2,28 +2,20 @@
 
 ## Task
 
-官方Muse Phase2实机联调；总控与3执行Agent，codex/muse-official-migration，基线b0acd81。
+按用户要求将完整参赛源码同步到 GitHub `9tuore/123`；本次不继续功能开发或窗口测试，不使用子智能体。
 
 ## Result
 
-PARTIAL。最终0.2.8，中文八页/响应式、三模型Goal、Calendar合成CRUD与独立读回、正常重启通过。
+源码更新至官方 Muse 0.2.12，配套 OctoSense、App Hub、Makepad、OctoScript 源码及许可证完整保留。参赛功能总体仍为 PARTIAL，最新来源及测试边界见 `SOURCE_DELIVERY.md`。
 
 ## Changed
 
-Splash会话历史/布局/状态，隔离宿主native messages、Calendar与Metal补丁，真实UI驱动和纯源码导出。
+同步 0.2.9–0.2.12 应用源码/测试/中文宿主与框架修复；更新 README、状态说明、第三方来源和 SOURCE_MANIFEST.json。
 
-## Tests
+## Verification
 
-2026-10-01：3Goal各1Run；23文件重启SHA不变；Goal21/Run19/Action15/Memory3稳定；五尺寸真发送；735字8项矮窗Storage链。Chat三轮复测2/3，第二次位数错并重复数字。独立只读审计完成。根目录PHASE2_LIVE_TEST_REPORT.md/ACCEPTANCE/EVIDENCE_INDEX。
-
-## Commit
-
-56fec94产品修复；e64d243测试/导出；其后验收提交看git log。未push、未issue评论。
+核对源文件字节一致、依赖相对链接、文件清单和哈希；检查上传路径与常见密钥形状，未运行额外产品回归。远端提交以 GitHub main 为准。
 
 ## Remaining
 
-本人Mail登录、本人收件地址与最终发送；真实Mail→Calendar同Goal/联动恢复；模型语义、来源hash、设置与视觉差异。
-
-## Important Boundaries
-
-旧安装包与生产资料未改。原版Gate拒calendar；隔离扩展/ad hoc签名不是上游接受。Mail demo是fixture。纯源码不含Key/状态/模型。
+0.2.12 全量回归、合成日历事件最终清理、真实邮件确认发送与收件核验、邮件→日历同 Goal、持续来信结果卡待完成。旧安装包和生产资料未修改；主办方 issue 未提交。

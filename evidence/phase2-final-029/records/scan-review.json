@@ -1,0 +1,35 @@
+{
+  "version": "0.2.9",
+  "route": "human-review",
+  "evidence": "LOCAL manual review of exact final source and live test evidence; not upstream approval",
+  "questions": [
+    {
+      "question": "Does the app do what its name, subtitle and description claim? Cite the text in its source.",
+      "answer": "listing.json 明示本地扩展候选；0.2.9 中文对话、多 Goal、来源 Memory 和真实 Activity 已实测；Mail/Calendar 未完成本人节点，整体仍 PARTIAL，不宣称完整 1:1。"
+    },
+    {
+      "question": "Do the listing's platforms and category fit an app of this kind?",
+      "answer": "仅 macos/productivity，与本机 EventKit 和打包 Shell 范围相符；不宣称其他平台通过。"
+    },
+    {
+      "question": "Do the granted capabilities match what the app visibly does? For a script app, name every host it requests and why. Name any grant nothing on screen needs.",
+      "answer": "model.complete 用于 Chat/Goal/草稿与日程候选；storage 只写隔离账本和结果；mail.accounts/add_account/sync/list/message/send 由官方服务提供；calendar.status/calendars/list/availability/create/get/update/delete 由隔离扩展提供。无 network.hosts，无新增 Browser/Terminal capability。"
+    },
+    {
+      "question": "Is any part of the interface deceptive: imitating a system prompt, a payment sheet, a login, or another brand?",
+      "answer": "Muse 不接收凭据、不仿系统授权。登录使用官方 Mail host sheet，日历使用真实 macOS prompt。应用 grant、系统 permission、账号与 service readiness 分开；未同步账号不显示 READY。"
+    },
+    {
+      "question": "Does any text in the source or its data (not agent_files) read as an instruction to an assistant rather than content for a person?",
+      "answer": "固定 model.complete task 是应用显式提示；外部邮件仅作为来源资料，外部写入需分别确认。源码与合成证据未发现绕过审查 Agent 规则的指令。"
+    },
+    {
+      "question": "Is any wording abusive, or aimed at a private individual?",
+      "answer": "中文界面和合成测试材料无针对私人个人的辱骂；证据未收录真实邮件正文、账号凭据或 Key。"
+    },
+    {
+      "question": "Route: pass, human-review, or reject. Give reasons a publisher can act on.",
+      "answer": "human-review：publisher/support/privacy 是演练占位；Calendar 扩展及本地 SHA 接口未获上游准入；真实 Mail 收发和同 Goal 联动待验，Qwen 0.6B 语义有明确限制。开发 Gate 通过不能替代正式审查。"
+    }
+  ]
+}

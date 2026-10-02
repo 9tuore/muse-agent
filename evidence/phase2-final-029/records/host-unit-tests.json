@@ -1,0 +1,12 @@
+{
+  "scope": "LOCAL Rust service unit tests, not live Mail or system Calendar",
+  "command": "cargo test --offline --locked --release -p octosense-calendar-service -p octosense-mail-service --lib",
+  "observed_exit_code": 0,
+  "calendar_passed": 3,
+  "mail_passed": 8,
+  "mail_ignored": 2,
+  "ignored_tests": [
+    "gmail_refuses_a_wrong_password_with_a_readable_error",
+    "the_keychain_keeps_a_secret_and_takes_over_an_old_file"
+  ]
+}
