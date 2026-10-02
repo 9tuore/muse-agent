@@ -132,16 +132,16 @@ pub fn omarchy_tree() -> Vec<MenuItem> {
     let mut menu = |id: &str, label: &str, ico: Ico| {
         v.push(MenuItem::new(id, label, MenuKind::Menu).icon(ico));
     };
-    menu("apps", "Apps", Ico::Menu);
-    menu("learn", "Learn", Ico::Search);
-    menu("trigger", "Trigger", Ico::Record);
-    menu("style", "Style", Ico::Moon);
-    menu("setup", "Setup", Ico::Keyboard);
-    menu("install", "Install", Ico::Refresh);
-    menu("remove", "Remove", Ico::Close);
-    menu("update", "Update", Ico::Refresh);
-    menu("about", "About", Ico::Dot);
-    menu("system", "System", Ico::Power);
+    menu("apps", "应用", Ico::Menu);
+    menu("learn", "帮助", Ico::Search);
+    menu("trigger", "快捷操作", Ico::Record);
+    menu("style", "外观", Ico::Moon);
+    menu("setup", "设置", Ico::Keyboard);
+    menu("install", "安装", Ico::Refresh);
+    menu("remove", "移除", Ico::Close);
+    menu("update", "更新", Ico::Refresh);
+    menu("about", "关于", Ico::Dot);
+    menu("system", "系统", Ico::Power);
 
     // Aliases the jsonc carries so typing "settings" finds Setup, etc.
     for (id, aliases) in [
@@ -159,111 +159,111 @@ pub fn omarchy_tree() -> Vec<MenuItem> {
         v.push(MenuItem::new(&format!("{}.{}", parent, leaf), label, kind));
     };
     for (leaf, label) in [
-        ("keybindings", "Keybindings"),
+        ("keybindings", "快捷键"),
         ("omarchy", "Omarchy"),
         ("hyprland", "Hyprland"),
         ("neovim", "Neovim"),
         ("bash", "Bash"),
         ("tmux-keybindings", "Tmux"),
         ("herdr-keybindings", "Herdr"),
-        ("community", "Community"),
+        ("community", "社区"),
     ] {
         child("learn", leaf, label, MenuKind::Menu);
     }
     for (leaf, label) in [
-        ("emoji", "Emoji"),
-        ("reminder", "Reminder"),
-        ("capture", "Capture"),
-        ("transcode", "Transcode"),
-        ("share", "Share"),
-        ("toggle", "Toggle"),
-        ("hardware", "Hardware"),
-        ("tests", "Tests"),
+        ("emoji", "表情"),
+        ("reminder", "提醒"),
+        ("capture", "截图"),
+        ("transcode", "转码"),
+        ("share", "分享"),
+        ("toggle", "开关"),
+        ("hardware", "硬件"),
+        ("tests", "测试"),
     ] {
         child("trigger", leaf, label, MenuKind::Action);
     }
     for (leaf, label) in [
-        ("theme", "Theme"),
-        ("background", "Background"),
-        ("unlock", "Unlock"),
-        ("font", "Font"),
-        ("bar", "Bar"),
+        ("theme", "主题"),
+        ("background", "背景"),
+        ("unlock", "解锁"),
+        ("font", "字体"),
+        ("bar", "顶部栏"),
         ("hyprland", "Hyprland"),
-        ("screensaver", "Screensaver"),
-        ("about", "About"),
+        ("screensaver", "屏幕保护"),
+        ("about", "关于"),
     ] {
         child("style", leaf, label, MenuKind::Action);
     }
     for (leaf, label) in [
-        ("monitors", "Monitors"),
-        ("keybindings", "Keybindings"),
-        ("input", "Input"),
-        ("network", "Network"),
-        ("default", "Defaults"),
-        ("plugin", "Plugins"),
-        ("security", "Security"),
-        ("config", "Config"),
-        ("direct-boot", "Direct Boot"),
-        ("reset", "Reset"),
+        ("monitors", "显示器"),
+        ("keybindings", "快捷键"),
+        ("input", "输入"),
+        ("network", "网络"),
+        ("default", "默认设置"),
+        ("plugin", "插件"),
+        ("security", "安全"),
+        ("config", "配置"),
+        ("direct-boot", "直接启动"),
+        ("reset", "重置"),
     ] {
         child("setup", leaf, label, MenuKind::Menu);
     }
     for (leaf, label) in [
-        ("package", "Package"),
+        ("package", "软件包"),
         ("aur", "AUR"),
         ("ai", "AI"),
-        ("service", "Service"),
-        ("development", "Development"),
-        ("editor", "Editor"),
-        ("style", "Style"),
-        ("gaming", "Gaming"),
-        ("browser", "Browser"),
-        ("webapp", "Web App"),
-        ("terminal", "Terminal"),
+        ("service", "服务"),
+        ("development", "开发"),
+        ("editor", "编辑器"),
+        ("style", "外观"),
+        ("gaming", "游戏"),
+        ("browser", "浏览器"),
+        ("webapp", "网页应用"),
+        ("terminal", "终端"),
         ("tui", "TUI"),
         ("windows", "Windows"),
-        ("preinstalls", "Preinstalls"),
+        ("preinstalls", "预装应用"),
     ] {
         child("install", leaf, label, MenuKind::Menu);
     }
     for (leaf, label) in [
-        ("package", "Package"),
+        ("package", "软件包"),
         ("ai", "AI"),
-        ("service", "Service"),
-        ("development", "Development"),
-        ("theme", "Theme"),
-        ("gaming", "Gaming"),
-        ("browser", "Browser"),
-        ("webapp", "Web App"),
+        ("service", "服务"),
+        ("development", "开发"),
+        ("theme", "主题"),
+        ("gaming", "游戏"),
+        ("browser", "浏览器"),
+        ("webapp", "网页应用"),
         ("tui", "TUI"),
         ("windows", "Windows"),
-        ("preinstalls", "Preinstalls"),
-        ("security", "Security"),
+        ("preinstalls", "预装应用"),
+        ("security", "安全"),
     ] {
         child("remove", leaf, label, MenuKind::Menu);
     }
     for (leaf, label) in [
         ("omarchy", "Omarchy"),
-        ("channel", "Channel"),
-        ("config", "Config"),
-        ("themes", "Themes"),
-        ("process", "Process"),
-        ("hardware", "Hardware"),
-        ("firmware", "Firmware"),
-        ("password", "Password"),
-        ("timezone", "Timezone"),
-        ("time", "Time"),
+        ("channel", "更新渠道"),
+        ("config", "配置"),
+        ("themes", "主题"),
+        ("process", "进程"),
+        ("hardware", "硬件"),
+        ("firmware", "固件"),
+        ("password", "密码"),
+        ("timezone", "时区"),
+        ("time", "时间"),
     ] {
         child("update", leaf, label, MenuKind::Action);
     }
     for (leaf, label) in [
-        ("screensaver", "Screensaver"),
-        ("lock", "Lock"),
-        ("suspend", "Suspend"),
-        ("hibernate", "Hibernate"),
-        ("logout", "Logout"),
-        ("reboot", "Reboot"),
-        ("shutdown", "Shutdown"),
+        ("screensaver", "屏幕保护"),
+        ("lock", "锁定"),
+        ("suspend", "睡眠"),
+        ("hibernate", "休眠"),
+        ("logout", "退出登录"),
+        ("reboot", "重新启动"),
+        ("shutdown", "关机"),
     ] {
         child("system", leaf, label, MenuKind::Action);
     }
@@ -276,28 +276,28 @@ pub fn omarchy_tree() -> Vec<MenuItem> {
             MenuKind::Menu,
             Some(Ico::Keyboard),
             &["keys", "shortcuts"],
-            "Every binding this desktop answers to",
+            "查看容器支持的全部快捷键",
         ),
         (
             "style.theme",
             MenuKind::Menu,
             Some(Ico::Moon),
             &["theme", "themes"],
-            "Switch or import a theme",
+            "切换或导入主题",
         ),
         (
             "style.background",
             MenuKind::Action,
             Some(Ico::Monitor),
             &["wallpaper"],
-            "Next background of this theme",
+            "切换当前主题的下一张背景",
         ),
         (
             "style.bar",
             MenuKind::Action,
             Some(Ico::Menu),
             &["bar", "top bar"],
-            "Show or hide the top bar",
+            "显示或隐藏顶部栏",
         ),
         ("apps", MenuKind::Menu, Some(Ico::Menu), &[], ""),
     ];
@@ -353,7 +353,7 @@ fn theme_items() -> Vec<MenuItem> {
         })
         .collect();
     v.push(
-        MenuItem::new("style.theme.import", "Import from omarchy…", MenuKind::Menu)
+        MenuItem::new("style.theme.import", "从 Omarchy 导入…", MenuKind::Menu)
             .icon(Ico::Refresh)
             .aliases(&["import", "omarchy"]),
     );
@@ -457,16 +457,16 @@ impl MenuModel {
     fn all_items(path: &str) -> Vec<MenuItem> {
         let mut items = omarchy_tree();
         items.retain(|item| !item.disabled);
-        items.push(MenuItem::new("system.quit", "Quit OctoSense", MenuKind::Action).icon(Ico::Power));
+        items.push(MenuItem::new("system.quit", "退出 OctoSense", MenuKind::Action).icon(Ico::Power));
         if path.starts_with("workspace") {
             for (id, label, kind) in [
-                ("workspace", "Workspace", MenuKind::Menu),
-                ("workspace.files", "New Viewer", MenuKind::App),
-                ("workspace.apps", "Applications", MenuKind::Menu),
-                ("workspace.tools", "Tools", MenuKind::Menu),
-                ("workspace.tools.terminal", "Console", MenuKind::App),
-                ("workspace.tools.task", "Processes", MenuKind::App),
-                ("workspace.desktop", "Appearance", MenuKind::Menu),
+                ("workspace", "工作区", MenuKind::Menu),
+                ("workspace.files", "新建查看窗口", MenuKind::App),
+                ("workspace.apps", "应用程序", MenuKind::Menu),
+                ("workspace.tools", "工具", MenuKind::Menu),
+                ("workspace.tools.terminal", "控制台", MenuKind::App),
+                ("workspace.tools.task", "进程", MenuKind::App),
+                ("workspace.desktop", "外观", MenuKind::Menu),
             ] {
                 // Appearance routes to the style rows the standalone shell lacks.
                 if crate::MOBILE_ONLY && id == "workspace.desktop" { continue; }
@@ -475,12 +475,12 @@ impl MenuModel {
         }
         if path.starts_with("start") {
             for (id,label,kind,icon) in [
-                ("start.programs","Programs",MenuKind::Menu,Ico::Menu),
-                ("start.documents","Documents",MenuKind::Action,Ico::Photo),
-                ("start.settings","Settings",MenuKind::Menu,Ico::Monitor),
-                ("start.search","Search",MenuKind::Menu,Ico::Search),
-                ("start.run","Run…",MenuKind::Menu,Ico::Keyboard),
-                ("start.power","Shut Down…",MenuKind::Action,Ico::Power),
+                ("start.programs","程序",MenuKind::Menu,Ico::Menu),
+                ("start.documents","文档",MenuKind::Action,Ico::Photo),
+                ("start.settings","设置",MenuKind::Menu,Ico::Monitor),
+                ("start.search","搜索",MenuKind::Menu,Ico::Search),
+                ("start.run","运行…",MenuKind::Menu,Ico::Keyboard),
+                ("start.power","关机…",MenuKind::Action,Ico::Power),
             ] {items.push(MenuItem::new(id,label,kind).icon(icon));}
         }
         let available = launcher::apps();
@@ -488,11 +488,11 @@ impl MenuModel {
         // system app (`os.ai-providers`): Appearance, then AI providers.
         if path.starts_with("start") && available.iter().any(|app| app.id == AI_PROVIDERS) {
             items.push(
-                MenuItem::new("start.settings.style", "Appearance", MenuKind::Menu)
+                MenuItem::new("start.settings.style", "外观", MenuKind::Menu)
                     .icon(Ico::Monitor),
             );
             items.push(
-                MenuItem::new("start.settings.ai-providers", "AI providers", MenuKind::App)
+                MenuItem::new("start.settings.ai-providers", "AI 模型设置", MenuKind::App)
                     .icon(Ico::Cpu),
             );
         }
@@ -512,13 +512,13 @@ impl MenuModel {
         // The style rows: the standalone shell has one style and no menu for it.
         #[cfg(not(mobile_only))]
         {
-            items.push(MenuItem::new("desktop","Desktop style",MenuKind::Menu));
+            items.push(MenuItem::new("desktop","桌面风格",MenuKind::Menu));
             for style in crate::desktop::DesktopStyle::ALL {
                 items.push(MenuItem::new(&format!("desktop.{}",style.id()),style.label(),MenuKind::Action));
             }
-            items.push(MenuItem::new("desktop.macos-dark","macOS · Dark",MenuKind::Action));
-            items.push(MenuItem::new("desktop.windows-dark","Windows · Dark",MenuKind::Action));
-            items.push(MenuItem::new("desktop.octosense-dark","OctoSense · Dark",MenuKind::Action));
+            items.push(MenuItem::new("desktop.macos-dark","macOS · 深色",MenuKind::Action));
+            items.push(MenuItem::new("desktop.windows-dark","Windows · 深色",MenuKind::Action));
+            items.push(MenuItem::new("desktop.octosense-dark","OctoSense · 深色",MenuKind::Action));
         }
         if crate::dev_mode::settings_available() {
             let developer = developer_items(&items);
@@ -606,7 +606,7 @@ impl MenuModel {
             return (self.filter.clone(), false);
         }
         let title = if self.path.is_empty() {
-            "Menu".to_string()
+            "菜单".to_string()
         } else {
             self.items
                 .iter()
@@ -803,20 +803,20 @@ pub const ASSISTANT_RESTART_ROW: &str = "setup.assistant.restart";
 fn assistant_items(existing: &[MenuItem]) -> Vec<MenuItem> {
     let mut items = Vec::new();
     if !existing.iter().any(|item| item.id == "setup") {
-        items.push(MenuItem::new("setup", "Setup", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
+        items.push(MenuItem::new("setup", "设置", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
     }
-    items.push(MenuItem::new("setup.assistant", "Assistant", MenuKind::Menu).icon(Ico::Cpu).aliases(&["assistant", "agents"]));
+    items.push(MenuItem::new("setup.assistant", "助手", MenuKind::Menu).icon(Ico::Cpu).aliases(&["assistant", "agents"]));
     items.push(
-        MenuItem::new(APPROVALS_ROW, "Approvals", MenuKind::Action)
+        MenuItem::new(APPROVALS_ROW, "批准管理", MenuKind::Action)
             .icon(Ico::Check)
             .aliases(&["approvals", "rules", "consent"])
-            .describe("Standing rules, app agents and recent automatic approvals"),
+            .describe("常驻规则、应用助手与最近的自动批准记录"),
     );
     items.push(
-        MenuItem::new(SYSTEM_CHAT_ROW, "Assistant chat", MenuKind::Action)
+        MenuItem::new(SYSTEM_CHAT_ROW, "助手对话", MenuKind::Action)
             .icon(Ico::Cpu)
             .aliases(&["chat", "system agent", "assistant chat", "ask"])
-            .describe("Talk to the system agent (F8)"),
+            .describe("与系统助手对话（F8）"),
     );
     items.extend(command_items());
     items
@@ -834,39 +834,39 @@ fn command_items() -> Vec<MenuItem> {
 fn command_items_given(on: bool, terminal_process: bool) -> Vec<MenuItem> {
     use crate::system_chat::grants;
     let describe = match (on, terminal_process) {
-        (_, false) => format!("{}: {}", if on { "On, but it" } else { "It" }, grants::NEEDS_PROCESS_TERMINAL),
-        (true, true) => "On: each command asks you first".to_string(),
-        (false, true) => "Off: the assistant runs no commands".to_string(),
+        (_, false) => format!("{}: {}", if on { "已开启，但服务" } else { "服务" }, grants::NEEDS_PROCESS_TERMINAL),
+        (true, true) => "已开启：每条命令都需本人确认".to_string(),
+        (false, true) => "已关闭：助手不能执行命令".to_string(),
     };
-    let mut items = vec![MenuItem::new(COMMANDS_ROW, "Command execution", MenuKind::Menu)
+    let mut items = vec![MenuItem::new(COMMANDS_ROW, "命令执行", MenuKind::Menu)
         .icon(Ico::Keyboard)
         .aliases(&["commands", "terminal", "run commands"])
         .describe(&describe)];
     if !terminal_process {
         items.push(
-            MenuItem::new(&format!("{COMMANDS_ROW}.needs"), "Command execution needs Terminal as a process on this device", MenuKind::Inert)
-                .describe("Commands are typed into a Terminal that runs as its own sandboxed process; here the Terminal runs inside OctoSense (or not at all), so the assistant is not offered commands even if you allow them."),
+            MenuItem::new(&format!("{COMMANDS_ROW}.needs"), "此设备需以独立进程运行终端，才能执行命令", MenuKind::Inert)
+                .describe("命令需交给在独立沙箱进程中运行的终端。此处终端仅运行于 OctoSense 内或未运行，因此无法提供命令执行能力。"),
         );
     }
-    items.push(MenuItem::new(&format!("{COMMANDS_ROW}.risk"), "What this allows", MenuKind::Inert).describe(grants::RISK));
+    items.push(MenuItem::new(&format!("{COMMANDS_ROW}.risk"), "授权范围", MenuKind::Inert).describe(grants::RISK));
     if on {
-        items.push(MenuItem::new(COMMANDS_OFF_ROW, "Turn off command execution", MenuKind::Action).icon(Ico::Close).describe("The assistant runs no commands"));
+        items.push(MenuItem::new(COMMANDS_OFF_ROW, "关闭命令执行", MenuKind::Action).icon(Ico::Close).describe("助手不能执行命令"));
     } else {
         items.push(
-            MenuItem::new(COMMANDS_ALLOW_ROW, "Allow the assistant to run commands", MenuKind::Action)
+            MenuItem::new(COMMANDS_ALLOW_ROW, "允许助手执行命令", MenuKind::Action)
                 .icon(Ico::Check)
                 .aliases(&[grants::CONFIRM_PHRASE])
-                .describe(&format!("Type \u{201c}{}\u{201d}, then choose this. Each command asks you on a sheet", grants::CONFIRM_PHRASE)),
+                .describe(&format!("输入 \u{201c}{}\u{201d} 后选择此项。每条命令仍需在确认面板中批准", grants::CONFIRM_PHRASE)),
         );
     }
     match grants::applied() {
         grants::Applied::NeedsRestart => items.push(
-            MenuItem::new(ASSISTANT_RESTART_ROW, "Restart the assistant to apply", MenuKind::Action)
+            MenuItem::new(ASSISTANT_RESTART_ROW, "重启助手以应用设置", MenuKind::Action)
                 .icon(Ico::Refresh)
-                .describe("The running assistant started with the other setting"),
+                .describe("运行中的助手尚未使用此设置"),
         ),
-        grants::Applied::NextStart => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "Applies when the assistant starts", MenuKind::Inert)),
-        grants::Applied::Yes => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "In effect", MenuKind::Inert)),
+        grants::Applied::NextStart => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "下次启动助手时生效", MenuKind::Inert)),
+        grants::Applied::Yes => items.push(MenuItem::new(&format!("{COMMANDS_ROW}.applies"), "已生效", MenuKind::Inert)),
     }
     items
 }
@@ -880,33 +880,33 @@ fn developer_items(existing: &[MenuItem]) -> Vec<MenuItem> {
     use crate::dev_mode;
     let mut items = Vec::new();
     if !existing.iter().any(|item| item.id == "setup") {
-        items.push(MenuItem::new("setup", "Setup", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
+        items.push(MenuItem::new("setup", "设置", MenuKind::Menu).icon(Ico::Keyboard).aliases(&["settings"]));
     }
     items.push(
-        MenuItem::new("setup.developer", "Developer options", MenuKind::Menu)
+        MenuItem::new("setup.developer", "开发者选项", MenuKind::Menu)
             .icon(Ico::Keyboard)
             .aliases(&["developer", "dev mode"])
-            .describe("Every app gets every grant, for building apps"),
+            .describe("为应用开发授予全部应用能力"),
     );
     match dev_mode::status() {
         Some((active, profile)) => {
             items.push(
-                MenuItem::new("setup.developer.off", "Turn off developer mode", MenuKind::Action)
+                MenuItem::new("setup.developer.off", "关闭开发者模式", MenuKind::Action)
                     .icon(Ico::Close)
                     .describe(&format!("{} · {}", dev_mode::banner_text(&active), dev_mode::lasts_text(&active, profile, dev_mode::now()))),
             );
         }
         None => {
             items.push(
-                MenuItem::new(DEVELOPER_ON, "Turn on for all apps", MenuKind::Action)
+                MenuItem::new(DEVELOPER_ON, "为所有应用启用", MenuKind::Action)
                     .icon(Ico::Check)
                     .aliases(&[dev_mode::CONFIRM_PHRASE])
-                    .describe(&format!("Type \u{201c}{}\u{201d}, then choose this", dev_mode::CONFIRM_PHRASE)),
+                    .describe(&format!("输入 \u{201c}{}\u{201d} 后选择此项", dev_mode::CONFIRM_PHRASE)),
             );
-            let mut profile = MenuItem::new("setup.developer.profile", "Real accounts: ends after 8 hours", MenuKind::Inert)
-                .describe("For longer, use a developer profile: its own OCTOSENSE_HOME with a developer-profile file");
+            let mut profile = MenuItem::new("setup.developer.profile", "真实账号：8 小时后结束", MenuKind::Inert)
+                .describe("如需长期启用，请使用带 developer-profile 标记的独立开发者配置。");
             if std::path::Path::new(&crate::octosense::paths::home()).join(dev_mode::PROFILE_MARKER).exists() {
-                profile.label = "Developer profile: stays on until turned off".into();
+                profile.label = "开发者配置：持续启用直到关闭".into();
                 profile.description = String::new();
             }
             items.push(profile);
@@ -1376,7 +1376,7 @@ impl ShellMenu {
                 list.size.x,
                 tok.font.title * 1.6,
             );
-            let text = format!("No matches for \"{}\"", self.model.filter);
+            let text = format!("没有匹配项：\"{}\"", self.model.filter);
             self.d.label_elided(
                 cx,
                 msg,
@@ -1771,7 +1771,7 @@ mod tests {
         model.open_at("", MenuSkin::Menu);
         model.sel = model.rows.iter().position(|r| r.target == "setup").expect("Setup is listed");
         assert_eq!(model.activate(), None);
-        model.sel = model.rows.iter().position(|r| r.target == "setup.developer").expect("Developer options");
+        model.sel = model.rows.iter().position(|r| r.target == "setup.developer").expect("开发者选项");
         assert_eq!(model.activate(), None);
         assert_eq!(model.path, "setup.developer");
         // Chosen without the phrase: the row passes an empty confirmation.
@@ -1795,11 +1795,11 @@ mod tests {
         model.open_at("", MenuSkin::Menu);
         model.sel = model.rows.iter().position(|r| r.target == "setup").expect("Setup is listed");
         assert_eq!(model.activate(), None);
-        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("Assistant");
+        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("助手");
         assert_eq!(model.activate(), None);
-        model.sel = model.rows.iter().position(|r| r.target == SYSTEM_CHAT_ROW).expect("Assistant chat");
+        model.sel = model.rows.iter().position(|r| r.target == SYSTEM_CHAT_ROW).expect("助手对话");
         assert_eq!(model.activate().as_deref(), Some(SYSTEM_CHAT_ROW));
-        model.sel = model.rows.iter().position(|r| r.target == COMMANDS_ROW).expect("Command execution");
+        model.sel = model.rows.iter().position(|r| r.target == COMMANDS_ROW).expect("命令执行");
         assert_eq!(model.activate(), None);
         model.sel = model.rows.iter().position(|r| r.target == COMMANDS_ALLOW_ROW).expect("Allow");
         assert_eq!(model.activate().as_deref(), Some("setup.assistant.commands.allow:"), "chosen without the phrase");
@@ -1823,7 +1823,7 @@ mod tests {
         }
         let items = command_items_given(true, true);
         assert!(!text(&items).contains("needs Terminal as a process"), "{}", text(&items));
-        assert!(text(&items).contains("On: each command asks you first"));
+        assert!(text(&items).contains("已开启：每条命令都需本人确认"));
     }
 
     /// Setup → Assistant → Approvals opens the Approvals page.
@@ -1833,9 +1833,9 @@ mod tests {
         model.open_at("", MenuSkin::Menu);
         model.sel = model.rows.iter().position(|r| r.target == "setup").expect("Setup is listed");
         assert_eq!(model.activate(), None);
-        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("Assistant");
+        model.sel = model.rows.iter().position(|r| r.target == "setup.assistant").expect("助手");
         assert_eq!(model.activate(), None);
-        model.sel = model.rows.iter().position(|r| r.target == APPROVALS_ROW).expect("Approvals");
+        model.sel = model.rows.iter().position(|r| r.target == APPROVALS_ROW).expect("批准管理");
         assert_eq!(model.activate().as_deref(), Some(APPROVALS_ROW));
     }
 
@@ -1908,11 +1908,11 @@ mod tests {
         let setup = usize::from(crate::dev_mode::settings_available());
         assert_eq!(m.rows.len(), 4 + setup + styles);
         assert_eq!(m.rows.iter().any(|r| r.target == "desktop"), styles == 1);
-        assert_eq!(m.rows[0].label, "Apps");
+        assert_eq!(m.rows[0].label, "应用");
         if setup == 1 {
-            assert_eq!(m.rows[3].label, "Setup");
+            assert_eq!(m.rows[3].label, "设置");
         }
-        assert_eq!(m.rows[3 + setup].label, "System");
+        assert_eq!(m.rows[3 + setup].label, "系统");
         assert!(m.rows.iter().all(|r| !r.disabled));
         // Submenu rows carry the chevron.
         assert!(m.rows[0].has_children);
@@ -1936,8 +1936,8 @@ mod tests {
 
     #[test]
     fn search_scores_the_way_menumodel_does() {
-        let apps = MenuItem::new("apps", "Apps", MenuKind::Menu);
-        let style = MenuItem::new("style", "Style", MenuKind::Menu);
+        let apps = MenuItem::new("apps", "应用", MenuKind::Menu);
+        let style = MenuItem::new("style", "外观", MenuKind::Menu);
         // An exact top-level label match is tier 0, minus the menu nudge.
         let exact = search_score(&apps, "apps", 0, 0).unwrap();
         let prefix = search_score(&style, "st", 0, 3).unwrap();
@@ -1945,11 +1945,11 @@ mod tests {
         // A non-matching term drops the row entirely.
         assert!(search_score(&apps, "zzz", 0, 0).is_none());
         // Depth and declaration order break ties, in that order.
-        let deep = MenuItem::new("style.theme", "Apps", MenuKind::Menu);
+        let deep = MenuItem::new("style.theme", "应用", MenuKind::Menu);
         assert!(search_score(&apps, "apps", 0, 0).unwrap() < search_score(&deep, "apps", 1, 0).unwrap());
         // Apps outrank menus at the same tier.
-        let app = MenuItem::new("apps.terminal", "Terminal", MenuKind::App);
-        let menu = MenuItem::new("terminal", "Terminal", MenuKind::Menu);
+        let app = MenuItem::new("apps.terminal", "终端", MenuKind::App);
+        let menu = MenuItem::new("terminal", "终端", MenuKind::Menu);
         assert!(search_score(&app, "term", 1, 0).unwrap() < search_score(&menu, "term", 1, 0).unwrap());
     }
 
@@ -1958,10 +1958,10 @@ mod tests {
         let mut m = MenuModel::default();
         m.open_at("", MenuSkin::Menu);
         m.sel = 2; // Style
-        assert_eq!(m.rows[2].label, "Style");
+        assert_eq!(m.rows[2].label, "外观");
         m.activate();
         assert_eq!(m.path, "style");
-        assert!(m.rows.iter().any(|r| r.label == "Theme"));
+        assert!(m.rows.iter().any(|r| r.label == "主题"));
         assert!(m.back());
         assert_eq!(m.path, "");
         assert_eq!(m.sel, 2);
@@ -1973,7 +1973,7 @@ mod tests {
     fn checked_rows_get_the_tick_and_disabled_rows_are_skipped() {
         let mut m = MenuModel::default();
         m.open_at("system", MenuSkin::Menu);
-        assert_eq!(m.rows[0].label, "Quit OctoSense");
+        assert_eq!(m.rows[0].label, "退出 OctoSense");
         // Retain the navigation invariant using an explicit disabled fixture.
         for row in &mut m.rows { row.disabled = true; }
         assert!(m.rows.iter().all(|r| r.disabled));
@@ -2053,5 +2053,19 @@ mod tests {
         let classic = floating_skin(base, DesktopStyle::Windows2000, true, false, &roles);
         assert_eq!(classic.surface.text, rgb(24, 24, 28));
         assert_eq!(classic.selected_background, rgb(0, 0, 128));
+    }
+}
+
+/// Display labels only. Registry ids, launch commands and consent names stay intact.
+pub fn application_label_zh(label: &str) -> &str {
+    match label {
+        "Reference" => "参考资料", "Browser" => "浏览器", "Files" => "文件",
+        "Terminal" => "终端", "Mixer" => "音量混音器", "Task Manager" => "任务管理器",
+        "Sheets" => "表格", "Clock" => "时钟", "Weather" => "天气", "Notes" => "便笺",
+        "Calendar" => "日历", "Reminders" => "提醒事项", "Widgets" => "小组件",
+        "Music" => "音乐", "Video" => "视频", "News" => "资讯", "Photos" => "照片",
+        "Messages" => "消息", "Mail" => "邮箱", "App Hub" => "应用中心",
+        "OctoSense Settings" => "OctoSense 设置", "AI providers" => "AI 模型设置",
+        "AI" => "AI 助手", "VJ" => "视觉演出", _ => label,
     }
 }

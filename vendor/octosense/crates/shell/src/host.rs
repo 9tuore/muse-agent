@@ -73,14 +73,11 @@ pub fn fallback_clock(alt: bool) -> String {
     let day_secs = secs.rem_euclid(86_400);
     let (hours, minutes) = (day_secs / 3600, (day_secs % 3600) / 60);
     // 1970-01-01 was a Thursday.
-    const WEEKDAYS: [&str; 7] = ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"];
+    const WEEKDAYS: [&str; 7] = ["周四", "周五", "周六", "周日", "周一", "周二", "周三"];
     let weekday = WEEKDAYS[days.rem_euclid(7) as usize];
     if alt {
         let (year, month, day) = civil_from_days(days);
-        const MONTHS: [&str; 12] = [
-            "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
-        ];
-        format!("{} {} {}", day, MONTHS[(month - 1) as usize], year)
+        format!("{year}年{month}月{day}日")
     } else {
         format!("{} {:02}:{:02}", weekday, hours, minutes)
     }

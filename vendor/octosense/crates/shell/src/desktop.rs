@@ -1142,10 +1142,10 @@ impl Widget for DesktopShelf {
                     let hit_start = self.hits.len();
                     if style == DesktopStyle::NextStep {
                         let cell = h / n;
-                        self.button(cx, rect(x,y,w,cell), ShelfHit::Launcher, Ico::Menu, "Workspace", false, style, opacity);
+                        self.button(cx, rect(x,y,w,cell), ShelfHit::Launcher, Ico::Menu, "工作区", false, style, opacity);
                         for (i, app) in apps.iter().enumerate() {
                             let id = app.id.trim_start_matches("apps.");
-                            self.button(cx, rect(x,y+(i+1) as f64*cell,w,cell), ShelfHit::App(id.into()), app_icon(id), &app.label, clients.iter().any(|(_,a,_)| a==id), style, opacity);
+                            self.button(cx, rect(x,y+(i+1) as f64*cell,w,cell), ShelfHit::App(id.into()), app_icon(id), crate::shell::menu::application_label_zh(&app.label), clients.iter().any(|(_,a,_)| a==id), style, opacity);
                         }
                     } else if style == DesktopStyle::Windows2000 {
                         self.button(
@@ -1153,7 +1153,7 @@ impl Widget for DesktopShelf {
                             rect(x + 3.0, y + 3.0, 76.0, (h - 6.0).max(1.0)),
                             ShelfHit::Launcher,
                             Ico::Menu,
-                            "Start",
+                            "开始",
                             false,
                             style,
                             opacity,
@@ -1194,9 +1194,9 @@ impl Widget for DesktopShelf {
                             ShelfHit::Launcher,
                             Ico::Menu,
                             if style.mac_family() {
-                                "Applications"
+                                "应用程序"
                             } else {
-                                "Start"
+                                "开始"
                             },
                             false,
                             style,
@@ -1214,7 +1214,7 @@ impl Widget for DesktopShelf {
                                 ),
                                 ShelfHit::App(id.into()),
                                 app_icon(id),
-                                &app.label,
+                                crate::shell::menu::application_label_zh(&app.label),
                                 clients.iter().any(|(_, a, _)| a == id),
                                 style,
                                 opacity,

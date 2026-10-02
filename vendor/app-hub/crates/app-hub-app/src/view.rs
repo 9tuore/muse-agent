@@ -57,7 +57,7 @@ script_mod! {
                 name := Text{max_lines: 1 text_overflow: Ellipsis draw_text.text_style: theme.font_bold{font_size: 15}}
                 subtitle := Meta{max_lines: 2 text_overflow: Ellipsis}
             }
-            action := Pill{text: "Get"}
+            action := Pill{text: "获取"}
         }
     }
     let Tab = Plain{width: Fill height: 58 flow: Down spacing: 4 padding: 4 icon_walk: Walk{width: 22 height: 22}
@@ -69,17 +69,17 @@ script_mod! {
         content := View{width: Fill height: Fill flow: Down
         brand_bar := View{width: Fill height: 50 flow: Right align: Align{y: 0.5} padding: Inset{left: 20 right: 16} spacing: 8
             AppIcon{width: 26 height: 26 name: "apphub"}
-            Text{width: Fill text: "App Hub" draw_text.text_style: theme.font_bold{font_size: 13}}
-            source := Pill{width: Fit text: "Live catalog" padding: Inset{left: 10 right: 10} draw_text.text_style.font_size: 11}
+            Text{width: Fill text: "应用中心" draw_text.text_style: theme.font_bold{font_size: 13}}
+            source := Pill{width: Fit text: "在线目录" padding: Inset{left: 10 right: 10} draw_text.text_style.font_size: 11}
             refresh := Plain{width: 28 padding: 0 icon_walk: Walk{width: 17 height: 17} draw_icon +: {svg: crate_resource("self:resources/icons/refresh.svg") color: accent}}
         }
         back_bar := View{visible: false width: Fill height: 44 padding: Inset{left: 10 right: 20} flow: Right
-            back := Plain{text: "‹ Back"}
+            back := Plain{text: "‹ 返回"}
             View{width: Fill height: Fit}
         }
         search_bar := View{visible: false width: Fill height: Fit flow: Down spacing: 14 padding: Inset{left: 20 right: 20 top: 6 bottom: 10}
-            Heading{text: "Search" draw_text.text_style: Heavy{font_size: 32}}
-            search := TextInputFlat{width: Fill height: 44 empty_text: "Search apps" margin: 0 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}
+            Heading{text: "搜索" draw_text.text_style: Heavy{font_size: 32}}
+            search := TextInputFlat{width: Fill height: 44 empty_text: "搜索应用" margin: 0 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}
                 draw_bg +: {border_radius: 12.0 color: field color_hover: field color_focus: field color_empty: field border_size: 0.0}
                 draw_text +: {color: ink color_hover: ink color_focus: ink color_empty: secondary color_empty_hover: secondary color_empty_focus: secondary text_style: theme.font_regular{font_size: 15}}}
         }
@@ -96,26 +96,26 @@ script_mod! {
                 row := Card{padding: 0 spacing: 0 cursor: MouseCursor.Hand
                     art := Image{width: Fill height: 194 fit: ImageFit.CropToFill src: crate_resource("self:resources/coast.jpg")}
                     View{width: Fill height: Fit flow: Down padding: 18 spacing: 7
-                        eyebrow := Meta{text: "EXPLORE OCTOSENSE" draw_text +: {color: #009b84 text_style: theme.font_bold{font_size: 10}}}
-                        title := Heading{text: "A little more discovery." draw_text.text_style: Heavy{font_size: 25}}
-                        caption := Meta{text: "Find your next favorite place with Maps."}
-                        action := Plain{text: "Explore Maps  ›" width: Fit padding: 0}
+                        eyebrow := Meta{text: "探索 OCTOSENSE" draw_text +: {color: #009b84 text_style: theme.font_bold{font_size: 10}}}
+                        title := Heading{text: "发现更多精彩。" draw_text.text_style: Heavy{font_size: 25}}
+                        caption := Meta{text: "使用地图发现喜爱的地点。"}
+                        action := Plain{text: "探索地图  ›" width: Fit padding: 0}
                     }
                 }
             }
             Categories := Item{padding: Inset{left: 16 right: 16 bottom: 8} flow: Right spacing: 2
-                all := Plain{text: "All" width: Fill}
-                travel := Plain{text: "Explore" width: Fill}
-                photo := Plain{text: "Create" width: Fill}
-                work := Plain{text: "Work" width: Fill}
+                all := Plain{text: "全部" width: Fill}
+                travel := Plain{text: "探索" width: Fill}
+                photo := Plain{text: "创作" width: Fill}
+                work := Plain{text: "工作" width: Fill}
             }
             Empty := Item{padding: Inset{left: 24 right: 24 top: 48 bottom: 30}
                 Card{padding: 24 spacing: 20 align: Align{x: 0.5}
                     Icon{icon_walk: Walk{width: 68 height: 68} draw_icon +: {svg: crate_resource("self:resources/icons/apps.svg") color: #00b9a2}}
                     title := Heading{draw_text.text_style: Heavy{font_size: 25}}
                     caption := Text{draw_text.color: secondary}
-                    retry := Primary{text: "Refresh"}
-                    preview := Plain{text: "Explore preview catalog" width: Fill}
+                    retry := Primary{text: "刷新"}
+                    preview := Plain{text: "浏览预览目录" width: Fill}
                 }
             }
             Notice := Item{padding: Inset{left: 20 right: 20 top: 8 bottom: 8}
@@ -130,7 +130,7 @@ script_mod! {
                             subtitle := Meta{}
                         }
                     }
-                    action := Primary{text: "Get"}
+                    action := Primary{text: "获取"}
                     caption := Meta{}
                 }
             }
@@ -143,24 +143,24 @@ script_mod! {
             }
             PreviewArt := Item{padding: Inset{left: 20 right: 20 top: 14 bottom: 8} spacing: 8
                 Image{width: Fill height: 210 fit: ImageFit.CropToFill src: crate_resource("self:resources/mountain.jpg")}
-                Meta{text: "A glimpse of OctoSense • Preview artwork"}
+                Meta{text: "OctoSense 一览 · 预览插图"}
             }
             Consent := Item{padding: Inset{left: 20 right: 20 top: 12 bottom: 24}
                 Card{spacing: 14
                     title := Heading{}
                     permissions := Text{}
                     privacy := Meta{}
-                    confirm := Primary{text: "Install"}
-                    cancel := Plain{text: "Cancel" width: Fill}
+                    confirm := Primary{text: "安装"}
+                    cancel := Plain{text: "取消" width: Fill}
                 }
             }
             Space := View{width: Fill height: 20}
         }
         nav := SolidView{width: Fill height: 70 flow: Right padding: Inset{left: 12 right: 12 top: 4 bottom: 8} show_bg: true draw_bg.color: card
-            today := Tab{text: "Today" draw_icon.svg: crate_resource("self:resources/icons/today.svg")}
-            apps := Tab{text: "Apps" draw_icon.svg: crate_resource("self:resources/icons/apps.svg")}
-            search_tab := Tab{text: "Search" draw_icon.svg: crate_resource("self:resources/icons/search.svg")}
-            library := Tab{text: "Library" draw_icon.svg: crate_resource("self:resources/icons/library.svg")}
+            today := Tab{text: "今日" draw_icon.svg: crate_resource("self:resources/icons/today.svg")}
+            apps := Tab{text: "应用" draw_icon.svg: crate_resource("self:resources/icons/apps.svg")}
+            search_tab := Tab{text: "搜索" draw_icon.svg: crate_resource("self:resources/icons/search.svg")}
+            library := Tab{text: "已安装" draw_icon.svg: crate_resource("self:resources/icons/library.svg")}
         }
         }
     }
@@ -337,7 +337,7 @@ impl AppHubView {
                 self.rx = Some(rx);
                 self.refresh(cx);
             }
-            Err(e) => self.notice = format!("Could not start App Hub: {e:?}"),
+            Err(e) => self.notice = format!("无法启动应用中心：{e:?}"),
         }
         self.render(cx);
     }
@@ -363,7 +363,7 @@ impl AppHubView {
         if self.tx.as_ref().is_some_and(|tx| tx.send(command).is_ok()) {
             self.busy = true;
         } else {
-            self.notice = "App Hub is unavailable. Close it and try again.".into();
+            self.notice = "应用中心暂不可用，请关闭后重试。".into();
         }
     }
     fn drain(&mut self, cx: &mut Cx, _scope: &mut Scope) {
@@ -384,14 +384,14 @@ impl AppHubView {
                     self.confirming = false;
                     self.snapshot = Some(snapshot);
                     if let Some(error) = error {
-                        self.notice = format!("Installation didn’t finish. {error}");
+                        self.notice = format!("安装未完成。{error}");
                     } else {
-                        self.notice = "Installed. Your app is ready to open.".into();
+                        self.notice = "安装完成，可以打开应用。".into();
                     }
                 }
                 Reply::Open(id, result) => match result {
                     Ok(()) => cx.widget_action(self.widget_uid(), AppHubAction::OpenInstalled(id)),
-                    Err(error) => self.notice = format!("Could not open this app. {error}"),
+                    Err(error) => self.notice = format!("无法打开应用。{error}"),
                 },
             }
             if let Some(entry) = self
@@ -435,9 +435,9 @@ impl AppHubView {
         self.view.button(cx, ids!(source)).set_text(
             cx,
             if self.preview {
-                "Preview catalog"
+                "预览目录"
             } else {
-                "Live catalog"
+                "在线目录"
             },
         );
         self.view
@@ -490,42 +490,42 @@ impl AppHubView {
                     self.rows.push(Row::Screenshot(url.clone()));
                 }
                 self.rows
-                    .push(Row::Copy("About".into(), entry.description.clone()));
+                    .push(Row::Copy("关于".into(), entry.description.clone()));
                 self.rows.push(Row::Copy(
-                    "Information".into(),
+                    "应用信息".into(),
                     format!(
-                        "{}\n{}\nVersion {}",
-                        entry.publisher, entry.category, entry.version
+                        "{}\n{}\n版本 {}",
+                        entry.publisher, category_name(&entry.category), entry.version
                     ),
                 ));
                 if !entry.release_notes.is_empty() {
                     self.rows
-                        .push(Row::Copy("What’s new".into(), entry.release_notes.clone()));
+                        .push(Row::Copy("更新内容".into(), entry.release_notes.clone()));
                 }
                 if entry.kind == CatalogKind::Live {
                     self.rows.push(Row::Copy(
-                        "Permissions".into(),
-                        lines_or(&entry.permissions, "No additional permissions."),
+                        "权限".into(),
+                        lines_or(&entry.permissions, "不需要额外权限。"),
                     ));
                     self.rows.push(Row::Copy(
-                        "Privacy".into(),
-                        lines_or(&entry.privacy, "No additional privacy information."),
+                        "隐私".into(),
+                        lines_or(&entry.privacy, "未提供额外隐私信息。"),
                     ));
                 }
             }
         } else {
             let title = match self.page {
-                Page::Today => "Today",
-                Page::Apps => "Apps",
-                Page::Search => "Search",
-                Page::Library => "Library",
+                Page::Today => "今日",
+                Page::Apps => "应用",
+                Page::Search => "搜索",
+                Page::Library => "已安装",
             };
             let caption = if self.preview {
-                "Preview • Apps included with OctoSense"
+                "预览 · OctoSense 内置应用"
             } else if self.page == Page::Library {
-                "Your installed apps"
+                "已安装的应用"
             } else {
-                "Discover apps for your OctoSense"
+                "发现适合你的 OctoSense 应用"
             };
             if self.page != Page::Search {
                 self.rows.push(Row::Title(title.into(), caption.into()));
@@ -550,25 +550,25 @@ impl AppHubView {
             );
             if entries.is_empty() {
                 let (title, caption) = if self.busy && self.snapshot.is_none() {
-                    ("Connecting to App Hub", "Checking the latest catalog…")
+                    ("正在连接应用中心", "正在检查最新目录…")
                 } else if (self.page == Page::Search && !self.query.is_empty())
                     || self.category.is_some()
                 {
-                    ("No matching apps", "Try another search or choose All.")
+                    ("没有匹配的应用", "请换个搜索词或选择“全部”。")
                 } else if self.page == Page::Library {
                     (
-                        "Make yourself at home",
-                        "Apps you install from the Hub will appear here.",
+                        "欢迎使用",
+                        "通过应用中心安装的应用会显示在这里。",
                     )
                 } else if self.snapshot.as_ref().is_some_and(|s| !s.verified) {
                     (
-                        "Couldn’t reach App Hub",
-                        "Check your connection and try again.",
+                        "无法连接应用中心",
+                        "请检查网络连接后重试。",
                     )
                 } else {
                     (
-                        "Good things are on the way",
-                        "Apps published to the OctoSense Hub will appear here.",
+                        "精彩即将到来",
+                        "发布到 OctoSense 应用中心的应用会显示在这里。",
                     )
                 };
                 self.rows.push(Row::Empty(title.into(), caption.into()));
@@ -581,9 +581,9 @@ impl AppHubView {
                 if self.page == Page::Today {
                     self.rows.push(Row::Section(
                         if self.preview {
-                            "Made for OctoSense"
+                            "为 OctoSense 打造"
                         } else {
-                            "Explore the Hub"
+                            "探索应用中心"
                         }
                         .into(),
                     ));
@@ -595,9 +595,9 @@ impl AppHubView {
             if !self.preview {
                 self.rows.push(Row::Notice(
                     if let Some(p) = self.snapshot.as_ref().and_then(|s| s.published.as_ref()) {
-                        format!("OctoSense App Hub • Catalog published {p}")
+                        format!("OctoSense 应用中心 · 目录发布时间 {p}")
                     } else {
-                        "OctoSense App Hub".into()
+                        "OctoSense 应用中心".into()
                     },
                 ));
             }
@@ -633,7 +633,7 @@ impl AppHubView {
                     self.confirming = true;
                     self.reset_scroll(cx);
                 } else {
-                    self.notice = "Refresh the catalog before installing this app.".into();
+                    self.notice = "请先刷新目录，再安装此应用。".into();
                 }
             }
             EntryStatus::Unavailable(reason) => self.notice = reason,
@@ -735,7 +735,7 @@ impl AppHubView {
         item.button(cx, ids!(action)).set_text(
             cx,
             if self.installing && self.selected.as_ref().is_some_and(|e| e.id == entry.id) {
-                "Installing…"
+                "正在安装…"
             } else {
                 button_text(entry)
             },
@@ -801,11 +801,11 @@ impl AppHubView {
                         if (self.page == Page::Search && !self.query.is_empty())
                             || self.category.is_some()
                         {
-                            "Clear filters"
+                            "清除筛选"
                         } else if self.busy {
-                            "Connecting…"
+                            "正在连接…"
                         } else {
-                            "Refresh"
+                            "刷新"
                         },
                     );
                 }
@@ -815,7 +815,7 @@ impl AppHubView {
                     item.label(cx, ids!(caption)).set_text(
                         cx,
                         if entry.kind == CatalogKind::Preview {
-                            "Included with OctoSense • Preview"
+                            "OctoSense 内置 · 预览"
                         } else {
                             &entry.publisher
                         },
@@ -832,12 +832,12 @@ impl AppHubView {
                 }
                 Row::Consent(entry) => {
                     item.label(cx, ids!(title))
-                        .set_text(cx, &format!("Install {}?", entry.name));
+                        .set_text(cx, &format!("安装 {}？", entry.name));
                     item.label(cx, ids!(permissions)).set_text(
                         cx,
                         &format!(
-                            "This app will have access to:\n\n{}",
-                            lines_or(&entry.permissions, "No additional permissions.")
+                            "此应用将获得以下权限：\n\n{}",
+                            lines_or(&entry.permissions, "不需要额外权限。")
                         ),
                     );
                     item.label(cx, ids!(privacy))
@@ -849,9 +849,9 @@ impl AppHubView {
                     item.button(cx, ids!(confirm)).set_text(
                         cx,
                         if self.installing {
-                            "Installing…"
+                            "正在安装…"
                         } else {
-                            "Install"
+                            "安装"
                         },
                     );
                 }
@@ -1007,20 +1007,48 @@ fn button_text(entry: &Entry) -> &str {
         EntryStatus::Available | EntryStatus::UpdateAvailable
     ) && entry.consent.is_none()
     {
-        return "Refresh";
+        return "刷新";
     }
     match entry.status {
-        EntryStatus::BuiltIn | EntryStatus::Installed => "Open",
-        EntryStatus::UpdateAvailable => "Update",
-        EntryStatus::Available => "Get",
-        EntryStatus::Unavailable(_) => "Unavailable",
+        EntryStatus::BuiltIn | EntryStatus::Installed => "打开",
+        EntryStatus::UpdateAvailable => "更新",
+        EntryStatus::Available => "获取",
+        EntryStatus::Unavailable(_) => "不可用",
+    }
+}
+fn category_name(category: &str) -> &str {
+    match category {
+        "productivity" => "效率工具", "utilities" => "实用工具", "travel" => "旅行探索",
+        "photo-video" => "照片与视频", "news" => "新闻", "games" => "游戏", _ => category,
+    }
+}
+fn permission_text(line: &str) -> &str {
+    match line {
+        "Keep its own data on this device" => "在本机保存本应用的数据",
+        "Read and send mail from accounts you sign in to on the device" => "读取和发送你在本机登录并授权的账号邮件",
+        "Read and change events in system calendars you allow" => "读取和修改你授权的系统日历事件",
+        "Send what you give it to the AI provider you configured, within a daily budget" => "在每日预算内，将你提供的内容发送给已配置的 AI 模型提供方",
+        "Ask you questions" => "向你提问",
+        "Read your shared data" => "读取共享数据",
+        "Use your location" => "使用位置信息",
+        "Use the camera" => "使用摄像头",
+        "Use the clipboard" => "使用剪贴板",
+        "Show pictures from any website" => "显示网站图片",
+        "Open web pages in a browser view" => "在浏览器视图中打开网页",
+        "Use the microphone" => "使用麦克风",
+        "Save to your photo library, where other apps can see it" => "保存到照片图库，其他应用也可查看",
+        "Manage the assistant's AI providers, whose keys stay with the device" => "管理助手的 AI 模型提供方，密钥留在本机",
+        "Read news the device collects from its feeds and topics" => "读取本机汇集的新闻资讯",
+        "Show cards on your glance screen" => "在概览屏幕显示卡片",
+        "Draw its screens, and nothing else" => "仅绘制应用界面",
+        _ => line,
     }
 }
 fn lines_or(lines: &[String], empty: &str) -> String {
     if lines.is_empty() {
         empty.into()
     } else {
-        lines.join("\n\n")
+        lines.iter().map(|line| permission_text(line)).collect::<Vec<_>>().join("\n\n")
     }
 }
 impl Widget for AppHubView {
@@ -1171,7 +1199,7 @@ mod tests {
             assert!(
                 view.rows
                     .iter()
-                    .any(|row| matches!(row,Row::Empty(title,_) if title=="Make yourself at home")),
+                    .any(|row| matches!(row,Row::Empty(title,_) if title=="欢迎使用")),
                 "saved search must not filter Library"
             );
             let mut old = catalog::preview_entries().remove(0);
@@ -1213,7 +1241,7 @@ mod tests {
         entry.kind = CatalogKind::Live;
         entry.status = EntryStatus::Available;
         assert!(!can_activate(&entry));
-        assert_eq!(button_text(&entry), "Refresh");
+        assert_eq!(button_text(&entry), "刷新");
         entry.status = EntryStatus::Unavailable("Withdrawn".into());
         assert!(!can_activate(&entry));
     }

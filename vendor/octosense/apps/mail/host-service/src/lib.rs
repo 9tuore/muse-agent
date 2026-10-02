@@ -135,7 +135,7 @@ impl Transport for Network {
             return fetched;
         }
         if folder != INBOX {
-            return Err("This account reads the inbox only.".into());
+            return Err("此账号只能读取收件箱。".into());
         }
         let mut seen: Vec<Value> = state["seen"].as_array().cloned().unwrap_or_default();
         let known: HashSet<String> = seen.iter().filter_map(|v| v.as_str().map(str::to_string)).collect();
@@ -286,10 +286,10 @@ impl Store {
             .accounts()
             .into_iter()
             .find(|a| text(a, "id") == id)
-            .ok_or("There is no such account.")?;
+            .ok_or("账号不存在。")?;
         let granted = account["apps"].as_array().is_some_and(|apps| apps.iter().any(|a| a == app_id));
         if !granted {
-            return Err("This app may not use that account.".into());
+            return Err("此应用未获该账号的访问授权。".into());
         }
         Ok(account)
     }
@@ -437,7 +437,7 @@ impl HostService for MailService {
             }
             "add_account" => {
                 if let Some((_, earlier)) = self.pending.lock().unwrap().take() {
-                    earlier.send(Err("Another sign-in replaced this one.".into()));
+                    earlier.send(Err("已启动另一次登录，本次登录已结束。".into()));
                 }
                 *self.pending.lock().unwrap() = Some((call.app_id.clone(), reply));
                 host.open_sheet(signin_sheet());
@@ -445,14 +445,14 @@ impl HostService for MailService {
             "sheet.cancel" => {
                 host.close_sheet();
                 if let Some((_, pending)) = self.pending.lock().unwrap().take() {
-                    pending.send(Err("Sign-in cancelled.".into()));
+                    pending.send(Err("已取消登录。".into()));
                 }
                 reply.send(Ok(json!({})));
             }
             "sheet.submit" => {
                 let Some(app_id) = self.pending.lock().unwrap().as_ref().map(|(app, _)| app.clone()) else {
                     host.close_sheet();
-                    reply.send(Err("No app is waiting for this sign-in.".into()));
+                    reply.send(Err("当前没有应用等待登录。".into()));
                     return;
                 };
                 let account = match account_from_form(&call.args) {
@@ -587,7 +587,7 @@ impl HostService for MailService {
                     .as_array_mut()
                     .and_then(|m| m.iter_mut().find(|m| text(m, "id") == wanted))
                 else {
-                    return reply.send(Err("There is no such message.".into()));
+                    return reply.send(Err("邮件不存在。".into()));
                 };
                 let was_unread = message["unread"].as_bool().unwrap_or(true);
                 message["unread"] = json!(false);
@@ -656,20 +656,20 @@ fn choose(p){
     // Swap Gmail's servers for each other; anything typed stays.
     let h = ui.pop_host.text()
     if p == "imap" {
-        ui.incoming.set_text("Incoming (IMAP, TLS)")
+        ui.incoming.set_text("收件服务器（IMAP，TLS）")
         if h == "pop.gmail.com" || h == "" { ui.pop_host.set_text("imap.gmail.com") ui.pop_port.set_text("993") }
     } else {
-        ui.incoming.set_text("Incoming (POP3, TLS)")
+        ui.incoming.set_text("收件服务器（POP3，TLS）")
         if h == "imap.gmail.com" || h == "" { ui.pop_host.set_text("pop.gmail.com") ui.pop_port.set_text("995") }
     }
 }
 fn submit(){
-    ui.status.set_text("Checking the account…")
+    ui.status.set_text("正在验证账号…")
     host.request("mail.sheet.submit", {
         address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
         host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
         smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
-    }, fn(r){ if r.is_ok { ui.status.set_text("Signed in") } else { ui.status.set_text(r.error) } })
+    }, fn(r){ if r.is_ok { ui.status.set_text("登录成功") } else { ui.status.set_text(r.error) } })
 }
 fn cancel(){ host.request("mail.sheet.cancel", {}, fn(r){}) }
 let Field = TextInput{width: Fill height: 40
@@ -691,36 +691,36 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
     ScrollYView{width: Fill height: Fill flow: Down padding: Inset{left: 12 right: 12 top: 24 bottom: 24}
     RoundedView{width: Fill height: Fit flow: Down spacing: 8 padding: 16 new_batch: true show_bg: true draw_bg.color: #xffffff draw_bg.border_radius: 18.0
         View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
-            ButtonFlat{text: "Cancel" height: 40 on_click: || cancel()
+            ButtonFlat{text: "取消" height: 40 on_click: || cancel()
                 draw_bg +: {color: #x00000000 color_hover: #x0000000a color_down: #x00000014 border_size: 0.0}
                 draw_text +: {color: #x007aff color_hover: #x007aff color_down: #x007aff text_style +: {font_size: 15}}}
             View{width: Fill height: 1}
-            ButtonFlat{text: "Sign in" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
+            ButtonFlat{text: "登录" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
                 draw_bg +: {border_radius: 20.0 color: #x007aff color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
                 draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff text_style +: {font_size: 15}}}
         }
-        Label{width: Fill text: "OctoSense · Add a mail account" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
-        Label{width: Fill text: "Your password stays with OctoSense. The app that asked only gets your mail." draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+        Label{width: Fill text: "OctoSense · 添加邮箱账号" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
+        Label{width: Fill text: "密码由 OctoSense 安全保管，Muse 只能访问获授权的邮件。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
         status := Label{width: Fill text: "" draw_text.color: #xff3b30 draw_text.text_style.font_size: 12}
-        Caption{text: "Email address"}
-        address := Field{empty_text: "you@example.com"}
-        Caption{text: "Login (if not the address)"}
-        username := Field{empty_text: "optional"}
-        Caption{text: "Password or app password"}
-        password := Field{empty_text: "password" is_password: true}
+        Caption{text: "邮箱地址"}
+        address := Field{empty_text: "例如 name@example.com"}
+        Caption{text: "登录用户名（与邮箱地址不同时填写）"}
+        username := Field{empty_text: "选填"}
+        Caption{text: "密码或邮箱应用专用密码"}
+        password := Field{empty_text: "请输入密码" is_password: true}
         RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
-            imap_on := Chosen{text: "IMAP: all folders"}
-            imap_off := Choice{visible: false text: "IMAP: all folders" on_click: || choose("imap")}
-            pop_on := Chosen{visible: false text: "POP3: inbox only"}
-            pop_off := Choice{text: "POP3: inbox only" on_click: || choose("pop3")}
+            imap_on := Chosen{text: "IMAP：所有文件夹"}
+            imap_off := Choice{visible: false text: "IMAP：所有文件夹" on_click: || choose("imap")}
+            pop_on := Chosen{visible: false text: "POP3：仅收件箱"}
+            pop_off := Choice{text: "POP3：仅收件箱" on_click: || choose("pop3")}
         }
         View{width: Fill height: Fit flow: Right spacing: 8
-            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "Incoming (IMAP, TLS)"} pop_host := Field{text: "imap.gmail.com"}}
-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} pop_port := Field{text: "993"}}
+            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "收件服务器（IMAP，TLS）"} pop_host := Field{text: "imap.gmail.com"}}
+            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} pop_port := Field{text: "993"}}
         }
         View{width: Fill height: Fit flow: Right spacing: 8
-            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "Outgoing (SMTP, TLS)"} smtp_host := Field{text: "smtp.gmail.com"}}
-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} smtp_port := Field{text: "465"}}
+            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "发件服务器（SMTP，TLS）"} smtp_host := Field{text: "smtp.gmail.com"}}
+            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} smtp_port := Field{text: "465"}}
         }
     }
     }
@@ -849,7 +849,7 @@ mod tests {
         assert!(!std::fs::read_to_string(dir.join("mail/accounts.json")).unwrap().contains("s3cret"), "no password in the account list");
 
         // Another app cannot reach the account.
-        assert!(ask(&dir, "os.other", "mail.list", json!({"account": id}), false, &mut host).unwrap_err().contains("may not use"));
+        assert!(ask(&dir, "os.other", "mail.list", json!({"account": id}), false, &mut host).unwrap_err().contains("未获该账号的访问授权"));
         assert_eq!(ask(&dir, "os.other", "mail.accounts", Value::Null, false, &mut host).unwrap(), json!([]));
         assert_eq!(ask(&dir, "os.mail", "mail.accounts", Value::Null, false, &mut host).unwrap()[0]["id"], id.as_str());
 

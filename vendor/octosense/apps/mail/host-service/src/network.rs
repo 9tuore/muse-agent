@@ -62,11 +62,12 @@ pub fn validate(account: &Value) -> Result<(), String> {
     for key in ["address", "username", "host", "smtp_host", "password"] {
         let value = text(account, key);
         if value.is_empty() || value.contains(['\r', '\n', '\0']) {
-            return Err(format!("Enter a valid {key}."));
+            let field = match key { "address" => "邮箱地址", "username" => "登录用户名", "host" => "收件服务器地址", "smtp_host" => "发件服务器地址", "password" => "密码", _ => "账号字段" };
+            return Err(format!("请填写有效的{field}。"));
         }
     }
     if !text(account, "address").contains('@') {
-        return Err("Enter an email address.".into());
+        return Err("请填写邮箱地址。".into());
     }
     for key in ["port", "smtp_port"] {
         if text(account, key)
@@ -75,12 +76,12 @@ pub fn validate(account: &Value) -> Result<(), String> {
             .filter(|n| *n > 0)
             .is_none()
         {
-            return Err("Port must be between 1 and 65535.".into());
+            return Err("端口必须在 1 到 65535 之间。".into());
         }
     }
     for key in ["security", "smtp_security"] {
         if !matches!(text(account, key), "tls" | "starttls") {
-            return Err("Choose TLS or STARTTLS.".into());
+            return Err("请选择 TLS 或 STARTTLS 加密。".into());
         }
     }
     Ok(())
@@ -94,7 +95,7 @@ impl Wire {
     pub(crate) fn connect(host: &str, port: u16) -> Result<Self, String> {
         let addresses = (host, port)
             .to_socket_addrs()
-            .map_err(|_| "Cannot resolve the mail server. Check Wi-Fi.")?;
+            .map_err(|_| "无法解析邮箱服务器，请检查网络。")?;
         let mut socket = None;
         for address in addresses.take(4) {
             if let Ok(stream) = TcpStream::connect_timeout(&address, Duration::from_secs(12)) {
@@ -102,21 +103,21 @@ impl Wire {
                 break;
             }
         }
-        let socket = socket.ok_or("Cannot connect to the mail server. Check Wi-Fi.")?;
+        let socket = socket.ok_or("无法连接邮箱服务器，请检查网络。")?;
         socket
             .set_read_timeout(Some(Duration::from_secs(20)))
-            .map_err(|_| "Cannot configure mail connection.")?;
+            .map_err(|_| "无法配置邮箱连接。")?;
         socket
             .set_write_timeout(Some(Duration::from_secs(20)))
-            .map_err(|_| "Cannot configure mail connection.")?;
+            .map_err(|_| "无法配置邮箱连接。")?;
         Ok(Self::Plain(BufReader::new(socket)))
     }
     pub(crate) fn tls(self, host: &str) -> Result<Self, String> {
         let Self::Plain(reader) = self else {
-            return Err("Connection is already encrypted.".into());
+            return Err("此连接已经加密。".into());
         };
         if !reader.buffer().is_empty() {
-            return Err("Unexpected bytes before TLS.".into());
+            return Err("TLS 加密前收到异常数据。".into());
         }
         let roots = rustls::RootCertStore {
             roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
@@ -125,18 +126,18 @@ impl Wire {
             rustls::crypto::ring::default_provider(),
         ))
         .with_safe_default_protocol_versions()
-        .map_err(|_| "TLS configuration failed.")?
+        .map_err(|_| "TLS 加密配置失败。")?
         .with_root_certificates(roots)
         .with_no_client_auth();
         let name = rustls::pki_types::ServerName::try_from(host.to_owned())
-            .map_err(|_| "Invalid TLS server name.")?;
+            .map_err(|_| "TLS 服务器名称无效。")?;
         let mut client = rustls::ClientConnection::new(Arc::new(config), name)
-            .map_err(|_| "TLS setup failed.")?;
+            .map_err(|_| "TLS 加密连接失败。")?;
         let mut socket = reader.into_inner();
         while client.is_handshaking() {
             client
                 .complete_io(&mut socket)
-                .map_err(|_| "TLS verification failed. Check server name and device date.")?;
+                .map_err(|_| "TLS 证书验证失败，请检查服务器名称和设备日期。")?;
         }
         Ok(Self::Tls(BufReader::new(rustls::StreamOwned::new(
             client, socket,
@@ -150,7 +151,7 @@ impl Wire {
         writer
             .write_all(bytes)
             .and_then(|_| writer.flush())
-            .map_err(|_| "Connection interrupted while writing mail data.".into())
+            .map_err(|_| "发送邮件数据时连接中断。".into())
     }
     /// Exactly `n` bytes: an IMAP literal.
     #[allow(dead_code)]
@@ -162,7 +163,7 @@ impl Wire {
         let mut out = vec![0; n];
         reader
             .read_exact(&mut out)
-            .map_err(|_| "Mail connection timed out or closed.")?;
+            .map_err(|_| "邮箱连接超时或已关闭。")?;
         Ok(out)
     }
     pub(crate) fn line(&mut self) -> Result<Vec<u8>, String> {
@@ -175,9 +176,9 @@ impl Wire {
         reader
             .take(2_100_000)
             .read_until(b'\n', &mut out)
-            .map_err(|_| "Mail connection timed out or closed.")?;
+            .map_err(|_| "邮箱连接超时或已关闭。")?;
         if !out.ends_with(b"\n") {
-            return Err("Invalid or oversized mail response.".into());
+            return Err("邮箱响应无效或超过大小限制。".into());
         }
         Ok(out)
     }
@@ -186,7 +187,7 @@ impl Wire {
         let line = self.line()?;
         if !line.starts_with(b"+OK") {
             return Err(
-                "Mail server rejected the request. Check account settings and app password.".into(),
+                "邮箱服务器拒绝请求，请检查账号设置和应用专用密码。".into(),
             );
         }
         Ok(line)
@@ -204,7 +205,7 @@ impl Wire {
             }
             size += line.len();
             if size > limit {
-                return Err("Message exceeds the download limit.".into());
+                return Err("邮件超过下载大小限制。".into());
             }
             rows.push(line);
         }
@@ -219,7 +220,7 @@ impl Wire {
                 .unwrap_or(0);
             if !expected.contains(&code) {
                 return Err(
-                    "Outgoing server rejected the request. Check its settings and app password."
+                    "发件服务器拒绝请求，请检查服务器设置和应用专用密码。"
                         .into(),
                 );
             }
@@ -227,7 +228,7 @@ impl Wire {
                 return Ok(());
             }
         }
-        Err("Invalid outgoing server response.".into())
+        Err("发件服务器响应无效。".into())
     }
     fn smtp(&mut self, command: &str, expected: &[u16]) -> Result<(), String> {
         self.write(format!("{command}\r\n").as_bytes())?;
@@ -243,7 +244,7 @@ fn pop_connect(account: &Value) -> Result<Wire, String> {
         wire = wire.tls(host)?;
     }
     if !wire.line()?.starts_with(b"+OK") {
-        return Err("Invalid POP3 greeting.".into());
+        return Err("POP3 服务器握手响应无效。".into());
     }
     if text(account, "security") == "starttls" {
         wire.pop("STLS")?;
@@ -267,7 +268,7 @@ pub fn test(account: &Value) -> Result<Value, String> {
         .split_whitespace()
         .nth(1)
         .and_then(|s| s.parse::<usize>().ok())
-        .ok_or("Invalid mailbox count.")?;
+        .ok_or("邮箱邮件数量无效。")?;
     let _ = wire.pop("QUIT");
     Ok(json!({"available":count,"tls_verified":true,"transport":"device-pop3"}))
 }
@@ -277,7 +278,7 @@ pub fn fetch(account: &Value, seen: &HashSet<String>) -> Result<Value, String> {
         .split_whitespace()
         .nth(1)
         .and_then(|s| s.parse::<usize>().ok())
-        .ok_or("Invalid mailbox count.")?;
+        .ok_or("邮箱邮件数量无效。")?;
     wire.pop("UIDL")?;
     let rows = wire.multiline(20_000_000)?;
     wire.pop("LIST")?;
@@ -368,7 +369,7 @@ fn collect_parts(
     }
 }
 pub fn decode(raw: &[u8], uid: &str) -> Result<Value, String> {
-    let parsed = mailparse::parse_mail(raw).map_err(|_| "Cannot decode this email.")?;
+    let parsed = mailparse::parse_mail(raw).map_err(|_| "无法解析此邮件。")?;
     let header = |name: &str| parsed.headers.get_first_value(name).unwrap_or_default();
     let from = header("From");
     let addresses = mailparse::addrparse(&from).ok();
@@ -385,7 +386,7 @@ pub fn decode(raw: &[u8], uid: &str) -> Result<Value, String> {
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| {
             if address.is_empty() {
-                "Unknown sender".into()
+                "未知发件人".into()
             } else {
                 address.clone()
             }
@@ -434,11 +435,11 @@ pub fn send(account: &Value, draft: &Value) -> Result<Value, String> {
     validate(account)?;
     let to = text(draft, "to").trim();
     if !to.contains('@') || to.contains(['\r', '\n', '<', '>', ' ', ',', ';']) {
-        return Err("Enter one recipient email address.".into());
+        return Err("请填写一个收件人的邮箱地址。".into());
     }
     let subject = text(draft, "subject");
     if subject.contains(['\r', '\n']) {
-        return Err("Subject cannot contain line breaks.".into());
+        return Err("邮件主题不能包含换行。".into());
     }
     let host = text(account, "smtp_host");
     let mut wire = Wire::connect(host, text(account, "smtp_port").parse().unwrap())?;

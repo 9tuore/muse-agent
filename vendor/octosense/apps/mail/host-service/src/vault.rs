@@ -17,7 +17,7 @@ pub trait Vault: Send + Sync {
 }
 
 fn missing() -> String {
-    "The account's password is missing; sign in again.".into()
+    "账号密码缺失，请重新登录。".into()
 }
 
 fn secret_path(dir: &Path, id: &str) -> PathBuf {
@@ -101,18 +101,18 @@ pub mod keychain {
     fn entry(dir: &Path, id: &str) -> Result<keyring::Entry, String> {
         let dir = std::fs::canonicalize(dir).unwrap_or_else(|_| dir.to_path_buf());
         let profile = crate::network::hash(&dir.to_string_lossy());
-        keyring::Entry::new(&format!("OctoSense Mail {}", &profile[..12]), id).map_err(|e| format!("The keychain is unavailable: {e}"))
+        keyring::Entry::new(&format!("OctoSense Mail {}", &profile[..12]), id).map_err(|e| format!("钥匙串不可用：{e}"))
     }
 
     impl Vault for Keychain {
         fn put(&self, dir: &Path, id: &str, secret: &str) -> Result<(), String> {
-            entry(dir, id)?.set_password(secret).map_err(|e| format!("Cannot store the password in the keychain: {e}"))
+            entry(dir, id)?.set_password(secret).map_err(|e| format!("无法将密码保存到钥匙串：{e}"))
         }
         fn get(&self, dir: &Path, id: &str) -> Result<String, String> {
             match entry(dir, id)?.get_password() {
                 Ok(secret) => Ok(secret),
                 Err(keyring::Error::NoEntry) => migrate(self, dir, id).ok_or_else(missing),
-                Err(e) => Err(format!("Cannot read the password from the keychain: {e}")),
+                Err(e) => Err(format!("无法从钥匙串读取密码：{e}")),
             }
         }
         fn remove(&self, dir: &Path, id: &str) {
@@ -170,14 +170,14 @@ mod android {
     unsafe fn with_env<T>(f: impl FnOnce(*mut jni::JNIEnv) -> Result<T, String>) -> Result<T, String> {
         let vm = makepad_android_state::get_java_vm();
         if vm.is_null() {
-            return Err("The Android keystore is unavailable.".into());
+            return Err("Android 密钥存储不可用。".into());
         }
         let mut env: *mut std::ffi::c_void = null_mut();
         let attached_here = ((**vm).GetEnv.unwrap())(vm, &mut env, jni::JNI_VERSION_1_6) != 0;
         if attached_here {
             let mut fresh: *mut jni::JNIEnv = null_mut();
             if ((**vm).AttachCurrentThread.unwrap())(vm, &mut fresh, null_mut()) != 0 {
-                return Err("The Android keystore is unavailable.".into());
+                return Err("Android 密钥存储不可用。".into());
             }
             env = fresh as _;
         }
@@ -198,7 +198,7 @@ mod android {
     unsafe fn check(env: *mut jni::JNIEnv, what: &str) -> Result<(), String> {
         if ((**env).ExceptionCheck.unwrap())(env) != 0 {
             ((**env).ExceptionClear.unwrap())(env);
-            return Err(format!("The Android keystore failed ({what})."));
+            return Err(format!("Android 密钥存储失败（{what}）。"));
         }
         Ok(())
     }

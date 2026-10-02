@@ -47,7 +47,7 @@ impl Imap {
     fn greeted(mut wire: Wire) -> Result<Imap, String> {
         let greeting = wire.line()?;
         if !greeting.starts_with(b"* OK") && !greeting.starts_with(b"* PREAUTH") {
-            return Err("Invalid IMAP greeting.".into());
+            return Err("IMAP 服务器握手响应无效。".into());
         }
         Ok(Imap { wire, tag: 0 })
     }
@@ -78,7 +78,7 @@ impl Imap {
                     self.wire.write(&line)?;
                     let go = self.wire.line()?;
                     if !go.starts_with(b"+") {
-                        return Err("Mail server refused the request.".into());
+                        return Err("邮箱服务器拒绝请求。".into());
                     }
                     line = value.as_bytes().to_vec();
                 }
@@ -99,7 +99,7 @@ impl Imap {
                 if status.starts_with("OK") {
                     return Ok(out);
                 }
-                return Err(format!("Mail server said: {}", status.trim()));
+                return Err(format!("邮箱服务器返回：{}", status.trim()));
             }
             let mut response = Untagged { text: String::new(), literals: Vec::new() };
             let mut line = first;
@@ -110,7 +110,7 @@ impl Imap {
                     Some(n) => {
                         total += n;
                         if total > MAX_MESSAGE * 4 {
-                            return Err("Mail server sent more than expected.".into());
+                            return Err("邮箱服务器返回的数据超过限制。".into());
                         }
                         response.literals.push(self.wire.read_exact(n)?);
                         line = self.wire.line()?;

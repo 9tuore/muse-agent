@@ -67,7 +67,7 @@ pub fn connect_client() -> String {
     let mut script = String::from(r#"
 fn status(text){ ui.status.set_text(text) }
 fn show(d){
-    if d.enabled { ui.state.set_text("On") } else { ui.state.set_text("Off") }
+    if d.enabled { ui.state.set_text("已开启") } else { ui.state.set_text("已关闭") }
     ui.turn_on.set_visible(d.enabled == false)
     ui.on_box.set_visible(d.enabled == true)
     ui.origin.set_text(d.origin)
@@ -81,19 +81,19 @@ fn answer(r){
     show(r.data)
     status("")
 }
-fn refresh(){ status("Checking…") host.request("llm.sheet.client_info", {}, fn(r){ answer(r) }) }
+fn refresh(){ status("正在检查…") host.request("llm.sheet.client_info", {}, fn(r){ answer(r) }) }
 fn enable(on){
-    if on { status("Starting the Talk to Octos server…") } else { status("Stopping external access…") }
+    if on { status("正在启动助手连接服务…") } else { status("正在关闭外部访问…") }
     host.request("llm.sheet.client_enable", {on: on}, fn(r){ answer(r) })
 }
 fn rotate(){
-    status("Revoking…")
+    status("正在撤销…")
     host.request("llm.sheet.client_rotate", {}, fn(r){
         answer(r)
-        if r.is_ok { status("Every paired client must pair again.") }
+        if r.is_ok { status("所有客户端均需重新配对。") }
     })
 }
-fn save_origin(){ status("Saving…") host.request("llm.sheet.client_origin", {origin: ui.web_origin.text()}, fn(r){ answer(r) }) }
+fn save_origin(){ status("正在保存…") host.request("llm.sheet.client_origin", {origin: ui.web_origin.text()}, fn(r){ answer(r) }) }
 fn open_web(){ host.request("llm.sheet.client_open", {}, fn(r){ if !r.is_ok { status(r.error) } }) }
 fn poll_pair(){
     host.request("llm.sheet.client_pair_ready", {}, fn(r){
@@ -102,7 +102,7 @@ fn poll_pair(){
         start_timeout(0.3, || poll_pair())
     })
 }
-fn pair(){ status("Preparing a pairing code…") host.request("llm.sheet.client_pair", {}, fn(r){ if r.is_ok { poll_pair() } else { status(r.error) } }) }
+fn pair(){ status("正在生成配对码…") host.request("llm.sheet.client_pair", {}, fn(r){ if r.is_ok { poll_pair() } else { status(r.error) } }) }
 fn close(){ host.request("llm.sheet.cancel", {}, nil) }
 // The host's Back (phone) calls cancel(): closing ends any pairing code.
 fn cancel(){ close() }
@@ -110,37 +110,37 @@ start_timeout(0.1, || refresh())
 "#);
     script.push_str(STYLES);
     script.push_str(&frame(
-        r#"Plain{text: "Done" on_click: || close()}
+        r#"Plain{text: "完成" on_click: || close()}
            View{width: Fill height: 1}"#,
-        r#"Title{text: "Talk to Octos"}
-        Note{text: "Let a web client or a terminal on this device talk to your assistant. Off by default; only this device's apps use it then."}
+        r#"Title{text: "连接 Octos 助手"}
+        Note{text: "允许本机网页客户端或终端与助手通信。默认关闭，关闭时仅供本机应用使用。"}
         View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
-            Caption{text: "Talk to Octos"}
+            Caption{text: "连接 Octos 助手"}
             state := Label{text: "" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 13}}
         }
-        turn_on := Primary{text: "Turn on" on_click: || enable(true)}
-        Note{text: "Turning on restarts the assistant: work in progress, in apps too, stops."}
+        turn_on := Primary{text: "开启" on_click: || enable(true)}
+        Note{text: "开启后会重启助手，应用内正在执行的任务也会停止。"}
         on_box := View{visible: false width: Fill height: Fit flow: Down spacing: 8
-            Primary{text: "Pair a web client" on_click: || pair()}
-            Note{text: "Shows a one-time code and a QR of the web link. A code works once, for five minutes, only while its sheet is open."}
-            Caption{text: "Web client origin · https, or http only for localhost"}
+            Primary{text: "配对网页客户端" on_click: || pair()}
+            Note{text: "显示一次性配对码和网页二维码。配对码有效期为 5 分钟，仅在此面板打开时有效。"}
+            Caption{text: "网页客户端来源地址 · 使用 HTTPS；仅本机可使用 HTTP"}
             web_origin := Field{empty_text: "https://web.example"}
-            Plain{text: "Save origin" on_click: || save_origin()}
-            Note{text: "Saving a changed origin restarts the assistant: work in progress, in apps too, stops."}
-            Plain{text: "Open web client" on_click: || open_web()}
-            Caption{text: "Server · the web client pairs with it"}
+            Plain{text: "保存来源地址" on_click: || save_origin()}
+            Note{text: "更改来源地址后会重启助手，并停止正在执行的任务。"}
+            Plain{text: "打开网页客户端" on_click: || open_web()}
+            Caption{text: "服务器 · 网页客户端与其配对"}
             origin := Field{is_read_only: true}
-            Caption{text: "WebSocket endpoint · for a terminal client"}
+            Caption{text: "WebSocket 端点 · 供终端客户端使用"}
             endpoint := Field{is_read_only: true}
-            Caption{text: "Connection file · a terminal client of this user reads it"}
+            Caption{text: "连接文件 · 供当前用户的终端客户端读取"}
             descriptor := Field{is_read_only: true}
-            Caption{text: "System-agent conversation · profile _main"}
+            Caption{text: "系统助手对话 · 配置 _main"}
             session := Field{is_read_only: true}
-            Plain{text: "Revoke all clients" on_click: || rotate()}
-            Note{text: "Revoking disconnects every client and makes each pair again. It restarts the assistant, and Turn off does too: work in progress, in apps too, stops."}
-            Plain{text: "Turn off" on_click: || enable(false)}
+            Plain{text: "撤销全部客户端" on_click: || rotate()}
+            Note{text: "撤销会断开所有客户端并要求重新配对，同时重启助手。关闭服务也会停止正在执行的任务。"}
+            Plain{text: "关闭" on_click: || enable(false)}
         }
-        Note{text: "A paired client talks with the assistant in the system conversation and answers only its own requests' questions. It cannot see or drive the apps' assistants, touch this device's turns, change models, keys or skills, run commands or git, or stop the assistant. A computer reaches this device through a tunnel that keeps the port number."}
+        Note{text: "配对客户端只能使用系统助手对话，并回答自身请求中的问题。不能访问应用内助手、修改本机对话或模型与密钥、执行命令或停止助手。其他电脑需通过保留端口号的隧道连接。"}
         status := Status{}"#,
     ));
     script
@@ -178,7 +178,7 @@ fn count_down(){{
     if left <= 0 {{ back() return }}
     let m = floor(left / 60)
     let s = left - m * 60
-    if s < 10 {{ ui.countdown.set_text("Expires in " + m + ":0" + s) }} else {{ ui.countdown.set_text("Expires in " + m + ":" + s) }}
+    if s < 10 {{ ui.countdown.set_text("剩余有效时间 " + m + ":0" + s) }} else {{ ui.countdown.set_text("剩余有效时间 " + m + ":" + s) }}
     start_timeout(1, || count_down())
 }}
 start_timeout(1, || count_down())
@@ -190,28 +190,28 @@ let QrRow = View{{width: Fit flow: Right}}
     let expires = format!("{}:{:02}", lifetime_secs / 60, lifetime_secs % 60);
     let qr = match qr {
         Some((size, modules)) => format!(
-            "        Note{{text: \"Scan it with the device where the web client runs, or open the web client and type the code.\"}}\n        View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}}\n{}        }}\n",
+            "        Note{{text: \"请用运行网页客户端的设备扫描，或在网页客户端输入配对码。\"}}\n        View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}}\n{}        }}\n",
             qr_views(size, modules, module_px(size))
         ),
-        None => "        Note{text: \"Save the web client's origin on the previous page to get a QR of its link.\"}\n".to_string(),
+        None => "        Note{text: \"请在上一页保存网页客户端的来源地址，以生成二维码。\"}\n".to_string(),
     };
     let content = format!(
-        r#"        Title{{text: "Pair a web client"}}
-        Note{{text: "Open the web client, enter this device's server and type the code. The code gives that client access once."}}
-{qr}        Caption{{text: "Code"}}
+        r#"        Title{{text: "配对网页客户端"}}
+        Note{{text: "打开网页客户端，填写本机服务器地址和配对码。配对码仅供一次授权使用。"}}
+{qr}        Caption{{text: "配对码"}}
         code := Label{{width: Fill align: Align{{x: 0.5}} text: "{code}" draw_text.color: ink draw_text.text_style: theme.font_bold{{font_size: 30}}}}
-        countdown := Caption{{text: "Expires in {expires}"}}
-        Caption{{text: "Server"}}
+        countdown := Caption{{text: "剩余有效时间 {expires}"}}
+        Caption{{text: "服务器"}}
         Note{{text: "{server}"}}
         status := Status{{}}"#,
         code = lit(code),
         server = lit(server),
     );
     script.push_str(&frame(
-        r#"            Plain{text: "Back" on_click: || back()}
+        r#"            Plain{text: "返回" on_click: || back()}
             View{width: Fill height: 1}
-            Plain{text: "New code" on_click: || again()}
-            Primary{text: "Done" on_click: || close()}"#,
+            Plain{text: "重新生成" on_click: || again()}
+            Primary{text: "完成" on_click: || close()}"#,
         &content,
     ));
     script
@@ -225,16 +225,16 @@ let QrRow = View{{width: Fit flow: Right}}
 ///    each with its model count and whether a key is saved.
 /// 2. Choose model: a pull-down of the family's catalog models
 ///    (`llm.models`: display name, context, price), the recommended one
-///    preselected, "Custom model ID…", and "Fetch models from provider" (the
+///    preselected, "自定义模型标识…", and "从提供方获取模型列表" (the
 ///    endpoint's own list, with the saved key).
 /// 3. Choose provider route: a pull-down of the model's catalog endpoints
-///    (Official API first) and "Custom endpoint…" (base URL and API protocol).
+///    (Official API first) and "自定义端点…" (base URL and API protocol).
 /// 4. API key: write only; skipped for a keyless family; "Leave blank to keep
 ///    the saved key" when editing or when the family has one.
-/// 5. Test connection & save: a summary, a big "Test connection" button with
-///    its live result, and the save ("Save as primary" into an empty list,
-///    "Add as fallback" after it, "Save" when editing), enabled once a test
-///    passes; after a network failure a small "Save without testing" saves
+/// 5. Test connection & save: a summary, a big "测试连接" button with
+///    its live result, and the save ("保存为首选模型" into an empty list,
+///    "添加为备用模型" after it, "保存" when editing), enabled once a test
+///    passes; after a network failure a small "跳过测试并保存" saves
 ///    anyway.
 ///
 /// Pull-downs are drawn in the script (Makepad's DropDown has no Splash
@@ -250,9 +250,9 @@ pub fn edit(existing: Option<&Provider>, has_primary: bool) -> String {
         _ => "openai",
     };
     let (title, action) = match (existing.is_some(), has_primary) {
-        (true, _) => ("Edit model", "Save"),
-        (false, false) => ("Add a model", "Save as primary"),
-        (false, true) => ("Add a model", "Add as fallback"),
+        (true, _) => ("编辑模型", "保存"),
+        (false, false) => ("添加模型", "保存为首选模型"),
+        (false, true) => ("添加模型", "添加为备用模型"),
     };
     ADD_SHEET
         .replace("@STYLES@", STYLES)
@@ -330,40 +330,40 @@ fn model_label(){
 }
 fn route_label(){
     if route == nil { return "" }
-    if route.id == "custom" { return "Custom endpoint · " + ui.base_url.text().trim() }
+    if route.id == "custom" { return "自定义端点 · " + ui.base_url.text().trim() }
     return route.label + " · " + route.detail
 }
 fn key_summary(){
-    if !fam.has_key { return "Not needed" }
-    if ui.key.text().trim() != "" { return "New key typed" }
-    if editing || fam.configured { return "Saved key" }
-    return "Missing"
+    if !fam.has_key { return "无需密钥" }
+    if ui.key.text().trim() != "" { return "已输入新密钥" }
+    if editing || fam.configured { return "已保存密钥" }
+    return "未设置"
 }
 fn heading(){
     if step == 1 {
-        ui.step.set_text("Step 1 of 5 · Choose model family")
-        ui.title.set_text("Choose a model family")
-        ui.sub.set_text("The provider that serves the model. More can be added later as fallbacks.")
+        ui.step.set_text("第 1 步，共 5 步 · 选择模型系列")
+        ui.title.set_text("选择模型系列")
+        ui.sub.set_text("选择模型提供方。后续可添加备用模型。")
     }
     if step == 2 {
-        ui.step.set_text("Step 2 of 5 · Choose model")
-        ui.title.set_text("Choose a model")
-        ui.sub.set_text(fam.label + " · " + fam.models_text + ". The recommended one is preselected.")
+        ui.step.set_text("第 2 步，共 5 步 · 选择模型")
+        ui.title.set_text("选择模型")
+        ui.sub.set_text(fam.label + " · " + fam.models_text + "。已预选推荐模型。")
     }
     if step == 3 {
-        ui.step.set_text("Step 3 of 5 · Choose provider route")
-        ui.title.set_text("Choose a provider route")
-        ui.sub.set_text("Where requests for " + model_label() + " go.")
+        ui.step.set_text("第 3 步，共 5 步 · 选择服务线路")
+        ui.title.set_text("选择服务线路")
+        ui.sub.set_text("模型请求的服务线路：" + model_label() + "。")
     }
     if step == 4 {
-        ui.step.set_text("Step 4 of 5 · API key")
-        ui.title.set_text("API key")
-        ui.sub.set_text("For " + fam.label + ". Typed here, kept by OctoSense; the app sees only that a key is set.")
+        ui.step.set_text("第 4 步，共 5 步 · API 密钥")
+        ui.title.set_text("API 密钥")
+        ui.sub.set_text("提供方：" + fam.label + "。密钥由 OctoSense 保管，应用只知道密钥是否已设置。")
     }
     if step == 5 {
-        ui.step.set_text("Step 5 of 5 · Test connection & save")
-        ui.title.set_text("Test connection & save")
-        ui.sub.set_text("One tiny request checks the route and the key before anything is saved.")
+        ui.step.set_text("第 5 步，共 5 步 · 测试连接并保存")
+        ui.title.set_text("测试连接并保存")
+        ui.sub.set_text("保存前会发送一次小请求，验证服务线路与密钥。")
         ui.sum_family.set_text(fam.label)
         ui.sum_model.set_text(model_label())
         ui.sum_route.set_text(route_label())
@@ -403,7 +403,7 @@ fn valid(){
 }
 fn next_text(){
     if step == 5 { return "@ACTION@" }
-    return "Next"
+    return "下一步"
 }
 fn next(){
     if !valid() { return }
@@ -425,10 +425,10 @@ fn changed(){
     ui.footer.render()
 }
 fn key_note(){
-    if !fam.key_required { return "Optional for this provider." }
-    if editing { return "Leave blank to keep the saved key." }
-    if fam.configured { return "A key for " + fam.label + " is saved. Leave blank to keep it." }
-    return "Required. Paste it from the provider's console."
+    if !fam.key_required { return "此提供方的密钥为选填。" }
+    if editing { return "留空即可保留已保存的密钥。" }
+    if fam.configured { return "已保存密钥：" + fam.label + "。留空即可保留。" }
+    return "必填。请从提供方控制台复制密钥。"
 }
 fn choose_family(f){
     if fam != nil && fam.id == f.id { ui.fam_list.render() ui.footer.render() return }
@@ -476,7 +476,7 @@ fn keep_route(){
         if route != nil && r.id == route.id { found = r }
         if want_route != "" && r.id == want_route { found = r }
     }
-    if want_route == "custom" || (route != nil && route.id == "custom") { found = {id: "custom" label: "Custom endpoint" detail: "Your own base URL"} }
+    if want_route == "custom" || (route != nil && route.id == "custom") { found = {id: "custom" label: "自定义端点" detail: "自定义服务地址"} }
     want_route = ""
     if found == nil { found = first }
     select_route(found)
@@ -508,7 +508,7 @@ fn select_route(r){
     ui.route_list.render()
     ui.footer.render()
 }
-fn custom_route(){ select_route({id: "custom" label: "Custom endpoint" detail: "Your own base URL"}) }
+fn custom_route(){ select_route({id: "custom" label: "自定义端点" detail: "自定义服务地址"}) }
 fn toggle(which){
     if open == which { open = "" } else { open = which }
     ui.model_list.render()
@@ -522,24 +522,24 @@ fn set_protocol(p){
 // A pull-down's button shows the choice while closed; open, the list below
 // shows every option once (the chosen one ticked) and the button asks.
 fn model_title(){
-    if open == "model" { return "Choose a model" }
-    if custom { return "Custom model ID" }
-    if model == nil { return "Loading models…" }
+    if open == "model" { return "选择模型" }
+    if custom { return "自定义模型标识" }
+    if model == nil { return "正在加载模型…" }
     return model.label
 }
 fn model_note(){
-    if open == "model" { return fam.label + " · " + fam.models_text + " in the catalog" }
-    if custom { return "Type the model's id below" }
+    if open == "model" { return fam.label + " · " + fam.models_text + "，来自模型目录" }
+    if custom { return "请在下方输入模型标识" }
     if model == nil { return "" }
     return model.id + " · " + model.detail
 }
 fn route_title(){
-    if open == "route" { return "Choose a route" }
-    if route == nil { return "Official API" }
+    if open == "route" { return "选择服务线路" }
+    if route == nil { return "官方 API" }
     return route.label
 }
 fn route_note(){
-    if open == "route" { return "Where requests for " + model_label() + " go" }
+    if open == "route" { return "模型请求的服务线路：" + model_label() + "" }
     if route == nil { return "" }
     return route.detail
 }
@@ -570,7 +570,7 @@ fn test(){
     })
 }
 fn fetch_models(){
-    show(ui.fetch_note, "Asking the provider for its models…")
+    show(ui.fetch_note, "正在向提供方请求模型列表…")
     host.request("llm.sheet.fetch_models", form(false), fn(r){
         if !r.is_ok { show(ui.fetch_note, r.error) return }
         fetched = r.data.models
@@ -647,7 +647,7 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
         View{width: Fill height: Fit flow: Down spacing: 6
             View{width: Fill height: Fit flow: Right align: Align{y: 0.5}
                 Caption{width: Fill padding: 0 text: "OctoSense · @TITLE@"}
-                Link{text: "Cancel" on_click: || cancel()}
+                Link{text: "取消" on_click: || cancel()}
             }
             progress := View{width: Fill height: Fit flow: Right spacing: 6 on_render: || {
                 if step >= 1 { BarOn{} } else { Bar{} }
@@ -663,10 +663,10 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
         }
         ScrollYView{width: Fill height: Fill flow: Down padding: Inset{top: 14 bottom: 8}
             page1 := View{visible: false width: Fill height: Fit flow: Down spacing: 8
-                search := Field{empty_text: "Search families or models" on_change: |text| load_families(text)}
+                search := Field{empty_text: "搜索模型系列或模型" on_change: |text| load_families(text)}
                 fam_list := View{width: Fill height: Fit flow: Down spacing: 6 on_render: || {
                     View{width: Fill height: 1}
-                    if families.len() == 0 { Note{text: "No family or model matches."} }
+                    if families.len() == 0 { Note{text: "没有匹配的模型系列或模型。"} }
                     for f in families {
                         GestureView{width: Fill height: Fit on_tap: |x, y| choose_family(f)
                             if fam != nil && fam.id == f.id {
@@ -708,7 +708,7 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                                     View{width: Fill height: Fit flow: Down spacing: 2
                                         View{width: Fill height: Fit flow: Right spacing: 6 align: Align{y: 0.5}
                                             if !custom && model != nil && model.id == m.id { OptTitleOn{text: m.label} } else { OptTitle{text: m.label} }
-                                            if m.default == true { Tag{TagText{text: "Recommended"}} }
+                                            if m.default == true { Tag{TagText{text: "推荐"}} }
                                         }
                                         OptNote{text: m.detail}
                                     }
@@ -721,7 +721,7 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                                 Opt{
                                     View{width: Fill height: Fit flow: Down spacing: 2
                                         OptTitle{text: f.label}
-                                        OptNote{text: f.id + " · listed by the provider"}
+                                        OptNote{text: f.id + " · 来自提供方"}
                                     }
                                 }
                             }
@@ -729,8 +729,8 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                         GestureView{width: Fill height: Fit on_tap: |x, y| use_custom("")
                             Opt{
                                 View{width: Fill height: Fit flow: Down spacing: 2
-                                    OptTitle{text: "Custom model ID…"}
-                                    OptNote{text: "Any model the route serves"}
+                                    OptTitle{text: "自定义模型标识…"}
+                                    OptNote{text: "服务线路支持的任意模型"}
                                 }
                                 if custom { Tick{text: "@CHECK@"} }
                             }
@@ -738,11 +738,11 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                     }
                 }}
                 custom_box := View{visible: false width: Fill height: Fit flow: Down spacing: 4 padding: Inset{top: 4}
-                    Section{text: "MODEL ID"}
-                    custom_model := Field{empty_text: "e.g. deepseek-v4-pro" on_change: |text| changed()}
+                    Section{text: "模型标识"}
+                    custom_model := Field{empty_text: "例如 deepseek-v4-pro" on_change: |text| changed()}
                 }
                 View{width: Fill height: Fit flow: Right align: Align{y: 0.5} padding: Inset{top: 4}
-                    Link{text: "Fetch models from provider" on_click: || fetch_models()}
+                    Link{text: "从提供方获取模型列表" on_click: || fetch_models()}
                 }
                 fetch_note := Caption{visible: false width: Fill}
             }
@@ -772,8 +772,8 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                         GestureView{width: Fill height: Fit on_tap: |x, y| custom_route()
                             Opt{
                                 View{width: Fill height: Fit flow: Down spacing: 2
-                                    OptTitle{text: "Custom endpoint…"}
-                                    OptNote{text: "Your own base URL, OpenAI- or Anthropic-compatible"}
+                                    OptTitle{text: "自定义端点…"}
+                                    OptNote{text: "兼容 OpenAI 或 Anthropic 协议的自定义地址"}
                                 }
                                 if route != nil && route.id == "custom" { Tick{text: "@CHECK@"} }
                             }
@@ -781,9 +781,9 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                     }
                 }}
                 endpoint_box := View{visible: false width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 6}
-                    Section{text: "BASE URL"}
+                    Section{text: "服务地址"}
                     base_url := Field{text: "@BASE@" empty_text: "https://…/v1" on_change: |text| changed()}
-                    Section{text: "API PROTOCOL · COMPATIBLE WITH" padding: Inset{top: 6}}
+                    Section{text: "API 协议 · 兼容类型" padding: Inset{top: 6}}
                     protocol_row := View{width: Fill height: Fit flow: Right spacing: 6 on_render: || {
                         if protocol == "anthropic" { Seg{text: "OpenAI" on_click: || set_protocol("openai")} } else { SegOn{text: "OpenAI" on_click: || set_protocol("openai")} }
                         if protocol == "anthropic" { SegOn{text: "Anthropic" on_click: || set_protocol("anthropic")} } else { Seg{text: "Anthropic" on_click: || set_protocol("anthropic")} }
@@ -791,46 +791,46 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                 }
             }
             page4 := View{visible: false width: Fill height: Fit flow: Down spacing: 8
-                key := Field{empty_text: "Paste the key" is_password: true on_change: |text| changed() on_return: |text| next()}
+                key := Field{empty_text: "粘贴密钥" is_password: true on_change: |text| changed() on_return: |text| next()}
                 key_note := Caption{visible: false width: Fill}
             }
             page5 := View{visible: false width: Fill height: Fit flow: Down spacing: 14
                 test_box := View{width: Fill height: Fit flow: Down spacing: 10 on_render: || {
-                    if tested == "testing" { TestOff{text: "Testing…"} } else { TestButton{text: "Test connection" on_click: || test()} }
+                    if tested == "testing" { TestOff{text: "正在测试…"} } else { TestButton{text: "测试连接" on_click: || test()} }
                     if tested == "ok" {
                         ResultOk{
                             Icon{text: "@CHECK@" draw_text.color: #x248a3d}
-                            Label{width: Fill padding: 0 text: "Connected · " + result_ms + " ms" draw_text.color: #x248a3d draw_text.text_style: theme.font_bold{font_size: 14}}
+                            Label{width: Fill padding: 0 text: "已连接 · " + result_ms + " 毫秒" draw_text.color: #x248a3d draw_text.text_style: theme.font_bold{font_size: 14}}
                         }
                     }
                     if tested == "fail" || tested == "network" {
                         ResultBad{
                             View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
                                 Icon{text: "@CROSS@" draw_text.color: #xff3b30}
-                                Label{width: Fill padding: 0 text: "Couldn't connect: " + reason draw_text.color: #xc4281c draw_text.text_style: theme.font_bold{font_size: 14}}
+                                Label{width: Fill padding: 0 text: "连接失败：" + reason draw_text.color: #xc4281c draw_text.text_style: theme.font_bold{font_size: 14}}
                             }
                             Label{width: Fill padding: 0 text: result draw_text.color: #x6e2a24 draw_text.text_style.font_size: 12}
                             if tested == "network" {
-                                Label{width: Fill padding: 0 text: "The provider could not be reached from here. You can save without testing and test it later from the list." draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
-                                Bypass{text: "Save without testing" on_click: || save()}
+                                Label{width: Fill padding: 0 text: "无法连接模型提供方。可先保存，稍后在列表中测试连接。" draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
+                                Bypass{text: "跳过测试并保存" on_click: || save()}
                             } else {
-                                Label{width: Fill padding: 0 text: "Fix the key or the route (Back), then test again." draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
+                                Label{width: Fill padding: 0 text: "请返回检查密钥或服务线路，然后重新测试。" draw_text.color: #x6e6e73 draw_text.text_style.font_size: 12}
                             }
                         }
                     }
-                    if tested == "" { Caption{width: Fill text: "Save is available once the test passes."} }
-                    if tested == "testing" { Caption{width: Fill text: "Sending one tiny request…"} }
+                    if tested == "" { Caption{width: Fill text: "测试通过后即可保存。"} }
+                    if tested == "testing" { Caption{width: Fill text: "正在发送测试请求…"} }
                 }}
                 RoundedView{width: Fill height: Fit flow: Down spacing: 4 padding: Inset{left: 14 right: 14 top: 10 bottom: 10} show_bg: true draw_bg.color: #xf9f9fb draw_bg.border_radius: 12.0
-                    View{width: Fill height: Fit flow: Right SumKey{text: "Family"} sum_family := SumValue{}}
-                    View{width: Fill height: Fit flow: Right SumKey{text: "Model"} sum_model := SumValue{}}
-                    View{width: Fill height: Fit flow: Right SumKey{text: "Route"} sum_route := SumValue{}}
-                    View{width: Fill height: Fit flow: Right SumKey{text: "API key"} sum_key := SumValue{}}
+                    View{width: Fill height: Fit flow: Right SumKey{text: "模型系列"} sum_family := SumValue{}}
+                    View{width: Fill height: Fit flow: Right SumKey{text: "模型"} sum_model := SumValue{}}
+                    View{width: Fill height: Fit flow: Right SumKey{text: "服务线路"} sum_route := SumValue{}}
+                    View{width: Fill height: Fit flow: Right SumKey{text: "API 密钥"} sum_key := SumValue{}}
                 }
             }
         }
         footer := View{width: Fill height: Fit flow: Right spacing: 10 align: Align{y: 0.5} padding: Inset{top: 12} on_render: || {
-            if step == 1 { Back{text: "Cancel" on_click: || cancel()} } else { Back{text: "Back" on_click: || back()} }
+            if step == 1 { Back{text: "取消" on_click: || cancel()} } else { Back{text: "返回" on_click: || back()} }
             View{width: Fill height: 1}
             if valid() { Next{text: next_text() on_click: || next()} } else { NextOff{text: next_text()} }
         }}
@@ -861,10 +861,10 @@ start_timeout(0.1, || poll())
 {STYLES}"##
     );
     script.push_str(&frame(
-        r#"            Plain{text: "Cancel" on_click: || cancel()}
+        r#"            Plain{text: "取消" on_click: || cancel()}
             View{width: Fill height: 1}"#,
-        r#"        Title{text: "OctoSense · Code for your phone"}
-        Note{text: "Preparing the code…"}
+        r#"        Title{text: "OctoSense · 手机导入码"}
+        Note{text: "正在生成导入码…"}
         status := Status{}"#,
     ));
     script
@@ -939,7 +939,7 @@ fn count_down(){{
     if left <= 0 {{ close() return }}
     let m = floor(left / 60)
     let s = left - m * 60
-    if s < 10 {{ ui.countdown.set_text("Expires in " + m + ":0" + s) }} else {{ ui.countdown.set_text("Expires in " + m + ":" + s) }}
+    if s < 10 {{ ui.countdown.set_text("剩余有效时间 " + m + ":0" + s) }} else {{ ui.countdown.set_text("剩余有效时间 " + m + ":" + s) }}
     start_timeout(1, || count_down())
 }}
 start_timeout(1, || count_down())
@@ -950,21 +950,21 @@ let QrRow = View{{width: Fit flow: Right}}
     );
     let expires = format!("{}:{:02}", lifetime_secs / 60, lifetime_secs % 60);
     let content = format!(
-        r#"        Title{{text: "OctoSense · Code for your phone"}}
-        Note{{text: "On the phone, open AI providers and choose Scan QR from desktop, then type the PIN. The code carries your keys: close it when you are done."}}
+        r#"        Title{{text: "OctoSense · 手机导入码"}}
+        Note{{text: "在手机上打开“AI 模型设置”，选择“扫描电脑二维码”，然后输入验证码。二维码包含密钥，完成后请关闭。"}}
         View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}}
 {qr}        }}
-        Caption{{text: "PIN"}}
+        Caption{{text: "验证码"}}
         pin := Label{{width: Fill align: Align{{x: 0.5}} text: "{pin}" draw_text.color: ink draw_text.text_style: theme.font_bold{{font_size: 28}}}}
-        countdown := Caption{{text: "Expires in {expires}"}}
-        Note{{text: "Providers: {providers}"}}"#,
+        countdown := Caption{{text: "剩余有效时间 {expires}"}}
+        Note{{text: "模型提供方：{providers}"}}"#,
         qr = qr_views(size, modules, module_px(size)),
         pin = lit(pin),
         providers = lit(&labels.join(", ")),
     );
     script.push_str(&frame(
         r#"            View{width: Fill height: 1}
-            Primary{text: "Close" on_click: || close()}"#,
+            Primary{text: "关闭" on_click: || close()}"#,
         &content,
     ));
     script
@@ -983,10 +983,10 @@ let can_pick = {can_pick}
 let can_drop = {can_drop}
 fn scan(){{
     ui.status.set_text("")
-    ui.note.set_text("Point the camera at the code on your computer…")
+    ui.note.set_text("请将摄像头对准电脑上的二维码…")
     host.request("llm.sheet.scan", {{}}, fn(r){{
         if r.is_ok {{
-            if r.data.needs_pin == true {{ ui.note.set_text("Code scanned. Type the PIN shown beside it.") }} else {{ ui.note.set_text("Code scanned. Tap Import.") }}
+            if r.data.needs_pin == true {{ ui.note.set_text("已扫描二维码，请输入旁边显示的验证码。") }} else {{ ui.note.set_text("已扫描二维码，请点击“导入”。") }}
         }} else {{ ui.note.set_text("") ui.status.set_text(r.error) }}
     }})
 }}
@@ -995,11 +995,11 @@ fn read_image(r){{
     if r.data.cancelled == true {{ ui.note.set_text("") return }}
     if r.data.error != nil {{ ui.note.set_text("") ui.status.set_text(r.data.error) return }}
     ui.status.set_text("")
-    if r.data.needs_pin == true {{ ui.note.set_text("Code read from the image. Type the PIN shown beside it.") }} else {{ ui.note.set_text("Code read from the image. Tap Import.") }}
+    if r.data.needs_pin == true {{ ui.note.set_text("已从图片读取二维码，请输入旁边显示的验证码。") }} else {{ ui.note.set_text("已从图片读取二维码，请点击“导入”。") }}
 }}
 fn pick(){{
     ui.status.set_text("")
-    ui.note.set_text("Choose a screenshot or photo of the code…")
+    ui.note.set_text("请选择包含二维码的截图或照片…")
     host.request("llm.sheet.pick", {{}}, fn(r){{ read_image(r) }})
 }}
 fn await_drop(){{
@@ -1012,7 +1012,7 @@ fn await_drop(){{
 }}
 fn submit(){{
     ui.status.set_text("")
-    ui.note.set_text("Checking the code…")
+    ui.note.set_text("正在验证导入码…")
     host.request("llm.sheet.import", {{text: ui.code.text() pin: ui.pin.text()}}, fn(r){{
         if r.is_ok {{ ui.note.set_text(r.data.message) }} else {{ ui.note.set_text("") ui.status.set_text(r.error) }}
     }})
@@ -1024,10 +1024,10 @@ if can_drop {{ await_drop() }}
     );
     let mut buttons = String::new();
     if can_scan {
-        buttons.push_str("\n            Choice{text: \"Scan again\" on_click: || scan()}");
+        buttons.push_str("\n            Choice{text: \"重新扫描\" on_click: || scan()}");
     }
     if can_pick {
-        buttons.push_str("\n            pick_image := Choice{text: \"Choose image\" on_click: || pick()}");
+        buttons.push_str("\n            pick_image := Choice{text: \"选择图片\" on_click: || pick()}");
     }
     let buttons = if buttons.is_empty() {
         String::new()
@@ -1035,25 +1035,25 @@ if can_drop {{ await_drop() }}
         format!("\n        View{{width: Fill height: Fit flow: Right spacing: 6{buttons}\n        }}")
     };
     let image_note = match (can_pick, can_drop) {
-        (_, true) => "\n        Caption{text: \"Or drop a screenshot of the code on this sheet.\"}",
-        (true, false) => "\n        Caption{text: \"Choose image reads the code from a screenshot or photo.\"}",
+        (_, true) => "\n        Caption{text: \"也可将二维码截图拖到此面板。\"}",
+        (true, false) => "\n        Caption{text: \"选择图片后，会从截图或照片中读取二维码。\"}",
         _ => "",
     };
-    let paste = if can_scan || can_pick { "Or paste the code" } else { "Paste the code" };
+    let paste = if can_scan || can_pick { "或粘贴导入码" } else { "粘贴导入码" };
     let content = format!(
-        r#"        Title{{text: "OctoSense · Import providers"}}
-        Note{{text: "Show the code on your computer: AI providers, Show QR for phone. Its providers are added after yours, as fallbacks; the keys it carries go to OctoSense, not to the app that asked."}}
+        r#"        Title{{text: "OctoSense · 导入模型配置"}}
+        Note{{text: "在电脑的“AI 模型设置”中选择“显示手机导入二维码”。导入的模型将作为备用模型；密钥仅交给 OctoSense 保管。"}}
         status := Status{{}}
         note := Note{{}}{buttons}{image_note}
         Caption{{text: "{paste} (OCTOS1E:…)"}}
         code := Field{{empty_text: "OCTOS1E:…"}}
-        Caption{{text: "PIN"}}
+        Caption{{text: "验证码"}}
         pin := Field{{empty_text: "XXXX-XXXX" is_password: true}}"#
     );
     script.push_str(&frame(
-        r#"            Plain{text: "Cancel" on_click: || cancel()}
+        r#"            Plain{text: "取消" on_click: || cancel()}
             View{width: Fill height: 1}
-            import_btn := Primary{text: "Import" on_click: || submit()}"#,
+            import_btn := Primary{text: "导入" on_click: || submit()}"#,
         &content,
     ));
     script
@@ -1067,7 +1067,7 @@ mod tests {
     fn the_pairing_sheet_shows_the_code_and_a_qr_of_the_link_only() {
         let (size, modules) = octosense_llm_config::qr::render_matrix("https://web.example/?octos=http%3A%2F%2F127.0.0.1%3A4000&pair=ABCD2345").unwrap();
         let sheet = pair_client("ABCD2345", "http://127.0.0.1:4000", Some((size, &modules)), 300);
-        assert!(sheet.contains("ABCD2345") && sheet.contains("// qr-begin") && sheet.contains("Expires in 5:00"));
+        assert!(sheet.contains("ABCD2345") && sheet.contains("// qr-begin") && sheet.contains("剩余有效时间 5:00"));
         assert!(sheet.contains("llm.sheet.client_back"), "leaving the code's sheet turns pairing off");
         let without = pair_client("AB\"CD", "http://127.0.0.1:4000", None, 300);
         assert!(!without.contains("// qr-begin") && !without.contains("AB\"CD"), "literals are sanitised");
@@ -1097,9 +1097,9 @@ mod tests {
         assert!(body.contains("llm.sheet.submit") && body.contains("llm.sheet.test") && body.contains("llm.sheet.fetch_models"));
         assert!(!body.contains('@'), "every placeholder filled");
         let add = edit(None, false);
-        assert!(add.contains("return \"Save as primary\"") && add.contains("let want_family = \"\""));
-        assert!(edit(None, true).contains("return \"Add as fallback\""));
-        for step in ["Step 1 of 5 · Choose model family", "Step 2 of 5 · Choose model", "Step 3 of 5 · Choose provider route", "Step 4 of 5 · API key", "Step 5 of 5 · Test connection & save"] {
+        assert!(add.contains("return \"保存为首选模型\"") && add.contains("let want_family = \"\""));
+        assert!(edit(None, true).contains("return \"添加为备用模型\""));
+        for step in ["第 1 步，共 5 步 · 选择模型系列", "第 2 步，共 5 步 · 选择模型", "第 3 步，共 5 步 · 选择服务线路", "第 4 步，共 5 步 · API 密钥", "第 5 步，共 5 步 · 测试连接并保存"] {
             assert!(add.contains(step), "{step}");
         }
     }

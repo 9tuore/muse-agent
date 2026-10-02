@@ -170,10 +170,10 @@ pub struct Options {
     /// Where keys go. `None`: [`vault::platform`] for the core dir.
     pub vault: Option<Arc<dyn Vault>>,
     /// The camera scanner, where the device has one: the import sheet then
-    /// scans, and the app offers "Scan QR from desktop".
+    /// scans, and the app offers "扫描电脑二维码".
     pub scanner: Option<Arc<dyn QrScanner>>,
     /// The image picker, where the shell has one: the import sheet then
-    /// offers "Choose image" and reads the QR out of the chosen picture.
+    /// offers "选择图片" and reads the QR out of the chosen picture.
     pub image_picker: Option<Arc<dyn QrImagePicker>>,
     /// The shell passes image files dropped on the app to [`offer_image`]
     /// (a desktop): the import sheet then says a screenshot can be dropped
@@ -390,7 +390,7 @@ fn read_image(bytes: &[u8], pending: &Mutex<Option<Pending>>) -> Value {
             let needs_pin = qr::format_of(&code) == Some(qr::Format::Encrypted);
             match pending.lock().unwrap().as_mut() {
                 Some(Pending { kind: Kind::Import { scanned }, .. }) => *scanned = Some(code),
-                _ => return image_answer(false, false, Some("No app is waiting for this sheet.".into())),
+                _ => return image_answer(false, false, Some("当前没有应用等待此面板。".into())),
             }
             image_answer(needs_pin, false, None)
         }
@@ -422,8 +422,8 @@ fn text<'a>(v: &'a Value, key: &str) -> &'a str {
 
 fn label_of(p: &Provider) -> String {
     match model::effective_model(p) {
-        Some(m) => format!("{} · {m}", model::family_label(&p.family)),
-        None => model::family_label(&p.family),
+        Some(m) => format!("{} · {m}", display_words(&model::family_label(&p.family))),
+        None => display_words(&model::family_label(&p.family)),
     }
 }
 
@@ -434,14 +434,14 @@ fn entry(store: &ProfileStore, p: &Provider) -> Value {
     json!({
         "id": model::id_of(p),
         "family": registry::lookup(&p.family).map(|f| f.id).unwrap_or(p.family.as_str()),
-        "label": model::family_label(&p.family),
+        "label": display_words(&model::family_label(&p.family)),
         "model": model,
-        "model_label": model::model_label(p),
+        "model_label": display_words(&model::model_label(p)),
         "custom_model": p.model.is_some(),
         "route": model::route_choice(p),
-        "route_label": model::route_label(p),
-        "context": known.map(catalog::Model::context_text).unwrap_or_default(),
-        "price": known.map(catalog::Model::price_text).unwrap_or_default(),
+        "route_label": display_words(&model::route_label(p)),
+        "context": known.map(|m| display_words(&m.context_text())).unwrap_or_default(),
+        "price": known.map(|m| display_words(&m.price_text())).unwrap_or_default(),
         "tier": known.map(|m| m.tier.as_str()).unwrap_or(""),
         "base_url": p.base_url,
         "api_type": p.api_type.map(|t| t.as_str()),
@@ -488,50 +488,62 @@ fn families(query: &str, env_vars: &BTreeMap<String, String>) -> Value {
             let n = f.models.len();
             let default = f.default_model();
             json!({
-                "id": fam.id, "label": fam.label, "models": n,
-                "models_text": if n == 1 { "1 model".to_string() } else { format!("{n} models") },
+                "id": fam.id, "label": display_words(&fam.label), "models": n,
+                "models_text": if n == 1 { "1 个模型".to_string() } else { format!("{n} 个模型") },
                 "default_model": default,
                 "default_label": default.map(catalog::model_label),
                 "key_required": fam.key_required, "key_env": key_env, "has_key": fam.key_env.is_some(),
                 "default_base_url": fam.default_base_url,
                 "configured": configured,
-                "key_text": if !fam.key_required { "No key needed" } else if configured { "Key saved" } else { "Needs a key" },
+                "key_text": if !fam.key_required { "无需密钥" } else if configured { "已保存密钥" } else { "需要密钥" },
             })
         })
         .collect::<Vec<_>>())
 }
 
+// Display words only: route ids and persisted configuration remain unchanged.
+fn display_words(text: &str) -> String {
+    match text {
+        "Server default" => "服务端默认模型".into(),
+        "Local (llama.cpp / LM Studio)" => "本地模型（llama.cpp / LM Studio）".into(),
+        "Official API" => "官方 API".into(), "Local server" => "本地服务".into(),
+        "Custom endpoint" => "自定义端点".into(), "Included in plan" => "套餐内包含".into(),
+        "Runs locally" => "本地运行".into(), "Free" => "免费".into(),
+        _ => text.replace(" context", " 上下文").replace(" per 1M", " / 每百万词元"),
+    }
+}
+
 /// A route's second line: where it goes.
 fn route_detail(family: &registry::Family, r: &catalog::Route) -> String {
-    let url = r.base_url.as_deref().or(family.default_base_url).unwrap_or("your endpoint");
+    let url = r.base_url.as_deref().or(family.default_base_url).unwrap_or("你的服务端点");
     url.trim_start_matches("https://").trim_start_matches("http://").split('/').next().unwrap_or(url).to_string()
 }
 
 fn route_json(family: &registry::Family, r: &catalog::Route) -> Value {
-    json!({"id": r.id, "label": r.label, "detail": route_detail(family, r)})
+    json!({"id": r.id, "label": display_words(&r.label), "detail": route_detail(family, r)})
 }
 
 /// A family's catalog models for a pull-down (the default first marked),
 /// those matching `query`, with each model's routes.
 fn models(family: &str, query: &str) -> Result<Value, String> {
-    let f = catalog::family(family).ok_or("There is no such provider.")?;
+    let f = catalog::family(family).ok_or("模型提供方不存在。")?;
     let query = query.trim().to_lowercase();
     let rows: Vec<Value> = f
         .models
         .iter()
         .filter(|m| query.is_empty() || m.id.to_lowercase().contains(&query) || m.label.to_lowercase().contains(&query))
         .map(|m| {
-            let (context, price) = (m.context_text(), m.price_text());
+            let (context, price) = (display_words(&m.context_text()), display_words(&m.price_text()));
             let detail = [context.as_str(), price.as_str()].iter().filter(|s| !s.is_empty()).cloned().collect::<Vec<_>>().join(" · ");
             json!({
-                "id": m.id, "label": m.label, "context": context, "price": price, "detail": detail,
+                "id": m.id, "label": display_words(&m.label), "context": context, "price": price, "detail": detail,
                 "tier": m.tier.as_str(), "default": m.default,
                 "routes": m.routes().iter().map(|r| route_json(f.family, r)).collect::<Vec<_>>(),
             })
         })
         .collect();
     Ok(json!({
-        "family": f.id(), "label": f.label(), "key_required": f.family.key_required,
+        "family": f.id(), "label": display_words(&f.label()), "key_required": f.family.key_required,
         "default_model": f.default_model(),
         "models": rows,
         "routes": f.routes().iter().map(|r| route_json(f.family, r)).collect::<Vec<_>>(),
@@ -546,11 +558,11 @@ fn work(f: impl FnOnce() + Send + 'static) {
 
 fn scan_error(reason: &str) -> String {
     match reason {
-        "cancelled" | "interrupted" => "Scan cancelled.".into(),
-        "permission_denied" => "OctoSense may not use the camera. Allow it in Settings, or paste the code.".into(),
-        "camera_error" => "The camera is unavailable. Paste the code instead.".into(),
-        "unsupported" => "This device cannot scan. Paste the code instead.".into(),
-        other => format!("Scan failed ({other})."),
+        "cancelled" | "interrupted" => "已取消扫描。".into(),
+        "permission_denied" => "OctoSense 未获摄像头权限。请在系统设置中授权，或直接粘贴导入码。".into(),
+        "camera_error" => "摄像头不可用，请粘贴导入码。".into(),
+        "unsupported" => "此设备不支持扫描，请粘贴导入码。".into(),
+        other => format!("扫描失败（{other}）。"),
     }
 }
 
@@ -558,7 +570,7 @@ impl LlmService {
     /// Raise `sheet` for `app_id`, replacing any sheet already waiting.
     fn raise(&mut self, app_id: &str, reply: Replier, kind: Kind, sheet: String, host: &mut dyn ServiceHost) {
         if let Some(earlier) = self.pending.lock().unwrap().take() {
-            earlier.reply.send(Err("Another sheet replaced this one.".into()));
+            earlier.reply.send(Err("已打开新面板，当前操作已结束。".into()));
         }
         *self.export.lock().unwrap() = None;
         IMAGE_WAITER.lock().unwrap().take();
@@ -589,7 +601,7 @@ impl LlmService {
     fn form_key(args: &Value) -> Result<String, String> {
         let key = text(args, "key").trim().to_string();
         if key.chars().any(char::is_control) || key.len() > 16 * 1024 {
-            return Err("That key is not acceptable text.".into());
+            return Err("密钥文本格式无效。".into());
         }
         Ok(key)
     }
@@ -608,7 +620,7 @@ impl LlmService {
         let edit = match self.pending_kind() {
             Some(Kind::Add) => None,
             Some(Kind::Edit(id)) => Some(id),
-            _ => return reply.send(Err("No app is waiting for this sheet.".into())),
+            _ => return reply.send(Err("当前没有应用等待此面板。".into())),
         };
         let mut route = match Self::form_route(args) {
             Ok(p) => p,
@@ -628,14 +640,14 @@ impl LlmService {
                     let saved = store.key(&route);
                     let key = Some(key.as_str()).filter(|k| !k.is_empty()).or(saved.as_deref());
                     if key.is_none() && model::key_required(&route.family) {
-                        return Err("Type the provider's API key.".to_string());
+                        return Err("请输入模型提供方的 API 密钥。".to_string());
                     }
                     Ok(probe::run_within(&route, key, std::time::Duration::from_secs(10)))
                 });
                 match tested.and_then(|t| t) {
                     Err(e) => return reply.send(Err(e)),
                     Ok(t) if t["ok"] != true => {
-                        let error = t["error"].as_str().unwrap_or("The test failed.");
+                        let error = t["error"].as_str().unwrap_or("测试失败。");
                         return reply.send(Ok(json!({"saved": false, "error": error, "network": t["network"] == true})));
                     }
                     Ok(_) => {}
@@ -647,19 +659,19 @@ impl LlmService {
                     Some(id) => {
                         let at = model::index_of(list, id)?;
                         if list.iter().enumerate().any(|(i, p)| i != at && model::id_of(p) == model::id_of(&route)) {
-                            return Err("That provider is already in the list.".into());
+                            return Err("此模型提供方已在列表中。".into());
                         }
                         list[at] = route.clone();
                     }
                     None => {
                         if list.iter().any(|p| model::id_of(p) == model::id_of(&route)) {
-                            return Err("That provider is already in the list.".into());
+                            return Err("此模型提供方已在列表中。".into());
                         }
                         list.push(route.clone());
                     }
                 }
                 if key.is_empty() && model::key_required(&route.family) && store.key(&route).is_none() {
-                    return Err("Type the provider's API key.".into());
+                    return Err("请输入模型提供方的 API 密钥。".into());
                 }
                 let keys = if key.is_empty() { BTreeMap::new() } else { [(route.key_env.clone(), key)].into() };
                 Ok((keys, json!({"id": model::id_of(&route), "label": label_of(&route)})))
@@ -677,13 +689,13 @@ impl LlmService {
         });
     }
 
-    /// "Test connection" on the sheet: the form's route with the typed key,
+    /// "测试连接" on the sheet: the form's route with the typed key,
     /// else the saved one.
     fn sheet_test(&mut self, args: &Value, reply: Replier) {
         let edit = match self.pending_kind() {
             Some(Kind::Add) => None,
             Some(Kind::Edit(id)) => Some(id),
-            _ => return reply.send(Err("No app is waiting for this sheet.".into())),
+            _ => return reply.send(Err("当前没有应用等待此面板。".into())),
         };
         let (route, key) = match Self::form_route(args).and_then(|r| Ok((r, Self::form_key(args)?))) {
             Ok(v) => v,
@@ -697,18 +709,18 @@ impl LlmService {
                 let saved = store.key(&route);
                 let key = Some(key.as_str()).filter(|k| !k.is_empty()).or(saved.as_deref());
                 if key.is_none() && model::key_required(&route.family) {
-                    return json!({"ok": false, "ms": 0, "error": "Type the provider's API key first.", "network": false, "reason": "no key"});
+                    return json!({"ok": false, "ms": 0, "error": "请先输入模型提供方的 API 密钥。", "network": false, "reason": "no key"});
                 }
                 probe::run(&route, key)
             }))
         });
     }
 
-    /// "Fetch models from provider": the endpoint's own model list, with the
+    /// "从提供方获取模型列表": the endpoint's own model list, with the
     /// typed key, else the saved one.
     fn sheet_fetch_models(&mut self, args: &Value, reply: Replier) {
         if !matches!(self.pending_kind(), Some(Kind::Add | Kind::Edit(_))) {
-            return reply.send(Err("No app is waiting for this sheet.".into()));
+            return reply.send(Err("当前没有应用等待此面板。".into()));
         }
         // The list does not depend on the model: any id makes the route.
         let mut form = args.clone();
@@ -725,13 +737,13 @@ impl LlmService {
                 let saved = store.key(&route);
                 let key = Some(key.as_str()).filter(|k| !k.is_empty()).or(saved.as_deref());
                 if key.is_none() && model::key_required(&route.family) {
-                    return Err("Type the provider's API key first.".to_string());
+                    return Err("请先输入模型提供方的 API 密钥。".to_string());
                 }
                 let ids = probe::fetch_models(&route, key)?;
                 let n = ids.len();
                 Ok(json!({
                     "models": ids.iter().map(|id| json!({"id": id, "label": catalog::model_label(id)})).collect::<Vec<_>>(),
-                    "message": if n == 1 { "The provider lists 1 model.".to_string() } else { format!("The provider lists {n} models.") },
+                    "message": if n == 1 { "提供方返回了 1 个模型。".to_string() } else { format!("提供方返回了 {n} 个模型。") },
                 }))
             });
             reply.send(answer);
@@ -751,7 +763,7 @@ impl LlmService {
             None => store.list.clone(),
         };
         if chosen.is_empty() {
-            return reply.send(Err("There is no provider to show.".into()));
+            return reply.send(Err("没有可显示的模型提供方。".into()));
         }
         self.generation += 1;
         let generation = self.generation;
@@ -791,11 +803,11 @@ impl LlmService {
     /// (`{ready}`); it then asks for it with `llm.sheet.show`.
     fn export_ready(&mut self, reply: Replier) {
         let Some(Kind::Export(generation)) = self.pending_kind() else {
-            return reply.send(Err("No code is being prepared.".into()));
+            return reply.send(Err("当前未在生成导入码。".into()));
         };
         let export = self.export.lock().unwrap();
         match export.as_ref().filter(|job| job.0 == generation) {
-            None => reply.send(Err("No code is being prepared.".into())),
+            None => reply.send(Err("当前未在生成导入码。".into())),
             Some((_, None)) => reply.send(Ok(json!({"ready": false}))),
             Some((_, Some(Ok(_)))) => reply.send(Ok(json!({"ready": true}))),
             Some((_, Some(Err(e)))) => reply.send(Err(e.clone())),
@@ -806,11 +818,11 @@ impl LlmService {
     /// and the PIN are not kept here after.
     fn export_show(&mut self, reply: Replier, host: &mut dyn ServiceHost) {
         let Some(Kind::Export(generation)) = self.pending_kind() else {
-            return reply.send(Err("No code is being prepared.".into()));
+            return reply.send(Err("当前未在生成导入码。".into()));
         };
         let mut export = self.export.lock().unwrap();
         if !matches!(export.as_ref(), Some((g, Some(Ok(_)))) if *g == generation) {
-            return reply.send(Err("The code is not ready.".into()));
+            return reply.send(Err("导入码尚未准备好。".into()));
         }
         let Some((_, Some(Ok(sheet)))) = export.take() else { unreachable!() };
         host.open_sheet(sheet);
@@ -819,17 +831,17 @@ impl LlmService {
 
     fn scan(&mut self, reply: Replier) {
         if !matches!(self.pending_kind(), Some(Kind::Import { .. })) {
-            return reply.send(Err("No app is waiting for this sheet.".into()));
+            return reply.send(Err("当前没有应用等待此面板。".into()));
         }
         let Some(scanner) = self.scanner.clone() else {
-            return reply.send(Err("This device has no camera scanner. Paste the code instead.".into()));
+            return reply.send(Err("此设备没有摄像头扫描功能，请粘贴导入码。".into()));
         };
         let pending = self.pending.clone();
         scanner.scan(Box::new(move |result| match result {
             Err(reason) => reply.send(Err(scan_error(&reason))),
             Ok(code) => {
                 let Some(format) = qr::format_of(&code) else {
-                    return reply.send(Err("That is not an OctoSense provider code.".into()));
+                    return reply.send(Err("这不是有效的 OctoSense 模型导入码。".into()));
                 };
                 if let Some(Pending { kind: Kind::Import { scanned }, .. }) = pending.lock().unwrap().as_mut() {
                     *scanned = Some(code.trim().to_string());
@@ -839,20 +851,20 @@ impl LlmService {
         }));
     }
 
-    /// "Choose image": the shell's picker, then the code read out of the
+    /// "选择图片": the shell's picker, then the code read out of the
     /// picture on a worker. Answers `{needs_pin, cancelled, error}` (after an
     /// error the sheet stays up for another try).
     fn pick(&mut self, reply: Replier) {
         if !matches!(self.pending_kind(), Some(Kind::Import { .. })) {
-            return reply.send(Err("No app is waiting for this sheet.".into()));
+            return reply.send(Err("当前没有应用等待此面板。".into()));
         }
         let Some(picker) = self.image_picker.clone() else {
-            return reply.send(Err("This device cannot choose an image. Paste the code instead.".into()));
+            return reply.send(Err("此设备不支持选择图片，请粘贴导入码。".into()));
         };
         let pending = self.pending.clone();
         picker.pick(Box::new(move |result| match result {
             Err(PickError::Cancelled) => reply.send(Ok(image_answer(false, true, None))),
-            Err(PickError::Failed(why)) => reply.send(Ok(image_answer(false, false, Some(format!("Could not open the image ({why})."))))),
+            Err(PickError::Failed(why)) => reply.send(Ok(image_answer(false, false, Some(format!("无法打开图片（{why}）。"))))),
             Ok(bytes) => work(move || reply.send(Ok(read_image(&bytes, &pending)))),
         }));
     }
@@ -860,7 +872,7 @@ impl LlmService {
     /// The sheet waits for a dropped image; one waiter at a time.
     fn await_image(&mut self, reply: Replier) {
         if !self.image_drops || !matches!(self.pending_kind(), Some(Kind::Import { .. })) {
-            return reply.send(Err("No image can be dropped here.".into()));
+            return reply.send(Err("当前面板不支持拖入图片。".into()));
         }
         if let Some((earlier, _)) = IMAGE_WAITER.lock().unwrap().replace((reply, self.pending.clone())) {
             earlier.send(Err("replaced".into()));
@@ -869,11 +881,11 @@ impl LlmService {
 
     fn import(&mut self, args: &Value, reply: Replier) {
         let Some(Kind::Import { scanned }) = self.pending_kind() else {
-            return reply.send(Err("No app is waiting for this sheet.".into()));
+            return reply.send(Err("当前没有应用等待此面板。".into()));
         };
         let pasted = text(args, "text").trim().to_string();
         let Some(code) = Some(pasted).filter(|c| !c.is_empty()).or(scanned) else {
-            return reply.send(Err("Scan or paste a code first.".into()));
+            return reply.send(Err("请先扫描或粘贴导入码。".into()));
         };
         let pin = text(args, "pin").trim().to_string();
         let (shared, pending) = (self.shared.clone(), self.pending.clone());
@@ -892,18 +904,18 @@ fn import_message(m: &model::Merge) -> String {
     let names = |list: &[Provider]| list.iter().map(label_of).collect::<Vec<_>>().join(", ");
     let mut parts = Vec::new();
     if let Some(primary) = &m.primary {
-        parts.push(format!("Saved {} as primary", label_of(primary)));
+        parts.push(format!("已将 {} 保存为首选模型", label_of(primary)));
     }
     match m.added.len() {
         0 => {}
-        1 => parts.push(format!("Added {} as a fallback", names(&m.added))),
-        _ => parts.push(format!("Added {} as fallbacks", names(&m.added))),
+        1 => parts.push(format!("已将 {} 添加为备用模型", names(&m.added))),
+        _ => parts.push(format!("已将 {} 添加为备用模型", names(&m.added))),
     }
     if !m.updated.is_empty() {
-        parts.push(format!("Updated the key for {}", names(&m.updated)));
+        parts.push(format!("已更新 {} 的密钥", names(&m.updated)));
     }
     if parts.is_empty() {
-        parts.push(format!("Already saved: {}", names(&m.unchanged)));
+        parts.push(format!("已保存：{}", names(&m.unchanged)));
     }
     parts.join(". ") + "."
 }
@@ -947,7 +959,7 @@ fn client_action(method: &str, args: &Value, ui: Option<ClientUi>) -> Result<Val
         "sheet.client_rotate" => kernel::rotate_external_access()?,
         "sheet.client_origin" => kernel::set_web_client_origin(text(args, "origin"))?,
         "sheet.client_open" => {
-            let ui = ui.ok_or("The host cannot open a browser.")?;
+            let ui = ui.ok_or("宿主无法打开浏览器。")?;
             ui(ClientUiAction::OpenWeb(kernel::web_client_url()?));
             return Ok(json!({}));
         }
@@ -994,12 +1006,12 @@ fn pairing_sheet(lifetime: u64) -> Result<String, String> {
 
 #[cfg(not(feature = "octos-core"))]
 fn client_action(_method: &str, _args: &Value, _ui: Option<ClientUi>) -> Result<Value, String> {
-    Err("This build does not include the Octos kernel service.".into())
+    Err("此版本未包含 Octos 内核服务。".into())
 }
 
 #[cfg(not(feature = "octos-core"))]
 fn pairing_sheet(_lifetime: u64) -> Result<String, String> {
-    Err("This build does not include the Octos kernel service.".into())
+    Err("此版本未包含 Octos 内核服务。".into())
 }
 
 /// The pairing code's sheet is up or being prepared: turn pairing off. The
@@ -1033,7 +1045,7 @@ impl LlmService {
 
     fn client_pair_ready(&self, reply: Replier) {
         match self.pair.lock().unwrap().as_ref() {
-            None => reply.send(Err("No pairing code is being prepared.".into())),
+            None => reply.send(Err("当前未在生成配对码。".into())),
             Some((_, None)) => reply.send(Ok(json!({"ready": false}))),
             Some((_, Some(Ok(_)))) => reply.send(Ok(json!({"ready": true}))),
             Some((_, Some(Err(e)))) => reply.send(Err(e.clone())),
@@ -1046,7 +1058,7 @@ impl LlmService {
                 host.open_sheet(sheet);
                 reply.send(Ok(json!({})));
             }
-            _ => reply.send(Err("The pairing code is not ready.".into())),
+            _ => reply.send(Err("配对码尚未准备好。".into())),
         }
     }
 }
@@ -1063,14 +1075,14 @@ impl HostService for LlmService {
         let id = text(&call.args, "id").to_string();
         match call.method() {
             "connect_client" => {
-                if call.app_id != "os.ai-providers" { return reply.send(Err("Open AI providers to connect a client.".into())); }
+                if call.app_id != "os.ai-providers" { return reply.send(Err("请打开“AI 模型设置”以连接客户端。".into())); }
                 self.raise(&call.app_id, reply, Kind::Connect, sheets::connect_client(), host);
             }
             method if method.starts_with("sheet.client_") => {
                 // Only the Talk to Octos sheet this app raised, never the app.
                 let permitted = call.from_sheet && self.pending.lock().unwrap().as_ref()
                     .is_some_and(|p| p.kind == Kind::Connect && p.app_id == call.app_id);
-                if !permitted { return reply.send(Err("Open the Talk to Octos sheet first.".into())); }
+                if !permitted { return reply.send(Err("请先打开“连接 Octos 助手”面板。".into())); }
                 match method {
                     "sheet.client_pair" => self.client_pair(reply),
                     "sheet.client_pair_ready" => self.client_pair_ready(reply),
@@ -1131,11 +1143,11 @@ impl HostService for LlmService {
                             "set_model" => {
                                 let wanted = text(&args, "model").trim();
                                 if wanted.len() > 512 || wanted.chars().any(char::is_control) {
-                                    return Err("That model name is not acceptable text.".into());
+                                    return Err("模型名称文本格式无效。".into());
                                 }
                                 list[at].model = (!wanted.is_empty()).then(|| wanted.to_string());
                                 if model::effective_model(&list[at]).is_none() {
-                                    return Err("This provider needs a model.".into());
+                                    return Err("此提供方需要选择模型。".into());
                                 }
                                 answer = json!({"id": model::id_of(&list[at])});
                             }
@@ -1178,7 +1190,7 @@ impl HostService for LlmService {
                 IMAGE_WAITER.lock().unwrap().take();
                 if let Some(waiting) = self.pending.lock().unwrap().take() {
                     // Closing the QR is how an export ends.
-                    let answer = if matches!(waiting.kind, Kind::Export(_) | Kind::Connect) { Ok(json!({})) } else { Err("Cancelled.".into()) };
+                    let answer = if matches!(waiting.kind, Kind::Export(_) | Kind::Connect) { Ok(json!({})) } else { Err("已取消。".into()) };
                     waiting.reply.send(answer);
                 }
                 reply.send(Ok(json!({})));

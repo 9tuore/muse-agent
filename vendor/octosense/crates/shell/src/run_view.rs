@@ -932,12 +932,12 @@ impl Widget for MpRunView {
             let headline = if let Some((_, line)) = &self.stopped {
                 line.as_str()
             } else if self.status_line.starts_with("compiling ") {
-                "Compiling…"
+                "正在编译…"
             } else if self.status_line.starts_with("waiting for another build") {
-                "Waiting to compile…"
+                "正在等待编译…"
             } else if self.status_line.starts_with("build failed") {
-                "Could not build application"
-            } else { "Starting…" };
+                "应用构建失败"
+            } else { "正在启动…" };
             self.no_fb_view.label(cx, ids!(placeholder)).set_text(cx, headline);
             let status = self.trimmed_status(rect.size.x);
             self.no_fb_view

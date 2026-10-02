@@ -59,6 +59,10 @@ def main() -> None:
             "CFBundleExecutable": "octosense",
             "CFBundlePackageType": "APPL",
             "CFBundleVersion": "1",
+            "CFBundleDevelopmentRegion": "zh_CN",
+            "CFBundleLocalizations": ["zh_CN"],
+            "NSLocationUsageDescription": "在你授权后，用于在地图上显示你的位置。",
+            "NSLocationWhenInUseUsageDescription": "在你授权后，用于在地图上显示你的位置。",
             "CFBundleShortVersionString": "0.1.0",
             "NSCalendarsFullAccessUsageDescription": (
                 "Muse 在你确认后读取、创建或修改系统日历事件，并读回结果。"

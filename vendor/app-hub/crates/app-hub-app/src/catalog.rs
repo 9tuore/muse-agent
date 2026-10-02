@@ -95,7 +95,7 @@ fn try_may_open(root: PathBuf, origin: Origin, anchor: String, id: &str) -> Resu
         Ok(guard) => guard,
         Err(TryLockError::Poisoned(poisoned)) => poisoned.into_inner(),
         Err(TryLockError::WouldBlock) => {
-            return Err("App Hub is updating. Try again shortly.".into())
+            return Err("应用中心正在更新，请稍后重试。".into())
         }
     };
     Backend::new_unlocked(root, origin, anchor).may_open(id)
@@ -155,14 +155,14 @@ impl Backend {
                     .accept_catalog(&json)
                     .and_then(|()| self.remember_sequence(self.store.catalog().unwrap().sequence))
                 {
-                    self.warning = Some(format!("Could not accept the cached catalog: {error}"));
+                    self.warning = Some(format!("无法接受缓存目录：{error}"));
                 } else {
                     self.persistence_failed = false;
                 }
             }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
             Err(error) => {
-                self.warning = Some(format!("Could not read the cached catalog: {error}"))
+                self.warning = Some(format!("无法读取缓存目录：{error}"))
             }
         }
     }
@@ -192,9 +192,9 @@ impl Backend {
             Ok(()) => self.warning = recovery_warning,
             Err(error) => {
                 let prefix = if self.store.catalog().is_some() {
-                    "Showing the last verified cached catalog."
+                    "正在显示最近一次核验通过的缓存目录。"
                 } else {
-                    "App Hub could not load a verified catalog."
+                    "应用中心无法加载核验通过的目录。"
                 };
                 self.warning = Some(format!("{prefix} {error}"));
             }
@@ -231,12 +231,12 @@ impl Backend {
                 icon: crate::icons::installed_icon_path(&self.root, &installed.id)
                     .map(|path| path.to_string_lossy().into_owned()),
                 id: installed.id, name: installed.name,
-                subtitle: "Installed on this device".into(),
-                description: "This installed app is not offered by the current verified catalog. It remains in your library, but cannot be opened until the Hub offers this version again.".into(),
+                subtitle: "已安装在本机".into(),
+                description: "已安装的应用不在当前已核验目录中。安装记录仍保留，只有目录重新提供此版本后才能打开。".into(),
                 category: "utilities".into(), publisher: String::new(), version: installed.version,
                 release_notes: String::new(), screenshots: Vec::new(),
                 permissions: Vec::new(), privacy: Vec::new(), kind: CatalogKind::Live,
-                status: EntryStatus::Unavailable("Not offered by the current catalog".into()), consent: None,
+                status: EntryStatus::Unavailable("当前目录未提供此版本".into()), consent: None,
             })
         }).collect();
         CatalogSnapshot {
@@ -287,9 +287,9 @@ impl Backend {
             name: listing.name,
             subtitle: about
                 .map(|a| a.subtitle.clone())
-                .unwrap_or_else(|| "An app for OctoSense".into()),
+                .unwrap_or_else(|| "OctoSense 应用".into()),
             description: about.map(|a| a.description.clone()).unwrap_or_else(|| {
-                "The publisher has not supplied a description for this version.".into()
+                "发布者未提供此版本的介绍。".into()
             }),
             category: about
                 .map(|a| a.category.clone())
@@ -323,7 +323,7 @@ impl Backend {
         self.check_consent(consent)?;
         let artifact = self.store.entry(&consent.app_id).unwrap().artifact.clone();
         if !safe_relative(&artifact) {
-            return Err("The catalog artifact path is not bundle-relative".into());
+            return Err("目录中的应用产物路径不是包内相对路径".into());
         }
         let workspace = self.root.join(".app-hub-install");
         let result = (|| {
@@ -335,13 +335,13 @@ impl Backend {
             let entry = self.store.entry(&consent.app_id).unwrap();
             let staged_json =
                 std::fs::read_to_string(staged.join(octosense_app_policy::MANIFEST_FILE))
-                    .map_err(|error| format!("Could not read the downloaded manifest: {error}"))?;
+                    .map_err(|error| format!("无法读取已下载的 manifest 清单：{error}"))?;
             let staged_manifest = octosense_app_policy::AppManifest::parse(&staged_json)?;
             if serde_json::to_value(staged_manifest).map_err(|e| e.to_string())?
                 != serde_json::to_value(&entry.manifest).map_err(|e| e.to_string())?
             {
                 return Err(
-                    "The downloaded manifest differs from the reviewed catalog manifest".into(),
+                    "下载的 manifest 清单与已审阅的目录清单不一致".into(),
                 );
             }
             // The Hub backend copies into its own root. Give it a staging root
@@ -375,19 +375,19 @@ impl Backend {
         self.check_sequence_floor()?;
         self.store.installs_allowed(&octosense_app_hub::today())?;
         if self.persistence_failed {
-            return Err("The verified catalog could not be saved; retry before installing".into());
+            return Err("无法保存已核验目录，请重试后再安装".into());
         }
         let entry = self
             .store
             .entry(&consent.app_id)
-            .ok_or("This app is no longer offered by the Hub")?;
+            .ok_or("应用中心已不再提供此应用")?;
         if let octosense_app_hub::Status::Withdrawn(reason) = &entry.status {
-            return Err(format!("This app was withdrawn: {reason}"));
+            return Err(format!("此应用已撤回：{reason}"));
         }
         if entry.version() != consent.version
             || serde_json::to_string(entry).map_err(|e| e.to_string())? != consent.canonical_entry
         {
-            return Err("This app changed after the permissions were shown. Review its details and confirm again.".into());
+            return Err("显示权限后应用内容已变化，请重新审阅详情并确认。".into());
         }
         octosense_app_policy::policy::resolve(&entry.manifest, &HostLimits::default())?;
         Ok(())
@@ -407,7 +407,7 @@ impl Backend {
             .entry((self.root_key.clone(), self.anchor.clone()))
             .or_insert(sequence);
         if sequence < *floor {
-            return Err(format!("Refusing catalog {sequence}: a newer catalog ({floor}) was already verified. Retry until it can be saved."));
+            return Err(format!("拒绝目录 {sequence}：已核验过更新的目录（{floor}），请重试直至保存成功。"));
         }
         *floor = sequence;
         Ok(())
@@ -424,7 +424,7 @@ impl Backend {
                 .catalog()
                 .is_none_or(|catalog| catalog.sequence < *floor)
             {
-                return Err(format!("Catalog {floor} was verified but is not available here. Installs and opens pause until it can be saved."));
+                return Err(format!("目录 {floor} 已核验但无法在本机读取，成功保存前暂停安装和打开应用。"));
             }
         }
         Ok(())
@@ -451,19 +451,19 @@ fn root_identity(root: &Path) -> PathBuf {
 /// These entries describe built-in apps, not downloadable Hub listings.
 pub fn preview_entries() -> Vec<Entry> {
     [
-        ("news", "News", "Stories worth your time", "Follow the stories that matter to you in OctoSense News.", "news"),
-        ("maps", "Maps", "Find your next place", "Explore the world around you with OctoSense Maps.", "travel"),
-        ("photos", "Photos", "Your moments, together", "Browse your photos and revisit the moments you have captured.", "photo-video"),
-        ("camera", "Camera", "See it. Capture it.", "Open the built-in OctoSense Camera and capture a new moment.", "photo-video"),
-        ("mail", "Mail", "Make room for your inbox", "Keep your conversations close with OctoSense Mail.", "productivity"),
-        ("sheets", "Sheets", "Give your ideas some structure", "Work with tables and organize your ideas in OctoSense Sheets.", "productivity"),
+        ("news", "新闻", "值得关注的新闻", "通过 OctoSense 新闻关注重要资讯。", "news"),
+        ("maps", "地图", "发现下一个目的地", "使用 OctoSense 地图探索身边的世界。", "travel"),
+        ("photos", "照片", "汇集美好时刻", "浏览照片，回顾记录下来的美好时刻。", "photo-video"),
+        ("camera", "相机", "看见精彩，记录此刻。", "打开 OctoSense 内置相机，记录新时刻。", "photo-video"),
+        ("mail", "邮箱", "轻松管理收件箱", "使用 OctoSense 邮箱管理邮件往来。", "productivity"),
+        ("sheets", "表格", "整理你的想法", "使用 OctoSense 表格整理数据和想法。", "productivity"),
     ].into_iter().map(|(id, name, subtitle, description, category)| Entry {
         id: id.into(), name: name.into(), subtitle: subtitle.into(),
         description: format!("{description}\n\nPreview catalog — this app is included with OctoSense. This is not a downloadable Hub listing."),
-        category: category.into(), publisher: "OctoSense".into(), version: "Built in".into(),
+        category: category.into(), publisher: "OctoSense".into(), version: "内置".into(),
         release_notes: String::new(), icon: None, screenshots: Vec::new(),
-        permissions: vec!["Built-in app permissions are managed by OctoSense and the app itself.".into()],
-        privacy: vec!["This preview is not a publisher privacy declaration.".into()],
+        permissions: vec!["内置应用的权限由 OctoSense 和应用共同管理。".into()],
+        privacy: vec!["此预览不代表发布者的隐私声明。".into()],
         kind: CatalogKind::Preview, status: EntryStatus::BuiltIn, consent: None,
     }).collect()
 }
@@ -531,7 +531,7 @@ fn asset_location(origin: &Origin, artifact: &str, asset: &str) -> Option<String
 }
 
 fn persist_catalog(root: &Path, json: &str) -> Result<(), String> {
-    std::fs::create_dir_all(root).map_err(|e| format!("Could not create the app library: {e}"))?;
+    std::fs::create_dir_all(root).map_err(|e| format!("无法创建应用库：{e}"))?;
     let temporary = root.join(".catalog.json.tmp");
     let result = (|| {
         let mut file = std::fs::File::create(&temporary).map_err(|e| e.to_string())?;
@@ -542,7 +542,7 @@ fn persist_catalog(root: &Path, json: &str) -> Result<(), String> {
     if result.is_err() {
         let _ = std::fs::remove_file(temporary);
     }
-    result.map_err(|e| format!("Could not save the verified catalog: {e}"))
+    result.map_err(|e| format!("无法保存已核验目录：{e}"))
 }
 
 fn publish_bundle(
@@ -552,26 +552,26 @@ fn publish_bundle(
 ) -> Result<(), String> {
     recover_bundle(app_root)?;
     std::fs::create_dir_all(app_root)
-        .map_err(|e| format!("Could not create the app directory: {e}"))?;
+        .map_err(|e| format!("无法创建应用目录：{e}"))?;
     let bundle = app_root.join("bundle");
     let next = app_root.join(".bundle-next");
     let previous = app_root.join(".bundle-previous");
     rename(prepared, &next)
-        .map_err(|e| format!("Could not prepare the verified installation: {e}"))?;
+        .map_err(|e| format!("无法准备已核验的安装内容：{e}"))?;
     if bundle.exists() {
         rename(&bundle, &previous)
-            .map_err(|e| format!("Could not preserve the previous installation: {e}"))?;
+            .map_err(|e| format!("无法保留原安装内容：{e}"))?;
     }
     if let Err(error) = rename(&next, &bundle) {
         if previous.exists() {
             if let Err(rollback) = rename(&previous, &bundle) {
                 // Keep both directories: startup recovery can restore the old
                 // bundle once the filesystem permits writes again.
-                return Err(format!("Could not publish the installation: {error}. The previous bundle is preserved for recovery: {rollback}"));
+                return Err(format!("无法完成安装：{error}。原应用包已保留，可用于恢复：{rollback}"));
             }
         }
         let _ = std::fs::remove_dir_all(&next);
-        return Err(format!("Could not publish the installation: {error}"));
+        return Err(format!("无法完成安装：{error}"));
     }
     // Publication is complete. A cleanup failure is harmless and is retried
     // by recovery; the app's separate data/jail is never renamed or removed.
@@ -590,16 +590,16 @@ fn recover_bundle(app_root: &Path) -> Result<(), String> {
             // The final rename happened before interruption: keep the complete
             // new bundle, then discard the previous bundle.
             std::fs::remove_dir_all(&previous)
-                .map_err(|e| format!("Could not clean up the previous installation: {e}"))?;
+                .map_err(|e| format!("无法清理原安装内容：{e}"))?;
         } else {
             // Interrupted between renames: restore the last complete bundle.
             std::fs::rename(&previous, &bundle)
-                .map_err(|e| format!("Could not recover the previous installation: {e}"))?;
+                .map_err(|e| format!("无法恢复原安装内容：{e}"))?;
         }
     }
     if next.exists() {
         std::fs::remove_dir_all(next)
-            .map_err(|e| format!("Could not clean up the interrupted installation: {e}"))?;
+            .map_err(|e| format!("无法清理中断的安装内容：{e}"))?;
     }
     Ok(())
 }
@@ -610,7 +610,7 @@ fn recover_installations(root: &Path) -> Result<(), String> {
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
         Err(error) => {
             return Err(format!(
-                "Could not inspect interrupted installations: {error}"
+                "无法检查中断的安装内容：{error}"
             ))
         }
     };
@@ -839,7 +839,7 @@ mod tests {
         let snapshot = backend.refresh();
         assert_eq!(snapshot.entries.len(), 1);
         assert!(!snapshot.can_install);
-        assert!(snapshot.warning.unwrap().contains("save"));
+        assert!(snapshot.warning.unwrap().contains("保存"));
         assert_eq!(
             std::fs::read_to_string(f.root().join("catalog.json")).unwrap(),
             original
@@ -884,7 +884,7 @@ mod tests {
         std::fs::remove_file(f.path.join("hub/catalog.json")).unwrap();
         let snapshot = f.backend().refresh();
         assert_eq!(snapshot.entries.len(), 1);
-        assert!(snapshot.warning.unwrap().contains("cached"));
+        assert!(snapshot.warning.unwrap().contains("缓存"));
     }
 
     #[test]
@@ -911,7 +911,7 @@ mod tests {
         octosense_app_hub::sign_manifest(&f.publisher, &mut changed.manifest, "test-publisher")
             .unwrap();
         f.publish_today(2, vec![changed]);
-        assert!(backend.install(&consent).unwrap_err().contains("changed"));
+        assert!(backend.install(&consent).unwrap_err().contains("变化"));
         assert!(!f.root().join("test-app/bundle").exists());
     }
 
@@ -1078,7 +1078,7 @@ mod tests {
                 }
             },
         );
-        assert!(result.unwrap_err().contains("preserved for recovery"));
+        assert!(result.unwrap_err().contains("可用于恢复"));
         assert_eq!(
             std::fs::read_to_string(app_root.join(".bundle-previous/main.splash")).unwrap(),
             "text Hello"
@@ -1176,7 +1176,7 @@ mod tests {
         worker.join().unwrap();
         assert_eq!(
             result.unwrap().unwrap_err(),
-            "App Hub is updating. Try again shortly."
+            "应用中心正在更新，请稍后重试。"
         );
     }
 
@@ -1211,7 +1211,7 @@ mod tests {
         )
         .may_open("test-app")
         .unwrap_err();
-        assert!(error.contains("Catalog 2"), "{error}");
+        assert!(error.contains("目录 2"), "{error}");
     }
 
     #[test]

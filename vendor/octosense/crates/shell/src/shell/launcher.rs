@@ -118,7 +118,7 @@ pub fn apps_uncached() -> Vec<MenuItem> {
         .filter(|app| !is_hidden(&app.id, &hides))
         .map(|app| MenuItem {
             id: format!("apps.{}", app.id),
-            label: app.label.clone(),
+            label: super::menu::application_label_zh(&app.label).into(),
             icon: icon_for(&app.id),
             kind: MenuKind::App,
             checked: false,
@@ -162,8 +162,8 @@ mod tests {
         let labels: Vec<String> = items.iter().map(|i| i.label.clone()).collect();
         let registry_order: Vec<String> = clients::available_apps()
             .iter()
-            .filter(|a| labels.contains(&a.label))
-            .map(|a| a.label.clone())
+            .filter(|a| labels.contains(&super::menu::application_label_zh(&a.label).to_string()))
+            .map(|a| super::menu::application_label_zh(&a.label).to_string())
             .collect();
         assert_eq!(labels, registry_order);
         // Every row is an app row under the `apps` parent.

@@ -176,19 +176,19 @@ pub fn default_indicators() -> Vec<Indicator> {
             icon: Ico::Record,
             active_icon: Ico::Record,
             active: false,
-            tooltip: "Screen Recording",
+            tooltip: "屏幕录制",
         },
         Indicator {
             icon: Ico::Moon,
             active_icon: Ico::Moon,
             active: false,
-            tooltip: "Night Light",
+            tooltip: "夜间模式",
         },
         Indicator {
             icon: Ico::Bell,
             active_icon: Ico::BellOff,
             active: false,
-            tooltip: "Silence Notifications",
+            tooltip: "静音通知",
         },
     ]
 }
@@ -230,7 +230,13 @@ fn run(cmd: &str, args: &[&str]) -> Option<String> {
 /// `date` reads). Forking `date` twice a second cost an idle phone 11% of a
 /// core on this thread alone.
 pub fn sample_clock(alt: bool) -> String {
-    let fmt: &std::ffi::CStr = if alt { c"%-d %B W%V %Y" } else { c"%A %H:%M" };
+    let localized = |raw: String| -> String {
+        if alt { return raw; }
+        let (day, time) = raw.split_once(' ').unwrap_or(("", ""));
+        let label = match day { "0" => "周日", "1" => "周一", "2" => "周二", "3" => "周三", "4" => "周四", "5" => "周五", "6" => "周六", _ => return raw };
+        format!("{label} {time}")
+    };
+    let fmt: &std::ffi::CStr = if alt { c"%Y年%m月%d日 第%V周" } else { c"%w %H:%M" };
     #[cfg(unix)]
     {
         let mut buf = [0u8; 64];
@@ -242,14 +248,14 @@ pub fn sample_clock(alt: bool) -> String {
             }
             libc::strftime(buf.as_mut_ptr() as *mut libc::c_char, buf.len(), fmt.as_ptr(), &tm)
         };
-        String::from_utf8_lossy(&buf[..written]).trim().to_string()
+        localized(String::from_utf8_lossy(&buf[..written]).trim().to_string())
     }
     #[cfg(not(unix))]
     {
         let fmt = format!("+{}", fmt.to_str().unwrap_or_default());
-        run("date", &[&fmt])
+        localized(run("date", &[&fmt])
             .map(|s| s.trim().to_string())
-            .unwrap_or_default()
+            .unwrap_or_default())
     }
 }
 
@@ -681,7 +687,7 @@ impl ShellBar {
         x += style_width + 6.0;
 
         if self.data.style.supports_dark() {
-            let label=if self.data.dark {"Dark"}else{"Light"};
+            let label=if self.data.dark {"深色"}else{"浅色"};
             let width=self.d.measure(cx,false,tok.font.body,label)+18.0;
             let button=rect(x,r.pos.y,width,r.size.y);
             self.d.label(cx,button,false,tok.font.body,fg,super::ui::HAlign::Center,label);
@@ -870,40 +876,40 @@ impl ShellBar {
     /// The tooltip a module shows after 400ms of hover.
     fn tooltip_for(&self, module: BarModule) -> String {
         match module {
-            BarModule::Style => "Choose operating system style".into(),
-            BarModule::Appearance => "Toggle light / dark appearance".into(),
-            BarModule::Menu => "Applications".into(),
-            BarModule::Workspace(i) => format!("Workspace {}", i + 1),
+            BarModule::Style => "选择桌面风格".into(),
+            BarModule::Appearance => "切换浅色／深色外观".into(),
+            BarModule::Menu => "应用程序".into(),
+            BarModule::Workspace(i) => format!("工作区 {}", i + 1),
             BarModule::ActiveWindow => self
                 .data
                 .active_window
                 .clone()
                 .unwrap_or_default(),
-            BarModule::Clock => "Calendar".into(),
-            BarModule::KeyboardLayout => "Keyboard layout".into(),
-            BarModule::Weather => "Weather".into(),
-            BarModule::SystemUpdate => "Pending updates".into(),
-            BarModule::Tray(_) => "Tray".into(),
+            BarModule::Clock => "日历".into(),
+            BarModule::KeyboardLayout => "键盘布局".into(),
+            BarModule::Weather => "天气".into(),
+            BarModule::SystemUpdate => "待安装更新".into(),
+            BarModule::Tray(_) => "状态栏".into(),
             BarModule::Bluetooth => match self.data.bluetooth {
-                Some(true) => "Bluetooth on".into(),
-                Some(false) => "Bluetooth off".into(),
-                None => "Bluetooth unavailable".into(),
+                Some(true) => "蓝牙已开启".into(),
+                Some(false) => "蓝牙已关闭".into(),
+                None => "蓝牙不可用".into(),
             },
             BarModule::Network => match self.data.network {
-                Some(true) => "Connected".into(),
-                Some(false) => "Not connected".into(),
-                None => "Network unavailable".into(),
+                Some(true) => "已连接".into(),
+                Some(false) => "未连接".into(),
+                None => "网络不可用".into(),
             },
             BarModule::Audio => match (self.data.volume, self.data.muted) {
-                (_, true) => "Muted".into(),
-                (Some(v), _) => format!("Volume {}%", v),
-                (None, _) => "Audio unavailable".into(),
+                (_, true) => "已静音".into(),
+                (Some(v), _) => format!("音量 {}%", v),
+                (None, _) => "音频不可用".into(),
             },
-            BarModule::Monitor => "Display".into(),
+            BarModule::Monitor => "显示器".into(),
             BarModule::Power => match self.data.battery {
-                Some(b) if b.charging => format!("Battery {}%, charging", b.percent),
-                Some(b) => format!("Battery {}%", b.percent),
-                None => "Power".into(),
+                Some(b) if b.charging => format!("电量 {}%，正在充电", b.percent),
+                Some(b) => format!("电量 {}%", b.percent),
+                None => "电源".into(),
             },
             BarModule::Indicator(i) => self
                 .data
@@ -911,11 +917,11 @@ impl ShellBar {
                 .get(i)
                 .map(|ind| ind.tooltip.to_string())
                 .unwrap_or_default(),
-            BarModule::WindowMin => "Minimize".into(),
+            BarModule::WindowMin => "最小化".into(),
             BarModule::WindowMax => {
-                if self.data.maximized { "Restore".into() } else { "Maximize".into() }
+                if self.data.maximized { "还原".into() } else { "最大化".into() }
             }
-            BarModule::WindowClose => "Close".into(),
+            BarModule::WindowClose => "关闭".into(),
         }
     }
 

@@ -13,7 +13,7 @@ impl AppModule for AppHubModule {
         "apphub"
     }
     fn label(&self) -> &'static str {
-        "App Hub"
+        "应用中心"
     }
     fn register(&self, vm: &mut ScriptVm) {
         crate::view::script_mod(vm);
@@ -47,12 +47,12 @@ impl AppModule for AppHubModule {
 struct HubExecutor;
 impl ServiceExecutor for HubExecutor {
     fn manifest(&self) -> ServiceManifest {
-        ServiceManifest::new("apphub", "App Hub", "Discover and install OctoSense apps")
+        ServiceManifest::new("apphub", "应用中心", "发现并安装 OctoSense 应用")
     }
     fn execute(&mut self, _cx: &mut Cx, call: &ServiceCall) -> ExecOutcome {
         ExecOutcome::Done(ToolResult::unavailable(
             &call.call_id,
-            "Use App Hub to review and install apps",
+            "请通过应用中心审阅并安装应用",
         ))
     }
 }
