@@ -1,6 +1,6 @@
 # Muse 参赛源码交付 · 0.2.12
 
-- 目标仓库：`https://github.com/9tuore/123`，用户本人创建并授权推送。
+- 目标仓库：`https://github.com/9tuore/muse-agent`，用户本人创建并授权推送。
 - 内容：桌面版 Muse、官方 Splash 应用、完整配套 OctoSense / App Hub / Makepad / OctoScript 源码、构建脚本、测试、补丁、许可证与合成验收记录。
 - 官方开发来源：`e00b8cf0bba75a7dd60f271d31faeb7b703c4295`；导出包含工作树中的 `official_muse/phase2/tests/live_calendar_crud.py` 改动，该驱动只通过语法核对，尚未重跑 LIVE。
 - 桌面版来源：`5e7fa0bf181071b5e8bfa461aead638fb3a12022`，保留 `app/muse_textedit_recipe.py` 与 `app/mini_app_gui.py` 两份现有本地源码改动。

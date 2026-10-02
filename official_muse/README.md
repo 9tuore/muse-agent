@@ -51,4 +51,4 @@ python3 official_muse/phase2/tests/audit_state.py "$MUSE_JAIL" --min-goals 3 --r
 
 ## 提交前仍须完成
 
-补齐 Mail 与邮件→日历全链、处理模型语义稳定性及其余验收差异；补真实 publisher/support/privacy 信息；明确本地宿主扩展的主办方准入。然后确定要推送的最终版本及队伍名。本次按用户要求将完整源码推送到 `9tuore/123`；主办方 issue 留言仍未授权，不随源码上传执行。
+补齐 Mail 与邮件→日历全链、处理模型语义稳定性及其余验收差异；补真实 publisher/support/privacy 信息；明确本地宿主扩展的主办方准入。然后确定要推送的最终版本及队伍名。本次按用户要求将完整源码推送到 `9tuore/muse-agent`；主办方 issue 留言仍未授权，不随源码上传执行。
