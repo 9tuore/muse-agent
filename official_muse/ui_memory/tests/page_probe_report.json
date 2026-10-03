@@ -1,0 +1,138 @@
+{
+  "status": "PASS",
+  "checks": {
+    "host-limit-100": true,
+    "host-limit-100-span": true,
+    "month-2026-10-03": true,
+    "month-2024-02-29": true,
+    "month-2025-02-28": true,
+    "month-2026-12-31": true,
+    "month-2027-01-01": true,
+    "month-1900-03-01": true,
+    "month-2000-02-29": true,
+    "week-2026-10-03": true,
+    "week-2024-02-29": true,
+    "week-2025-02-28": true,
+    "week-2026-12-31": true,
+    "week-2027-01-01": true,
+    "week-1900-03-01": true,
+    "week-2000-02-29": true,
+    "agenda-2026-10-03": true,
+    "agenda-2024-02-29": true,
+    "agenda-2025-02-28": true,
+    "agenda-2026-12-31": true,
+    "agenda-2027-01-01": true,
+    "agenda-1900-03-01": true,
+    "agenda-2000-02-29": true,
+    "empty-agenda": true,
+    "nil-events": true,
+    "invalid-2026-02-30": true,
+    "invalid-2026-13-01": true,
+    "invalid-2026-10-00": true,
+    "invalid-2026-1-03": true,
+    "invalid-2026-10- 3": true,
+    "invalid-": true,
+    "invalid-1899-12-31": true,
+    "invalid-view": true,
+    "move-0": true,
+    "move-1": true,
+    "move-2": true,
+    "move-3": true,
+    "move-4": true,
+    "move-5": true,
+    "move-6": true,
+    "move-7": true,
+    "move-8": true,
+    "move-9": true,
+    "time-format-0": true,
+    "time-format-1": true,
+    "time-format-2": true,
+    "time-format-3": true,
+    "calendar-off": true,
+    "calendar-write-only": true,
+    "calendar-full-no-target": true,
+    "calendar-full": true,
+    "calendar-undetermined": true,
+    "calendar-denied": true,
+    "mail-off": true,
+    "mail-no-account": true,
+    "mail-pending": true,
+    "mail-connected": true,
+    "today-shanghai": true,
+    "repeat-no-input-mutation": true,
+    "no-effectful-api": true
+  },
+  "source_sha256": "75a9a3bf1117f5c4bf879f2f083cb9eb222a7dc48984cf86f1a2aeaf501a3743",
+  "host_sha256": "dcebb3e8a4c50b6702526b52d8aaa3a015e63feba8159b8aff9682cd9ea83987",
+  "port": 8483,
+  "executed_at": "2026-10-03T01:10:59.160317+08:00",
+  "scope": "synthetic Host-shaped events, real card-host Splash execution; no system Calendar query/CRUD",
+  "event_input_count": 13,
+  "evidence": "/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/page-probe-final-release",
+  "passed": 60,
+  "total": 60,
+  "baseline_commit": "dd473352a802fa44b3ff62b668c551cc6db587e2",
+  "test_sha256": "3dc15da34bfa5a6dc5ff4db691a6fb83e5e9a9ddf01087e96549e9547243e27d",
+  "binary": "/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host/OctoSense/target/release/card-host",
+  "baseline_main_sha256": "6d4519bf4c3557b23ddb4163d12f1623aa21884c2ceffcb631f73c489a744f55",
+  "source_audit": {
+    "OctoSense-App-Hub": "97d75ac011818d4f8978f1a9e19cfae5e678d41d",
+    "OctoSense": "local source copy without Git metadata; source inspection does not verify a running installed Shell",
+    "glance": "Shell internal toast through glance.publish + capability; Muse stable manifest does not grant glance",
+    "background": "official Muse user.message Goal triggers and in-app mail timer only; no general closed-app Goal scheduler observed"
+  },
+  "unverified": [
+    "integrated candidate UI/screenshots/resizes",
+    "system Calendar read/CRUD/independent readback on candidate",
+    "macOS Notification Center permission/delivery",
+    "closed-app or startup/background Goal execution",
+    "full final candidate regression"
+  ],
+  "failures_preserved": [
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-second",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-final",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-merge",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-max-once",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-max-first",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-debug",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-linear",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    },
+    {
+      "directory": "official_muse/app/build/ui-memory-20261003/page-probe-release",
+      "observed": "script instruction limit exceeded",
+      "resolution": "batch callbacks per scene; remove render sorting; place each event on its dates; reuse dense same-membership date lists"
+    }
+  ]
+}

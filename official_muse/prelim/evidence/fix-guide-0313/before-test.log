@@ -1,0 +1,18 @@
+
+running 1 test
+test tests::keychain_wait_never_blocks_mail_dispatch_or_cached_accounts ... FAILED
+
+failures:
+
+---- tests::keychain_wait_never_blocks_mail_dispatch_or_cached_accounts stdout ----
+
+thread 'tests::keychain_wait_never_blocks_mail_dispatch_or_cached_accounts' (7108634) panicked at official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/apps/mail/host-service/src/lib.rs:825:13:
+folders blocked the host/UI dispatch while the vault waited
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::keychain_wait_never_blocks_mail_dispatch_or_cached_accounts
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.31s
+

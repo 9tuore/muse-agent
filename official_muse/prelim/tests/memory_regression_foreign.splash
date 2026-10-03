@@ -1,0 +1,10 @@
+fn memory_foreign_probe(){
+    core_boot_memory()
+    gm_boot()
+    let before = core_last_memory
+    let imported = gm_import(fs.read("import-fixture.json"))
+    let r = {denied: !imported unchanged: before == core_last_memory profile_id: gm_user_id error: gm_error}
+    fs.write("memory_regression_foreign-report.json",r.to_json())
+}
+start_timeout(0.1, || memory_foreign_probe())
+View{width: Fill height: Fill Label{text: "不同用户资料库隔离"}}

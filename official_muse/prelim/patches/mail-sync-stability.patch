@@ -1,0 +1,368 @@
+--- a/apps/mail/host-service/src/imap.rs
++++ b/apps/mail/host-service/src/imap.rs
+@@ -175,9 +175,13 @@
+             }
+         }
+         uids.sort_unstable();
+-        let newest = uids.last().copied().unwrap_or(last);
++        uids.dedup();
++        // Drain oldest outstanding UIDs first; advancing over a newer-only
++        // batch would permanently skip the undownloaded older messages.
++        let baseline_uid = if reset { Some(uids.last().copied().unwrap_or(0)) } else { state["baseline_uid"].as_u64() };
+         let has_more = uids.len() > limit;
+-        let wanted: Vec<u64> = uids.into_iter().rev().take(limit).collect();
++        let wanted: Vec<u64> = uids.into_iter().take(limit).rev().collect();
++        let newest = wanted.first().copied().unwrap_or(last);
+         let mut messages = Vec::new();
+         if !wanted.is_empty() {
+             let set = wanted.iter().map(u64::to_string).collect::<Vec<_>>().join(",");
+@@ -190,7 +194,7 @@
+                 }
+             }
+             for uid in &wanted {
+-                let Some((size, unread)) = meta.get(uid).copied() else { continue };
++                let (size, unread) = meta.get(uid).copied().ok_or("Mailbox changed during fetch; retry without advancing its cursor.")?;
+                 let key = format!("{folder}\n{validity}/{uid}");
+                 let mut message = if size > MAX_MESSAGE {
+                     let raw = self.body(*uid, "BODY.PEEK[HEADER]")?;
+@@ -202,12 +206,13 @@
+                 } else {
+                     network::decode(&self.body(*uid, "BODY.PEEK[]")?, &key)?
+                 };
++                if let Some(boundary) = baseline_uid { message["historical"] = json!(*uid <= boundary); }
+                 message["imap_uid"] = json!(uid);
+                 message["unread"] = json!(unread);
+                 messages.push(message);
+             }
+         }
+-        Ok(json!({"messages": messages, "reset": reset, "state": {"uidvalidity": validity, "last_uid": newest}, "has_more": has_more}))
++        Ok(json!({"messages": messages, "reset": reset, "state": {"uidvalidity": validity, "last_uid": newest, "baseline_uid": baseline_uid}, "has_more": has_more}))
+     }
+ 
+     fn body(&mut self, uid: u64, item: &str) -> Result<Vec<u8>, String> {
+@@ -452,7 +457,7 @@
+         assert_eq!(messages[1]["subject"], "Huge");
+         assert!(messages[1]["body"].as_str().unwrap().contains("too large"));
+         assert_eq!(messages[2]["unread"], false, "\\Seen on the server is read here");
+-        assert_eq!(fetched["state"], json!({"uidvalidity": 42, "last_uid": 9}));
++        assert_eq!(fetched["state"], json!({"uidvalidity": 42, "last_uid": 9, "baseline_uid": 9}));
+         assert_eq!(fetched["reset"], true, "a first fetch starts the folder afresh");
+ 
+         let again = imap.fetch("INBOX", &fetched["state"], 25).unwrap();
+@@ -477,3 +482,90 @@
+         assert_eq!(error, rejected());
+     }
+ }
++
++#[cfg(test)]
++mod prelim_host_tests {
++    use super::*;
++    use std::io::{BufRead, BufReader, Write};
++
++    fn server(validity: u64, mut uids: Vec<u64>, omit_meta: bool, late_uid: Option<u64>) -> (Imap, std::thread::JoinHandle<()>) {
++        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
++        let port = listener.local_addr().unwrap().port();
++        let thread = std::thread::spawn(move || {
++            let (socket, _) = listener.accept().unwrap();
++            let mut out = socket.try_clone().unwrap();
++            let mut input = BufReader::new(socket);
++            out.write_all(b"* OK fixture\r\n").unwrap();
++            let mut examines=0;
++            loop {
++                let mut line = String::new();
++                if input.read_line(&mut line).unwrap()==0 { break; }
++                let (tag, command) = line.trim_end().split_once(' ').unwrap();
++                let mut response = String::new();
++                if command.starts_with("EXAMINE") {
++                    examines+=1;
++                    if examines==2 { if let Some(uid)=late_uid { uids.push(uid); } }
++                    response = format!("* {} EXISTS\r\n* OK [UIDVALIDITY {validity}] fixture\r\n", uids.len());
++                } else if let Some(range) = command.strip_prefix("UID SEARCH UID ") {
++                    let from: u64 = range.trim_end_matches(":*").parse().unwrap();
++                    response = format!("* SEARCH {}\r\n", uids.iter().filter(|u| **u>=from).map(u64::to_string).collect::<Vec<_>>().join(" "));
++                } else if let Some(fetch) = command.strip_prefix("UID FETCH ") {
++                    let (set, items) = fetch.split_once(' ').unwrap();
++                    if items=="(UID FLAGS RFC822.SIZE)" {
++                        if !omit_meta {
++                            for uid in set.split(',') { response.push_str(&format!("* 1 FETCH (UID {uid} FLAGS () RFC822.SIZE 100)\r\n")); }
++                        }
++                    } else {
++                        let raw = format!("From: fixture@example.invalid\r\nSubject: uid-{set}\r\n\r\nfixture-{set}\r\n");
++                        response = format!("* 1 FETCH (UID {set} BODY[] {{{}}}\r\n{raw})\r\n", raw.len());
++                    }
++                } else if command=="LOGOUT" {
++                    response = "* BYE\r\n".into();
++                } else { panic!("Unexpected fixture command {command}"); }
++                out.write_all(format!("{response}{tag} OK done\r\n").as_bytes()).unwrap();
++                if command=="LOGOUT" { break; }
++            }
++        });
++        (Imap::greeted(Wire::connect("127.0.0.1", port).unwrap()).unwrap(), thread)
++    }
++
++    #[test]
++    fn prelim_host_imap_contiguous_cursor_covers_all_offline_uids() {
++        let (mut imap, server) = server(42, (101..=130).collect(), false, None);
++        let first = imap.fetch("INBOX", &json!({"uidvalidity":42,"last_uid":100}),25).unwrap();
++        let second = imap.fetch("INBOX", &first["state"],25).unwrap();
++        let third = imap.fetch("INBOX", &second["state"],25).unwrap();
++        imap.logout(); server.join().unwrap();
++        let mut downloaded: Vec<u64> = first["messages"].as_array().unwrap().iter()
++            .chain(second["messages"].as_array().unwrap()).map(|m| m["imap_uid"].as_u64().unwrap()).collect();
++        downloaded.sort_unstable();
++        assert_eq!(downloaded,(101..=130).collect::<Vec<_>>(),"must not skip undownloaded UIDs");
++        assert_eq!(first["state"]["last_uid"],125);
++        assert_eq!(first["has_more"],true);
++        assert_eq!(second["has_more"],false);
++        assert_eq!(third["messages"],json!([]));
++    }
++
++    #[test]
++    fn prelim_host_imap_missing_metadata_does_not_advance_cursor() {
++        let (mut imap, server) = server(42, vec![101], true, None);
++        let result = imap.fetch("INBOX", &json!({"uidvalidity":42,"last_uid":100}),25);
++        imap.logout(); server.join().unwrap();
++        assert!(result.is_err(),"incomplete metadata cannot be committed as a completed fetch");
++    }
++    #[test]
++    fn prelim_host_imap_snapshot_history_stays_silent_but_later_uid_is_new() {
++        let (mut imap, server)=server(7,(1..=30).collect(),false,Some(31));
++        let first=imap.fetch("INBOX",&json!({}),25).unwrap();
++        let second=imap.fetch("INBOX",&first["state"],25).unwrap();
++        imap.logout(); server.join().unwrap();
++        assert_eq!(first["reset"],true);
++        assert!(first["messages"].as_array().unwrap().iter().all(|m|m["historical"]==true));
++        assert_eq!(second["messages"].as_array().unwrap().len(),6);
++        assert_eq!(second["messages"][0]["imap_uid"],31);
++        assert_eq!(second["messages"][0]["historical"],false);
++        assert!(second["messages"].as_array().unwrap()[1..].iter().all(|m|m["historical"]==true));
++        assert_eq!(second["has_more"],false);
++    }
++
++}
+--- a/apps/mail/host-service/src/network.rs
++++ b/apps/mail/host-service/src/network.rs
+@@ -272,8 +272,11 @@
+     let _ = wire.pop("QUIT");
+     Ok(json!({"available":count,"tls_verified":true,"transport":"device-pop3"}))
+ }
+-pub fn fetch(account: &Value, seen: &HashSet<String>) -> Result<Value, String> {
+-    let mut wire = pop_connect(account)?;
++pub fn fetch(account: &Value, seen: &HashSet<String>, state: &Value) -> Result<Value, String> {
++    fetch_connected(pop_connect(account)?, account, seen, state)
++}
++
++fn fetch_connected(mut wire: Wire, account: &Value, seen: &HashSet<String>, state: &Value) -> Result<Value, String> {
+     let available = String::from_utf8_lossy(&wire.pop("STAT")?)
+         .split_whitespace()
+         .nth(1)
+@@ -291,6 +294,16 @@
+             Some((parts.next()?.parse().ok()?, parts.next()?.parse().ok()?))
+         })
+         .collect();
++    // Keep the first UIDL snapshot across batches; later arrivals are not
++    // historical even if the original inbox is still being downloaded.
++    // A legacy nonempty seen set has no reconstructible snapshot boundary.
++    let baseline_uids = state["baseline_uids"].as_array().cloned().or_else(|| {
++        seen.is_empty().then(|| rows.iter().filter_map(|line| {
++            let uid = std::str::from_utf8(line).ok()?.split_whitespace().nth(1)?;
++            Some(json!(uid))
++        }).collect())
++    });
++    let baseline: HashSet<String> = baseline_uids.iter().flatten().filter_map(|v|v.as_str().map(str::to_string)).collect();
+     let remaining: Vec<(usize, String)> = rows
+         .iter()
+         .filter_map(|line| {
+@@ -309,12 +322,14 @@
+         }
+         wire.pop(&format!("RETR {number}"))?;
+         let raw = wire.multiline(2_100_000)?.concat();
+-        messages.push(decode(&raw, uid)?);
++        let mut message = decode(&raw, uid)?;
++        if baseline_uids.is_some() { message["historical"] = json!(baseline.contains(uid)); }
++        messages.push(message);
+     }
+     let _ = wire.pop("QUIT");
+     Ok(
+         json!({"address":account["address"],"account_id":identity(account),"messages":messages,"available":available,
+-        "skipped_uids":skipped,"has_more":remaining.len()>25,"synced_at":chrono::Utc::now().to_rfc3339(),"tls_verified":true,"host":account["host"],"transport":"device-pop3"}),
++        "baseline_uids":baseline_uids,"skipped_uids":skipped,"has_more":remaining.len()>25,"synced_at":chrono::Utc::now().to_rfc3339(),"tls_verified":true,"host":account["host"],"transport":"device-pop3"}),
+     )
+ }
+ 
+@@ -485,3 +500,60 @@
+     let _ = wire.smtp("QUIT", &[221]);
+     Ok(json!({"message_id":id,"accepted":true}))
+ }
++
++#[cfg(test)]
++mod prelim_host_tests {
++    use super::*;
++    fn batch(uids: Vec<u64>, seen: &HashSet<String>, state: &Value) -> Value {
++        let listener=std::net::TcpListener::bind("127.0.0.1:0").unwrap();
++        let port=listener.local_addr().unwrap().port();
++        let server=std::thread::spawn(move || {
++            let (socket,_)=listener.accept().unwrap();
++            let mut out=socket.try_clone().unwrap();
++            let mut input=BufReader::new(socket);
++            loop {
++                let mut line=String::new();
++                if input.read_line(&mut line).unwrap()==0 {break;}
++                let command=line.trim_end();
++                let reply=match command {
++                    "STAT"=>format!("+OK {} 1000\r\n",uids.len()),
++                    "UIDL"=>format!("+OK\r\n{}.\r\n",uids.iter().enumerate().map(|(i,u)|format!("{} uid-{u}\r\n",i+1)).collect::<String>()),
++                    "LIST"=>format!("+OK\r\n{}.\r\n",uids.iter().enumerate().map(|(i,_)|format!("{} 100\r\n",i+1)).collect::<String>()),
++                    "QUIT"=>"+OK goodbye\r\n".into(),
++                    c if c.starts_with("RETR ")=>{
++                        let index:usize=c[5..].parse().unwrap();
++                        format!("+OK\r\nFrom: fixture@example.invalid\r\nSubject: uid-{}\r\n\r\nBody\r\n.\r\n",uids[index-1])
++                    },
++                    _=>panic!("unexpected fixture command {command}")
++                };
++                out.write_all(reply.as_bytes()).unwrap();
++                if command=="QUIT" {break;}
++            }
++        });
++        let fetched=fetch_connected(Wire::connect("127.0.0.1",port).unwrap(),&defaults(),seen,state).unwrap();
++        server.join().unwrap();
++        let adapted=crate::pop_batch(fetched.clone(),seen.iter().map(|uid|json!(uid)).collect());
++        assert_eq!(adapted["has_more"],fetched["has_more"],"Network adapter must preserve POP completion");
++        assert_eq!(adapted["state"]["baseline_uids"],fetched["baseline_uids"]);
++        assert_eq!(adapted["state"]["seen"].as_array().unwrap().len(),seen.len()+fetched["messages"].as_array().unwrap().len());
++        fetched
++    }
++    #[test]
++    fn prelim_host_pop_historical_batches_and_arrivals_remain_distinct() {
++        let first=batch((1..=30).collect(),&HashSet::new(),&json!({}));
++        assert_eq!(first["has_more"],true);
++        assert!(first["messages"].as_array().unwrap().iter().all(|m|m["historical"]==true));
++        let mut seen:HashSet<String>=first["messages"].as_array().unwrap().iter().map(|m|text(m,"uid").to_string()).collect();
++        let state=json!({"baseline_uids":first["baseline_uids"]});
++        let second=batch((1..=31).collect(),&seen,&state);
++        assert_eq!(second["messages"].as_array().unwrap().len(),6);
++        assert_eq!(second["messages"][0]["uid"],"uid-31");
++        assert_eq!(second["messages"][0]["historical"],false);
++        assert!(second["messages"].as_array().unwrap()[1..].iter().all(|m|m["historical"]==true));
++        assert_eq!(second["has_more"],false);
++        seen.extend(second["messages"].as_array().unwrap().iter().map(|m|text(m,"uid").to_string()));
++        let third=batch((1..=31).collect(),&seen,&state);
++        assert_eq!(third["messages"],json!([]));
++        assert_eq!(third["has_more"],false);
++    }
++}
+--- a/apps/mail/host-service/src/lib.rs
++++ b/apps/mail/host-service/src/lib.rs
+@@ -9,7 +9,7 @@
+ //! | `mail.add_account` | – | `{id, address}` once the person signs in on the host's sheet |
+ //! | `mail.remove_account` | `{account}` | `{}`; the account is deleted when no app uses it |
+ //! | `mail.folders` | `{account}` | `[{id, name, role}]`, the inbox first (`role`: inbox, sent, drafts, junk, trash, archive, all, flagged or "") |
+-//! | `mail.sync` | `{account, folder?}` | `{new, total}` after fetching new mail |
++//! | `mail.sync` | `{account, folder?}` | `{new, total, has_more?, reset?}` after fetching a bounded batch |
+ //! | `mail.list` | `{account, folder?, offset?, limit?}` | `{folder, total, messages: [{id, sender, address, subject, preview, time, unread}]}` |
+ //! | `mail.message` | `{account, folder?, message}` | `{id, sender, address, subject, body, html, attachments, date, time}` |
+ //! | `mail.mark_read` | `{account, folder?, message}` | `{}` |
+@@ -89,7 +89,7 @@
+     fn test(&self, account: &Value) -> Result<(), String>;
+     fn folders(&self, account: &Value) -> Result<Vec<Value>, String>;
+     /// Mail in `folder` that `state` has not seen, newest first: `{messages,
+-    /// state, reset}`. `state` is what the last fetch returned (or `{}`);
++    /// state, reset, has_more?}`. `state` is what the last fetch returned (or `{}`);
+     /// `reset` says the folder must be fetched afresh.
+     fn fetch(&self, account: &Value, folder: &str, state: &Value) -> Result<Value, String>;
+     /// Tell the server a message was read, where it keeps that.
+@@ -137,13 +137,10 @@
+         if folder != INBOX {
+             return Err("此账号只能读取收件箱。".into());
+         }
+-        let mut seen: Vec<Value> = state["seen"].as_array().cloned().unwrap_or_default();
++        let seen: Vec<Value> = state["seen"].as_array().cloned().unwrap_or_default();
+         let known: HashSet<String> = seen.iter().filter_map(|v| v.as_str().map(str::to_string)).collect();
+-        let fetched = network::fetch(account, &known)?;
+-        let messages = fetched["messages"].as_array().cloned().unwrap_or_default();
+-        seen.extend(messages.iter().map(|m| m["uid"].clone()));
+-        seen.extend(fetched["skipped_uids"].as_array().cloned().unwrap_or_default());
+-        Ok(json!({"messages": messages, "state": {"seen": seen}, "reset": false}))
++        let fetched = network::fetch(account, &known, state)?;
++        Ok(pop_batch(fetched, seen))
+     }
+     fn mark_seen(&self, account: &Value, folder: &str, message: &Value) -> Result<(), String> {
+         let Some(uid) = message["imap_uid"].as_u64().filter(|_| is_imap(account)) else { return Ok(()) };
+@@ -155,6 +152,16 @@
+     fn send(&self, account: &Value, draft: &Value) -> Result<Value, String> {
+         network::send(account, draft)
+     }
++}
++
++// The same state/metadata adapter is exercised after the loopback POP fetch.
++fn pop_batch(fetched: Value, mut seen: Vec<Value>) -> Value {
++    let messages = fetched["messages"].as_array().cloned().unwrap_or_default();
++    seen.extend(messages.iter().map(|m| m["uid"].clone()));
++    seen.extend(fetched["skipped_uids"].as_array().cloned().unwrap_or_default());
++    let mut next_state = json!({"seen": seen});
++    if fetched["baseline_uids"].is_array() { next_state["baseline_uids"] = fetched["baseline_uids"].clone(); }
++    json!({"messages": messages, "state": next_state, "reset": false, "has_more": fetched["has_more"]})
+ }
+ 
+ /// Offer the service to the Card runner, over the network, with passwords in
+@@ -380,11 +387,13 @@
+ 
+ /// What an app sees of a message in a list.
+ fn header(message: &Value) -> Value {
+-    json!({
++    let mut header = json!({
+         "id": message["id"], "sender": message["sender"], "address": message["address"],
+         "subject": message["subject"], "preview": message["preview"], "time": message["time"],
+         "unread": message["unread"].as_bool().unwrap_or(true),
+-    })
++    });
++    if let Some(historical) = message["historical"].as_bool() { header["historical"] = json!(historical); }
++    header
+ }
+ 
+ /// The account a sign-in form describes, or why it cannot be one.
+@@ -560,7 +569,11 @@
+                             object.remove("seen");
+                         }
+                         store.save_mailbox(&account_arg, &folder, &mailbox)?;
+-                        Ok(json!({"new": new.len(), "total": total}))
++                        let mut answer = json!({"new": new.len(), "total": total});
++                        for key in ["has_more", "reset"] {
++                            if let Some(value) = fetched[key].as_bool() { answer[key] = json!(value); }
++                        }
++                        Ok(answer)
+                     });
+                     reply.send(result);
+                 });
+@@ -935,4 +948,30 @@
+         assert!(std::fs::read_dir(dir.join("mail")).unwrap().flatten().all(|e| !e.file_name().to_string_lossy().starts_with("box-")), "and its mail");
+         assert!(contacts::known_addresses(&dir).is_empty(), "and whom it wrote to");
+     }
+-}
++        struct Batch;
++    impl Transport for Batch {
++        fn test(&self,_:&Value)->Result<(),String>{Ok(())}
++        fn folders(&self,_:&Value)->Result<Vec<Value>,String>{Ok(inbox_only())}
++        fn fetch(&self,_:&Value,_:&str,_:&Value)->Result<Value,String>{
++            Ok(json!({"messages":[{"id":"fixture-1","uid":"fixture-1","historical":true,"time":0}],"state":{},"reset":true,"has_more":true}))
++        }
++        fn mark_seen(&self,_:&Value,_:&str,_:&Value)->Result<(),String>{Ok(())}
++        fn send(&self,_:&Value,_:&Value)->Result<Value,String>{Err("fixture denies send".into())}
++    }
++    #[test]
++    fn prelim_host_sync_forwards_completeness_reset_and_header_history() {
++        let dir=std::env::temp_dir().join(format!("prelim-mail-host-{}",std::process::id()));
++        std::fs::create_dir_all(dir.join("mail")).unwrap();
++        let accounts=json!([{"id":"fixture","address":"fixture@example.invalid","apps":["os.fixture"]}]);
++        std::fs::write(dir.join("mail/accounts.json"),accounts.to_string()).unwrap();
++        vault::FileVault.put(&dir.join("mail"),"fixture","synthetic-test-only").unwrap();
++        register_with_vault(Arc::new(Batch),Arc::new(vault::FileVault));
++        let mut host=Host::default();
++        let sync=ask(&dir,"os.fixture","mail.sync",json!({"account":"fixture"}),false,&mut host).unwrap();
++        let list=ask(&dir,"os.fixture","mail.list",json!({"account":"fixture"}),false,&mut host).unwrap();
++        std::fs::remove_dir_all(dir).unwrap();
++        assert_eq!(sync["has_more"],true,"app must know history is incomplete");
++        assert_eq!(sync["reset"],true);
++        assert_eq!(list["messages"][0]["historical"],true,"cached history must stay distinguishable after UI sync");
++    }
++}

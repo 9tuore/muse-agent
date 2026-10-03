@@ -1,0 +1,66 @@
+// Metadata-only accounting through the production model dispatch. FIXTURE.
+let trace_checks = {}
+let trace_gate = true
+let trace_return = nil
+let trace_session = ""
+fn trace_call(query){
+    muse_model_request(query,trace_session,"",fn(){ return trace_gate },
+        {task: "合成测试" input: "合成输入" schema: {type: "object"}},
+        fn(r){ trace_return = r })
+}
+fn trace_success(){
+    fixture_seed() chat_boot() gm_boot()
+    trace_session = chat_selected_id
+    let query = "合成用量记录，不含实际私人内容"
+    trace_call(query)
+    let result = {is_ok: true data: {output: {reply: "SYNTHETIC-ANSWER-SHOULD-NOT-BE-LOGGED"}
+        meta: {class: "small" requested: "small" attempts: 2
+            usage: {input_tokens: 120 output_tokens: 45 estimated: false}
+            budget: {calls: 1 tokens: 165}}
+        extra_secret: "SYNTHETIC-SECRET-SHOULD-NOT-BE-LOGGED"}}
+    fixture_queue[0](result)
+    let raw = fs.read("model-last-response.json") let trace = raw.parse_json()
+    trace_checks.callback_unchanged = trace_return.to_json() == result.to_json()
+    trace_checks.known_host_usage_preserved = trace.known_usage && trace.meta.usage.to_json() == result.data.meta.usage.to_json()
+        && trace.meta.attempts == 2 && trace.meta.budget.tokens == 165
+    trace_checks.request_identity = trace.query_sha256 == fs.sha256(query) && trace.session_id == trace_session
+        && trace.goal_id == "" && trace.current && trace.is_ok && trace.response_at >= trace.request_at
+    trace_checks.content_and_secret_absent = raw.search(query) < 0 && raw.search("SYNTHETIC-ANSWER") < 0
+        && raw.search("SYNTHETIC-SECRET") < 0 && raw.search("合成输入") < 0
+    start_timeout(0.05, || trace_missing())
+}
+fn trace_missing(){
+    trace_call("合成缺少用量")
+    let result = {is_ok: true data: {output: {reply: "合成回复"}}}
+    fixture_queue[1](result)
+    let trace = fs.read("model-last-response.json").parse_json()
+    trace_checks.missing_metadata_unknown = !trace.known_usage && !gm_has(trace,"meta")
+        && trace_return.to_json() == result.to_json()
+    trace_call("合成计费估算")
+    let estimated = {is_ok: true data: {output: {reply: "合成估算"}
+        meta: {class: "small" requested: "small" attempts: 1
+            usage: {input_tokens: 12 output_tokens: 8 estimated: true} budget: {calls: 2 tokens: 185}}}}
+    fixture_queue[2](estimated)
+    trace = fs.read("model-last-response.json").parse_json()
+    trace_checks.estimate_flag_not_lost = trace.known_usage && trace.meta.usage.estimated
+    start_timeout(0.05, || trace_stale())
+}
+fn trace_stale(){
+    trace_call("合成迟到请求") trace_gate = false
+    let result = {is_ok: true data: {output: {reply: "合成迟到回复"}
+        meta: {class: "small" requested: "small" attempts: 1
+            usage: {input_tokens: 10 output_tokens: 5 estimated: false} budget: {calls: 3 tokens: 200}}}}
+    fixture_queue[3](result)
+    let trace = fs.read("model-last-response.json").parse_json()
+    trace_checks.stale_usage_accounted_callback_unchanged = !trace.current && trace.known_usage
+        && trace.meta.usage.output_tokens == 5 && trace_return.to_json() == result.to_json()
+    trace_gate = true trace_call("合成供应商失败")
+    let error = {is_ok: false error: "SYNTHETIC-ERROR-BODY-SHOULD-NOT-BE-LOGGED"}
+    fixture_queue[4](error)
+    let raw = fs.read("model-last-response.json") trace = raw.parse_json()
+    trace_checks.error_body_absent_callback_unchanged = !trace.is_ok && !trace.known_usage
+        && raw.search("SYNTHETIC-ERROR") < 0 && trace_return.to_json() == error.to_json()
+    trace_checks.no_external_write_or_memory_change = fixture_writes == 0 && actions.len() == 0 && memory.len() == 0
+    fs.write("probe.json",trace_checks.to_json())
+}
+start_timeout(0.1, || trace_success())

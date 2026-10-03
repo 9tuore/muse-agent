@@ -1,0 +1,23 @@
+let lifecycle_restart = {}
+fn memory_lifecycle_restart_probe(){
+    core_boot_memory()
+    let boot = gm_boot()
+    lifecycle_restart.boot = boot
+    let ids = fs.read("lifecycle-ids.json").parse_json()
+    let i = core_memory_index(ids.first,"local") let j = core_memory_index(ids.second,"local")
+    gm_set_focus("夜航","用户")
+    let ctx = gm_context("夜航镜像","附件会话D","")
+    lifecycle_restart.pin_restored = memory[j].pinned && ctx.hits[0].id == ids.second
+    lifecycle_restart.revision_restored = memory[i].document.revision == 2 && memory[i].history.len() == 1 && memory[i].source_history.len() == 2
+    lifecycle_restart.corrected_context_restored = ctx.text.search("夜航镜像甲修订") >= 0 && ctx.text.search("夜航镜像甲版") < 0
+    let forgotten = gm_forget(ids.first,"local")
+    lifecycle_restart.forgotten = forgotten
+    ctx = gm_context("夜航镜像","附件会话D","")
+    lifecycle_restart.forget_context = ctx.hits.len() == 1 && ctx.hits[0].id == ids.second && ctx.text.search("夜航镜像甲修订") < 0
+    lifecycle_restart.forget_primary = fs.read("memory.json").search("夜航镜像甲修订") < 0 && fs.read("memory.json").search("夜航镜像甲版") < 0
+    lifecycle_restart.forget_backup = fs.read("memory.backup.json").search("夜航镜像甲修订") < 0 && fs.read("memory.backup.json").search("夜航镜像甲版") < 0
+    lifecycle_restart.authority_readback = fs.read("memory.json") == core_last_memory
+    fs.write("memory_regression_lifecycle_restart-report.json",lifecycle_restart.to_json())
+}
+start_timeout(0.1, || memory_lifecycle_restart_probe())
+View{width: Fill height: Fill Label{text: "合成附件更正固定重启与遗忘"}}

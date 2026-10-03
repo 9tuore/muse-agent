@@ -1,0 +1,38 @@
+let kr = {} let integration_generation = nil let integration_generation_winner = ""
+fn integration_bind_generation(id){
+    let doc = memory[core_memory_index(id,"local")].document
+    let sid = doc.payload.source_ids[0] let src = memory_sources[core_source_index(sid,"local")]
+    let context = {goal_id: "goal:integration-mail" account_id: "local" message_id: "message:fixture" source_id: sid
+        source_digest: src.content_sha256 source_revision: src.updated_at claim_revision: doc.revision
+        goal_revision: 1 candidate_revision: 1 request_id: "generation:fixture"}.to_json().parse_json()
+    goals = [{id: "goal:integration-mail" version: 1 status: "planned" archived: false project_id: "潮汐" owner_id: "本人"
+        mail_source: {source_id: sid account_id: "local" message_id: "message:fixture"}}].to_json().parse_json()
+    calendar_links = [{goal_id: "goal:integration-mail" account_id: "local" message_id: "message:fixture" source_id: sid
+        source_claim_id: id status: "candidate" candidate_revision: 1 active_generation: context}].to_json().parse_json()
+    return context
+}
+fn integration_calendar_guard(){
+    core_boot_memory() kr.boot = gm_boot() gm_set_focus("潮汐","本人")
+    kr.single_source_saved = gm_save("合成来信日程=时刻K7","source","goal:integration-mail","calendar_source_message","integration","潮汐","本人","local")
+    let id = gm_entries("K7")[0].document.id
+    integration_generation = integration_bind_generation(id)
+    kr.single_source_generation_valid = calendar_generation_current(integration_generation)
+    kr.conflicting_source_saved = gm_save("合成来信日程=时刻J4","source","goal:integration-mail","calendar_source_message","integration","潮汐","本人","local")
+    integration_generation_winner = gm_entries("J4")[0].document.id
+    kr.conflicting_source_generation_rejected = !calendar_generation_current(integration_generation)
+    start_timeout(0.05, || integration_calendar_correct())
+}
+fn integration_calendar_correct(){
+    kr.explicit_correction = gm_correct(integration_generation_winner,"合成来信日程=时刻Q8","local","integration")
+    kr.adjudicated_source_generation_rejected = !calendar_generation_current(integration_generation)
+    integration_generation = integration_bind_generation(integration_generation_winner)
+    kr.new_winner_generation_valid = calendar_generation_current(integration_generation)
+    start_timeout(0.05, || integration_calendar_forget())
+}
+fn integration_calendar_forget(){
+    kr.forgotten = gm_forget(integration_generation_winner,"local")
+    kr.forgotten_source_generation_rejected = !calendar_generation_current(integration_generation)
+    kr.no_external_service = integration_calls.len() == 0 && integration_forbidden.len() == 0
+    fs.write("probe.json",kr.to_json())
+}
+start_timeout(0.1, || integration_calendar_guard())

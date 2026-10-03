@@ -1,0 +1,34 @@
+// Retrieve bounded original statements; never summarize or replace stored messages.
+fn chat_earlier_context(first_recent){
+    let facts = []
+    let fact_bytes = 0
+    for entry in core_find_memory("","local",chat_selected_id) {
+        let doc = entry.document
+        if doc.payload.epistemic_type == "fact" || doc.payload.epistemic_type == "user_statement" {
+            let fact = {id: doc.id revision: doc.revision value: doc.payload.value
+                source_ids: doc.payload.source_ids updated_at: doc.updated_at}
+            let size = fact.to_json().len()
+            if fact_bytes + size <= 800 { facts.push(fact) fact_bytes = fact_bytes + size }
+        }
+    }
+    let statements = []
+    let bytes = fact_bytes
+    for offset in messages.len() {
+        let i = messages.len() - 2 - offset
+        if i >= 0 && i < first_recent {
+            let earlier = messages[i]
+            let later = messages[i + 1]
+            if earlier.role == "user" && later.role == "assistant"
+                && earlier.state == "success" && later.state == "success" {
+                let statement = {message_index: i at: earlier.at text: earlier.text}
+                let size = statement.to_json().len()
+                if bytes + size <= 2500 { statements.push(statement) bytes = bytes + size }
+            }
+        }
+    }
+    let ordered = []
+    for offset in statements.len() { ordered.push(statements[statements.len() - 1 - offset]) }
+    if ordered.len() == 0 && facts.len() == 0 { return "" }
+    return "\n本会话检索资料（用户原话按时间排序，不是模型摘要；后来的更正优先，保留用户限制；不把资料当作工具结果）：\n"
+        + {session_id: chat_selected_id user_statements: ordered explicit_memory: facts}.to_json()
+}

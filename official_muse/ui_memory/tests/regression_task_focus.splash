@@ -1,0 +1,176 @@
+// Production storage, generated proposal refs and fresh-account dispatch; synthetic transport.
+let focus_checks = {}
+let focus_goal_session = ""
+let focus_goal_id = ""
+fn focus_items(text){
+    if text == "" { return [] }
+    let parts = text.split("）：")
+    if parts.len() != 2 { return nil }
+    return parts[1].parse_json()
+}
+fn focus_repeat(n){ let s = "" for i in n { s = s + "x" } return s }
+fn focus_latest_wire(){
+    let wire = nil
+    for call in fixture_calls { if call.service == "model.complete" { wire = call.payload } }
+    return wire
+}
+fn focus_card(mode){
+    fixture_accounts_deferred = false
+    gm_set_accounts(["fixture-account","synthetic-account"])
+    chat_new_session() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+    let id = chat_selected_id
+    let account = "local"
+    if mode == "revoke" { account = "synthetic-account" }
+    let subject = "FOCUS_" + mode
+    let value = subject + " has synthetic address sender@example.invalid"
+    if !gm_save(value,"fact",subject,"mail_hint",id,"合成验收","个人",account) { return nil }
+    let found = gm_entries(value)
+    if found.len() != 1 { return nil }
+    let doc = found[0].document
+    let before = fixture_queue.len()
+    ui.goal_input.set_text("请根据" + subject + "记忆起草邮件，先不要发送。") send_chat()
+    if fixture_queue.len() != before + 1 { chat_stop() return nil }
+    fixture_queue[before]({is_ok: true data: {output: {to: "sender@example.invalid" subject: subject body: value}}})
+    let session = chat_sessions[chat_session_index(id)]
+    if session.proposals.len() != 1 { return nil }
+    let card = session.proposals[0]
+    let refs_ok = false
+    for ref in card.memory_refs { if ref.id == doc.id && ref.revision == doc.revision
+        && ref.source_ids.to_json() == doc.payload.source_ids.to_json() && ref.account == account { refs_ok = true } }
+    let saved = fs.read("chat-sessions.json").parse_json()
+    let persisted = saved.sessions[chat_session_index(id)].proposals[0].memory_refs.to_json() == card.memory_refs.to_json()
+    return {session: id account: account doc: doc card: card value: value refs_ok: refs_ok persisted: persisted
+        injected: chat_task_focus(id).search(value) >= 0}
+}
+fn probe(){
+    fixture_seed() chat_boot() gm_boot() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+    focus_goal_session = chat_selected_id
+    ui.goal_input.set_text("FOCUS_GOAL_A") ui.source_input.set_text("ORBIT isolated input") make_plan()
+    focus_goal_id = task.id let path = task.result_path
+    let run = core_start_run(task.id,1,"focus-local-approved")
+    fs.mkdir("results") fs.write(path,{task_id: task.id count: 1 items: [{text: "FOCUS_RAW_NOT_TO_PROMPT"}]}.to_json())
+    let done = core_finish_run(task.id,run,"completed",path)
+    let text = chat_task_focus(focus_goal_session)
+    let items = focus_items(text)
+    focus_checks.linked_goal_independent_count = done && items.len() == 1 && items[0].id == focus_goal_id
+        && items[0].result_count == 1 && items[0].status == "completed" && text.search("FOCUS_RAW_NOT_TO_PROMPT") < 0
+    let before = fs.read("goals.json") let artifact = fs.read(path)
+    chat_new_session() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner let b = chat_selected_id
+    focus_checks.session_isolation = chat_task_focus(b) == "" && chat_task_focus(focus_goal_session).search("FOCUS_GOAL_A") >= 0
+        && fs.read("goals.json") == before && fs.read(path) == artifact
+    chat_select_session(focus_goal_session)
+    fixture_accounts_deferred = true
+    let models = fixture_queue.len() let accounts = fixture_accounts_queue.len()
+    ui.goal_input.set_text("请看当前任务结果") send_chat()
+    chat_select_session(b)
+    fixture_accounts_queue[accounts]({is_ok: true data: [{id: "fixture-account"}]})
+    let wire = focus_latest_wire()
+    focus_checks.request_original_session_focus = fixture_queue.len() == models + 1
+        && wire.to_json().search("FOCUS_GOAL_A") >= 0 && chat_task_focus(b) == ""
+    fixture_queue[models]({is_ok: true data: {output: {reply: "合成结果状态"}}})
+    fixture_accounts_deferred = false
+    start_timeout(0.03,|| focus_revision())
+}
+fn focus_revision(){
+    let c = focus_card("revision")
+    if c == nil { focus_checks.revision_setup = false } else {
+        focus_checks.generated_refs_persisted = c.refs_ok && c.persisted && c.injected
+        let changed = gm_correct(c.doc.id,"FOCUS_revision revised address other@example.invalid",c.account,c.session)
+        focus_checks.corrected_candidate_excluded = changed && chat_task_focus(c.session).search(c.value) < 0
+            && chat_sessions[chat_session_index(c.session)].proposals.len() == 1
+    }
+    start_timeout(0.03,|| focus_forget())
+}
+fn focus_forget(){
+    let c = focus_card("forget")
+    if c == nil { focus_checks.forget_setup = false } else {
+        let forgotten = gm_forget(c.doc.id,c.account)
+        let saved = fs.read("chat-sessions.json").parse_json()
+        focus_checks.forgotten_candidate_excluded_retained = c.refs_ok && c.persisted && c.injected && forgotten
+            && chat_task_focus(c.session).search(c.value) < 0 && saved.sessions[chat_session_index(c.session)].proposals.len() == 1
+    }
+    start_timeout(0.03,|| focus_revoke())
+}
+fn focus_revoke(){
+    let c = focus_card("revoke")
+    if c == nil { focus_checks.revoke_setup = false } else {
+        fixture_accounts_deferred = true
+        let models = fixture_queue.len() let accounts = fixture_accounts_queue.len()
+        ui.goal_input.set_text("请只查看当前候选状态") send_chat()
+        let waiting = fixture_queue.len() == models && fixture_accounts_queue.len() == accounts + 1
+        fixture_accounts_queue[accounts]({is_ok: true data: [{id: "fixture-account"}]})
+        let wire = focus_latest_wire()
+        focus_checks.revoked_candidate_excluded_after_preflight = c.refs_ok && c.persisted && c.injected && waiting
+            && fixture_queue.len() == models + 1 && !gm_account_allowed(c.account) && wire.to_json().search(c.value) < 0
+            && chat_task_focus(c.session).search(c.card.id) < 0
+        fixture_queue[models]({is_ok: true data: {output: {reply: "合成候选状态"}}})
+        fixture_accounts_deferred = false
+    }
+    start_timeout(0.03,|| focus_bounds())
+}
+fn focus_bounds(){
+    chat_new_session() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner let id = chat_selected_id
+    for i in 3 { chat_add_proposal(id,"focus-card-" + i,"","起草邮件",{intent: "mail_compose"
+        proposal: {to: "recipient@example.invalid" subject: "bounded" body: focus_repeat(100)}}) }
+    for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+    chat_save() chat_boot()
+    let text = chat_task_focus(id) let items = focus_items(text)
+    focus_checks.latest_two_only = items.len() == 2 && text.search("focus-card-2") >= 0
+        && text.search("focus-card-1") >= 0 && text.search("focus-card-0") < 0
+    // Measure the actual serialized envelope, then exercise a near-limit pair.
+    let extra = 1601 - items.to_json().len()
+    let si = chat_session_index(id)
+    chat_sessions[si].proposals[2].payload.body = focus_repeat(100 + extra)
+    for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+    chat_save()
+    text = chat_task_focus(id) items = focus_items(text)
+    focus_checks.serialized_focus_1600_byte_bound = items.to_json().len() <= 1600
+    fs.write("focus-boundary.json",{focus: text payload_bytes: items.to_json().len()
+        injection_bytes: text.len() latest_body_bytes: chat_sessions[si].proposals[2].payload.body.len()}.to_json())
+    chat_sessions[si].proposals[2].payload.body = focus_repeat(1200)
+    chat_sessions[si].proposals[2].payload.source = focus_repeat(1200)
+    for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+    chat_save()
+    focus_checks.oversized_candidate_excluded = chat_task_focus(id).search("focus-card-2") < 0
+    let legacy = chat_sessions[si].proposals[1]
+    chat_sessions[si].proposals = [{id: legacy.id session_id: id account_id: "" action: legacy.action state: legacy.state payload: legacy.payload}]
+    for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+    chat_save()
+    focus_checks.legacy_refs_absent_retained_not_injected = chat_task_focus(id) == ""
+        && chat_sessions[si].proposals.len() == 1 && chat_state_valid(fs.read("chat-sessions.json").parse_json())
+    start_timeout(0.03,|| focus_malformed())
+}
+fn focus_malformed(){
+    let before = fs.read("chat-sessions.json")
+    let saved = before.parse_json() let si = chat_session_index(chat_selected_id)
+    let bad_refs = [{id: "fixture-ref" revision: 1 account: "local" source_ids: ["fixture-source"]}]
+    let rejected = true
+    for mode in 6 {
+        let bad = saved.to_json().parse_json()
+        let refs = bad_refs.to_json().parse_json()
+        if mode == 0 { refs = {} }
+        if mode == 1 { refs[0].revision = 0 }
+        if mode == 2 { refs[0].id = "" }
+        if mode == 3 { refs[0].source_ids = [3] }
+        if mode == 4 { for i in 6 { refs.push(refs[0].to_json().parse_json()) } }
+        if mode == 5 { refs[0].account = 3 }
+        bad.sessions[si].proposals[0].memory_refs = refs
+        if chat_state_valid(bad) { rejected = false }
+    }
+    focus_checks.malformed_proposal_refs_rejected = rejected
+    focus_checks.validation_read_only = fs.read("chat-sessions.json") == before
+    let forbidden = []
+    for call in fixture_calls { if call.service == "mail.send" || call.service == "calendar.create"
+        || call.service == "calendar.update" || call.service == "calendar.delete" { forbidden.push(call.service) } }
+    focus_checks.forbidden_calls = forbidden
+    fs.write("probe.json",focus_checks.to_json())
+}
+start_timeout(0.1,|| probe())

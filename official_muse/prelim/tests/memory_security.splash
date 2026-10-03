@@ -1,0 +1,33 @@
+let sr = {}
+fn memory_security(){
+    core_boot_memory() sr.boot = gm_boot()
+    sr.own_saved = gm_save("偏好精确边界","preference","用户","表达","甲","","","local")
+    let rows = gm_entries("精确边界") let own_id = rows[0].document.id
+    let tomb_scope = gm_complete_scope(core_memory_scope("local"))
+    tomb_scope.user_id = "user:other-fixture"
+    let tomb = {source_id: "value:foreign-fixture:1" subject_id: "other-fixture" predicate: "表达"
+        account_scope: "local" at: core_utc_iso(time_now()) content_sha256: fs.sha256("偏好精确边界") "scope": tomb_scope}.to_json().parse_json()
+    sr.foreign_tomb_valid = gm_tomb_valid(tomb)
+    let tombs = memory_forget.to_json().parse_json() tombs.push(tomb)
+    sr.fixture_committed = core_commit_memory(memory,memory_sources,tombs)
+    let exported = gm_export().parse_json()
+    sr.foreign_tomb_not_exported = exported.forget.len() == 0 && exported.claims.len() == 1
+    sr.foreign_hash_not_global_block = !gm_forgotten_at("偏好精确边界","local","","")
+    sr.foreign_hash_not_scope_block = !gm_forgotten_at("偏好精确边界","local","潮汐","本人")
+    sr.own_same_hash_allowed = gm_save("偏好精确边界","preference","用户","复述","乙","","","local")
+    let ctx = gm_context("精确边界","丙","")
+    sr.own_retrieved = ctx.hits.len() == 2
+    let before = fs.read("memory.json")
+    exported = gm_export().parse_json() exported.forget.push(tomb)
+    let denied = !gm_import(exported.to_json())
+    sr.foreign_tomb_import_closed = denied && before == fs.read("memory.json")
+    let invalid = gm_export().parse_json() invalid.claims[0].resolved_by = "missing-fixture-id"
+    sr.dangling_resolution_rejected = !gm_validate(invalid,false)
+    invalid = gm_export().parse_json() invalid.claims[0].resolved_by = own_id
+    sr.self_resolution_rejected = !gm_validate(invalid,false)
+    invalid = gm_export().parse_json() invalid.claims[0].resolved_by = invalid.claims[1].document.id
+    sr.other_fact_resolution_rejected = !gm_validate(invalid,false)
+    fs.write("memory_security-report.json",sr.to_json())
+}
+start_timeout(0.1, || memory_security())
+View{width: Fill height: Fill Label{text: "墓碑与裁决引用边界"}}

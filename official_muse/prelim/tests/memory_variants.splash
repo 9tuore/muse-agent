@@ -1,0 +1,70 @@
+let vr = {} let v_first = "" let v_other = "" let v_teacher = "" let v_alias = ""
+let v_old_export = ""
+fn variant_store(){
+    core_boot_memory()
+    let boot = gm_boot() vr.boot = boot
+    let p = gm_save("输出先给要点","preference","用户","风格","甲","","","local") vr.preference = p
+    let a = gm_save("同名晓岚的仪器为P9","fact","晓岚","仪器","甲","潮汐","本人","local") vr.fact_a = a
+    v_first = gm_entries("P9")[0].document.id
+    let b = gm_save("同名晓岚的仪器为P9","fact","晓岚","仪器","乙","云帆","本人","local") vr.fact_b = b
+    v_other = gm_entries("P9")[1].document.id
+    let c = gm_save("同名晓岚的仪器为P9","fact","晓岚","仪器","乙","潮汐","老师","local") vr.fact_teacher = c
+    v_teacher = gm_entries("P9")[2].document.id
+    gm_set_focus("潮汐","")
+    let ctx = gm_context("晓岚仪器","丙","") vr.partial_focus_closed = ctx.hits.len() == 0
+    gm_set_focus("潮汐","本人")
+    ctx = gm_context("晓岚仪器","丙","") vr.same_name_exact_scope = ctx.hits.len() == 1 && ctx.hits[0].id == v_first
+    let before = fs.read("memory.json")
+    let denied = !gm_save("半个归属的项目事实","fact","项目","说明","丙","潮汐","","local")
+    vr.partial_scope_write_denied = denied && before == fs.read("memory.json")
+    gm_enable(false)
+    let stopped = !gm_save("取消记录后的事实","fact","项目","说明","丙","潮汐","本人","local")
+    vr.cancel_no_new_record = stopped && before == fs.read("memory.json")
+    gm_enable(true)
+    let alias = gm_save("参考行\n同名晓岚的仪器为P9\n结束行","fact","摘要","资料","甲","潮汐","本人","local") vr.alias_saved = alias
+    v_alias = gm_entries("参考行")[0].document.id
+    start_timeout(0.05, || variant_correct())
+}
+fn variant_correct(){
+    let accepted = gm_correct(v_first,"同名晓岚的仪器为Q8","local","丙") vr.corrected = accepted
+    let snapshot_own = gm_retired_at("记住：同名晓岚的仪器为P9","local","潮汐","本人")
+    let snapshot_other = gm_retired_at("记住：同名晓岚的仪器为P9","local","云帆","本人")
+    vr.history_snapshot_isolated = snapshot_own && !snapshot_other
+    gm_set_focus("云帆","本人")
+    let ctx = gm_context("晓岚仪器","丁","")
+    vr.other_project_after_correction = ctx.text.search("P9") >= 0 && ctx.text.search("Q8") < 0
+    let user = gm_user_id gm_user_id = "user:foreign"
+    let before = fs.read("memory.json")
+    let blocked = !gm_correct(v_first,"非法跨profile修改","local","丁") && !gm_forget(v_first,"local")
+    gm_user_id = user
+    vr.foreign_mutation_closed = blocked && before == fs.read("memory.json")
+    v_old_export = gm_export()
+    fs.write("variant-old-export.json",v_old_export)
+    start_timeout(0.05, || variant_forget())
+}
+fn variant_forget(){
+    let accepted = gm_forget(v_first,"local") vr.forgotten = accepted
+    let own_retired = gm_forgotten_at("同名晓岚的仪器为P9","local","潮汐","本人")
+    let other_live = gm_forgotten_at("同名晓岚的仪器为P9","local","云帆","本人")
+    vr.forget_snapshot_isolated = own_retired && !other_live
+    gm_set_focus("云帆","本人")
+    let ctx = gm_context("晓岚仪器","丁","")
+    vr.other_project_survives = ctx.hits.len() == 1 && ctx.hits[0].id == v_other && ctx.text.search("P9") >= 0
+    gm_set_focus("潮汐","老师")
+    ctx = gm_context("晓岚仪器","丁","")
+    vr.other_owner_survives = ctx.hits.len() == 1 && ctx.hits[0].id == v_teacher
+    gm_set_focus("潮汐","本人")
+    ctx = gm_context("P9 Q8","丁","") vr.own_versions_hidden = ctx.text.search("P9") < 0 && ctx.text.search("Q8") < 0
+    let i = core_memory_index(v_alias,"local")
+    vr.composite_alias_sanitized = memory[i].document.payload.deleted && memory[i].document.payload.value == ""
+    let saved = gm_save("前文\n同名晓岚的仪器为P9\n后文","fact","重索引","内容","丁","潮汐","本人","local")
+    vr.composite_reindex_denied = !saved
+    let before = fs.read("memory.json")
+    let imported = gm_import(v_old_export)
+    vr.old_export_rejected = !imported && before == fs.read("memory.json")
+    vr.other_sources_kept = memory_sources[core_source_index(memory[core_memory_index(v_other,"local")].document.payload.source_ids[0],"local")].support_excerpt == "同名晓岚的仪器为P9"
+    fs.write("variant-ids.json",{first: v_first other: v_other teacher: v_teacher alias: v_alias}.to_json())
+    fs.write("memory_variants-report.json",vr.to_json())
+}
+start_timeout(0.1, || variant_store())
+View{width: Fill height: Fill Label{text: "范围与遗忘不同变体"}}

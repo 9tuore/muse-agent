@@ -1,0 +1,127 @@
+// Real production chat functions, queued synthetic model replies. No model inference.
+// Prepared for the final source freeze; deletion is confined to isolated fixture fs.
+fn session_delete_checks(a,b){
+    let checks = {delete_fixture_ready: false unconfirmed_session_delete_blocked: false
+        confirmed_delete_cancels_only_original_request: false deleted_session_late_reply_ignored: false
+        deletion_preserves_other_session_and_global_memory: false deletion_primary_backup_without_original_id: false
+        delete_last_session_creates_empty_session_and_restores_focus: false}
+    if !gm_save("会话删除应保留合成共享事实","fact","DELETE-FIXTURE","保留",a,"DELETE-FIXTURE","fixture-owner","local") {
+        checks.delete_setup_error = gm_error return checks
+    }
+    let memory_raw = fs.read("memory.json")
+    let memory_before = memory.to_json()
+    let sources_before = memory_sources.to_json()
+    chat_sessions[chat_session_index(b)].focus_project = "DELETE-B"
+    chat_sessions[chat_session_index(b)].focus_owner = "fixture-owner-B"
+    chat_select_session(a)
+    let previous_models = fixture_queue.len()
+    ui.goal_input.set_text("合成待删除会话的查询") send_chat()
+    chat_select_session(b)
+    ui.goal_input.set_text("合成保留会话的查询") send_chat()
+    if fixture_queue.len() != previous_models + 2 {
+        checks.delete_setup_error = "删除 fixture 未排入两个独立模型回调。" return checks
+    }
+    let callback_a = fixture_queue[previous_models]
+    let request_a = chat_requests[chat_request_index(a)].id
+    let request_b = chat_requests[chat_request_index(b)].id
+    checks.delete_fixture_ready = chat_session_index(a) >= 0 && chat_session_index(b) >= 0
+    let other = chat_sessions[chat_session_index(b)]
+    let other_history = other.messages.to_json()
+    let other_proposals = other.proposals.to_json()
+    let other_title = other.title let other_created = other.created_at
+    chat_select_session(a)
+    chat_delete_pending = ""
+    let primary_before = fs.read("chat-sessions.json")
+    let requests_before = chat_requests.to_json()
+    chat_delete_session()
+    checks.unconfirmed_session_delete_blocked = chat_session_index(a) >= 0 && chat_selected_id == a
+        && fs.read("chat-sessions.json") == primary_before && chat_requests.to_json() == requests_before
+    chat_delete_pending = a
+    chat_delete_session()
+    checks.confirmed_delete_cancels_only_original_request = chat_session_index(a) < 0 && chat_selected_id == b
+        && !chat_model_request_current(request_a,a) && chat_model_request_current(request_b,b)
+        && chat_delete_pending == "" && gm_project == "DELETE-B" && gm_owner == "fixture-owner-B"
+    let after_delete = fs.read("chat-sessions.json")
+    let events_before = activity.to_json()
+    callback_a({is_ok: true data: {output: {reply: "已删除会话的迟到回复不得采用"}}})
+    checks.deleted_session_late_reply_ignored = chat_session_index(a) < 0
+        && fs.read("chat-sessions.json") == after_delete && activity.to_json() == events_before
+        && messages.to_json() == other_history && chat_model_request_current(request_b,b)
+    let kept = chat_sessions[chat_session_index(b)]
+    // Saving legitimately updates updated_at; compare the retained content and identity.
+    checks.deletion_preserves_other_session_and_global_memory = kept.messages.to_json() == other_history
+        && kept.proposals.to_json() == other_proposals && kept.title == other_title && kept.created_at == other_created
+        && kept.focus_project == "DELETE-B" && kept.focus_owner == "fixture-owner-B"
+        && fs.read("memory.json") == memory_raw && memory.to_json() == memory_before
+        && memory_sources.to_json() == sources_before
+    let backup = fs.read("chat-sessions.backup.json")
+    checks.deletion_primary_backup_without_original_id = after_delete == backup
+        && after_delete.search(a) < 0 && chat_state_valid(after_delete.parse_json()) && chat_state_valid(backup.parse_json())
+    chat_delete_pending = b
+    chat_delete_session()
+    let new_id = chat_selected_id
+    let last_primary = fs.read("chat-sessions.json")
+    let last_backup = fs.read("chat-sessions.backup.json")
+    let no_resend = fixture_calls.len()
+    let restarted = chat_boot()
+    checks.delete_last_session_creates_empty_session_and_restores_focus = restarted
+        && chat_sessions.len() == 1 && new_id != a && new_id != b && chat_selected_id == new_id
+        && messages.len() == 0 && chat_sessions[0].proposals.len() == 0
+        && gm_project == chat_sessions[0].focus_project && gm_owner == chat_sessions[0].focus_owner
+        && gm_project == "" && gm_owner == "" && !chat_model_request_current(request_b,b)
+        && last_primary == last_backup && last_primary.search(a) < 0 && last_primary.search(b) < 0
+        && chat_state_valid(last_primary.parse_json()) && fs.read("chat-sessions.json") == last_primary
+        && fs.read("memory.json") == memory_raw && memory.to_json() == memory_before
+        && memory_sources.to_json() == sources_before && fixture_calls.len() == no_resend
+    return checks
+}
+fn probe(){
+    fixture_seed()
+    chat_boot()
+    gm_boot()
+    let a = chat_selected_id
+    ui.goal_input.set_text("合成项目 ORBIT 的当前进展是什么？")
+    send_chat()
+    let first_count = fixture_calls.len()
+    ui.goal_input.set_text("不应重复提交的消息")
+    send_chat()
+    let duplicate = fixture_calls.len() == first_count
+    let callback_a = fixture_queue[0]
+    chat_new_session()
+    let b = chat_selected_id
+    let switched = a != b && messages.len() == 0
+    ui.goal_input.set_text("合成项目 NOVA 的当前进展是什么？")
+    send_chat()
+    let callback_b = fixture_queue[1]
+    callback_a({is_ok: true data: {output: {reply: "仅属于 ORBIT 会话的合成回复"}}})
+    let a_entries = chat_sessions[chat_session_index(a)].messages
+    let bound = a_entries.len() == 2 && a_entries[1].text == "仅属于 ORBIT 会话的合成回复"
+        && messages.len() == 1 && messages[0].text == "合成项目 NOVA 的当前进展是什么？"
+    let pending_b = chat_request_index(b) >= 0
+    let before_repeat = activity.len()
+    callback_a({is_ok: true data: {output: {reply: "重复回调不得采用"}}})
+    let repeated_callback = activity.len() == before_repeat && chat_sessions[chat_session_index(a)].messages.len() == 2
+    chat_stop()
+    let before_cancelled = messages.to_json()
+    let memory_before = memory.to_json()
+    let sources_before = memory_sources.to_json()
+    let events_before = activity.len()
+    callback_b({is_ok: true data: {output: {reply: "已取消的回复不得写入"}}})
+    let cancelled = messages.to_json() == before_cancelled && activity.len() == events_before
+        && memory.to_json() == memory_before && memory_sources.to_json() == sources_before
+    let saved = fs.read("chat-sessions.json").parse_json()
+    let persisted = saved.sessions[chat_session_index(a)].messages.len() == 2
+        && saved.sessions[chat_session_index(b)].messages.to_json() == before_cancelled
+    let call_count = fixture_calls.len()
+    chat_select_session(a)
+    let selected = messages.len() == 2 && messages[1].text == "仅属于 ORBIT 会话的合成回复"
+    chat_boot()
+    let restart = selected && messages.len() == 2 && fixture_calls.len() == call_count
+    let result = session_delete_checks(a,b)
+    result += {duplicate_request_blocked: duplicate switch_while_pending: switched
+        late_reply_bound_to_original: bound other_request_still_pending: pending_b
+        duplicate_callback_ignored: repeated_callback cancelled_reply_no_chat_memory_activity: cancelled
+        independent_persisted_readback: persisted switch_and_restart_no_resend: restart}
+    fs.write("probe.json",result.to_json())
+}
+start_timeout(0.1, || probe())

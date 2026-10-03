@@ -1,0 +1,17 @@
+let calls = []
+fn incoming_fixture_request(service,args,cb){
+    calls.push(service)
+    if service == "mail.message" {cb({is_ok: true data: {id: args.message body: "不应后台读取" address: "sender@example.invalid"}}) return}
+    cb({is_ok: false error: "No background request expected"})
+}
+fn probe(){
+    notification_enabled = false
+    mail_accounts = [{id: "A" address: "a@example.invalid"}]
+    mail_watch = {schema: 1 enabled: false accounts: [{id: "A" ready: true seen: ["pending-body"]}]
+        alerts: [{key: "A:pending-body" account_id: "A" message_id: "pending-body" sender: nil subject: ""
+            date: "" status: "new" intent: "" request_id: ""}]}
+    mail_watch_save() mail_watch_boot()
+    fs.write("probe.json",{explicit_pause_remains: !mail_watch.enabled paused_restore_no_background_read: calls.len() == 0
+        paused_restore_uncached_body_retained: mail_watch.alerts[0]["source_body"] == nil calls: calls}.to_json())
+}
+start_timeout(0.1,|| probe())

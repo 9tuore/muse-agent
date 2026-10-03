@@ -1,0 +1,45 @@
+// Concrete stale-candidate and follow-up defects. Fixture only, no real inference.
+fn probe(){
+    fixture_seed() chat_boot() gm_boot()
+    gm_set_accounts(["fixture-account"])
+    mail_accounts = [{id: "fixture-account" address: "self@example.invalid"}]
+    mail_account = mail_accounts[0]
+    let session = chat_selected_id let si = chat_session_index(session)
+    ui.goal_input.set_text("只起草一封邮件给 self@example.invalid，正文是我不参加。不要发送。")
+    send_chat()
+    fixture_queue[0]({is_ok: true data: {output: {reply: "草稿已准备，请核对。" intent: "mail_compose"
+        proposal: {to: "self@example.invalid" subject: "合成邀请" body: "抱歉，我不参加。"}}}})
+    fs.write("binding-debug.json",{request: chat_requests[0] session: chat_sessions[si]
+        current: chat_candidate_current(chat_requests[0])
+        payload_error: chat_payload_error("mail_compose",{to: "self@example.invalid" subject: "合成邀请" body: "抱歉，我不参加。"})}.to_json())
+    let original = chat_sessions[si].proposals[0].to_json().parse_json()
+    let config = chat_model_config("把上一封草稿的意思改为后天再联系我，暂不发送。")
+    let followup_schema = config.schema.to_json().search("mail_compose") >= 0
+    ui.goal_input.set_text("把上一封草稿的意思改为后天再联系我，暂不发送。") send_chat()
+    fixture_queue[1]({is_ok: true data: {output: {reply: "已修改上一封草稿。"}}})
+    let last = messages[messages.len()-1]
+    let false_done_blocked = last.state == "error" && chat_sessions[si].proposals[0].payload.body == original.payload.body
+    ui.goal_input.set_text("把上一封草稿的意思改为后天再联系我，暂不发送。") send_chat()
+    fixture_queue[2]({is_ok: true data: {output: {reply: "已修改草稿。" intent: "mail_compose"
+        proposal: {to: "self@example.invalid" subject: "合成邀请" body: "请后天再联系我。"}}}})
+    let updated = chat_sessions[si].proposals.len() == 1 && chat_sessions[si].proposals[0].id == original.id
+        && chat_sessions[si].proposals[0].payload.body == "请后天再联系我。"
+    let no_send = fixture_writes == 0 && actions.len() == 0
+    // Cancellation is a local task boundary; it must not wait for a model opinion.
+    ui.goal_input.set_text("取消刚才的起草请求，不要发任何邮件。") send_chat()
+    let cancelled = chat_sessions[si].proposals[0].state == "dismissed" && chat_request_index(session) < 0
+    let queue_count = fixture_queue.len()
+    // Changing focus while an earlier request waits invalidates its candidate result.
+    chat_new_session() let second = chat_selected_id let sj = chat_session_index(second)
+    ui.goal_input.set_text("起草一封合成邮件，不发送。") send_chat()
+    let pending = fixture_queue[queue_count]
+    ui.session_focus_project.set_text("星尘") ui.session_focus_owner.set_text("个人") chat_focus_save()
+    pending({is_ok: true data: {output: {reply: "候选已准备。" intent: "mail_compose"
+        proposal: {to: "self@example.invalid" subject: "迟到合成" body: "不能进入新归属。"}}}})
+    let scoped_late = chat_sessions[sj].proposals.len() == 0
+    fs.write("probe.json",{followup_uses_existing_action_schema: followup_schema
+        reply_cannot_claim_unapplied_edit: false_done_blocked same_task_candidate_updated_in_place: updated
+        cancellation_dismisses_without_model: cancelled focus_change_discards_late_candidate: scoped_late
+        no_external_action: no_send && fixture_writes == 0}.to_json())
+}
+start_timeout(0.1, || probe())

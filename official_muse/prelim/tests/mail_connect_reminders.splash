@@ -1,0 +1,47 @@
+let connect_checks = {}
+let connect_ok = true
+let connect_calls = []
+let connect_rows = [{id: "old" time: 1790998800 sender: "合成旧邮件" subject: "旧主题"}]
+fn incoming_fixture_request(service,args,cb){
+    connect_calls.push(service)
+    if service == "mail.add_account" { cb({is_ok: connect_ok error: "cancelled"}) return }
+    if service == "mail.accounts" { cb({is_ok: true data: [{id: "fixture-account" address: "self@example.invalid"}]}) return }
+    if service == "mail.sync" { cb({is_ok: true data: {new: 0 has_more: false reset: false}}) return }
+    if service == "mail.list" { cb({is_ok: true data: {messages: connect_rows total: connect_rows.len()}}) return }
+    if service == "mail.message" { cb({is_ok: true data: {id: args.message body: "合成新邮件正文" address: "sender@example.invalid"}}) return }
+    cb({is_ok: false error: "fixture forbids inference and external writes"})
+}
+fn connect_probe(){
+    core_boot_goals() core_boot_activity() core_boot_memory() chat_boot() gm_boot()
+    notification_enabled = false
+    mail_watch.enabled = false mail_watch_save()
+    mail_accounts_load()
+    connect_checks.view_accounts_preserves_pause = !mail_watch.enabled
+    mail_add_account()
+    connect_checks.successful_connect_enables_reminders = mail_watch.enabled
+    connect_checks.enabled_persisted = fs.read("mail-watch.json").parse_json().enabled
+    if !mail_watch.enabled { fs.write("probe.json",connect_checks.to_json()) return }
+    mail_watch_poll()
+    connect_checks.history_not_presented_as_new = mail_watch.alerts.len() == 0 && mail_watch.accounts[0].ready
+    right_open = false
+    connect_rows.push({id: "new" time: 1790998801 sender: "合成新发件人" subject: "合成新主题" historical: false})
+    mail_watch_poll()
+    connect_checks.new_arrival_creates_card_and_opens_result = mail_watch.alerts.len() == 1
+        && mail_watch_current().message_id == "new" && right_open && right_tab == "来信"
+    connect_checks.new_body_read_independently = mail_watch_current().source_body == "合成新邮件正文"
+    mail_watch_poll()
+    connect_checks.no_duplicate_card = mail_watch.alerts.len() == 1
+    mail_watch_boot()
+    connect_checks.restart_keeps_enabled_and_card = mail_watch.enabled && mail_watch.alerts.len() == 1
+    mail_watch_toggle() mail_watch_boot()
+    connect_checks.explicit_pause_survives_restart = !mail_watch.enabled
+    connect_ok = false mail_add_account()
+    connect_checks.cancelled_connect_preserves_pause = !mail_watch.enabled
+    mail_watch_writable = false connect_ok = true mail_add_account()
+    connect_checks.readonly_cannot_enable = !mail_watch.enabled
+    let forbidden = []
+    for call in connect_calls { if call == "model.complete" || call == "mail.send" || call == "calendar.create" { forbidden.push(call) } }
+    connect_checks.no_inference_or_external_writes = forbidden.len() == 0
+    fs.write("probe.json",connect_checks.to_json())
+}
+start_timeout(0.1, || connect_probe())

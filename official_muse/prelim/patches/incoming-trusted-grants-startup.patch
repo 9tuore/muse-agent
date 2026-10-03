@@ -1,0 +1,17 @@
+--- a/widgets/src/splash.rs
++++ b/widgets/src/splash.rs
+@@ -299,10 +299,11 @@
+                 }
+             });
+         }
++        // Trusted capability registration gets its normal bounded entry before app evaluation.
++        cx.with_script_vm_id(vm_id, |vm| {
++            crate::widget_async::apply_granted_isolate_mods(vm);
++        });
+         eval_out = Some(cx.with_script_vm_id(vm_id, |vm| {
+-            // Vocabulary this app's grants entitle it to, now that its policy
+-            // is seated (see `register_splash_isolate_mod_for`).
+-            crate::widget_async::apply_granted_isolate_mods(vm);
+             // Everything on `mod` that is not the body's own; whatever the run
+             // adds beyond this is the body's.
+             let mut known = module_keys(vm);

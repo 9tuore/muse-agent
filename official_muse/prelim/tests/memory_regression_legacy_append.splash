@@ -1,0 +1,39 @@
+let append_report = {}
+fn memory_append_probe(){
+    core_boot_memory()
+    let boot = gm_boot()
+    append_report.boot = boot
+    let now = core_utc_iso(time_now())
+    let text = "旧核心追加星桥资料"
+    let old_scope = {project: "muse-goals" account: "local" visibility: "personal"}
+    let source = {source_id: "source:legacy-append" kind: "user" locator: "conversation:fixture"
+        observed_at: now updated_at: now content_sha256: fs.sha256(text) support_excerpt: text}
+    source["scope"] = old_scope
+    let source_ok = core_add_source(source)
+    append_report.source_added = source_ok
+    let doc = {schema_version: "muse.dsl/1" kind: "memory" id: "memory:legacy-append" revision: 1
+        created_at: now updated_at: now origin: {type: "user" ref: "fixture"}
+        payload: {subject_id: "星桥" predicate: "资料" value: text epistemic_type: "user_statement"
+            observed_at: now valid_from: nil valid_until: nil source_ids: ["source:legacy-append"] relations: [] deleted: false}}
+    doc["scope"] = old_scope
+    let claim_ok = core_add_claim(doc)
+    append_report.claim_added = claim_ok
+    let ctx = gm_context("星桥资料","B","星桥")
+    append_report.legacy_retrieved = ctx.hits.len() == 1 && ctx.text.search(text) >= 0
+    start_timeout(0.05, || memory_append_mutation())
+}
+fn memory_append_mutation(){
+    let saved = gm_save("报告先给结论","preference","用户","报告偏好","B","","","local")
+    append_report.save_after_core_append = saved
+    let i = core_memory_index("memory:legacy-append","local")
+    append_report.normalized_scope = memory[i].document["scope"].user_id == gm_user_id
+    append_report.normalized_metadata = memory[i].memory_type == "source" && memory[i].history.len() == 0
+    let corrected = gm_correct("memory:legacy-append","旧核心追加星桥已更正资料","local","C")
+    append_report.correct_after_core_append = corrected
+    let j = core_source_index("source:legacy-append","local")
+    append_report.source_preserved = memory_sources[j].content_sha256 == fs.sha256("旧核心追加星桥资料")
+    append_report.error = gm_error
+    fs.write("memory_regression_legacy_append-report.json",append_report.to_json())
+}
+start_timeout(0.1, || memory_append_probe())
+View{width: Fill height: Fill Label{text: "旧核心启动后追加兼容"}}

@@ -1,0 +1,46 @@
+let dr = {}
+fn integration_corrupt(){
+    core_boot_memory()
+    let started = gm_boot()
+    let seeded = gm_save("损坏恢复合成偏好：先给要点","preference","user","恢复风格","integration","","","local")
+    dr.fixture_seeded = started && seeded
+    let saved = fs.read("memory.json").parse_json()
+    // Valid older entry missing only optional defaults, so gm_finish_boot migrates it.
+    let entry = saved.claims[0]
+    let legacy = {schema: 1 claims: [{document: entry.document pinned: entry.pinned
+        source_history: entry.source_history memory_type: "preference"}] sources: saved.sources forget: []}.to_json()
+    let broken_primary = "{\"schema\":1,\"claims\":[BROKEN-PRIMARY-SYNTHETIC-20261003"
+    let broken_backup = "{\"schema\":1,\"sources\":[BROKEN-BACKUP-SYNTHETIC-20261003"
+    let backup = legacy
+    if integration_corrupt_mode == "bad-backup" { backup = broken_backup }
+    let primary_write = fs.write("memory.json",broken_primary)
+    let backup_write = fs.write("memory.backup.json",backup)
+    dr.corrupt_fixture_exact = primary_write == nil && backup_write == nil
+        && fs.read("memory.json") == broken_primary && fs.read("memory.backup.json") == backup
+    memory = [] memory_sources = [] memory_forget = [] core_last_memory = "" gm_ready = false
+    let restored = core_boot_memory()
+    let before_gm = fs.read("memory.json")
+    let global_boot = gm_boot()
+    let after_boot = fs.read("memory.json")
+    let after_boot_backup = fs.read("memory.backup.json")
+    let new_saved = gm_save("损坏恢复之后的合成偏好：逐项说明","preference","user","恢复新风格","integration","","","local")
+    if integration_corrupt_mode == "good-backup" {
+        dr.valid_backup_loaded = restored && memory.len() >= 1
+        dr.core_boot_preserves_primary_before_migration = before_gm == broken_primary
+        dr.global_boot_succeeds = global_boot && core_memory_ready && gm_ready
+        dr.required_save_succeeds = new_saved
+        dr.good_backup_still_valid = core_memory_valid(fs.read("memory.backup.json").parse_json())
+    } else {
+        dr.both_bad_fail_closed = !restored && !global_boot && !new_saved && !core_memory_ready
+        dr.both_bad_bytes_untouched = fs.read("memory.json") == broken_primary && fs.read("memory.backup.json") == broken_backup
+    }
+    dr.observations = {mode: integration_corrupt_mode primary_bad_sha256: fs.sha256(broken_primary)
+        backup_bad_sha256: fs.sha256(broken_backup) primary_before_gm_sha256: fs.sha256(before_gm)
+        primary_after_boot_sha256: fs.sha256(after_boot) backup_after_boot_sha256: fs.sha256(after_boot_backup)
+        primary_after_save_sha256: fs.sha256(fs.read("memory.json")) backup_after_save_sha256: fs.sha256(fs.read("memory.backup.json"))
+        migration_snapshot_sha256: ""}
+    if fs.exists("memory.pre-global.json") { dr.observations.migration_snapshot_sha256 = fs.sha256(fs.read("memory.pre-global.json")) }
+    dr.no_external_service = integration_calls.len() == 0 && integration_forbidden.len() == 0
+    fs.write("probe.json",dr.to_json())
+}
+start_timeout(0.1, || integration_corrupt())

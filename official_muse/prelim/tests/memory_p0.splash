@@ -1,0 +1,58 @@
+let r = {}
+let own = "" let teacher = "" let older = "" let newer = ""
+fn p0_store(){
+    core_boot_memory()
+    let boot = gm_boot() r.boot = boot
+    gm_set_focus("","")
+    let pref = gm_save("回答先给结论","preference","用户","回复方式","A","","","local") r.preference_saved = pref
+    let one = gm_save("镜舟样机编号R7","fact","晓岚","设备编号","A","镜舟","本人","local") r.project_one_saved = one
+    own = gm_entries("镜舟样机编号R7")[0].document.id
+    let two = gm_save("镜舟样机编号R7","fact","晓岚","设备编号","B","镜舟","老师","local") r.project_two_saved = two
+    teacher = gm_entries("镜舟样机编号R7")[1].document.id
+    let ctx = gm_context("镜舟样机编号","C","")
+    r.no_focus_no_project_leak = ctx.hits.len() == 0
+    gm_set_focus("镜舟","本人")
+    ctx = gm_context("镜舟样机编号","C","")
+    r.focus_own_only = ctx.hits.len() == 1 && ctx.hits[0].id == own
+    ctx = gm_context("回答结论","C","")
+    r.global_preference_cross_session = ctx.text.search("回答先给结论") >= 0
+    let before = fs.read("memory.json")
+    let unsafe = gm_save("无归属项目新事实","fact","项目","结论","C","","","local")
+    r.empty_scope_write_denied = !unsafe && before == fs.read("memory.json")
+    fs.write("p0-progress.json",r.to_json())
+    start_timeout(0.05, || p0_conflict())
+}
+fn p0_conflict(){
+    let x = gm_save("ZX-ALPHA","fact","边界器","代码","A","镜舟","本人","local") r.conflict_first = x
+    older = gm_entries("ZX-ALPHA")[0].document.id
+    let y = gm_save("QR-BETA","fact","边界器","代码","B","镜舟","本人","local") r.conflict_second = y
+    newer = gm_entries("QR-BETA")[0].document.id
+    let ctx = gm_context("ZX-ALPHA","C","")
+    r.conflict_old_value_query = ctx.conflicts.len() > 0
+    ctx = gm_context("QR-BETA","C","")
+    r.conflict_new_value_query = ctx.conflicts.len() > 0
+    let corrected = gm_correct(newer,"LM-GAMMA","local","C") r.corrected = corrected
+    ctx = gm_context("边界器代码","A","")
+    r.explicit_correction_decides = ctx.conflicts.len() == 0 && ctx.text.search("LM-GAMMA") >= 0 && ctx.text.search("ZX-ALPHA") < 0 && ctx.text.search("QR-BETA") < 0
+    let i = core_memory_index(newer,"local")
+    r.correction_history_preserved = memory[i].history.len() == 1 && memory[i].history[0].payload.value == "QR-BETA"
+    fs.write("p0-progress.json",r.to_json())
+    start_timeout(0.05, || p0_forget())
+}
+fn p0_forget(){
+    let forgotten = gm_forget(own,"local") r.forgotten = forgotten
+    gm_set_focus("镜舟","老师")
+    let ctx = gm_context("镜舟样机编号","D","")
+    r.forget_other_owner_survives = ctx.hits.len() == 1 && ctx.hits[0].id == teacher && ctx.text.search("镜舟样机编号R7") >= 0
+    let i = core_memory_index(teacher,"local")
+    r.other_owner_record_intact = !memory[i].document.payload.deleted && memory[i].document.payload.value == "镜舟样机编号R7"
+    gm_set_focus("镜舟","本人")
+    let blocked = gm_save("镜舟样机编号R7","fact","新实体","设备编号","D","镜舟","本人","local")
+    r.own_reindex_blocked = !blocked
+    ctx = gm_context("镜舟样机编号","D","")
+    r.own_forgotten_hidden = ctx.hits.len() == 0
+    fs.write("p0-ids.json",{teacher: teacher older: older newer: newer own: own}.to_json())
+    fs.write("memory_p0-report.json",r.to_json())
+}
+start_timeout(0.1, || p0_store())
+View{width: Fill height: Fill Label{text: "记忆P0原例"}}

@@ -1,0 +1,123 @@
+// Authorization preflight is a read, and cancellation before it completes
+// must prevent both global-context injection and model dispatch.
+// Pending execution against the controller's frozen source, not current GM.
+fn retired_original_checks(){
+    let checks = {retired_fact_setup: false corrected_old_text_absent_from_recent_wire: false
+        corrected_old_text_absent_from_earlier_wire: false correction_not_changed_by_replies: false}
+    // Finish the previous queued request locally; no synthetic reply to it.
+    chat_stop()
+    fixture_accounts_deferred = false
+    gm_set_focus("合成验收","个人")
+    chat_new_session() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+    let original = "PIVOT项目出发点是北站"
+    let current = "PIVOT项目出发点是南站"
+    if !gm_save(original,"fact","PIVOT项目","出发点",chat_selected_id,"合成验收","个人","local") {
+        checks.retired_setup_error = gm_error return checks
+    }
+    let entries = gm_entries(original)
+    if entries.len() != 1 { checks.retired_setup_error = "合成记忆未唯一保存。" return checks }
+    let id = entries[0].document.id
+    if !gm_correct(id,current,"local","fixture-correction-session") {
+        checks.retired_setup_error = gm_error return checks
+    }
+    let index = core_memory_index(id,"local")
+    checks.retired_fact_setup = memory[index].document.revision == 2 && memory[index].history.len() == 1
+        && memory[index].history[0].payload.value == original && gm_retired_text("记住：" + original,"local")
+    let corrected = fs.read("memory.json")
+    messages = [{role: "user" text: original state: "success" at: 1}
+        {role: "assistant" text: "旧回执复述：" + original state: "success" at: 2}
+        {role: "user" text: "请保留无关的合成运输备注" state: "success" at: 3}
+        {role: "assistant" text: "合成运输备注已读" state: "success" at: 4}]
+    for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+    chat_save()
+    ui.goal_input.set_text("PIVOT项目出发点在哪里？")
+    let previous_models = fixture_queue.len()
+    send_chat()
+    let wire = nil
+    for call in fixture_calls { if call.service == "model.complete" { wire = call.payload } }
+    if wire != nil && fixture_queue.len() == previous_models + 1 {
+        let raw = wire.to_json()
+        checks.corrected_old_text_absent_from_recent_wire = raw.search(original) < 0 && wire.to_json().search(current) >= 0
+            && wire.messages.to_json().search("合成运输备注") >= 0
+        let callback = fixture_queue[fixture_queue.len()-1]
+        callback({is_ok: true data: {output: {reply: "合成新版本查询回执。"}}})
+    } else { chat_stop() }
+    // Place prefixed/compound old wording outside the three recent pairs.
+    messages = [{role: "user" text: "记住：" + original + "\n旧资料仅供审计。" state: "success" at: 1}
+        {role: "assistant" text: "旧回执复述：" + original state: "success" at: 2}]
+    for i in 4 {
+        messages.push({role: "user" text: "合成较早运输备注 " + i state: "success" at: 3+i*2})
+        messages.push({role: "assistant" text: "合成运输回执 " + i state: "success" at: 4+i*2})
+    }
+    for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+    let earlier = chat_earlier_context(4)
+    chat_save()
+    ui.goal_input.set_text("PIVOT项目出发点在哪里？")
+    previous_models = fixture_queue.len()
+    send_chat()
+    wire = nil
+    for call in fixture_calls { if call.service == "model.complete" { wire = call.payload } }
+    if wire != nil && fixture_queue.len() == previous_models + 1 {
+        checks.corrected_old_text_absent_from_earlier_wire = earlier.search(original) < 0
+            && earlier.search("合成较早运输备注") >= 0 && wire.to_json().search(original) < 0
+            && wire.to_json().search(current) >= 0 && wire.to_json().search("合成较早运输备注") >= 0
+        let callback = fixture_queue[fixture_queue.len()-1]
+        callback({is_ok: true data: {output: {reply: "合成较早上下文查询回执。"}}})
+    } else { chat_stop() }
+    checks.correction_not_changed_by_replies = corrected == fs.read("memory.json")
+        && memory[index].document.revision == 2 && memory[index].document.payload.value == current
+    return checks
+}
+fn probe(){
+    fixture_seed()
+    chat_boot()
+    gm_boot()
+    fixture_accounts_deferred = true
+    ui.goal_input.set_text("合成取消前的查询")
+    send_chat()
+    let waits = fixture_accounts_queue.len() == 1 && fixture_queue.len() == 0 && fixture_writes == 0
+    let preflight_count = fixture_accounts_queue.len()
+    ui.goal_input.set_text("重复点击不会重做授权读取")
+    send_chat()
+    let duplicate = fixture_accounts_queue.len() == preflight_count
+    chat_stop()
+    let stopped = messages.to_json()
+    let memory_before = memory.to_json()
+    let cancelled_accounts = fixture_accounts_queue[0]
+    cancelled_accounts({is_ok: true data: [{id: "fixture-account"}]})
+    let cancelled = fixture_queue.len() == 0 && messages.to_json() == stopped
+        && memory.to_json() == memory_before && fixture_writes == 0
+    gm_set_accounts(["fixture-account","synthetic-account"])
+    chat_new_session() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+    ui.goal_input.set_text("合成授权读取失败的查询")
+    send_chat()
+    let failed_accounts = fixture_accounts_queue[1]
+    failed_accounts({is_ok: false error: "fixture unavailable"})
+    let local_only = gm_accounts.len() == 1 && gm_accounts[0] == "local" && fixture_queue.len() == 1
+    let reply = fixture_queue[0]
+    reply({is_ok: true data: {output: {reply: "合成本地范围回复"}}})
+    let continued = messages.len() == 2 && messages[1].text == "合成本地范围回复"
+    chat_new_session() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+    gm_set_focus("project-A","owner-A")
+    ui.goal_input.set_text("合成账号刷新后的查询")
+    send_chat()
+    gm_set_focus("project-B","owner-B")
+    let valid_accounts = fixture_accounts_queue[2]
+    valid_accounts({is_ok: true data: [{id: "fixture-account"}]})
+    let refreshed = gm_account_allowed("fixture-account") && !gm_account_allowed("synthetic-account") && fixture_queue.len() == 2
+    let focus_restored = gm_project == "project-B" && gm_owner == "owner-B"
+    let no_write = fixture_writes == 0 && actions.len() == 0 && goals.len() == 0
+    let checks = retired_original_checks()
+    checks += {preflight_waits_before_model: waits duplicate_preflight_blocked: duplicate
+        cancel_before_authorization_no_model_or_memory: cancelled failed_preflight_local_only: local_only
+        failed_preflight_can_reply_locally: continued account_scope_refreshed: refreshed
+        asynchronous_focus_restored: focus_restored read_preflight_not_external_write: no_write}
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1, || probe())

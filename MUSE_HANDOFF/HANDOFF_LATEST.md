@@ -1,21 +1,16 @@
 # Handoff
 
 ## Task
-
-按用户要求将完整参赛源码同步到 GitHub `9tuore/muse-agent`；本次不继续功能开发或窗口测试，不使用子智能体。
+按用户最新授权同步0.3.16源码到9tuore/muse-agent main；以后每次完成版本更新后推送。
 
 ## Result
-
-源码更新至官方 Muse 0.2.12，配套 OctoSense、App Hub、Makepad、OctoScript 源码及许可证完整保留。参赛功能总体仍为 PARTIAL，最新来源及测试边界见 `SOURCE_DELIVERY.md`。
+当前完整源码已同步本仓库工作区，版本0.3.16，产品fd706e4，来源f6c2cd5；整体功能验收仍PARTIAL。
 
 ## Changed
+当前Splash、Mail/Makepad配套源码、记忆/来信模块、测试及已核对合成证据；更新README与SOURCE_MANIFEST。
 
-同步 0.2.9–0.2.12 应用源码/测试/中文宿主与框架修复；更新 README、状态说明、第三方来源和 SOURCE_MANIFEST.json。
-
-## Verification
-
-核对源文件字节一致、依赖相对链接、文件清单和哈希；检查上传路径与常见密钥形状，未运行额外产品回归。远端提交以 GitHub main 为准。
+## Tests
+导出主文件SHA与来源一致，匹配Host/框架源码SHA一致；四相对链接正常；正确公开密钥下本地扩展hub check PASS。只作源码交付核查，没重跑付费模型/外发/日历链。
 
 ## Remaining
-
-0.2.12 全量回归、合成日历事件最终清理、真实邮件确认发送与收件核验、邮件→日历同 Goal、持续来信结果卡待完成。旧安装包和生产资料未修改；主办方 issue 未提交。
+推送后读回远端HEAD；后续每版遵循AGENTS中的同步规则。不上传凭据、账号state、私密截图或编译缓存；不覆盖远端历史/Tag，不自动提交比赛issue。

@@ -1,0 +1,16 @@
+// Replay only synthetic, copied memory. No model or external action.
+fn memory_forget_conflict_probe(){
+    core_boot_memory()
+    let ready = gm_boot()
+    let seed = fs.read("forget-target.json").parse_json()
+    let report = {boot: ready phase: "before_forget"}
+    fs.write("memory_forget_conflict-stage.json",report.to_json())
+    report.forgotten = gm_forget(seed.id,"local")
+    report.phase = "after_forget"
+    report.error = gm_error
+    report.enabled = gm_enabled
+    report.pending = gm_forget_pending
+    fs.write("memory_forget_conflict-report.json",report.to_json())
+}
+start_timeout(0.1, || memory_forget_conflict_probe())
+View{width: Fill height: Fill Label{text: "合成冲突更正后遗忘回归"}}

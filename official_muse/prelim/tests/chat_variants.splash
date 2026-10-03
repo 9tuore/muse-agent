@@ -1,0 +1,72 @@
+// Variants of the observed P0s, separate actual callback budgets. Fixture only.
+let variant_checks = {}
+let variant_si = -1
+let variant_card_id = ""
+fn variant_start(){
+    fixture_seed() chat_boot() gm_boot() gm_set_accounts(["fixture-account"])
+    mail_account = {id: "fixture-account" address: "self@example.invalid"}
+    variant_si = chat_session_index(chat_selected_id)
+    chat_add_proposal(chat_selected_id,"variant-mail","","起草邮件",{intent: "mail_compose"
+        proposal: {to: "person@example.invalid" subject: "合成决定" body: "我不参加。"}})
+    variant_card_id = chat_sessions[variant_si].proposals[0].id
+    chat_sessions[variant_si].proposals[0].state = "opened"
+    mail_draft.account = "fixture-account" mail_draft.to = "person@example.invalid"
+    mail_draft.subject = "合成决定" mail_draft.body = "我不参加。" mail_draft.status = "waiting_user"
+    mail_draft.preview = "OLD_EXACT_APPROVAL"
+    ui.mail_to.set_text(mail_draft.to) ui.mail_subject.set_text(mail_draft.subject) ui.mail_body.set_text(mail_draft.body)
+    chat_save()
+    ui.goal_input.set_text("把草稿改为等周五再联系，保留主题和收件人。") send_chat()
+    variant_checks.edit_intent_invalidates_mail_approval_immediately = mail_draft.preview == "" && mail_draft.status == "DRAFT"
+    fixture_queue[0]({is_ok: true data: {output: {to: "person@example.invalid" subject: "合成决定" body: "请等周五再联系我。"}}})
+    variant_checks.opened_mail_form_really_changes = mail_draft.body == "请等周五再联系我。"
+        && ui.mail_body.text() == mail_draft.body && mail_draft.preview == ""
+        && chat_sessions[variant_si].proposals.len() == 1 && chat_sessions[variant_si].proposals[0].id == variant_card_id
+    variant_checks.mail_candidate_revision_advances = chat_sessions[variant_si].proposals[0].revision == 2
+    start_timeout(0.05,|| variant_calendar())
+}
+fn variant_calendar(){
+    chat_cancel_candidates()
+    chat_add_proposal(chat_selected_id,"variant-calendar","","安排日历2026-10-12九点到十点",{intent: "calendar_candidate"
+        proposal: {title: "合成讨论" start: "2026-10-12T09:10:00+08:00" end: "2026-10-12T09:40:00+08:00" time_zone: "Asia/Shanghai" location: "合成会场"}})
+    let pi = chat_sessions[variant_si].proposals.len()-1
+    let card = chat_sessions[variant_si].proposals[pi]
+    chat_sessions[variant_si].proposals[pi].state = "opened"
+    calendar_draft = {title: card.payload.title start: card.payload.start end: card.payload.end time_zone: card.payload.time_zone location: card.payload.location}
+    ui.calendar_title.set_text(calendar_draft.title) ui.calendar_start.set_text(calendar_draft.start) ui.calendar_end.set_text(calendar_draft.end)
+    ui.calendar_timezone.set_text(calendar_draft.time_zone) ui.calendar_location.set_text(calendar_draft.location)
+    calendar_preview = "OLD_CALENDAR_APPROVAL" calendar_checked = "OLD_CONFLICT_CHECK"
+    chat_save()
+    ui.goal_input.set_text("把会议结束改为10点10分，其他安排保持原样。") send_chat()
+    variant_checks.edit_intent_invalidates_calendar_approval_immediately = calendar_preview == "" && calendar_checked == ""
+    fixture_queue[1]({is_ok: true data: {output: {title: "合成讨论" start: "2026-10-12T09:10:00+08:00" end: "2026-10-12T10:10:00+08:00" time_zone: "Asia/Shanghai" location: "合成会场"}}})
+    variant_checks.opened_calendar_form_really_changes = calendar_draft.end == "2026-10-12T10:10:00+08:00"
+        && ui.calendar_end.text() == calendar_draft.end && calendar_preview == "" && calendar_checked == ""
+        && chat_sessions[variant_si].proposals[pi].id == card.id && chat_sessions[variant_si].proposals[pi].payload.end == calendar_draft.end
+    ui.goal_input.set_text("把会议结束改为10点30分。") send_chat()
+    let callback = fixture_queue[2]
+    let count = chat_sessions[variant_si].proposals.len()
+    let raw = chat_sessions[variant_si].proposals.to_json()
+    callback({is_ok: true data: {output: {title: "合成讨论" start: "2026-10-12T09:10:00+08:00" end: "2026-10-12T10:10:00+08:00" time_zone: "Asia/Shanghai" location: "合成会场"}}})
+    variant_checks.unchanged_model_candidate_cannot_claim_done = messages[messages.len()-1].state == "error" && chat_sessions[variant_si].proposals.to_json() == raw
+    let after = fs.read("chat-sessions.json") let events = activity.to_json()
+    callback({is_ok: true data: {output: {reply: "迟到重复修改"}}})
+    variant_checks.duplicate_edit_callback_ignored = fs.read("chat-sessions.json") == after && activity.to_json() == events
+    start_timeout(0.05,|| variant_unknown())
+}
+fn variant_unknown(){
+    let calls = fixture_calls.len()
+    mail_draft.status = "unknown" mail_draft.body = "未知投递原文" mail_draft.preview = "" mail_draft.attempt = "ORIGINAL_ATTEMPT"
+    ui.mail_body.set_text("不得覆盖的修改") mail_edit() mail_preview() mail_cancel_preview()
+    variant_checks.unknown_cannot_become_sendable_by_edit_preview_cancel = mail_draft.status == "unknown" && mail_draft.body == "未知投递原文" && mail_draft.attempt == "ORIGINAL_ATTEMPT"
+        && fixture_calls.len() == calls
+    variant_checks.malformed_recipient_rejected = chat_payload_error("mail_compose",{to: "one@example.invalid;two@example.invalid" subject: "合成" body: "合成"}) != ""
+    variant_checks.invalid_calendar_interval_rejected = chat_payload_error("calendar_candidate",{title: "合成" start: "2026-10-12T10:10:00+08:00" end: "2026-10-12T09:10:00+08:00" time_zone: "Asia/Shanghai"}) != ""
+    let bad = "{\"status\":\"DRAFT\"}".parse_json()
+    variant_checks.malformed_draft_shape_rejected = !mail_draft_valid(bad)
+    fs.write("mail-draft.json","CORRUPT_FIXTURE_PRIMARY") mail_draft_writable = false
+    let before = fs.read("mail-draft.json")
+    variant_checks.locked_corrupt_draft_not_overwritten = !mail_save() && fs.read("mail-draft.json") == before
+    variant_checks.no_external_action = fixture_writes == 0 && actions.len() == 0
+    fs.write("probe.json",variant_checks.to_json())
+}
+start_timeout(0.1,|| variant_start())

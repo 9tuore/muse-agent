@@ -1,14 +1,216 @@
+## 最新源码交付：0.3.16（2026-10-03）
+
+当前参赛源码已同步至本仓库工作区，来源产品fd706e4，开发规则f6c2cd5；主Splash SHA256 26be53b364be889b88ad194c860ec0fe9525952576f8be6a1d6f0822195acbc6。包含匹配Mail/框架源码、0.3.14来信时间字段修复及0.3.16新消息可见修改。本轮只同步源码，未重新安装或重做实际外发、Calendar写入及付费模型验收；20项整体仍PARTIAL。
+
+用户最新授权：每次完成版本更新，提交并推送 https://github.com/9tuore/muse-agent 的main，核对远端HEAD。此条覆盖下方历史“不push”指令。所有公开内容均为源码、文档及已核对的合成证据，账号/凭据/私人截图/运行缓存不上传。当前说明与完整来源哈希见仓库根SOURCE_DELIVERY.md和SOURCE_MANIFEST.json。
+
+以下为各版本历史验收记录。
+
+## 最新增量：修补指南审计与稳定性修复 0.3.13（2026-10-03）
+
+分支 `codex/muse-prelim-stability`。产品提交 `9a4a496`，Mail Host补丁/发布压缩保护 `39d9479`；当前已通过正常App Hub安装至原8412副本并打开，没有另建用户数据。发布main SHA256 `e52fe5eeb9e3c78d9fbbdd91f5b4320e2d830f5d0ab8037cfee5337517526170`，可读源 `1079e80725b053822e80c1f3268d0834643d13fcc6e7357046a54a391ffa2454`，匹配Host `f7064f55e6c9f452372a255d82cebffc83a6183fc6d231a75c30ff217f24c49b`。
+
+- 已完整核对用户的修补指南及三个辅助脚本。没有采用不可靠的“文件字节安全阈值/2KB注释预算证明”，没有一律改写nested if，没有复制第二个压缩器。现有压缩器对未支持块注释元数据明确拒绝处理；75718官方token、字符串与换行标记保持一致。
+- 对话管理：左侧逐条删除、具名确认/取消、对话满16项的明确提示；删除绑定目标ID，保留全局记忆/任务，清理回退副本；取消输出零高View，防止框架空渲染保留旧卡。取消按钮宽56。没有自动删除最旧对话；容量仍16项。
+- 配套Mail Host复用现有服务：一个后台线程、8项有界等待，将钥匙串/网络/缓存工作移出UI；授权在排队执行和钥匙串返回后重查。队列满或中断返回错误，不自动重发。补丁在隔离已修正Mail基线上重放，产物逐字节匹配编译源码。
+- 当前artifact连接12+收信15+对话管理17项fixture通过；可见来信/断开8项通过；990×539、请求412×892（实际412×813）删除/取消/新建/进程重启可用。Rust实际源码18通过、2既有真实凭据测试ignored；用匹配依赖的rustc --test，不称完整cargo workspace测试。matched Release Host编译及本地adhoc严格验签通过。
+- 真实Shell view=true、无运行/预算错误。钥匙串仍等待在octos-mail线程，主线程可进入设置、对话和取消确认。四个原持久文件chat/memory/goals/draft hash不变；最终仅一个Shell窗口。实机图在 `prelim/evidence/fix-guide-0313/live-shell-0313.png`，采样节选与所有原失败报告保留。
+- 本地扩展hub check PASS，目录sequence44验证通过；不是官方上游已接受。真实新来信卡尚未验收，需要本人处理系统钥匙串窗口及一封真实新信，已提出节点，不代授权或重复外发。模型20题/二十项产品验收与完整邮件→日历→回复链没有本轮重做，整体 **PARTIAL**。
+
+本轮零新模型请求、真实外发或Calendar写入；旧独立安装版、生产SQLite及其他profile未操作。按用户最新要求只做本地提交，**不提交或推送GitHub，不发布**。报告见 [修补指南审计](../MUSE_FIX_GUIDE_AUDIT.md)。
+
+以下为历史记录；旧版本通过证据不能冒充0.3.13完整业务链通过。
+
+## 最新增量：来信结果卡修复 0.3.12（本人钥匙串节点待处理）
+
+本轮仅处理新邮件不弹结果卡。产品 `7d7a6f5`，发布 artifact SHA256 `8c910a093db3c69550f3b25772f55bd712f27917b2946a6c8126a2f0e9315421`；可读源码 SHA256 `e11d7f3124fd020ca966ddf427ea5948ce172aa3869d16620f1c7210d740d040`。连接成功恢复提醒、收信启动不被结果恢复阻断、同步失败卡已实现。当前 artifact 的 12+15 项 fixture 通过；官方 tokenizer 的 75375 个 token、字符串及换行标记与可读源一致。0.3.9 的可见合成卡8项只作该版证据。
+
+现有8412副本已从App Hub安装0.3.12，配套本地Host SHA `d6ca93b30643a601c7f91bf4e5548f0011bebc258706fbcf946b70fefbfbacf2`，真实Shell eval为view=true，无启动预算错误。应用仍保持正文/事件64ms和深度512；可信框架注册使用既有专用入口，没有改邮箱服务或授权范围。实机线程随后在`MailService→Keychain→SecKeychainFindGenericPassword→SecurityServer`阻塞，已向本人提出系统钥匙串窗口核对/允许，未代确认。交互画面与真实新信卡尚未通过。第一版Host失败及第二版0311正文超时均保留。
+
+聊天/记忆/Goal/草稿四文件hash与升级前一致，未重置数据。仅当前现有Shell/profile被操作；旧独立版、稳定0.3.6和其他profile保持。本轮零模型请求/真实外发/Calendar写操作，无push或公开发布。本地扩展hub check PASS不等于上游接受。证据见[来信提醒修复记录](../official_muse/prelim/evidence/mail/INCOMING_REMINDER_FIX.md)。下面0.3.8模型20/20及任务/记忆回归属于历史，不绑定为0.3.12通过；整体二十项仍PARTIAL。对话删除工作暂存，未进入本轮。
+
+## 最新：0.3.8 RC7 初赛收口（2026-10-03，PARTIAL）
+
+产品665f507；当前AI证据f81f521、Goal/Memory证据cd49e35、UI证据90c8176；main `23bed11533c95452e3d1a29bf3ab542ac21eae152fe4f20ad22ed73be179ae2e`，manifest BLAKE3 `04900eb93b0c691508948cee993d4881b8e5151e87553ea405e668e66fd40d6b`。稳定0.3.6仍保持。
+
+- 当前RC7 MiniMax原20题20/20、6变体6/6真实通过；24模型回合/27provider尝试。原始报告保留PENDING，另存人工语义评分；题集/期望未改。RC6和旧Qwen失败均保留。模型题不代替二十项产品决定。
+- RC6一次性Goal真实模型→批准→Storage→独立readback→Shell重启通过，但额外冲突更正后遗忘没有写入主记录；settings进入保护停写，随后检索为空。独立semantic-review将额外记忆闭环判FAIL，原始失败保留。
+- 最小补丁：确认遗忘生成不含正文的提交摘要，仅完整清理快照、原/已提交主文件hash及DSL校验一致才能恢复。摘要错误/跨资料/缺失/损坏保持停写；当前14项恢复/拒绝不匹配fixture通过。
+- 64条full-main启动又复现64ms超时：每个切片重复整库JSON roundtrip。现改为启动只normalize一次、每批2条，未提高宿主预算。当前23bed完整主程序214项全部通过，含64条真实card-host启动与2172bytes/6hits有界检索；失败两轮完整保留。
+- RC7真实一次性Goal模型建议→批准→Storage→独立readback→整Shell重启通过，6个持久文件hash不变，无重复执行；冲突阻断模型、更正及遗忘实际落盘。另一会话检索2条/1117bytes，保留全局偏好与任务结果，遗忘ID未返回。原driver误把保留结果“合成乙项待确认”当作已遗忘事实，原PARTIAL报告保持，另存基于ID/原句的独立核验。首次自然语言计划请求被拒绝、跨会话回答编号不完整作为质量限制保留，不称全部表达稳定。
+- 当前四尺寸可见Shell的Chat长输入/记忆/设置通过，实际内容412×620、990×508、1260×569、1200×389；高窗受屏幕限制。七个页面均实际进入并留存截图（模型-only无账号，空/未授权状态如实展示）；整链的真实邮件回复/日历确认UI尚待。UI观察零模型新增。
+- MiniMax沿用官方model.complete、M3官方HTTPS、无fallback。唯一30元费用表已知保守上界0.293964元、一次官方连接未知usage预留8.402151元（均非账单），总占用上界8.696115元。新预留按官方输入/输出费率分别覆盖两次尝试，17.901005元；原账表与unknown规则不重置，当前UNKNOWN/RESERVED为0。15个离线费用保护检查通过。
+- 最新Root合成8412已经从App Hub打开0.3.8，无邮箱/日历账号；8413仍旧RC6真实测试登录窗口，等待本人官方QQ重连，不能读取其控件/凭据/截图或重启。Calendar full_access已通过，不重复申请系统权限。用户8414/8401、旧独立版及生产资料保持。
+
+下一步：本人QQ重连后将真实测试应用经App Hub更新到同一候选，再跑新信→候选更新→确认→真实Calendar/独立get→回复/到达→重启/去重/跨会话记忆。没有现存适用的日历自动窄授权，不宣称自动路径通过。二十项产品决定与原20模型题分别需要证据；整体不通过。无push/发布/公开Tag改动。
+
+以下内容是分阶段历史记录，以本节为最新状态。
+
 # Current State
 
-## 当前源码交付：官方 Muse 0.2.12（2026-10-02）
+## 当前核验：0.3.7 RC6 / MiniMax（2026-10-03，整体PARTIAL）
 
-用户已明确要求推送至 `https://github.com/9tuore/muse-agent`。完整源码在本仓库，分支 `main`；官方开发来源为 `codex/muse-official-migration` / `e00b8cf0bba75a7dd60f271d31faeb7b703c4295`，另外包含尚未在实机重跑的日历测试驱动改动。桌面版源码来源为 `5e7fa0b`，保留两份本地源码改动，未修改旧安装包或生产数据。
+产品7403abb，main SHA256 `c3dd3417ac69afa489b829f5b58791726ecead0537ad0c5f6c0ee162fd7105aa`；此后提交e169c27/58576b5仅测试和证据，产品字节不变。原20项真实聊天 **20/20**、固定6变体 **6/6**，24模型回合/28provider尝试与非estimated官方用量均核对；原报告PENDING保留，总控独立语义评分见 `prelim/evidence/ai/live-037-rc6-minimax/semantic-review.json`。旧Qwen12/20失败不改。官方MiniMax凭据已存在且连接测试成功，不再要求配置模型。
 
-0.2.12 已通过 App Hub 更新安装并核对设置页。真实邮箱已授权并读取；0.2.11 合成日历事件创建/修改与各次读回通过，删除未确认成功，清理仍待核验。0.2.12 完整外部动作及重启回归未重跑。总体 PARTIAL；持续监听来信并主动显示结果卡、真实发送与同 Goal 全链未完成。较早报告均为对应版本历史证据，不能当作最终候选通过。
+当前完整主源码而非0.3.6 Core抽取的Memory回归 **214项**（原198+16 transport隔离检查）通过，证据 `prelim/evidence/memory/root-rc6-full-main-20261003/full-main-summary.json`，仅fixture；先前基线Core198及汇总KeyError全部保留。
 
-本次仅同步完整代码、配套宿主与框架源码、测试/补丁、报告与文件哈希。账号、凭据、私密截图、生产数据库和二进制不入仓库。按用户指示停止窗口自动化与功能开发；不向主办方 issue 发消息。下一步由用户指示。详见 `SOURCE_DELIVERY.md`。
+8412是RC6合成无账号模型窗口，8413是同main/Host61d7/MiniMax的私有真实账号候选；8414稳定窗口、8401原窗口不操作。8413实际EventKit完整访问、工作日历可写已观察，不再重复请求日历权限。实际QQ同步返回“账号密码缺失，请重新登录”：钥匙串按隔离Host目录命名，账号及缓存副本不等于凭据复制。已打开官方登录面板请本人重新连接；登录期间不读取控件/截图/凭据。当前尚未最终真实外发或日历写入。
 
-## 以下为历史交接快照
+用户总费用限30元沿用同一全局费用表，真实用量保守上界0.195361元，连接probe未知用量另预留8.402151元（仅提高同一次probe预留，无新请求），不称实际账单；UNKNOWN/RESERVED阻断后续付费。仍需同候选邮件→日历→回复→重启→跨会话记忆、最终代表性窗口与二十项产品决定核验。未找到已有窄范围Calendar自动授权规则，保留精确确认，自动路径未完成；不能为了20项通过造授权或改评分。整体保持PARTIAL。无push/发布/公开Tag变更、旧安装版及生产数据保持。
+
+以下是分阶段历史记录，最新结论以上述RC6记录为准。
+
+## 当前执行进展：初赛收口 0.3.7（2026-10-03，PARTIAL）
+
+分支 `codex/muse-prelim-stability`，最新产品 `7403abb`；main SHA256 `c3dd3417ac69afa489b829f5b58791726ecead0537ad0c5f6c0ee162fd7105aa`，manifest BLAKE3 `92499119ed7babf343bb9928c9007d1c238de896ea2fcfdee3eaca4444d6514f`。用户要求原20项在同一最终候选20/20才算通过，fixture或旧版成绩不抵扣。基线0.3.6、用户8414/原8401、旧独立版与生产原数据保持。
+
+已移除长期目标产品页与泛化周期入口，保留一次性任务全链及历史；加入明确项目/归属与同卡编辑/取消/引用失效保护。d142b1c修复成功询问误路由和合法分钟级ISO精度；c1c0749仅过滤内部记忆键的评分噪音，并保存官方model.complete安全用量元数据，不存提示词、回答或密钥。c1c0749源9项用量、12项preflight、6项修改、15项绑定fixture通过；旧card-host一次主题预算失败保留，顺序运行绑定15项通过，不据此承诺旧宿主可靠启动。
+
+配套新宿主 `OctoSense trusted-theme Host candidate.app` 包内SHA `61d7fc0b5632cd88380cbbf1d644e788a992d691cd1db8f38012cc6c925a03d6`。仅可信框架主题注册入口改变，客体正文/事件64ms预算未调整。独立8412可见Shell冷启动完整428863字节main为view=true，无Splash预算错误，中文输入/三栏真实截图和本地扩展hub check通过；这是启动检查，尚非最终整链。见 `official_muse/prelim/evidence/live/rc3-startup/`。
+
+原免费Qwen rc1真实原20项12/20、holdout5/6，失败和固定题集保留。用户新授权MiniMax总费用上限30元；官方8413“AI模型设置”已准备中国/MiniMax-M3/官方HTTPS端点，停在本人密钥填写页，尚未配置好或运行付费Muse请求。已向本人提出密钥必须只在设置页填写。新模型验收将只复制官方模型私有profile，不带Mail/Calendar账号，记录真实usage与共享费用预留。官方连接测试先保守预留2.30元；未知用量必须停，不能写成费用已准确结算。
+
+Memory最终模块2b623e相关性45/45、原P0 20/20；历史198项不能算本模块全过。64条旧/新相同数据单次检索及未改原probe本轮均通过，观测14～31ms；历史超时未能稳定复现，确切阶段仍未知，没有据此再改生产代码或提高预算。当前尚有独立技术缺口，保持PARTIAL。7403abb仅补3行设置页外观/官方模型归属说明，其相关执行函数与c1c0749相同，尚未新做可见设置截图。执行包二十项产品决定与原二十项模型题分开验收，均须最终证据。下一步：配置MiniMax后冻结同源20+6真实验收，再集中本人精确外发与Calendar权限确认完成邮件→日历→回复→重启→跨会话记忆。未push、未发布、未改公开Tag。
+
+以下记录为分版历史，不覆盖当前结论。
+
+## 当前执行：初赛精简与稳定性收口（2026-10-03，未冻结候选）
+
+现分支 `codex/muse-prelim-stability`，保护基线 b02d103 / 0.3.6；基线文件与用户状态摘要已保留于 `official_muse/app/build/ui-memory-20261003/prelim-stability-baseline-036/`。8414用户窗口、8401原窗口、旧独立安装包与原生产数据未改，本轮只使用隔离源码/fixture。
+
+已删除长期目标导航/创建/泛化周期执行入口，保留一次性任务底座和历史，增加可见项目/归属选择。P0修复包括同卡编辑与旧批准失效、本地取消、异步scope绑定、unknown不可重发、损坏草稿保留、numeric日期验证。全局Memory模块198项、来信模块112项fixture通过；均不代表真实外部链通过。main已同步Memory与冻结来信模块，宿主分页最小补丁通过Rust测试，配套运行环境仍在独立构建。
+
+真实免费Qwen后端诊断：复杂协议4题均缺reply；flat变体3题schema通过，语义仅1题通过（错时区/虚构缺收件人仍失败）。已保留原失败；应用改为普通Chat reply协议与操作flat协议，context移至user/input避免官方task 4096bytes上限。产品本地提交64dc98d，0.3.7 main 4c728cb。115项同源集成回归与四尺寸可见UI通过（fixture边界），当前整轮 **PARTIAL**，剩余真实模型语义、真实20题/holdout、最终可见UI和同候选邮件→日历→回复→重启→跨会话记忆。宿主IMAP游标及POP3完整性问题正在最小修复，不新增能力。无push、无发布。
+
+
+## 最新：邮箱界面精简 0.3.6（2026-10-03）
+
+本人要求删除邮箱草稿说明、蓝色发送账号到收件人之间的状态与核验文字、绿色回执，替换“监听”用词。本轮产品49da447仅做该UI精简：写信页直接从收件人开始，实际核验入口留在默认收起的详细记录；右侧回执默认隐藏，来信提醒/自动查看新邮件用词统一。未修改批准、防重、真实发送与读回函数。
+
+0.3.6已通过正常App Hub在现有8414私有用户副本中安装打开，main SHA `79959890d266d07b8a6c6698851893a1f139b436565897125c57b07a82857bf2`。本地扩展hub check/签名目录sequence44 PASS。可见card-host合成前后/详细记录截图通过，相关轮询fixture15/15；真实Shell输入/技术文字隐藏已核对。五个持久文件对照见 `official_muse/evidence/mail-ui-cleanup-036/live-install.json`。整体仍PARTIAL，本轮不新增外发或全链声明。桌面完整源码已同步并改名为 `Muse-0.3.6-完整源码-2026-10-03`。原8401、旧安装/原数据保留，未push。
+
+## 最新交付：0.3.5 打开与完整源码桌面文件夹（2026-10-03）
+
+按本人要求仅打开最新候选并整理源码，未追加功能或全链测试。0.3.5 使用配套新 Mail Host 在真实 OctoSense 8414 打开；候选 `candidate-035-user-20261003` 从原 0.2.26 私有数据复制聊天、全局记忆、Goal、草稿、监听和日历状态，启动前六项文件 SHA 与原文件相同。已观察到三栏对话与可用输入框；本轮不声明新的真实邮件/日历动作成功。原 8401 与原安装包/数据未覆盖。
+
+桌面交付 `/Users/mima0000/Desktop/Muse-0.3.5-完整源码-2026-10-03`：官方 Muse 0.3.5，主仓实际独立桌面源文件及两份既有本地变化，实际匹配的 OctoSense、App Hub、Makepad、OctoScript、OctoScript-Makepad 全部源码/资源/许可证、宿主补丁、合成验收和说明。`SOURCE_MANIFEST.json` 记录来源与文件哈希，四个依赖链接为文件夹内相对链接。未带入凭据、私人运行数据、Git 历史或编译缓存；旧 `Muse-GitHub-Source` 未覆盖，未 push。产品仍 PARTIAL，已有验收缺口保持。
+
+## 最新：夜间UI／全局记忆候选0.3.5（2026-10-03）
+
+**归属验收缺口：**普通Chat当前project/owner焦点保持空；模块显式过滤已测，但对话中的明确归属选择/歧义澄清尚未接入。未知老师项目0hit不等于两项目同时存在事实的碰撞通过。此项列为下一轮优先，不能只归因于小模型。
+
+当前开发分支 `codex/muse-ui-global-memory`，产品冻结 `4135d0c`；main SHA `0e4c26dcdc0760a12cc2bb545cea2eb42e4170fba86f14974edbb992339332f7`，BLAKE3 `968e29358a1d2d7ec224f2a2b3a75afcab24524320567fd86fe6aceaafa5a419`。整体 **PARTIAL**，入口根目录 `OVERNIGHT_3H_REPORT.md`、`CHAT_EVAL_REPORT.md` 与 `OVERNIGHT_HUMAN_CHECKPOINTS.md`。稳定0.2.26及生产8401未覆盖，旧独立0.3.1未改；仅隔离候选，不push。
+
+已完成中文三栏、会话历史/快捷入口、有效结果与来信、会话Goal关联、自然语言Memory及折叠DSL/技术详情。GM/Core唯一权威、授权归属和有限检索保持；用户名在新隔离Host登录表单移除，只用完整地址和密码/授权码。最终162项fixture、138张五尺寸可见card-host原图通过；GM135是033模块证据，035字节静态绑定，不能冒充035重新执行。1440/412高窗受桌面限制实际809/813px；窄展开输入135px等排版限制保留。
+
+035新Host实机20个qwen3-0.6b合成聊天8 PASS/12 FAIL，跨会话代号/更正召回通过但协议/日期/格式偏好/指代仍失败；已有候选追问修改只文本回复的缺口待修。另2Goal真实模型建议（首项）→本地批准→存储/独立读回通过；结果count3问答却答2，工程关联检查6/6而语义FAIL。首次重启为新Goal记忆补18个默认scope字段，旧内容/引用/时间/墓碑不变；原严格byte失败保存，规范化后10次严格重启通过。20分钟idle结果见性能报告。
+
+本夜禁止真实外发/日历写改删/新权限/收费测试/公开发布；0.3.2在禁止前本人批准的真实工作日历CRUD/get/重启/清理只作历史，不继承035。最终合成mail→calendar9项和listener15项通过，真实新Host登录/新信/外部链仍本人节点；本地扩展hub PASS不代表官方原版接受或review完成。下一优先：候选追问变更闭环及模型协议稳定性，再按本人批准跑一次最终真实链，不重构或无限复测。
+
+
+## 本人实测确认与下一阶段（2026-10-02）
+
+用户在本次对话明确反馈：“我已经全部测试，已经跑通了。”记录为当前安装版0.2.26的 **USER_LIVE_CONFIRMED**；没有额外操作用户窗口或重新发送邮件。代码产品da4a377、交付记录c6a4e02；现场核对源码与安装manifest均0.2.26，主源码无未提交改动，历史未跟踪证据保留。
+
+下一阶段按用户指定推进：中文UI与卡片/输入/滚动体验优化；将现有真实Calendar宿主读写接入来信和对话任务，完成候选日程→本人确认→系统写入→独立读回→结果/记忆/Activity；随后沿现有结构做必要的代码去重与状态整理，不重构核心链。保留模型、Goal、批准、存储、读回、重启与发信防重。
+
+本人的全部实测确认与既有38项fixture/9项真实本地模型证据分别记录；不据此改写旧版17或26未执行的逐项正式报告。正式UI_PARITY/上游准入仍有既有待完成项。GitHub与桌面完整ZIP按当前交付记录尚未同步26；未push。本轮仅汇报与登记状态，未开始修改UI/日历代码。
+
+## 最新：来信正文、手写回复与常用语，0.2.26（2026-10-02）
+
+产品da4a377已通过正常 App Hub 安装到同一OctoSense Shell；成品main SHA `6d4519bf4c3557b23ddb4163d12f1623aa21884c2ceffcb631f73c489a744f55`，源码一致。来信显示正文；同卡起草/编辑/重新起草/确认发送；“自己写回复”不调用AI。拒绝/算了与明天/后天/过几天等时间绑定；相反意思或时间错误的AI草稿不采用。保留原批准/日志防重、归档旧草稿、未知结果不重试；无变化轮询不重绘输入。
+
+生产函数fixture38项、当前真实本地模型9个常用时间合成输入通过。实际安装/冷开五文件SHA保持相同，原正文和发送记录恢复；root没有确认真实发送。23/24同卡可见合成截图是各自版本历史，不冒充26全量UI回归。配套本地Calendar扩展Gate与目录sequence42通过，scan正式人审仍待完成。详情见MUSE_INCOMING_MAIL_REPORT.md、evidence/incoming-mail-20261002/candidate026。
+
+整体PARTIAL：复杂复合意图/日期计算不保证，26未重做SMTP收件/邮件日历完整链。保持17历史链边界，未扩能力/Provider/Host；旧独立版/生产SQLite不改，无push。公开GitHub、桌面完整ZIP仍旧候选，未称已同步。窗口操作已停，留给本人试用。
+
+
+## 最新：持续来信提醒与意图回复，0.2.21（2026-10-02）
+
+现有单一 OctoSense Shell 已通过 App Hub 安装0.2.21，产品603bd7d。应用运行时每30秒检查已授权INBOX，首次静默基线、新信对话侧栏提醒、先问回复意图、模型草稿、原精确预览与确认、不予回复持久化、错误重试与暂停。到信不调用模型或发送，关闭应用不监听；未加系统自启。详情见根目录 MUSE_INCOMING_MAIL_REPORT.md。
+
+0.2.19 真实新来信自动弹卡通过；0.2.21 17项生产函数fixture通过、同一个真实本地模型肯定/拒绝/改时间三项合成语义通过。原“可以的”复述来信问题已定位并修起草要求，原样复述拒绝采用、编辑意图重新绑定。当前正常安装/冷Shell打开与数据恢复通过，五个既有文件SHA相同；watch状态轮询重新序列化不称字节一致。9Goal/9Run/12Action/11Claim/12Source/6日历Receipt；新增Action来自本人回复操作，root未确认真实发送。
+
+本地扩展Gate PASS、catalog sequence38校验通过，正式scan仍human-review。0.2.18两尺寸UI合成截图与0.2.21最新证据分开标注。当前未重做21真实SMTP投递/日历全链，整体PARTIAL；17历史报告边界保留。桌面完整源码更新至21，公开GitHub尚未同步，无push。旧独立版和生产数据未改。
+
+## 最新：第二轮收口，Muse 0.2.17（2026-10-02）
+
+本轮已按用户“不要重复验证，做好收口”结束执行。分支 `codex/muse-round2-improvements`；冻结产品 `72e37240d53c045b57570d6b9178ff9980a83c8e`，正常 App Hub 已安装 0.2.17。完整入口为根目录 `MUSE_ROUND2_TEST_REPORT.md`、`MUSE_ROUND2_CHANGELOG.md`、`MUSE_ROUND2_BEFORE_AFTER.md`、`MUSE_VERSION_EVIDENCE_INDEX.json`。
+
+**总体 PARTIAL，当前不扩测。** C02 动态前提九项 fixture、C03 迟到回复十二项 fixture、选择结果两项 fixture、Core helper37、C05/C06 UNIT7 已执行。真实聊天14个初始请求/22条 wire，原话上下文和 NOVA 更正/切回召回通过；连字符计数为 MODEL_LIMITATION。
+
+最终 C01 `MUSE-R2-20261002-182500`：同一 Goal `1790936960-3704225443` 的源邮件与后续确认邮件分别经本人批准发送、本人确认到达；日历真实创建/独立读回；真实模型后续草稿；关联结果/三条 Claim/Activity 保存；一次整 Shell 重启六文件 SHA 及 Run/Action/模型计数不变；已授权测试事件删除并两路确认不存在。人工核对候选后的真实闭环完成；日程提取时模型停机，故完整 AI 候选提取未通过。
+
+当前 C02 真实 stale-conflict、C03 外部模型竞态、C04 非空显式 Memory/重启后真实模型召回、当前全量响应式和普通多 Goal 模型链未覆盖，旧证据仅历史。索引六条历史 STALE、二十条当前作用域 PASS、一条 PARTIAL；不相加为 ROUND2_PASS。配套本地 Calendar 扩展 Gate PASS、目录 sequence35 校验通过；正式 publisher/support 元数据仍占位，scan 路由 human-review，不宣称官方原版准入。
+
+单一 OctoSense 窗口已留在对话页。原本本地模型/转发服务保留供用户继续使用；没有新 Provider。旧独立安装版、桌面生产数据未修改，没有 push。公开初赛仓库仍 `c1c5e947b27ea158e79201064b2f7367d887fcb2`，本轮代码尚未同步公开仓库。
+
+以下为历史快照，不覆盖上述新候选边界。
+
+## 最新：新邮件发送入口修复（2026-10-02）
+
+官方 Muse 0.2.14 已通过正常 App Hub 更新，并重开配套 OctoSense Shell。新邮件顶部固定“发送邮件”；点击进入独立确认卡，“确认发送这封新邮件”继续调用原批准绑定和持久化发送路径。新增继续编辑草稿；用户原草稿在 UI 中恢复，保存文件 SHA 与更新前一致，独立重启后的原账号选择与 UI 字段恢复通过。实际窗口留在草稿页，没有确认真实发送。
+
+代码提交 `5542aea`、`bcf2beb`；最终本地 Gate PASS，目录 sequence 32 校验通过。LOCAL 最终可见 card-host 两种尺寸、FIXTURE 官方 mail_demo 全按钮链和 LIVE 最终预览/取消/重启草稿恢复分层记录在 `MUSE_MAIL_SEND_UI_FIX.md` 与 `evidence/mail-send-ui-20261002/`。首次热更新窗口操作曾出现空草稿，已恢复并冷启动核对；原因尚未确认，详见报告。
+
+产品总体验收仍 PARTIAL；本次不作真实 SMTP 投递、收件核验、完整 Goal/model.complete 或邮件→日历全链新声明。未 push；公开源码仓库暂仍为原提交。原有 calendar 驱动未提交改动和私密旧证据均保留。
+
+## 初赛仓库登记已提交（2026-10-02）
+
+用户明确授权向主办方 issue #13 提交，并补充正式队伍名“星海”。已使用 GitHub 账号 `9tuore` 发布评论，ID `5946091544`；独立 GET 核对作者、正文和目标 issue 一致。
+
+评论链接：`https://github.com/gosimfoundation/hackathon-agenticapp26/issues/13#issuecomment-5946091544`
+
+提交正文为三行：
+
+```text
+队伍名：星海
+GitHub 仓库地址：https://github.com/9tuore/muse-agent
+团队ID：561194752707317763
+```
+
+GitHub 连接器最初返回 integration 403，未创建评论；使用已配置的 Git 认证正常提交成功，凭据没有输出或持久化。此前“未提交主办方 issue”的记录为旧快照，本条为最新登记状态。参赛源码仍为公开仓库 main / `c1c5e947b27ea158e79201064b2f7367d887fcb2`；产品总体 PARTIAL，本次没有改变产品代码或重跑应用验收。
+
+
+## GitHub 完整源码交付（2026-10-02）
+
+按用户授权，将已整理的完整参赛源码推送至用户创建的仓库，并将 `123` 改名为 `muse-agent`，重写中文简介与 README。仓库：`https://github.com/9tuore/muse-agent`；分支 `main`；远端已确认提交 `c1c5e947b27ea158e79201064b2f7367d887fcb2`。
+
+完整源码工作区：`/Users/mima0000/Desktop/Muse-GitHub-Source`，共 12,324 个 tracked 路径。包含独立桌面源码、官方 Muse 0.2.12、实际配套 OctoSense / App Hub / Makepad / OctoScript 全量源码、测试、补丁、报告和许可证。SOURCE_MANIFEST.json 的 12,319 个普通文件 SHA 逐项核对；另外 4 个相对依赖链接与清单自身不纳入文件哈希。未带入原项目 Git 历史、凭据、账号/生产数据库或最新私密截图；主办方 issue 未留言。
+
+本轮只整理和上传源码，没有继续功能开发或窗口测试，没有使用子智能体。0.2.12 已在此前通过 App Hub 更新安装；完整产品验收仍为 PARTIAL。真实邮箱已授权并同步/读取；0.2.11 合成事件创建/修改及各自读回通过，最终删除/清理未确认成功。0.2.12 全量回归、真实发送与收件核验、邮件到日历同 Goal、持续新邮件结果卡仍待后续指示。原型与历史报告的通过范围不能代替最终候选验收。
+
+官方代码来源仍为本工作树 `e00b8cf` 加 `official_muse/phase2/tests/live_calendar_crud.py` 未提交驱动改动；该改动已导出，只有语法核对，未重跑 LIVE。桌面工作树已有的两份本地源码改动保留在导出。后续开发继续当前官方迁移分支，再按需要同步公开源码仓库。
+
+## 以下为历史快照
+
+
+## 最新：0.2.10 中文界面修订（2026-10-02）
+
+用户要求所有 Muse 界面使用中文。官方分支继续 `codex/muse-official-migration`，0.2.9 数据通过正常应用中心升级保留。Muse 八页、卡片、来源记忆、邮箱宿主登录、应用中心、AI 模型设置和容器菜单/顶部栏/启动器/快捷键显示已中文化。没有改协议字段、能力 ID、枚举、批准绑定或模型路由。最终可见容器为 `OctoSense Muse 中文版 0.2.10-r2.app`，SHA `24bcaddaee2297a1fe524a2cebc380814e1987d609e89e2cfb4a8efac9ebd10f`；报告 `MUSE_CHINESE_UI_REPORT.md`，证据 `evidence/zh-ui-20261002/`。宿主无 Git 导出以 `octosense-zh-ui.patch` 交付；App Hub 中文提交 `97d75ac`。
+
+真实八页和 Mail 中文空表单/协议切换 PASS；五种窗口请求 PASS；最终容器真实 AI 两轮代号追问和一个中文模型 Goal 全链 PASS。最终正常重启 9 文件 SHA 不变，7 Goal/6 Run/6 Memory/0 外部 action，Activity 仅新增 restore。一个复杂 Goal 的模型格式回复两次被拒绝，保留待批准及中文错误证据，不将其计为成功。Core37 LOCAL、Mail8/2ignored、模型27/1ignored、AppHub36测试和本地扩展hub check PASS。旧独立0.3.1哈希/严格签名保持不变。
+
+Phase2整体仍PARTIAL：真实Mail登录/发送/收件端验证、最终Calendar CRUD及关联同任务未完成；中文修订不是上述能力的通过证据。禁子智能体、GitHub继续暂停、只本地提交、不push、不改生产资料。桌面中文修订交付文件夹包含运行包/源码补丁/真实截图/报告。
+
+## 当前优先：0.2.9 收口，GitHub暂停（2026-10-02）
+
+最新用户要求先完成Phase2收口，暂停建仓/上传。官方分支codex/muse-official-migration；产品17e63c5、测试4729e7a。最终main SHA eb0e32778c03ea4cc7e331a63ad9aee7bd36bdf5c541e1ec61d99502199b1489，bundle77e8960d...。根目录PHASE2_FINAL_ACCEPTANCE/TEST_REPORT/EVIDENCE_INDEX及MEMORY_PARITY_MATRIX为最新入口；后续报告提交只本地、不push。
+
+真实打包Shell安装0.2.9重测：Chat传输/A/C/D通过，B计数语义受限；3模型Goal+1长文Goal、4Run完成，模型建议在批准前生成，批准后真实存储/读回。来源完整UTF-8 SHA、独立DSL/MemoryGraph验证、更正/固定/2墓碑、重启通过。五窗口请求均实际模型发送、四页滚动与长详情；高窄受桌面限制818。整个Shell重启7文件SHA不变，4Goal/4Run/4Memory/0外部action，Activity只新增restart restore。停本轮relay后的真实错误与恢复通过，共享模型未停。Core37项、Native9hash+超64KiB拒绝、Host Calendar3与Mail8单元通过，均明确LOCAL边界。
+
+总体PARTIAL：Calendar本机新宿主权限not_determined，已请求本人完整访问；最终CRUD未跑。官方Mail accounts为空，Host登录sheet已打开等待本人；登录期间停止截图/控件查询。待真实Mail读取/本人发送确认/收件端确认、同Goal双批准Calendar链，以及外部重启防重复。原版Gate仍拒calendar；本地扩展签名Gate PASS、scan七问human-review。旧0.3.1主程序SHA/严格签名不变、生产数据未读改。禁止子智能体；本人节点之外自主继续，无新Capability/Provider/Phase3。
+
+原GitHub完整源码仓库整理为历史保留，未创建远程、未push、未评论issue。勿再追问建仓。本机证据evidence/phase2-final-029，57张真实图含旧独立before；源码与签名候选/测试环境见最终证据索引。
+
+
+## 最新接手：完整源码仓库与 Phase 2 收口（2026-10-01）
+
+用户已授权建立独立 GitHub 仓库并上传全部参赛源码，暂不评论主办方 issue。完整源码本地仓库位于 `/Users/mima0000/Desktop/Muse-GitHub-Source`，分支 `main`，HEAD `f04ef0a`，12,274 个跟踪路径，5 个分步提交；包含桌面源码、官方 Muse 0.2.8、隔离 OctoSense/App Hub 与锁定 Makepad/OctoScript、合成测试证据。源文件 SHA 清单读回核对通过；依赖相对链接和宿主 Cargo metadata 检查通过。未上传 GitHub，不能把本地整理当作远程交付完成。
+
+计划独立仓库 `9tuore/muse-agentic-app-2026` 当前 GitHub 查询 404。连接器无建仓接口，浏览器自动化连接超时；已请本人在 GitHub 新建空公开仓库后告知地址。不要寻找或输出凭据，不把旧配置 remote 当作已存在仓库。
+
+后续任务完整提示词：`/Users/mima0000/.codex/attachments/e21e0598-856c-438e-80d7-0153f735a732/已粘贴的文本.txt`，已完整阅读。顺序是先完成独立仓库上传，再冻结 Muse 0.2.9 并执行 Phase 2 收口与全量回归。现场 0.2.8 布局修复已在 `56fec94` 提交；提示词中的 `fa0ab02`、未提交布局和未做 0.2.8 Calendar/Goal/restart 为旧快照，以现有代码和 0.2.8 报告为准，但不能复用旧证据代替 0.2.9 验收。后续收口提交仅本地，不 push；不新增 Capability/Provider/Phase 3，不改独立安装版或生产资料。禁止子智能体。Mail 登录、Calendar/发送人工确认按新提示词办理，其他测试继续。
 
 
 协作最新偏好（2026-10-01）：用户要求后续不使用子智能体，跨对话协作用真实已有聊天。先前Agent审计为历史已完成安排，后续不再派发。参赛纯源码已整理到桌面 Muse参赛源码-0.2.8-2026-10-01 文件夹及同名ZIP；37份源码/测试/补丁/报告，导出SHA逐一核对与bundle Gate通过，未push/issue提交。

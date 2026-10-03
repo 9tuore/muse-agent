@@ -1,0 +1,70 @@
+let isolated_mode = "normal"
+let isolated_core_booted = false
+let isolated_booted = false
+let isolated_ctx = nil
+let isolated_started = 0
+let isolated_elapsed = 0
+fn isolated_stage(name){
+    fs.write("memory-budget-isolated-stage.json",{stage: name mode: isolated_mode
+        core_ready: core_memory_ready gm_ready: gm_ready gm_pending: gm_boot_pending error: gm_error}.to_json())
+}
+fn isolated_core_boot(){
+    isolated_mode = fs.read("memory-budget-isolated-mode.json").parse_json().mode
+    isolated_stage("core_boot_enter")
+    isolated_core_booted = core_boot_memory()
+    isolated_stage("core_boot_returned")
+    if isolated_mode == "direct_retrieval" {
+        start_timeout(0.05, || isolated_direct_prepare())
+    } else {
+        start_timeout(0.05, || isolated_global_boot())
+    }
+}
+fn isolated_global_boot(){
+    isolated_stage("global_boot_enter")
+    gm_boot()
+    isolated_stage("global_boot_returned")
+    start_timeout(0.05, || isolated_wait())
+}
+fn isolated_wait(){
+    if gm_boot_pending {
+        isolated_stage("global_boot_pending")
+        start_timeout(0.05, || isolated_wait())
+        return
+    }
+    isolated_booted = gm_ready
+    isolated_stage("global_boot_completed")
+    start_timeout(0.05, || isolated_prepare())
+}
+fn isolated_direct_prepare(){
+    // Diagnostic only: no successful global boot is claimed or simulated.
+    let settings = fs.read("global-memory-settings.json").parse_json()
+    gm_user_id = settings.user_id
+    gm_enabled = settings.enabled
+    isolated_stage("direct_retrieval_fixture_prepared")
+    start_timeout(0.05, || isolated_prepare())
+}
+fn isolated_prepare(){
+    gm_set_focus("星尘","用户")
+    isolated_stage("retrieval_scheduled")
+    start_timeout(0.05, || isolated_retrieve())
+}
+fn isolated_retrieve(){
+    isolated_started = time_now()
+    isolated_ctx = gm_context("预算星尘记录","B","")
+    isolated_elapsed = time_now() - isolated_started
+    start_timeout(0.05, || isolated_verify())
+}
+fn isolated_verify(){
+    isolated_stage("retrieval_returned")
+    let ctx = isolated_ctx
+    let r = {boot: isolated_booted count: memory.len() bytes: ctx.bytes hits: ctx.hits.len()
+        mode: isolated_mode core_boot: isolated_core_booted elapsed_seconds_observed: isolated_elapsed}
+    // All original budget-probe assertions remain, including boot.
+    r.bounded = ctx.bytes <= 2200 && ctx.text.to_chars().len() <= 2200 && ctx.hits.len() <= 6 && ctx.hits.len() > 0
+    r.truncated = ctx.truncated && gm_last_trace.reasons.len() > 0
+    r.trace = gm_last_trace.hits.to_json() == ctx.hits.to_json() && gm_last_trace.bytes == ctx.bytes
+    r.unrelated_absent = ctx.text.search("望远镜") < 0
+    fs.write("memory_budget_isolated-report.json",r.to_json())
+}
+start_timeout(0.1, || isolated_core_boot())
+View{width: Fill height: Fill Label{text: "分离启动与单次记忆检索诊断"}}

@@ -1,0 +1,13 @@
+fn probe(){
+    fixture_seed()
+    goals = [{id: "fixture-goal" version: 1 status: "planned"}]
+    calendar_links = [{goal_id: "fixture-goal" account_id: "fixture-account" message_id: "fixture-message"
+        source_id: "fixture-source" candidate: {title: "before"} status: "candidate"}]
+    calendar_model_candidate("fixture-goal","fixture-account","fixture-message","合成主题","合成正文")
+    goals[0].version = 2
+    let callback = fixture_queue[0]
+    callback({is_ok: true data: {output: {title: "late v1" start: "" end: "" time_zone: "Asia/Shanghai" location: ""}}})
+    fs.write("probe.json",{goal_revision: goals[0].version candidate: calendar_links[0].candidate
+        stale_callback_reproduced: calendar_links[0].candidate.title == "late v1"}.to_json())
+}
+start_timeout(0.1, || probe())

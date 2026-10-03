@@ -1,0 +1,116 @@
+// Refresh read permissions, target calendar, range and event versions before any mutation.
+fn calendar_event_snapshot(events){
+    let snapshot = []
+    for event in events { snapshot.push({id: event.id version: event.version}) }
+    return snapshot
+}
+
+fn calendar_snapshot_equal(before,after){
+    if before.len() != after.len() { return false }
+    for old in before {
+        let found = false
+        for current in after { if old.id == current.id && old.version == current.version { found = true } }
+        if !found { return false }
+    }
+    return true
+}
+
+fn calendar_approval_current(context){
+    if calendar_preview != context.preview || calendar_request_id != context.request_id
+        || calendar_operation != context.operation || calendar_selected_goal != context.goal_id
+        || calendar_candidate_revision != context.candidate_revision
+        || calendar_approval_revision != context.approval_revision
+        || time_now() - calendar_preview_at > 300 { return false }
+    let current = calendar_action_payload(context.request_id)
+    if current == nil || current.to_json() != context.preview { return false }
+    if context.goal_revision > 0 {
+        let gi = core_goal_index(context.goal_id)
+        let li = calendar_link_index(context.goal_id)
+        if gi < 0 || li < 0 || goals[gi].version != context.goal_revision
+            || goals[gi].status != "planned" || goals[gi].archived
+            || calendar_links[li].status != "waiting_user" { return false }
+    }
+    return true
+}
+
+fn calendar_stale_approval(context,detail,external){
+    calendar_pending = false
+    calendar_preview = ""
+    calendar_checked = ""
+    calendar_approval_revision = calendar_approval_revision + 1
+    let li = calendar_link_index(context.goal_id)
+    if li >= 0 && calendar_links[li].status == "waiting_user" {
+        calendar_links[li].last_error = detail
+        calendar_links[li].approval_revision = calendar_approval_revision
+        calendar_save()
+    }
+    calendar_error = detail
+    calendar_notice = "旧批准已失效，请重新查询冲突并审阅新确认卡。"
+    core_record_event("STALE_APPROVAL",detail,context.goal_id,"",context.request_id,calendar_calendar_id)
+    if external { core_record_event("EXTERNAL_STATE_CHANGED",detail,context.goal_id,"",context.request_id,calendar_calendar_id) }
+    redraw()
+}
+
+fn calendar_refresh_range(context,payload){
+    if !calendar_approval_current(context) { calendar_stale_approval(context,"候选或目标版本已变化。",false) return }
+    if context.operation == "delete" { calendar_execute_approved(context,payload) return }
+    let candidate = calendar_draft_payload()
+    host.request("calendar.list",{calendar_id: candidate.calendar_id start: candidate.start end: candidate.end limit: 100},fn(r){
+        if !calendar_approval_current(context) { calendar_stale_approval(context,"复查期间候选或目标已变化。",false) return }
+        if !r.is_ok || r.data == nil || r.data.events == nil || r.data.truncated {
+            calendar_stale_approval(context,"批准前范围复查失败或截断，未执行系统写入。",false)
+            return
+        }
+        calendar_conflicts = []
+        for event in r.data.events {
+            if context.operation != "update" || event.id != payload.event_id { calendar_conflicts.push(event) }
+        }
+        let latest = calendar_event_snapshot(r.data.events)
+        if !calendar_snapshot_equal(context.events,latest) || calendar_conflicts.len() > 0 {
+            calendar_checked_events = latest
+            calendar_stale_approval(context,"系统日历范围已变化，当前有 " + calendar_conflicts.len() + " 个冲突。",true)
+            return
+        }
+        calendar_execute_approved(context,payload)
+    })
+}
+
+fn calendar_refresh_event(context,payload){
+    if context.operation == "create" { calendar_refresh_range(context,payload) return }
+    host.request("calendar.get",{calendar_id: payload.calendar_id event_id: payload.event_id},fn(r){
+        if !calendar_approval_current(context) { calendar_stale_approval(context,"事件复查期间候选已变化。",false) return }
+        if !r.is_ok || r.data == nil || r.data.event == nil
+            || r.data.event.id != payload.event_id || r.data.event.calendar_id != payload.calendar_id
+            || r.data.event.version != payload.expected_version {
+            calendar_stale_approval(context,"目标系统事件已变化或无法读回，请重新读取版本。",true)
+            return
+        }
+        calendar_refresh_range(context,payload)
+    })
+}
+
+fn calendar_refresh_preconditions(context,payload){
+    calendar_pending = true
+    calendar_notice = "正在复查当前日历权限、时间范围和事件版本。"
+    if !core_record_event("PRECONDITION_REFRESH","批准后重新读取动态前提；尚未执行系统写入。",context.goal_id,"",context.request_id,payload.calendar_id) {
+        calendar_stale_approval(context,"动态复查 Activity 未保存，未执行。",false)
+        return
+    }
+    redraw()
+    host.request("calendar.status",{},fn(r){
+        if !calendar_approval_current(context) { calendar_stale_approval(context,"权限复查期间候选或目标已变化。",false) return }
+        if !r.is_ok || r.data == nil || r.data.permission != "full_access" || r.data.calendars == nil {
+            calendar_stale_approval(context,"当前系统日历授权不可读写。",true)
+            return
+        }
+        let current_calendar = ""
+        for cal in r.data.calendars { if cal.id == payload.calendar_id && cal.writable { current_calendar = cal.to_json() } }
+        if current_calendar == "" || current_calendar != context.calendar {
+            calendar_stale_approval(context,"目标日历已移除、变为只读或属性发生变化。",true)
+            return
+        }
+        calendar_permission = r.data.permission
+        calendar_calendars = r.data.calendars
+        calendar_refresh_event(context,payload)
+    })
+}

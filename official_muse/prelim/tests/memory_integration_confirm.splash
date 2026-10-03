@@ -1,0 +1,63 @@
+let qr = {} let integration_confirmation = nil let integration_confirmation_id = ""
+fn integration_confirm_open(){
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    qr.boot = gm_boot() qr.chat_boot = chat_boot()
+    gm_set_focus("潮汐","本人")
+    let si = chat_session_index(chat_selected_id)
+    chat_sessions[si].focus_project = "潮汐" chat_sessions[si].focus_owner = "本人"
+    qr.fact_saved = gm_save("会面地点=合成地点K7","fact","user","会面地点",chat_selected_id,"潮汐","本人","local")
+    integration_confirmation_id = gm_entries("K7")[0].document.id
+    let context = gm_context("会面地点",chat_selected_id,"")
+    let refs = chat_context_refs(context.hits)
+    qr.real_retrieval_refs = refs.len() == 1 && refs[0].id == integration_confirmation_id
+    let card = {id: "candidate:opened-memory-change" session_id: chat_selected_id account_id: ""
+        action: "calendar_candidate" state: "candidate" revision: 1 project: "潮汐" owner: "本人" memory_refs: refs
+        payload: {to: "" subject: "" body: "" title: "MUSE-R2-OPENED-MEMORY-CHANGE" start: "2026-10-04T15:00:00+08:00"
+            end: "2026-10-04T16:00:00+08:00" time_zone: "Asia/Shanghai" location: "合成地点K7" objective: "" source: ""}}.to_json().parse_json()
+    chat_sessions[si].proposals = [card]
+    calendar_permission = "full_access"
+    calendar_calendars = [{id: "fixture-calendar" writable: true}].to_json().parse_json()
+    calendar_calendar_id = "fixture-calendar"
+    chat_apply_proposal(card.id)
+    qr.valid_candidate_opened = calendar_form_open && chat_sessions[si].proposals[0].state == "opened"
+    qr.opened_refs_bound = calendar_context_refs.to_json() == refs.to_json()
+    qr.opened_payload_matches = calendar_draft.location == "合成地点K7" && calendar_draft.title == "MUSE-R2-OPENED-MEMORY-CHANGE"
+    // Synthetic conflict-query result only; no calendar service is requested.
+    calendar_checked = calendar_draft_payload().to_json()
+    calendar_checked_events = [] calendar_conflicts = []
+    calendar_checked_calendar = calendar_calendars[0].to_json()
+    calendar_preview_action()
+    qr.preview_ready_before_change = calendar_preview != "" && calendar_error == ""
+    integration_confirmation = {request_id: calendar_request_id preview: calendar_preview operation: calendar_operation
+        goal_id: calendar_selected_goal goal_revision: 0 candidate_revision: calendar_candidate_revision
+        approval_revision: calendar_approval_revision events: calendar_checked_events calendar: calendar_checked_calendar
+        memory_refs: calendar_context_refs}.to_json().parse_json()
+    qr.approval_valid_before_change = calendar_approval_current(integration_confirmation)
+    fs.write("confirm-before.json",{checks: qr approval: integration_confirmation}.to_json())
+    start_timeout(0.05, || integration_confirm_changed())
+}
+fn integration_confirm_changed(){
+    qr.fact_corrected_after_open = gm_correct(integration_confirmation_id,"会面地点=合成地点Q8","local",chat_selected_id)
+    qr.exact_preview_still_present_before_guard = calendar_preview == integration_confirmation.preview
+    qr.old_approval_invalidated_by_refs = !calendar_approval_current(integration_confirmation)
+    let call_count = integration_calls.len() let actions_before = actions.to_json()
+    let memory_after_correction = fs.read("memory.json")
+    calendar_confirm_action()
+    qr.confirm_no_service_dispatch = integration_calls.len() == call_count
+    qr.confirm_no_action_attempt = actions.to_json() == actions_before
+    qr.confirm_explains_memory_change = calendar_error.search("相关记忆已变化") >= 0
+    qr.confirm_clears_preview = calendar_preview == ""
+    qr.confirm_not_pending = !calendar_pending
+    qr.confirm_does_not_rewrite_memory = fs.read("memory.json") == memory_after_correction
+    // A queued preflight holding the original snapshot must reject before mutation.
+    calendar_preview = integration_confirmation.preview
+    let payload = integration_confirmation.preview.parse_json()
+    calendar_execute_approved(integration_confirmation,payload)
+    qr.async_snapshot_no_service_dispatch = integration_calls.len() == call_count
+    qr.async_snapshot_no_action_attempt = actions.to_json() == actions_before
+    qr.async_snapshot_invalidates_approval = calendar_preview == "" && calendar_error.search("批准已失效") >= 0
+    qr.no_external_service = integration_forbidden.len() == 0 && integration_calls.len() == 0
+    fs.write("confirm-observation.json",{approval: integration_confirmation calendar_error: calendar_error actions: actions calls: integration_calls}.to_json())
+    fs.write("probe.json",qr.to_json())
+}
+start_timeout(0.1, || integration_confirm_open())

@@ -1,0 +1,11 @@
+fn memory_pending_probe(){
+    core_boot_memory()
+    let booted = gm_boot()
+    let r = {boot_rejected: !booted disabled: !gm_enabled not_ready: !core_memory_ready}
+    r.no_entries = gm_entries("").len() == 0
+    r.no_context = gm_context("汇报工作","B","").hits.len() == 0
+    r.enable_rejected = !gm_enable(true)
+    fs.write("memory_regression_pending-report.json",r.to_json())
+}
+start_timeout(0.1, || memory_pending_probe())
+View{width: Fill height: Fill Label{text: "未完成遗忘保持停止"}}

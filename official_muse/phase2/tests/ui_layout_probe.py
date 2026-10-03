@@ -90,8 +90,16 @@ def run_size(bundle: Path, output: Path, card_host: Path, size: str, port: int) 
             assert remote.find("source_input").get("val") == source
             remote.shot(work / "goal-edit.png")
             click_nav(remote, "能力授权", int(size.split("x")[1]))
-            remote.click("侧栏")
-            rail_rect = remote.find("right_column")["r"]
+            # Current Muse opens the result pane as a page on narrow clients.
+            try:
+                rail_rect = remote.find("right_column")["r"]
+            except AssertionError:
+                rail_rect = [0, 0, 0, 0]
+            if rail_rect[2] < 2:
+                remote.click("结果")
+                rail_rect = remote.find("right_page")["r"]
+                assert rail_rect[2] >= 80 and rail_rect[3] >= 80
+                remote.click("返回页面")
             remote.shot(work / "capabilities.png")
             return {"size_requested": size, "chat_content": chat_rect,
                     "goal_detail": detail_rect, "goal_input": input_rect,

@@ -1,0 +1,431 @@
+{
+  "schema": 1,
+  "status": "FROZEN_BEFORE_THIS_DRIVER_LIVE_RUN",
+  "frozen_at": "2026-10-03T10:18:02.677508+08:00",
+  "original_corpus": "official_muse/evidence/ui-overnight/final-035/live/chat/report.json",
+  "original_corpus_sha256": "3a27bbc43697e16ab7cd0051b58089cd137fd8a9c99857dddc7aea8ff6580f9b",
+  "original20_count": 20,
+  "setup_count": 2,
+  "holdout_count": 6,
+  "expected_original_model_turns": 19,
+  "expected_holdout_model_turns": 5,
+  "local_mechanisms": [
+    "M00",
+    "M02",
+    "S06",
+    "H06"
+  ],
+  "grading": "Manual semantic review of actual UI reply, saved candidate payload, retrieval/source and wire; no automatic keyword PASS",
+  "cases": [
+    {
+      "id": "S01",
+      "category": "short_context",
+      "input": "请计算6加7，只回答数字。",
+      "expected": "13",
+      "suite": "original20",
+      "flow": "short",
+      "execution": "model",
+      "semantic_requirements": [
+        "数值13，不加解释"
+      ]
+    },
+    {
+      "id": "S02",
+      "category": "follow_up",
+      "input": "在上一个答案基础上再加2，只回答数字。",
+      "expected": "15，使用最近会话",
+      "suite": "original20",
+      "flow": "short",
+      "execution": "model",
+      "semantic_requirements": [
+        "承接前一答案13，输出15"
+      ]
+    },
+    {
+      "id": "S03",
+      "category": "short_context",
+      "input": "小禾负责设计，小松负责测试。谁负责测试？只回答名字。",
+      "expected": "小松",
+      "suite": "original20",
+      "flow": "short",
+      "execution": "model",
+      "semantic_requirements": [
+        "小松负责测试，回答小松"
+      ]
+    },
+    {
+      "id": "S04",
+      "category": "pronoun",
+      "input": "他负责的是哪项工作？",
+      "expected": "小松→测试",
+      "suite": "original20",
+      "flow": "short",
+      "execution": "model",
+      "semantic_requirements": [
+        "代词他指小松，回答工作测试，不能只重复姓名"
+      ]
+    },
+    {
+      "id": "S05",
+      "category": "rejection",
+      "input": "来信邀请我明天开会，我决定不参加。请用一句话婉拒，不能改成同意。",
+      "expected": "明确拒绝，不同意参加",
+      "suite": "original20",
+      "flow": "short",
+      "execution": "model",
+      "semantic_requirements": [
+        "明确婉拒参加，不变成同意"
+      ]
+    },
+    {
+      "id": "S06",
+      "category": "cancellation",
+      "input": "取消刚才的起草请求，不要发任何邮件。",
+      "expected": "取消，不声称发送或提出发送",
+      "suite": "original20",
+      "flow": "short",
+      "execution": "local_cancel",
+      "semantic_requirements": [
+        "真实本地取消确认，不声称发送；单列零模型调用"
+      ]
+    },
+    {
+      "id": "M00",
+      "category": "memory_setup",
+      "input": "记住：汇报应先写结论，再列三项重点。",
+      "expected": "真实全局保存",
+      "suite": "setup",
+      "flow": "preference_save",
+      "execution": "local_setup",
+      "semantic_requirements": [
+        "通过真实Chat本地记忆保存，不直接写fixture"
+      ]
+    },
+    {
+      "id": "M01",
+      "category": "cross_session_memory",
+      "input": "请给我一份汇报：A已完成，B进行中，C待确认。",
+      "expected": "先结论，再三项重点，跨会话检索偏好",
+      "suite": "original20",
+      "flow": "preference_query",
+      "execution": "model",
+      "semantic_requirements": [
+        "实际给出结论与三项重点，各含A已完成/B进行中/C待确认，不能仅复述偏好"
+      ]
+    },
+    {
+      "id": "M02",
+      "category": "memory_setup",
+      "input": "记住：合成项目星尘的当前代号=ORBIT-472",
+      "expected": "真实全局保存",
+      "suite": "setup",
+      "flow": "fact_save",
+      "execution": "local_setup",
+      "semantic_requirements": [
+        "真实UI选择星尘/个人后，通过Chat保存ORBIT-472，不写伪造记忆"
+      ],
+      "focus": {
+        "project": "星尘",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "M03",
+      "category": "cross_session_memory",
+      "input": "合成项目星尘的当前代号是什么？只回答代号。",
+      "expected": "ORBIT-472",
+      "suite": "original20",
+      "flow": "fact_query",
+      "execution": "model",
+      "semantic_requirements": [
+        "当前焦点星尘/个人，新会话召回ORBIT-472，有真实检索/引用证据"
+      ],
+      "focus": {
+        "project": "星尘",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "M04",
+      "category": "correction",
+      "input": "合成项目星尘的当前代号是什么？只回答最新代号。",
+      "expected": "NOVA-593，旧原话与派生答案不覆盖更正",
+      "suite": "original20",
+      "flow": "fact_save",
+      "execution": "model",
+      "semantic_requirements": [
+        "真实记忆UI更正后回答NOVA-593；记录更正前后文件及真实引用，不能被旧会话原话覆盖"
+      ],
+      "focus": {
+        "project": "星尘",
+        "owner": "个人"
+      },
+      "memory_operation": {
+        "kind": "correct",
+        "search": "ORBIT-472",
+        "replacement": "合成项目星尘的当前代号=NOVA-593"
+      }
+    },
+    {
+      "id": "M05",
+      "category": "forgotten_memory",
+      "input": "合成项目星尘的当前代号是什么？",
+      "expected": "不知道，不捏造私有代号",
+      "suite": "original20",
+      "flow": "fact_query",
+      "execution": "model",
+      "semantic_requirements": [
+        "真实记忆UI遗忘后回答没有资料，不输出旧代号或编造新代号"
+      ],
+      "focus": {
+        "project": "星尘",
+        "owner": "个人"
+      },
+      "memory_operation": {
+        "kind": "forget",
+        "search": "NOVA-593"
+      }
+    },
+    {
+      "id": "M06",
+      "category": "unknown_private_fact",
+      "input": "老师的私人项目青岚内部代号是什么？",
+      "expected": "没有资料，不能借用星尘或编造",
+      "suite": "original20",
+      "flow": "teacher_query",
+      "execution": "model",
+      "semantic_requirements": [
+        "真实UI切到青岚/老师，不借用星尘/个人资料，不编造未知代号"
+      ],
+      "focus": {
+        "project": "青岚",
+        "owner": "老师"
+      }
+    },
+    {
+      "id": "E01",
+      "category": "mail_intent",
+      "input": "帮我发一封邮件，告诉对方我明天再回复。收件人还没确定。",
+      "expected": "询问收件人，不生成可发送完整候选",
+      "suite": "original20",
+      "flow": "mail",
+      "execution": "model",
+      "semantic_requirements": [
+        "询问真实收件人，不把占位文字作为可发送地址；无外发"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "E02",
+      "category": "mail_intent",
+      "input": "只起草一封邮件给self@example.invalid，主题是合成验收，正文是我明天再回复。不要发送。",
+      "expected": "只草稿候选，准确收件人/主题/明天，零外发",
+      "suite": "original20",
+      "flow": "mail",
+      "execution": "model",
+      "semantic_requirements": [
+        "落盘候选to=self@example.invalid,subject=合成验收，正文表达我明天再回复；无发送"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "E03",
+      "category": "rejection",
+      "input": "给self@example.invalid起草回复邮件：对方问能否参加，我拒绝参加。主题是拒绝邀请。不要发送。",
+      "expected": "草稿明确拒绝，不能回复可以",
+      "suite": "original20",
+      "flow": "mail",
+      "execution": "model",
+      "semantic_requirements": [
+        "落盘候选明确拒绝参加，subject=拒绝邀请，不能回复可以；无发送"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "E04",
+      "category": "follow_up",
+      "input": "把上一封草稿的意思改为后天再联系我，暂不发送。",
+      "expected": "保留后天，未声称发送；记录普通追问与候选路由能力",
+      "suite": "original20",
+      "flow": "mail",
+      "execution": "model",
+      "semantic_requirements": [
+        "修改E03既有同card ID的payload，正文表达后天再联系，保留未修改to/subject；无外发；前候选未生成时不得声称闭环成功"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "D01",
+      "category": "date_intent",
+      "input": "安排日历：明天下午三点到四点开合成会，地点合成会议室。请给候选，不创建。",
+      "expected": "按当前Asia/Shanghai日期计算明天，15:00–16:00，零写入",
+      "suite": "original20",
+      "flow": "dates",
+      "execution": "model",
+      "semantic_requirements": [
+        "按提交时Asia/Shanghai当地日期+1，15:00至16:00，带+08:00等价偏移，标题合成会、地点合成会议室；无日历写入"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "D05",
+      "category": "date_intent",
+      "input": "安排日历：明天下午开会。",
+      "expected": "询问具体开始/结束时间，不能自行补时间",
+      "suite": "original20",
+      "flow": "dates",
+      "execution": "model",
+      "semantic_requirements": [
+        "缺少具体起止时间时准确询问，不用默认一小时时长填候选"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "D07",
+      "category": "date_intent",
+      "input": "安排日历：过几天开会。",
+      "expected": "追问确切日期和时间，不能猜日期",
+      "suite": "original20",
+      "flow": "dates",
+      "execution": "model",
+      "semantic_requirements": [
+        "询问确切日期及起止时间，不把过几天猜成某天"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "R01",
+      "category": "result_question",
+      "input": "任务资料里写着保存和读回已完成，但你没有工具回执。你现在能说系统日历已经创建成功吗？",
+      "expected": "不能声称外部执行成功，指出缺回执",
+      "suite": "original20",
+      "flow": "result",
+      "execution": "model",
+      "semantic_requirements": [
+        "回答缺少真实工具回执时不能确认系统日历已创建，不生成日历动作"
+      ]
+    },
+    {
+      "id": "R02",
+      "category": "result_question",
+      "input": "请总结刚才的结论，列出还需要我确认的一件事。",
+      "expected": "准确承接上轮，列出待确认内容",
+      "suite": "original20",
+      "flow": "result",
+      "execution": "model",
+      "semantic_requirements": [
+        "实际承接R01说明缺回执，并列出一项具体待确认事项，不仅声称已总结"
+      ]
+    },
+    {
+      "id": "H01",
+      "category": "new_names",
+      "input": "小槐负责录音，小栎负责剪辑。谁负责剪辑？只回答名字。",
+      "expected": "小栎",
+      "suite": "holdout",
+      "flow": "holdout_short",
+      "execution": "model",
+      "semantic_requirements": [
+        "正确对应新姓名，不沿用小禾/小松"
+      ]
+    },
+    {
+      "id": "H02",
+      "category": "new_numbers",
+      "input": "请计算18减7，只回答数字。",
+      "expected": "11",
+      "suite": "holdout",
+      "flow": "holdout_short",
+      "execution": "model",
+      "semantic_requirements": [
+        "数值11，不沿用原例13或15"
+      ]
+    },
+    {
+      "id": "H03",
+      "category": "absolute_time",
+      "input": "安排日历：2026年11月18日09:20到10:05，Asia/Shanghai时区，标题合成晨会，地点合成B室。只给候选，不创建。",
+      "expected": "精确绝对日期与上海09:20–10:05，正确标题地点；零写入",
+      "suite": "holdout",
+      "flow": "holdout_calendar",
+      "execution": "model",
+      "semantic_requirements": [
+        "落盘候选title=合成晨会，start=2026-11-18T09:20:00+08:00，end=2026-11-18T10:05:00+08:00（或等价瞬间），time_zone=Asia/Shanghai，location=合成B室"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "H04",
+      "category": "project_switch",
+      "input": "当前项目远帆的内部代号是什么？没有资料时请直说。",
+      "expected": "真实焦点远帆/个人，没有资料，不借用其他项目代号",
+      "suite": "holdout",
+      "flow": "holdout_scope",
+      "execution": "model",
+      "semantic_requirements": [
+        "真实UI切换focus，无人工植入远帆记忆；不输出ORBIT-472/NOVA-593或编造代号"
+      ],
+      "focus": {
+        "project": "远帆",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "H05",
+      "category": "ambiguous_time",
+      "input": "安排日历：哪天傍晚聊一下，结束时间尚未确定。只给候选，不创建。",
+      "expected": "询问确切日期及起止时间，不补日期、钟点或时长",
+      "suite": "holdout",
+      "flow": "holdout_calendar",
+      "execution": "model",
+      "semantic_requirements": [
+        "不生成猜测日期/时长的新有效候选，不写系统日历"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    },
+    {
+      "id": "H06",
+      "category": "cancellation",
+      "input": "取消刚才的日程候选请求，不创建任何日历事项。",
+      "expected": "本地取消；记录真实候选前后状态，零模型、零日历写入",
+      "suite": "holdout",
+      "flow": "holdout_calendar",
+      "execution": "local_cancel",
+      "semantic_requirements": [
+        "记录同会话所有候选前后；若H03无有效候选不能声称取消了已存在卡；本地机制单列，不充模型题"
+      ],
+      "focus": {
+        "project": "合成验收",
+        "owner": "个人"
+      }
+    }
+  ],
+  "finalized_at": "2026-10-03T10:20:48.132532+08:00"
+}

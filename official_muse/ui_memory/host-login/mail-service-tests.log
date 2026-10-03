@@ -1,0 +1,75 @@
+warning: phone/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/phone/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense_home`
+  * `bin` target `octosense-home`
+warning: `octosense-home` (manifest) generated 1 warning
+warning: desktop/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/desktop/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense`
+  * `bin` target `octosense`
+warning: `octosense` (manifest) generated 1 warning
+   Compiling syn v2.0.119
+   Compiling smallvec v1.16.1
+   Compiling rustls v0.23.44
+   Compiling parking_lot_core v0.9.12
+   Compiling parking_lot v0.12.5
+   Compiling string_cache v0.8.9
+   Compiling ureq v3.4.2
+   Compiling g2gen v1.2.2
+   Compiling phf_macros v0.11.3
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling cssparser-macros v0.6.1
+   Compiling derive_more-impl v2.1.1
+   Compiling match_token v0.35.0
+   Compiling g2p v1.2.2
+   Compiling curve25519-dalek v5.0.0
+   Compiling rqrr v0.10.1
+   Compiling phf v0.11.3
+   Compiling web_atoms v0.1.3
+   Compiling derive_more v2.1.1
+   Compiling cssparser v0.35.0
+   Compiling makepad-platform v2.0.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/makepad/platform)
+   Compiling ed25519-dalek v3.0.0
+   Compiling markup5ever v0.35.0
+   Compiling html5ever v0.35.0
+   Compiling selectors v0.31.0
+   Compiling scraper v0.24.0
+warning: method `update_native_dpi_factor` is never used
+   --> .sources/makepad/platform/src/window.rs:893:19
+    |
+833 | impl CxWindow {
+    | ------------- method in this implementation
+...
+893 |     pub(crate) fn update_native_dpi_factor(&mut self, density: f64) -> Option<(WindowGeom, WindowGeom)> {
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling makepad-draw v2.0.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/makepad/draw)
+   Compiling makepad-ai-services v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/makepad/libs/ai/services)
+   Compiling makepad-widgets v2.0.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/makepad/widgets)
+warning: `makepad-platform` (lib) generated 1 warning
+   Compiling octosense-app-policy v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/app-hub/crates/app-policy)
+   Compiling makepad-app-module v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/makepad/libs/app_module)
+   Compiling octoscript-widgets v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/octoscript-makepad/crates/octoscript-widgets)
+   Compiling octosense-app-hub v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/app-hub/crates/app-hub)
+   Compiling octosense-appstore v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/app-hub/crates/appstore)
+   Compiling octosense-mail-service v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/apps/mail/host-service)
+    Finished `test` profile [optimized + debuginfo] target(s) in 4m 10s
+     Running unittests src/lib.rs (../target/debug/deps/octosense_mail_service-c37617df7f6e660b)
+
+running 13 tests
+test contacts::tests::the_sent_folder_names_whom_the_person_wrote_to ... ok
+test html::tests::mail_html_is_rebuilt_from_safe_tags ... ok
+test imap::tests::a_session_against_a_scripted_server ... ok
+test imap::tests::folder_names_and_responses_parse ... ok
+test imap::tests::gmail_refuses_a_wrong_password_with_a_readable_error ... ignored
+test network::tests::account_rejects_protocol_injection_and_plaintext_modes ... ok
+test network::tests::mime_decodes_encoded_subject_and_multipart_body ... ok
+test tests::an_app_signs_in_on_the_hosts_sheet_and_reads_and_sends_without_the_password ... ok
+test tests::missing_email_does_not_report_an_uneditable_username_error ... ok
+test tests::new_signins_use_trimmed_email_and_ignore_separate_username ... ok
+test tests::signin_sheet_has_no_username_widget_or_binding ... ok
+test vault::tests::a_file_vault_keeps_secrets_owner_only ... ok
+test vault::tests::the_keychain_keeps_a_secret_and_takes_over_an_old_file ... ignored
+
+test result: ok. 11 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

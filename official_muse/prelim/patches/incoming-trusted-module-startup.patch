@@ -1,0 +1,32 @@
+--- a/widgets/src/splash.rs
++++ b/widgets/src/splash.rs
+@@ -278,11 +278,10 @@
+         // unwinding `with_script_vm_id` already restores the outer VM).
+         let mut eval_out = None;
+         crate::widget_async::contain_isolate_panic("app source eval", || {
+-        // The trusted desktop theme can perform substantial first-use work.
+-        // Give it its own normal isolate entry so it cannot consume the app
+-        // body's existing per-entry budget. Both entries retain that budget.
++        // Framework theme registration uses the trusted module entry; the
++        // application body below keeps its existing per-entry script budget.
+         if let Some(sheet)=sheet {
+-            cx.with_script_vm_id(vm_id, |vm| {
++            cx.with_script_vm_id_trusted(vm_id, |vm| {
+                 if crate::desktop_style::current(vm).as_ref()!=Some(&sheet) {
+                     crate::desktop_style::install(vm,sheet);
+                     // Trusted framework themes need their packaged font resolver.
+@@ -299,10 +298,11 @@
+                 }
+             });
+         }
++        // Only host-registered modules for this app's existing grants run here.
++        cx.with_script_vm_id_trusted(vm_id, |vm| {
++            crate::widget_async::apply_granted_isolate_mods(vm);
++        });
+         eval_out = Some(cx.with_script_vm_id(vm_id, |vm| {
+-            // Vocabulary this app's grants entitle it to, now that its policy
+-            // is seated (see `register_splash_isolate_mod_for`).
+-            crate::widget_async::apply_granted_isolate_mods(vm);
+             // Everything on `mod` that is not the body's own; whatever the run
+             // adds beyond this is the body's.
+             let mut known = module_keys(vm);

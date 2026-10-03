@@ -1,0 +1,116 @@
+let relevance = {}
+let relevance_pref = ""
+let relevance_fact = ""
+let relevance_conflict = ""
+fn relevance_store(){
+    core_boot_activity()
+    relevance.core_boot = core_boot_memory()
+    relevance.boot = gm_boot()
+    let text = "汇报应先写结论，再列三项重点。"
+    relevance.preference_saved = gm_save(text,"preference","user","note:" + fs.sha256(text),"fixture-A","","","local")
+    relevance_pref = gm_entries(text)[0].document.id
+    gm_set_focus("演示","本人")
+    let ctx = gm_context("给member@synthetic.test起草邮件，主题是延期，正文是后天答复。不要发送。","fixture-B","")
+    relevance.mail_address_unrelated_absent = ctx.hits.len() == 0
+    ctx = gm_context("给reporter@fixture.invalid起草婉拒邮件，主题是邀请，暂不发送。","fixture-A","")
+    relevance.same_conversation_no_relevance = ctx.hits.len() == 0
+    gm_pin(relevance_pref,true,"local")
+    ctx = gm_context("请在2027年03月31日16:25安排合成晨会，只给候选。","fixture-B","")
+    relevance.date_unrelated_absent = ctx.hits.len() == 0
+    ctx = gm_context("dd31 ff b081 ae c0","fixture-B","")
+    relevance.hash_substrings_absent = ctx.hits.len() == 0
+    ctx = gm_context("user","fixture-B","")
+    relevance.generic_subject_absent = ctx.hits.len() == 0
+    ctx = gm_context("起草邮件  暂不发送","fixture-B","")
+    relevance.empty_keys_no_space_match = ctx.hits.len() == 0
+    ctx = gm_context("请给我一份汇报：甲已完成，乙进行中，丙待确认。","fixture-B","")
+    relevance.report_preference_present = ctx.hits.len() == 1 && ctx.hits[0].id == relevance_pref
+    relevance.preference_refs_intact = ctx.hits[0].revision == 1 && ctx.hits[0].source_ids.len() == 1
+        && ctx.text.search("note:") >= 0 && ctx.text.search("\"subject_id\":\"user\"") >= 0 && ctx.text.search("偏好") >= 0
+    relevance.preference_no_authority = actions.len() == 0 && ctx.text.search("非工具权限") >= 0
+    fs.write("relevance-progress.json",relevance.to_json())
+    start_timeout(0.05, || relevance_facts())
+}
+fn relevance_facts(){
+    relevance.fact_saved = gm_save("OPAL-628","fact","示范星桥","内部代号","fixture-A","演示","本人","local")
+    relevance_fact = gm_entries("OPAL-628")[0].document.id
+    let ctx = gm_context("示范星桥","fixture-B","")
+    relevance.semantic_subject_present = ctx.hits.len() == 1 && ctx.hits[0].id == relevance_fact
+    ctx = gm_context("内部代号","fixture-B","")
+    relevance.semantic_predicate_present = ctx.hits.len() == 1 && ctx.hits[0].id == relevance_fact
+    ctx = gm_context("OPAL-628","fixture-B","")
+    relevance.semantic_value_present = ctx.hits.len() == 1 && ctx.hits[0].id == relevance_fact
+    relevance.fact_refs_intact = ctx.hits[0].revision == 1 && ctx.hits[0].source_ids.len() == 1
+    gm_set_focus("演示","老师")
+    ctx = gm_context("示范星桥内部代号","fixture-B","")
+    relevance.owner_isolation = ctx.hits.len() == 0
+    gm_set_focus("另一项目","本人")
+    ctx = gm_context("OPAL-628","fixture-B","")
+    relevance.project_isolation = ctx.hits.len() == 0
+    gm_set_focus("演示","")
+    ctx = gm_context("示范星桥内部代号","fixture-B","")
+    relevance.partial_scope_isolation = ctx.hits.len() == 0
+    gm_set_focus("演示","本人")
+    let profile = gm_user_id gm_user_id = "user:fixture-foreign"
+    ctx = gm_context("OPAL-628","fixture-B","")
+    relevance.profile_isolation = ctx.hits.len() == 0
+    gm_user_id = profile
+    fs.write("relevance-progress.json",relevance.to_json())
+    start_timeout(0.05, || relevance_internal_keys())
+}
+fn relevance_internal_keys(){
+    relevance.internal_key_saved = gm_save("温度稳定","fact","goal:123456","note:" + fs.sha256("温度稳定"),"fixture-A","演示","本人","local")
+    let entry = gm_entries("温度稳定")[0]
+    relevance.internal_subject_no_score = gm_score(entry,"123456","fixture-B","") == 0
+    relevance.explicit_goal_association = gm_score(entry,"无关查询","fixture-B","goal:123456") >= 30
+    relevance.internal_value_still_semantic = gm_score(entry,"温度稳定","fixture-B","") > 0
+    relevance.hash_subject_saved = gm_save("亮度适中","fact",fs.sha256("亮度适中"),"表达","fixture-A","演示","本人","local")
+    entry = gm_entries("亮度适中")[0]
+    relevance.hash_subject_no_score = gm_score(entry,fs.sha256("亮度适中"),"fixture-B","") == 0
+    relevance.semantic_note_saved = gm_save("会议规模适中","fact","小组","note:会议","fixture-A","演示","本人","local")
+    entry = gm_entries("会议规模适中")[0]
+    relevance.semantic_note_retained = gm_score(entry,"note:会议","fixture-B","") > 0
+    fs.write("relevance-progress.json",relevance.to_json())
+    start_timeout(0.05, || relevance_accounts())
+}
+fn relevance_accounts(){
+    relevance.account_granted = gm_set_accounts(["fixture-account"])
+    relevance.account_saved = gm_save("授权账号资料","fact","账户","账号内容","fixture-A","演示","本人","fixture-account")
+    gm_set_accounts([])
+    let ctx = gm_context("授权账号资料","fixture-B","")
+    relevance.account_isolation = ctx.text.search("授权账号资料") < 0
+    gm_set_accounts(["fixture-account"])
+    ctx = gm_context("授权账号资料","fixture-B","")
+    relevance.authorized_account_present = ctx.text.search("授权账号资料") >= 0
+    fs.write("relevance-progress.json",relevance.to_json())
+    start_timeout(0.05, || relevance_literal_values())
+}
+fn relevance_literal_values(){
+    relevance.contact_fact_saved = gm_save("联系member@synthetic.test，约在2028-09-22讨论","fact","联系安排","预约时间","fixture-A","演示","本人","local")
+    let entry = gm_entries("联系member@")[0]
+    relevance.real_address_value_retained = gm_score(entry,"member@synthetic.test","fixture-B","") > 0
+    relevance.real_date_value_retained = gm_score(entry,"2028-09-22","fixture-B","") > 0
+    relevance.hash_value_saved = gm_save(fs.sha256("合成内容编号"),"fact","样本","内容编号","fixture-A","演示","本人","local")
+    entry = gm_entries(fs.sha256("合成内容编号"))[0]
+    relevance.hash_value_retained = gm_score(entry,fs.sha256("合成内容编号"),"fixture-B","") > 0
+    fs.write("relevance-progress.json",relevance.to_json())
+    start_timeout(0.05, || relevance_conflicts())
+}
+fn relevance_conflicts(){
+    relevance.conflict_saved = gm_save("JADE-935","fact","示范星桥","内部代号","fixture-C","演示","本人","local")
+    relevance_conflict = gm_entries("JADE-935")[0].document.id
+    let ctx = gm_context("OPAL-628","fixture-B","")
+    relevance.old_value_conflict = ctx.requires_resolution && ctx.conflicts.len() > 0
+    ctx = gm_context("JADE-935","fixture-B","")
+    relevance.new_value_conflict = ctx.requires_resolution && ctx.conflicts.len() > 0
+    relevance.correction = gm_correct(relevance_conflict,"TOPAZ-714","local","fixture-D")
+    ctx = gm_context("示范星桥内部代号","fixture-B","")
+    relevance.corrected_value_only = !ctx.requires_resolution && ctx.text.search("TOPAZ-714") >= 0
+        && ctx.text.search("OPAL-628") < 0 && ctx.text.search("JADE-935") < 0
+    let i = core_memory_index(relevance_conflict,"local")
+    relevance.history_preserved = memory[i].history.len() == 1 && memory[i].history[0].payload.value == "JADE-935"
+    relevance.context_bounded = ctx.bytes <= 2200 && ctx.hits.len() <= 6 && ctx.text.to_chars().len() <= 2200
+    fs.write("memory_relevance-report.json",relevance.to_json())
+}
+start_timeout(0.1, || relevance_store())
+View{width: Fill height: Fill Label{text: "记忆相关性 fixture"}}

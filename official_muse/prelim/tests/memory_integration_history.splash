@@ -1,0 +1,59 @@
+let hr = {} let integration_winner = "" let integration_loser = "" let integration_old_reply = nil
+fn integration_message(role,text,project,owner){
+    return {role: role text: text project: project owner: owner state: "success" at: time_now()}.to_json().parse_json()
+}
+fn integration_history(){
+    core_boot_memory() hr.boot = gm_boot()
+    gm_set_focus("云帆","本人")
+    let entries = [integration_message("user","潮汐私人资料仪器K7","潮汐","本人")
+        integration_message("assistant","潮汐仪器K7","潮汐","本人")
+        integration_message("user","云帆当前问句","云帆","本人")]
+    let history = chat_model_history(entries)
+    hr.recent_cross_project_hidden = history.turns.to_json().search("K7") < 0
+    entries[0].project = "云帆" entries[0].owner = "老师"
+    entries[1].project = "云帆" entries[1].owner = "老师"
+    history = chat_model_history(entries)
+    hr.recent_cross_owner_hidden = history.turns.to_json().search("K7") < 0
+    gm_set_focus("","")
+    history = chat_model_history(entries)
+    hr.blank_focus_project_history_hidden = history.turns.to_json().search("K7") < 0
+    gm_set_focus("云帆","本人")
+    entries = [integration_message("user","潮汐远期私人资料K7","潮汐","本人")
+        integration_message("assistant","潮汐远期回复K7","潮汐","本人")]
+    for i in 3 {
+        entries.push(integration_message("user","云帆问句" + i,"云帆","本人"))
+        entries.push(integration_message("assistant","云帆回复" + i,"云帆","本人"))
+    }
+    entries.push(integration_message("user","云帆现在问句","云帆","本人"))
+    history = chat_model_history(entries)
+    hr.earlier_cross_project_hidden = history.earlier.search("K7") < 0
+    hr.same_scope_history_preserved = history.turns.to_json().search("云帆问句") >= 0
+    messages = entries
+    hr.legacy_earlier_function_scope_closed = chat_earlier_context(6).search("K7") < 0
+    chat_sessions = [{id: "integration:history" focus_project: "云帆" focus_owner: "本人" goal_id: "goal:tide" proposals: []}]
+    goals = [{id: "goal:tide" project_id: "潮汐" owner_id: "本人" archived: false version: 1 status: "planned" goal: "潮汐任务私人资料K7"}]
+    hr.bound_goal_cross_project_hidden = chat_task_focus("integration:history").search("K7") < 0
+    let old_user = integration_message("user","潮汐已授权读到的设备为K7","潮汐","本人")
+    hr.first_saved = gm_save("设备=J4","fact","user","设备","integration","潮汐","本人","local")
+    hr.second_saved = gm_save("设备=K7","fact","user","设备","integration","潮汐","本人","local")
+    integration_winner = gm_entries("J4")[0].document.id integration_loser = gm_entries("K7")[0].document.id
+    let loser = memory[core_memory_index(integration_loser,"local")].document
+    integration_old_reply = integration_message("assistant","设备为K7","潮汐","本人")
+    integration_old_reply.memory_refs = [{id: loser.id revision: loser.revision account: "local" source_ids: loser.payload.source_ids}]
+    hr.original_reply_valid = chat_reply_context_valid(integration_old_reply)
+    fs.write("history-progress.json",hr.to_json())
+    start_timeout(0.05, || integration_history_correct())
+}
+fn integration_history_correct(){
+    gm_set_focus("潮汐","本人")
+    hr.corrected = gm_correct(integration_winner,"设备=Q8","local","integration")
+    let ctx = gm_context("设备","integration","")
+    hr.memory_correction_decided = ctx.conflicts.len() == 0 && ctx.hits.len() == 1 && ctx.text.search("Q8") >= 0
+    hr.adjudicated_reply_invalidated = !chat_reply_context_valid(integration_old_reply)
+    let entries = [integration_message("user","设备的旧说法","潮汐","本人") integration_old_reply
+        integration_message("user","现在设备是什么","潮汐","本人")]
+    hr.adjudicated_reply_history_hidden = chat_model_history(entries).turns.to_json().search("K7") < 0
+    hr.no_external_calls = integration_calls.len() == 0 && integration_forbidden.len() == 0
+    fs.write("probe.json",hr.to_json())
+}
+start_timeout(0.1, || integration_history())

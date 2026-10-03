@@ -1,0 +1,29 @@
+let calls = [] let started = 0
+fn incoming_fixture_request(service,args,cb){
+    calls.push({service: service at: time_now()})
+    if service == "mail.accounts" {cb({is_ok: true data: [{id: "A" address: "a@example.invalid"}]}) return}
+    if service == "mail.sync" {cb({is_ok: true data: {new: 0 total: 0}}) return}
+    if service == "mail.list" {cb({is_ok: true data: {messages: [] total: 0}}) return}
+    cb({is_ok: false error: "No model or external writes permitted"})
+}
+fn probe(){
+    notification_enabled = false started = time_now() mail_watch_boot()
+    start_timeout(65.0,|| finish())
+}
+fn finish(){
+    let polls = 0 let models = 0 let writes = 0 let gap = 0 let last = 0
+    for call in calls {
+        if call.service == "mail.accounts" {
+            polls = polls + 1
+            if last > 0 { gap = call.at-last } last = call.at
+        }
+        if call.service == "model.complete" {models = models+1}
+        if call.service == "mail.send" || call.service == "calendar.create" {writes = writes+1}
+    }
+    fs.write("probe.json",{real_elapsed_seconds: time_now()-started polls: polls last_poll_gap_seconds: gap
+        observed_at_least_65_seconds: time_now()-started >= 65
+        thirty_second_schedule: polls == 3 && gap >= 29 && gap < 35
+        idle_model_calls_zero: models == 0 idle_writes_zero: writes == 0
+        idle_no_alerts: mail_watch.alerts.len() == 0 calls: calls}.to_json())
+}
+start_timeout(0.1,|| probe())

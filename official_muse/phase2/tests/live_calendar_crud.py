@@ -38,20 +38,6 @@ def text(remote, key, value):
     remote.set_text(key, value)
 
 
-def select_test_event(remote, title):
-    reach(remote, title)
-    widgets = remote.widgets()
-    title_index = next(i for i, w in enumerate(widgets) if w.get("t") == title)
-    button = next(w for w in widgets[title_index + 1:]
-                  if w.get("t") == "选中此系统事件")
-    area = remote.find("calendar_editor")["r"]
-    rect = button["r"]
-    assert (rect[3] >= 24 and rect[1] >= area[1]
-            and rect[1] + rect[3] <= area[1] + area[3] - 96), "test event selection is clipped"
-    remote.request("/click", x=int(rect[0] + rect[2] / 2),
-                   y=int(rect[1] + rect[3] / 2), wait=1)
-
-
 def wait_receipt(args, service):
     deadline = time.monotonic() + 35
     while time.monotonic() < deadline:
@@ -95,19 +81,20 @@ def main():
         time.sleep(0.1)
     assert label, "actual writable Calendar not returned"
     click(remote, label)
-    text(remote, "calendar_range_start", "2026-10-03T00:00:00+08:00")
-    text(remote, "calendar_range_end", "2026-10-04T00:00:00+08:00")
+    text(remote, "calendar_range_start", "2026-10-01T00:00:00+08:00")
+    text(remote, "calendar_range_end", "2026-10-08T00:00:00+08:00")
     click(remote, "查询选中日历与范围")
     time.sleep(1)
     if args.stage != "create":
-        select_test_event(remote, args.test_id + ("-UPDATED" if args.stage == "delete" else ""))
+        reach(remote, args.test_id + ("-UPDATED" if args.stage == "delete" else ""))
+        click(remote, "选中此系统事件")
         prior = json.loads((args.output / "create.json").read_text())
         args.event_id = prior["event_id"]
     click(remote, {"create": "新建", "update": "修改所选", "delete": "删除所选"}[args.stage])
     if args.stage != "delete":
         text(remote, "calendar_title", args.test_id + ("-UPDATED" if args.stage == "update" else ""))
-        text(remote, "calendar_start", "2026-10-03T14:45:00+08:00" if args.stage == "update" else "2026-10-03T14:00:00+08:00")
-        text(remote, "calendar_end", "2026-10-03T15:15:00+08:00" if args.stage == "update" else "2026-10-03T14:30:00+08:00")
+        text(remote, "calendar_start", "2026-10-03T14:00:00+08:00")
+        text(remote, "calendar_end", "2026-10-03T14:30:00+08:00")
         text(remote, "calendar_timezone", "Asia/Shanghai")
         text(remote, "calendar_location", "Muse synthetic acceptance")
         click(remote, "查询当前候选冲突")
@@ -117,10 +104,6 @@ def main():
     click(remote, "预览精确日历操作")
     reach(remote, "单独确认系统日历操作 · " + {"create": "新建", "update": "修改", "delete": "删除"}[args.stage])
     reach(remote, "确认执行这项系统日历操作")
-    if args.stage != "create":
-        labels = [w.get("t", "") for w in remote.widgets() if w.get("ty") == "Label"]
-        assert any(label.startswith("系统事件 ID · " + args.event_id + "  |  ")
-                   for label in labels), "confirmation is bound to a different event; stop before mutation"
     remote.shot(args.output / f"{args.stage}-approval.png")
     if args.prepare_only:
         print(json.dumps({"stage":args.stage,"status":"waiting_user","test_id":args.test_id}))

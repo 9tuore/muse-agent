@@ -1,0 +1,12 @@
+fn memory_migration_probe(){
+    let original = fs.read("memory.json")
+    core_boot_memory()
+    let booted = gm_boot()
+    let r = {boot: booted count: memory.len() sources: memory_sources.len() tombs: memory_forget.len()}
+    r.snapshot_exact = fs.exists("memory.pre-global.json") && fs.read("memory.pre-global.json") == original
+    r.retrieved = gm_context("旧式合成项目资料","B","").hits.len() == 1
+    r.scope_added = memory[0].document["scope"].user_id == gm_user_id
+    fs.write("memory_migration-report.json",r.to_json())
+}
+start_timeout(0.1, || memory_migration_probe())
+View{width: Fill height: Fill Label{text: "记忆复制迁移"}}

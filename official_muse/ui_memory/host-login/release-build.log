@@ -1,0 +1,25 @@
+warning: desktop/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/desktop/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense`
+  * `bin` target `octosense`
+warning: `octosense` (manifest) generated 1 warning
+warning: phone/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/phone/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense_home`
+  * `bin` target `octosense-home`
+warning: `octosense-home` (manifest) generated 1 warning
+warning: method `update_native_dpi_factor` is never used
+   --> .sources/makepad/platform/src/window.rs:893:19
+    |
+833 | impl CxWindow {
+    | ------------- method in this implementation
+...
+893 |     pub(crate) fn update_native_dpi_factor(&mut self, density: f64) -> Option<(WindowGeom, WindowGeom)> {
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `makepad-platform` (lib) generated 1 warning
+   Compiling octosense-app-hub-app v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/.sources/app-hub/crates/app-hub-app)
+   Compiling octosense-mail-service v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/apps/mail/host-service)
+   Compiling octosense-shell v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/crates/shell)
+   Compiling octosense v0.1.0 (/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense/desktop)
+    Finished `release` profile [optimized] target(s) in 1m 34s

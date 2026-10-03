@@ -1,0 +1,16 @@
+--- a/widgets/src/splash.rs
++++ b/widgets/src/splash.rs
+@@ -279,10 +279,10 @@
+         let mut eval_out = None;
+         crate::widget_async::contain_isolate_panic("app source eval", || {
+         // The trusted desktop theme can perform substantial first-use work.
+-        // Give it its own normal isolate entry so it cannot consume the app
+-        // body's existing per-entry budget. Both entries retain that budget.
++        // Register host-selected framework themes through the trusted entry;
++        // app source below and app events retain their per-entry budgets.
+         if let Some(sheet)=sheet {
+-            cx.with_script_vm_id(vm_id, |vm| {
++            cx.with_script_vm_id_trusted(vm_id, |vm| {
+                 if crate::desktop_style::current(vm).as_ref()!=Some(&sheet) {
+                     crate::desktop_style::install(vm,sheet);
+                     // Trusted framework themes need their packaged font resolver.

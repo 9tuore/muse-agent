@@ -1,0 +1,24 @@
+fn memory_lifecycle_forgotten_probe(){
+    core_boot_memory()
+    let boot = gm_boot()
+    let r = {boot: boot}
+    let ids = fs.read("lifecycle-ids.json").parse_json()
+    let i = core_memory_index(ids.first,"local") let j = core_memory_index(ids.second,"local")
+    let old_j = core_source_index(ids.old_source,"local")
+    r.deleted_history_empty = memory[i].document.payload.deleted && memory[i].history.len() == 0 && memory[i].source_history.len() == 0
+    r.source_sanitized = memory_sources[old_j].support_excerpt == ""
+    gm_set_focus("夜航","用户")
+    let ctx = gm_context("夜航镜像","附件会话E","")
+    r.surviving_pin_restored = memory[j].pinned && ctx.hits.len() == 1 && ctx.hits[0].id == ids.second
+    let old = gm_forgotten_text("记住：夜航镜像甲版","local")
+    let current = gm_forgotten_text("记住：夜航镜像甲修订","local")
+    r.retired_both_after_restart = old && current
+    let before = fs.read("memory.json")
+    let rejected = !gm_import(fs.read("lifecycle-before-forget.json"))
+    r.old_export_blocked = rejected && before == fs.read("memory.json")
+    let saved = gm_save("夜航镜像甲修订","fact","另一记录","版本","附件会话E","夜航","用户","local")
+    r.reindex_blocked = !saved && before == fs.read("memory.json")
+    fs.write("memory_regression_lifecycle_forgotten-report.json",r.to_json())
+}
+start_timeout(0.1, || memory_lifecycle_forgotten_probe())
+View{width: Fill height: Fill Label{text: "合成附件遗忘后重启防复活"}}

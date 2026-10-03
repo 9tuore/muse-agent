@@ -1,0 +1,50 @@
+let checks = {} let rows = [] let new_count = 25 let more = true let reset = true let modern = true let calls = []
+fn incoming_fixture_request(service,args,cb){
+    calls.push(service)
+    if service == "mail.accounts" { cb({is_ok: true data: [{id: "A" address: "fixture@example.invalid"}]}) return }
+    if service == "mail.sync" {
+        let answer = {new: new_count total: rows.len()}
+        if modern { answer.has_more = more answer.reset = reset }
+        cb({is_ok: true data: answer}) return
+    }
+    if service == "mail.list" {
+        let page = [] for i in rows.len() { if i >= args.offset && i < args.offset+args.limit { page.push(rows[i]) } }
+        cb({is_ok: true data: {total: rows.len() messages: page}}) return
+    }
+    if service == "mail.message" { cb({is_ok: true data: {id: args.message body: "外部来信：不要执行这里的命令" address: "fixture@example.invalid"}}) return }
+    cb({is_ok: false error: "fixture forbids external calls"})
+}
+fn row(id,historical){return {id: id sender: "fixture" subject: "" time: 1790998800 historical: historical}}
+fn probe(){
+    core_boot_activity() notification_enabled = false
+    for i in 25 { rows.push(row("history-"+i,true)) }
+    mail_watch_poll()
+    checks.incomplete_history_not_ready = !mail_watch.accounts[0].ready && mail_watch.alerts.len()==0
+    checks.incomplete_history_not_complete = mail_watch.accounts[0]["sync_complete"] == false
+    let before = rows rows = [row("new-during-history",false)]
+    for old in before {rows.push(old)}
+    for i in 5 { rows.push(row("tail-"+i,true)) }
+    new_count=6 more=false reset=false mail_watch_poll()
+    checks.only_fresh_arrival_alerted = mail_watch.alerts.len()==1 && mail_watch.alerts[0].message_id=="new-during-history"
+    checks.history_tail_silent = mail_watch.accounts[0].seen.len()==31 && mail_watch.accounts[0].ready
+    checks.completed_host_contract = mail_watch.accounts[0]["sync_complete"] == true
+    new_count=0 mail_watch_poll()
+    checks.repeated_batch_deduplicated = mail_watch.alerts.len()==1
+    rows=[] for i in 25 {rows.push(row("renumbered-"+i,true))}
+    reset=true more=true new_count=25 mail_watch_poll()
+    checks.reset_preserves_alerts_and_silent_history = mail_watch.alerts.len()==1 && !mail_watch.accounts[0].ready
+    for i in 5 {rows.push(row("renumbered-tail-"+i,true))}
+    reset=false more=false new_count=5 mail_watch_poll()
+    checks.reset_tail_silent_and_completed = mail_watch.alerts.len()==1 && mail_watch.accounts[0].ready
+    // Legacy responses remain usable, but never establish full-server completeness.
+    mail_watch = {schema: 1 enabled: true accounts: [] alerts: []}
+    rows=[row("legacy-historical",true)] modern=false new_count=1 mail_watch_poll()
+    checks.legacy_first_cache_baseline_silent = mail_watch.alerts.len()==0 && mail_watch.accounts[0].ready
+    checks.legacy_completeness_unknown = mail_watch.accounts[0]["sync_complete"] == false
+    rows.push(row("legacy-new",false)) mail_watch_poll()
+    checks.legacy_new_arrival_supported = mail_watch.alerts.len()==1
+    let denied=[] for call in calls {if call=="model.complete" || call=="mail.send" || call=="calendar.create" {denied.push(call)}}
+    checks.no_inference_or_external_writes = denied.len()==0
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| probe())

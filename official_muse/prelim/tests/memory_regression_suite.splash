@@ -1,0 +1,189 @@
+let mr = {}
+let mid = ""
+let m_old_export = ""
+fn memory_stage_one(){
+    let boot_a = core_boot_activity()
+    let boot_b = core_boot_memory()
+    mr.core_boot = boot_a && boot_b
+    let result_gm_boot = gm_boot()
+    mr.gm_boot = result_gm_boot
+    let result_M01_saved = gm_save("汇报先给结论，再列三项重点","preference","用户","汇报偏好","A","","","local")
+    mr.M01_saved = result_M01_saved
+    let ctx = gm_context("请汇报工作","B","")
+    mr.M01_cross_session = ctx.hits.len() == 1 && ctx.text.search("三项重点") >= 0
+    let result_M02_saved = gm_save("星舟项目使用蓝色推进器","fact","星舟项目","推进器","A","星舟","用户","local")
+    mr.M02_saved = result_M02_saved
+    fs.write("memory-progress.json",mr.to_json())
+    let entries = gm_entries("星舟")
+    mid = entries[0].document.id
+    gm_set_focus("星舟","用户")
+    ctx = gm_context("星舟项目推进器","B","")
+    mr.M02_fact_source = ctx.hits.len() == 1 && ctx.hits[0].source_ids.len() == 1 && ctx.text.search("蓝色推进器") >= 0
+    gm_pin(mid,true,"local")
+    gm_set_focus("月桥","用户")
+    ctx = gm_context("月桥项目汇报","B","")
+    mr.M03_focus = ctx.text.search("蓝色推进器") < 0 && ctx.text.search("三项重点") >= 0
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_correction_stage())
+}
+fn memory_correction_stage(){
+    let ctx = {}
+    gm_set_focus("星舟","用户")
+    let result_M04_corrected = gm_correct(mid,"星舟项目使用银色推进器","local","B")
+    mr.M04_corrected = result_M04_corrected
+    ctx = gm_context("星舟项目推进器","A","")
+    let idx = core_memory_index(mid,"local")
+    mr.M04_current_history = ctx.text.search("银色推进器") >= 0 && ctx.text.search("蓝色推进器") < 0
+        && memory[idx].history.len() == 1 && memory[idx].history[0].payload.value.search("蓝色") >= 0
+    let retired = gm_retired_text("记住：星舟项目使用蓝色推进器","local")
+    mr.M04_retired_chat = retired
+    m_old_export = gm_export()
+    fs.write("before-forget-export.json",m_old_export)
+    start_timeout(0.05, || memory_forget_stage())
+}
+fn memory_forget_stage(){
+    let ctx = {}
+    let result_M05_forget = gm_forget(mid,"local")
+    mr.M05_forget = result_M05_forget
+    ctx = gm_context("星舟项目推进器","C","")
+    let result_M05_hidden = ctx.hits.len() == 0 && gm_entries("星舟").len() == 0
+    mr.M05_hidden = result_M05_hidden
+    let result_M05_old_new_hash = gm_forgotten_text("星舟项目使用银色推进器","local") && gm_forgotten_text("星舟项目使用蓝色推进器","local")
+    mr.M05_old_new_hash = result_M05_old_new_hash
+    let result_M05_chat_prefix = gm_forgotten_text("记住：星舟项目使用蓝色推进器","local") && gm_forgotten_text("记住: 星舟项目使用银色推进器","local")
+    mr.M05_chat_prefix = result_M05_chat_prefix
+    let result_M05_save_blocked = !gm_save("星舟项目使用蓝色推进器","fact","另一个id","另一谓词","C","星舟","用户","local")
+    mr.M05_save_blocked = result_M05_save_blocked
+    let before = fs.read("memory.json")
+    let result_M05_import_blocked = !gm_import(m_old_export) && before == fs.read("memory.json")
+    mr.M05_import_blocked = result_M05_import_blocked
+    mr.M05_snapshot_clean = fs.read("memory.json").search("蓝色推进器") < 0 && fs.read("memory.backup.json").search("银色推进器") < 0
+    let result_stage_one_error = gm_error
+    mr.stage_one_error = result_stage_one_error
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_stage_two())
+}
+fn memory_stage_two(){
+    let result_M06_own = gm_save("晓岚拥有一台白色望远镜","fact","晓岚","资产","A","天文","用户","local")
+    mr.M06_own = result_M06_own
+    let result_M06_teacher = gm_save("晓岚拥有一台金色望远镜","fact","晓岚","资产","B","天文","老师","local")
+    mr.M06_teacher = result_M06_teacher
+    gm_set_focus("天文","用户")
+    let ctx = gm_context("晓岚的望远镜","C","")
+    mr.M06_owner = ctx.text.search("白色望远镜") >= 0 && ctx.text.search("金色望远镜") < 0 && ctx.text.search("用户") >= 0
+    gm_set_focus("天文","老师")
+    ctx = gm_context("晓岚的望远镜","A","")
+    mr.M06_teacher_source = ctx.text.search("金色望远镜") >= 0 && ctx.text.search("白色望远镜") < 0
+    gm_set_focus("","")
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_auth())
+}
+fn memory_auth(){
+    let ctx = {}
+    let result_M07_account_denied = !gm_save("另一账号秘密测试代号","fact","账号","代号","A","账户验证","用户","private-account")
+    mr.M07_account_denied = result_M07_account_denied
+    gm_set_accounts(["private-account"])
+    let result_M07_account_saved = gm_save("另一账号授权测试代号","fact","账号","代号","A","账户验证","用户","private-account")
+    mr.M07_account_saved = result_M07_account_saved
+    gm_set_accounts([])
+    ctx = gm_context("账号授权测试代号","B","")
+    let result_M07_account_hidden = ctx.text.search("另一账号授权测试代号") < 0 && gm_export().search("另一账号授权测试代号") < 0
+    mr.M07_account_hidden = result_M07_account_hidden
+    gm_set_focus("天文","用户")
+    let local_user = gm_user_id gm_user_id = "user:other"
+    ctx = gm_context("晓岚望远镜","C","")
+    mr.M07_user_hidden = ctx.hits.len() == 0
+    gm_user_id = local_user
+    let ac = actions.len()
+    ctx = gm_context("汇报","B","")
+    mr.M07_no_authority = actions.len() == ac && ctx.text.search("非工具权限") >= 0
+    let result_stop = gm_enable(false)
+    mr.stop = result_stop
+    let result_M07_stop_save = !gm_save("暂停期间的记忆","fact","用户","测试","A","","","local")
+    mr.M07_stop_save = result_M07_stop_save
+    let result_M07_stop_context = gm_context("汇报","B","").hits.len() == 0
+    mr.M07_stop_context = result_M07_stop_context
+    gm_enable(true)
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_conflict())
+}
+fn memory_conflict(){
+    gm_set_focus("天文","用户")
+    let ctx = {}
+    let result_conflict_saved = gm_save("晓岚拥有一台紫色望远镜","fact","晓岚","资产","D","天文","用户","local")
+    mr.conflict_saved = result_conflict_saved
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_conflict_show())
+}
+fn memory_conflict_show(){
+    let ctx = gm_context("晓岚望远镜","B","")
+    mr.conflicts_visible = ctx.conflicts.len() > 0
+    let mine = gm_entries("紫色望远镜") let other = gm_entries("白色望远镜")
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_conflict_decide())
+}
+fn memory_conflict_decide(){
+    let mine = gm_entries("紫色望远镜") let other = gm_entries("白色望远镜")
+    let result_conflict_resolved = gm_resolve(mine[0].document.id,other[0].document.id,"local")
+    mr.conflict_resolved = result_conflict_resolved
+    let ctx = gm_context("晓岚望远镜","B","")
+    mr.conflict_resolution = ctx.conflicts.len() == 0 && ctx.text.search("白色望远镜") < 0 && ctx.text.search("紫色望远镜") >= 0
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_stage_three())
+}
+let memory_roundtrip_raw = ""
+fn memory_stage_three(){
+    memory_roundtrip_raw = gm_export()
+    let valid = gm_validate(memory_roundtrip_raw.parse_json(),false)
+    mr.M11_export_schema = valid
+    let imported = gm_import(memory_roundtrip_raw)
+    mr.M11_idempotent_import = imported
+    fs.write("memory-roundtrip.json",gm_export())
+    let entries = gm_entries("汇报")
+    mr.M12_same_authority = entries[0].document.to_json() == memory[0].document.to_json()
+    fs.write("memory-progress.json",mr.to_json())
+    start_timeout(0.05, || memory_import_cases(0))
+}
+fn memory_import_cases(n){
+    let bad = memory_roundtrip_raw.parse_json()
+    let key = ""
+    if n == 0 { bad.claims = {} key = "import_array_shape" }
+    if n == 1 { bad.claims[0].document.revision = "1" key = "import_revision_type" }
+    if n == 2 { bad.claims[0].document.payload.deleted = "false" key = "import_bool_type" }
+    if n == 3 { bad.claims[0].document.payload.epistemic_type = "instruction" key = "import_epistemic" }
+    if n == 4 { bad.sources[0].locator = "forged:locator" key = "import_source_collision" }
+    if n == 5 { bad.sources.push(bad.sources[0]) key = "import_batch_duplicate" }
+    if n == 6 { bad.sources[0]["scope"].user_id = "user:other" key = "import_user_denied" }
+    if n == 7 { bad.sources[0]["scope"].account = "unauthorized" key = "import_account_denied" }
+    if n == 8 { bad.claims[0].document.payload.relations.push({kind: "contradicts" target_id: "missing-memory"}) key = "import_dangling_relation" }
+    if n == 9 { bad.claims[0].document.payload.execution_permission = true key = "import_unknown_key" }
+    if n == 10 { bad.claims[0].history = [bad.claims[0].document] key = "import_invalid_history" }
+    if n == 12 { bad.sources[0].observed_at = "2026-10-03T03:00:00" key = "import_source_timezone_required" }
+    if n == 13 { bad.claims[0].document.created_at = "2025-02-29T03:00:00Z" key = "import_civil_date_invalid" }
+    if n == 14 { bad.claims[0].document.payload.valid_from = "2026-02-30T03:00:00+08:00" key = "import_valid_from_invalid" }
+    if n == 15 { bad.claims[0].document.payload.valid_until = "2026-10-03T24:00:00Z" key = "import_valid_until_invalid" }
+    if n == 16 { bad.sources[0]["scope"].project_id = "异项目" key = "import_source_project_mismatch" }
+    if n == 17 { bad.sources[0]["scope"].owner_id = "老师" key = "import_source_owner_mismatch" }
+    if n == 18 { bad.claims[0].source_history.push("source:missing") key = "import_history_source_missing" }
+    if n == 19 { bad.claims[0].pinned = "true" key = "import_pin_bool_invalid" }
+    let raw = bad.to_json()
+    if n == 20 { raw = raw + "{}" key = "import_trailing_json" }
+    if n == 21 {
+        raw = "{\"schema\":1,\"schema\":1,\"user_id\":" + bad.user_id.to_json()
+            + ",\"claims\":" + bad.claims.to_json() + ",\"sources\":" + bad.sources.to_json() + ",\"forget\":" + bad.forget.to_json() + "}"
+        key = "import_duplicate_field"
+    }
+    if n == 11 { raw = "{malformed" key = "import_broken_json" }
+    let before = fs.read("memory.json")
+    let rejected = !gm_import(raw)
+    mr[key] = rejected && before == fs.read("memory.json")
+    fs.write("memory-progress.json",mr.to_json())
+    if n < 21 { start_timeout(0.03, || memory_import_cases(n+1)) return }
+    mr.M10 = "large database probe executed separately"
+    mr.M08 = "main.splash async probe executed separately"
+    mr.M09 = "restart executed separately"
+    mr.M12_UI = "actual UI visual executor"
+    fs.write("memory_regression_suite-report.json",mr.to_json())
+}
+start_timeout(0.1, || memory_stage_one())
+View{width: Fill height: Fill Label{text: "全局记忆合成验收"}}

@@ -1,0 +1,26 @@
+// Explicit minute precision is formatting, never an invented date/time/offset.
+fn probe(){
+    fixture_seed() chat_boot() gm_boot()
+    let c = {}
+    c.shanghai_exact = chat_calendar_full_time("2030-06-12T09:15+08:00") == "2030-06-12T09:15:00+08:00"
+    c.negative_offset_kept = chat_calendar_full_time("2030-06-12T09:15-05:00") == "2030-06-12T09:15:00-05:00"
+    c.utc_kept = chat_calendar_full_time("2030-06-12T09:15Z") == "2030-06-12T09:15:00Z"
+    c.seconds_not_changed = chat_calendar_full_time("2030-06-12T09:15:37+08:00") == "2030-06-12T09:15:37+08:00"
+    c.no_offset_not_guessed = chat_calendar_full_time("2030-06-12T09:15") == "2030-06-12T09:15"
+    c.missing_not_guessed = chat_calendar_full_time("") == "" && chat_calendar_full_time(nil) == nil
+    let body = {title: "完整合成标题" start: "2030-06-12T09:15+08:00" end: "2030-06-12T10:05+08:00" time_zone: "Asia/Shanghai" location: "完整合成地点"}
+    let formed = chat_add_proposal(chat_selected_id,"minute-fixture","","请安排日历2030-06-12上午09:15到10:05。",{intent: "calendar_candidate" proposal: body})
+    let si = chat_session_index(chat_selected_id)
+    let p = chat_sessions[si].proposals[0].payload
+    c.accepted_after_normalizing = formed && p.start == "2030-06-12T09:15:00+08:00" && p.end == "2030-06-12T10:05:00+08:00"
+    c.no_title_or_location_rewrite = p.title == body.title && p.location == body.location && p.time_zone == body.time_zone
+    body.start = "2030-02-30T09:15+08:00"
+    c.invalid_date_still_rejected = !chat_add_proposal(chat_selected_id,"minute-bad-date","","请安排日历2030-02-30上午09:15到10:05。",{intent: "calendar_candidate" proposal: body})
+    body.start = "2030-06-12T25:15+08:00"
+    c.invalid_clock_still_rejected = !chat_add_proposal(chat_selected_id,"minute-bad-clock","","请安排日历2030-06-12上午09:15到10:05。",{intent: "calendar_candidate" proposal: body})
+    body.start = "2030-06-12T10:15+08:00"
+    c.reverse_interval_still_rejected = !chat_add_proposal(chat_selected_id,"minute-reversed","","请安排日历2030-06-12上午10:15到10:05。",{intent: "calendar_candidate" proposal: body})
+    c.no_external_actions = actions.len() == 0 && fixture_writes == 0 && goals.len() == 0
+    fs.write("probe.json",c.to_json())
+}
+start_timeout(0.1, || probe())

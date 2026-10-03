@@ -1,0 +1,26 @@
+let calls = [] let rows = [{id: "history" sender: nil subject: "" time: 1790998800}]
+fn incoming_fixture_request(service,args,cb){
+    calls.push(service)
+    if service == "mail.accounts" {cb({is_ok: true data: [{id: "A" address: "a@example.invalid"}]}) return}
+    if service == "mail.sync" {cb({is_ok: true data: {new: 0 total: rows.len()}}) return}
+    if service == "mail.list" {cb({is_ok: true data: {messages: rows total: rows.len()}}) return}
+    if service == "mail.message" {cb({is_ok: true data: {id: args.message body: "合成重启正文" address: "sender@example.invalid"}}) return}
+    cb({is_ok: false error: "No inference or external writes permitted"})
+}
+fn probe(){
+    core_boot_activity() notification_enabled = false
+    if fs.exists("restart-seeded.json") {
+        rows.push({id: "new" sender: nil subject: "" time: 1790998801})
+        let before = activity.len() mail_watch_boot()
+        let model = false let send = false
+        for call in calls {if call == "model.complete" {model = true} if call == "mail.send" {send = true}}
+        fs.write("probe.json",{actual_second_process_restored: mail_watch.alerts.len() == 1
+            && mail_watch.alerts[0].message_id == "new" && mail_watch.alerts[0].source_body == "合成重启正文"
+            no_duplicate_event: activity.len() == before no_model_or_send: !model && !send}.to_json())
+    } else {
+        mail_watch_boot() rows.push({id: "new" sender: nil subject: "" time: 1790998801}) mail_watch_poll()
+        fs.write("restart-seeded.json","true")
+        fs.write("probe.json",{first_process_arrival: mail_watch.alerts.len() == 1}.to_json())
+    }
+}
+start_timeout(0.1,|| probe())

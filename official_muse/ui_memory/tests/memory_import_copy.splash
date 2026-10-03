@@ -1,0 +1,14 @@
+fn memory_import_copy_probe(){
+    core_boot_memory()
+    gm_boot()
+    let raw = fs.read("import-fixture.json")
+    let imported = gm_import(raw)
+    let r = {imported: imported error: gm_error count: memory.len()}
+    let ctx = gm_context("汇报工作","B","")
+    r.preference = ctx.text.search("三项重点") >= 0
+    r.tombs = memory_forget.len() > 0
+    r.authority = fs.read("memory.json") == core_last_memory
+    fs.write("memory_import_copy-report.json",r.to_json())
+}
+start_timeout(0.1, || memory_import_copy_probe())
+View{width: Fill height: Fill Label{text: "记忆导出再导入"}}

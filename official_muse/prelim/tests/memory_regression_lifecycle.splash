@@ -1,0 +1,66 @@
+// Synthetic attachment-like data. No Host services, real account or action.
+let lifecycle = {}
+let lc_first = "" let lc_second = "" let lc_old_sid = ""
+fn memory_lifecycle_store(){
+    core_boot_memory()
+    let boot = gm_boot()
+    lifecycle.boot = boot
+    let first = gm_save("夜航镜像甲版","fact","夜航镜像","版本甲","附件会话A","夜航","用户","local")
+    lifecycle.first_stored = first
+    let first_entries = gm_entries("夜航镜像甲版")
+    lc_first = first_entries[0].document.id
+    lc_old_sid = first_entries[0].document.payload.source_ids[0]
+    let j = core_source_index(lc_old_sid,"local")
+    let src = memory_sources[j]
+    lifecycle.source_value_hash = src.content_sha256 == fs.sha256("夜航镜像甲版") && src.support_excerpt == "夜航镜像甲版"
+    lifecycle.source_time = gm_time_valid(src.observed_at) && src.observed_at == first_entries[0].document.payload.observed_at
+    lifecycle.source_scope = src["scope"].user_id == gm_user_id && src["scope"].project_id == "夜航" && src["scope"].owner_id == "用户"
+    lifecycle.source_locator = src.locator == "conversation:附件会话A" && first_entries[0].document.origin.ref == "附件会话A"
+    let second = gm_save("夜航镜像乙版","fact","夜航镜像","版本乙","附件会话A","夜航","用户","local")
+    lifecycle.second_stored = second
+    lc_second = gm_entries("夜航镜像乙版")[0].document.id
+    gm_set_focus("夜航","用户")
+    let ctx = gm_context("夜航镜像","附件会话B","")
+    lifecycle.cross_session_retrieved = ctx.hits.len() == 2 && ctx.text.search("夜航镜像甲版") >= 0 && ctx.text.search("夜航镜像乙版") >= 0
+    lifecycle.authority_readback = fs.read("memory.json") == core_last_memory
+    start_timeout(0.05, || memory_lifecycle_update())
+}
+fn memory_lifecycle_update(){
+    let corrected = gm_correct(lc_first,"夜航镜像甲修订","local","附件会话B")
+    lifecycle.corrected = corrected
+    let i = core_memory_index(lc_first,"local")
+    let doc = memory[i].document
+    let old_source = memory_sources[core_source_index(lc_old_sid,"local")]
+    lifecycle.revision_source_chain = doc.revision == 2 && memory[i].history.len() == 1 && memory[i].source_history.len() == 2
+        && doc.payload.source_ids[0] != lc_old_sid && old_source.content_sha256 == fs.sha256("夜航镜像甲版")
+        && memory[i].history[0].payload.source_ids[0] == lc_old_sid
+    lifecycle.time_chain = doc.created_at == memory[i].history[0].created_at
+        && doc.updated_at == doc.payload.observed_at && gm_time_valid(doc.updated_at)
+    gm_set_focus("夜航","用户")
+    let ctx = gm_context("夜航镜像","附件会话C","")
+    lifecycle.current_context = ctx.text.search("夜航镜像甲修订") >= 0 && ctx.text.search("夜航镜像甲版") < 0
+    let pinned = gm_pin(lc_second,true,"local")
+    lifecycle.pinned = pinned
+    ctx = gm_context("夜航镜像","附件会话C","")
+    lifecycle.pin_rank = ctx.hits[0].id == lc_second && memory[core_memory_index(lc_second,"local")].pinned
+    gm_set_focus("温室","用户")
+    ctx = gm_context("夜航镜像","附件会话C","")
+    lifecycle.pin_no_cross_project = ctx.hits.len() == 0
+    gm_set_focus("夜航","老师")
+    ctx = gm_context("夜航镜像","附件会话C","")
+    lifecycle.pin_no_cross_owner = ctx.hits.len() == 0
+    gm_set_focus("","")
+    let before = fs.read("memory.json")
+    let denied = !gm_correct(lc_first,"越账号修改","ungranted","附件会话C")
+    lifecycle.account_mutation_denied = denied && before == fs.read("memory.json")
+    let user = gm_user_id gm_user_id = "user:other"
+    let pin_denied = !gm_pin(lc_second,false,"local")
+    let forget_denied = !gm_forget(lc_first,"local")
+    gm_user_id = user
+    lifecycle.profile_mutation_denied = pin_denied && forget_denied && before == fs.read("memory.json")
+    fs.write("lifecycle-before-forget.json",gm_export())
+    fs.write("lifecycle-ids.json",{first: lc_first second: lc_second old_source: lc_old_sid}.to_json())
+    fs.write("memory_regression_lifecycle-report.json",lifecycle.to_json())
+}
+start_timeout(0.1, || memory_lifecycle_store())
+View{width: Fill height: Fill Label{text: "合成附件记忆完整生命周期"}}

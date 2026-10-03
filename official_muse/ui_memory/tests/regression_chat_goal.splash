@@ -1,0 +1,41 @@
+// Goal visibility belongs to Chat; durable global Goal history is retained.
+fn probe(){
+    fixture_seed() chat_boot() gm_boot() gm_set_focus("合成验收","个人")
+    let a = chat_selected_id
+    ui.goal_input.set_text("合成会话A目标") ui.source_input.set_text("ORBIT合成资料")
+    make_plan()
+    let id = task.id
+    let path = task.result_path
+    let run_id = core_start_run(id,1,"fixture-approved-local")
+    let artifact = {schema: 1 task_id: id run_id: run_id count: 1 model_summary: ""
+        items: [{text: "ORBIT合成资料"}]}
+    fs.mkdir("results") fs.write(path,artifact.to_json())
+    let finished = core_finish_run(id,run_id,"completed",path)
+    chat_restore_goal_view() set_page("Chat")
+    let original = finished && chat_shows_goal() && result != nil && result.task_id == id
+        && chat_sessions[chat_session_index(a)].goal_id == id
+    let goals_raw = fs.read("goals.json")
+    let result_raw = fs.read(path)
+    let calls = fixture_calls.len()
+    chat_new_session()
+    let b = chat_selected_id
+    let blank = b != a && messages.len() == 0 && !chat_shows_goal()
+        && chat_sessions[chat_session_index(b)].goal_id == ""
+    let retained = fs.read("goals.json") == goals_raw && fs.read(path) == result_raw
+        && goals.len() == 1 && runs.len() == 1 && runs[0].status == "completed" && actions.len() == 0
+    chat_select_session(a)
+    let back = chat_shows_goal() && task.id == id && result != nil && result.to_json() == result_raw
+    chat_select_session(b)
+    let again = !chat_shows_goal() && messages.len() == 0
+    // This is production function recovery, not a process restart claim.
+    chat_sessions = [] messages = [] task = nil result = nil goals = [] runs = [] actions = []
+    core_boot_goals() chat_boot() chat_restore_goal_view() set_page("Chat")
+    let recovered_empty = chat_selected_id == b && !chat_shows_goal() && fixture_calls.len() == calls
+    chat_select_session(a)
+    let recovered_original = chat_shows_goal() && result != nil && result.to_json() == result_raw
+        && goals.len() == 1 && runs.len() == 1 && actions.len() == 0 && fixture_calls.len() == calls
+    fs.write("probe.json",{original_goal_bound: original new_session_hides_old_goal: blank global_goal_artifact_retained: retained
+        switch_original_restores_result: back switch_empty_hides_again: again recovery_empty_no_resend: recovered_empty
+        recovery_original_result_no_resend: recovered_original boundary: "Synthetic artifact and approved local Run; function recovery only. Visible process restart is separate."}.to_json())
+}
+start_timeout(0.1,|| probe())

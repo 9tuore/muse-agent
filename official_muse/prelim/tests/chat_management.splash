@@ -1,0 +1,83 @@
+// Actual production functions and isolated fs; no real inference or external actions.
+let management_checks = {}
+let management_memory = ""
+let management_sources = ""
+let management_goals = ""
+let management_first = ""
+let management_second = ""
+let management_old_ids = []
+fn management_seed(){
+    fixture_seed() chat_boot() gm_boot()
+    management_first = chat_selected_id
+    chat_sessions[0].title = "删除目标甲"
+    chat_sessions[0].focus_project = "项目甲" chat_sessions[0].focus_owner = "个人"
+    chat_save()
+    chat_new_session() management_second = chat_selected_id
+    chat_sessions[1].title = "保留目标乙"
+    chat_sessions[1].focus_project = "项目乙" chat_sessions[1].focus_owner = "老师"
+    chat_save()
+    management_checks.memory_seeded = gm_save("汇报时先写结论","preference","user","汇报偏好",management_first,"","","local")
+    management_memory = fs.read("memory.json") management_sources = memory_sources.to_json()
+    management_goals = goals.to_json()
+    start_timeout(0.05, || management_fill())
+}
+fn management_fill(){
+    for i in 2 { if chat_sessions.len() < 16 { chat_new_session() } }
+    if chat_sessions.len() < 16 { start_timeout(0.05, || management_fill()) return }
+    for session in chat_sessions { management_old_ids.push(session.id) }
+    start_timeout(0.05, || management_full())
+}
+fn management_full(){
+    let before = fs.read("chat-sessions.json") let selected = chat_selected_id
+    sidebar_open = false
+    management_checks.capacity_no_silent_delete = !chat_new_session() && chat_sessions.len() == 16
+        && fs.read("chat-sessions.json") == before && chat_selected_id == selected
+    management_checks.capacity_actionable_chinese = ui_error.search("16 个对话") >= 0
+        && ui_error.search("删除") >= 0 && ui_error.search("会话") < 0 && sidebar_open
+    chat_request_delete(management_first)
+    management_checks.request_does_not_delete_or_switch = chat_delete_pending == management_first
+        && chat_selected_id == selected && fs.read("chat-sessions.json") == before
+    chat_delete_pending = "" chat_delete_session()
+    management_checks.cancel_keeps_sixteen = chat_sessions.len() == 16 && fs.read("chat-sessions.json") == before
+    chat_request_delete(management_first)
+    chat_select_session(management_second)
+    management_checks.confirmation_remains_bound_after_switch = chat_delete_pending == management_first
+        && chat_selected_id == management_second
+    chat_delete_session()
+    let saved = fs.read("chat-sessions.json")
+    management_checks.noncurrent_delete_preserves_selection = chat_sessions.len() == 15
+        && chat_session_index(management_first) < 0 && chat_selected_id == management_second
+        && gm_project == "项目乙" && gm_owner == "老师"
+    management_checks.primary_backup_remove_only_target = saved == fs.read("chat-sessions.backup.json")
+        && saved.search(management_first) < 0 && saved.search(management_second) >= 0 && chat_state_valid(saved.parse_json())
+    management_checks.global_memory_and_tasks_preserved = fs.read("memory.json") == management_memory
+        && memory_sources.to_json() == management_sources && goals.to_json() == management_goals
+    management_checks.new_after_delete_works = chat_new_session() && chat_sessions.len() == 16 && chat_selected_id != management_second
+    let restarted = chat_boot()
+    management_checks.deleted_stays_deleted_after_boot = restarted && chat_sessions.len() == 16
+        && chat_session_index(management_first) < 0 && fs.read("memory.json") == management_memory
+    chat_delete_pending = management_first
+    let before_stale = fs.read("chat-sessions.json") chat_delete_session()
+    management_checks.stale_confirmation_no_other_delete = chat_delete_pending == "" && chat_sessions.len() == 16
+        && fs.read("chat-sessions.json") == before_stale
+    chat_ready = false chat_request_delete(management_second) chat_delete_session()
+    management_checks.readonly_no_delete = chat_delete_pending == "" && fs.read("chat-sessions.json") == before_stale
+    chat_ready = true
+    start_timeout(0.05, || management_clear())
+}
+fn management_clear(){
+    chat_request_delete(chat_selected_id) chat_delete_session()
+    if chat_sessions.len() > 1 { start_timeout(0.05, || management_clear()) return }
+    let old_last = chat_selected_id
+    chat_request_delete(old_last) chat_delete_session()
+    management_checks.last_delete_creates_blank = chat_sessions.len() == 1 && chat_selected_id != old_last
+        && messages.len() == 0 && gm_project == "" && gm_owner == ""
+    management_checks.last_delete_primary_backup_match = fs.read("chat-sessions.json") == fs.read("chat-sessions.backup.json")
+    let no_calls = fixture_calls.len() chat_boot()
+    management_checks.restart_blank_no_model_or_external = messages.len() == 0 && fixture_calls.len() == no_calls
+    let context = gm_context("汇报结论",chat_selected_id,"")
+    management_checks.global_preference_after_all_deletions = fs.read("memory.json") == management_memory
+        && memory_sources.to_json() == management_sources && context.hits.len() == 1
+    fs.write("probe.json",management_checks.to_json())
+}
+start_timeout(0.1, || management_seed())

@@ -1,0 +1,110 @@
+// Candidate cards are persisted in their request's session, never action approvals.
+// Pending execution against the controller's frozen source, not current GM.
+fn proposal_storage_checks(){
+    // Original schema1 session: no proposals or project/owner focus fields.
+    let legacy = "{\"schema\":1,\"selected_id\":\"fixture-legacy\",\"sessions\":[{\"id\":\"fixture-legacy\",\"title\":\"旧版合成会话\",\"created_at\":1,\"updated_at\":2,\"messages\":[] }]}".parse_json()
+    let before = legacy.to_json()
+    let legacy_ok = chat_state_valid(legacy)
+    let valid = legacy.to_json().parse_json()
+    valid.sessions[0].focus_project = "ORBIT"
+    valid.sessions[0].focus_owner = "fixture-owner"
+    valid.sessions[0].proposals = [{id: "fixture-request" session_id: "fixture-legacy" account_id: ""
+        action: "calendar_candidate" state: "candidate"
+        payload: {to: "" subject: "" body: "" title: "合成日程" start: "" end: ""
+            time_zone: "Asia/Shanghai" location: "" objective: "" source: ""}}]
+    let valid_ok = chat_state_valid(valid)
+    let malformed = true
+    for i in 8 {
+        let bad = valid.to_json().parse_json()
+        if i == 0 { bad.sessions[0].proposals[0].id = "" }
+        if i == 1 { bad.sessions[0].proposals[0].account_id = 3 }
+        if i == 2 { bad.sessions[0].proposals[0].action = "execute_external_action" }
+        if i == 3 { bad.sessions[0].proposals[0].state = "in_flight" }
+        if i == 4 { bad.sessions[0].proposals[0].payload = [] }
+        if i == 5 { bad.sessions[0].proposals[0].payload.body = nil }
+        if i == 6 { bad.sessions[0].proposals[0].payload.start = 3 }
+        if i == 7 { bad.sessions[0].proposals = {} }
+        if chat_state_valid(bad) { malformed = false }
+    }
+    let bad_session = valid.to_json().parse_json()
+    bad_session.sessions[0].proposals[0].session_id = "fixture-other-session"
+    let cross_session = !chat_state_valid(bad_session)
+    let duplicate = valid.to_json().parse_json()
+    duplicate.sessions[0].proposals.push(duplicate.sessions[0].proposals[0].to_json().parse_json())
+    let duplicate_rejected = !chat_state_valid(duplicate)
+    let bad_focus = valid.to_json().parse_json()
+    bad_focus.sessions[0].focus_project = []
+    let project_rejected = !chat_state_valid(bad_focus)
+    bad_focus = valid.to_json().parse_json()
+    bad_focus.sessions[0].focus_owner = 3
+    let focus_rejected = project_rejected && !chat_state_valid(bad_focus)
+    // Exercise actual boot migration in this isolated fixture store, then restore
+    // the preceding candidate test state. No calls or proposals may execute.
+    let live = fs.read("chat-sessions.json")
+    let calls_before_boot = fixture_calls.len()
+    let wrote_legacy = fs.write("chat-sessions.json",before) == nil
+    let legacy_boot = wrote_legacy && chat_boot()
+    let migrated = fs.read("chat-sessions.json").parse_json()
+    let legacy_restored = legacy_boot && chat_selected_id == "fixture-legacy" && messages.len() == 0
+        && chat_state_valid(migrated) && migrated.sessions[0].proposals.len() == 0
+        && migrated.sessions[0].focus_project == "" && migrated.sessions[0].focus_owner == ""
+        && fixture_calls.len() == calls_before_boot
+    let restored_live = fs.write("chat-sessions.json",live) == nil && chat_boot()
+    return {legacy_schema1_without_new_fields: legacy_ok added_fields_valid: valid_ok
+        malformed_proposal_rejected: malformed cross_session_stored_proposal_rejected: cross_session
+        duplicate_stored_proposal_id_rejected: duplicate_rejected invalid_focus_fields_rejected: focus_rejected
+        legacy_validation_read_only: before == legacy.to_json() legacy_boot_additive_no_dispatch: legacy_restored
+        original_candidate_store_restored: restored_live && chat_state_valid(fs.read("chat-sessions.json").parse_json())}
+}
+fn probe(){
+    fixture_seed()
+    chat_boot()
+    gm_boot()
+    let a = chat_selected_id
+    ui.goal_input.set_text("请准备明天15点到16点的合成日程候选，先不要写系统日历。")
+    send_chat()
+    let callback_a = fixture_queue[0]
+    chat_new_session()
+    let b = chat_selected_id
+    ui.goal_input.set_text("请起草一封合成邮件，先不要发送。")
+    send_chat()
+    let callback_b = fixture_queue[1]
+    callback_a({is_ok: true data: {output: {title: "ORBIT合成讨论" start: "2026-10-04T15:00:00+08:00" end: "2026-10-04T16:00:00+08:00"
+            time_zone: "Asia/Shanghai" location: "合成会议室"}}})
+    let ai = chat_session_index(a)
+    let bi = chat_session_index(b)
+    let bound = chat_sessions[ai].proposals.len() == 1 && chat_sessions[bi].proposals.len() == 0
+        && chat_sessions[ai].proposals[0].session_id == a && messages.len() == 1
+    let card_id = chat_sessions[ai].proposals[0].id
+    let no_auto = fixture_writes == 0 && actions.len() == 0 && goals.len() == 0 && page == "Chat"
+    chat_apply_proposal(card_id)
+    let wrong_session = chat_sessions[ai].proposals[0].state == "candidate" && fixture_writes == 0
+    chat_stop()
+    let memory_before = memory.to_json()
+    callback_b({is_ok: true data: {output: {to: "sender@example.invalid" subject: "不得采用" body: "不得写入"}}})
+    let cancelled = chat_sessions[bi].proposals.len() == 0 && memory.to_json() == memory_before && fixture_writes == 0
+    let saved = fs.read("chat-sessions.json").parse_json()
+    let persisted = saved.sessions[ai].proposals[0].id == card_id && saved.sessions[ai].proposals[0].state == "candidate"
+    let before_boot = fixture_calls.len()
+    chat_boot()
+    let reboot = fixture_calls.len() == before_boot && chat_sessions[ai].proposals[0].state == "candidate"
+        && fixture_writes == 0 && actions.len() == 0
+    chat_select_session(a)
+    chat_apply_proposal(card_id)
+    let form_only = calendar_form_open && ui.calendar_title.text() == "ORBIT合成讨论"
+        && ui.calendar_start.text() == "2026-10-04T15:00:00+08:00" && calendar_preview == ""
+        && fixture_writes == 0 && actions.len() == 0 && chat_sessions[ai].proposals[0].state == "opened"
+    let calls_after_open = fixture_calls.len()
+    chat_apply_proposal(card_id)
+    let duplicate = fixture_calls.len() == calls_after_open && fixture_writes == 0
+    let neutral_rejected = !chat_add_proposal(a,"synthetic-unrelated","","2加3是多少？",
+        {intent: "mail_compose" proposal: {to: "sender@example.invalid" body: "不应产生动作候选"}})
+    let checks = proposal_storage_checks()
+    checks += {candidate_bound_to_original: bound candidate_does_not_execute: no_auto
+        other_session_cannot_open: wrong_session cancelled_candidate_no_card_or_memory: cancelled
+        independent_candidate_readback: persisted candidate_boot_no_external_action: reboot
+        open_only_populates_unapproved_form: form_only duplicate_open_ignored: duplicate
+        unrelated_intent_rejected: neutral_rejected}
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1, || probe())

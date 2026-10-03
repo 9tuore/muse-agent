@@ -1,0 +1,25 @@
+let budget_booted = false
+fn memory_budget_boot(){
+    core_boot_memory()
+    budget_booted = gm_boot()
+    fs.write("memory-budget-stage.json",{boot: budget_booted error: gm_error}.to_json())
+    start_timeout(0.05, || memory_budget_wait())
+}
+fn memory_budget_wait(){
+    if gm_boot_pending { start_timeout(0.05, || memory_budget_wait()) return }
+    budget_booted = gm_ready
+    start_timeout(0.05, || memory_budget_probe())
+}
+fn memory_budget_probe(){
+    let booted = budget_booted
+    gm_set_focus("星尘","用户")
+    let ctx = gm_context("预算星尘记录","B","")
+    let r = {boot: booted count: memory.len() bytes: ctx.bytes hits: ctx.hits.len()}
+    r.bounded = ctx.bytes <= 2200 && ctx.text.to_chars().len() <= 2200 && ctx.hits.len() <= 6 && ctx.hits.len() > 0
+    r.truncated = ctx.truncated && gm_last_trace.reasons.len() > 0
+    r.trace = gm_last_trace.hits.to_json() == ctx.hits.to_json() && gm_last_trace.bytes == ctx.bytes
+    r.unrelated_absent = ctx.text.search("望远镜") < 0
+    fs.write("memory_regression_budget-report.json",r.to_json())
+}
+start_timeout(0.1, || memory_budget_boot())
+View{width: Fill height: Fill Label{text: "记忆有界上下文"}}

@@ -1,0 +1,62 @@
+let checks = {} let calls = [] let queued = [] let defer_body = false let fresh = false
+fn incoming_fixture_request(service,args,cb){
+    calls.push(service)
+    if service == "mail.accounts" { cb({is_ok: true data: [{id: "A" address: "a@example.invalid"}]}) return }
+    if service == "mail.sync" { cb({is_ok: true data: {new: 0}}) return }
+    if service == "mail.list" {
+        let rows = [] if fresh { rows.push({id: "new" sender: nil subject: "" time: 1790998800}) }
+        cb({is_ok: true data: {total: rows.len() messages: rows}}) return
+    }
+    if service == "mail.message" {
+        if defer_body { queued.push(cb) return }
+        cb({is_ok: true data: {id: args.message body: "合成" address: "sender@example.invalid"}}) return
+    }
+    cb({is_ok: false error: "Synthetic transport denies service"})
+}
+fn count_calls(service){let n = 0 for c in calls {if c == service {n = n + 1}} return n}
+fn probe(){
+    core_boot_activity() notification_enabled = false mail_watch_poll()
+    fresh = true defer_body = true mail_watch_poll()
+    let n = count_calls("mail.message") mail_watch_poll()
+    queued[0]({is_ok: true data: {id: "new" body: "慢正文仍属于同一账号" address: "sender@example.invalid"}})
+    checks.slow_body_survives_empty_poll = mail_watch.alerts[0]["source_body"] == "慢正文仍属于同一账号"
+        && count_calls("mail.message") == n
+    // Make a new uncached alert and revoke access while its read is pending.
+    mail_watch.alerts.push({key: "A:revoked" account_id: "A" message_id: "revoked" sender: nil subject: "" date: ""
+        status: "new" intent: "" request_id: "" draft_intent: ""})
+    mail_watch_focus = "A:revoked" mail_watch_read_body("A:revoked")
+    let body_reply = queued[1] mail_accounts = []
+    body_reply({is_ok: true data: {id: "revoked" body: "不应保存的撤权正文" address: "sender@example.invalid"}})
+    checks.revoked_late_body_not_saved = mail_watch.alerts[1]["source_body"] == nil
+    checks.revoked_alerts_hidden_retained = mail_watch_current() == nil && mail_watch_pending() == 0 && mail_watch.alerts.len() == 2
+    mail_accounts = [{id: "A" address: "a@example.invalid"}]
+    mail_watch_read_body("A:revoked")
+    queued[2]({is_ok: true data: {id: "wrong-id" body: "错邮件" address: "sender@example.invalid"}})
+    checks.wrong_message_body_not_saved = mail_watch.alerts[1]["source_body"] == nil && mail_watch.alerts[1].body_error != ""
+    mail_watch_read_body("A:revoked")
+    let old = queued[3] mail_watch_toggle() mail_watch_toggle()
+    let index = queued.len()-1
+    old({is_ok: true data: {id: "revoked" body: "旧读取" address: "sender@example.invalid"}})
+    checks.pause_resume_old_body_not_saved = mail_watch.alerts[1]["source_body"] == nil
+    queued[index]({is_ok: true data: {id: "revoked" body: "新读取" address: "sender@example.invalid"}})
+    checks.pause_resume_new_body_saved = mail_watch.alerts[1]["source_body"] == "新读取"
+    start_timeout(0.03,|| shapes())
+}
+fn shapes(){
+    let state = mail_watch.to_json().parse_json() let rejected = true
+    for i in 7 {
+        let bad = state.to_json().parse_json()
+        if i == 0 { bad.accounts = "not-array" }
+        if i == 1 { bad.enabled = 1 }
+        if i == 2 { bad.alerts[0].key = "B:new" }
+        if i == 3 { bad.alerts.push(bad.alerts[0].to_json().parse_json()) }
+        if i == 4 { bad.alerts[0].source_body = {} }
+        if i == 5 { bad.accounts[0].seen = [1] }
+        if i == 6 { bad.alerts[0].draft = {account: "B" to: "x@example.invalid" subject: "" body: "" status: "DRAFT"} }
+        if mail_watch_state_valid(bad) { rejected = false }
+    }
+    checks.malformed_shapes_rejected = rejected && mail_watch_state_valid(state)
+    checks.no_model_send_calendar = count_calls("model.complete") == 0 && count_calls("mail.send") == 0 && count_calls("calendar.create") == 0
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| probe())

@@ -1,0 +1,21 @@
+fn memory_restart_probe(){
+    core_boot_memory()
+    let booted = gm_boot()
+    let profile = fs.read("global-memory-settings.json").parse_json()
+    let r = {boot: booted profile_id: gm_user_id count: memory.len()}
+    r.profile_restored = gm_user_id == profile.user_id
+    let ctx = gm_context("汇报工作","new-conversation","")
+    r.preference_restored = ctx.text.search("三项重点") >= 0
+    ctx = gm_context("星舟推进器","A","")
+    r.forgotten_hidden = ctx.hits.len() == 0 && gm_forgotten_text("记住：星舟项目使用蓝色推进器","local")
+    let entries = gm_entries("紫色望远镜")
+    r.owner_restored = entries.len() == 1 && entries[0].document["scope"].owner_id == "用户"
+    let raw = gm_export()
+    r.unauthorized_absent = raw.search("另一账号授权测试代号") < 0
+    r.deleted_preserved = memory_forget.len() > 0
+    let valid = gm_validate(raw.parse_json(),false)
+    r.export_valid = valid
+    fs.write("memory_restart-report.json",r.to_json())
+}
+start_timeout(0.1, || memory_restart_probe())
+View{width: Fill height: Fill Label{text: "记忆重启恢复"}}

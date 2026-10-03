@@ -1,0 +1,41 @@
+let pr = {}
+fn integration_preferences(){
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    pr.boot = gm_boot() pr.chat_boot = chat_boot()
+    let first = chat_selected_id
+    ui.goal_input.set_text("记住：偏好：回答时先给要点") send_chat()
+    let prefs = gm_entries("先给要点")
+    pr.preference_global_scope = prefs.len() == 1 && prefs[0].memory_type == "preference"
+        && prefs[0].document["scope"].project_id == "" && prefs[0].document["scope"].owner_id == ""
+    chat_new_session()
+    pr.new_session_created = chat_selected_id != first
+    gm_set_focus("潮汐","本人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = "潮汐"
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = "本人"
+    pr.project_saved = gm_save("仪器=R5","fact","user","仪器",chat_selected_id,"潮汐","本人","local")
+    let ctx = gm_context("先给要点 仪器",chat_selected_id,"")
+    pr.preference_with_own_project = ctx.text.search("先给要点") >= 0 && ctx.text.search("R5") >= 0
+    gm_set_focus("云帆","老师")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = "云帆"
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = "老师"
+    ctx = gm_context("先给要点 仪器",chat_selected_id,"")
+    pr.preference_cross_session_project = ctx.text.search("先给要点") >= 0 && ctx.text.search("R5") < 0
+    let legacy = [{role: "user" text: "旧无标签会话原话" state: "success" at: time_now()}
+        {role: "assistant" text: "旧无标签会话回复" state: "success" at: time_now() memory_refs: []}
+        {role: "user" text: "当前请求" state: "success" at: time_now()}]
+    let history = chat_model_history(legacy)
+    pr.legacy_history_project_closed = history.turns.len() == 0 && history.earlier.search("旧无标签") < 0
+    gm_set_focus("","")
+    ctx = gm_context("先给要点 仪器",chat_selected_id,"")
+    pr.preference_blank_scope_only = ctx.text.search("先给要点") >= 0 && ctx.text.search("R5") < 0
+    history = chat_model_history(legacy)
+    pr.legacy_history_blank_preserved = history.turns.len() == 2
+    muse_model_request("先给要点",chat_selected_id,"",|| true,{task: "合成偏好查询" messages: [] class: "fast"},fn(r){})
+    let payload = integration_calls[integration_calls.len()-1].payload
+    pr.preference_user_context = payload.messages[payload.messages.len()-1].content.search("先给要点") >= 0
+    pr.preference_not_task = payload.task.search("先给要点") < 0 && payload.task.len() < 4096
+    pr.no_external_service = integration_forbidden.len() == 0
+    fs.write("preference-payloads.json",integration_calls.to_json())
+    fs.write("probe.json",pr.to_json())
+}
+start_timeout(0.1, || integration_preferences())

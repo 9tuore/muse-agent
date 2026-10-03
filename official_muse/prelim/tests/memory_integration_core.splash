@@ -1,0 +1,66 @@
+let cr = {} let integration_saved_id = ""
+fn integration_doc(source,id,value){
+    let now = source.observed_at
+    return {schema_version: "muse.dsl/1" kind: "memory" id: id revision: 1 created_at: now updated_at: now
+        origin: {type: "user" ref: "integration"} "scope": source["scope"]
+        payload: {subject_id: "user" predicate: "设备" value: value epistemic_type: "user_statement"
+            source_ids: [source.source_id] observed_at: now valid_from: nil valid_until: nil relations: [] deleted: false}}.to_json().parse_json()
+}
+fn integration_core_start(){
+    core_boot_memory() cr.boot = gm_boot()
+    cr.saved = gm_save("设备=K7","fact","user","设备","integration","潮汐","本人","local")
+    integration_saved_id = gm_entries("K7")[0].document.id
+    let original = memory_sources[0].to_json().parse_json()
+    let before = fs.read("memory.json")
+    cr.source_repeat_same_scope = core_add_source(original) && before == fs.read("memory.json")
+    let other = original.to_json().parse_json() other["scope"].project_id = "云帆"
+    let denied = !core_add_source(other)
+    cr.source_repeat_cross_project_closed = denied && before == fs.read("memory.json")
+    other = original.to_json().parse_json() other["scope"].owner_id = "老师"
+    denied = !core_add_source(other)
+    cr.source_repeat_cross_owner_closed = denied && before == fs.read("memory.json")
+    other = original.to_json().parse_json() other["scope"].user_id = "user:other"
+    denied = !core_add_source(other)
+    cr.source_repeat_cross_user_closed = denied && before == fs.read("memory.json")
+    other = original.to_json().parse_json() other["scope"].project_id = "云帆"
+    let doc = integration_doc(other,"memory:cross-scope","设备=K7")
+    denied = !core_add_claim(doc)
+    cr.claim_source_scope_mismatch_closed = denied && before == fs.read("memory.json")
+    goals = [{id: "goal:tide" project_id: "潮汐" owner_id: "本人"}]
+    gm_set_focus("云帆","老师")
+    let projected = task_memory_scope("goal:tide","local")
+    cr.task_scope_from_goal = projected.project_id == "潮汐" && projected.owner_id == "本人" && projected.user_id == gm_user_id
+    fs.write("core-progress.json",cr.to_json())
+    start_timeout(0.05, || integration_core_forget())
+}
+fn integration_core_forget(){
+    cr.forgotten = gm_forget(integration_saved_id,"local")
+    let mem_scope = gm_complete_scope(core_memory_scope("local"))
+    mem_scope.project_id = "云帆" mem_scope.owner_id = "本人"
+    let other = gm_make_source("设备=K7",mem_scope,"integration","source:other-project")
+    cr.other_source_added = core_add_source(other)
+    cr.core_other_hash_not_forgotten = !core_is_forgotten(other.source_id,"user","设备","local")
+    cr.other_claim_added = core_add_claim(integration_doc(other,"memory:other-project","设备=K7"))
+    mem_scope.project_id = "潮汐"
+    let own = gm_make_source("设备=K7",mem_scope,"integration","source:own-reindex")
+    cr.own_fixture_source_added = core_add_source(own)
+    let before = fs.read("memory.json")
+    cr.core_own_hash_forgotten = core_is_forgotten(own.source_id,"user","设备","local")
+    cr.live_hash_observation = {dot: memory_forget[0].content_sha256 bracket: memory_forget[0]["content_sha256"]}
+    let denied = !core_add_claim(integration_doc(own,"memory:own-reindex","设备=K7"))
+    cr.own_claim_reindex_closed = denied && before == fs.read("memory.json")
+    let legacy = memory_forget[0].to_json().parse_json()
+    // Define a genuine legacy tomb without scope, preserving its exact hash and fact key.
+    let legacy_tomb = {source_id: legacy.source_id subject_id: legacy.subject_id predicate: legacy.predicate
+        account_scope: legacy.account_scope at: legacy.at content_sha256: legacy.content_sha256}.to_json().parse_json()
+    let tombs = memory_forget.to_json().parse_json() tombs.push(legacy_tomb)
+    cr.legacy_fixture_committed = core_commit_memory(memory,memory_sources,tombs)
+    cr.legacy_tomb_conservative = core_is_forgotten(other.source_id,"user","设备","local")
+    let reused = other.to_json().parse_json() reused["scope"].account = "fixture-other-account"
+    before = fs.read("memory.json")
+    denied = !core_add_source(reused)
+    cr.source_repeat_cross_account_closed = denied && before == fs.read("memory.json")
+    cr.no_external_calls = integration_calls.len() == 0 && integration_forbidden.len() == 0
+    fs.write("probe.json",cr.to_json())
+}
+start_timeout(0.1, || integration_core_start())

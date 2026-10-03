@@ -1,0 +1,106 @@
+let fr = {} let integration_a = "" let integration_b = "" let integration_response = nil
+let integration_initial_refs = []
+fn integration_focus(project,owner){
+    ui.session_focus_project.set_text(project) ui.session_focus_owner.set_text(owner) chat_focus_save()
+}
+fn integration_models(){
+    let count = 0
+    for call in integration_calls { if call.service == "model.complete" { count = count + 1 } }
+    return count
+}
+fn integration_flow(){
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    fr.boot = gm_boot() fr.chat_boot = chat_boot()
+    integration_focus("潮汐","本人")
+    ui.goal_input.set_text("记住：设备=K7") send_chat()
+    integration_a = gm_entries("K7")[0].document.id
+    integration_focus("云帆","本人")
+    ui.goal_input.set_text("记住：设备=M2") send_chat()
+    integration_b = gm_entries("M2")[0].document.id
+    ui.goal_input.set_text("更正：设备=N3") send_chat()
+    let ai = core_memory_index(integration_a,"local") let bi = core_memory_index(integration_b,"local")
+    fr.correct_scoped_target = memory[ai].document.payload.value == "设备=K7" && memory[ai].document.revision == 1
+        && memory[bi].document.payload.value == "设备=N3" && memory[bi].document.revision == 2
+    fr.correct_retained_history = memory[bi].history.len() == 1 && memory[bi].history[0].payload.value == "设备=M2"
+    fs.write("flow-progress.json",fr.to_json())
+    start_timeout(0.05, || integration_flow_forget())
+}
+fn integration_flow_forget(){
+    ui.goal_input.set_text("遗忘：设备") send_chat()
+    let ai = core_memory_index(integration_a,"local") let bi = core_memory_index(integration_b,"local")
+    fr.forget_scoped_target = memory[bi].document.payload.deleted && !memory[ai].document.payload.deleted
+    fr.forget_current_and_history_blocked = gm_forgotten_at("设备=N3","local","云帆","本人") && gm_forgotten_at("设备=M2","local","云帆","本人")
+    integration_focus("潮汐","本人")
+    // This projection was valid before a contradictory fact was added.
+    let ctx = gm_context("设备","integration","") integration_initial_refs = chat_context_refs(ctx.hits)
+    chat_sessions[chat_session_index(chat_selected_id)].proposals = [{id: "candidate:pre-conflict" session_id: chat_selected_id
+        account_id: "" action: "calendar_candidate" state: "candidate" revision: 1 project: "潮汐" owner: "本人"
+        memory_refs: integration_initial_refs payload: {to: "" subject: "" body: "" title: "合成候选" start: "2026-10-04T15:00:00+08:00"
+            end: "2026-10-04T16:00:00+08:00" time_zone: "Asia/Shanghai" location: "" objective: "" source: ""}}]
+    fr.pre_conflict_candidate_valid = chat_active_candidate(chat_selected_id) != nil
+    fr.conflict_saved = gm_save("设备=J4","fact","user","设备",chat_selected_id,"潮汐","本人","local")
+    fr.preexisting_conflicting_candidate_blocked = chat_active_candidate(chat_selected_id) == nil
+    let before = fs.read("memory.json")
+    ui.goal_input.set_text("更正：设备=P5") send_chat()
+    fr.ambiguous_correction_no_write = before == fs.read("memory.json") && messages[messages.len()-1].state == "error"
+    calendar_form_open = false
+    chat_apply_proposal("candidate:pre-conflict")
+    fr.preexisting_conflicting_candidate_apply_blocked = !calendar_form_open
+        && chat_sessions[chat_session_index(chat_selected_id)].proposals[0].state == "candidate"
+    fr.candidate_apply_observation = {form_open: calendar_form_open title: calendar_draft.title
+        state: chat_sessions[chat_session_index(chat_selected_id)].proposals[0].state}
+    fs.write("flow-progress.json",fr.to_json())
+    start_timeout(0.05, || integration_flow_conflict())
+}
+fn integration_flow_conflict(){
+    let count = integration_models() let candidates = chat_sessions[chat_session_index(chat_selected_id)].proposals.to_json()
+    muse_model_request("设备",chat_selected_id,"",|| true,{task: "合成问句" messages: [] class: "fast"},fn(r){ integration_response = r })
+    fr.conflict_callback_fail_closed = integration_response != nil && !integration_response.is_ok && integration_response.error.search("memory_conflict:") == 0
+    fr.conflict_no_model_dispatch = integration_models() == count
+    integration_response = nil
+    muse_model_request("设备",chat_selected_id,"",|| true,{task: "合成计划" input: {goal: "设备"} class: "fast"},fn(r){ integration_response = r })
+    fr.conflict_input_branch_fail_closed = integration_response != nil && !integration_response.is_ok && integration_models() == count
+    ui.goal_input.set_text("设备现在是什么？") send_chat()
+    fr.chat_conflict_no_model_or_candidate = integration_models() == count && chat_sessions[chat_session_index(chat_selected_id)].proposals.to_json() == candidates
+        && messages[messages.len()-1].state == "error"
+    fs.write("flow-progress.json",fr.to_json())
+    start_timeout(0.05, || integration_flow_payload())
+}
+fn integration_flow_payload(){
+    // Use an independent non-conflicting scope and exact production request assembler.
+    integration_focus("星尘","本人")
+    fr.payload_fact_saved = gm_save("载荷资料=Z6","source","user","载荷资料",chat_selected_id,"星尘","本人","local")
+    let entries = []
+    for i in 5 {
+        entries.push({role: "user" text: "星尘同范围用户问句" + i project: "星尘" owner: "本人" state: "success" at: time_now()})
+        entries.push({role: "assistant" text: "星尘同范围助手回复" + i project: "星尘" owner: "本人" state: "success" at: time_now() memory_refs: []})
+    }
+    entries.push({role: "user" text: "载荷资料" project: "星尘" owner: "本人" state: "success" at: time_now()})
+    messages = entries chat_sessions[chat_session_index(chat_selected_id)].messages = entries
+    muse_model_request("载荷资料",chat_selected_id,"",|| true,{task: "短任务指令" messages: [] class: "fast"},fn(r){ integration_response = r })
+    let payload = integration_calls[integration_calls.len()-1].payload
+    let final_turn = payload.messages[payload.messages.len()-1]
+    fr.memory_in_user_message = final_turn.role == "user" && final_turn.content.search("Z6") >= 0
+    fr.history_as_messages_and_user_context = payload.messages.len() == 7 && final_turn.content.search("较早用户原话") >= 0
+    fr.task_without_memory_or_history = payload.task.search("Z6") < 0 && payload.task.search("较早用户原话") < 0 && payload.task.len() < 4096
+    muse_model_request("载荷资料",chat_selected_id,"",|| true,{task: "短输入指令" input: {goal: "合成目标"} class: "fast"},fn(r){ integration_response = r })
+    payload = integration_calls[integration_calls.len()-1].payload
+    fr.memory_in_input = payload.input.related_memory.search("Z6") >= 0 && payload.input.current.goal == "合成目标" && payload.task.search("Z6") < 0
+    fs.write("flow-progress.json",fr.to_json())
+    start_timeout(0.05, || integration_flow_cancel())
+}
+fn integration_flow_cancel(){
+    integration_defer_accounts = true
+    let before = fs.read("memory.json") let count = integration_models()
+    ui.goal_input.set_text("异步普通提问") send_chat()
+    fr.deferred_account_fixture_ready = integration_account_queue.len() == 1
+    let callback = integration_account_queue[0]
+    integration_focus("流云","老师")
+    callback({is_ok: true data: []})
+    fr.focus_change_cancels_late_dispatch = integration_models() == count && chat_request_index(chat_selected_id) < 0
+        && before == fs.read("memory.json") && gm_project == "流云" && gm_owner == "老师"
+    fr.no_external_service = integration_forbidden.len() == 0
+    fs.write("captured-payloads.json",integration_calls.to_json())
+    fs.write("probe.json",fr.to_json())
+}
+start_timeout(0.1, || integration_flow())

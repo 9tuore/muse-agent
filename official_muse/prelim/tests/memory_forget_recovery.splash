@@ -1,0 +1,26 @@
+let recovery_before = ""
+let recovery_ready = false
+fn memory_forget_recovery_boot(){
+    recovery_before = fs.read("memory.json")
+    fs.write("memory_forget_recovery-stage.json",{phase: "core_boot"}.to_json())
+    core_boot_memory()
+    start_timeout(0.02, || memory_forget_recovery_resume())
+}
+fn memory_forget_recovery_resume(){
+    recovery_ready = gm_boot()
+    fs.write("memory_forget_recovery-stage.json",{phase: "global_boot" ready: recovery_ready error: gm_error}.to_json())
+    start_timeout(0.02, || memory_forget_recovery_probe())
+}
+fn memory_forget_recovery_probe(){
+    let seed = fs.read("forget-target.json").parse_json()
+    let target = core_memory_index(seed.id,"local")
+    let settings = fs.read("global-memory-settings.json").parse_json()
+    gm_set_focus("合成验收","个人")
+    let ctx = gm_context("汇报格式收口状态","another-session","")
+    fs.write("memory_forget_recovery-report.json",{boot: recovery_ready enabled: gm_enabled pending: gm_forget_pending
+        primary_unchanged: recovery_before == fs.read("memory.json") error: gm_error
+        target_deleted: target >= 0 && memory[target].document.payload.deleted
+        settings: settings context: ctx}.to_json())
+}
+start_timeout(0.6, || memory_forget_recovery_boot())
+View{width: Fill height: Fill Label{text: "合成遗忘中断恢复与保护"}}

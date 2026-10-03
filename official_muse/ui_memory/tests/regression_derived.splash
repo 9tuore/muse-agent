@@ -1,0 +1,112 @@
+// Synthetic model replies with real production memory refs and account preflight.
+// A user question contains no saved fact; invalidating its assistant must remove the pair.
+fn derived_wire_check(question,value,refs,older){
+    messages = [{role: "user" text: question state: "success" at: 1}
+        {role: "assistant" text: value state: "success" at: 2 memory_refs: refs}]
+    let count = 1
+    if older { count = 4 }
+    for i in count {
+        messages.push({role: "user" text: "保留无关运输问答 " + i state: "success" at: 3+i*2})
+        messages.push({role: "assistant" text: "无关运输回执 " + i state: "success" at: 4+i*2})
+    }
+    for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+    chat_save()
+    fixture_accounts_deferred = true
+    let models_before = fixture_queue.len()
+    let accounts_before = fixture_accounts_queue.len()
+    ui.goal_input.set_text("请查看无关运输备注") send_chat()
+    let checks = {excluded: false unrelated_retained: false waits_for_fresh_accounts: false}
+    checks.waits_for_fresh_accounts = fixture_queue.len() == models_before
+        && fixture_accounts_queue.len() == accounts_before + 1
+    if !checks.waits_for_fresh_accounts { chat_stop() return checks }
+    let authorized = fixture_accounts_queue[accounts_before]
+    authorized({is_ok: true data: [{id: "fixture-account"}]})
+    if fixture_queue.len() != models_before + 1 { chat_stop() return checks }
+    let wire = nil
+    for call in fixture_calls { if call.service == "model.complete" { wire = call.payload } }
+    let raw = wire.to_json()
+    checks.excluded = raw.search(question) < 0 && raw.search(value) < 0
+    checks.unrelated_retained = wire.messages.to_json().search("保留无关运输问答") >= 0
+        && wire.messages.to_json().search("无关运输回执") >= 0
+    if older {
+        checks.unrelated_retained = checks.unrelated_retained && wire.to_json().search("保留无关运输问答 0") >= 0
+        checks.excluded = checks.excluded && chat_earlier_context(4).search(question) < 0
+    }
+    let reply = fixture_queue[models_before]
+    reply({is_ok: true data: {output: {reply: "合成无关运输回执"}}})
+    return checks
+}
+fn derived_case(mode){
+    let checks = {generated_refs_valid: false recent: false earlier: false fresh_preflight: false}
+    fixture_accounts_deferred = false
+    gm_set_accounts(["fixture-account","synthetic-account"])
+    chat_new_session() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+    let account = "local"
+    if mode == "revoked" { account = "synthetic-account" }
+    let subject = "DERIVED_" + mode
+    let question = subject + "去向在哪里？"
+    let value = subject + "去向是合成旧站。"
+    if !gm_save(value,"fact",subject,"去向",chat_selected_id,"合成验收","个人",account) {
+        checks.setup_error = gm_error return checks
+    }
+    let found = gm_entries(value)
+    if found.len() != 1 { checks.setup_error = "派生资料没有唯一保存。" return checks }
+    let doc = found[0].document
+    let models_before = fixture_queue.len()
+    ui.goal_input.set_text(question) send_chat()
+    if fixture_queue.len() != models_before + 1 { chat_stop() return checks }
+    let first_reply = fixture_queue[models_before]
+    first_reply({is_ok: true data: {output: {reply: value}}})
+    if !gm_has(messages[1],"memory_refs") { checks.setup_error = "模型回调未保存检索引用字段。" return checks }
+    let refs = messages[1].memory_refs
+    let matched = false
+    for ref in refs {
+        if ref.id == doc.id && ref.revision == doc.revision && ref.account == account
+            && ref.source_ids.to_json() == doc.payload.source_ids.to_json() { matched = true }
+    }
+    checks.generated_refs_valid = matched && chat_reply_context_valid(messages[1])
+        && chat_state_valid(fs.read("chat-sessions.json").parse_json())
+    if !checks.generated_refs_valid { checks.setup_error = "模型回调未保存预期真实检索引用。" return checks }
+    if mode == "revision" {
+        if !gm_correct(doc.id,subject + "去向是合成新站。",account,chat_selected_id) { return checks }
+    }
+    if mode == "forgotten" { if !gm_forget(doc.id,account) { return checks } }
+    // Keep a stale grant until the actual queued accounts callback refreshes it.
+    let stale_grant = mode != "revoked" || gm_account_allowed(account)
+    let recent = derived_wire_check(question,value,refs,false)
+    let earlier = derived_wire_check(question,value,refs,true)
+    checks.recent = recent.excluded && recent.unrelated_retained
+    checks.earlier = earlier.excluded && earlier.unrelated_retained
+    checks.fresh_preflight = stale_grant && recent.waits_for_fresh_accounts && earlier.waits_for_fresh_accounts
+        && (mode != "revoked" || !gm_account_allowed(account))
+    return checks
+}
+let derived_revision = nil
+let derived_forgotten = nil
+fn derived_finish(){
+    let revision = derived_revision
+    let forgotten = derived_forgotten
+    let revoked = derived_case("revoked")
+    fs.write("probe.json",{revision_refs_generated: revision.generated_refs_valid
+        revision_recent_pair_excluded: revision.recent revision_earlier_pair_excluded: revision.earlier
+        revision_post_preflight: revision.fresh_preflight forgotten_refs_generated: forgotten.generated_refs_valid
+        forgotten_recent_pair_excluded: forgotten.recent forgotten_earlier_pair_excluded: forgotten.earlier
+        forgotten_post_preflight: forgotten.fresh_preflight revoked_refs_generated: revoked.generated_refs_valid
+        revoked_recent_pair_excluded: revoked.recent revoked_earlier_pair_excluded: revoked.earlier
+        revoked_post_preflight: revoked.fresh_preflight}.to_json())
+}
+fn derived_forget_phase(){
+    derived_forgotten = derived_case("forgotten")
+    start_timeout(0.05, || derived_finish())
+}
+fn probe(){
+    fixture_seed() chat_boot() gm_boot() gm_set_focus("合成验收","个人")
+    chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+    chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+    // Keep each scenario in its own event budget, as real requests run over events.
+    derived_revision = derived_case("revision")
+    start_timeout(0.05, || derived_forget_phase())
+}
+start_timeout(0.1, || probe())

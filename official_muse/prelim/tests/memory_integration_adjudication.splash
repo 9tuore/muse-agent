@@ -1,0 +1,39 @@
+let ar = {} let integration_old_projection = nil let integration_winner_projection = nil
+let integration_new_winner = ""
+fn integration_projection(doc,value){
+    return {role: "assistant" text: value state: "success" at: time_now() project: "潮汐" owner: "本人"
+        memory_refs: [{id: doc.id revision: doc.revision account: "local" source_ids: doc.payload.source_ids}]}.to_json().parse_json()
+}
+fn integration_adjudication(){
+    core_boot_memory() ar.boot = gm_boot() gm_set_focus("潮汐","本人")
+    ar.single_claim_saved = gm_save("设备=K7","fact","user","设备","integration","潮汐","本人","local")
+    let first = gm_entries("K7")[0].document
+    integration_old_projection = integration_projection(first,"设备为K7")
+    ar.single_claim_reply_valid = chat_reply_context_valid(integration_old_projection)
+    ar.conflicting_claim_saved = gm_save("设备=J4","fact","user","设备","integration","潮汐","本人","local")
+    integration_new_winner = gm_entries("J4")[0].document.id
+    let second = memory[core_memory_index(integration_new_winner,"local")].document
+    integration_winner_projection = integration_projection(second,"设备为J4")
+    ar.conflict_old_projection_rejected = !chat_reply_context_valid(integration_old_projection)
+    ar.conflict_other_projection_rejected = !chat_reply_context_valid(integration_winner_projection)
+    ar.context_requires_resolution = gm_context("设备","integration","").requires_resolution
+    start_timeout(0.05, || integration_adjudication_correct())
+}
+fn integration_adjudication_correct(){
+    ar.explicit_correction = gm_correct(integration_new_winner,"设备=Q8","local","integration")
+    ar.loser_projection_rejected = !chat_reply_context_valid(integration_old_projection)
+    ar.prior_winner_revision_rejected = !chat_reply_context_valid(integration_winner_projection)
+    let winner = memory[core_memory_index(integration_new_winner,"local")].document
+    let current_reply = integration_projection(winner,"设备为Q8")
+    ar.new_winner_revision_valid = chat_reply_context_valid(current_reply)
+    let context = gm_context("设备","integration","")
+    ar.only_new_winner_retrieved = !context.requires_resolution && context.hits.len() == 1 && context.text.search("Q8") >= 0
+    let user = {role: "user" text: "设备现在是什么" state: "success" at: time_now() project: "潮汐" owner: "本人"}.to_json().parse_json()
+    let history = chat_model_history([user current_reply user])
+    ar.new_winner_history_preserved = history.turns.to_json().search("Q8") >= 0
+    history = chat_model_history([user integration_old_projection user])
+    ar.loser_history_rejected = history.turns.len() == 0
+    ar.no_external_service = integration_calls.len() == 0 && integration_forbidden.len() == 0
+    fs.write("probe.json",ar.to_json())
+}
+start_timeout(0.1, || integration_adjudication())

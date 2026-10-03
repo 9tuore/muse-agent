@@ -1,0 +1,21 @@
+fn prelim_restart(){
+    core_boot_memory()
+    let boot = gm_boot() let r = {boot: boot}
+    let ids = fs.read("variant-ids.json").parse_json()
+    gm_set_focus("云帆","本人")
+    let ctx = gm_context("晓岚仪器","重启新会话","")
+    r.other_project_survives = ctx.hits.len() == 1 && ctx.hits[0].id == ids.other && ctx.text.search("P9") >= 0
+    gm_set_focus("潮汐","老师")
+    ctx = gm_context("晓岚仪器","重启新会话","") r.other_owner_survives = ctx.hits.len() == 1 && ctx.hits[0].id == ids.teacher
+    gm_set_focus("潮汐","本人")
+    ctx = gm_context("P9 Q8","重启新会话","") r.forgotten_stays_hidden = ctx.text.search("P9") < 0 && ctx.text.search("Q8") < 0
+    let blocked = !gm_save("同名晓岚的仪器为P9","fact","另一实体","内容","重启新会话","潮汐","本人","local")
+    r.reindex_stays_blocked = blocked
+    let before = fs.read("memory.json")
+    let imported = gm_import(fs.read("variant-old-export.json"))
+    r.old_export_stays_rejected = !imported && before == fs.read("memory.json")
+    let valid = gm_validate(gm_export().parse_json(),false) r.export_schema_valid = valid
+    fs.write("memory_restart-report.json",r.to_json())
+}
+start_timeout(0.1, || prelim_restart())
+View{width: Fill height: Fill Label{text: "范围遗忘重启"}}

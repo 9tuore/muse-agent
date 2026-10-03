@@ -1,0 +1,66 @@
+fn model_seed(){
+    fixture_queue = []
+    calendar_selected_goal = ""
+    goals = [{id: "fixture-goal" version: 1 status: "planned" archived: false
+        mail_source: {account_id: "fixture-account" message_id: "fixture-message" source_id: "fixture-source"}}]
+    memory_sources = [{source_id: "fixture-source" content_sha256: fs.sha256("synthetic") updated_at: "t1" scope: {account: "fixture-account"}}]
+    memory = [{document: {id: "fixture-claim" revision: 1 scope: {account: "fixture-account"}
+        payload: {deleted: false}}}]
+    memory_sources[0]["scope"] = {account: "fixture-account"}
+    memory[0].document["scope"] = {account: "fixture-account"}
+    memory_forget = []
+    calendar_links = [{goal_id: "fixture-goal" account_id: "fixture-account" message_id: "fixture-message"
+        source_id: "fixture-source" source_claim_id: "fixture-claim" candidate_revision: 1
+        candidate: {title: "before"} status: "candidate"}]
+    calendar_model_candidate("fixture-goal","fixture-account","fixture-message","合成主题","合成正文")
+}
+fn reply(){
+    let callback = fixture_queue[0]
+    callback({is_ok: true data: {output: {title: "late" start: "" end: "" time_zone: "Asia/Shanghai" location: ""}}})
+    return calendar_links.len() == 0 || calendar_links[0].candidate.title == "before"
+}
+fn probe(){
+    fixture_seed()
+    model_seed()
+    goals[0].version = 2
+    let revision = reply()
+    model_seed()
+    goals[0].status = "cancelled"
+    let cancelled = reply() && goals[0].status == "cancelled"
+    model_seed()
+    memory_sources[0].content_sha256 = fs.sha256("replaced")
+    let digest = reply()
+    model_seed()
+    memory_sources[0].updated_at = "t2"
+    let source_revision = reply()
+    model_seed()
+    memory[0].document.revision = 2
+    let claim_revision = reply()
+    model_seed()
+    memory_forget = [{source_id: "fixture-source" subject_id: "fixture-goal"
+        predicate: "calendar_source_message" account_scope: "fixture-account"}]
+    let tombstone = reply()
+    model_seed()
+    memory_sources = []
+    let removed = reply()
+    model_seed()
+    calendar_model_candidate("fixture-goal","fixture-account","fixture-message","新主题","新正文")
+    let superseded = reply()
+    let current_callback = fixture_queue[1]
+    current_callback({is_ok: true data: {output: {title: "current" start: "" end: "" time_zone: "Asia/Shanghai" location: ""}}})
+    let current = calendar_links[0].candidate.title == "current" && calendar_links[0].candidate_revision == 2
+    model_seed()
+    memory[0].document.payload.deleted = true
+    let forgotten = reply()
+    model_seed()
+    calendar_links[0].candidate_revision = 2
+    let candidate = reply()
+    model_seed()
+    goals = []
+    let missing = reply()
+    fs.write("probe.json",{goal_revision: revision cancel_goal: cancelled source_digest: digest
+        source_revision: source_revision claim_revision: claim_revision forgotten_tombstone: tombstone
+        source_deleted: removed superseded_request: superseded current_generation: current
+        forgotten_source: forgotten candidate_edited: candidate goal_deleted: missing activity: activity}.to_json())
+}
+start_timeout(0.1, || probe())

@@ -1,0 +1,83 @@
+--- a/apps/mail/host-service/src/lib.rs
++++ b/apps/mail/host-service/src/lib.rs
+@@ -396,7 +396,7 @@
+         account["host"] = json!("imap.gmail.com");
+         account["port"] = json!("993");
+     }
+-    for key in ["address", "username", "password", "host", "port", "security", "smtp_host", "smtp_port", "smtp_security"] {
++    for key in ["address", "password", "host", "port", "security", "smtp_host", "smtp_port", "smtp_security"] {
+         if let Some(value) = form[key].as_str().filter(|v| !v.trim().is_empty()) {
+             // A password is taken as typed: spaces can be part of it.
+             account[key] = json!(if key == "password" { value } else { value.trim() });
+@@ -404,9 +404,8 @@
+             account[key] = json!(value.to_string());
+         }
+     }
+-    if text(&account, "username").is_empty() {
+-        account["username"] = account["address"].clone();
+-    }
++    // New sign-ins always use the full email; stored legacy usernames remain compatible.
++    account["username"] = account["address"].clone();
+     network::validate(&account)?;
+     Ok(account)
+ }
+@@ -666,7 +665,7 @@
+ fn submit(){
+     ui.status.set_text("正在验证账号…")
+     host.request("mail.sheet.submit", {
+-        address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
++        address: ui.address.text().trim() password: ui.password.text() protocol: protocol
+         host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
+         smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
+     }, fn(r){ if r.is_ok { ui.status.set_text("登录成功") } else { ui.status.set_text(r.error) } })
+@@ -704,10 +703,8 @@
+         status := Label{width: Fill text: "" draw_text.color: #xff3b30 draw_text.text_style.font_size: 12}
+         Caption{text: "邮箱地址"}
+         address := Field{empty_text: "例如 name@example.com"}
+-        Caption{text: "登录用户名（与邮箱地址不同时填写）"}
+-        username := Field{empty_text: "选填"}
+-        Caption{text: "密码或邮箱应用专用密码"}
+-        password := Field{empty_text: "请输入密码" is_password: true}
++        Caption{text: "密码或授权码"}
++        password := Field{empty_text: "请输入密码或授权码" is_password: true}
+         RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
+             imap_on := Chosen{text: "IMAP：所有文件夹"}
+             imap_off := Choice{visible: false text: "IMAP：所有文件夹" on_click: || choose("imap")}
+@@ -733,6 +730,37 @@
+ mod tests {
+     use super::*;
+     use std::sync::Mutex;
++
++    #[test]
++    fn new_signins_use_trimmed_email_and_ignore_separate_username() {
++        for protocol in ["imap", "pop3"] {
++            let account = account_from_form(&json!({
++                "address": "  reader@example.com  ", "username": "different-login-name",
++                "password": " fixture-only-value ", "protocol": protocol,
++            })).unwrap();
++            assert_eq!(account["address"], "reader@example.com");
++            assert_eq!(account["username"], "reader@example.com");
++            assert_eq!(account["password"], " fixture-only-value ");
++            assert_eq!(account["protocol"], protocol);
++        }
++    }
++
++    #[test]
++    fn signin_sheet_has_no_username_widget_or_binding() {
++        let sheet = signin_sheet();
++        assert!(!sheet.contains("username :="));
++        assert!(!sheet.contains("ui.username"));
++        assert!(sheet.contains("address: ui.address.text().trim()"));
++        assert!(sheet.contains("password: ui.password.text()"));
++        assert!(sheet.contains("is_password: true"));
++    }
++
++    #[test]
++    fn missing_email_does_not_report_an_uneditable_username_error() {
++        let error = account_from_form(&json!({"address": "  ", "password": "fixture-only-value"})).unwrap_err();
++        assert!(error.contains("\u{90ae}\u{7bb1}\u{5730}\u{5740}"));
++        assert!(!error.contains("\u{7528}\u{6237}\u{540d}"));
++    }
+ 
+     /// A mailbox in memory: `test` checks the password, `fetch` hands out
+     /// what the seen set does not hold, `send` records the draft.

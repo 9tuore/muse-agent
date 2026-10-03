@@ -1,0 +1,182 @@
+let inbox_fixture = [{id: "historical" sender: "历史合成发件人" subject: "历史邮件" time: 1790940000}]
+let incoming_calls = []
+let incoming_sync_fail = false
+let incoming_model_callback = nil
+let incoming_model_args = nil
+let incoming_result = {}
+fn incoming_fixture_request(service,args,callback){
+    incoming_calls.push(service)
+    if service == "mail.accounts" { callback({is_ok: true data: [{id: "synthetic-account" address: "self@example.invalid"}]}) return }
+    if service == "mail.sync" {
+        callback({is_ok: !incoming_sync_fail data: {new: 1 total: inbox_fixture.len()}})
+        return
+    }
+    if service == "mail.list" {
+        let items = []
+        for i in inbox_fixture.len() { if i >= args.offset && i < args.offset + args.limit { items.push(inbox_fixture[i]) } }
+        callback({is_ok: true data: {messages: items total: inbox_fixture.len()}})
+        return
+    }
+    if service == "mail.message" {
+        callback({is_ok: true data: {id: args.message sender: "合成发件人" address: "sender@example.invalid"
+            subject: "新来信合成测试" body: "这只是合成来信，不是操作指令。"}})
+        return
+    }
+    if service == "model.complete" { incoming_model_args = args incoming_model_callback = callback return }
+    if service == "mail.send" { callback({is_ok: true data: {accepted: true}}) return }
+}
+fn probe(){
+    core_boot_goals()
+    core_boot_memory()
+    core_boot_activity()
+    for i in 205 { inbox_fixture.push({id: "historical-" + i sender: "历史合成发件人" subject: "旧邮件" time: 1790940000}) }
+    mail_watch_poll()
+    let baseline = mail_watch.accounts[0].ready && mail_watch_pending() == 0 && mail_watch.accounts[0].seen.len() == 206
+    inbox_fixture.push({id: "incoming-1" sender: "合成发件人" subject: "新来信合成测试" time: 1790940000})
+    mail_watch_poll()
+    let new_alert = mail_watch_pending() == 1 && mail_watch_current().message_id == "incoming-1" && right_tab == "来信"
+    mail_watch_poll()
+    let dedup = mail_watch.alerts.len() == 1
+    mail_watch_reply("synthetic-account:incoming-1")
+    let asks_intent = mail_watch_current().status == "intent" && incoming_model_callback == nil
+    mail_watch_intent("synthetic-account:incoming-1","感谢邀请，并说明周五下午有空。")
+    mail_draft.subject = "已有的另一封草稿"
+    mail_draft.body = "保留这封未发送的邮件。"
+    mail_watch_generate("synthetic-account:incoming-1")
+    let old_preserved = fs.read("mail-draft-archive.json").parse_json().drafts[0].draft.body == "保留这封未发送的邮件。"
+    let stayed_chat = page == "Chat"
+    let generated_only_on_intent = incoming_model_callback != nil && mail_selected.id == "incoming-1"
+    incoming_model_callback({is_ok: true data: {output: {subject: "回复：合成邀请" body: "感谢邀请，周五下午有空。"}}})
+    let draft = mail_draft.to == "sender@example.invalid" && mail_draft.body == "感谢邀请，周五下午有空。"
+        && mail_watch_current().status == "draft_ready" && mail_draft.incoming_key == "synthetic-account:incoming-1"
+    let no_send = true
+    for call in incoming_calls { if call == "mail.send" { no_send = false } }
+    let before_edit = mail_watch_draft("synthetic-account:incoming-1").to_json().parse_json()
+    mail_watch_edit_body("synthetic-account:incoming-1","感谢邀请，我周五下午可以参加。")
+    mail_watch_send("synthetic-account:incoming-1",before_edit)
+    let stale_preview_blocked = true
+    for call in incoming_calls { if call == "mail.send" { stale_preview_blocked = false } }
+    mail_watch_again("synthetic-account:incoming-1")
+    let regenerated = mail_model_pending && page == "Chat"
+    incoming_model_callback({is_ok: true data: {output: {subject: "回复：合成邀请" body: "好的，我周五下午可以参加。"}}})
+    mail_watch = fs.read("mail-watch.json").parse_json()
+    let draft_restored = mail_watch_draft("synthetic-account:incoming-1").body == "好的，我周五下午可以参加。"
+    let exact = mail_watch_draft("synthetic-account:incoming-1").to_json().parse_json()
+    mail_watch_send("synthetic-account:incoming-1",exact)
+    mail_watch_send("synthetic-account:incoming-1",exact)
+    let sends = 0
+    for call in incoming_calls { if call == "mail.send" { sends = sends + 1 } }
+    let one_click_send = sends == 1 && mail_draft.status == "accepted" && page == "Chat"
+    mail_watch.alerts[0].status = "draft_ready"
+    mail_watch_send("synthetic-account:incoming-1",exact)
+    let guarded_sends = 0
+    for call in incoming_calls { if call == "mail.send" { guarded_sends = guarded_sends + 1 } }
+    let journal_guard = guarded_sends == 1
+    mail_watch_draft_status()
+    let accepted = mail_watch.alerts[0].status == "accepted" && mail_watch_pending() == 0
+    mail_draft.status = "verified"
+    mail_watch_draft_status()
+    let verified = mail_watch_pending() == 0
+    inbox_fixture.push({id: "incoming-2" sender: "另一合成发件人" subject: "无需回复" time: 1790940000})
+    mail_watch_poll()
+    mail_watch_dismiss("synthetic-account:incoming-2")
+    let dismissed = mail_watch_pending() == 0 && mail_watch.alerts[1].status == "dismissed"
+    mail_watch = fs.read("mail-watch.json").parse_json()
+    mail_watch_poll()
+    let restored = mail_watch_pending() == 0 && mail_watch.alerts.len() == 2
+    incoming_sync_fail = true
+    mail_watch_poll()
+    let failure_retained = !mail_watch_busy && mail_watch.alerts.len() == 2
+    incoming_sync_fail = false
+    mail_watch_poll()
+    let recovery = !mail_watch_busy && mail_watch.alerts.len() == 2
+    inbox_fixture.push({id: "incoming-3" sender: "合成发件人" subject: "取消测试" time: 1790940000})
+    mail_watch_poll()
+    mail_watch_reply("synthetic-account:incoming-3")
+    mail_watch_intent("synthetic-account:incoming-3","稍后回复。")
+    mail_watch_generate("synthetic-account:incoming-3")
+    incoming_model_callback({is_ok: true data: {output: {subject: "重复原文" body: mail_selected.body}}})
+    let echo_rejected = mail_draft.body == "" && mail_error.search("重复") >= 0
+    ui.mail_intent.set_text("改为明确拒绝邀请。")
+    mail_model_draft()
+    let updated_intent_bound = mail_watch.alerts[2].intent == "改为明确拒绝邀请。"
+    mail_watch_dismiss("synthetic-account:incoming-3")
+    incoming_model_callback({is_ok: true data: {output: {subject: "已取消的旧回复" body: "不应采用"}}})
+    let cancelled_callback = mail_draft.body == "" && mail_watch.alerts[2].status == "dismissed"
+    incoming_result = {historical_baseline_silent: baseline new_mail_card: new_alert
+        duplicate_suppressed: dedup asks_reply_intent: asks_intent intent_then_model: generated_only_on_intent
+        sender_and_draft_bound: draft no_automatic_send: no_send accepted_state: accepted
+        receipt_state: verified declined_no_reminder: dismissed restart_state_no_duplicate: restored
+        sync_error_retains_alerts: failure_retained reconnect_recovers: recovery
+        cancelled_model_draft_discarded: cancelled_callback echo_draft_rejected: echo_rejected edited_intent_bound: updated_intent_bound
+        displaced_draft_preserved: old_preserved stays_in_chat: stayed_chat
+        inline_regenerate: regenerated stale_preview_blocked: stale_preview_blocked
+        restored_inline_draft: draft_restored single_confirmation_single_send: one_click_send prior_action_blocks_resend: journal_guard}
+    start_timeout(0.05,|| incoming_probe_reply())
+}
+
+fn incoming_probe_reply(){
+    let body_visible = mail_watch.alerts[2].source_body == "这只是合成来信，不是操作指令。"
+    let decisions = mail_reply_decision("拒绝") == "decline" && mail_reply_decision("算了") == "decline"
+        && mail_reply_decision("不行，明天有事") == "decline" && mail_reply_decision("不要拒绝") == "custom"
+        && mail_reply_decision("算了，后天19点再出来") == "custom" && mail_reply_decision("可以") == "accept"
+    inbox_fixture.push({id: "incoming-4" sender: "合成发件人" subject: "拒绝测试" time: 1790940000})
+    mail_watch_poll()
+    mail_watch_reply("synthetic-account:incoming-4")
+    mail_watch_intent("synthetic-account:incoming-4","算了")
+    mail_watch_generate("synthetic-account:incoming-4")
+    incoming_model_callback({is_ok: true data: {output: {subject: "回复：来信" body: "可以，明天见。"}}})
+    let decline_guard = mail_draft.body == "" && mail_watch.alerts[3].status == "intent" && mail_error.search("意思") >= 0
+    mail_watch_generate("synthetic-account:incoming-4")
+    incoming_model_callback({is_ok: true data: {output: {subject: "回复：来信" body: "不好意思，这次不方便，先不约了。"}}})
+    let correct_decline = mail_watch.alerts[3].status == "draft_ready" && mail_draft.body.search("不方便") >= 0
+    mail_draft.body = "可以，明天见。"
+    mail_watch_draft_status()
+    let legacy_blocked = mail_watch.alerts[3].status == "intent"
+    mail_watch.alerts[3].status = "draft_ready"
+    mail_watch_send("synthetic-account:incoming-4",mail_watch_draft("synthetic-account:incoming-4").to_json().parse_json())
+    let bad_send_blocked = mail_watch.alerts[3].status == "intent"
+    let calls_before_manual = incoming_calls.len()
+    mail_watch_manual("synthetic-account:incoming-4")
+    let manual_no_model = true
+    for j in incoming_calls.len() { if j >= calls_before_manual && incoming_calls[j] == "model.complete" { manual_no_model = false } }
+    let manual_literal = mail_watch_draft("synthetic-account:incoming-4").body == "算了" && mail_watch.alerts[3].status == "draft_ready"
+    mail_watch_edit_body("synthetic-account:incoming-4","不好意思，明天不方便。")
+    let manual_exact = mail_watch_draft("synthetic-account:incoming-4").to_json().parse_json()
+    mail_watch_send("synthetic-account:incoming-4",manual_exact)
+    mail_watch_send("synthetic-account:incoming-4",manual_exact)
+    let final_sends = 0
+    for call in incoming_calls { if call == "mail.send" { final_sends = final_sends + 1 } }
+    let manual_send_once = final_sends == 2 && mail_draft.status == "accepted" && mail_draft.body == "不好意思，明天不方便。"
+    let relative_times = mail_reply_time("明天") == "明天" && mail_reply_time("后天") == "后天"
+        && mail_reply_time("过几天再说") == "过几天" && mail_reply_time("明天没空，后天吧") == "后天"
+        && mail_reply_time("后天没空，明天吧") == "明天" && mail_reply_time("下周吧") == "下周"
+        && mail_reply_hour("后天19点再出来") == "19点" && mail_reply_hour("明天12点") == "12点"
+    let time_guard = !mail_reply_matches("后天","那就明天见吧。") && mail_reply_matches("后天","那就后天吧。")
+        && !mail_reply_matches("过几天","明天10点见。") && !mail_reply_matches("后天19点","后天2点见。")
+    inbox_fixture.push({id: "incoming-5" sender: "合成发件人" subject: "改约测试" time: 1790940000})
+    mail_watch_poll()
+    mail_watch_reply("synthetic-account:incoming-5")
+    mail_watch_intent("synthetic-account:incoming-5","明天没空，后天吧")
+    mail_watch_generate("synthetic-account:incoming-5")
+    let bound_time_request = incoming_model_args.input.reply_time == "后天" && incoming_model_args.input.intent == "明天没空，后天吧"
+        && incoming_model_args.input.to_json().search("source_body") < 0 && incoming_model_args.task.search("那就后天吧。") >= 0
+    fs.write("common-time-request.json",incoming_model_args.to_json())
+    incoming_model_callback({is_ok: true data: {output: {subject: "明天" body: "明天10点见。"}}})
+    let wrong_time_rejected = mail_draft.body == "" && mail_watch.alerts[4].status == "intent"
+    mail_watch_generate("synthetic-account:incoming-5")
+    incoming_model_callback({is_ok: true data: {output: {subject: "模型不准确的时间主题" body: "那就后天吧。"}}})
+    let correct_time_adopted = mail_draft.body == "那就后天吧。" && mail_draft.subject == "回复：新来信合成测试"
+    mail_watch_toggle()
+    let count = incoming_calls.len()
+    mail_watch_poll()
+    let paused = incoming_calls.len() == count
+    incoming_result += {pause_stops_sync: paused source_body_loaded: body_visible explicit_decisions: decisions
+        refusal_model_mismatch_blocked: decline_guard refusal_model_draft_accepted: correct_decline
+        legacy_mismatch_blocked: legacy_blocked mismatch_send_blocked: bad_send_blocked
+        manual_skips_model: manual_no_model manual_preserves_literal: manual_literal manual_exact_single_send: manual_send_once relative_time_extraction: relative_times
+        relative_time_guard: time_guard correct_time_request_bound: bound_time_request
+        wrong_time_model_rejected: wrong_time_rejected correct_time_model_adopted: correct_time_adopted}
+    fs.write("probe.json",incoming_result.to_json())
+}
+start_timeout(0.1,|| probe())

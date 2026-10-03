@@ -1,0 +1,54 @@
+// Synthetic UI stress only. No real accounts, model replies or system events.
+fn visual_seed(){
+    let long_text = ""
+    for i in 12 { long_text = long_text + "合成验收段落：ORBIT 项目资料用于检验长文本换行与滚动。来源仅来自隔离 fixture，不能代表真实邮件、模型回复或系统日历动作。\n" }
+    for i in 3 {
+        ui.goal_input.set_text("合成验收目标 " + i)
+        ui.source_input.set_text(long_text)
+        make_plan()
+        memory_remember_goal()
+    }
+    for i in 5 {
+        chat_new_session()
+        messages = [{role: "user" text: "合成会话 " + i + "：请整理项目资料。" state: "success" at: time_now()}
+            {role: "assistant" text: long_text state: "success" at: time_now()}]
+        chat_sessions[chat_session_index(chat_selected_id)].title = "合成历史会话 " + i
+        chat_save()
+    }
+    ui.goal_input.set_text("合成多行输入第一行\n第二行保留，不发送。")
+    mail_accounts = [{id: "synthetic-account" address: "self@example.invalid" name: "合成邮箱"}]
+    mail_account = mail_accounts[0]
+    mail_connection_verified = true
+    mail_selected = {id: "visual-mail-0" sender: "合成发件人" address: "sender@example.invalid"
+        subject: "长正文合成邀请" date: "2026-10-03 09:00" body: long_text}
+    mail_messages = []
+    for i in 8 {
+        mail_messages.push({id: "visual-mail-" + i sender: "合成发件人 " + i address: "sender@example.invalid"
+            subject: "合成邮件 " + i + "：ORBIT 资料说明与下一次讨论安排" preview: "这只是合成验收内容。" time: 1790998800})
+    }
+    mail_total = mail_messages.len()
+    mail_watch.enabled = false
+    mail_watch.alerts = []
+    for i in 3 {
+        mail_watch.alerts.push({key: "synthetic-account:visual-mail-" + i account_id: "synthetic-account"
+            message_id: "visual-mail-" + i sender: "合成发件人 " + i subject: "合成来信 " + i
+            date: "10/3 09:00" status: "new" intent: "请礼貌说明改约。" request_id: "" accepted_at: 0
+            draft_intent: "" source_body: long_text + "合成邮件正文末尾，仅用于滚动验收。" body_loading: false})
+    }
+    mail_watch_focus = "synthetic-account:visual-mail-2"
+    calendar_permission = "full_access"
+    calendar_calendars = [{id: "synthetic-calendar" title: "合成验收日历" writable: true}]
+    calendar_calendar_id = "synthetic-calendar"
+    calendar_events = []
+    for i in 4 {
+        calendar_events.push({id: "visual-event-" + i calendar_id: "synthetic-calendar" version: "fixture-v1"
+            title: "合成日程 " + i + "：很长的会议主题用于排版验收" start: "2026-10-04T15:00:00+08:00"
+            end: "2026-10-04T16:00:00+08:00" time_zone: "Asia/Shanghai" location: "合成会议室"})
+    }
+    right_tab = "来信"
+    right_open = true
+    set_page("Chat")
+    fs.write("visual-seed.json",{synthetic: true messages: messages.len() goals: goals.len()
+        memories: memory.len() mails: mail_messages.len() alerts: mail_watch.alerts.len()
+        events: calendar_events.len()}.to_json())
+}

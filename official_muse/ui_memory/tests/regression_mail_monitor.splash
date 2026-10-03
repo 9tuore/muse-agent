@@ -1,0 +1,120 @@
+// Fifteen required arrival cases; synthetic Host messages only, no inference or send.
+let monitor_messages = [{id: "historical" sender: "合成历史" subject: "旧邮件" time: 1790998800 body: "旧正文"}]
+let monitor_calls = []
+let monitor_accounts_available = true
+let monitor_sync_ok = true
+let monitor_result = {}
+fn incoming_fixture_request(service,args,cb){
+    monitor_calls.push(service)
+    if service == "mail.accounts" {
+        if !monitor_accounts_available { cb({is_ok: false error: "fixture unavailable"}) return }
+        cb({is_ok: true data: [{id: "synthetic-account" address: "self@example.invalid"}]}) return
+    }
+    if service == "mail.sync" { cb({is_ok: monitor_sync_ok data: {new: 1 total: monitor_messages.len()} error: "fixture sync unavailable"}) return }
+    if service == "mail.list" {
+        let listed = []
+        for i in monitor_messages.len() { if i >= args.offset && i < args.offset + args.limit { listed.push(monitor_messages[i]) } }
+        cb({is_ok: true data: {messages: listed total: monitor_messages.len()}}) return
+    }
+    if service == "mail.message" {
+        for message in monitor_messages {
+            if message.id == args.message {
+                cb({is_ok: true data: {id: message.id address: "sender@example.invalid" body: message.body}}) return
+            }
+        }
+        cb({is_ok: false error: "fixture message missing"}) return
+    }
+    cb({is_ok: false error: "fixture forbids model and external writes"})
+}
+fn monitor_event_count(){
+    let n = 0
+    for event in activity { if event.kind == "MAIL_INCOMING" { n = n + 1 } }
+    return n
+}
+fn monitor_body(id){
+    let i = mail_watch_alert_index("synthetic-account:" + id)
+    if i < 0 { return nil }
+    return mail_watch.alerts[i]["source_body"]
+}
+fn probe(){
+    core_boot_goals() core_boot_memory() core_boot_activity() chat_boot()
+    notification_enabled = false
+    mail_watch_poll()
+    if mail_watch.accounts.len() != 1 || !mail_watch.accounts[0].ready || mail_watch_pending() != 0 {
+        fs.write("probe.json",{setup_error: "historical baseline failed" required_cases_ready: false}.to_json()) return
+    }
+    monitor_messages.push({id: "arrival-1" sender: "合成甲" subject: "一封新邮件" time: 1790998801 body: "正文一"})
+    mail_watch_poll()
+    let events = monitor_event_count()
+    monitor_messages.push(monitor_messages[1])
+    mail_watch_poll()
+    monitor_result.id_dedup = mail_watch.alerts.len() == 1 && monitor_event_count() == events
+    monitor_result.single_arrival_single_event = events == 1
+    let persisted = fs.read("mail-watch.json")
+    mail_watch = {schema: 1 enabled: true accounts: [] alerts: []}
+    mail_watch_boot()
+    monitor_result.restart_no_duplicate = mail_watch.alerts.len() == 1 && monitor_event_count() == events
+        && fs.read("mail-watch.json") == persisted
+    monitor_messages.push({id: "older-late" sender: "合成乙" subject: "乱序较旧时间" time: 1790998700 body: "旧时间新ID仍应到达"})
+    mail_watch_poll()
+    monitor_result.out_of_order_ids_retained = mail_watch.alerts.len() == 2 && monitor_body("older-late") == "旧时间新ID仍应到达"
+    let before = monitor_event_count()
+    monitor_messages.push({id: "batch-a" sender: "合成丙" subject: "同批一" time: 1790998803 body: "同批一正文"})
+    monitor_messages.push({id: "batch-b" sender: "合成丁" subject: "同批二" time: 1790998804 body: "同批二正文"})
+    mail_watch_poll()
+    monitor_result.multiple_arrivals = mail_watch.alerts.len() == 4 && monitor_event_count() == before + 1
+        && monitor_body("batch-a") == "同批一正文" && monitor_body("batch-b") == "同批二正文"
+    start_timeout(0.03,|| monitor_formats())
+}
+fn monitor_formats(){
+    let long = ""
+    for i in 80 { long = long + "合成超长正文 ORBIT line " + i + "\n" }
+    monitor_messages.push({id: "empty-body" sender: "合成" subject: "空正文" time: 1790998810 body: ""})
+    monitor_messages.push({id: "empty-subject" sender: "合成" subject: "" time: 1790998811 body: "无主题但有正文"})
+    monitor_messages.push({id: "no-sender" sender: nil subject: "缺少发件人" time: 1790998812 body: "发件人字段缺失"})
+    // Host header always includes sender; absent source sender is canonical JSON null.
+    // Host normalize rebuilds HTML before mail.message; this checks the consumer boundary only.
+    monitor_messages.push({id: "html-fallback" sender: "合成" subject: "HTML fallback" time: 1790998813 body: "Big news\n\nRead this."})
+    monitor_messages.push({id: "long-body" sender: "合成" subject: "长正文" time: 1790998814 body: long})
+    monitor_messages.push({id: "chinese" sender: "中文合成发件人" subject: "中文邀请" time: 1790998815 body: "明天下午讨论项目；这里只是合成邮件。"})
+    monitor_messages.push({id: "english" sender: "Synthetic sender" subject: "English invitation" time: 1790998816 body: "Please discuss ORBIT tomorrow. Synthetic only."})
+    mail_watch_poll()
+    monitor_result.empty_body = monitor_body("empty-body") == "" && mail_watch_alert_index("synthetic-account:empty-body") >= 0
+    let si = mail_watch_alert_index("synthetic-account:empty-subject")
+    monitor_result.empty_subject = si >= 0 && mail_watch_subject(mail_watch.alerts[si].subject) == "（无主题）"
+    let missing = mail_watch_alert_index("synthetic-account:no-sender")
+    monitor_result.missing_sender = missing >= 0 && mail_watch.alerts[missing].sender == nil && monitor_body("no-sender") == "发件人字段缺失"
+    monitor_result.html_fallback_consumer = monitor_body("html-fallback") == "Big news\n\nRead this."
+    monitor_result.long_body = monitor_body("long-body") == long && mail_body_preview(long).to_chars().len() == 61
+    monitor_result.chinese = monitor_body("chinese") == "明天下午讨论项目；这里只是合成邮件。"
+    monitor_result.english = monitor_body("english") == "Please discuss ORBIT tomorrow. Synthetic only."
+    let old_alerts = mail_watch.alerts.to_json()
+    let old_events = monitor_event_count()
+    monitor_accounts_available = false
+    mail_watch_poll()
+    monitor_result.unavailable_retains = !mail_watch_busy && mail_watch.alerts.to_json() == old_alerts
+        && mail_watch_notice.search("账号查询失败") >= 0 && monitor_event_count() == old_events
+    monitor_accounts_available = true monitor_sync_ok = false
+    mail_watch_poll()
+    let sync_retained = !mail_watch_busy && mail_watch.alerts.to_json() == old_alerts && mail_watch_notice.search("同步失败") >= 0
+    monitor_sync_ok = true
+    mail_watch_poll()
+    monitor_result.reconnect = sync_retained && !mail_watch_busy && mail_watch.alerts.to_json() == old_alerts
+        && monitor_event_count() == old_events && mail_watch_notice.search("来信提醒已开启") >= 0
+    let a = chat_selected_id
+    chat_new_session()
+    let b = chat_selected_id
+    monitor_messages.push({id: "cross-chat" sender: "合成" subject: "跨会话全局监听" time: 1790998820 body: "属于全局邮箱监听"})
+    mail_watch_poll()
+    let after = mail_watch.alerts.to_json()
+    chat_select_session(a)
+    monitor_result.cross_chat_global = a != b && mail_watch.alerts.to_json() == after
+        && monitor_body("cross-chat") == "属于全局邮箱监听" && mail_watch_pending() == 12
+    let forbidden = []
+    for service in monitor_calls { if service == "model.complete" || service == "mail.send" || service == "mail.delete" { forbidden.push(service) } }
+    monitor_result.forbidden_calls = forbidden
+    monitor_result.host_calls = monitor_calls
+    monitor_result.html_boundary = "Consumer receives Host-normalized text; Host HTML conversion is separately tested, not simulated as conversion PASS."
+    fs.write("probe.json",monitor_result.to_json())
+}
+start_timeout(0.1,|| probe())

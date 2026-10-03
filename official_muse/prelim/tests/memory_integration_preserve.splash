@@ -1,0 +1,32 @@
+let er = {}
+fn integration_preserve(){
+    core_boot_memory()
+    core_boot_activity()
+    er.boot = gm_boot()
+    er.fixture_seeded = gm_save("保全测试合成偏好：先给要点","preference","user","原风格","integration","","","local")
+    let primary_before = fs.read("memory.json") let memory_before = memory.to_json()
+    let broken_backup = "{\"schema\":1,\"sources\":[BROKEN-BACKUP-SYNTHETIC-20261003"
+    let preserved = "memory.backup.json.corrupt-" + fs.sha256(broken_backup)
+    er.bad_backup_fixture_exact = fs.write("memory.backup.json",broken_backup) == nil && fs.read("memory.backup.json") == broken_backup
+    if integration_preserve_mode == "preserve-failure" {
+        let collision = "SYNTHETIC-ARCHIVE-COLLISION-DIFFERENT-BYTES"
+        er.archive_failure_fixture_exact = fs.write(preserved,collision) == nil && fs.read(preserved) == collision
+        let accepted = gm_save("保全失败后不得写入的合成偏好","preference","user","新风格","integration","","","local")
+        er.preservation_failure_denies_commit = !accepted
+        er.preservation_failure_keeps_primary_backup = fs.read("memory.json") == primary_before && fs.read("memory.backup.json") == broken_backup
+        er.preservation_failure_keeps_memory_authority = memory.to_json() == memory_before && core_last_memory == primary_before
+        er.preservation_failure_locks_core = !core_memory_ready && core_error != ""
+        er.collision_bytes_not_overwritten = fs.read(preserved) == collision
+    } else {
+        let accepted = gm_save("保全后允许保存的合成偏好","preference","user","新风格","integration","","","local")
+        er.valid_primary_bad_backup_save = accepted && core_memory_ready
+        er.corrupt_backup_preserved_exact = fs.exists(preserved) && fs.read(preserved) == broken_backup
+        er.backup_replaced_with_prior_valid_primary = fs.read("memory.backup.json") == primary_before
+        er.updated_primary_valid = core_memory_valid(fs.read("memory.json").parse_json()) && memory.len() == 2
+    }
+    er.observations = {mode: integration_preserve_mode core_ready: core_memory_ready core_error: core_error gm_error: gm_error
+        preserved_path: preserved preserved_sha256: fs.sha256(fs.read(preserved)) original_bad_sha256: fs.sha256(broken_backup)}
+    er.no_external_service = integration_calls.len() == 0 && integration_forbidden.len() == 0
+    fs.write("probe.json",er.to_json())
+}
+start_timeout(0.1, || integration_preserve())

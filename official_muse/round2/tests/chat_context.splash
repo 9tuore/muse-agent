@@ -1,0 +1,30 @@
+fn chat_turn(text,fail){
+    ui.goal_input.set_text(text)
+    send_chat()
+    let callback = fixture_queue[fixture_queue.len() - 1]
+    if fail { callback({is_ok: false error: "provider: synthetic failure"}) }
+    else { callback({is_ok: true data: {output: {reply: "合成回执"}}}) }
+}
+fn probe(){
+    fixture_seed()
+    chat_boot()
+    let original_id = chat_selected_id
+    let rounds = ["My project codename is ORBIT.","请用一句话说明变量。","2 加 3 是多少？","把 morning 翻译为中文。","给一个简短的待办建议。",
+        "Correction: codename is NOVA, not ORBIT.","请用一句话解释数组。","Do not repeat the sensitive synthetic string TEST-R2-SECRET.",
+        "SYNTHETIC-FAILED-PAIR", "给一个旅行用品例子。","What is the current codename?","Without repeating the sensitive synthetic string, how many hyphens does it contain?"]
+    for i in rounds.len() { chat_turn(rounds[i],i == 8) }
+    let calls = fixture_calls.to_json().parse_json()
+    let original_messages = messages.to_json()
+    chat_new_session()
+    chat_turn("What is the current codename?",false)
+    let isolated = fixture_calls[fixture_calls.len()-1].payload.messages.len() == 1
+    chat_select_session(original_id)
+    let restored = messages.to_json() == original_messages
+    chat_boot()
+    let restart = messages.to_json() == original_messages
+    chat_turn("What is the current codename?",false)
+    fs.write("probe.json",{round_count: 12 model_requests: calls session_isolated: isolated
+        session_switch_restored: restored restart_restored: restart
+        resumed_context: fixture_calls[fixture_calls.len()-1].payload.messages}.to_json())
+}
+start_timeout(0.1, || probe())

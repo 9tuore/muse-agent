@@ -1,0 +1,16 @@
+fn probe(){
+    fixture_seed()
+    task = {id: "linked" result_path: "results/linked.json"}
+    calendar_links = [{goal_id: "linked" calendar_id: "fixture-calendar"
+        candidate: {title: "MUSE-R2-SELECT" start: "2026-10-04T15:00:00+08:00"
+            end: "2026-10-04T16:00:00+08:00" time_zone: "Asia/Shanghai" location: "synthetic"}}]
+    result = {task_id: "ordinary-old-goal" count: 3}
+    calendar_select_link("linked")
+    let cleared = result == nil
+    fs.mkdir("results")
+    fs.write("results/linked.json",{task_id: "linked" event_id: "fixture-event"}.to_json())
+    calendar_select_link("linked")
+    let restored = result != nil && result.task_id == "linked" && result["event_id"] == "fixture-event"
+    fs.write("probe.json",{unrelated_result_cleared: cleared matching_result_restored: restored}.to_json())
+}
+start_timeout(0.1, || probe())

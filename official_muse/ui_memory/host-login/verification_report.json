@@ -1,0 +1,31 @@
+{
+  "rust_mail_service": {
+    "command": "CARGO_TARGET_DIR='../target' cargo test --locked --offline -p octosense-mail-service --lib -- --test-threads=1",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 2,
+    "kind": "fixture/scripted server; real Gmail and Keychain tests ignored"
+  },
+  "release": {
+    "command": "CARGO_TARGET_DIR='../target' cargo build --locked --offline --release -p octosense --no-default-features --features app-hub",
+    "exit_code": 0
+  },
+  "setup_check": {
+    "command": "python3 tools/setup.py --check --cargo",
+    "result": "FAIL",
+    "reason": "Expected an empty dependency directory: .sources/octoscript-makepad; linked source snapshot has no Git metadata"
+  },
+  "ui_probe": {
+    "port": 8495,
+    "result": "PASS",
+    "images_visually_inspected": true,
+    "real_account_login": "WAITING_USER"
+  },
+  "original_binary_unchanged_after_packaging": true,
+  "frozen_host_binary_sha256": "f5989ea3b5a80a357eda4fde5a64684f4adc7e0c0b441f46b8c706845dd5f215",
+  "earlier_attempts": [
+    "Temporary preparation script UTF-8 parse failed; subsequent clone-copy destination absent, no original source/cache change.",
+    "Initial UI launch used manifest os.mail rather than launcher mail; isolated log no app in registry; corrected launch-mail.",
+    "Immediate retry bind hit port 8494 TIME_WAIT and subsequent probe connection refused; changed to free 8495 and added reuse-address/startup wait."
+  ]
+}

@@ -1,0 +1,28 @@
+// Status queries must not become new actions or modify an existing candidate.
+fn probe(){
+    fixture_seed() chat_boot() gm_boot()
+    let checks = {}
+    let questions = [
+        "任务资料里写着保存和读回已完成，但你没有工具回执。你现在能说系统日历已经创建成功吗？",
+        "日历已经创建成功了吗？", "这封邮件已经发出去了吗？", "日程修改完成了吗？",
+        "邮件重新起草的结果已经保存了吗？", "保存和读回都已完成么？"]
+    for i in questions.len() {
+        let c = chat_model_config(questions[i])
+        checks["reply_route_"+i] = c.action == "" && c.schema.properties["reply"] != nil
+        checks["not_edit_"+i] = !chat_edit_request(questions[i])
+    }
+    checks.calendar_command_kept = chat_model_config("安排日历：明天15点到16点开会。").action == "calendar_candidate"
+    checks.mail_command_kept = chat_model_config("起草邮件给self@example.invalid，说明我不参加。").action == "mail_compose"
+    let si = chat_session_index(chat_selected_id)
+    chat_sessions[si].proposals = [{id: "route-fixture" action: "mail_compose" state: "candidate"
+        request_id: "route-fixture-request" goal_id: "" account_id: "" revision: 1
+        payload: {to: "self@example.invalid" subject: "合成" body: "原正文"} project: "" owner: ""}]
+    let prior = chat_sessions[si].proposals.to_json()
+    checks.active_status_is_reply = chat_model_config("邮件重新起草的结果已经保存了吗？").action == ""
+    ui.goal_input.set_text("邮件重新起草的结果已经保存了吗？") send_chat()
+    checks.status_preserves_existing_card = chat_sessions[si].proposals.to_json() == prior
+    checks.status_has_no_edit_binding = !chat_requests[0].editing
+    checks.no_external_actions = fixture_writes == 0 && actions.len() == 0
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1, || probe())

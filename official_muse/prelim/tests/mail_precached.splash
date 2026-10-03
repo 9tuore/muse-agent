@@ -1,0 +1,53 @@
+let checks = {} let rows = [] let new_count = 0 let fail_second = false let calls = []
+fn incoming_fixture_request(service,args,cb){
+    calls.push(service)
+    if service == "mail.accounts" { cb({is_ok: true data: [{id: "A" address: "a@example.invalid"}]}) return }
+    if service == "mail.sync" { cb({is_ok: true data: {new: new_count total: rows.len()}}) return }
+    if service == "mail.list" {
+        if fail_second && args.offset >= 200 { cb({is_ok: false error: "synthetic mid-page disconnect"}) return }
+        let page = [] for i in rows.len() { if i >= args.offset && i < args.offset + args.limit { page.push(rows[i]) } }
+        cb({is_ok: true data: {total: rows.len() messages: page}}) return
+    }
+    if service == "mail.message" { cb({is_ok: true data: {id: args.message body: "HTML normalized text / 中文纯文本" address: "sender@example.invalid"}}) return }
+    cb({is_ok: false error: "fixture forbids inference and writes"})
+}
+fn message(id){return {id: id sender: nil subject: "" time: 1790998800}}
+fn probe(){
+    core_boot_activity() notification_enabled = false
+    for i in 201 { rows.push(message("history-" + i)) }
+    fail_second = true mail_watch_poll()
+    checks.partial_baseline_not_ready = mail_watch.accounts.len() == 1 && !mail_watch.accounts[0].ready
+        && mail_watch.accounts[0].seen.len() == 200 && mail_watch.alerts.len() == 0 && mail_watch_failed
+    start_timeout(0.03,|| resume())
+}
+fn resume(){
+    // Another UI sync already cached the new prefix; this watcher receives new=0.
+    let old = rows rows = [message("arrived-during-baseline")]
+    for row in old { rows.push(row) }
+    new_count = 0 fail_second = false mail_watch_poll()
+    checks.partial_baseline_new_prefix_not_lost = mail_watch.alerts.len() == 1
+        && mail_watch.alerts[0].message_id == "arrived-during-baseline"
+    checks.resume_baseline_history_silent = mail_watch.accounts[0].ready && mail_watch.accounts[0].seen.len() == 202
+    start_timeout(0.03,|| arrivals())
+}
+fn arrivals(){
+    for id in ["same","same-long","中文","quote\"id","slash\\id"] { rows.push(message(id)) }
+    rows.push(message("same")) new_count = 6
+    mail_watch_poll()
+    checks.pagination_all_new_stable_ids = mail_watch.alerts.len() == 6 && mail_watch.accounts[0].seen.len() == 207
+    let original = fs.read("mail-watch.json") mail_watch_poll()
+    checks.repeated_full_pages_no_duplicate = mail_watch.alerts.len() == 6 && fs.read("mail-watch.json") == original
+    let previous = rows rows = []
+    for i in previous.len() { rows.push(previous[previous.len()-1-i]) }
+    mail_watch_poll()
+    checks.reordered_full_pages_no_duplicate = mail_watch.alerts.len() == 6
+    let changed = chat_selected_id
+    chat_new_session() mail_watch_poll()
+    checks.chat_switch_keeps_inbox = chat_selected_id != changed && mail_watch.alerts.len() == 6
+    checks.normalized_body_and_empty_subject = mail_watch.alerts[0].source_body == "HTML normalized text / 中文纯文本"
+        && mail_watch_subject(mail_watch.alerts[0].subject) == "（无主题）"
+    let denied = [] for call in calls { if call == "model.complete" || call == "mail.send" || call == "calendar.create" { denied.push(call) } }
+    checks.no_inference_or_external_writes = denied.len() == 0
+    checks.calls = calls fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| probe())

@@ -1,0 +1,22 @@
+let checks={} let calls=[]
+fn incoming_fixture_request(service,args,cb){
+    calls.push(service)
+    if service=="mail.accounts" {cb({is_ok:true data:[{id:"A" address:"fixture@example.invalid"}]}) return}
+    if service=="mail.sync" {cb({is_ok:true data:{new:0 total:0 has_more:false reset:false}}) return}
+    if service=="mail.list" {cb({is_ok:true data:{total:0 messages:[]}}) return}
+    cb({is_ok:false error:"quiet fixture denies other calls"})
+}
+fn probe(){
+    core_boot_activity() notification_enabled=false mail_watch_poll()
+    fs.write("quiet-checkpoint.json",{complete:mail_watch.accounts[0].sync_complete}.to_json())
+    start_timeout(1.0,|| quiet())
+}
+fn quiet(){
+    mail_watch_poll() mail_watch_poll()
+    checks.completed_inbox_remains_ready=mail_watch.accounts[0].ready && mail_watch.accounts[0].sync_complete
+    checks.no_alerts=mail_watch.alerts.len()==0
+    let denied=[] for call in calls {if call=="model.complete" || call=="mail.send" || call=="calendar.create" {denied.push(call)}}
+    checks.no_external_writes_or_inference=denied.len()==0
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| probe())

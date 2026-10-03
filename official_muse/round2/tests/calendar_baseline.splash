@@ -1,0 +1,12 @@
+fn probe(){
+    fixture_seed()
+    calendar_check_conflicts()
+    calendar_preview_action()
+    let waiting = calendar_preview != "" && calendar_conflicts.len() == 0
+    fixture_events = [{id: "external" version: "v1" title: "MUSE-R2-EXTERNAL" start: "2026-10-04T15:30:00+08:00" end: "2026-10-04T16:30:00+08:00"}]
+    calendar_confirm_action()
+    fs.write("probe.json",{waiting_user: waiting external_conflict_added: true
+        mutation_calls: fixture_writes stale_precondition_reproduced: fixture_writes == 1
+        calls: fixture_calls}.to_json())
+}
+start_timeout(0.1, || probe())

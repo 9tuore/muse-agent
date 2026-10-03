@@ -1,0 +1,21 @@
+{
+  "kind": "LOCAL_MATCHED_MAIL_HOST_PATCH",
+  "before_sha256": "bdb01de9125b5f15438133ec4ce513d6eaba4d6b96badb8ab2a8eaff158708a4",
+  "after_sha256": "11f979af5861b339e721b49b49d3ca67b9ec26d8b491da088c7c8d8a5e2a5a92",
+  "patch_sha256": "78d60486e6a872fbc9e152d0af0f3cde5a15e9024d074966d94cbbfb42619623",
+  "worker_threads": 1,
+  "queue_capacity": 8,
+  "off_ui_operations": [
+    "folders",
+    "sync",
+    "list",
+    "message",
+    "mark_read",
+    "send",
+    "remove_account",
+    "sheet.submit"
+  ],
+  "credential_access": "Host platform vault only; no app credential export",
+  "authorization": "checked before and after vault wait and again when queued operations run",
+  "official_upstream_accepted": false
+}
