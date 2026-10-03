@@ -1,0 +1,694 @@
+// Inbox polling uses only granted Host accounts. No model call or send occurs on arrival.
+let mail_watch = {schema: 1 enabled: true accounts: [] alerts: []}
+let mail_watch_busy = false
+let mail_watch_failed = false
+let mail_watch_timer = false
+let mail_watch_writable = true
+let mail_watch_notice = "正在开启来信提醒。"
+let mail_watch_focus = ""
+let mail_reply_error = ""
+// In-flight polling owns a snapshot; UI account selection cannot replace it.
+let mail_watch_epoch = 0
+let mail_watch_body_epoch = 0
+let mail_watch_poll_accounts = []
+let mail_watch_resuming_baseline = false
+let mail_watch_new_prefix = 0
+let mail_watch_boundary_pending = false
+let mail_watch_sync_more = nil
+let mail_watch_sync_contract = false
+let mail_watch_completeness_unknown = false
+let mail_watch_history_pending = false
+
+fn mail_watch_state_valid(saved){
+    if !saved.is_object() || saved["schema"] != 1 || !saved["enabled"].is_bool()
+        || !saved["accounts"].is_array() || !saved["alerts"].is_array() { return false }
+    let ids = {} let keys = {}
+    for account in saved.accounts {
+        if !account.is_object() || !account["id"].is_string() || account.id == "" || account.id.search(":") >= 0
+            || !account["ready"].is_bool() || !account["seen"].is_array() || ids[account.id] != nil { return false }
+        ids[account.id] = true
+        for id in account.seen { if !id.is_string() || id == "" { return false } }
+        if account["baseline_started"] != nil && !account.baseline_started.is_bool() { return false }
+        if account["sync_complete"] != nil && !account.sync_complete.is_bool() { return false }
+    }
+    for alert in saved.alerts {
+        if !alert.is_object() || !alert["account_id"].is_string() || ids[alert.account_id] == nil
+            || !alert["message_id"].is_string() || alert.message_id == ""
+            || alert["key"] != alert.account_id + ":" + alert.message_id || keys[alert.key] != nil
+            || !alert["status"].is_string() || !alert["intent"].is_string() { return false }
+        keys[alert.key] = true
+        if alert["request_id"] != nil && !alert.request_id.is_string() { return false }
+        if alert["source_body"] != nil && !alert.source_body.is_string() { return false }
+        if alert["draft"] != nil {
+            let draft = alert.draft
+            if !draft.is_object() || draft["account"] != alert.account_id || !draft["to"].is_string()
+                || !draft["subject"].is_string() || !draft["body"].is_string() || !draft["status"].is_string() { return false }
+        }
+    }
+    return true
+}
+
+fn mail_watch_save(){
+    if !mail_watch_writable { return false }
+    let value = mail_watch.to_json()
+    if fs.exists("mail-watch.json") && fs.read("mail-watch.json") == value { return true }
+    if fs.write("mail-watch.json",value) != nil || fs.read("mail-watch.json") != value {
+        mail_watch_writable = false
+        mail_watch_notice = "提醒状态无法保存，来信提醒已暂停；不会发送邮件。"
+        return false
+    }
+    return true
+}
+
+// Only explicit short decisions are classified; longer instructions stay with the model.
+fn mail_reply_decision(intent){
+    let value = intent.trim()
+    for word in ["拒绝","婉拒","不同意","不行","不可以","没空","不去","不参加","不了","不方便","取消","算了"] {
+        for ending in ["","。","！","!","."] { if value == word + ending { return "decline" } }
+        if word != "算了" && word != "取消" {
+            for separator in ["，",",","。"] { if value.search(word + separator) == 0 { return "decline" } }
+        }
+    }
+    for word in ["可以","可以的","好","好的","没问题","同意"] {
+        for ending in ["","。","！","!","."] { if value == word + ending { return "accept" } }
+    }
+    return "custom"
+}
+
+// Preserve a stated relative time without turning vague words into a calendar date.
+fn mail_reply_time(intent){
+    if intent.search("或者") >= 0 || intent.search("都可以") >= 0 { return "" }
+    for value in ["大后天","后天","明天","今天","过几天","几天后","改天","下周","下星期","下个月","晚点","稍后"] {
+        if intent.search(value) >= 0 {
+            let unavailable = false
+            for no in ["没空","不行","不方便","有事","不能","我没空","我不行"] {
+                if intent.search(value + no) >= 0 { unavailable = true }
+            }
+            if !unavailable { return value }
+        }
+    }
+    return ""
+}
+
+fn mail_reply_hour(intent){
+    for i in 24 {
+        let hour = 23 - i
+        if intent.search(hour + "点") >= 0 { return hour + "点" }
+    }
+    for hour in ["二十三","二十二","二十一","二十","十九","十八","十七","十六","十五","十四","十三","十二","十一","十","九","八","七","六","五","四","三","两","二","一"] {
+        if intent.search(hour + "点") >= 0 { return hour + "点" }
+    }
+    return ""
+}
+
+fn mail_reply_matches(intent,body){
+    let value = body.trim()
+    let timing = mail_reply_time(intent)
+    if timing != "" && value.search(timing) < 0 { return false }
+    let hour = mail_reply_hour(intent)
+    if hour != "" && value.search(hour) < 0 { return false }
+    if mail_reply_decision(intent) != "decline" { return true }
+    for yes in ["可以","好的","好，","好啊","没问题","同意"] { if value.search(yes) == 0 { return false } }
+    for yes in ["见。","见！","会出来","我会参加","同意邀请"] { if value.search(yes) >= 0 { return false } }
+    for no in ["不能","不行","不可以","不方便","没空","无法","不去","不参加","取消","算了","拒绝","不了","不出来","不接受","不同意"] {
+        if value.search(no) >= 0 { return true }
+    }
+    return false
+}
+
+fn mail_watch_read_body(key){
+    let i = mail_watch_alert_index(key)
+    if i < 0 { return }
+    let alert = mail_watch.alerts[i]
+    if alert.to_json().search("\"source_body\":") >= 0 { return }
+    if alert.to_json().search("\"body_loading\":") >= 0 && alert.body_loading { return }
+    if mail_watch_account(alert.account_id) == nil { return }
+    alert.body_loading = true
+    alert.body_error = ""
+    let epoch = mail_watch_body_epoch
+    host.request("mail.message",{account: alert.account_id folder: "INBOX" message: alert.message_id},fn(r){
+        let current = mail_watch_alert_index(key)
+        if epoch != mail_watch_body_epoch || current < 0 { return }
+        mail_watch.alerts[current].body_loading = false
+        if mail_watch_account(alert.account_id) == nil || mail_watch.alerts[current].status == "dismissed" { return }
+        if r.is_ok && r.data != nil && r.data.id == alert.message_id {
+            mail_watch.alerts[current].source_body = r.data.body
+            mail_watch.alerts[current].source_address = r.data.address
+            mail_watch_save()
+        } else { mail_watch.alerts[current].body_error = "正文读取失败，请点击重试。" }
+        mail_watch_refresh()
+    })
+}
+
+fn mail_watch_boot(){
+    mail_watch_epoch = mail_watch_epoch + 1 mail_watch_busy = false
+    mail_watch_body_epoch = mail_watch_body_epoch + 1
+    if fs.exists("mail-watch.json") {
+        let saved = fs.read("mail-watch.json").parse_json()
+        if !mail_watch_state_valid(saved) { mail_watch_writable = false }
+        else { mail_watch = saved }
+    }
+    if !mail_watch_writable { mail_watch_notice = "来信记录无法恢复，已暂停来信提醒并保留原文件。" return }
+    for alert in mail_watch.alerts {
+        if alert.to_json().search("\"draft\":") < 0 && alert.to_json().search("\"request_id\":") < 0 { alert.request_id = "" }
+        if alert.to_json().search("\"request_id\":") >= 0 && alert.request_id != "" {
+            let action_i = core_action_index(alert.request_id)
+            if action_i >= 0 && actions[action_i].service == "mail.send" {
+                if actions[action_i].status == "accepted" || actions[action_i].status == "verified" { alert.status = actions[action_i].status }
+                if actions[action_i].status == "unknown" || actions[action_i].status == "in_flight" { alert.status = "unknown" }
+            }
+        }
+    }
+    let restored_i = mail_watch_alert_index(mail_draft.incoming_key)
+    if restored_i >= 0 && mail_watch.alerts[restored_i].status != "accepted" && mail_watch.alerts[restored_i].status != "verified" && mail_watch.alerts[restored_i].status != "dismissed" { mail_watch_draft_status() }
+    for alert in mail_watch.alerts {
+        alert.body_loading = false
+        if alert.status == "draft_ready" || alert.status == "waiting_user" {
+            let draft = mail_watch_draft(alert.key)
+            let manual = alert.to_json().search("\"reply_mode\":") >= 0 && alert.reply_mode == "manual"
+            if draft != nil && !manual && !mail_reply_matches(alert.intent,draft.body) {
+                alert.status = "intent"
+                if mail_draft.incoming_key == alert.key { mail_draft.status = "DRAFT" mail_draft.preview = "" mail_save() }
+                mail_reply_error = "旧草稿与你的意思不一致，请重新起草，或自己写回复。"
+            }
+        }
+    }
+    mail_watch_save()
+    mail_watch_schedule()
+    mail_watch_poll()
+    let current = mail_watch_current()
+    if mail_watch.enabled && current != nil { mail_watch_read_body(current.key) }
+}
+
+fn mail_watch_schedule(){
+    if mail_watch_timer { return }
+    mail_watch_timer = true
+    start_timeout(30.0,|| {
+        mail_watch_timer = false
+        mail_watch_schedule()
+        mail_watch_poll()
+    })
+}
+
+fn mail_watch_account_index(id){
+    for i in mail_watch.accounts.len() { if mail_watch.accounts[i].id == id { return i } }
+    return -1
+}
+
+fn mail_watch_alert_index(key){
+    for i in mail_watch.alerts.len() { if mail_watch.alerts[i].key == key { return i } }
+    return -1
+}
+
+fn mail_watch_pending(){
+    let count = 0
+    for alert in mail_watch.alerts { if mail_watch_account(alert.account_id) != nil
+        && alert.status != "dismissed" && alert.status != "verified" && alert.status != "accepted" { count = count + 1 } }
+    return count
+}
+
+fn mail_watch_current(){
+    let chosen = nil
+    for alert in mail_watch.alerts {
+        if mail_watch_account(alert.account_id) != nil && alert.key == mail_watch_focus && alert.status != "dismissed" { return alert }
+        if mail_watch_account(alert.account_id) != nil && alert.status != "dismissed" && alert.status != "verified" && alert.status != "accepted" {
+            chosen = alert
+            if alert.key == mail_watch_focus { return alert }
+        }
+    }
+    return chosen
+}
+
+fn mail_watch_account(id){
+    for account in mail_accounts { if account.id == id { return account } }
+    return nil
+}
+
+fn mail_watch_subject(value){
+    if value == "" || value == "(No subject)" { return "（无主题）" }
+    return value
+}
+
+fn mail_body_preview(body){
+    let chars = body.to_chars() let preview = "".to_chars()
+    for i in chars.len() {
+        if i >= 60 { return preview.to_string() + "…" }
+        preview.push(chars[i])
+    }
+    return preview.to_string()
+}
+
+fn mail_watch_refresh(){
+    ui.right_content.render()
+    ui.right_page_content.render()
+    if page == "Chat" { ui.page_content.render() }
+}
+
+fn mail_watch_poll(){
+    if !mail_enabled() || !mail_watch.enabled || !mail_watch_writable || mail_watch_busy || mail_pending { return }
+    mail_watch_busy = true
+    mail_watch_failed = false
+    mail_watch_completeness_unknown = false mail_watch_history_pending = false
+    mail_watch_epoch = mail_watch_epoch + 1
+    let epoch = mail_watch_epoch
+    host.request("mail.accounts",{},fn(r){
+        if epoch != mail_watch_epoch { return }
+        if !mail_watch.enabled || !mail_watch_writable { mail_watch_busy = false return }
+        let valid = r.is_ok && r.data.is_array()
+        let ids = {}
+        if valid {
+            for account in r.data {
+                if !account.is_object() || !account["id"].is_string() || account.id == ""
+                    || account.id.search(":") >= 0 || ids[account.id] != nil { valid = false }
+                else { ids[account.id] = true }
+            }
+        }
+        if !valid {
+            mail_watch_busy = false
+            mail_accounts = [] mail_watch_poll_accounts = []
+            gm_set_accounts([])
+            mail_watch_notice = "账号查询失败，30 秒后重试；未发送邮件。"
+            mail_watch_refresh()
+            return
+        }
+        mail_accounts = r.data
+        mail_watch_poll_accounts = r.data.to_json().parse_json()
+        let authorized = []
+        for account in mail_accounts { authorized.push(account.id) }
+        gm_set_accounts(authorized)
+        mail_watch_sync_account(0)
+    })
+}
+
+fn mail_watch_sync_account(index){
+    if !mail_watch.enabled || !mail_watch_writable || index >= mail_watch_poll_accounts.len() {
+        mail_watch_busy = false
+        let previous_notice = mail_watch_notice
+        mail_watch_notice = "来信提醒已开启，自动查看新邮件。"
+        if mail_watch_history_pending { mail_watch_notice = "正在分批同步历史收件箱；新来信仍会提醒。" }
+        if mail_watch_completeness_unknown { mail_watch_notice = "来信提醒已开启；旧宿主未提供收件箱完整性，历史覆盖尚未确认。" }
+        if mail_watch_failed { mail_watch_notice = "部分收件箱同步失败，30 秒后重试；已有提醒保留。" }
+        if !mail_watch_writable { mail_watch_notice = "提醒状态无法保存，来信提醒已暂停。" }
+        if mail_watch_poll_accounts.len() == 0 { mail_watch_notice = "尚无已授权邮箱，请到邮箱页连接。" }
+        if !mail_watch.enabled { mail_watch_notice = "来信提醒已暂停。" }
+        let current = mail_watch_current()
+        if mail_watch.enabled && current != nil { mail_watch_read_body(current.key) }
+        if previous_notice != mail_watch_notice { mail_watch_refresh() }
+        return
+    }
+    let account_id = mail_watch_poll_accounts[index].id
+    let ai = mail_watch_account_index(account_id)
+    if ai < 0 {
+        mail_watch.accounts.push({id: account_id ready: false seen: []})
+        ai = mail_watch.accounts.len() - 1
+    }
+    let epoch = mail_watch_epoch
+    host.request("mail.sync",{account: account_id folder: "INBOX"},fn(r){
+        if epoch != mail_watch_epoch { return }
+        if !mail_watch.enabled || !mail_watch_writable { mail_watch_busy = false return }
+        if !r.is_ok {
+            mail_watch_failed = true
+            mail_watch_sync_account(index + 1)
+            return
+        }
+        if r.data == nil || !r.data.is_object() || (r.data["has_more"] != nil && !r.data.has_more.is_bool())
+            || (r.data["reset"] != nil && !r.data.reset.is_bool()) {
+            mail_watch_failed = true mail_watch_sync_account(index + 1) return
+        }
+        if mail_account != nil && mail_account.id == account_id { mail_connection_verified = true }
+        mail_watch_sync_more = r.data["has_more"]
+        mail_watch_sync_contract = mail_watch_sync_more.is_bool()
+        if !mail_watch_sync_contract || mail_watch_sync_more == true || r.data["reset"] == true {
+            mail_watch.accounts[ai].sync_complete = false
+        }
+        if !mail_watch_sync_contract { mail_watch_completeness_unknown = true }
+        if mail_watch_sync_more == true { mail_watch_history_pending = true }
+        if r.data["reset"] == true { mail_watch.accounts[ai].ready = false }
+        mail_watch_resuming_baseline = !mail_watch.accounts[ai].ready
+            && (mail_watch.accounts[ai]["baseline_started"] == true || mail_watch.accounts[ai].seen.len() > 0)
+        mail_watch_boundary_pending = !mail_watch_sync_contract && mail_watch_resuming_baseline && mail_watch.accounts[ai].seen.len() > 0
+        mail_watch_new_prefix = 0
+        if r.data != nil && r.data["new"].is_number() && r.data.new >= 0 && floor(r.data.new) == r.data.new {
+            mail_watch_new_prefix = r.data.new
+        }
+        mail_watch.accounts[ai].baseline_started = true
+        if !mail_watch_save() { mail_watch_busy = false mail_watch_refresh() return }
+        mail_watch_scan(account_id,ai,index,0,mail_watch.accounts[ai].ready)
+    })
+}
+
+fn mail_watch_scan(account_id,ai,index,offset,notify){
+    let epoch = mail_watch_epoch
+    host.request("mail.list",{account: account_id folder: "INBOX" offset: offset limit: 200},fn(r){
+        if epoch != mail_watch_epoch { return }
+        if !mail_watch.enabled || !mail_watch_writable { mail_watch_busy = false mail_watch_refresh() return }
+        let valid = r.is_ok && r.data.is_object()
+        if valid { valid = r.data["messages"].is_array() && r.data["total"].is_number()
+            && r.data.total >= offset && floor(r.data.total) == r.data.total }
+        if valid {
+            valid = r.data.messages.len() <= 200 && offset + r.data.messages.len() <= r.data.total
+                && (r.data.messages.len() > 0 || offset == r.data.total)
+            for message in r.data.messages {
+                if !message.is_object() || !message["id"].is_string() || message.id == ""
+                    || !message["time"].is_number()
+                    || (message["historical"] != nil && !message.historical.is_bool()) { valid = false }
+            }
+        }
+        if !valid {
+            mail_watch_failed = true
+            mail_watch_sync_account(index + 1)
+            return
+        }
+        // The UI may already have synced the shared cache, making sync.new zero.
+        // Before extending a partial baseline, locate its old head by stable ID.
+        if mail_watch_boundary_pending {
+            let previous = mail_watch.accounts[ai].seen.to_json()
+            let position = offset
+            for message in r.data.messages {
+                if previous.search(message.id.to_json()) >= 0 {
+                    mail_watch_new_prefix = max(mail_watch_new_prefix,position)
+                    mail_watch_boundary_pending = false
+                    break
+                }
+                position = position + 1
+            }
+            if !mail_watch_boundary_pending { mail_watch_scan(account_id,ai,index,0,notify) }
+            else if offset + r.data.messages.len() < r.data.total {
+                mail_watch_scan(account_id,ai,index,offset + r.data.messages.len(),notify)
+            } else {
+                mail_watch_failed = true
+                mail_watch_sync_account(index + 1)
+            }
+            return
+        }
+        let added = false
+        let new_keys = []
+        let seen_json = mail_watch.accounts[ai].seen.to_json()
+        let position = offset
+        for message in r.data.messages {
+            let token = message.id.to_json()
+            if seen_json.search(token) < 0 {
+                mail_watch.accounts[ai].seen.push(message.id)
+                seen_json = seen_json + token
+                let notify_message = notify || (mail_watch_resuming_baseline && position < mail_watch_new_prefix)
+                if mail_watch_sync_contract && message["historical"].is_bool() { notify_message = !message.historical }
+                if notify_message {
+                    let sender = nil let subject = ""
+                    if message["sender"].is_string() { sender = message.sender }
+                    if message["subject"].is_string() { subject = message.subject }
+                    mail_watch.alerts.push({key: account_id + ":" + message.id account_id: account_id
+                        message_id: message.id sender: sender subject: subject
+                        date: stamp(message.time) status: "new" intent: "" request_id: "" accepted_at: 0 draft_intent: ""})
+                    mail_watch_focus = account_id + ":" + message.id
+                    new_keys.push(mail_watch_focus)
+                    added = true
+                }
+            }
+            position = position + 1
+        }
+        if !mail_watch_save() { mail_watch_busy = false mail_watch_refresh() return }
+        for key in new_keys { mail_watch_read_body(key) }
+        if added {
+            core_record_event("MAIL_INCOMING","新来信已加入待处理提醒；未调用模型或发送。","","","",account_id)
+            right_tab = "来信"
+            right_open = true
+            muse_notify("incoming")
+            redraw()
+        }
+        let next = offset + r.data.messages.len()
+        if next < r.data.total && r.data.messages.len() > 0 {
+            mail_watch_scan(account_id,ai,index,next,notify)
+        } else {
+            mail_watch.accounts[ai].ready = mail_watch_sync_more != true
+            mail_watch.accounts[ai].sync_complete = mail_watch_sync_contract && mail_watch_sync_more == false
+            if !mail_watch_save() { mail_watch_busy = false mail_watch_refresh() return }
+            mail_watch_sync_account(index + 1)
+        }
+    })
+}
+
+fn mail_watch_show(){
+    right_tab = "来信"
+    right_page_mode = true
+    redraw()
+}
+
+fn mail_watch_toggle(){
+    if !mail_watch_writable { return }
+    mail_watch.enabled = !mail_watch.enabled
+    mail_watch_epoch = mail_watch_epoch + 1 mail_watch_busy = false
+    mail_watch_body_epoch = mail_watch_body_epoch + 1
+    for alert in mail_watch.alerts { alert.body_loading = false }
+    if !mail_watch_save() { mail_watch_refresh() return }
+    if mail_watch.enabled { mail_watch_poll() }
+    else { mail_watch_notice = "来信提醒已暂停。" }
+    mail_watch_refresh()
+}
+
+fn mail_watch_reply(key){
+    let i = mail_watch_alert_index(key)
+    if i < 0 || (mail_watch.alerts[i].status != "new" && mail_watch.alerts[i].status != "intent") { return }
+    mail_watch_focus = key
+    mail_watch_read_body(key)
+    mail_watch.alerts[i].status = "intent"
+    mail_reply_error = ""
+    mail_watch_save()
+    mail_watch_refresh()
+}
+
+fn mail_watch_intent(key,value){
+    let i = mail_watch_alert_index(key)
+    if i >= 0 {
+        if mail_watch.alerts[i].status == "draft_ready" || mail_watch.alerts[i].status == "waiting_user" {
+            mail_watch.alerts[i].draft_intent = mail_watch.alerts[i].intent
+        }
+        mail_watch.alerts[i].intent = value
+        if mail_watch.alerts[i].status == "draft_ready" || mail_watch.alerts[i].status == "waiting_user" {
+            mail_watch.alerts[i].status = "intent"
+        }
+        mail_watch_save()
+    }
+}
+
+fn mail_watch_dismiss(key){
+    let i = mail_watch_alert_index(key)
+    if i < 0 || mail_sending { return }
+    if mail_watch.alerts[i].status != "new" && mail_watch.alerts[i].status != "intent" && mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" { return }
+    if mail_draft.incoming_key == key && mail_draft.status == "waiting_user" {
+        mail_draft.status = "DRAFT"
+        mail_draft.preview = ""
+        mail_save()
+    }
+    mail_watch.alerts[i].status = "dismissed"
+    mail_watch_focus = ""
+    if !mail_watch_save() { mail_watch_refresh() return }
+    core_record_event("MAIL_REPLY_DECLINED","本人选择不予回复；没有发信。","","","",mail_watch.alerts[i].account_id)
+    mail_watch_refresh()
+}
+
+fn mail_watch_generate(key){ mail_watch_prepare(key,true) }
+fn mail_watch_manual(key){ mail_watch_prepare(key,false) }
+
+fn mail_watch_prepare(key,use_model){
+    let i = mail_watch_alert_index(key)
+    if i < 0 || mail_model_pending || mail_sending || mail_pending { return }
+    if mail_watch.alerts[i].status != "new" && mail_watch.alerts[i].status != "intent" && mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" { return }
+    if use_model && mail_watch.alerts[i].status != "intent" { return }
+    let alert = mail_watch.alerts[i]
+    let intent = alert.intent.trim()
+    if use_model && (intent == "" || intent.len() > 800) { mail_reply_error = "请说明希望回复的内容，最多 800 字。" mail_watch_refresh() return }
+    let account = mail_watch_account(alert.account_id)
+    if account == nil { mail_reply_error = "此账号目前未授权，请先到邮箱页检查连接。" mail_watch_refresh() return }
+    if mail_draft.status == "sending" || mail_draft.status == "unknown" {
+        mail_reply_error = "上一封邮件仍在发送或结果未知，请先核对收件端；不会重复发送。"
+        mail_watch_refresh()
+        return
+    }
+    mail_watch.alerts[i].status = "intent"
+    mail_pending = true
+    mail_reply_error = "正在读取这封来信，尚未发信。"
+    mail_watch_refresh()
+    host.request("mail.message",{account: alert.account_id folder: "INBOX" message: alert.message_id},fn(r){
+        mail_pending = false
+        let current = mail_watch_alert_index(key)
+        if current < 0 || mail_watch.alerts[current].status != "intent" || mail_watch.alerts[current].intent.trim() != intent { return }
+        if mail_watch_account(alert.account_id) == nil { mail_reply_error = "此账号当前未授权，未采用旧来信回复。" mail_watch_refresh() return }
+        if !r.is_ok || r.data == nil || r.data.id != alert.message_id {
+            mail_reply_error = "来信正文读取失败，请稍后重试；未发送。"
+            mail_watch_refresh()
+            return
+        }
+        mail_watch.alerts[current].source_body = r.data.body
+        mail_watch.alerts[current].source_address = r.data.address
+        mail_watch.alerts[current].reply_mode = "ai"
+        if !use_model { mail_watch.alerts[current].reply_mode = "manual" }
+        mail_watch.alerts[current].draft_intent = intent
+        if !mail_watch_archive_current() { mail_watch_refresh() return }
+        mail_account = account
+        mail_folder = "INBOX"
+        mail_selected = r.data
+        mail_draft.status = "DRAFT"
+        mail_new_draft()
+        mail_draft.incoming_key = key
+        ui.mail_to.set_text(r.data.address)
+        let subject = r.data.subject
+        if subject == "" || subject == "(No subject)" { subject = "来信" }
+        ui.mail_subject.set_text("回复：" + subject)
+        ui.mail_body.set_text("")
+        if !use_model { ui.mail_body.set_text(intent) }
+        mail_edit()
+        ui.mail_intent.set_text(intent)
+        mail_reply_error = ""
+        mail_watch_focus = key
+        if use_model { mail_model_draft() }
+        else {
+            mail_watch.alerts[current].draft = mail_draft.to_json().parse_json()
+            mail_watch.alerts[current].status = "draft_ready"
+            mail_watch_save()
+            mail_watch_refresh()
+        }
+    })
+}
+
+// Preserve a displaced unsent draft or receipt before reusing the existing send path.
+fn mail_watch_archive_current(){
+    if mail_draft.to == "" && mail_draft.subject == "" && mail_draft.body == "" { return true }
+    let saved = {schema: 1 drafts: []}
+    if fs.exists("mail-draft-archive.json") {
+        saved = fs.read("mail-draft-archive.json").parse_json()
+        if saved == nil || saved.to_json().search("\"drafts\":") < 0 {
+            mail_reply_error = "旧草稿暂时无法保留，请稍后重试；没有发送。"
+            return false
+        }
+    }
+    saved.drafts.push({at: time_now() draft: mail_draft.to_json().parse_json()})
+    let value = saved.to_json()
+    if fs.write("mail-draft-archive.json",value) != nil || fs.read("mail-draft-archive.json") != value {
+        mail_reply_error = "旧草稿保存未完成，请稍后重试；没有发送。"
+        return false
+    }
+    return true
+}
+
+fn mail_watch_draft(key){
+    let i = mail_watch_alert_index(key)
+    if i < 0 { return nil }
+    if mail_watch.alerts[i].to_json().search("\"draft\":") < 0 { return nil }
+    return mail_watch.alerts[i].draft
+}
+
+fn mail_watch_select(key){
+    mail_watch_focus = key
+    mail_reply_error = ""
+    mail_watch_read_body(key)
+    mail_watch_refresh()
+}
+
+fn mail_watch_again(key){
+    let i = mail_watch_alert_index(key)
+    if i < 0 || mail_sending || mail_model_pending || mail_pending { return }
+    if mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" && mail_watch.alerts[i].status != "intent" { return }
+    mail_watch.alerts[i].status = "intent"
+    if !mail_watch_save() { mail_watch_refresh() return }
+    mail_watch_generate(key)
+}
+
+fn mail_watch_edit_body(key,value){
+    let i = mail_watch_alert_index(key)
+    let draft = mail_watch_draft(key)
+    if i < 0 || draft == nil || mail_sending || mail_model_pending { return }
+    if mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" { return }
+    mail_watch.alerts[i].reply_mode = "manual"
+    draft.body = value
+    draft.status = "DRAFT"
+    draft.preview = ""
+    mail_watch.alerts[i].draft = draft
+    mail_watch.alerts[i].status = "draft_ready"
+    if mail_draft.incoming_key == key {
+        mail_draft.body = value
+        mail_draft.status = "DRAFT"
+        mail_draft.preview = ""
+        ui.mail_body.set_text(value)
+        if !mail_save() { mail_reply_error = mail_error }
+    }
+    mail_watch_save()
+}
+
+// The visible exact draft is the approval. Reuse the existing snapshot, journal and send guard.
+fn mail_watch_send(key,displayed){
+    let i = mail_watch_alert_index(key)
+    let draft = mail_watch_draft(key)
+    if i < 0 || draft == nil || mail_sending || mail_model_pending || mail_pending { return }
+    if mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" { return }
+    if !mail_watch_writable { mail_reply_error = "草稿无法保存，未发送。" mail_watch_refresh() return }
+    if mail_watch.alerts[i].to_json().search("\"request_id\":") >= 0 && mail_watch.alerts[i].request_id != "" {
+        let action_i = core_action_index(mail_watch.alerts[i].request_id)
+        if action_i < 0 || actions[action_i].status != "failed" {
+            mail_reply_error = "这封来信已有发送记录，请核对收件端；不会重复发送。"
+            mail_watch_refresh()
+            return
+        }
+    }
+    if draft.account != displayed.account || draft.to != displayed.to || draft.subject != displayed.subject || draft.body != displayed.body {
+        mail_reply_error = "草稿刚刚发生变化，请查看更新后的内容再确认。"
+        mail_watch_refresh()
+        return
+    }
+    let manual = mail_watch.alerts[i].to_json().search("\"reply_mode\":") >= 0 && mail_watch.alerts[i].reply_mode == "manual"
+    if !manual && !mail_reply_matches(mail_watch.alerts[i].intent,draft.body) {
+        mail_watch.alerts[i].status = "intent"
+        mail_watch_save()
+        mail_reply_error = "草稿与你的意思不一致，未发送。请重新起草，或自己写回复。"
+        mail_watch_refresh()
+        return
+    }
+    let account = mail_watch_account(draft.account)
+    if account == nil { mail_reply_error = "发送账号当前未授权，未发送。" mail_watch_refresh() return }
+    if mail_draft.status == "sending" || mail_draft.status == "unknown" {
+        mail_reply_error = "上一封邮件仍在发送或结果未知，请先核对收件端；没有重复发送。"
+        mail_watch_refresh()
+        return
+    }
+    if mail_draft.incoming_key != key && !mail_watch_archive_current() { mail_watch_refresh() return }
+    mail_account = account
+    mail_draft = draft.to_json().parse_json()
+    mail_draft.status = "DRAFT"
+    ui.mail_to.set_text(draft.to)
+    ui.mail_subject.set_text(draft.subject)
+    ui.mail_body.set_text(draft.body)
+    mail_reply_error = ""
+    mail_error = ""
+    mail_preview()
+    if mail_draft.status == "waiting_user" && mail_error == "" { mail_send_confirmed() }
+    mail_watch_refresh()
+}
+
+fn mail_watch_draft_status(){
+    if mail_draft.incoming_key == "" { return }
+    let i = mail_watch_alert_index(mail_draft.incoming_key)
+    if i < 0 || mail_watch.alerts[i].status == "dismissed" { return }
+    if (mail_watch.alerts[i].status == "unknown" || mail_watch.alerts[i].status == "sending") && mail_draft.status == "DRAFT" { return }
+    let state = mail_draft.status
+    if state == "DRAFT" {
+        if mail_draft.body == "" { state = "intent" }
+        if mail_watch.alerts[i].to_json().search("\"reply_mode\":") >= 0 && mail_watch.alerts[i].reply_mode == "manual" { state = "draft_ready" }
+        else { state = "draft_ready" }
+        let manual = mail_watch.alerts[i].to_json().search("\"reply_mode\":") >= 0 && mail_watch.alerts[i].reply_mode == "manual"
+        if !manual && !mail_reply_matches(mail_watch.alerts[i].intent,mail_draft.body) { state = "intent" }
+        if mail_watch.alerts[i].to_json().search("\"draft_intent\":") >= 0 && mail_watch.alerts[i].draft_intent != mail_watch.alerts[i].intent { state = "intent" }
+    }
+    if (mail_watch.alerts[i].status == "accepted" || mail_watch.alerts[i].status == "verified") && mail_draft.status == "DRAFT" { return }
+    let changed = mail_watch.alerts[i].status != state
+    let draft = mail_draft.to_json().parse_json()
+    if mail_watch.alerts[i].to_json().search("\"draft\":") < 0 || mail_watch.alerts[i].draft.to_json() != draft.to_json() { changed = true }
+    if changed {
+        mail_watch.alerts[i].draft = draft
+        mail_watch.alerts[i].status = state
+        if state == "accepted" || state == "verified" || state == "unknown" {
+            mail_watch.alerts[i].request_id = mail_draft.request_id
+            mail_watch.alerts[i].accepted_at = mail_draft.accepted_at
+        }
+        mail_watch_save()
+        mail_watch_refresh()
+    }
+}

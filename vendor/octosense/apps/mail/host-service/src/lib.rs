@@ -9,7 +9,7 @@
 //! | `mail.add_account` | – | `{id, address}` once the person signs in on the host's sheet |
 //! | `mail.remove_account` | `{account}` | `{}`; the account is deleted when no app uses it |
 //! | `mail.folders` | `{account}` | `[{id, name, role}]`, the inbox first (`role`: inbox, sent, drafts, junk, trash, archive, all, flagged or "") |
-//! | `mail.sync` | `{account, folder?}` | `{new, total}` after fetching new mail |
+//! | `mail.sync` | `{account, folder?}` | `{new, total, has_more?, reset?}` after fetching a bounded batch |
 //! | `mail.list` | `{account, folder?, offset?, limit?}` | `{folder, total, messages: [{id, sender, address, subject, preview, time, unread}]}` |
 //! | `mail.message` | `{account, folder?, message}` | `{id, sender, address, subject, body, html, attachments, date, time}` |
 //! | `mail.mark_read` | `{account, folder?, message}` | `{}` |
@@ -89,7 +89,7 @@ pub trait Transport: Send + Sync {
     fn test(&self, account: &Value) -> Result<(), String>;
     fn folders(&self, account: &Value) -> Result<Vec<Value>, String>;
     /// Mail in `folder` that `state` has not seen, newest first: `{messages,
-    /// state, reset}`. `state` is what the last fetch returned (or `{}`);
+    /// state, reset, has_more?}`. `state` is what the last fetch returned (or `{}`);
     /// `reset` says the folder must be fetched afresh.
     fn fetch(&self, account: &Value, folder: &str, state: &Value) -> Result<Value, String>;
     /// Tell the server a message was read, where it keeps that.
@@ -137,13 +137,10 @@ impl Transport for Network {
         if folder != INBOX {
             return Err("此账号只能读取收件箱。".into());
         }
-        let mut seen: Vec<Value> = state["seen"].as_array().cloned().unwrap_or_default();
+        let seen: Vec<Value> = state["seen"].as_array().cloned().unwrap_or_default();
         let known: HashSet<String> = seen.iter().filter_map(|v| v.as_str().map(str::to_string)).collect();
-        let fetched = network::fetch(account, &known)?;
-        let messages = fetched["messages"].as_array().cloned().unwrap_or_default();
-        seen.extend(messages.iter().map(|m| m["uid"].clone()));
-        seen.extend(fetched["skipped_uids"].as_array().cloned().unwrap_or_default());
-        Ok(json!({"messages": messages, "state": {"seen": seen}, "reset": false}))
+        let fetched = network::fetch(account, &known, state)?;
+        Ok(pop_batch(fetched, seen))
     }
     fn mark_seen(&self, account: &Value, folder: &str, message: &Value) -> Result<(), String> {
         let Some(uid) = message["imap_uid"].as_u64().filter(|_| is_imap(account)) else { return Ok(()) };
@@ -155,6 +152,16 @@ impl Transport for Network {
     fn send(&self, account: &Value, draft: &Value) -> Result<Value, String> {
         network::send(account, draft)
     }
+}
+
+// The same state/metadata adapter is exercised after the loopback POP fetch.
+fn pop_batch(fetched: Value, mut seen: Vec<Value>) -> Value {
+    let messages = fetched["messages"].as_array().cloned().unwrap_or_default();
+    seen.extend(messages.iter().map(|m| m["uid"].clone()));
+    seen.extend(fetched["skipped_uids"].as_array().cloned().unwrap_or_default());
+    let mut next_state = json!({"seen": seen});
+    if fetched["baseline_uids"].is_array() { next_state["baseline_uids"] = fetched["baseline_uids"].clone(); }
+    json!({"messages": messages, "state": next_state, "reset": false, "has_more": fetched["has_more"]})
 }
 
 /// Offer the service to the Card runner, over the network, with passwords in
@@ -232,11 +239,12 @@ pub fn register_with(transport: Arc<dyn Transport>) {
 }
 
 pub fn register_with_vault(transport: Arc<dyn Transport>, vault: Arc<dyn Vault>) {
-    octosense_appstore::services::register_host_service(Box::new(MailService { transport, vault, pending: Arc::default() }));
+    octosense_appstore::services::register_host_service(Box::new(MailService { transport, vault, pending: Arc::default(), jobs: mail_worker() }));
 }
 
 pub struct MailService {
     transport: Arc<dyn Transport>,
+    jobs: std::sync::mpsc::SyncSender<MailJob>,
     vault: Arc<dyn Vault>,
     /// The app waiting on a sign-in, and where its answer goes. Shared with
     /// the worker that tests an account: it answers on success, and leaves
@@ -274,9 +282,11 @@ impl Store {
     /// An account this app was granted, with its password, ready for the
     /// transport; or why not.
     fn account_for(&self, app_id: &str, id: &str) -> Result<Value, String> {
-        let account = self.granted(app_id, id)?;
-        let mut full = account.clone();
-        full["password"] = json!(self.vault.get(&self.dir, id)?);
+        self.granted(app_id, id)?;
+        let password = self.vault.get(&self.dir, id)?;
+        // Authorization may change while the platform secret store waits.
+        let mut full = self.granted(app_id, id)?;
+        full["password"] = json!(password);
         Ok(full)
     }
 
@@ -380,11 +390,13 @@ fn normalize(mut message: Value) -> Value {
 
 /// What an app sees of a message in a list.
 fn header(message: &Value) -> Value {
-    json!({
+    let mut header = json!({
         "id": message["id"], "sender": message["sender"], "address": message["address"],
         "subject": message["subject"], "preview": message["preview"], "time": message["time"],
         "unread": message["unread"].as_bool().unwrap_or(true),
-    })
+    });
+    if let Some(historical) = message["historical"].as_bool() { header["historical"] = json!(historical); }
+    header
 }
 
 /// The account a sign-in form describes, or why it cannot be one.
@@ -396,7 +408,7 @@ fn account_from_form(form: &Value) -> Result<Value, String> {
         account["host"] = json!("imap.gmail.com");
         account["port"] = json!("993");
     }
-    for key in ["address", "username", "password", "host", "port", "security", "smtp_host", "smtp_port", "smtp_security"] {
+    for key in ["address", "password", "host", "port", "security", "smtp_host", "smtp_port", "smtp_security"] {
         if let Some(value) = form[key].as_str().filter(|v| !v.trim().is_empty()) {
             // A password is taken as typed: spaces can be part of it.
             account[key] = json!(if key == "password" { value } else { value.trim() });
@@ -404,16 +416,41 @@ fn account_from_form(form: &Value) -> Result<Value, String> {
             account[key] = json!(value.to_string());
         }
     }
-    if text(&account, "username").is_empty() {
-        account["username"] = account["address"].clone();
-    }
+    // New sign-ins always use the full email; stored legacy usernames remain compatible.
+    account["username"] = account["address"].clone();
     network::validate(&account)?;
     Ok(account)
 }
 
-/// A worker thread for slow work, so the UI thread never waits on a server.
-fn work(f: impl FnOnce() + Send + 'static) {
-    std::thread::spawn(f);
+type MailJob = Box<dyn FnOnce() + Send>;
+
+/// One worker and a bounded queue: keychain waits cannot freeze the UI or
+/// create an unbounded number of threads. Cache mutations stay ordered.
+fn mail_worker() -> std::sync::mpsc::SyncSender<MailJob> {
+    let (jobs, receiver) = std::sync::mpsc::sync_channel::<MailJob>(8);
+    let _ = std::thread::Builder::new().name("octos-mail".into()).spawn(move || {
+        for job in receiver { job(); }
+    });
+    jobs
+}
+
+impl MailService {
+    fn work(&self, reply: Replier, f: impl FnOnce(Replier) + Send + 'static) {
+        let rejected = reply.clone();
+        let job: MailJob = Box::new(move || {
+            let recovery = reply.clone();
+            if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| f(reply))).is_err() {
+                recovery.send(Err("邮箱操作已中断，请核对结果；不要重复发送。".into()));
+            }
+        });
+        if let Err(error) = self.jobs.try_send(job) {
+            let message = match error {
+                std::sync::mpsc::TrySendError::Full(_) => "邮箱正在处理中，请稍后重试；本次未执行。",
+                std::sync::mpsc::TrySendError::Disconnected(_) => "邮箱后台暂不可用；本次未执行。",
+            };
+            rejected.send(Err(message.into()));
+        }
+    }
 }
 
 impl HostService for MailService {
@@ -460,7 +497,7 @@ impl HostService for MailService {
                     Err(e) => return reply.send(Err(e)),
                 };
                 let (transport, pending) = (self.transport.clone(), self.pending.clone());
-                work(move || {
+                self.work(reply, move |reply| {
                     if let Err(e) = transport.test(&account) {
                         return reply.send(Err(e));
                     }
@@ -496,37 +533,39 @@ impl HostService for MailService {
                 });
             }
             "remove_account" => {
-                let mut accounts = store.accounts();
-                let mut removed = false;
-                if let Some(account) = accounts.iter_mut().find(|a| text(a, "id") == account_arg) {
-                    if let Some(apps) = account["apps"].as_array_mut() {
-                        let before = apps.len();
-                        apps.retain(|a| a != call.app_id.as_str());
-                        removed = apps.len() < before;
+                self.work(reply, move |reply| {
+                    let mut accounts = store.accounts();
+                    let mut removed = false;
+                    if let Some(account) = accounts.iter_mut().find(|a| text(a, "id") == account_arg) {
+                        if let Some(apps) = account["apps"].as_array_mut() {
+                            let before = apps.len();
+                            apps.retain(|a| a != call.app_id.as_str());
+                            removed = apps.len() < before;
+                        }
                     }
-                }
-                let orphaned: Vec<String> = accounts
-                    .iter()
-                    .filter(|a| a["apps"].as_array().is_none_or(|apps| apps.is_empty()))
-                    .map(|a| text(a, "id").to_string())
-                    .collect();
-                accounts.retain(|a| !orphaned.iter().any(|id| id == text(a, "id")));
-                for id in &orphaned {
-                    store.forget(id);
-                }
-                let saved = store.save_accounts(&accounts);
-                if removed && saved.is_ok() {
-                    account_event(AccountEvent::Removed { app_id: call.app_id.clone(), account: account_arg.clone() });
-                }
-                reply.send(saved.map(|_| json!({})));
+                    let orphaned: Vec<String> = accounts
+                        .iter()
+                        .filter(|a| a["apps"].as_array().is_none_or(|apps| apps.is_empty()))
+                        .map(|a| text(a, "id").to_string())
+                        .collect();
+                    accounts.retain(|a| !orphaned.iter().any(|id| id == text(a, "id")));
+                    for id in &orphaned {
+                        store.forget(id);
+                    }
+                    let saved = store.save_accounts(&accounts);
+                    if removed && saved.is_ok() {
+                        account_event(AccountEvent::Removed { app_id: call.app_id.clone(), account: account_arg.clone() });
+                    }
+                    reply.send(saved.map(|_| json!({})));
+                });
             }
             "folders" => {
-                let account = match store.account_for(&call.app_id, &account_arg) {
-                    Ok(account) => account,
-                    Err(e) => return reply.send(Err(e)),
-                };
                 let transport = self.transport.clone();
-                work(move || {
+                self.work(reply, move |reply| {
+                    let account = match store.account_for(&call.app_id, &account_arg) {
+                        Ok(account) => account,
+                        Err(e) => return reply.send(Err(e)),
+                    };
                     let answer = match transport.folders(&account) {
                         Ok(folders) => {
                             let folders = json!(folders);
@@ -540,12 +579,12 @@ impl HostService for MailService {
                 });
             }
             "sync" => {
-                let account = match store.account_for(&call.app_id, &account_arg) {
-                    Ok(account) => account,
-                    Err(e) => return reply.send(Err(e)),
-                };
                 let transport = self.transport.clone();
-                work(move || {
+                self.work(reply, move |reply| {
+                    let account = match store.account_for(&call.app_id, &account_arg) {
+                        Ok(account) => account,
+                        Err(e) => return reply.send(Err(e)),
+                    };
                     let mut mailbox = store.mailbox(&account_arg, &folder);
                     let result = transport.fetch(&account, &folder, &mailbox["state"]).and_then(|fetched| {
                         let new: Vec<Value> = fetched["messages"].as_array().cloned().unwrap_or_default();
@@ -561,76 +600,84 @@ impl HostService for MailService {
                             object.remove("seen");
                         }
                         store.save_mailbox(&account_arg, &folder, &mailbox)?;
-                        Ok(json!({"new": new.len(), "total": total}))
+                        let mut answer = json!({"new": new.len(), "total": total});
+                        for key in ["has_more", "reset"] {
+                            if let Some(value) = fetched[key].as_bool() { answer[key] = json!(value); }
+                        }
+                        Ok(answer)
                     });
                     reply.send(result);
                 });
             }
             "list" => {
-                if let Err(e) = store.granted(&call.app_id, &account_arg) {
-                    return reply.send(Err(e));
-                }
-                let mailbox = store.mailbox(&account_arg, &folder);
-                let messages = mailbox["messages"].as_array().cloned().unwrap_or_default();
-                let offset = call.args["offset"].as_f64().unwrap_or(0.0).max(0.0) as usize;
-                let limit = call.args["limit"].as_f64().unwrap_or(50.0).clamp(1.0, 200.0) as usize;
-                let page: Vec<Value> = messages.iter().skip(offset).take(limit).map(header).collect();
-                reply.send(Ok(json!({"folder": folder, "total": messages.len(), "messages": page})));
+                self.work(reply, move |reply| {
+                    if let Err(e) = store.granted(&call.app_id, &account_arg) {
+                        return reply.send(Err(e));
+                    }
+                    let mailbox = store.mailbox(&account_arg, &folder);
+                    let messages = mailbox["messages"].as_array().cloned().unwrap_or_default();
+                    let offset = call.args["offset"].as_f64().unwrap_or(0.0).max(0.0) as usize;
+                    let limit = call.args["limit"].as_f64().unwrap_or(50.0).clamp(1.0, 200.0) as usize;
+                    let page: Vec<Value> = messages.iter().skip(offset).take(limit).map(header).collect();
+                    reply.send(Ok(json!({"folder": folder, "total": messages.len(), "messages": page})));
+                });
             }
             "message" | "mark_read" => {
-                if let Err(e) = store.granted(&call.app_id, &account_arg) {
-                    return reply.send(Err(e));
-                }
-                let wanted = text(&call.args, "message").to_string();
-                let mut mailbox = store.mailbox(&account_arg, &folder);
-                let Some(message) = mailbox["messages"]
-                    .as_array_mut()
-                    .and_then(|m| m.iter_mut().find(|m| text(m, "id") == wanted))
-                else {
-                    return reply.send(Err("邮件不存在。".into()));
-                };
-                let was_unread = message["unread"].as_bool().unwrap_or(true);
-                message["unread"] = json!(false);
-                let answer = if call.method() == "message" {
-                    let attachments: Vec<Value> = message["attachment_items"]
-                        .as_array()
-                        .map(|items| items.iter().map(|a| json!({"filename": a["filename"], "size": a["size"]})).collect())
-                        .unwrap_or_default();
-                    json!({
-                        "id": message["id"], "sender": message["sender"], "address": message["address"],
-                        "subject": message["subject"], "body": message["body"], "html": text(message, "html"),
-                        "attachments": attachments, "date": message["date"], "time": message["time"],
-                    })
-                } else {
-                    json!({})
-                };
-                let seen = message.clone();
-                let _ = store.save_mailbox(&account_arg, &folder, &mailbox);
-                reply.send(Ok(answer));
-                // The server hears too, where it keeps a read flag; failing
-                // that is not worth an error: the next sync is unaffected.
-                if was_unread {
-                    if let Ok(account) = store.account_for(&call.app_id, &account_arg) {
-                        let transport = self.transport.clone();
-                        work(move || {
-                            let _ = transport.mark_seen(&account, &folder, &seen);
-                        });
+                let transport = self.transport.clone();
+                self.work(reply, move |reply| {
+                    if let Err(e) = store.granted(&call.app_id, &account_arg) {
+                        return reply.send(Err(e));
                     }
-                }
+                    let wanted = text(&call.args, "message").to_string();
+                    let mut mailbox = store.mailbox(&account_arg, &folder);
+                    let Some(message) = mailbox["messages"]
+                        .as_array_mut()
+                        .and_then(|m| m.iter_mut().find(|m| text(m, "id") == wanted))
+                    else {
+                        return reply.send(Err("邮件不存在。".into()));
+                    };
+                    let was_unread = message["unread"].as_bool().unwrap_or(true);
+                    message["unread"] = json!(false);
+                    let answer = if call.method() == "message" {
+                        let attachments: Vec<Value> = message["attachment_items"]
+                            .as_array()
+                            .map(|items| items.iter().map(|a| json!({"filename": a["filename"], "size": a["size"]})).collect())
+                            .unwrap_or_default();
+                        json!({
+                            "id": message["id"], "sender": message["sender"], "address": message["address"],
+                            "subject": message["subject"], "body": message["body"], "html": text(message, "html"),
+                            "attachments": attachments, "date": message["date"], "time": message["time"],
+                        })
+                    } else {
+                        json!({})
+                    };
+                    let seen = message.clone();
+                    let _ = store.save_mailbox(&account_arg, &folder, &mailbox);
+                    reply.send(Ok(answer));
+                    // The server hears too, where it keeps a read flag; failing
+                    // that is not worth an error: the next sync is unaffected.
+                    if was_unread {
+                        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                            if let Ok(account) = store.account_for(&call.app_id, &account_arg) {
+                                let _ = transport.mark_seen(&account, &folder, &seen);
+                            }
+                        }));
+                    }
+                });
             }
             "send" => {
-                let account = match store.account_for(&call.app_id, &account_arg) {
-                    Ok(account) => account,
-                    Err(e) => return reply.send(Err(e)),
-                };
-                let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
-                let domain = text(&account, "address").split('@').nth(1).unwrap_or("octosense.local").to_string();
-                let draft = json!({
-                    "to": text(&call.args, "to"), "subject": text(&call.args, "subject"), "body": text(&call.args, "body"),
-                    "message_id": format!("<{now:x}@{domain}>"),
-                });
                 let transport = self.transport.clone();
-                work(move || {
+                self.work(reply, move |reply| {
+                    let account = match store.account_for(&call.app_id, &account_arg) {
+                        Ok(account) => account,
+                        Err(e) => return reply.send(Err(e)),
+                    };
+                    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+                    let domain = text(&account, "address").split('@').nth(1).unwrap_or("octosense.local").to_string();
+                    let draft = json!({
+                        "to": text(&call.args, "to"), "subject": text(&call.args, "subject"), "body": text(&call.args, "body"),
+                        "message_id": format!("<{now:x}@{domain}>"),
+                    });
                     let sent = transport.send(&account, &draft);
                     if sent.is_ok() {
                         contacts::record_sent(&store.dir, &account_arg, text(&draft, "to"));
@@ -666,7 +713,7 @@ fn choose(p){
 fn submit(){
     ui.status.set_text("正在验证账号…")
     host.request("mail.sheet.submit", {
-        address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
+        address: ui.address.text().trim() password: ui.password.text() protocol: protocol
         host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
         smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
     }, fn(r){ if r.is_ok { ui.status.set_text("登录成功") } else { ui.status.set_text(r.error) } })
@@ -704,10 +751,8 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
         status := Label{width: Fill text: "" draw_text.color: #xff3b30 draw_text.text_style.font_size: 12}
         Caption{text: "邮箱地址"}
         address := Field{empty_text: "例如 name@example.com"}
-        Caption{text: "登录用户名（与邮箱地址不同时填写）"}
-        username := Field{empty_text: "选填"}
-        Caption{text: "密码或邮箱应用专用密码"}
-        password := Field{empty_text: "请输入密码" is_password: true}
+        Caption{text: "密码或授权码"}
+        password := Field{empty_text: "请输入密码或授权码" is_password: true}
         RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
             imap_on := Chosen{text: "IMAP：所有文件夹"}
             imap_off := Choice{visible: false text: "IMAP：所有文件夹" on_click: || choose("imap")}
@@ -733,6 +778,123 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
 mod tests {
     use super::*;
     use std::sync::Mutex;
+
+    #[test]
+    fn new_signins_use_trimmed_email_and_ignore_separate_username() {
+        for protocol in ["imap", "pop3"] {
+            let account = account_from_form(&json!({
+                "address": "  reader@example.com  ", "username": "different-login-name",
+                "password": " fixture-only-value ", "protocol": protocol,
+            })).unwrap();
+            assert_eq!(account["address"], "reader@example.com");
+            assert_eq!(account["username"], "reader@example.com");
+            assert_eq!(account["password"], " fixture-only-value ");
+            assert_eq!(account["protocol"], protocol);
+        }
+    }
+
+    #[test]
+    fn signin_sheet_has_no_username_widget_or_binding() {
+        let sheet = signin_sheet();
+        assert!(!sheet.contains("username :="));
+        assert!(!sheet.contains("ui.username"));
+        assert!(sheet.contains("address: ui.address.text().trim()"));
+        assert!(sheet.contains("password: ui.password.text()"));
+        assert!(sheet.contains("is_password: true"));
+    }
+
+    #[test]
+    fn missing_email_does_not_report_an_uneditable_username_error() {
+        let error = account_from_form(&json!({"address": "  ", "password": "fixture-only-value"})).unwrap_err();
+        assert!(error.contains("\u{90ae}\u{7bb1}\u{5730}\u{5740}"));
+        assert!(!error.contains("\u{7528}\u{6237}\u{540d}"));
+    }
+
+    struct BlockingVault {
+        entered: std::sync::mpsc::Sender<()>,
+        release: Mutex<std::sync::mpsc::Receiver<()>>,
+    }
+    impl Vault for BlockingVault {
+        fn put(&self, _: &Path, _: &str, _: &str) -> Result<(), String> { Ok(()) }
+        fn get(&self, _: &Path, _: &str) -> Result<String, String> {
+            self.entered.send(()).unwrap();
+            self.release.lock().unwrap().recv().unwrap();
+            Ok("fixture-only-value".into())
+        }
+        fn remove(&self, _: &Path, _: &str) {
+            self.entered.send(()).unwrap();
+            self.release.lock().unwrap().recv().unwrap();
+        }
+    }
+
+    #[test]
+    fn keychain_wait_never_blocks_mail_dispatch_or_cached_accounts() {
+        use std::sync::mpsc;
+        use std::time::Duration;
+        for method in ["folders", "sync", "send", "message", "remove_account"] {
+            let dir = std::env::temp_dir().join(format!("mail-blocked-{}-{method}", std::process::id()));
+            let (entered_tx, entered_rx) = mpsc::channel();
+            let (release_tx, release_rx) = mpsc::channel();
+            let vault = Arc::new(BlockingVault { entered: entered_tx, release: Mutex::new(release_rx) });
+            let store = Store::at(&dir, vault.clone());
+            store.save_accounts(&[json!({"id": "fixture-account", "address": "self@example.invalid", "apps": ["os.mail"]})]).unwrap();
+            store.save_mailbox("fixture-account", INBOX, &json!({"messages": [message("u1", "Fixture")] })).unwrap();
+            let fake = Arc::new(Fake { password: "fixture-only-value".into(), inbox: vec![], sent: Mutex::default(), marked: Mutex::default() });
+            register_with_vault(fake, vault);
+            let (returned_tx, returned_rx) = mpsc::channel();
+            let caller_dir = dir.clone();
+            let caller = std::thread::spawn(move || {
+                let heap = send(&caller_dir, "os.mail", &format!("mail.{method}"),
+                    json!({"account": "fixture-account", "message": &network::hash("u1")[..24], "to": "self@example.invalid"}), false, &mut Host::default());
+                returned_tx.send(heap).unwrap();
+            });
+            entered_rx.recv_timeout(Duration::from_secs(2)).unwrap();
+            let returned = returned_rx.recv_timeout(Duration::from_millis(300));
+            // Always release before asserting, so the original failing implementation leaves no hung test thread.
+            release_tx.send(()).unwrap();
+            caller.join().unwrap();
+            let responsive = returned.is_ok();
+            let heap = returned.unwrap_or_else(|_| returned_rx.recv_timeout(Duration::from_secs(2)).unwrap());
+            let answer = wait(heap).unwrap();
+            assert!(!answer.to_string().contains("fixture-only-value"));
+            assert!(responsive, "{method} blocked the host/UI dispatch while the vault waited");
+            assert!(ask(&dir, "os.mail", "mail.accounts", Value::Null, false, &mut Host::default()).is_ok());
+            std::fs::remove_dir_all(dir).unwrap();
+        }
+    }
+
+    #[test]
+    fn mail_queue_is_bounded_and_queued_calls_recheck_grants() {
+        use std::sync::mpsc;
+        use std::time::Duration;
+        let dir = std::env::temp_dir().join(format!("mail-queue-{}", std::process::id()));
+        let (entered_tx, entered_rx) = mpsc::channel();
+        let (release_tx, release_rx) = mpsc::channel();
+        let vault = Arc::new(BlockingVault { entered: entered_tx, release: Mutex::new(release_rx) });
+        let store = Store::at(&dir, vault.clone());
+        store.save_accounts(&[json!({"id": "fixture-account", "address": "self@example.invalid", "apps": ["os.mail"]})]).unwrap();
+        let fake = Arc::new(Fake { password: "fixture-only-value".into(), inbox: vec![], sent: Mutex::default(), marked: Mutex::default() });
+        register_with_vault(fake.clone(), vault);
+        let mut host = Host::default();
+        let first = send(&dir, "os.mail", "mail.folders", json!({"account": "fixture-account"}), false, &mut host);
+        entered_rx.recv_timeout(Duration::from_secs(2)).unwrap();
+        // Cached UI data remains available while the single worker waits on a vault.
+        assert_eq!(ask(&dir, "os.mail", "mail.accounts", Value::Null, false, &mut host).unwrap().as_array().unwrap().len(), 1);
+        let mut queued = Vec::new();
+        for _ in 0..8 {
+            queued.push(send(&dir, "os.mail", "mail.send", json!({"account": "fixture-account", "to": "self@example.invalid"}), false, &mut host));
+        }
+        let overflow = send(&dir, "os.mail", "mail.send", json!({"account": "fixture-account"}), false, &mut host);
+        assert!(wait(overflow).unwrap_err().contains("本次未执行"));
+        assert!(entered_rx.try_recv().is_err(), "no extra credential worker was spawned");
+        store.save_accounts(&[json!({"id": "fixture-account", "apps": []})]).unwrap();
+        release_tx.send(()).unwrap();
+        assert!(wait(first).unwrap_err().contains("未获该账号的访问授权"));
+        for heap in queued { assert!(wait(heap).unwrap_err().contains("未获该账号的访问授权")); }
+        assert!(fake.sent.lock().unwrap().is_empty(), "revoked queued sends never reach transport");
+        assert!(entered_rx.try_recv().is_err(), "unauthorized queued calls never read the vault");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
 
     /// A mailbox in memory: `test` checks the password, `fetch` hands out
     /// what the seen set does not hold, `send` records the draft.
@@ -906,5 +1068,31 @@ mod tests {
         assert!(!dir.join("mail/secrets").join(&id).exists(), "the last app out takes the password with it");
         assert!(std::fs::read_dir(dir.join("mail")).unwrap().flatten().all(|e| !e.file_name().to_string_lossy().starts_with("box-")), "and its mail");
         assert!(contacts::known_addresses(&dir).is_empty(), "and whom it wrote to");
+    }
+        struct Batch;
+    impl Transport for Batch {
+        fn test(&self,_:&Value)->Result<(),String>{Ok(())}
+        fn folders(&self,_:&Value)->Result<Vec<Value>,String>{Ok(inbox_only())}
+        fn fetch(&self,_:&Value,_:&str,_:&Value)->Result<Value,String>{
+            Ok(json!({"messages":[{"id":"fixture-1","uid":"fixture-1","historical":true,"time":0}],"state":{},"reset":true,"has_more":true}))
+        }
+        fn mark_seen(&self,_:&Value,_:&str,_:&Value)->Result<(),String>{Ok(())}
+        fn send(&self,_:&Value,_:&Value)->Result<Value,String>{Err("fixture denies send".into())}
+    }
+    #[test]
+    fn prelim_host_sync_forwards_completeness_reset_and_header_history() {
+        let dir=std::env::temp_dir().join(format!("prelim-mail-host-{}",std::process::id()));
+        std::fs::create_dir_all(dir.join("mail")).unwrap();
+        let accounts=json!([{"id":"fixture","address":"fixture@example.invalid","apps":["os.fixture"]}]);
+        std::fs::write(dir.join("mail/accounts.json"),accounts.to_string()).unwrap();
+        vault::FileVault.put(&dir.join("mail"),"fixture","synthetic-test-only").unwrap();
+        register_with_vault(Arc::new(Batch),Arc::new(vault::FileVault));
+        let mut host=Host::default();
+        let sync=ask(&dir,"os.fixture","mail.sync",json!({"account":"fixture"}),false,&mut host).unwrap();
+        let list=ask(&dir,"os.fixture","mail.list",json!({"account":"fixture"}),false,&mut host).unwrap();
+        std::fs::remove_dir_all(dir).unwrap();
+        assert_eq!(sync["has_more"],true,"app must know history is incomplete");
+        assert_eq!(sync["reset"],true);
+        assert_eq!(list["messages"][0]["historical"],true,"cached history must stay distinguishable after UI sync");
     }
 }

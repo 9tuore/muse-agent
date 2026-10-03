@@ -1,15 +1,31 @@
 {
+  "agent": null,
   "capabilities": [
     "storage",
     "model",
     "mail",
-    "calendar"
+    "calendar",
+    "glance"
   ],
+  "compute": {
+    "instruction_budget": null,
+    "memory_bytes": null
+  },
   "id": "muse-goals",
   "integrity": {
-    "bundle_blake3": "8ce95c764b0911da2804d6bd8d6e402ee524e7ec4deb403f655bcc8cba285cb0"
+    "bundle_blake3": "87f361e9e92509fbcbbe102f7ee8678ae9b785aebc8c2ca3653cf22a1834fef9",
+    "signature": {
+      "key_id": "muse-local-rehearsal",
+      "value": "e46671e9cdbbd758c5561c3c068beed7823b1edd7a4c485cb9c1900e12cc356aca199800f7e17c4c1958e4d979fe770ade44f3dfd60d2a687142fad74fdc160a"
+    }
   },
   "name": "Muse",
+  "network": {
+    "hosts": []
+  },
   "schema": 1,
-  "version": "0.2.12"
+  "storage": {
+    "max_bytes": null
+  },
+  "version": "0.3.16"
 }

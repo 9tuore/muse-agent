@@ -1,0 +1,244 @@
+// Pure projections. Event objects stay intact; no Host/storage/UI effects.
+// Display dates are Asia/Shanghai (UTC+08:00), independent of event timezone.
+fn page_two(n){ if n < 10 { return "0" + n } return "" + n }
+
+fn page_month_days(year,month){
+    if month == 2 {
+        let leap = year - floor(year / 4) * 4 == 0
+            && (year - floor(year / 100) * 100 != 0 || year - floor(year / 400) * 400 == 0)
+        if leap { return 29 }
+        return 28
+    }
+    if month == 4 || month == 6 || month == 9 || month == 11 { return 30 }
+    return 31
+}
+
+fn page_day_number(year,month,day){
+    let y = year
+    if month <= 2 { y = y - 1 }
+    let era = floor(y / 400)
+    let yoe = y - era * 400
+    let mp = month - 3
+    if month <= 2 { mp = month + 9 }
+    let doy = floor((153 * mp + 2) / 5) + day - 1
+    return era * 146097 + yoe * 365 + floor(yoe / 4) - floor(yoe / 100) + doy - 719468
+}
+
+fn page_date_parts(day){
+    let z = day + 719468
+    let era = floor(z / 146097)
+    let doe = z - era * 146097
+    let yoe = floor((doe - floor(doe / 1460) + floor(doe / 36524) - floor(doe / 146096)) / 365)
+    let year = yoe + era * 400
+    let doy = doe - (365 * yoe + floor(yoe / 4) - floor(yoe / 100))
+    let mp = floor((5 * doy + 2) / 153)
+    let dom = doy - floor((153 * mp + 2) / 5) + 1
+    let month = mp + 3
+    if mp >= 10 { month = mp - 9 }
+    if month <= 2 { year = year + 1 }
+    return {year: year month: month day: dom date: year + "-" + page_two(month) + "-" + page_two(dom)}
+}
+
+fn page_parse_date(value){
+    if value == nil { return nil }
+    let parts = value.split("-")
+    if parts.len() != 3 || parts[0].len() != 4 || parts[1].len() != 2 || parts[2].len() != 2 { return nil }
+    let year = parts[0].to_f64()
+    let month = parts[1].to_f64()
+    let day = parts[2].to_f64()
+    if year != year || month != month || day != day || year < 1900 || year > 2100
+        || month < 1 || month > 12 || day < 1 || day > page_month_days(year,month)
+        || year != floor(year) || month != floor(month) || day != floor(day) { return nil }
+    if value != year + "-" + page_two(month) + "-" + page_two(day) { return nil }
+    return {year: year month: month day: day number: page_day_number(year,month,day)}
+}
+
+fn page_two_number(value){
+    if value.len() != 2 { return nil }
+    let n = value.to_f64()
+    if n != n || n < 0 || n != floor(n) || page_two(n) != value { return nil }
+    return n
+}
+
+// UTC seconds from the actual offset, never from a timezone name guess.
+fn page_event_epoch(value){
+    if value == nil { return nil }
+    let pieces = value.split("T")
+    if pieces.len() != 2 { return nil }
+    let date = page_parse_date(pieces[0])
+    if date == nil { return nil }
+    let clock = pieces[1]
+    let offset = 0
+    let sign = 1
+    let zone = []
+    if clock.split("+").len() == 2 {
+        zone = clock.split("+")[1].split(":")
+        clock = clock.split("+")[0]
+    } else if clock.split("-").len() == 2 {
+        zone = clock.split("-")[1].split(":")
+        clock = clock.split("-")[0]
+        sign = -1
+    } else if clock.split("Z").len() == 2 && clock.split("Z")[1] == "" {
+        clock = clock.split("Z")[0]
+    } else { return nil }
+    if zone.len() > 0 {
+        if zone.len() != 2 { return nil }
+        let zh = page_two_number(zone[0])
+        let zm = page_two_number(zone[1])
+        if zh == nil || zm == nil || zh > 23 || zm > 59 { return nil }
+        offset = sign * (zh * 3600 + zm * 60)
+    }
+    let fields = clock.split(":")
+    if fields.len() != 3 { return nil }
+    let hour = page_two_number(fields[0])
+    let minute = page_two_number(fields[1])
+    let second = page_two_number(fields[2].split(".")[0])
+    if hour == nil || minute == nil || second == nil || hour > 23 || minute > 59 || second > 59 { return nil }
+    let fraction = 0
+    let sec_parts = fields[2].split(".")
+    if sec_parts.len() > 1 {
+        if sec_parts.len() != 2 || sec_parts[1] == "" { return nil }
+        // Host eventValue currently emits whole seconds; RFC3339 fractions remain valid.
+        fraction = ("0." + sec_parts[1]).to_f64()
+        if fraction != fraction || fraction < 0 || fraction >= 1 { return nil }
+    }
+    return date.number * 86400 + hour * 3600 + minute * 60 + second + fraction - offset
+}
+
+fn page_weekday(day){
+    let n = day + 3
+    return n - floor(n / 7) * 7
+}
+
+// Format the same actual offset used by the date projection for visible event times.
+fn calendar_display_time(value){
+    let epoch = page_event_epoch(value)
+    if epoch == nil { return "" }
+    let local = epoch + 28800
+    let day = floor(local / 86400)
+    let second = floor(local - day * 86400)
+    let hour = floor(second / 3600)
+    let minute = floor((second - hour * 3600) / 60)
+    return page_date_parts(day).date + " " + page_two(hour) + ":" + page_two(minute) + " +08:00"
+}
+
+fn calendar_display_today(){
+    return page_date_parts(floor((time_now() + 28800) / 86400)).date
+}
+
+fn calendar_display_move(cursor,view,step){
+    let date = page_parse_date(cursor)
+    if date == nil { return "" }
+    if step != -1 && step != 1 { return cursor }
+    if view == "week" { return page_date_parts(date.number + step * 7).date }
+    if view != "month" && view != "agenda" { return cursor }
+    let year = date.year
+    let month = date.month + step
+    if month == 0 { year = year - 1 month = 12 }
+    if month == 13 { year = year + 1 month = 1 }
+    if year < 1900 || year > 2100 { return "" }
+    let day = date.day
+    let max_day = page_month_days(year,month)
+    if day > max_day { day = max_day }
+    return year + "-" + page_two(month) + "-" + page_two(day)
+}
+
+fn calendar_display_rows(events,view,cursor){
+    let display = {view: view cursor: cursor label: "" start: "" end: "" rows: []
+        time_zone: "Asia/Shanghai (UTC+08:00)" error: "" skipped: 0}
+    let date = page_parse_date(cursor)
+    if date == nil { display.error = "日期需为有效的 YYYY-MM-DD。" return display }
+    if view != "month" && view != "week" && view != "agenda" {
+        display.error = "请选择月、周或日程视图。" return display
+    }
+    let start_day = page_day_number(date.year,date.month,1)
+    let end_day = start_day + page_month_days(date.year,date.month)
+    let grid_start = start_day - page_weekday(start_day)
+    let count = 42
+    display.label = date.year + "年" + date.month + "月"
+    if view == "week" {
+        start_day = date.number - page_weekday(date.number)
+        end_day = start_day + 7
+        grid_start = start_day
+        count = 7
+        display.label = page_date_parts(start_day).date + " — " + page_date_parts(end_day - 1).date
+    }
+    if view == "agenda" { grid_start = start_day count = end_day - start_day }
+    display.start = page_date_parts(start_day).date + "T00:00:00+08:00"
+    display.end = page_date_parts(end_day).date + "T00:00:00+08:00"
+    // Build the calendar cells once, then place each event on its intersecting dates.
+    // Avoid scanning the entire Host list again for every date during render.
+    for i in count {
+        let day_number = grid_start + i
+        let parts = page_date_parts(day_number)
+        display.rows.push({date: parts.date day: parts.day weekday: page_weekday(day_number)
+            outside: day_number < start_day || day_number >= end_day events: []})
+    }
+    let projected = []
+    let changes = []
+    let placements = 0
+    for i in count { changes.push(false) }
+    if events != nil {
+        for event in events {
+            let start = page_event_epoch(event["start"])
+            let end = page_event_epoch(event["end"])
+            if start == nil || end == nil || end <= start { display.skipped = display.skipped + 1 }
+            else {
+                let first = floor((start + 28800) / 86400)
+                let last = floor((end + 28800) / 86400)
+                if end + 28800 == last * 86400 { last = last - 1 }
+                if first < start_day { first = start_day }
+                if last >= end_day { last = end_day - 1 }
+                if last >= first {
+                    projected.push({event: event first: first last: last})
+                    placements = placements + last - first + 1
+                    changes[first - grid_start] = true
+                    if last + 1 < end_day { changes[last + 1 - grid_start] = true }
+                }
+            }
+        }
+    }
+    if placements <= 512 {
+        for entry in projected {
+            for offset in entry.last - entry.first + 1 { display.rows[entry.first + offset - grid_start].events.push(entry.event) }
+        }
+    } else {
+        // Dense multi-day sets share the same immutable list until a date boundary changes it.
+        // This avoids duplicating hundreds of events once per unchanged day under VM fuel limits.
+        let current = []
+        for i in count {
+            if changes[i] {
+                current = []
+                let day = grid_start + i
+                for entry in projected { if entry.first <= day && entry.last >= day { current.push(entry.event) } }
+            }
+            if !display.rows[i].outside { display.rows[i].events = current }
+        }
+    }
+    if view == "agenda" {
+        let rows = []
+        for row in display.rows { if row.events.len() > 0 { rows.push(row) } }
+        display.rows = rows
+    }
+    return display
+}
+
+// Capability authorization alone never means the external connection is usable.
+fn page_calendar_readiness(enabled,permission,calendar_id){
+    if !enabled { return {ready: false label: "日历未启用"} }
+    if permission == "write_only" { return {ready: false label: "仅写入权限，无法查询"} }
+    if permission == "full_access" {
+        if calendar_id == "" || calendar_id == nil { return {ready: false label: "请选择系统日历"} }
+        return {ready: true label: "可查询系统日历"}
+    }
+    if permission == "not_determined" { return {ready: false label: "等待系统授权"} }
+    if permission == "denied" || permission == "restricted" { return {ready: false label: "系统日历访问受限"} }
+    return {ready: false label: "日历暂不可用"}
+}
+
+fn page_mail_readiness(enabled,account_id,connection_verified){
+    if !enabled { return {ready: false label: "邮箱未启用"} }
+    if account_id == nil || account_id == "" { return {ready: false label: "请连接邮箱"} }
+    if !connection_verified { return {ready: false label: "连接待验证"} }
+    return {ready: true label: "邮箱已连接"}
+}
