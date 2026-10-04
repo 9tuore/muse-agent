@@ -1,3 +1,11 @@
+## 2026-10-04：当前进度与源码桌面交付
+
+本轮仅整理交付，应用仍0.3.25，产品5 PASS /13 PARTIAL /2 BLOCKED。公开main d8a2989独立REST核对755文件内容/模式一致，允许清单源码复制、文件夹及ZIP逐文件核验通过。桌面`Muse-项目汇报与源码-0.3.25-20261004-1806/`与同名ZIP，781文件、约16.90MiB/9.38MiB，含当前进度、最新公开源码、脱敏验收/交接及构建说明。基础SDK依锁恢复，完整本地差异保留；不是预编译安装包。
+
+应用代码/窗口/账户/生产数据未改，无新增外部动作或付费调用。旧失败与未提交资料保留。T17第二模型、T18同最终候选完整链、电脑重启及最新版重复冷启动仍待，不提升产品判定。SHA与文件明细在交付核验.json；ZIP SHA256：7647319024cd1ee8bbf601e7dcfaeaa19e7866c0e8e51757acd17377ce2c4cbb。
+
+---
+
 ## 2026-10-04：日历阻塞修复0.3.25已验证
 
 按用户本轮要求借鉴Aurora-X公开产品说明，修复允许窗口协议、历史候选恢复、同Goal手动改期和冷启动账号缓存阻塞。官方Splash/Makepad、model.complete、宿主Calendar及批准/防重复保留；无新Capability、运行时或宿主补丁。之前已验证的源码清理集成进新候选。
@@ -5,6 +13,8 @@
 实际card-host同一最终源133/133合成断言通过，88092 token等价，本地扩展Hub check/scan/签名/catalog通过。真实模型3次相关调用返回成功和known_usage。0.3.23创建本人已批准的唯一测试事件并独立get；0.3.25同ID改到16:00–16:30、独立get、完整Shell重启七文件SHA一致、无重放、删除并get确认不存在。创建与最终版本分开记录，不冒充同最终候选完整邮件链。最终窗口8484，来信提醒已恢复，未授权自动模型分析保持关闭。
 
 可读0b16836e / payload a44677c4 / Host0fd99361。398函数（清理前404），保护旧独立安装和Python核心/生产资料，失败证据与旧Tag不删。项目仍PARTIAL，5 PASS /13 PARTIAL /2 BLOCKED；第二模型、完整同候选邮件链和正式AppHub材料待完成。详情MUSE_CALENDAR_REPAIR_REPORT.md和official_muse/prelim/evidence/calendar-policy-0325/。按既有授权本地提交并同步公开main，提交号以本轮Git记录为准。
+
+GitHub实际同步完成：公开main `d8a2989da8bb619139081ec96ddd05452eb364cb`，独立REST逐个核对755文件的路径、blob SHA及模式全部一致。公开工作区干净，旧Tag不动；读回记录留在忽略的build/calendar-policy-20261004/github-readback.json。
 
 ---
 

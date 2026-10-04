@@ -1,0 +1,60 @@
+{
+  "status": "RC_STARTED",
+  "start_at_beijing": "2026-10-04T21:51:29+08:00",
+  "deadline_beijing": "2026-10-05T00:51:29+08:00",
+  "dev_start_commit": "3c2d69ac6ea1d815d0f6072bc0afe9ea518f655c",
+  "public_base_commit": "d8a2989da8bb619139081ec96ddd05452eb364cb",
+  "branch": "codex/muse-rc-finalization",
+  "baseline_version": "0.3.25",
+  "rc_version": "0.3.26-rc1",
+  "original_acceptance_counts": {
+    "PASS": 5,
+    "PARTIAL": 13,
+    "BLOCKED": 2
+  },
+  "sdk": [
+    {
+      "name": "makepad",
+      "commit": "bf318136a375c4d1fb7ee10e13e27336b6d98744",
+      "tree_sha256": "1d77976e6da1a8d26c690d3bc606bd4990779e9098d778f4445c126087e00096"
+    },
+    {
+      "name": "octosense",
+      "commit": "7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
+      "tree_sha256": "245528b38ceddcb14ea4457034ad41fbe4877cef18910145f70aed0391c4d128"
+    },
+    {
+      "name": "app-hub",
+      "commit": "e8601b80ce104db2e48208094714bdcffdce6b5a",
+      "tree_sha256": "dd0becd97554c0349d58313bba065f17eb0d191c3ae81927890cf269b5af7064"
+    },
+    {
+      "name": "octoscript",
+      "commit": "68f6a9df55692b5d8ef8873a12721e279a3f40d6",
+      "tree_sha256": "cacc27110a2c3691083b37fbb1f375e39917bb20b2a85c1b02c19b2a708d58f2"
+    },
+    {
+      "name": "octoscript-makepad",
+      "commit": "019e6bf043b484676ff39d6ff5be58a1e94abed8",
+      "tree_sha256": "732341716284e2b5f7ec9cf7d4dd68a93260b339596c51ba05bbfa45cbe8dc22"
+    }
+  ],
+  "host_sha256": "0fd9936126acad3a5c61ac1e7a477ba2c9393d740572ec517472f52da9181047",
+  "hub_sha256": "de6840e5aa85c73c915434488da2cd4ec8f633bde7f2f69f6259e17993318e6f",
+  "calendar_extension": "Existing EventKit overlay locked in sdk-overlays/octosense; not upstream accepted",
+  "success_gate": "all original T01-T20 PASS; same final source/bundle/host/hub; formal materials complete",
+  "source_entry": "official_muse/app/source/main.splash",
+  "workers": {
+    "controller": "production source,modules,UI,final integration",
+    "A2": "official_muse/rc/core_chain only;port8509",
+    "A3": "official_muse/rc/memory_model only;port8510",
+    "A4": "official_muse/rc/packaging only;no shared build deletion"
+  },
+  "preserved_untracked_dev": [
+    "?? official_muse/prelim/evidence/chat/management-039-r2/",
+    "?? official_muse/prelim/evidence/chat/management-039/",
+    "?? official_muse/prelim/evidence/chat/management-visible-039/",
+    "?? official_muse/prelim/evidence/fix-guide-0313/visible-990-r2/failure.snap.json",
+    "?? official_muse/prelim/evidence/fix-guide-0313/visible-990/failure.snap.json"
+  ]
+}
