@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ten process cold launches and five ordinary app reopens of one real Shell.
+"""Measured process cold launches, app reopens and Shell restarts of one candidate.
 
 Only synthetic local-model-only profiles are accepted. No model submission,
 Mail send, Calendar write, production state replacement or system restart.
@@ -16,7 +16,9 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--candidate',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--port',type=int,required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--candidate',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--port',type=int,required=True)
+    p.add_argument('--cold-count',type=int,default=10);p.add_argument('--reopen-count',type=int,default=5);p.add_argument('--restart-count',type=int,default=0);p.add_argument('--fail-fast',action='store_true');a=p.parse_args()
+    assert 1<=a.cold_count<=30 and 0<=a.reopen_count<=20 and 0<=a.restart_count<=20
     assert 8480<=a.port<=8499
     c=a.candidate.resolve();m=json.loads((c/'candidate.json').read_text());assert m['profile_kind']=='LOCAL_MODEL_ONLY_SYNTHETIC'
     private=Path(m.get('runtime_private_path',str(c/'private')));jail=private/'apps/muse-goals'
@@ -43,7 +45,7 @@ def main():
     selected=next(s for s in chat_seed['sessions'] if s['id']==chat_seed['selected_id'])
     assert selected.get('focus_project') and selected.get('focus_owner')
     expected_focus='当前项目 · '+selected['focus_project']+'  /  '+selected['focus_owner']
-    report={'kind':'SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN','version':m['version'],'code_commit':m['commit'],'source_sha256':m['source_sha256'],'host_sha256':m['host_sha256'],'wall_budget_ms':64,'seeded_record_counts':seeded_counts,'protected_files_sha256':before,'cold':[],'reopen':[],'computer_restart':'NOT_TESTED_REQUIRES_USER','scope':'Synthetic app state; no paid model/backend semantics or real external chain acceptance.'}
+    report={'kind':'SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN','version':m['version'],'code_commit':m['commit'],'source_sha256':m['source_sha256'],'host_sha256':m['host_sha256'],'wall_budget_ms':64,'seeded_record_counts':seeded_counts,'protected_files_sha256':before,'cold':[],'reopen':[],'restart':[],'requested_counts':{'cold':a.cold_count,'reopen':a.reopen_count,'restart':a.restart_count},'computer_restart':'NOT_TESTED_REQUIRES_USER','scope':'Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.'}
     def save(): (a.out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     def inspect(run,started,log_since=0):
         remote.wait_for(expected_focus,20)
@@ -81,7 +83,10 @@ def main():
         assert run['protected_state_equal'] and run['model_ledger_equal']
         run['seconds']=time.monotonic()-started;run['pid']=json.loads(remote.request('/s'))['pid'];run['pass']=True
     save()
-    for i in range(10):
+    def stop_on_failure(run):
+        if a.fail_fast and not run['pass']:
+            report['stopped_after_failure']=True;save();raise SystemExit(1)
+    for i in range(a.cold_count):
         run={'index':i+1,'pass':False};report['cold'].append(run);d=a.out/f'cold-{i+1:02d}';d.mkdir();t=time.monotonic()
         try:
             command=[sys.executable,str(ROOT/'official_muse/ui_memory/launch_candidate.py'),'--candidate',str(c),'--port',str(a.port)]
@@ -92,7 +97,8 @@ def main():
         try:(d/'snap.json').write_bytes(remote.request('/snap'));(d/'log.json').write_bytes(remote.request('/log',n=300));remote.shot(d/'visible.png')
         except Exception as e:run['capture_error']=str(e)
         save();print(json.dumps({'kind':'cold',**run},ensure_ascii=False),flush=True)
-    for i in range(5):
+        stop_on_failure(run)
+    for i in range(a.reopen_count):
         run={'index':i+1,'pass':False};report['reopen'].append(run);d=a.out/f'reopen-{i+1:02d}';d.mkdir();t=time.monotonic()
         try:
             pid=json.loads(remote.request('/s'))['pid'];offset=remote.log(300)['n'];remote.request('/k',k='down',c='KeyW',cmd=1);remote.request('/k',k='up',c='KeyW',cmd=1);time.sleep(.3)
@@ -102,6 +108,18 @@ def main():
         try:(d/'snap.json').write_bytes(remote.request('/snap'));(d/'log.json').write_bytes(remote.request('/log',n=300));remote.shot(d/'visible.png')
         except Exception as e:run['capture_error']=str(e)
         save();print(json.dumps({'kind':'reopen',**run},ensure_ascii=False),flush=True)
-    report['cold_pass']=sum(r['pass'] for r in report['cold']);report['reopen_pass']=sum(r['pass'] for r in report['reopen']);save()
-    if report['cold_pass']!=10 or report['reopen_pass']!=5:raise SystemExit(1)
+        stop_on_failure(run)
+    for i in range(a.restart_count):
+        run={'index':i+1,'pass':False};report['restart'].append(run);d=a.out/f'restart-{i+1:02d}';d.mkdir();t=time.monotonic()
+        try:
+            prior_pid=json.loads(remote.request('/s'))['pid']
+            command=[sys.executable,str(ROOT/'official_muse/ui_memory/launch_candidate.py'),'--candidate',str(c),'--port',str(a.port),'--restart']
+            proc=subprocess.run(command,text=True,capture_output=True,timeout=40);(d/'launch.txt').write_text(proc.stdout+proc.stderr);assert proc.returncode==0
+            remote.click('打开');inspect(run,t);run['prior_pid']=prior_pid;assert run['pid']!=prior_pid,'Shell process did not restart'
+        except Exception as e:run['error']=str(e);run['seconds']=time.monotonic()-t;(d/'exception.txt').write_text(traceback.format_exc())
+        try:(d/'snap.json').write_bytes(remote.request('/snap'));(d/'log.json').write_bytes(remote.request('/log',n=300));remote.shot(d/'visible.png')
+        except Exception as e:run['capture_error']=str(e)
+        save();print(json.dumps({'kind':'restart',**run},ensure_ascii=False),flush=True);stop_on_failure(run)
+    report['cold_pass']=sum(r['pass'] for r in report['cold']);report['reopen_pass']=sum(r['pass'] for r in report['reopen']);report['restart_pass']=sum(r['pass'] for r in report['restart']);save()
+    if report['cold_pass']!=a.cold_count or report['reopen_pass']!=a.reopen_count or report['restart_pass']!=a.restart_count:raise SystemExit(1)
 if __name__=='__main__':main()

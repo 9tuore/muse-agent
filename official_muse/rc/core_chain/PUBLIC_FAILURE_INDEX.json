@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "raw_evidence_policy": "Retained locally unchanged; excluded from public staging. References are local-only, not bundled files.",
+  "failures": [
+    {
+      "id": "first-native-request-id",
+      "classification": "production_top_level_field_presence_bug",
+      "finding": "Nested draft.request_id satisfied serialized JSON search but top-level property was absent; native property error before send/restart completion.",
+      "evidence": {
+        "local_reference": "evidence/full-compact-20261004-2215/fixture/runtime.log",
+        "sha256": "5d7ef0d25dd3d8fbdd4490cda9bc303ddda0e57482d2511ed7eb4a3e5d5a124f",
+        "bytes": 4908,
+        "published_raw": false
+      },
+      "later_status": "Controller integrated guarded top-level checks; later fixture passed; not live acceptance."
+    },
+    {
+      "id": "rc3-initial-harness",
+      "classification": "harness_parser_error",
+      "finding": "Initial probe used reserved variable ok; probe error, not a production failure.",
+      "evidence": {
+        "local_reference": "evidence/fault-rc3-initial-20261004-2340/summary.json",
+        "sha256": "c1798b812635d76dd18d6ce01cfa8f686454255fa8ab01e25a3c6c9468a1ae25",
+        "bytes": 1288,
+        "published_raw": false
+      },
+      "later_status": "Harness variable corrected; original failed attempt retained."
+    },
+    {
+      "id": "rc3-native-storage",
+      "classification": "production_native_io_uncaught",
+      "finding": "Actual read denial and write directory collision trapped rather than following fail-closed return checks.",
+      "evidence": {
+        "local_reference": "evidence/fault-rc3-all20-reviewed-20261004-2326/summary.json",
+        "sha256": "dbed7739efec3a57230a8d94cf0b52c70c7ea159f1eb45f669a945d83638bd13",
+        "bytes": 208808,
+        "published_raw": false
+      },
+      "passed_cases": 18,
+      "failed_cases": [
+        "storage_write_fail",
+        "storage_read_fail"
+      ],
+      "later_status": "Controller storage wrappers integrated; actual RC4 and RC5 v5 fault replays passed."
+    },
+    {
+      "id": "storage-catch-pending",
+      "classification": "production_waiting_lock",
+      "finding": "After catching write failure, pre-host Calendar early return still left pending true.",
+      "evidence": {
+        "local_reference": "evidence/storage-catch-recovery-20261004-2326/summary.json",
+        "sha256": "2c2c4922ed6bb7f4c09eec116a928c6592cc5f0b0d0db917c9663c3bac4cfb59",
+        "bytes": 16697,
+        "published_raw": false
+      },
+      "later_status": "Controller early-return unlock fix integrated; not_stuck_pending passed in actual production RC4 and RC5 v5."
+    },
+    {
+      "id": "rc5v5-newhost-startup-r1",
+      "classification": "source_preparation_time_budget",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba",
+      "host_sha256": "efd7c8568182e9ad9957b01cd0a7256938df89e648095ad512eb961dd98f625a",
+      "recorded_cases": {
+        "model_unavailable": "ERROR",
+        "model_timeout": "ERROR",
+        "invalid_json": "ERROR",
+        "schema_violation": "ERROR",
+        "mail_unavailable": "PASS"
+      },
+      "additional_interrupted_case": "mail_timeout",
+      "evidence": {
+        "local_reference": "evidence/fault-rc5v5-newhost-20261005-r1/summary.json",
+        "sha256": "6e05740075068904469a38a02927d558bcd427526154ce61683d7861c9793bf9",
+        "bytes": 1536,
+        "published_raw": false
+      },
+      "additional_log": {
+        "local_reference": "evidence/fault-rc5v5-newhost-20261005-r1/mail_timeout/first/runtime.log",
+        "sha256": "50395fdb0abcc9956aac3740fc9f8ce09fed81b623cd25c53058f648cd7821f9",
+        "bytes": 10515,
+        "published_raw": false
+      },
+      "later_status": "Same-byte single and full serial replay passed; root startup fix remains pending final 4K Host retest."
+    },
+    {
+      "id": "rc5v5-newhost-proposal-r1",
+      "classification": "business_entry_time_budget",
+      "finding": "schedule_supersede_result exceeded time budget during second Calendar readback Memory supersession; no final probe report or restart run.",
+      "evidence": {
+        "local_reference": "evidence/rc5v5-newhost-proposal-20261005-r1/fixture/runtime.log",
+        "sha256": "56f079184b5a566f07fa115bc1bcbb6de9860887c84d307bffc9fd65debd94eb",
+        "bytes": 4980,
+        "published_raw": false
+      },
+      "later_status": "One unchanged-byte repeat passed 25+6; cause not proven, failure not dismissed."
+    }
+  ],
+  "latest_v8_4k_replay": {
+    "source_sha256": "eeb0b12635661c7f3e37a4d9b4dd628b1d0c2a7fcc90e9e78bba8f8cb4c87e4f",
+    "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+    "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "status": "First-attempt production-function fixtures PASS; historical failure evidence unchanged. No stress-load or real ModelHost claim.",
+    "checks": {
+      "core": 28,
+      "core_restart": 4,
+      "proposal": 25,
+      "proposal_restart": 6,
+      "faults": 20,
+      "fault_restarts": 3
+    },
+    "replay_mapping": {
+      "request_id_nested_field": "Core send and fresh restart completed",
+      "native_storage_read_write": "Actual read-denial/write-collision cases PASS",
+      "storage_pending_lock": "write-failure not_stuck_pending PASS",
+      "source_preparation": "All 20 cases plus three restarts loaded without a reported time-budget error",
+      "proposal_memory_supersession": "First proposal run passed 25+6 including second event readback Memory supersession",
+      "historical_failures_preserved": true
+    }
+  },
+  "v9_account_restore": {
+    "original_reproduction": "Controller-reported stable live accepted draft had nil selected account after restart, and choosing original account was blocked. A2 did not perform that live operation.",
+    "verification": {
+      "function": "mail_select_account",
+      "cases": 8,
+      "passed_checks": 32,
+      "failed_checks": [],
+      "rest_byte_identical_to_v8": true,
+      "baseline_source_sha256": "eeb0b12635661c7f3e37a4d9b4dd628b1d0c2a7fcc90e9e78bba8f8cb4c87e4f",
+      "source_sha256": "4ce87cc7dc41e2645e7b4914bd6a2d742f9e056e5b2cc414c3ead37efcbf7746",
+      "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+      "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+      "pending_model_guard": "mail_model_pending",
+      "evidence": {
+        "local_reference": "evidence/rc5v9-account-restore-20261005-r1/summary.json",
+        "sha256": "2ee132c067372b349b3c1967c52747fdcc0992b43b8a5fabfb0c860fb6074ecf",
+        "bytes": 860,
+        "published_raw": false
+      }
+    },
+    "unchanged_proof_reuse": "Full core/proposal/fault tests executed on V8. V9 mail_select_account verified separately; only byte-identical unchanged source reuses V8 proof. No claim full chain was rerun on V9."
+  }
+}

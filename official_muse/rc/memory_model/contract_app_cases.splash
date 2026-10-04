@@ -1,0 +1,73 @@
+// Case data/oracles are independent fixture inputs; production functions untouched.
+let contract_cases=[]
+let contract_results=[]
+let contract_at=0
+fn contract_session(){
+    chat_sessions=[{id:"contract-session" title:"合成契约检查" created_at:1 updated_at:2 messages:[] focus_project:"RC契约" focus_owner:"本人" proposals:[]}]
+    chat_selected_id="contract-session" messages=[] chat_requests=[] fixture_queue=[]
+    chat_pending=false model_pending=false chat_last_state=""
+    gm_set_focus("RC契约","本人")
+}
+fn contract_output(action,changed){
+    if action=="mail_compose" {
+        let recipient="recipient@example.invalid" if changed {recipient="changed@example.invalid"}
+        return {intent:action proposal:{to:recipient subject:"合成主题" body:"只起草，待确认。"}}
+    }
+    let start="2032-03-01T15:00:00+08:00" let end="2032-03-01T16:00:00+08:00"
+    if changed {start="2032-03-01T16:00:00+08:00" end="2032-03-01T17:00:00+08:00"}
+    return {intent:action proposal:{title:"合成讨论" start:start end:end time_zone:"Asia/Shanghai" location:""}}
+}
+fn contract_begin(){
+    fixture_seed() chat_boot() gm_boot()
+    contract_cases=fs.read("app-cases.json").parse_json()
+    start_timeout(0.03,||contract_case())
+}
+fn contract_case(){
+    let c=contract_cases[contract_at]
+    let actual=nil let passed=false let detail=nil
+    if c.kind=="epoch" {
+        actual=calendar_iso_epoch(c.data.value)
+        passed=actual==nil && c.expected==nil
+        if actual!=nil && c.expected!=nil {passed=actual-c.expected>= -0.001 && actual-c.expected<=0.001}
+    }
+    if c.kind=="memory_time" {actual=gm_time_valid(c.data.value) passed=actual==c.expected}
+    if c.kind=="reply_match" {actual=mail_reply_matches(c.data.intent,c.data.body) passed=actual==c.expected}
+    if c.kind=="cancel" {actual=chat_cancel_request(c.data.text) passed=actual==c.expected}
+    if c.kind=="keep_classifier" {actual=chat_keep_request(c.data.text) passed=actual==c.expected}
+    if c.kind=="proposal_metadata" || c.kind=="proposal_reject" {
+        contract_session()
+        let added=chat_add_proposal(chat_selected_id,c.id,"",c.data.message,c.data.output)
+        actual=!added
+        if c.kind=="proposal_metadata" {
+            actual=added && chat_sessions[0].proposals.len()==1 && chat_sessions[0].proposals[0].state=="candidate"
+                && chat_sessions[0].proposals[0].payload[c.data.extra]==nil
+        }
+        passed=actual==c.expected && actions.len()==0 && fixture_writes==0 && goals.len()==0
+        detail={added:added proposals:chat_sessions[0].proposals}
+    }
+    if c.kind=="no_change" {
+        contract_session()
+        let seed_message="请安排2032年3月1日15点到16点的合成讨论。"
+        if c.data.action=="mail_compose" {seed_message="请起草邮件给recipient@example.invalid。"}
+        let seeded=chat_add_proposal(chat_selected_id,"seed:"+c.id,"",seed_message,contract_output(c.data.action,false))
+        let before=chat_sessions[0].proposals[0].payload.to_json()
+        ui.goal_input.set_text(c.data.message) send_chat()
+        let queued=fixture_queue.len()
+        if queued>0 {
+            let model=fixture_queue[queued-1]
+            model({is_ok:true data:{output:contract_output(c.data.action,true).proposal provider:"synthetic-fixture" attempts:1 usage:{input_tokens:1 output_tokens:1} known_usage:true}})
+        }
+        actual=seeded && chat_sessions[0].proposals.len()==1 && chat_sessions[0].proposals[0].payload.to_json()==before
+        passed=actual==c.expected && actions.len()==0 && fixture_writes==0 && goals.len()==0
+        detail={model_callbacks:queued proposals:chat_sessions[0].proposals before:before}
+        chat_stop()
+    }
+    contract_results.push({id:c.id category:c.category kind:c.kind passed:passed expected:c.expected actual:actual detail:detail})
+    contract_at=contract_at+1
+    if contract_at%10==0 {fs.write("contract-progress.json",{completed:contract_at results:contract_results}.to_json())}
+    if contract_at<contract_cases.len(){start_timeout(0.02,||contract_case()) return}
+    let count=0 let failed=[]
+    for result in contract_results {if result.passed {count=count+1}else{failed.push(result.id)}}
+    fs.write("probe.json",{all_cases_passed:failed.len()==0 no_external_actions:actions.len()==0 && fixture_writes==0 total:contract_results.len() passed_cases:count failed_cases:failed results:contract_results fixture_calls:fixture_calls}.to_json())
+}
+start_timeout(0.1,||contract_begin())

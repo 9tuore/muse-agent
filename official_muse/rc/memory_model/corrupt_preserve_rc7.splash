@@ -1,0 +1,25 @@
+// Existing native jail on synthetic 90k damaged primary. No production changes.
+fn corrupt_preserve_probe(){
+    let c=fs.read("preserve-case.json").parse_json()
+    let primary_before=fs.read("memory.json")
+    let backup_before=fs.read("memory.backup.json")
+    let settings_before=fs.read("global-memory-settings.json")
+    let faults_before=storage_fault_count
+    let started=time_now()
+    let loaded=core_boot_memory()
+    let finished=time_now()
+    let preserved=false
+    if c.expected_preserved{preserved=fs.exists(c.preserved_name)&&storage_read(c.preserved_name)==primary_before}
+    else{preserved=!fs.exists(c.preserved_name)}
+    let state_ok=!loaded&&!core_memory_ready
+    if c.expected_loaded{state_ok=loaded&&core_memory_ready&&memory.len()==c.expected_claims&&memory_sources.len()==c.expected_sources}
+    let write_rejected=true
+    if c.write_blocker_entry_cap{
+        write_rejected=storage_fault_count>faults_before&&storage_last_fault.operation=="write"&&storage_last_fault.path==c.preserved_name
+        // Free one synthetic empty filler only after observing the native failure,
+        // so the report can be saved without altering either original snapshot.
+        fs.remove("a3-preserve-cap-fill-000")
+    }
+    fs.write("probe.json",{expected_recovery_state:state_ok preservation_bytes_expected:preserved primary_original_unchanged:fs.read("memory.json")==primary_before backup_original_unchanged:fs.read("memory.backup.json")==backup_before settings_unchanged:fs.read("global-memory-settings.json")==settings_before native_write_failure_caught:write_rejected no_external_actions:fixture_calls.len()==0&&actions.len()==0 observed:{id:c.id loaded:loaded ready:core_memory_ready claims:memory.len() sources:memory_sources.len() error:core_error duration_ms:(finished-started)*1000 storage_fault_count:storage_fault_count last_fault:storage_last_fault preserved_name:c.preserved_name}}.to_json())
+}
+start_timeout(0.1,||corrupt_preserve_probe())

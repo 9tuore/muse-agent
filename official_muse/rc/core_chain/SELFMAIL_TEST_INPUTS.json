@@ -1,0 +1,29 @@
+{
+  "kind": "PREPARED_INPUTS_NOT_EXECUTED",
+  "owner": "Controller only; verify same authorized sender/recipient before sending",
+  "max_sends": 2,
+  "calendar_policy": "read only; no create/update/delete",
+  "messages": [
+    {
+      "id": "selfmail-original",
+      "account": "ROOT_VERIFIED_SELF_ACCOUNT_ID",
+      "to": "ROOT_VERIFIED_SAME_ACCOUNT_ADDRESS",
+      "subject": "[MUSE-SELFMAIL-20261005-A2-R1] 本人测试约定",
+      "body": "这是本人发给本人的合成验收邮件，不涉及真实联系人。项目：Muse验收；归属：个人。测试约定：2026年10月8日15:00至16:00，Asia/Shanghai，地点：合成会议室。请整理约定并展示需要核对的内容。本轮只核对来信、来源、计划和日历读取，不批准系统日历写入。",
+      "send_limit": 1,
+      "expected": "Product incoming card, independent inbox subject/body/account/RFC Message-ID readback; no Calendar mutation"
+    },
+    {
+      "id": "selfmail-thread-change",
+      "account": "ROOT_VERIFIED_SELF_ACCOUNT_ID",
+      "to": "ROOT_VERIFIED_SAME_ACCOUNT_ADDRESS",
+      "subject": "回复：[MUSE-SELFMAIL-20261005-A2-R1] 本人测试约定",
+      "body": "这是同一项本人合成验收约定的后续邮件。项目：Muse验收；归属：个人。改期为2026年10月9日15:00至16:00，Asia/Shanghai；地点和时长保持不变。本轮仅整理改期方案和核对来源，不批准系统日历写入。",
+      "in_reply_to": "ROOT_READ_BACK_ORIGINAL_RFC_MESSAGE_ID",
+      "references": "ROOT_READ_BACK_ORIGINAL_RFC_MESSAGE_ID",
+      "send_limit": 1,
+      "expected": "Second actual inbox message with matching real thread headers; no automatic reply or Calendar mutation"
+    }
+  ],
+  "important_boundary": "Matching RFC headers prove thread transport only. Existing verified Calendar link is required for production same-Goal rescheduling; never inject fixture links into real-account state."
+}

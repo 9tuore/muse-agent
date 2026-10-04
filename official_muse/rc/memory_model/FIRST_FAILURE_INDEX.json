@@ -1,0 +1,856 @@
+{
+  "kind": "FIRST_FAILURE_AND_RETAINED_FAILED_ATTEMPT_INDEX",
+  "raw_artifacts_local_only": true,
+  "includes_first_attempts_and_failed_followups": true,
+  "retry_does_not_erase_failure": true,
+  "runtime_failures": [
+    {
+      "local_artifact": "official_muse/rc/memory_model/baseline-audit/memory_rc/runtime.log",
+      "runtime_log_sha256": "2955a8912599af6dc052934cc52276668e0c5ad8fd5d6be311c23a2465a11e74",
+      "instrumented_source_sha256": "66739582c90f0dff472f8d3838f5fde2fbfaec2c99a2ba7b4a275a326abef4bf",
+      "markers": [],
+      "reported_failed_checks": [
+        "conflict_resolution",
+        "M07_account_saved",
+        "conflicts_visible",
+        "M02_fact_source",
+        "M04_current_history"
+      ],
+      "local_report_sha256": "8bc8464e2d649a120e71d45ef6d9474694295959c637f459ca7b516d33ec2715",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/cancel-patch-trial/original/runtime.log",
+      "runtime_log_sha256": "aad4dd868b0f60aaac77ed0a636ba189bfb6be2454fb927238282d681c282037",
+      "instrumented_source_sha256": "fd85730136ae43c2fb66bfa0c3dadb8a07cb3917f0f20f2e905083a0e0767099",
+      "markers": [],
+      "reported_failed_checks": [
+        "exact_unused",
+        "punctuation_unused",
+        "unused_dismisses_without_model"
+      ],
+      "local_report_sha256": "57f039bdb7188b314fb1df892254a7a546a117eb56a43f337a06ad1865268d12",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/error-audit-corrected/schema_error/runtime.log",
+      "runtime_log_sha256": "0334e04099c10598971d85feaaf8abe5bfcfed9755d8534129e2142d01ba589d",
+      "instrumented_source_sha256": "1152dcee4f985bba0d53f3d5a0cf062f4d8756701e46baba2990800dc1ae8f15",
+      "markers": [],
+      "reported_failed_checks": [
+        "required_final_failure_event"
+      ],
+      "local_report_sha256": "be9881123f47081a182a8a65322d760b0ff01a40c4de02760de936810dd50d04",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/followup-trials/failure_ui-original/runtime.log",
+      "runtime_log_sha256": "a20498268dff84226e375fea34f99b0ccd8b2a330313b3c6a48a47e19c22a016",
+      "instrumented_source_sha256": "9c804bb4442bbca4f0917134397cbfc02c8469b555f8685c9e62832da842c752",
+      "markers": [],
+      "reported_failed_checks": [
+        "schema_copy_default",
+        "calendar_copy_default"
+      ],
+      "local_report_sha256": "fa325d15f169233ac6608c54e21c2b0fe534c66ca704933f55e7f65ec5dc7d2d",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/followup-trials/mail_reference-original/runtime.log",
+      "runtime_log_sha256": "2c344ba78b22df5061ca0c4ad6b7351beaa262d0ba26b246e13ace25dd1cb395",
+      "instrumented_source_sha256": "54fb394ff0f9e93dc14090093fbb5d81eea115ca09b3461d3f2234484d87665c",
+      "markers": [],
+      "reported_failed_checks": [
+        "no_source_asks_without_model",
+        "valid_mail_reference_selects_schema",
+        "reference_updates_body",
+        "revoked_source_asks_without_model"
+      ],
+      "local_report_sha256": "ff7e87185e966c155509da3e115be9cba853077223a1c84aaa9bdabd1b7c3a09",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-integrated-audit/memory_scoped/runtime.log",
+      "runtime_log_sha256": "6e2841fe756616b44d6b30a765e2c834d2678d8f19743f05c1682f2f0417232a",
+      "instrumented_source_sha256": "a9aab3a119e1d833b6bd30a33a140d22e0c9395675fba7e5c73972b152d84a8f",
+      "markers": [
+        "[E] splash:140179983910400:4785:6 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-integrated-audit/schema_error_rc2/runtime.log",
+      "runtime_log_sha256": "57f6937aa9b7ed8dbe40dfc179e2d92f35e63b892cdc23b4ad8c6b985c514b92",
+      "instrumented_source_sha256": "e3e35b098962f43219a3bd10cef017c4b817f0ac105cec94dcf3db996447ad01",
+      "markers": [],
+      "reported_failed_checks": [
+        "required_final_failure_event"
+      ],
+      "local_report_sha256": "f6fcc76dfd1b96deccf4a33f669a08a0ee37b438d93c0ea95ded74d85462b890",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-large-seed-correct-phase-r5/correct/runtime.log",
+      "runtime_log_sha256": "259559dd7875e2b99d0cc334ec492ac50000561d05adfcf98ef96c64c837cbb7",
+      "instrumented_source_sha256": "c8f5add80b854db0bf2af68f2355a48ae8f7c4ddce1b21a629c8e6cac2ae1284",
+      "markers": [
+        "[E] splash:140203940459008:4982:17 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-large-seed-correct-phase-r6/correct/runtime.log",
+      "runtime_log_sha256": "2ff571ce596394819995326820a54bb21f9dec06659597839a1eafa194d8377f",
+      "instrumented_source_sha256": "c8f5add80b854db0bf2af68f2355a48ae8f7c4ddce1b21a629c8e6cac2ae1284",
+      "markers": [
+        "[E] splash:140434620956672:4779:13 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-large-seed-forget-retry-r4/forget/runtime.log",
+      "runtime_log_sha256": "174cca91fc112d0b8ecdbf69bf638954d885be90bd6c61662e058444b41317b0",
+      "instrumented_source_sha256": "232f4c889a8465ffdc1d1b778ccde2ce3cade6450008a697439bbbf594b80f0a",
+      "markers": [
+        "[E] splash:140388356431872:5583:25 - sha256 requires UTF-8 text of at most 65536 bytes (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/widgets/src/splash_storage.rs:259)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-large-seed-single-actions/correct/runtime.log",
+      "runtime_log_sha256": "e9bb2878dd2e7b5233ff1412cc10e271a723ce379655b21b47239923140fdf70",
+      "instrumented_source_sha256": "d1e295dd4ec05113c5a333933773989e02f0de1bf5835c15462404bcfbddf2b8",
+      "markers": [
+        "[I] <user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/widgets/src/splash.rs:346:25 - splash: splash:140387609153024:205:21: script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-large-seed-single-actions-visible-r3/correct/runtime.log",
+      "runtime_log_sha256": "997e6fe9d7c25e697e9b10af352bfb198f6aefb76587c9d2d2acfb07241e8f0f",
+      "instrumented_source_sha256": "f862d32c6bf47690f2f64538f7a81fe1a3099f4bd838f0239d79b8bee4accf01",
+      "markers": [
+        "[E] splash:140278499185664:4784:14 - script instruction limit exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1018)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-large-seed-single-actions-visible-r3/forget/runtime.log",
+      "runtime_log_sha256": "831ecec23a099323f109cafea9ee6f2ce81baf02f936f382bd2addafced9e255",
+      "instrumented_source_sha256": "19d4bf09ad9e9af03e64ae19b3b2c77857ff799b92f245ae544aa3cfab13cb61",
+      "markers": [
+        "[E] splash:140543243283456:4779:16 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc2-memory-event-split/runtime.log",
+      "runtime_log_sha256": "bbafe17d5aa994bf2dc7b2a03c8521b07f619f5ef5a270d271c48b865810c863",
+      "instrumented_source_sha256": "4421f1528c574f4c377c478865a7d6b90e44425d8f5bb81f147cf4011e8c866f",
+      "markers": [
+        "[E] splash:140190854708224:4781:53 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc3-large-seed-single-actions-v2/correct/runtime.log",
+      "runtime_log_sha256": "96250e0f35c3e4d06803c9ebde394207ba9270aaaa90d20b0a44b578ebaf4260",
+      "instrumented_source_sha256": "a3a5c927e75ce1deee5832496a73bbd320a7d1c7ecc981bc6e9db32763cb1660",
+      "markers": [],
+      "reported_failed_checks": [
+        "deleted"
+      ],
+      "local_report_sha256": "86742492f59173fd21ba091932426472b28e80a669074ad099f45608aa214973",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc3-large-seed-single-actions-v2/forget/runtime.log",
+      "runtime_log_sha256": "a5fd65324d2a1eea818ce815d01b6e9a4446cc3e25de946144e53982540a0ae1",
+      "instrumented_source_sha256": "bda74d9e7f947e6998e9ac1f3654927c4dd20d426cefcaeed5c0d6016290b3e0",
+      "markers": [
+        "[E] splash:140180622539264:5591:25 - sha256 requires UTF-8 text of at most 65536 bytes (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/widgets/src/splash_storage.rs:259)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc4-contract-app-batch-3-r1/contract_app_cases/runtime.log",
+      "runtime_log_sha256": "fa2fc692633718b1e3eb88a09c23c859594c92587b813b049807bb629ba491f0",
+      "instrumented_source_sha256": "78591b7d9a31abb5db67430290aba4e7fbe60a8f00d23b175b2c5bd68f9865c8",
+      "markers": [],
+      "reported_failed_checks": [
+        "all_cases_passed"
+      ],
+      "local_report_sha256": "92c0ea0afb1d8e5872b1964e9c4f01911cebd8ff003dd70f60ba513efd5e4def",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc4-large-actions-r1/large_seed_correct/runtime.log",
+      "runtime_log_sha256": "ea9b984aa9b3a66b55a93d9b2b0e764adac65e06b09aceedf503b55c9ed00289",
+      "instrumented_source_sha256": "3b926c0354e1ee17095f9e0c3dd4c5e70cfbfd456417abf11815ce49dd6ab2fa",
+      "markers": [
+        "[E] splash:140152366551040:4075:24 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc4-large-actions-r1/large_seed_forget/runtime.log",
+      "runtime_log_sha256": "a68d18478fe69b707298168aa8ba4b76622d6ed5e07631246ef1e05d28aabb0a",
+      "instrumented_source_sha256": "57d79e9d83181a07272269d7afabd5186a007d566994fd50ffdf4457b90ab85b",
+      "markers": [
+        "[E] splash:140616584951296:5527:57 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc4-snapshot-digest-r1/snapshot_digest_rc4/runtime.log",
+      "runtime_log_sha256": "f5479b1e31c420d975f90414b390e6c6d53dc41e1ee4ed558da8da2bdf9bb9d2",
+      "instrumented_source_sha256": "b8cbecea02da71f273d6f7780be2aec6bc0a32f14eeb6430f267dccedb0cc808",
+      "markers": [
+        "[E] splash:140621457968640:5527:43 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v4-large-correct-trial-1-r1/large_seed_correct/runtime.log",
+      "runtime_log_sha256": "c502ff0af0ab31ee4dae12cc9eb62d0973488eeaf31a5bb00ed5255af349d630",
+      "instrumented_source_sha256": "d9d8979fcbc5a64fad51890a05350d3c953b03728169ce85d7a6369b71a374de",
+      "markers": [
+        "[E] splash:140414872810496:4943:29 - script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v5-final-contract-app-batch-3-r1/contract_app_cases/runtime.log",
+      "runtime_log_sha256": "2631fc9d86e77e792653017cb3e788c0141e41d15e318e18d19588fcf3e9ae97",
+      "instrumented_source_sha256": "9698a2033842c5d58568d6d5f6154f6646eea3a64f7ebe716d3d360cf9edfc1b",
+      "markers": [],
+      "reported_failed_checks": [
+        "all_cases_passed"
+      ],
+      "local_report_sha256": "310b3c7453f661778de48678667289d7519e697a9e5ddc7a3e1c580f64b6b729",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v5-final-correction-guards-r1/correction_guard_rc5/runtime.log",
+      "runtime_log_sha256": "559200384e38a61fbf0b18fb0bc9fe70db03eb38744bb28eb7d075cb45b07c65",
+      "instrumented_source_sha256": "f8a16d5c87699762be3c3963c5a1e76b074573db83f365ec2d02705e5778d8aa",
+      "markers": [
+        "[I] <workspace>/vendor/makepad/widgets/src/splash.rs:490:13 - splash: source preparation failed at 32654 of 330709 bytes",
+        "[I] <workspace>/vendor/makepad/widgets/src/splash.rs:491:35 - splash: <workspace>/vendor/octoscript-makepad/crates/octoscript-widgets/src/kit_shared.rs:26:52: script time budget exceeded (<workspace>/vendor/makepad/platform/script/src/vm.rs:916)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v5-final-large-actions-r1/large_seed_correct/runtime.log",
+      "runtime_log_sha256": "2c9516f79df7e136661768d9373cd444f1f2ed1f8ddfa4463eb8c1ae01546962",
+      "instrumented_source_sha256": "f00ec540527f2bb8afa3d84fe975f4bde6a663ba1bd3d4343d8564062267acd6",
+      "markers": [
+        "[I] <workspace>/vendor/makepad/widgets/src/splash.rs:490:13 - splash: source preparation failed at 310306 of 331673 bytes",
+        "[I] <workspace>/vendor/makepad/widgets/src/splash.rs:491:35 - splash: <workspace>/vendor/octoscript-makepad/crates/octoscript-widgets/src/kit_shared.rs:26:52: script time budget exceeded (<workspace>/vendor/makepad/platform/script/src/vm.rs:916)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v5-final-large-actions-r1/large_seed_forget/runtime.log",
+      "runtime_log_sha256": "5f96269b5bf892c9237b20e8fe27a5720526f14eb67e51174a7a415ff9c2f402",
+      "instrumented_source_sha256": "9e03b6b5757835a586ed15e6e185eb633985f5a23fd47d3b4827656feb24c130",
+      "markers": [
+        "[E] splash:140286450270720:4945:2 - script time budget exceeded (<workspace>/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v5-final-memory-guards-r1/scope_cache_rc3/runtime.log",
+      "runtime_log_sha256": "270ce1d6df4c2651f54da816bbd7a4e2ab189731004e7054d9c8566da1df7805",
+      "instrumented_source_sha256": "480d825f5dc124d79c94bbcc9031599f22eadf7ccb5bdee83900522daab1a42b",
+      "markers": [
+        "[E] splash:140606257917952:4893:48 - script time budget exceeded (<workspace>/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v6-scope-guards-r1/scope_cache_rc3/runtime.log",
+      "runtime_log_sha256": "d3dfb1eedbce183c778d9f86bd219c970e80657f809ab47bdedc3eae8d249245",
+      "instrumented_source_sha256": "0870f9be19ed5cc1fdc60540127b018d84963d55b930efc6179a557d86185871",
+      "markers": [
+        "[E] splash:140600437848064:4872:34 - script time budget exceeded (<workspace>/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/semantic-audit/semantics/runtime.log",
+      "runtime_log_sha256": "b3f1c238f6bd23dc0f5fb62f1e3cdc320f4eb04f71c234d9a595e7eef92c2dbc",
+      "instrumented_source_sha256": "1c5eb27cd5cc9c37fbb699d068496adcfbd723d531e80d91f06163e25d96f0bc",
+      "markers": [],
+      "reported_failed_checks": [
+        "S08_unused_dismisses_no_model",
+        "S09_reply_reference_specific_schema"
+      ],
+      "local_report_sha256": "fa37bc962aca9b43d69b7bf62162a7740012489788e0149439712627d7bee628",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/snapshot-native-chunk-kernel-trial/snapshot_chunk_native_probe/runtime.log",
+      "runtime_log_sha256": "d8bf7da5c1d9e43cd516a814506d72d7431c0773dde3578edd3694d697d6e0e2",
+      "instrumented_source_sha256": "7c4c36ca026f3997ba2ff5d71a3886126732b231a6206e0ffcaaca1ee6b1a6c1",
+      "markers": [
+        "[E] <user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/widgets/src/widget_async.rs:446:13 - contained a mini-app isolate panic in timer callback: called `Result::unwrap()` on an `Err` value: Error"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/snapshot-native-chunk-trial/snapshot_chunk_native_probe/runtime.log",
+      "runtime_log_sha256": "426cc460883a3601d81d30ce86243cec91db3596c8241e13a2796bc10d99c5fa",
+      "instrumented_source_sha256": "22b2212c91d29e0d32e0e08a0df96e1e640d9e24fc949477f2d56d4cf14c832e",
+      "markers": [
+        "[I] <user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/widgets/src/splash.rs:346:25 - splash: splash:140461579723264:205:21: script time budget exceeded (<user-home>/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/octosense/.sources/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "local_report_sha256": null,
+      "raw_public": false
+    }
+  ],
+  "original_negation_failures": [
+    {
+      "id": "A0300",
+      "input": "先别改",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0301",
+      "input": "不要修改",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0302",
+      "input": "不用调整",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0303",
+      "input": "暂时别改时间",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0304",
+      "input": "现在先不要推迟",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0305",
+      "input": "先别提前",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0306",
+      "input": "不要调整原来的安排",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0308",
+      "input": "先别改收件人",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0309",
+      "input": "不要修改这封邮件",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0310",
+      "input": "不用重新起草",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0313",
+      "input": "暂时不要发邮件",
+      "effect": "second_candidate_appended",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    },
+    {
+      "id": "A0314",
+      "input": "不要改正文",
+      "effect": "existing_candidate_replaced",
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba"
+    }
+  ],
+  "reproduction_limit": "Current306SDK+315app inputs regenerate from portable generator. Historical runtime failures additionally require locally retained source/Host/seed; hashes provided, not claimed reproducible from current public source alone.",
+  "reported_first_and_followup_failures": [
+    {
+      "local_report": "official_muse/rc/memory_model/cancel-patch-trial/report.json",
+      "report_sha256": "d2186f404234f7334aaffc312b8ecbd1591d08c66101cf87b624453161df170b",
+      "suite": "original",
+      "status": null,
+      "error": "",
+      "failed": [
+        "exact_unused",
+        "punctuation_unused",
+        "unused_dismisses_without_model"
+      ],
+      "source_sha256": null,
+      "host_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/overnight-contract-app-run-r1/report.json",
+      "report_sha256": "7ac9dc824c7057b8e4cb63255bd5c4c5cb53b90ca7c5a4ab0e3628480f10c3a2",
+      "suite": "contract_app_cases",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "f05de20e1d83957758cc761b560887ffc30efc31affe31c33d7832c49feb4605",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-disk-seed-compare/report.json",
+      "report_sha256": "69c923996cc540aa8cfe8e059127a215246d7c0cd1452c6f752849add05c3abb",
+      "suite": "memory_scoped-raw",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-disk-seed-compare/report.json",
+      "report_sha256": "69c923996cc540aa8cfe8e059127a215246d7c0cd1452c6f752849add05c3abb",
+      "suite": "memory_scoped-compact",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-disk-seed-compare/report.json",
+      "report_sha256": "69c923996cc540aa8cfe8e059127a215246d7c0cd1452c6f752849add05c3abb",
+      "suite": "memory_single_action_timed_diskseed-raw",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-disk-seed-compare/report.json",
+      "report_sha256": "69c923996cc540aa8cfe8e059127a215246d7c0cd1452c6f752849add05c3abb",
+      "suite": "memory_single_action_timed_diskseed-compact",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-correct-phase-r5/report.json",
+      "report_sha256": "6becaf92c2a856025fc8cc608c4d60075e7a39037848127b26ed09e086c2d107",
+      "suite": "correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "7a6b3b9240eb2d4409ca87b81c85b88ea45148799edbd468da8916ee30e4ea8e",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-correct-phase-r6/report.json",
+      "report_sha256": "06daec43ffd1853f8130484dd806977a6ed22786c8575a9c67032730a7b2b86f",
+      "suite": "correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "7a6b3b9240eb2d4409ca87b81c85b88ea45148799edbd468da8916ee30e4ea8e",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-forget-retry-r4/report.json",
+      "report_sha256": "534dd9526001bae28a7aa089238ef5d19a5dbd5410de7e096592a9ff11c4af82",
+      "suite": "forget",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "95364c035be80d1fd7265d0711c10842a199ef18bff756f2b5d7782935b7a655",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-single-actions/report.json",
+      "report_sha256": "9a90e0d9d71132a5dc254f564f24d371d1da5e92332ad95a8884ec03746589c2",
+      "suite": "correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "95364c035be80d1fd7265d0711c10842a199ef18bff756f2b5d7782935b7a655",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-single-actions/report.json",
+      "report_sha256": "9a90e0d9d71132a5dc254f564f24d371d1da5e92332ad95a8884ec03746589c2",
+      "suite": "forget",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "95364c035be80d1fd7265d0711c10842a199ef18bff756f2b5d7782935b7a655",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-single-actions-r2/report.json",
+      "report_sha256": "d5234240ab5dcb9bdb1a1b593ff2aa3409381bc0bf72abcb07ea301d445f49e7",
+      "suite": "correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "95364c035be80d1fd7265d0711c10842a199ef18bff756f2b5d7782935b7a655",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-single-actions-r2/report.json",
+      "report_sha256": "d5234240ab5dcb9bdb1a1b593ff2aa3409381bc0bf72abcb07ea301d445f49e7",
+      "suite": "forget",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "95364c035be80d1fd7265d0711c10842a199ef18bff756f2b5d7782935b7a655",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-single-actions-visible-r3/report.json",
+      "report_sha256": "f42b48ddae272fac59b272c5c3ccc4d0f17c028975ec4b7acce271cfab7ea9f8",
+      "suite": "correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "95364c035be80d1fd7265d0711c10842a199ef18bff756f2b5d7782935b7a655",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-large-seed-single-actions-visible-r3/report.json",
+      "report_sha256": "f42b48ddae272fac59b272c5c3ccc4d0f17c028975ec4b7acce271cfab7ea9f8",
+      "suite": "forget",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "95364c035be80d1fd7265d0711c10842a199ef18bff756f2b5d7782935b7a655",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-raw-compact-compare/report.json",
+      "report_sha256": "36e626e491f6170784a94127ba27328b293ee1dbba8bf66b3ea9616644fb393d",
+      "suite": "memory_same_seed-raw",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-raw-compact-compare/report.json",
+      "report_sha256": "36e626e491f6170784a94127ba27328b293ee1dbba8bf66b3ea9616644fb393d",
+      "suite": "memory_same_seed-compact",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-raw-compact-compare/report.json",
+      "report_sha256": "36e626e491f6170784a94127ba27328b293ee1dbba8bf66b3ea9616644fb393d",
+      "suite": "memory_single_action_timed-raw",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-raw-compact-compare/report.json",
+      "report_sha256": "36e626e491f6170784a94127ba27328b293ee1dbba8bf66b3ea9616644fb393d",
+      "suite": "memory_single_action_timed-compact",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": null,
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-visible-seed-compare/report.json",
+      "report_sha256": "6c0545e7e664bf5acf58105e84e0a77b90bd792f236cfd1a87c2bedad2e5e0cb",
+      "suite": "memory_single_action_timed_diskseed-raw",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-visible-seed-compare/report.json",
+      "report_sha256": "6c0545e7e664bf5acf58105e84e0a77b90bd792f236cfd1a87c2bedad2e5e0cb",
+      "suite": "memory_single_action_timed_diskseed-compact",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-visible-seed-compare/report.json",
+      "report_sha256": "6c0545e7e664bf5acf58105e84e0a77b90bd792f236cfd1a87c2bedad2e5e0cb",
+      "suite": "memory_scoped-raw",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc2-visible-seed-compare/report.json",
+      "report_sha256": "6c0545e7e664bf5acf58105e84e0a77b90bd792f236cfd1a87c2bedad2e5e0cb",
+      "suite": "memory_scoped-compact",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": null,
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc3-large-seed-single-actions-v2/report.json",
+      "report_sha256": "872e1b77bfa2bf7394b60c2461745b6c834bd6c3bacd237de4ce99c32a14bad7",
+      "suite": "correct",
+      "status": null,
+      "error": "",
+      "failed": [
+        "deleted"
+      ],
+      "source_sha256": "f05de20e1d83957758cc761b560887ffc30efc31affe31c33d7832c49feb4605",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc3-large-seed-single-actions-v2/report.json",
+      "report_sha256": "872e1b77bfa2bf7394b60c2461745b6c834bd6c3bacd237de4ce99c32a14bad7",
+      "suite": "forget",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "f05de20e1d83957758cc761b560887ffc30efc31affe31c33d7832c49feb4605",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc4-contract-app-batch-3-r1/report.json",
+      "report_sha256": "f62c7cdf24a474425ae2af09ded6f78caf32dfc3e9fc4257233026237802896a",
+      "suite": "contract_app_cases",
+      "status": null,
+      "error": "",
+      "failed": [
+        "all_cases_passed"
+      ],
+      "source_sha256": "c3ae3c6a09a531394c5d7acee68f72fa943e521d65a3f9b2a7b77c1dc4abe7ff",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc4-large-actions-r1/report.json",
+      "report_sha256": "bd259ed9caf0c6b7ebd49b7a2c290eb91cd3f8b826a4d426e381cfc80a2668d9",
+      "suite": "large_seed_correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "c3ae3c6a09a531394c5d7acee68f72fa943e521d65a3f9b2a7b77c1dc4abe7ff",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc4-large-actions-r1/report.json",
+      "report_sha256": "bd259ed9caf0c6b7ebd49b7a2c290eb91cd3f8b826a4d426e381cfc80a2668d9",
+      "suite": "large_seed_forget",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "c3ae3c6a09a531394c5d7acee68f72fa943e521d65a3f9b2a7b77c1dc4abe7ff",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc4-snapshot-digest-r1/report.json",
+      "report_sha256": "ebe10885c8f74318081ceb3b93da0ddacef1d2f5a96bfe8611b80ac403a8abaa",
+      "suite": "snapshot_digest_rc4",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "c3ae3c6a09a531394c5d7acee68f72fa943e521d65a3f9b2a7b77c1dc4abe7ff",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc5v4-large-correct-trial-1-r1/report.json",
+      "report_sha256": "6bacd732d013967c8aba64d7f62f32ce2d2f0214a359468e2cfe89134d9a829a",
+      "suite": "large_seed_correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "6ebc238e62f79e3c05d23a84566c02d3d9a1259ccbfd9344b3e9c583c9c0f5bd",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc5v5-final-contract-app-batch-3-r1/report.json",
+      "report_sha256": "ff6ea47ada4f137866fd11809390b500712a0e7b473a990c2db1c0bcbc7cd8ce",
+      "suite": "contract_app_cases",
+      "status": null,
+      "error": "",
+      "failed": [
+        "all_cases_passed"
+      ],
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba",
+      "host_sha256": "efd7c8568182e9ad9957b01cd0a7256938df89e648095ad512eb961dd98f625a",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc5v5-final-correction-guards-r1/report.json",
+      "report_sha256": "8f7f8614973f7b25e2618d39c9f3b39c57b07f40c03a45654ec21d48d3710ce4",
+      "suite": "correction_guard_rc5",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba",
+      "host_sha256": "efd7c8568182e9ad9957b01cd0a7256938df89e648095ad512eb961dd98f625a",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc5v5-final-large-actions-r1/report.json",
+      "report_sha256": "c5875837b17f4f89bbdda671e29d1c2edd0388eed41150819f1c805a421ad094",
+      "suite": "large_seed_forget",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba",
+      "host_sha256": "efd7c8568182e9ad9957b01cd0a7256938df89e648095ad512eb961dd98f625a",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc5v5-final-large-actions-r1/report.json",
+      "report_sha256": "c5875837b17f4f89bbdda671e29d1c2edd0388eed41150819f1c805a421ad094",
+      "suite": "large_seed_correct",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba",
+      "host_sha256": "efd7c8568182e9ad9957b01cd0a7256938df89e648095ad512eb961dd98f625a",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc5v5-final-memory-guards-r1/report.json",
+      "report_sha256": "0beb21ffeb449109acc49d7701fc8c66608f86167211ec74d16bab272c0143d2",
+      "suite": "scope_cache_rc3",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba",
+      "host_sha256": "efd7c8568182e9ad9957b01cd0a7256938df89e648095ad512eb961dd98f625a",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/rc5v6-scope-guards-r1/report.json",
+      "report_sha256": "9a5a14ed0f89a060afbc900802ed1b2e8fba78b9f0b171e4b8768395ffe430a9",
+      "suite": "scope_cache_rc3",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "1e3db6c23f43a7a189ceecf98e3349d641b8bbdcdb3aef79cf19f0281dfa870a",
+      "host_sha256": "efd7c8568182e9ad9957b01cd0a7256938df89e648095ad512eb961dd98f625a",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/snapshot-native-chunk-kernel-trial/report.json",
+      "report_sha256": "8ff1bb6752556f78173608e7dda6f48130042d5efa69e9332cf4afd14460e10b",
+      "suite": "snapshot_chunk_native_probe",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "c73385d35743b574faf344323aa7ace841f7b0123163161ff8ab7dbc7fd76e10",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    },
+    {
+      "local_report": "official_muse/rc/memory_model/snapshot-native-chunk-trial/report.json",
+      "report_sha256": "0356b7edae7a6a1038746e26043942db75047dc41098bbba7605509caf9b6624",
+      "suite": "snapshot_chunk_native_probe",
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log",
+      "failed": [],
+      "source_sha256": "f05de20e1d83957758cc761b560887ffc30efc31affe31c33d7832c49feb4605",
+      "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "scope": "official_muse/rc/core_chain",
+  "staging_policy": "Controller explicitly stages these exact files only; no recursive git add or publication by A2.",
+  "files": [
+    "official_muse/rc/core_chain/README.md",
+    "official_muse/rc/core_chain/run_t18.py",
+    "official_muse/rc/core_chain/t18_chain.splash",
+    "official_muse/rc/core_chain/t18_proposal_restart.splash",
+    "official_muse/rc/core_chain/run_fault_matrix.py",
+    "official_muse/rc/core_chain/run_modelhost_fixture.py",
+    "official_muse/rc/core_chain/modelhost_fixture_backend.py",
+    "official_muse/rc/core_chain/MODELHOST_FINAL_RUNBOOK.md",
+    "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+    "official_muse/rc/core_chain/PUBLIC_FAILURE_INDEX.json",
+    "official_muse/rc/core_chain/SELFMAIL_TEST_INPUTS.json",
+    "official_muse/rc/core_chain/run_account_restore.py",
+    "official_muse/rc/core_chain/account_restore.splash",
+    "official_muse/rc/core_chain/PUBLIC_SOURCE_ALLOWLIST.json"
+  ],
+  "required_existing_helpers": [
+    "official_muse/ui_memory/tests/regression_run.py",
+    "official_muse/round2/tests/runtime_probe.py",
+    "official_muse/phase2/tests/remote.py"
+  ],
+  "excluded": [
+    "official_muse/rc/core_chain/evidence/**",
+    "**/main.splash",
+    "**/source-bundle/**",
+    "**/bundle/**",
+    "**/private/**",
+    "**/state/**",
+    "**/__pycache__/**",
+    "**/*.preserved",
+    "**/runtime.log",
+    "**/host.log"
+  ],
+  "excluded_local_history": "Detailed historical reports, patch suggestions and full raw evidence remain local unless separately reviewed by controller.",
+  "raw_evidence_deleted": false,
+  "final_acceptance": "V9_ACCOUNT_RESTORE_PASS_WITH_V8_UNCHANGED_PROOF_REUSE_PROTOCOL_AND_LIVE_PENDING",
+  "allowlisted_content_bytes_excluding_this_file": 109586,
+  "selfmail_fixture": "Synthetic placeholder inputs only, never actual account or message data."
+}

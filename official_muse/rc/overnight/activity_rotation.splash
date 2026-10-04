@@ -1,0 +1,58 @@
+let archive_result = {}
+let archive_original = []
+let archive_batch = []
+let archive_committed = ""
+fn archive_seed(){
+    archive_result.malformed_activity_rejected = !core_activity_valid(0) && !core_activity_valid({})
+        && !core_activity_valid(nil) && !core_activity_valid([{kind: "bad" detail: "bad" at: "bad"}])
+    archive_result.empty_array_valid = core_activity_valid([])
+    core_activity_ready = true
+    activity = []
+    for i in 200 {
+        activity.push({kind: "SYNTHETIC" detail: "event:" + i at: 1791129600 + i
+            goal_id: "" run_id: "" request_id: "id:" + i account_scope: "local"})
+    }
+    archive_original = activity.to_json().parse_json()
+    for i in 100 { archive_batch.push(activity[i]) }
+    core_last_activity = activity.to_json()
+    storage_write("activity.json",core_last_activity)
+    start_timeout(0.03,|| archive_rotate())
+}
+fn archive_rotate(){
+    archive_result.event_201_saved = core_record_event("SYNTHETIC","event:200","","","id:200","local")
+    archive_result.active_101 = activity.len() == 101
+    archive_result.order_preserved = activity[0].detail == "event:100" && activity[100].detail == "event:200"
+    let saved = storage_read("activity-archive-1.json").parse_json()
+    archive_result.archive_exact_100 = saved.to_json() == archive_batch.to_json()
+    let index = storage_read("activity-archive-index.json").parse_json()
+    archive_result.index_verified = index.archives.len() == 1 && index.archives[0].count == 100
+        && index.archives[0].content_digest == storage_file_hash("activity-archive-1.json")
+    archive_committed = storage_read("activity.json")
+    start_timeout(0.03,|| archive_retry())
+}
+fn archive_retry(){
+    // Emulate loss after index commit, before active-file commit: retry must
+    // reuse the identical archive receipt and never append a duplicate batch.
+    activity = archive_original
+    storage_write("activity.json",archive_original.to_json())
+    archive_result.retry_reuses_archive = core_archive_activity(archive_batch)
+        && storage_read("activity-archive-index.json").parse_json().archives.len() == 1
+    storage_write("activity.json",archive_committed)
+    core_boot_activity()
+    archive_result.boot_restores_101 = activity.len() == 101 && activity[100].detail == "event:200"
+    start_timeout(0.03,|| archive_fault())
+}
+fn archive_fault(){
+    activity = archive_original.to_json().parse_json()
+    activity[0].detail = "different batch"
+    fs.mkdir("activity-archive-2.json")
+    archive_result.failed_archive_blocks = !core_record_event("SYNTHETIC","blocked","","","blocked","local")
+        && storage_read("activity.json") == archive_committed
+    archive_result.failed_archive_preserves_history = storage_read("activity-archive-1.json").parse_json().to_json() == archive_batch.to_json()
+    storage_write("activity-archive-index.json","{broken")
+    archive_result.corrupt_index_blocks = !core_record_event("SYNTHETIC","blocked2","","","blocked2","local")
+        && storage_read("activity.json") == archive_committed
+    archive_result.no_external_actions = fixture_calls.len() == 0
+    fs.write("probe.json",archive_result.to_json())
+}
+start_timeout(0.1,|| archive_seed())

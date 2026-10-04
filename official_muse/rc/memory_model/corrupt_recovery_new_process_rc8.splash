@@ -1,0 +1,29 @@
+let recovered_case=nil
+let recovered_before=[]
+let recovered_loaded=false
+let recovered_write_caught=true
+let recovered_polls=0
+fn recovered_begin(){
+    recovered_case=fs.read("preserve-case.json").parse_json()
+    for path in ["memory.json","memory.backup.json","global-memory-settings.json"]{recovered_before.push({path:path bytes:fs.read(path)})}
+    let faults=storage_fault_count
+    recovered_loaded=core_boot_memory()
+    if recovered_case.write_blocker_entry_cap{
+        recovered_write_caught=storage_fault_count>faults&&storage_last_fault.operation=="write"&&storage_last_fault.path==recovered_case.preserved_name
+        fs.remove("a3-preserve-cap-fill-000")
+    }
+    start_timeout(0.05,||recovered_global())
+}
+fn recovered_global(){gm_boot() start_timeout(0.05,||recovered_wait())}
+fn recovered_wait(){
+    recovered_polls=recovered_polls+1
+    if gm_boot_pending&&recovered_polls<220{start_timeout(0.05,||recovered_wait()) return}
+    let unchanged=true
+    for before in recovered_before{if fs.read(before.path)!=before.bytes{unchanged=false}}
+    let state_ok=!recovered_loaded&&!core_memory_ready&&!gm_ready&&!gm_enabled&&!gm_boot_pending
+    if recovered_case.expected_loaded{state_ok=recovered_loaded&&core_memory_ready&&gm_ready&&gm_enabled&&!gm_boot_pending&&memory.len()==64&&memory_sources.len()==65}
+    let preserved=!fs.exists(recovered_case.preserved_name)
+    if recovered_case.expected_preserved{preserved=fs.exists(recovered_case.preserved_name)&&fs.read(recovered_case.preserved_name)==recovered_before[0].bytes}
+    fs.write("probe.json",{expected_new_process_state:state_ok original_three_files_unchanged:unchanged preserved_original_bytes:preserved write_failure_caught:recovered_write_caught no_external_actions:fixture_calls.len()==0&&actions.len()==0 observed:{id:recovered_case.id loaded:recovered_loaded core_ready:core_memory_ready ready:gm_ready enabled:gm_enabled pending:gm_boot_pending claims:memory.len() sources:memory_sources.len() core_error:core_error error:gm_error polls:recovered_polls}}.to_json())
+}
+start_timeout(0.1,||recovered_begin())

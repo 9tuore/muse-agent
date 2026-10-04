@@ -1,0 +1,107 @@
+{
+  "kind": "EXPLICIT_FILES_ONLY_NO_RECURSIVE_GIT_ADD",
+  "file_count": 15,
+  "files": [
+    {
+      "path": "official_muse/rc/memory_model/PUBLIC_SOURCE_ALLOWLIST.json",
+      "role": "explicit staging whitelist",
+      "sha256": null
+    },
+    {
+      "path": "official_muse/rc/memory_model/PUBLIC_TESTS_README.md",
+      "role": "maintenance and reproduction entry",
+      "sha256": "0bfe15914f7a6b330e2f6980d7da4cb2741a696fedec32dbb7eec39d152d6fe8"
+    },
+    {
+      "path": "official_muse/rc/memory_model/PUBLIC_A3_SUMMARY.json",
+      "role": "sanitized current results",
+      "sha256": "da1c0b0c737db9cbaaca4c5eec235cde660ec8d55c04bbcd9a2acf6f8efbe586"
+    },
+    {
+      "path": "official_muse/rc/memory_model/FIRST_FAILURE_INDEX.json",
+      "role": "first failures and failed followup hashes",
+      "sha256": "87e6567b83e3943d277764b76f77fbc82f87120df1965585b7cb58fb563ad785"
+    },
+    {
+      "path": "official_muse/rc/memory_model/PUBLIC_CONTRACT_SCHEMAS.json",
+      "role": "standalone synthetic production contract declarations",
+      "sha256": "d58c55053ba4185991c5fbba92f2212aad9356272f38ffcab8b0f320ca810690"
+    },
+    {
+      "path": "official_muse/rc/memory_model/PUBLIC_NEGATIVE_EXPECTATIONS.json",
+      "role": "independent preservation expectations",
+      "sha256": "d916b19347e192670eaf9ef792d6bfec5e6783a763b231194f6b589a200ba112"
+    },
+    {
+      "path": "official_muse/rc/memory_model/generate_contract_cases.py",
+      "role": "reproduce306schema+315app inputs",
+      "sha256": "549409a467c720dad7de64cd3ff8a4e03e3df5edcf1e8354b6d5f78739f0df19"
+    },
+    {
+      "path": "official_muse/rc/memory_model/run_contract_probe.py",
+      "role": "existingCardHost fixture orchestration",
+      "sha256": "93118dcd44817ce79315c53a0ce3a02eaf3b2b9b9e8bb5254a92b9bb86ef9ab1"
+    },
+    {
+      "path": "official_muse/rc/memory_model/contract_app_cases.splash",
+      "role": "315case fixture with optional keep classifier",
+      "sha256": "7dd8f33dcba6989c683e3a9fb77c7d16b2f503d322bc40c70cfd1e0e5fb73d56"
+    },
+    {
+      "path": "official_muse/rc/memory_model/overnight-native-schema/Cargo.toml",
+      "role": "actualSDK unit driver manifest",
+      "sha256": "c7eb1e79cd6ab1e83834a7d7c1114e5ee383d940351a9a3698a1fb555d580e94"
+    },
+    {
+      "path": "official_muse/rc/memory_model/overnight-native-schema/Cargo.lock",
+      "role": "exactdriver dependency resolution",
+      "sha256": "f508186f98e783f8d25c6176c1fbf5ebd63ed700a9f31973160b77068dc45e32"
+    },
+    {
+      "path": "official_muse/rc/memory_model/overnight-native-schema/src/main.rs",
+      "role": "driver importing actualvendor schema",
+      "sha256": "50cd248ea9fc7438b68f26de8ee2151563d9e1e5fcc999fe4225bb5c35ddc321"
+    },
+    {
+      "path": "official_muse/rc/memory_model/generate_corrupt_fixtures.py",
+      "role": "synthetic90k corruption case generator",
+      "sha256": "5e29f76684da1e8684d35737ffed90e8c8b1b27a754044f1681bdcdda32a37ba"
+    },
+    {
+      "path": "official_muse/rc/memory_model/corrupt_preserve_rc7.splash",
+      "role": "prepared unrunV7 preservation probe",
+      "sha256": "91fca59b239bc6239f9ea004e32af5cc67656e3ae7357ceadb6f2b9bc1506c76"
+    },
+    {
+      "path": "official_muse/rc/memory_model/corrupt_recovery_new_process_rc8.splash",
+      "role": "freshprocesscore+globalcorruptrecovery fixture",
+      "sha256": "3dbf22ee5510af004f871d7a5d00b57d7aaa9e93c917c439ccd10169a2a406c6"
+    }
+  ],
+  "exclude_patterns": [
+    "**/state/**",
+    "**/private/**",
+    "**/.local-state/**",
+    "**/target/**",
+    "**/bundle/**",
+    "**/source-bundle/**",
+    "**/runtime.log",
+    "**/remote-*.json",
+    "**/*.png",
+    "**/*.sqlite*",
+    "**/*.db",
+    "allarchivedpatches/proposals/fullmaincopies/oldprobevariants"
+  ],
+  "raw_artifacts_action": "retain locally; do notdelete; do notpublish",
+  "sample_raw_state_current_git_ignore": false,
+  "root_local_ignore_action_needed": true,
+  "gitignore_changed_by_A3": false,
+  "git_stage_commit_push_performed_by_A3": false,
+  "portable_reproduction_verified": {
+    "contract_generator": "621inputs hashes identical original",
+    "schema_driver": "cargo check PASS, currentvendor directimport",
+    "corruption_generator": "3cases deterministic90,000rawbytes; runtimeNOT_RUN",
+    "corruption_runtime": "3preservation+3freshprocessPASS onV8/new4KiBCard"
+  },
+  "scope_limit": "Oldruntimefailures requirelocally retained matching source/Host/seed; raw hashes indexed, no public historical full source copies."
+}

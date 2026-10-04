@@ -1,0 +1,62 @@
+let restore_cases = [
+    {state: "waiting_user" same: true busy: ""}
+    {state: "accepted" same: true busy: ""}
+    {state: "unknown" same: true busy: ""}
+    {state: "waiting_user" same: false busy: ""}
+    {state: "accepted" same: false busy: ""}
+    {state: "unknown" same: false busy: ""}
+    {state: "accepted" same: true busy: "mail_sending"}
+    {state: "accepted" same: true busy: "mail_model_pending"}
+]
+let restore_index = 0
+let restore_checks = {}
+let restore_calls = []
+let restore_default = mail_draft.to_json().parse_json()
+fn chain_fixture_request(service,args,callback){
+    restore_calls.push({service: service account: args["account"]})
+    if service == "mail.folders" { callback({is_ok: true data: [{name: "INBOX"}]}) return }
+    if service == "mail.list" { callback({is_ok: true data: {messages: [] total: 0}}) return }
+    callback({is_ok: false error: "fixture refuses unexpected service"})
+}
+fn restore_next(){
+    if restore_index >= restore_cases.len() {
+        fs.write("probe.json",restore_checks.to_json()) return
+    }
+    let test = restore_cases[restore_index]
+    let key = test.state + ":" + test.same + ":" + test.busy
+    mail_account = nil mail_pending = false
+    mail_sending = test.busy == "mail_sending"
+    mail_model_pending = test.busy == "mail_model_pending"
+    mail_error = "prior synthetic error"
+    mail_draft = restore_default.to_json().parse_json()
+    mail_draft.account = "synthetic-self"
+    mail_draft.to = "self@example.invalid"
+    mail_draft.subject = "Preserved synthetic draft"
+    mail_draft.body = "Handwritten current draft; do not edit."
+    mail_draft.status = test.state
+    mail_draft.request_id = "synthetic-original-request"
+    mail_draft.preview = "exact original preview"
+    mail_draft.proposed = {subject: "Separate proposal" body: "Keep proposal unchanged"}
+    let before = mail_draft.to_json()
+    fs.write("mail-draft.json",before)
+    restore_calls = []
+    let chosen = {id: "synthetic-other" address: "other@example.invalid"}
+    if test.same { chosen = {id: "synthetic-self" address: "self@example.invalid"} }
+    mail_select_account(chosen)
+    restore_checks[key + ":draft_unchanged"] = mail_draft.to_json() == before
+    restore_checks[key + ":disk_unchanged"] = fs.read("mail-draft.json") == before
+    let expected_read = test.same && test.busy == ""
+    if expected_read {
+        restore_checks[key + ":read_restored"] = mail_account != nil && mail_account.id == "synthetic-self"
+            && restore_calls.len() == 2 && restore_calls[0].service == "mail.folders"
+            && restore_calls[1].service == "mail.list" && restore_calls[0].account == "synthetic-self"
+            && restore_calls[1].account == "synthetic-self"
+        restore_checks[key + ":error_cleared"] = mail_error == "" && !mail_pending
+    } else {
+        restore_checks[key + ":zero_host"] = restore_calls.len() == 0
+        restore_checks[key + ":account_not_changed"] = mail_account == nil
+    }
+    restore_index += 1
+    start_timeout(0.03,|| restore_next())
+}
+start_timeout(0.1,|| restore_next())

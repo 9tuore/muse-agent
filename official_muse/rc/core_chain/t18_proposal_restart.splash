@@ -1,0 +1,282 @@
+// Production mail -> candidate -> approval -> CRUD/get, entirely synthetic transport.
+let chain_calls = []
+let chain_models = []
+let chain_event = nil
+let chain_conflict = false
+let chain_write_count = 0
+let chain_goal = ""
+let chain_result = {}
+let chain_preview = ""
+fn chain_fixture_request(service,args,cb){
+    chain_calls.push({service: service args: args})
+    if service == "mail.accounts" { cb({is_ok: true data: [{id: "synthetic-account" address: "self@example.invalid"}]}) return }
+    if service == "model.complete" { chain_models.push(cb) return }
+    if service == "calendar.status" {
+        cb({is_ok: true data: {permission: "full_access" calendars: [{id: "fixture-calendar" writable: true}]}}) return
+    }
+    if service == "calendar.list" {
+        let events = []
+        if chain_conflict { events.push({id: "conflict" version: "conflict-v1" calendar_id: "fixture-calendar"
+            title: "外部合成冲突" start: args.start end: args.end time_zone: "Asia/Shanghai" location: "合成" availability: 0 all_day: false recurring: false}) }
+        if chain_event != nil && calendar_iso_utc(chain_event.start) < calendar_iso_utc(args.end)
+            && calendar_iso_utc(chain_event.end) > calendar_iso_utc(args.start) { events.push(chain_event) }
+        cb({is_ok: true data: {events: events truncated: false}}) return
+    }
+    if service == "calendar.get" {
+        cb({is_ok: true data: {found: chain_event != nil event: chain_event}}) return
+    }
+    if service == "calendar.create" {
+        chain_write_count = chain_write_count + 1
+        chain_event = {id: "fixture-chain-event" calendar_id: args.calendar_id version: "fixture-v1"
+            title: args.title start: args.start end: args.end time_zone: args.time_zone location: args.location availability: 0 all_day: false recurring: false}
+        cb({is_ok: true data: {event_id: chain_event.id version: chain_event.version}}) return
+    }
+    if service == "calendar.update" {
+        chain_write_count = chain_write_count + 1
+        let revised = chain_event.to_json().parse_json()
+        revised.start = args.changes.start revised.end = args.changes.end
+        revised.version = "fixture-v2"
+        chain_event = revised
+        cb({is_ok: true data: {event_id: chain_event.id version: chain_event.version}}) return
+    }
+    if service == "mail.send" { cb({is_ok: true data: {accepted: true}}) return }
+    if service == "calendar.delete" {
+        chain_write_count = chain_write_count + 1 chain_event = nil
+        cb({is_ok: true data: {deleted: true}}) return
+    }
+    cb({is_ok: false error: "Synthetic chain forbids other services"})
+}
+fn chain_count(service){
+    let count = 0 for call in chain_calls { if call.service == service { count = count + 1 } }
+    return count
+}
+fn probe(){
+    fixture_seed()
+    start_timeout(0.03,|| chain_setup())
+}
+fn chain_setup(){
+    chat_boot() gm_boot() gm_set_focus("合成验收","个人")
+    notification_enabled = false
+    mail_accounts = [{id: "synthetic-account" address: "self@example.invalid"}]
+    mail_account = mail_accounts[0]
+    gm_set_accounts(["synthetic-account"])
+    // Explicit mail scope is user input; current Chat focus no longer assigns mail ownership.
+    mail_scope_project = "合成验收" mail_scope_owner = "个人"
+    mail_selected = {id: "fixture-meeting" message_id: "<fixture-original@example.invalid>" sender: "合成邀请人" address: "sender@example.invalid"
+        subject: "MUSE-R2-OVERNIGHT 日程邀请" body: "2026-10-08 15:00至16:00，Asia/Shanghai，合成会议室。"}
+    start_timeout(0.03,|| chain_link_mail())
+}
+fn chain_link_mail(){
+    mail_link_calendar()
+    start_timeout(0.03,|| chain_assert_source())
+}
+fn chain_assert_source(){
+    chain_goal = selected_id
+    let li = calendar_link_index(chain_goal)
+    chain_result.mail_source_bound = goals.len() == 1 && li >= 0 && chain_models.len() == 1
+        && goals[0].mail_source.message_id == "fixture-meeting" && calendar_links[li].source_id == goals[0].mail_source.source_id
+    if !chain_result.mail_source_bound { fs.write("probe.json",chain_result.to_json()) return }
+    start_timeout(0.03,|| chain_ambiguous_candidate())
+}
+fn chain_ambiguous_candidate(){
+    chain_models[0]({is_ok: true data: {output: {title: "MUSE-R2-OVERNIGHT" start: "" end: "" time_zone: "Asia/Shanghai" location: "合成会议室"}}})
+    calendar_calendar_id = "fixture-calendar"
+    start_timeout(0.03,|| chain_ambiguous_check())
+}
+fn chain_ambiguous_check(){
+    calendar_check_conflicts()
+    start_timeout(0.03,|| chain_ambiguous_preview())
+}
+fn chain_ambiguous_preview(){
+    calendar_preview_action()
+    chain_result.ambiguous_date_blocks = calendar_preview == "" && chain_write_count == 0 && calendar_error != ""
+    start_timeout(0.03,|| chain_request_dates())
+}
+fn chain_request_dates(){
+    calendar_model_candidate(chain_goal,"synthetic-account","fixture-meeting",mail_selected.subject,mail_selected.body)
+    start_timeout(0.03,|| chain_dates_candidate())
+}
+fn chain_dates_candidate(){
+    chain_models[1]({is_ok: true data: {output: {title: "MUSE-R2-OVERNIGHT" start: "2026-10-08T15:00:00+08:00"
+        end: "2026-10-08T16:00:00+08:00" time_zone: "Asia/Shanghai" location: "合成会议室"
+        question: "" duration_changed: false duration_quote: ""
+        policy: {search_start: "2026-10-08T00:00:00+08:00" search_end: "2026-10-09T00:00:00+08:00"
+            time_zone: "Asia/Shanghai" reason: "合成邮件明确约定 8 日 15 时。"
+            hard_windows: [{start: "2026-10-08T15:00:00+08:00" end: "2026-10-08T16:00:00+08:00"}]
+            preferred_windows: [{start: "2026-10-08T15:00:00+08:00" end: "2026-10-08T16:00:00+08:00"}]}}}})
+    calendar_calendar_id = "fixture-calendar"
+    let li = calendar_link_index(chain_goal)
+    chain_result.explicit_dates_candidate = ui.calendar_start.text() == "2026-10-08T15:00:00+08:00"
+        && ui.calendar_end.text() == "2026-10-08T16:00:00+08:00" && calendar_links[li].status == "candidate" && chain_write_count == 0
+    start_timeout(0.03,|| chain_conflict_check())
+}
+fn chain_conflict_check(){
+    chain_conflict = true calendar_check_conflicts()
+    start_timeout(0.03,|| chain_conflict_preview())
+}
+fn chain_conflict_preview(){
+    calendar_preview_action()
+    chain_result.conflict_blocks_preview = calendar_conflicts.len() == 1 && calendar_preview == "" && chain_write_count == 0
+    start_timeout(0.03,|| chain_clear_check())
+}
+fn chain_clear_check(){
+    chain_conflict = false calendar_check_conflicts()
+    start_timeout(0.03,|| chain_waiting_preview())
+}
+fn chain_waiting_preview(){
+    calendar_preview_action()
+    let li = calendar_link_index(chain_goal)
+    chain_result.waiting_user_no_write = calendar_preview != "" && calendar_links[li].status == "waiting_user"
+        && goals[0].status == "planned" && runs.len() == 0 && actions.len() == 0 && chain_write_count == 0
+    fs.write("chain-waiting-user.json",{goal: goals[0] link: calendar_links[li] preview: calendar_preview
+        writes: chain_write_count calls: chain_calls}.to_json())
+    start_timeout(0.03,|| chain_create())
+}
+fn chain_create(){
+    calendar_confirm_action()
+    start_timeout(0.03,|| chain_assert_create())
+}
+fn chain_assert_create(){
+    let li = calendar_link_index(chain_goal)
+    if !fs.exists(goals[core_goal_index(chain_goal)].result_path) {
+        chain_result.create_missing_artifact = true
+        chain_result.stage = "create_missing_artifact"
+        chain_result.goal = goals[core_goal_index(chain_goal)]
+        chain_result.link = calendar_links[li]
+        chain_result.calendar_error = calendar_error
+        chain_result.calendar_notice = calendar_notice
+        chain_result.host_calls = chain_calls
+        fs.write("probe.json",chain_result.to_json()) return
+    }
+    let artifact = fs.read(goals[core_goal_index(chain_goal)].result_path).parse_json()
+    chain_result.synthetic_create_independent_get = chain_write_count == 1 && chain_count("calendar.get") == 1
+        && chain_event != nil && actions.len() == 1 && actions[0].status == "verified"
+        && runs.len() == 1 && runs[0].status == "completed" && calendar_links[li].status == "verified"
+        && artifact.task_id == chain_goal && artifact.event_id == chain_event.id && artifact.version == "fixture-v1"
+    start_timeout(0.03,|| chain_duplicate_create())
+}
+fn chain_duplicate_create(){
+    calendar_confirm_action()
+    chain_result.duplicate_create_blocked = chain_write_count == 1
+    let artifact = fs.read(goals[core_goal_index(chain_goal)].result_path).parse_json()
+    fs.write("chain-created.json",{event: chain_event goals: goals runs: runs actions: actions artifact: artifact}.to_json())
+    start_timeout(0.03,|| chain_update())
+}
+fn chain_update(){
+    // A second mail with only the same title has no unique correlation.
+    mail_watch.accounts = [{id: "synthetic-account" ready: true seen: ["fixture-meeting","fixture-reschedule"]}]
+    mail_watch.alerts = [{key: "synthetic-account:fixture-reschedule" account_id: "synthetic-account"
+        message_id: "fixture-reschedule" status: "new" intent: "" analysis: {kind: "reschedule"}
+        source_body: "2026-10-09 15:00至16:00 改期。" source_address: "sender@example.invalid"
+        source_message: {id: "fixture-reschedule" subject: "MUSE-R2-OVERNIGHT 日程邀请"
+            body: "2026-10-09 15:00至16:00 改期。" address: "sender@example.invalid"
+            message_id: "<fixture-reschedule@example.invalid>" date: "2026-10-04T14:00:00Z"}}]
+    mail_analysis_calendar("synthetic-account:fixture-reschedule")
+    chain_result.ambiguous_reschedule_blocks_new_event = goals.len() == 1 && chain_write_count == 1
+        && mail_reply_error.search("原约定") >= 0
+    mail_watch.alerts[0].source_message.in_reply_to = "<fixture-original@example.invalid>"
+    chain_result.thread_reference_unique = schedule_match_original("synthetic-account",mail_watch.alerts[0].source_message) == chain_goal
+    mail_analysis_calendar("synthetic-account:fixture-reschedule")
+    start_timeout(0.03,|| chain_replan_check())
+}
+fn chain_replan_check(){
+    let li = calendar_link_index(chain_goal)
+    let gi = core_goal_index(chain_goal)
+    chain_result.same_goal_replanned = goals.len() == 1 && goals[gi].version == 2
+        && goals[gi].status == "planned" && calendar_links[li].event_id == "fixture-chain-event"
+        && calendar_links[li].operation == "update" && calendar_links[li].message_id == "fixture-reschedule"
+        && chain_count("calendar.get") == 2 && chain_models.len() == 3
+    chain_result.old_approval_no_write = calendar_preview == "" && chain_write_count == 1
+    calendar_confirm_action()
+    chain_result.old_approval_rejected = chain_write_count == 1
+    fs.write("chain-replanned.json",{result: chain_result goal: goals[gi] link: calendar_links[li] calls: chain_calls}.to_json())
+    if !chain_result.same_goal_replanned { chain_result.stage = "replan" chain_result.calendar_error = calendar_error fs.write("probe.json",chain_result.to_json()) return }
+    start_timeout(0.03,|| chain_new_candidate())
+}
+fn chain_new_candidate(){
+    chain_models[2]({is_ok: true data: {output: {title: "MUSE-R2-OVERNIGHT" start: "2026-10-09T15:00:00+08:00"
+        end: "2026-10-09T16:00:00+08:00" time_zone: "Asia/Shanghai" location: "合成会议室"
+        question: "" duration_changed: false duration_quote: ""
+        policy: {search_start: "2026-10-09T00:00:00+08:00" search_end: "2026-10-10T00:00:00+08:00"
+            time_zone: "Asia/Shanghai" reason: "同线程合成改期邮件明确指定 9 日。"
+            hard_windows: [{start: "2026-10-09T15:00:00+08:00" end: "2026-10-09T16:00:00+08:00"}]
+            preferred_windows: [{start: "2026-10-09T15:00:00+08:00" end: "2026-10-09T16:00:00+08:00"}]}}}})
+    calendar_calendar_id = "fixture-calendar"
+    start_timeout(0.03,|| chain_new_candidate_check())
+}
+fn chain_new_candidate_check(){
+    let li = calendar_link_index(chain_goal)
+    chain_result.new_candidate_same_event = calendar_links[li].candidate.start == "2026-10-09T15:00:00+08:00"
+        && calendar_links[li].event_id == "fixture-chain-event" && chain_write_count == 1
+    calendar_check_conflicts()
+    start_timeout(0.03,|| chain_update_preview())
+}
+fn chain_update_preview(){
+    calendar_preview_action()
+    let li = calendar_link_index(chain_goal)
+    chain_result.update_waits_user = calendar_preview != "" && calendar_links[li].status == "waiting_user"
+        && chain_write_count == 1 && calendar_operation == "update"
+    fs.write("chain-update-waiting.json",{result: chain_result link: calendar_links[li]
+        preview: calendar_preview error: calendar_error calls: chain_calls}.to_json())
+    if !chain_result.update_waits_user { chain_result.stage = "update_preview" fs.write("probe.json",chain_result.to_json()) return }
+    start_timeout(0.03,|| chain_update_confirm())
+}
+fn chain_update_confirm(){
+    mail_analysis.enabled = true mail_analysis.permitted = true
+    calendar_confirm_action()
+    start_timeout(0.03,|| chain_assert_update())
+}
+fn chain_assert_update(){
+    let li = calendar_link_index(chain_goal)
+    let gi = core_goal_index(chain_goal)
+    let result_path = goals[gi].result_path
+    chain_result.same_event_updated_and_read_back = fs.exists(result_path) && chain_write_count == 2
+        && chain_count("calendar.create") == 1 && chain_count("calendar.update") == 1
+        && chain_event.id == "fixture-chain-event" && chain_event.version == "fixture-v2"
+        && chain_count("calendar.get") >= 3 && calendar_links[li].event_id == "fixture-chain-event"
+        && calendar_links[li].status == "verified" && goals[gi].status == "completed"
+    chain_result.no_auto_send = chain_count("mail.send") == 0
+    chain_result.source_revision_saved = calendar_links[li].source_id == "source:mail:synthetic-account:fixture-reschedule"
+        && core_memory_index(calendar_links[li].source_claim_id,"synthetic-account") >= 0
+    chain_result.two_actions_verified = actions.len() == 2 && actions[0].status == "verified" && actions[1].status == "verified"
+    chain_result.activity_present = activity.len() > 0
+    start_timeout(0.18,|| chain_auto_reply_check())
+}
+fn chain_auto_reply_check(){
+    let key = "synthetic-account:fixture-reschedule"
+    chain_result.auto_reply_requested_after_calendar_readback = chain_models.len() == 4
+        && chain_count("mail.send") == 0 && chain_count("calendar.update") == 1
+    if !chain_result.auto_reply_requested_after_calendar_readback {
+        chain_result.stage = "auto_reply_not_requested"
+        chain_result.host_calls = chain_calls
+        fs.write("probe.json",chain_result.to_json()) return
+    }
+    chain_models[3]({is_ok: true data: {output: {subject: "回复：已改期"
+        body: "已改期至 " + chain_event.start + " 至 " + chain_event.end + "，我会按此安排。"}}})
+    let draft = mail_watch_draft(key)
+    chain_result.generated_reply_is_draft_only = draft != nil && draft.status == "DRAFT"
+        && draft.body.search(chain_event.start) >= 0 && draft.body.search(chain_event.end) >= 0
+        && chain_count("mail.send") == 0
+    mail_watch_edit_body(key,"我确认新的约定；这句是用户手写内容。")
+    let handwritten = mail_watch_draft(key).body
+    schedule_auto_reply(chain_goal,chain_event)
+    chain_result.regeneration_requested = chain_models.len() == 5
+    if !chain_result.regeneration_requested {
+        chain_result.stage = "regeneration_not_requested"
+        fs.write("probe.json",chain_result.to_json()) return
+    }
+    chain_models[4]({is_ok: true data: {output: {subject: "回复：建议新稿"
+        body: "建议改期至 " + chain_event.start + " 至 " + chain_event.end + "。"}}})
+    let proposed = mail_watch_draft(key)["proposed"]
+    chain_result.handwriting_preserved_with_proposal = mail_watch_draft(key).body == handwritten
+        && proposed != nil && proposed.body.search("建议改期至") >= 0 && chain_count("mail.send") == 0
+    mail_watch = fs.read("mail-watch.json").parse_json()
+    let restored_proposal = mail_watch_draft(key)["proposed"]
+    chain_result.proposal_survives_reload = restored_proposal != nil && mail_watch_draft(key).body == handwritten
+    chain_result.current_and_proposed_before_restart = mail_watch_draft(key).body == handwritten
+        && restored_proposal != nil && chain_count("mail.send") == 0
+    chain_result.host_calls = chain_calls
+    chain_result.boundary = "Synthetic transport; stop before adoption so a new card-host process can prove current/proposal coexist."
+    fs.write("probe.json",chain_result.to_json())
+}
+start_timeout(0.1,|| probe())
