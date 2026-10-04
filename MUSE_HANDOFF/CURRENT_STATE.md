@@ -1,3 +1,9 @@
+## 2026-10-05 06:16 · rc9 日历缺时间问询顺序
+
+从当前rc8继续，只移动chat_candidate_input_error既有起止完整性检查；日期已知却缺起止时优先问开始/结束，不被模型反向/臆造时段遮住。实际Card 15变体53检查通过；同卡地点编辑、revision2、native/Python读回、stale/reverse/past/timezone及Mail/Goal控制均保持。原版50PASS/3FAIL和r1-r7测试错误保留。
+
+可读9d01484c / compact4c970e04，官方91195 tokens相等，除一个函数和Settings rc9标签外，rc8函数字节相同。新的最终真实节点、70启动与2h将绑定本候选，不能换标签沿用旧PASS。运行Host938/旧SDK3f仍未含Calendar92b1桥修复，T18未过。全20仍PARTIAL，不push/tag/正式提交，稳定0.3.25及生产资料保护。见RC9_DELTA_BINDING。
+
 # 2026-10-05 05:27 · rc8邮件编辑保留未改字段
 
 当前产品0.3.26-rc8，可读3bce91a8/payloadf2c2ce15，官方91193 token相等。只增加邮件字段意图helper及绑定快照merge：只改正文保留原to/subject，明确字段命令才更新；否定和引用不授权改邮件头，邮件问句不改候选。原手写/发送中/绑定/确认守卫及Calendar路径未改。A2原68PASS/18FAIL→16变体86PASS，当前版本只改注释和版本，reverse全源与实测提案61c784c9一致。最终真实E04及启动/长运行未过，不能称已验收。
