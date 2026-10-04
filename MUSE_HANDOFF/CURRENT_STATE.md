@@ -1,3 +1,9 @@
+# 2026-10-05 04:45 · rc7最小问询与错误可观测修复
+
+当前分支codex/muse-rc-finalization；产品0.3.26-rc7，可读92c4838e/compactac689fb0，官方tokenizer91041 tokens完全相等。新改动仅缺日期时提前同时问日期、typed enum-only失败类别trace、官方refused/truncated准确中文提示及版本标签；其他字节逆向恢复与b9cf完全一致，模型payload/预算、权限、Goal、Memory与系统动作没有变更。A2原3FAIL→32PASS，A3 26类别/trace+16提示PASS（都是fixture）。实际rc7模型/启动/长运行将单独检验，不把fixture当真实整链。
+
+b9cf真实Memory更正/遗忘/跨对话和Goal/独立读回/首次Shell重启PASS；b9冷2源码准备124.194ms失败、M3 S02/M2.7 D07服务失败均保留，错误原因UNKNOWN。旧V15合成7200.3s/240样本PASS，只作旧版支持。旧真实Mail5357s绘制层FAIL仍保留。SDK日历桥92b1/锁da756dde尚未进入Host938/旧锁3f；完整新Host/clean重建容量不足，600MiB门禁不变。稳定0.3.25和生产资料保护，无push/tag/正式Hub提交。
+
 ## 2026-10-05 03:57：日程澄清修复，递增 rc6 候选
 
 保留已冻结rc5及稳定0.3.25，rc6 readable47c56065/payloadf5cd33b7，未提高默认64ms/20M/64MiB预算。修复真实D05问时间被错误保存为error并丢掉后续上下文；仅合法calendar waiting_user保留受限原话，后续明确日期覆盖旧“过几天/改天”，纯年月日补充复用日期判断，作用域/过期引用/遗忘与2400字节守卫保留。设置版本同步rc6，canonical Hub check/scan通过，官方Tokenizer90918项逐个相同。

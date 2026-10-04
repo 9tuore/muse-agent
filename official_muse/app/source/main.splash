@@ -6409,6 +6409,13 @@ fn chat_shows_goal(){
     return i >= 0 && gm_has(chat_sessions[i],"goal_id") && chat_sessions[i].goal_id == task.id
 }
 
+fn model_error_code(raw){
+    if !gm_string(raw,4096) { return "unknown" }
+    for code in ["capability","no_provider","rate","budget","bad_request","invalid_output","refused","truncated","too_large","provider","cancelled","memory_conflict"] {
+        if raw.search(code + ":") == 0 { return code }
+    }
+    return "unknown"
+}
 fn model_user_error(raw){
     if raw == nil { return "这次没有整理成功。请重试，或手动填写。" }
     if raw.search("memory_conflict:") == 0 { return raw.split("memory_conflict: ")[1] }
@@ -6419,6 +6426,8 @@ fn model_user_error(raw){
     if raw.search("bad_request: input is") == 0 { return "对话上下文过长，请开始新对话或缩短内容。" }
     if raw.search("bad_request:") == 0 { return "模型请求内容或格式无效，请检查输入。" }
     if raw.search("invalid_output:") == 0 { return "这次没有整理成功。请重试，或手动填写。" }
+    if raw.search("refused:") == 0 { return "模型未接受这次请求，未采用结果。请调整需求后重试。" }
+    if raw.search("truncated:") == 0 { return "模型回复未完整生成，未采用结果。请缩短问题，或在宿主中切换模型后重试。" }
     if raw.search("too_large:") == 0 { return "模型回复过长，未保存；请重试。" }
     if raw.search("timed out") >= 0 || raw.search("timeout") >= 0 { return "模型服务等待超时，请稍后重试。" }
     if raw.search("provider:") == 0 { return "模型服务暂不可用，请检查宿主模型连接。" }
@@ -6707,7 +6716,7 @@ fn chat_calendar_input_clear(message){
     return date_known && range_known
 }
 fn chat_candidate_input_error(action,payload,message,editing){
-    if action == "calendar_candidate" && chat_calendar_input_ambiguous(message) {
+    if action == "calendar_candidate" && (chat_calendar_input_ambiguous(message) || (!editing && !chat_calendar_date_known(message))) {
         return "请明确哪一天，以及开始和结束时间。"
     }
     let error = chat_payload_error(action,payload)
@@ -7090,6 +7099,7 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
             let trace = {schema: 1 request_at: request_at response_at: time_now()
                 query_sha256: query_hash session_id: session_id goal_id: goal_id
                 current: current() is_ok: r.is_ok known_usage: false}
+            if !r.is_ok { trace.error_code = model_error_code(r["error"]) }
             if r.is_ok && r.data != nil && gm_has(r.data,"meta") {
                 let meta = r.data.meta
                 if gm_has(meta,"usage") && gm_has(meta,"budget") && gm_has(meta,"attempts") {
@@ -8462,7 +8472,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc6" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc7" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}

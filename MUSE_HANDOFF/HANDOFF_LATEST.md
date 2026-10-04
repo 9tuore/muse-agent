@@ -1,3 +1,9 @@
+# 2026-10-05 04:45 · rc7最小问询与错误可观测修复
+
+当前分支codex/muse-rc-finalization；产品0.3.26-rc7，可读92c4838e/compactac689fb0，官方tokenizer91041 tokens完全相等。新改动仅缺日期时提前同时问日期、typed enum-only失败类别trace、官方refused/truncated准确中文提示及版本标签；其他字节逆向恢复与b9cf完全一致，模型payload/预算、权限、Goal、Memory与系统动作没有变更。A2原3FAIL→32PASS，A3 26类别/trace+16提示PASS（都是fixture）。实际rc7模型/启动/长运行将单独检验，不把fixture当真实整链。
+
+b9cf真实Memory更正/遗忘/跨对话和Goal/独立读回/首次Shell重启PASS；b9冷2源码准备124.194ms失败、M3 S02/M2.7 D07服务失败均保留，错误原因UNKNOWN。旧V15合成7200.3s/240样本PASS，只作旧版支持。旧真实Mail5357s绘制层FAIL仍保留。SDK日历桥92b1/锁da756dde尚未进入Host938/旧锁3f；完整新Host/clean重建容量不足，600MiB门禁不变。稳定0.3.25和生产资料保护，无push/tag/正式Hub提交。
+
 # Muse夜间交接
 
 ## Task
