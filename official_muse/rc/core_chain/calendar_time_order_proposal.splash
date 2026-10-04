@@ -1,0 +1,16 @@
+// Isolated suggestion: ask for missing user time before validating model slots.
+fn chat_candidate_input_error(action,payload,message,editing){
+    if action == "calendar_candidate" && (chat_calendar_input_ambiguous(message) || (!editing && !chat_calendar_date_known(message))) {
+        return "请明确哪一天，以及开始和结束时间。"
+    }
+    if action == "calendar_candidate" && !editing && !chat_calendar_input_clear(message) {
+        return "请补充明确的开始和结束时间。"
+    }
+    let error = chat_payload_error(action,payload)
+    if error != "" { return error }
+    if action == "calendar_candidate" {
+        if payload.time_zone == "Asia/Shanghai" && message.search("UTC") < 0 && message.search("Z时区") < 0
+            && (payload.start.search("+08:00") < 0 || payload.end.search("+08:00") < 0) { return "候选时区与上海时间不一致，请核对日期和时间后重试。" }
+    }
+    return ""
+}

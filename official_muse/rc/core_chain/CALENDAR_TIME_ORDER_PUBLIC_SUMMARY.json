@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "status": "PROPOSAL_FIXTURE_PASS_ROOT_REVIEW",
+  "base_readable_sha256": "3bce91a8e340c109ec627d6dfa73e776ecd37e98614b77eac85958616d1c2351",
+  "isolated_proposal_sha256": "02c26224c99f3000ed1f627ab96ee0eee4846b93cdc117999872ebe2e050652c",
+  "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "repository_sdk_lock_sha256_at_run": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
+  "card_host_sdk_provenance": "Existing CardHost52768f57 reused; repository lock is observed separately, not proof binary rebuilt from current da756dde lock.",
+  "synthetic_variants": 15,
+  "original_passed": 50,
+  "original_failed_assertions": [
+    "known_date_guessed_slot:wording",
+    "known_date_reverse_slot:wording",
+    "known_date_empty_slot:wording"
+  ],
+  "proposal_passed": 53,
+  "proposal_failed": [],
+  "all_source_outside_one_function_identical": true,
+  "mail_goal_outputs_identical": true,
+  "local_file_bytes": 1451637,
+  "boundaries": "Production validation/candidate/storage functions in actual isolated CardHost; synthetic input/payload, no model or Host requests; one fixture-only function order/text proposal; no product/SDK/Git change or resource/build copies.",
+  "attempts": [
+    {
+      "attempt": "r1",
+      "classification": "FIXTURE_ERROR",
+      "detail": "Unconditionally indexed an absent valid-case candidate; out-of-bounds prevented report."
+    },
+    {
+      "attempt": "r2-r6",
+      "classification": "FIXTURE_VALID_CASE_FAILURE_RETAINED",
+      "detail": "Mixed Calendar/Mail/Goal payload fields validated directly but normalized field-copy dropped end/location; request binding and final JSON materialization did not resolve. No product-cause claim."
+    },
+    {
+      "attempt": "r7",
+      "classification": "FIXTURE_ERROR",
+      "detail": "Switched to action-specific payload fields; finish factory argument omitted action, actual missing-property error retained."
+    },
+    {
+      "attempt": "r8",
+      "classification": "15_VARIANTS_53_PROPOSAL_PASS",
+      "detail": "Legal action-specific payloads, existing candidate edit and stale binding, native readback plus independent Python checks. Candidate-producing branches prepare synthetic request binding matching normal request data; no claim nil binding itself rejects."
+    }
+  ],
+  "evidence": {
+    "local_reference": "official_muse/rc/core_chain/evidence/rc8-calendar-time-order-20261005-r8/summary.json",
+    "sha256": "8a324bfe156bedec0649c489da06586679587b78775f08d22e1985bb59e050f3",
+    "published_raw": false
+  },
+  "product_modified_by_a2": false,
+  "sdk_modified_by_a2": false,
+  "first_failures_preserved": true,
+  "release_ready_claimed": false
+}

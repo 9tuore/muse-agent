@@ -1,0 +1,102 @@
+let ct_checks={}
+let ct_details=[]
+let ct_index=0
+let ct_calls=[]
+let ct_cases=[
+    {id:"known_date_empty_slot" action:"calendar_candidate" message:"安排日历：明天下午开会。" slot:"empty" editing:false expected:"请补充明确的开始和结束时间。" candidate:false}
+    {id:"known_date_reverse_slot" action:"calendar_candidate" message:"安排日历：明天下午开会。" slot:"reverse" editing:false expected:"请补充明确的开始和结束时间。" candidate:false}
+    {id:"known_date_guessed_slot" action:"calendar_candidate" message:"安排日历：明天下午开会。" slot:"normal" editing:false expected:"请补充明确的开始和结束时间。" candidate:false}
+    {id:"explicit_valid" action:"calendar_candidate" message:"请安排2040年12月15日15:00到16:00的合成会议" slot:"normal" editing:false expected:"" candidate:true}
+    {id:"explicit_reverse" action:"calendar_candidate" message:"请安排2040年12月15日16:00到15:00的合成会议" slot:"reverse" editing:false expected:"结束时间须晚于开始时间，请核对起止时间。" candidate:false}
+    {id:"missing_date" action:"calendar_candidate" message:"请安排哪天傍晚的合成会议" slot:"normal" editing:false expected:"请明确哪一天，以及开始和结束时间。" candidate:false}
+    {id:"ambiguous_date" action:"calendar_candidate" message:"请安排过几天15:00到16:00的合成会议" slot:"normal" editing:false expected:"请明确哪一天，以及开始和结束时间。" candidate:false}
+    {id:"editing_location" action:"calendar_candidate" message:"把地点改到合成会议室B" slot:"normal" editing:true expected:"" candidate:false}
+    {id:"editing_reverse" action:"calendar_candidate" message:"把地点改到合成会议室B" slot:"reverse" editing:true expected:"结束时间须晚于开始时间，请核对起止时间。" candidate:false}
+    {id:"explicit_past" action:"calendar_candidate" message:"请安排2020年1月1日15:00到16:00的合成会议" slot:"past" editing:false expected:"这个时间已经过去，请提供新的日期和时间。" candidate:false}
+    {id:"timezone_mismatch" action:"calendar_candidate" message:"请安排2040年12月15日15:00到16:00的合成会议" slot:"wrong_zone" editing:false expected:"候选时区与上海时间不一致，请核对日期和时间后重试。" candidate:false}
+    {id:"mail_valid" action:"mail_compose" message:"请起草合成邮件" slot:"normal" editing:false expected:"" candidate:false}
+    {id:"mail_invalid" action:"mail_compose" message:"请起草合成邮件" slot:"missing_recipient" editing:false expected:"请补充一个明确的收件地址。" candidate:false}
+    {id:"goal_valid" action:"goal_plan" message:"请整理目标的合成资料" slot:"normal" editing:false expected:"" candidate:false}
+    {id:"goal_invalid" action:"goal_plan" message:"请整理目标的合成资料" slot:"missing_source" editing:false expected:"请提供本次任务的目标与资料；初赛版不创建通用周期任务。" candidate:false}
+]
+fn chain_fixture_request(service,args,cb){ct_calls.push(service) cb({is_ok:false error:"Synthetic order test forbids all Host requests"})}
+fn ct_payload(test){
+    let p={title:"合成会议" start:"2040-12-15T15:00:00+08:00" end:"2040-12-15T16:00:00+08:00"
+        time_zone:"Asia/Shanghai" location:"合成会议室B"}.to_json().parse_json()
+    if test.slot=="empty" {p.start="" p.end=""}
+    if test.slot=="reverse" {p.start="2040-12-15T16:00:00+08:00" p.end="2040-12-15T15:00:00+08:00"}
+    if test.slot=="past" {p.start="2020-01-01T15:00:00+08:00" p.end="2020-01-01T16:00:00+08:00"}
+    if test.slot=="wrong_zone" {p.start="2040-12-15T15:00:00Z" p.end="2040-12-15T16:00:00Z"}
+    if test.action=="mail_compose" {p={to:"self@example.invalid" subject:"合成主题" body:"合成正文"}.to_json().parse_json()}
+    if test.action=="goal_plan" {p={objective:"整理合成资料" source:"合成甲；合成乙"}.to_json().parse_json()}
+    if test.slot=="missing_recipient" {p.to=""}
+    if test.slot=="missing_source" {p.source=""}
+    return p.to_json().parse_json()
+}
+fn ct_next(){
+    if ct_index>=ct_cases.len() {ct_finish() return}
+    let test=ct_cases[ct_index] let p=ct_payload(test)
+    let error=chat_candidate_input_error(test.action,p,test.message,test.editing)
+    ct_checks[test.id+":wording"]=error==test.expected
+    let i=chat_session_index(chat_selected_id)
+    chat_sessions[i].proposals=[]
+    chat_requests=[{id:"synthetic-time-order:"+test.id session_id:chat_selected_id status:"running"
+        project:gm_project owner:gm_owner editing:false candidate_id:"" memory_refs:[]}].to_json().parse_json()
+    if test.action=="calendar_candidate" && !test.editing {
+        let added=chat_add_proposal(chat_selected_id,"synthetic-time-order:"+test.id,"",test.message,
+            {intent:test.action proposal:p}.to_json().parse_json())
+        let expected_count=0 if test.candidate {expected_count=1}
+        ct_checks[test.id+":candidate_policy"]=added==test.candidate
+            && chat_sessions[i].proposals.len()==expected_count
+        ct_checks[test.id+":saved"]=chat_save()
+        let stored=fs.read("chat-sessions.json").parse_json()
+        ct_checks[test.id+":independent_native_readback"]=stored.sessions[i].proposals.to_json()==chat_sessions[i].proposals.to_json()
+        if test.candidate {
+            ct_checks[test.id+":unapproved_only"]=false
+            if chat_sessions[i].proposals.len()>0 {
+                ct_checks[test.id+":unapproved_only"]=chat_sessions[i].proposals[0].state=="candidate"
+                    && chat_sessions[i].proposals[0].payload.start==p.start
+            }
+        }
+    }
+    ct_details.push({id:test.id action:test.action editing:test.editing actual_error:error input_clear:chat_calendar_input_clear(test.message) payload:p added_count:chat_sessions[i].proposals.len()})
+    fs.write("case-details.json",ct_details.to_json())
+    ct_index=ct_index+1
+    start_timeout(0.03,|| ct_next())
+}
+fn ct_finish(){
+    let i=chat_session_index(chat_selected_id)
+    let p=ct_payload({slot:"normal" action:"calendar_candidate"})
+    let card={id:"synthetic-bound-card" session_id:chat_selected_id account_id:"" action:"calendar_candidate"
+        payload:p state:"candidate" memory_refs:[] project:gm_project owner:gm_owner revision:1}.to_json().parse_json()
+    chat_sessions[i].proposals=[card]
+    let edited=p.to_json().parse_json() edited.location="合成会议室C"
+    chat_requests=[{id:"synthetic-edit" session_id:chat_selected_id status:"running"
+        project:gm_project owner:gm_owner editing:true candidate_id:card.id candidate_payload:p.to_json()
+        candidate_state:"candidate" memory_refs:[]}].to_json().parse_json()
+    ct_checks.existing_candidate_edit_accepted=chat_add_proposal(chat_selected_id,"synthetic-edit","","把地点改到合成会议室C",
+        {intent:"calendar_candidate" proposal:edited}.to_json().parse_json())
+    ct_checks.existing_candidate_id_revision=chat_sessions[i].proposals[0].id==card.id
+        && chat_sessions[i].proposals[0].revision==2 && chat_sessions[i].proposals[0].payload.location==edited.location
+    ct_checks.existing_candidate_edit_saved=chat_save()
+    let saved=fs.read("chat-sessions.json").parse_json()
+    ct_checks.existing_candidate_edit_native_readback=saved.sessions[i].proposals.to_json()==chat_sessions[i].proposals.to_json()
+    chat_requests=[{id:"synthetic-stale" session_id:chat_selected_id status:"running"
+        project:gm_project owner:gm_owner editing:true candidate_id:card.id candidate_payload:"{}" candidate_state:"candidate"}].to_json().parse_json()
+    let before=chat_sessions[i].proposals.to_json()
+    ct_checks.stale_candidate_binding_rejected=!chat_add_proposal(chat_selected_id,"synthetic-stale","","把地点改到合成会议室B",
+        {intent:"calendar_candidate" proposal:p}.to_json().parse_json())
+    ct_checks.stale_binding_preserved=chat_sessions[i].proposals.to_json()==before
+    ct_checks.no_host_requests=ct_calls.len()==0
+    ct_checks.no_goal_run_action=goals.len()==0 && runs.len()==0 && actions.len()==0
+    ct_checks.details=ct_details
+    fs.write("probe.json",ct_checks.to_json())
+}
+fn ct_probe(){
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot()
+    gm_set_focus("synthetic-project","synthetic-owner")
+    let i=chat_session_index(chat_selected_id)
+    chat_sessions[i].focus_project=gm_project chat_sessions[i].focus_owner=gm_owner
+    ct_next()
+}
+start_timeout(0.1,|| ct_probe())

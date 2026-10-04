@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "scope": "Independent A2 Calendar question-order proposal evidence; previous21 and other allowlists untouched",
+  "status": "PROPOSAL_FIXTURE_EVIDENCE_FOR_ROOT_REVIEW",
+  "files": [
+    "official_muse/rc/core_chain/run_calendar_time_order_delta.py",
+    "official_muse/rc/core_chain/calendar_time_order_proposal.splash",
+    "official_muse/rc/core_chain/calendar_time_order_delta.splash",
+    "official_muse/rc/core_chain/CALENDAR_TIME_ORDER_PUBLIC_SUMMARY.json",
+    "official_muse/rc/core_chain/CALENDAR_TIME_ORDER_PUBLIC_ALLOWLIST.json",
+    "official_muse/rc/core_chain/CALENDAR_TIME_ORDER_DELTA_REPORT.md"
+  ],
+  "required_existing_helpers": [
+    "official_muse/ui_memory/tests/regression_run.py",
+    "official_muse/round2/tests/runtime_probe.py"
+  ],
+  "excluded": [
+    "official_muse/rc/core_chain/evidence/**",
+    "**/main.splash",
+    "**/original-source.splash",
+    "**/state/**",
+    "**/bundle/**",
+    "**/runtime.log",
+    "**/__pycache__/**"
+  ],
+  "no_assets_copied": true,
+  "no_build_performed": true,
+  "raw_evidence_deleted": false,
+  "staging_policy": "Root alone explicitly stages reviewed files. A2 does not stage, commit or push.",
+  "public_content": "Generic synthetic Calendar/Mail/Goal data only. No private driver/account data, keys or real model outputs."
+}
