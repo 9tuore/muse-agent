@@ -1,0 +1,101 @@
+{
+  "status": "PARTIAL_RETAINED_FAILURES",
+  "version": "0.3.26-rc6",
+  "application_commit": "b9cf26b8dc0a9bdb51e493cb6a420636a1291e73",
+  "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "actual_memory": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc6-final-b9cf-memory-goal-r1/live-evidence/report.json",
+    "sha256": "a5f3947adf73156e5dabf564462ba0254c79a6ee707c420a622df37fbe8eb10d",
+    "status": "PASS",
+    "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+    "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d"
+  },
+  "actual_local_goal_first_restart": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc6-final-b9cf-memory-goal-r1/goal-restart-evidence/report.json",
+    "sha256": "cb062354397e0f1a61b68f640668eeefca147126dbfbb46f592fd56e9a65bec1",
+    "status": "PASS",
+    "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+    "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d"
+  },
+  "actual_date_only": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc6-final-b9cf-model-r1/pure-date-independent-r2/report.json",
+    "sha256": "33ad78d8076011d90dbd009d035ac11c41eb96532b1b0669b66ceecba81c5e3c",
+    "status": "PASS_ACTUAL_MODEL_DATE_ONLY_CANDIDATE",
+    "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+    "host_sha256": null
+  },
+  "no_calendar_write_or_mail_send_from_these_model_profiles": true,
+  "not_original20_pass": true,
+  "ambiguity_manual_semantics": {
+    "D05": "PASS_ASKS_BOTH_TIMES_NO_CANDIDATE",
+    "D07": "PASS_ASKS_DATE_AND_TIMES_NO_CANDIDATE",
+    "H05": "PARTIAL_NO_CANDIDATE_BUT_MISSING_DATE_NOT_ASKED",
+    "evidence": {
+      "path": "official_muse/app/build/ui-memory-20261003/rc6-final-b9cf-model-r1/ambiguous-time-final-r1/report.json",
+      "sha256": "41f64b30cfd3a8caa242d85909bcc2730b0716ecb43c1aa1acfe66c2baa5d68e",
+      "status": "OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW",
+      "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+      "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d"
+    }
+  },
+  "retained_errors": [
+    {
+      "evidence": {
+        "path": "official_muse/app/build/ui-memory-20261003/rc6-final-b9cf-memory-goal-r1/model-comparison-m3-r1/report.json",
+        "sha256": "453cd1e2820490d9e33b0abb4087e19ee606130fc617fe1b83dc5fea7252e9cd",
+        "status": "FAIL_RETAINED",
+        "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+        "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d"
+      },
+      "case_id": "S02",
+      "model_metadata": {
+        "family_id": "minimax-cn",
+        "model_id": "MiniMax-M3",
+        "base_url": "https://api.minimax.cn/v1",
+        "api_type": "openai"
+      },
+      "reply_state": "error",
+      "reply_text": "这次没有整理成功。请重试，或手动填写。",
+      "usage_before": {
+        "calls": 35,
+        "tokens": 34188
+      },
+      "usage_after": {
+        "calls": 36,
+        "tokens": 35349
+      },
+      "cause": "UNKNOWN_NOT_PERSISTED_BY_PRIOR_APP",
+      "no_automatic_repeat": true
+    },
+    {
+      "evidence": {
+        "path": "official_muse/app/build/ui-memory-20261003/rc6-final-b9cf-model-m27-r1/model-comparison-m27-r1/report.json",
+        "sha256": "13607f42199f68d154ca3fc7eee8a80c97367d5521b1d62801ff3353f906baca",
+        "status": "FAIL_RETAINED",
+        "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+        "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d"
+      },
+      "case_id": "D07",
+      "model_metadata": {
+        "family_id": "minimax-cn",
+        "model_id": "MiniMax-M2.7",
+        "base_url": "https://api.minimax.cn/v1",
+        "api_type": "openai"
+      },
+      "reply_state": "error",
+      "reply_text": "这次没有整理成功。请重试，或手动填写。",
+      "usage_before": {
+        "calls": 46,
+        "tokens": 44209
+      },
+      "usage_after": {
+        "calls": 47,
+        "tokens": 45620
+      },
+      "cause": "UNKNOWN_NOT_PERSISTED_BY_PRIOR_APP",
+      "no_automatic_repeat": true
+    }
+  ],
+  "remaining_observations": "M3 continuation, pending error/category fixture and date-question fix; current startup cold2 fails; two-hour soak ongoing. Updated final records must distinguish later sources."
+}

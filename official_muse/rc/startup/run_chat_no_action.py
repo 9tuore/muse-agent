@@ -42,6 +42,11 @@ def main():
     a.out.mkdir(parents=True, mode=0o700)
     meta = read(candidate / 'candidate.json')
     assert meta['profile_kind'] == 'AUTHORIZED_MODEL_ONLY_SYNTHETIC'
+    llm = read(candidate / 'private/home/octos-home/.octos/profiles/_main.json')['config']['llm']
+    selected_model = llm['primary']
+    safe_model = {'family_id': selected_model['family_id'], 'model_id': selected_model['model_id'],
+                  'base_url': selected_model['route']['base_url'], 'api_type': selected_model['route']['api_type']}
+    assert safe_model == meta['model_metadata'] and llm['fallbacks'] == []
     assert not (candidate / 'private/apps/.host/mail').exists()
     jail = candidate / 'private/apps/muse-goals'
     host = Path(meta['host_app_path']) / 'Contents/MacOS/octosense'
@@ -55,14 +60,16 @@ def main():
     assert len(a.case_ids) == len(set(a.case_ids))
     selected = [cases[key] for key in a.case_ids]
     assert all(c['execution'] == 'model' and not c.get('memory_operation')
-               and not c.get('focus') for c in selected), 'Chat-only subset'
+               for c in selected), 'No memory mutation in this subset'
     protected = {n: sha(jail / n) for n in [
         'goals.json', 'goals.backup.json', 'calendar-state.json',
         'mail-draft.json', 'mail-watch.json', 'memory.json']}
     usage_path = candidate / 'private/apps/.host/model/ledger.json'
-    report = {'status': 'RUNNING', 'kind': 'REAL_AUTHORIZED_MODEL_VISIBLE_SHELL',
+    report = {'status': 'RUNNING', 'kind': 'ACTUAL_VISIBLE_SHELL_CHAT_SUBSET',
               'version': meta['version'], 'source_sha256': meta['source_sha256'],
               'host_sha256': meta['host_sha256'], 'code_commit': meta['commit'],
+              'application_commit': meta.get('application_commit', meta['commit']),
+              'model_metadata': safe_model, 'fallbacks': [],
               'expectations_sha256': sha(corpus), 'case_ids': a.case_ids,
               'driver_sha256': sha(Path(__file__)), 'cases': [],
               'usage_before': read(usage_path)['apps']['muse-goals'],
@@ -88,11 +95,21 @@ def main():
                 r.click('＋ 新对话')
                 assert current()['id'] != before
                 flow = case['flow']
+            if case.get('focus'):
+                wanted = case['focus']
+                if not any(w.get('i') == 'session_focus_project' for w in r.widgets()):
+                    r.click('切换')
+                r.set_text('session_focus_project', wanted['project'])
+                r.set_text('session_focus_owner', wanted['owner'])
+                r.click('使用这个项目')
+                assert current()['focus_project'] == wanted['project']
+                assert current()['focus_owner'] == wanted['owner']
             gap = 32 - (time.monotonic() - last_request)
             if gap > 0:
                 time.sleep(gap)
             origin = current()
             sid, count = origin['id'], len(origin['messages'])
+            usage_before = read(usage_path)['apps']['muse-goals']
             r.set_text('goal_input', case['input'])
             button = r.find('send_button')['r']
             assert button[2] > 2 and button[3] >= 24
@@ -109,7 +126,7 @@ def main():
                                if s['id'] == sid)
                 added = session['messages'][count:]
                 terminal = [m for m in added if m['role'] == 'assistant'
-                            and m['state'] in ['success', 'error', 'cancelled']]
+                            and m['state'] in ['success', 'waiting_user', 'error', 'cancelled']]
                 if terminal:
                     break
                 time.sleep(.25)
@@ -122,6 +139,8 @@ def main():
                    'reply': terminal[-1], 'session_id': sid,
                    'seconds': time.monotonic()-last_request,
                    'single_input': True, 'submit_remote_error': submit_error,
+                   'usage_before': usage_before,
+                   'usage_after': read(usage_path)['apps']['muse-goals'],
                    'proposals_before': origin['proposals'],
                    'proposals_after': session['proposals']}
             report['cases'].append(row)
@@ -129,7 +148,7 @@ def main():
             print(json.dumps({'id': case['id'], 'state': terminal[-1]['state']},
                              ensure_ascii=False), flush=True)
             shot(r, a.out / (case['id']+'.png'))
-            assert terminal[-1]['state'] == 'success', 'Retain actual model failure'
+            assert terminal[-1]['state'] in ['success', 'waiting_user'], 'Retain actual error response'
         assert all(sha(jail / n) == h for n, h in protected.items())
         report['protected_external_state_unchanged'] = True
         report['status'] = 'OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW'

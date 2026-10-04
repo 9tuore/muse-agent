@@ -52,9 +52,24 @@
         "launch.txt": "fc28fd4eb1ad949d31a892e0ae0a3bf77eaba5889803bb999952008d09189b80"
       },
       "retained": true
+    },
+    {
+      "stage": "rc6_b9cf_cold2",
+      "reason": "Actual source preparation exceeded64ms: max_chunk124.194ms, offset311812 of427956B; no usable Muse input/focus",
+      "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+      "evidence_local": "official_muse/rc/startup/evidence/b9cf-final-70-r1/cold-02",
+      "files": {
+        "snap.json": "0e56000b8331bb46e595f1629e13d7aaf03b0c6a4e09f26aa5717b25abd51139",
+        "visible.png": "be9a77fefb081c7b0b8d3a025fc0415abe05ea7c23d5fe08ee28ac7bad3adca5",
+        "log.json": "0f6370d4dee0c780b7588339651caa25ad1f0f5aaf7b3f42f292123c55a76594",
+        "exception.txt": "93be4ab4e7c737cdb59ceb85cf3aa2e5bc56cdacf35593804a62236b794b06f0",
+        "launch.txt": "49dd4515ea5e506e67b85862153e5a1e2d7cb7f0ea554a36a82509c6ae1d4c7a"
+      },
+      "retained": true,
+      "cause": "SOURCE_PREPARATION_FAILURE_OBSERVED; load sensitivity is a hypothesis, not a verified cause or repair"
     }
   ],
-  "final_retest": "V15 b486/Host938 preCalendarbridge30/20/20PASS; newbridgeHost build pending; originalfailures unchanged",
+  "final_retest": "Current rc6 first70 attempt: cold1PASS/cold2FAIL; oldV15 30/20/20PASS support is separate. Any later controlled retest does not erase this failure.",
   "memory_restart_failure": "Build private evidence rc5-model-v12-r1/live-evidence/first-restart-assertion-error.json; beforeSHA map missing, cannot assert all before/after files equal",
   "pagination_driver_failures": "V14 first expected all8 visible labels without scroll; second native screenshot404; thirdall64reach/search with actualsource lookup64ms; all retained, noPASS retrofit"
 }
