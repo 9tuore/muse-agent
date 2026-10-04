@@ -2,7 +2,7 @@
 
 ## Task
 
-codex/muse-rc-finalization，保护0.3.25；产品冻结b48618ac，SDK桥修复92b1df15。
+codex/muse-rc-finalization，保护0.3.25与旧rc5；递增0.3.26-rc6，SDK桥修复92b1df15。
 
 ## Result
 
@@ -10,11 +10,11 @@ PARTIAL，5PASS/13PARTIAL/2BLOCKED。原20项不降低。
 
 ## Changed
 
-Chat按8条启动验证、Memory每页8卡/空墓碑热点、新来源metadata；sdk-overlays Calendar仅一行bool编码修复。最新源码与旧暖Host身份分别记录。
+在上述稳定性修复上，Calendar合法澄清状态保留受限上下文，后续明确日期覆盖旧模糊日期，支持只补年月日。作用域/过期记忆/遗忘、确认与防重复保留。readable47c56065，payloadf5cd33b7；Host938/SDK3f未换。
 
 ## Tests
 
-V15实际Shell30冷20重开20重启均过、3真实M3记忆检索及Goal首重启八SHA不变；稳定真实自发自收读回过。Calendar实际原生读成功但UI契约FAIL，Foundation3边界/object编译过、新Host未编译。宽/矮3尺寸过，窄高Dock遮挡FAIL保留。合成2h在跑，真Mail5357s绘制FAIL；所有旧失败保留。
+旧rc5有70次启动、真实记忆/Goal与重启支持证据，真Mail5357s绘制FAIL保留。日程诊断真实M3五步通过三张候选日期核对，无系统写入；Card澄清147项，日期11变体分源186项，最新五组83项/新进程恢复通过。纯日期首FAIL已修，旧失败不删。rc6 Hub check/scan、90918 Token一致过，最终启动/模型/重启/2h待。
 
 ## Commit
 
@@ -22,7 +22,7 @@ V15实际Shell30冷20重开20重启均过、3真实M3记忆检索及Goal首重�
 
 ## Remaining
 
-第二强模型、同候选外部整链、电脑重启、clean构建、新Host/系统权限、正式材料。
+最终rc6验证，第二强模型、同候选外部整链、电脑重启、clean构建、新Host/系统权限、正式材料。
 
 ## Important Boundaries
 
