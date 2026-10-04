@@ -125,10 +125,14 @@
     {
       "id": "startup-failure-index",
       "path": "RC_STARTUP_FAILURES.json",
-      "bytes": 3304,
-      "sha256": "d48f8ba3c4d7af29917ddcb9b7d90085055b08d7201242efa400069ddbaf4765",
+      "bytes": 4465,
+      "sha256": "78c7d7f8551696195bf64ee10b08aed0c86aefbb13cfc726c1ca1c9a480d81d3",
       "observed_status": "RETAINED_FIRST_FAILURES_NOT_ERASED",
-      "scope": "Retained first startup/render errors and hashes"
+      "scope": "Retained first startup/render errors and hashes",
+      "previous_index_observation": {
+        "bytes": 3304,
+        "sha256": "d48f8ba3c4d7af29917ddcb9b7d90085055b08d7201242efa400069ddbaf4765"
+      }
     },
     {
       "id": "clean-room-stopped",
@@ -288,8 +292,16 @@
       "sha256": "8d09d2c9f6454ef61d95e1a55af41056d1a14254d177daa7abbec6707a512122",
       "observed_status": "INTERNAL70_NOT_OFFICIAL",
       "scope": "Independent evidence review, not live rerun or ranking"
+    },
+    {
+      "id": "rc9-real-native-ui-clip",
+      "path": "official_muse/rc/screenshots/RC9_VIDEO_PROVENANCE.json",
+      "bytes": 2031,
+      "sha256": "95b1fba3ffdfc0b11b8582e3451ddc569a4dbc0addbb39f28f156d74dec0d0a6",
+      "observed_status": "ACTUAL_NATIVE_UI_ONLY_NOT_EXTERNAL_CHAIN",
+      "scope": "18 time-stamped actual native frames, AVFoundation H264 and decoded first frame reviewed, no model.complete or external write"
     }
   ],
-  "last_index_utc": "2026-10-04T23:23:59.723150+00:00",
+  "last_index_utc": "2026-10-04T23:42:36.447735+00:00",
   "previous_product_commit": "a80bd019db7581511b3891bcc3892548f767a42d"
 }
