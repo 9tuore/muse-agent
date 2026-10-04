@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "status": "BOTH_AFFECTED_D05_PASS_NOT_FULL_T17",
+  "application_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+  "source_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "expectations_unchanged": true,
+  "previous_rc8_M27_D05_failure_preserved": "official_muse/rc/startup/RC8_M27_EIGHT_SEMANTIC_REVIEW.json",
+  "actual_fee_not_inferred_from_token_ledger": true,
+  "default_daily_call_and_token_budget_preserved": true,
+  "current_daily_ledger": {
+    "calls": 97,
+    "tokens": 89960
+  },
+  "reviews": [
+    {
+      "model_metadata": {
+        "family_id": "minimax-cn",
+        "model_id": "MiniMax-M3",
+        "base_url": "https://api.minimax.cn/v1",
+        "api_type": "openai"
+      },
+      "semantic_status": "PASS_AFFECTED_D05_ONLY",
+      "reply": {
+        "role": "assistant",
+        "text": "请补充明确的开始和结束时间。",
+        "state": "waiting_user",
+        "at": 1791152662.057194,
+        "memory_refs": [],
+        "project": "合成验收",
+        "owner": "个人",
+        "clarification_action": "calendar_candidate",
+        "clarification_input": "安排日历：明天下午开会。"
+      },
+      "single_ui_input": true,
+      "host_attempts": 1,
+      "provider_class_observed": "strong",
+      "host_usage": {
+        "estimated": false,
+        "input_tokens": 637,
+        "output_tokens": 212
+      },
+      "fallbacks": [],
+      "proposals_empty": true,
+      "protected_external_state_unchanged": true,
+      "ledger_before": {
+        "calls": 95,
+        "tokens": 88292
+      },
+      "ledger_after": {
+        "calls": 96,
+        "tokens": 89141
+      },
+      "submit_remote_error": "<HTTPError 404: 'Not Found'>",
+      "raw_local_reference": "official_muse/app/build/ui-memory-20261003/rc9-final-model-r1/calendar-D05-m3-r1/report.json",
+      "report_sha256": "775f5eee95264235ca007fa73299d2dda26ca8774d0afbd46dd64986e52ea2b8",
+      "trace_sha256": "f8323377b67e0aeeeb1b2c507dc613e3ba6488f061788f9f8b0d34d884ee4a95"
+    },
+    {
+      "model_metadata": {
+        "family_id": "minimax-cn",
+        "model_id": "MiniMax-M2.7",
+        "base_url": "https://api.minimax.cn/v1",
+        "api_type": "openai"
+      },
+      "semantic_status": "PASS_AFFECTED_D05_ONLY",
+      "reply": {
+        "role": "assistant",
+        "text": "请补充明确的开始和结束时间。",
+        "state": "waiting_user",
+        "at": 1791153667.423606,
+        "memory_refs": [],
+        "project": "合成验收",
+        "owner": "个人",
+        "clarification_action": "calendar_candidate",
+        "clarification_input": "安排日历：明天下午开会。"
+      },
+      "single_ui_input": true,
+      "host_attempts": 1,
+      "provider_class_observed": "unknown",
+      "host_usage": {
+        "estimated": false,
+        "input_tokens": 481,
+        "output_tokens": 338
+      },
+      "fallbacks": [],
+      "proposals_empty": true,
+      "protected_external_state_unchanged": true,
+      "ledger_before": {
+        "calls": 96,
+        "tokens": 89141
+      },
+      "ledger_after": {
+        "calls": 97,
+        "tokens": 89960
+      },
+      "submit_remote_error": null,
+      "raw_local_reference": "official_muse/app/build/ui-memory-20261003/rc9-final-model-m27-r1/calendar-D05-m27-r1/report.json",
+      "report_sha256": "4b0fdbb18bb41f5512ef6e8d5f22e26a41b887d4030767e556a8a3d0945b383d",
+      "trace_sha256": "3c6ce44906b5a7d9de264e1e8a8068869fe831e50246093c6771b32f747a5c4d"
+    }
+  ],
+  "boundaries": "Observed application follow-up after actual model.complete; no claim the raw model itself asked this question. M2.7 class remains unknown, no full two-model15-case or original20 acceptance; no system Calendar call or write.",
+  "recorded_at": "2026-10-04T22:41:46.512993+00:00"
+}
