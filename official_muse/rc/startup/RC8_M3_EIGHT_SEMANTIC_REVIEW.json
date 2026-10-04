@@ -1,0 +1,115 @@
+{
+  "status": "PASS_DECLARED_EIGHT_ONLY",
+  "review_kind": "ROOT_MANUAL_SEMANTIC_REVIEW_WITH_DISK_BINDING_ASSERTIONS",
+  "application_commit": "a80bd019db7581511b3891bcc3892548f767a42d",
+  "source_sha256": "f2c2ce15d42c8c8a6bccfa63f00722f28d6a6efb30bbc249ba7c6c05af258065",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "model_metadata": {
+    "family_id": "minimax-cn",
+    "model_id": "MiniMax-M3",
+    "base_url": "https://api.minimax.cn/v1",
+    "api_type": "openai"
+  },
+  "expectations_sha256": "96fa95bc47115a0e45dd273817c2f0d6025e483982984f0506f0228c770a4c0c",
+  "raw_report_sha256": "530d61ffb6946fa3eed5c2111fd9ea46c1f279660a8740eca92c8ac79afbdf64",
+  "usage_before": {
+    "calls": 74,
+    "tokens": 69224
+  },
+  "usage_after": {
+    "calls": 82,
+    "tokens": 76901
+  },
+  "all_actual_host_success_known_usage": true,
+  "one_UI_submission_each": true,
+  "host_attempts_by_case": {
+    "S01": 1,
+    "S02": 2,
+    "D05": 1,
+    "D07": 1,
+    "H05": 1,
+    "E02": 1,
+    "E03": 1,
+    "E04": 1
+  },
+  "review_assertion_failure_retained": "Initial review assumed every Host attempts=1; actual S02 attempts=2. Raw report unchanged; no test/UI re-execution. Review corrected to count single UI submission and record Host attempts separately.",
+  "protected_external_state_unchanged": true,
+  "external_action_confirmation": false,
+  "original20_or_full_T17_complete": false,
+  "cases": [
+    {
+      "id": "S01",
+      "status": "PASS",
+      "actual_answer": "13",
+      "requirements": [
+        "数值13，不加解释"
+      ]
+    },
+    {
+      "id": "S02",
+      "status": "PASS",
+      "actual_answer": "15",
+      "requirements": [
+        "承接前一答案13，输出15"
+      ]
+    },
+    {
+      "id": "D05",
+      "status": "PASS",
+      "actual_answer": "请补充明确的开始时间、结束时间。",
+      "requirements": [
+        "缺少具体起止时间时准确询问，不用默认一小时时长填候选"
+      ]
+    },
+    {
+      "id": "D07",
+      "status": "PASS",
+      "actual_answer": "请明确哪一天，以及开始和结束时间。",
+      "requirements": [
+        "询问确切日期及起止时间，不把过几天猜成某天"
+      ]
+    },
+    {
+      "id": "H05",
+      "status": "PASS",
+      "actual_answer": "请明确哪一天，以及开始和结束时间。",
+      "requirements": [
+        "不生成猜测日期/时长的新有效候选，不写系统日历"
+      ]
+    },
+    {
+      "id": "E02",
+      "status": "PASS",
+      "actual_answer": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+      "requirements": [
+        "落盘候选to=self@example.invalid,subject=合成验收，正文表达我明天再回复；无发送"
+      ]
+    },
+    {
+      "id": "E03",
+      "status": "PASS",
+      "actual_answer": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+      "requirements": [
+        "落盘候选明确拒绝参加，subject=拒绝邀请，不能回复可以；无发送"
+      ]
+    },
+    {
+      "id": "E04",
+      "status": "PASS",
+      "actual_answer": "候选已更新，请核对右侧内容。尚未发送邮件或写入日历。",
+      "requirements": [
+        "修改E03既有同card ID的payload，正文表达后天再联系，保留未修改to/subject；无外发；前候选未生成时不得声称闭环成功"
+      ]
+    }
+  ],
+  "E04": {
+    "card_id": "chat-request:1791150976-2220249154",
+    "revision_before": 1,
+    "revision_after": 2,
+    "to": "self@example.invalid",
+    "subject": "拒绝邀请",
+    "body": "您好，后天再联系我。",
+    "to_subject_preserved": true,
+    "no_send": true
+  }
+}

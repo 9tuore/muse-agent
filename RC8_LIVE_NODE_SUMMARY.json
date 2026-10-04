@@ -54,7 +54,21 @@
     "binding": "official_muse/rc/startup/RC8_DELTA_BINDING.json",
     "not_actual_model": true
   },
-  "model_comparison": "RUNNING_DECLARED_EIGHT_CASE_SUBSET_NOT_COMPLETE_T17",
+  "model_comparison": {
+    "scope": "DECLARED_EIGHT_ONLY_NOT_COMPLETE_T17",
+    "M3": "8_PASS",
+    "M27": "7_PASS_1_FAIL_D05",
+    "review_files": [
+      "official_muse/rc/startup/RC8_M3_EIGHT_SEMANTIC_REVIEW.json",
+      "official_muse/rc/startup/RC8_M27_EIGHT_SEMANTIC_REVIEW.json"
+    ],
+    "continuous_actual_usage_after": {
+      "calls": 90,
+      "tokens": 83744
+    },
+    "S02_host_attempts": "Both routes 2; one UI submission each, preserved in trace",
+    "class_M27": "unknown"
+  },
   "two_hour_soak": "RUNNING_SYNTHETIC_NO_BACKEND_NOT_TRUE_MAIL",
   "full_chain_T18": "NOT_PASSED",
   "calendar_fix_in_current_host": false,
