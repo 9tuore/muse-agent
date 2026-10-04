@@ -1,0 +1,14 @@
+// Isolated proposal only; root decides whether to apply it to the product.
+fn chat_mail_field_edit_requested(message,field){
+    let target="(主题|标题)"
+    if field=="to" {target="(收件人|收件地址|收件邮箱)"}
+    let edit="(修改|更改|调整|更换|重设|更新|设置|改|换)"
+    let modifier="(邮件的|邮件)?"
+    let negative="(不要|不用|不必|无需|别|不)(再)?"+edit+modifier+target
+        +"|"+target+"(不要|不用|不必|无需|别|不)(再)?"+edit
+        +"|(保留|保持)(原来的|原有|现有|原)?"+target
+        +"|"+target+"(保持|保留)?(不变|照旧|原样)"
+    if regex(negative,"").test(message) {return false}
+    let command="(^|[，,。；;\n])[ \t]*(请帮我|帮我|麻烦|请|再|同时|然后)?[ \t]*(把|将)?"
+    return regex(command+edit+modifier+target+"|"+command+modifier+target+edit,"").test(message)
+}

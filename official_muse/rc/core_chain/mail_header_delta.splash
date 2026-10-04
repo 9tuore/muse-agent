@@ -1,0 +1,89 @@
+let mh_checks={}
+let mh_cases=[
+    {id:"body_intent_only" message:"把上一封草稿的意思改为后天再联系我，暂不发送。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"body_only_wrong_model_recipient" message:"把正文改为合成的新内容，先不发送。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"subject_command" message:"把主题改为合成新主题，正文也更新。" subject:true recipient:false rejected:false handwrite:false sending:false}
+    {id:"recipient_command" message:"把收件人改为 changed@example.invalid，正文改为合成的新内容。" subject:false recipient:true rejected:false handwrite:false sending:false}
+    {id:"both_header_commands" message:"修改主题为合成新主题，收件邮箱改为 changed@example.invalid。" subject:true recipient:true rejected:false handwrite:false sending:false}
+    {id:"negative_subject_suffix" message:"把正文改为合成的新内容，不改主题。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"negative_subject_first_field" message:"主题不要改，把正文改为合成的新内容。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"negative_subject_plain_prefix" message:"不改主题，只改正文。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"negative_subject_keep_prefix" message:"不要改主题，只改正文。" subject:false recipient:false rejected:true handwrite:false sending:false}
+    {id:"field_question" message:"主题要改吗？" subject:false recipient:false rejected:true handwrite:false sending:false}
+    {id:"informational_header_mention" message:"邮件主题是合成原主题，把正文改为新的合成内容。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"quoted_header_words_in_body" message:"把正文改成“请修改主题”的合成文字。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"reference_body_only" message:"回复他说合成的新内容，不修改邮件主题。" subject:false recipient:false rejected:false handwrite:false sending:false}
+    {id:"overall_keep" message:"不要修改这封草稿。" subject:false recipient:false rejected:true handwrite:false sending:false}
+    {id:"opened_handwritten_draft" message:"把正文改为合成的新内容。" subject:false recipient:false rejected:true handwrite:true sending:false}
+    {id:"opened_busy_send" message:"把正文改为合成的新内容。" subject:false recipient:false rejected:true handwrite:false sending:true}
+]
+let mh_index=0
+let mh_calls=[]
+let mh_details=[]
+fn chain_fixture_request(service,args,cb){mh_calls.push(service) cb({is_ok:false error:"Synthetic merge test forbids all Host requests"})}
+fn mh_next(){
+    if mh_index>=mh_cases.len() {mh_finish() return}
+    let test=mh_cases[mh_index]
+    let payload={to:"self@example.invalid" subject:"合成原主题" body:"合成原正文"
+        title:"" start:"" end:"" time_zone:"Asia/Shanghai" location:"" objective:"" source:""}.to_json().parse_json()
+    let state="candidate"
+    if test.handwrite || test.sending {state="opened"}
+    let card={id:"synthetic-card" session_id:chat_selected_id account_id:"" action:"mail_compose"
+        payload:payload state:state memory_refs:[] revision:1 project:gm_project owner:gm_owner}.to_json().parse_json()
+    let i=chat_session_index(chat_selected_id)
+    chat_sessions[i].proposals=[card]
+    chat_requests=[{id:"synthetic-edit" session_id:chat_selected_id status:"running"
+        project:gm_project owner:gm_owner editing:true candidate_id:card.id candidate_payload:payload.to_json()
+        candidate_state:state memory_refs:[]}].to_json().parse_json()
+    mail_sending=false mail_pending=false mail_model_pending=false
+    mail_draft.to=payload.to mail_draft.subject=payload.subject mail_draft.body=payload.body
+    mail_draft.status="DRAFT" mail_draft.preview=""
+    if test.handwrite {mail_draft.body="用户手写内容必须保留"}
+    if test.sending {mail_draft.status="sending"}
+    let draft_before=mail_draft.to_json()
+    let card_before=chat_sessions[i].proposals[0].to_json()
+    let model_to="changed@example.invalid"
+    if test.id=="body_intent_only" {model_to=payload.to}
+    let added=chat_add_proposal(chat_selected_id,"synthetic-edit","",test.message,
+        {intent:"mail_compose" proposal:{to:model_to subject:"合成新主题" body:"模型建议的新合成正文"}})
+    let current=chat_sessions[i].proposals[0]
+    if test.rejected {
+        mh_checks[test.id+":rejected"]=!added
+        mh_checks[test.id+":card_unchanged"]=current.to_json()==card_before
+    } else {
+        let subject=payload.subject let recipient=payload.to
+        if test.subject {subject="合成新主题"}
+        if test.recipient {recipient="changed@example.invalid"}
+        mh_checks[test.id+":accepted"]=added
+        mh_checks[test.id+":subject"]=current.payload.subject==subject
+        mh_checks[test.id+":recipient"]=current.payload.to==recipient
+        mh_checks[test.id+":body"]=current.payload.body=="模型建议的新合成正文"
+        mh_checks[test.id+":same_card_revision"]=current.id==card.id && current.revision==2 && current.state=="candidate"
+    }
+    mh_checks[test.id+":draft_not_written"]=mail_draft.to_json()==draft_before
+    mh_details.push({id:test.id added:added to_preserved:current.payload.to==payload.to
+        subject_preserved:current.payload.subject==payload.subject revision:current.revision})
+    mh_index=mh_index+1
+    start_timeout(0.03,|| mh_next())
+}
+fn mh_finish(){
+    let i=chat_session_index(chat_selected_id)
+    let card=chat_sessions[i].proposals[0].to_json()
+    chat_requests[0].candidate_payload="{}"
+    mh_checks.stale_binding_rejected=!chat_add_proposal(chat_selected_id,"synthetic-edit","","把正文改为新内容。",
+        {intent:"mail_compose" proposal:{to:"changed@example.invalid" subject:"不应采用" body:"不应采用"}})
+    mh_checks.stale_binding_preserves_card=chat_sessions[i].proposals[0].to_json()==card
+    mh_checks.no_host_requests=mh_calls.len()==0
+    mh_checks.no_goal_run_action=goals.len()==0 && runs.len()==0 && actions.len()==0
+    mh_checks.no_send_confirmation=mail_draft.preview=="" && mail_draft.status!="waiting_user"
+    mh_checks.details=mh_details
+    fs.write("probe.json",mh_checks.to_json())
+}
+fn mh_probe(){
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot()
+    gm_set_focus("synthetic-project","synthetic-owner")
+    let i=chat_session_index(chat_selected_id)
+    chat_sessions[i].focus_project=gm_project chat_sessions[i].focus_owner=gm_owner
+    mh_next()
+}
+start_timeout(0.1,|| mh_probe())

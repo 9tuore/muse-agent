@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "status": "PROPOSAL_FIXTURE_PASS_ROOT_REVIEW",
+  "base_readable_sha256": "92c4838e50c183e162f425287881219caaf2942acf9cf9521fffd1e98e30a22b",
+  "isolated_proposal_sha256": "61c784c987551151f7c4b3a379699e907edb25438fe89ec317271ff33d0b501a",
+  "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "original_passed": 68,
+  "original_failed_assertions": [
+    "subject_command:recipient",
+    "recipient_command:subject",
+    "negative_subject_plain_prefix:recipient",
+    "field_question:rejected",
+    "field_question:card_unchanged",
+    "informational_header_mention:subject",
+    "informational_header_mention:recipient",
+    "quoted_header_words_in_body:subject",
+    "quoted_header_words_in_body:recipient",
+    "reference_body_only:subject",
+    "negative_subject_plain_prefix:subject",
+    "negative_subject_first_field:recipient",
+    "negative_subject_first_field:subject",
+    "negative_subject_suffix:recipient",
+    "negative_subject_suffix:subject",
+    "body_intent_only:subject",
+    "body_only_wrong_model_recipient:subject",
+    "body_only_wrong_model_recipient:recipient"
+  ],
+  "proposal_passed": 86,
+  "proposal_failed": [],
+  "synthetic_variants": 16,
+  "local_file_bytes": 1429377,
+  "scope": "One new field-command helper plus mail editing merge block in fixture copies only. Product decision and real model/GUI retest belong to root.",
+  "boundaries": "Actual production merge/guard functions with synthetic output, UI suppressed, native isolated fs. One fixture-only helper/merge block; no assets copied, build, model, mail/system action or product/SDK/Git mutation.",
+  "known_preserved_keep_prefix_limit": "A leading 不要改主题 compound request remains rejected by existing whole-request keep guard. Plain 不改主题 permits body update with headers preserved. No keep routing rule changed.",
+  "real_e03_e04_driver_status": "Controller reports original real private driver RUNNING due ENOSPC; A2 did not read private data or claim live PASS.",
+  "attempts": [
+    {
+      "attempt": "r1",
+      "classification": "ORIGINAL_HEADER_FAILURES_PLUS_TWO_FIXTURE_EXPECTATION_FAILURES",
+      "detail": "Plain 不改主题 is not a whole-request keep prefix. Suggestion already preserved its headers and changed body, while fixture expected rejection."
+    },
+    {
+      "attempt": "r2",
+      "classification": "15_VARIANTS_80_PROPOSAL_PASS",
+      "detail": "Corrected plain不 edit expectation; separately tested original 不要 keep prefix."
+    },
+    {
+      "attempt": "r3",
+      "classification": "16_VARIANTS_86_PROPOSAL_PASS",
+      "detail": "Positive header commands anchored to clause starts; body quotation does not authorize header change."
+    }
+  ],
+  "evidence": {
+    "local_reference": "official_muse/rc/core_chain/evidence/rc7-mail-header-delta-20261005-r3/summary.json",
+    "sha256": "d99e66b594861dd8429b5bd944533244fcc9fc11b27986a36442dbf729891a3f",
+    "published_raw": false
+  },
+  "product_modified_by_a2": false,
+  "original_20_expectations_changed": false,
+  "first_failures_preserved": true,
+  "release_ready_claimed": false
+}
