@@ -7126,6 +7126,21 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
     })
 }
 
+// A body edit does not authorize changes to recipient or subject.
+fn chat_mail_field_edit_requested(message,field){
+    let target="(主题|标题)"
+    if field=="to" {target="(收件人|收件地址|收件邮箱)"}
+    let edit="(修改|更改|调整|更换|重设|更新|设置|改|换)"
+    let modifier="(邮件的|邮件)?"
+    let negative="(不要|不用|不必|无需|别|不)(再)?"+edit+modifier+target
+        +"|"+target+"(不要|不用|不必|无需|别|不)(再)?"+edit
+        +"|(保留|保持)(原来的|原有|现有|原)?"+target
+        +"|"+target+"(保持|保留)?(不变|照旧|原样)"
+    if regex(negative,"").test(message) {return false}
+    let command="(^|[，,。；;\n])[ \t]*(请帮我|帮我|麻烦|请|再|同时|然后)?[ \t]*(把|将)?"
+    return regex(command+edit+modifier+target+"|"+command+modifier+target+edit,"").test(message)
+}
+
 fn chat_add_proposal(session_id,request_id,account,message,output){
     if chat_keep_request(message) { return false }
     let action = output["intent"]
@@ -7153,8 +7168,11 @@ fn chat_add_proposal(session_id,request_id,account,message,output){
         }
     }
     payload = payload.to_json().parse_json()
-    if editing && action == "mail_compose" && chat_mail_reference(message) {
-        payload.to = request.candidate_payload.parse_json().to
+    if editing && action == "mail_compose" {
+        if regex("(吗|么|[?？])$","").test(message.trim()) { return false }
+        let original_mail = request.candidate_payload.parse_json()
+        if !chat_mail_field_edit_requested(message,"to") { payload.to = original_mail.to }
+        if !chat_mail_field_edit_requested(message,"subject") { payload.subject = original_mail.subject }
     }
     if action == "calendar_candidate" {
         payload.start = chat_calendar_full_time(payload.start)
@@ -8472,7 +8490,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc7" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc8" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}

@@ -1,3 +1,13 @@
+# 2026-10-05 05:27 · rc8邮件编辑保留未改字段
+
+当前产品0.3.26-rc8，可读3bce91a8/payloadf2c2ce15，官方91193 token相等。只增加邮件字段意图helper及绑定快照merge：只改正文保留原to/subject，明确字段命令才更新；否定和引用不授权改邮件头，邮件问句不改候选。原手写/发送中/绑定/确认守卫及Calendar路径未改。A2原68PASS/18FAIL→16变体86PASS，当前版本只改注释和版本，reverse全源与实测提案61c784c9一致。最终真实E04及启动/长运行未过，不能称已验收。
+
+此前rc7实际跨对话记忆六步、一次Goal/存储/读回/首次Shell重启PASS；H05/S01/S02/E03通过，E04主题擅改FAIL原证据保留。ENOSPC中断3组soak，启动矩阵未执行；66份可恢复重复PNG资源已按SHA/lsof清理，原始/失败证据保留。旧V15 70次及7200秒仅旧版支持，旧真Mail5357秒FAIL仍在。Source SDKda日历bool桥未进入Host938/旧SDK3f。总体PARTIAL，5PASS/14PARTIAL/1BLOCKED，不push/tag/正式发布，稳定0.3.25与生产数据保护。
+
+## 2026-10-05 05:19 · 当前候选更新
+
+当前rc7产品28c5073f/compactac689fb0已实际通过跨对话记忆六步和真实模型辅助一次性任务，首次Shell重启八项SHA保持、一个Goal/Run、无重放。当前H05明确问日期及起止时间、S01=13/S02=15通过；E03拒绝正确，但E04修改正文时擅自改主题FAIL，最小修复进行中。两次rc7 soak及一次rc6 soak被ENOSPC中断；rc7启动矩阵未执行就ENOSPC。见RC7_LIVE_NODE_SUMMARY.json。以下原记录均保留原候选身份，旧PASS不改标签。
+
 # 2026-10-05 04:45 · rc7最小问询与错误可观测修复
 
 当前分支codex/muse-rc-finalization；产品0.3.26-rc7，可读92c4838e/compactac689fb0，官方tokenizer91041 tokens完全相等。新改动仅缺日期时提前同时问日期、typed enum-only失败类别trace、官方refused/truncated准确中文提示及版本标签；其他字节逆向恢复与b9cf完全一致，模型payload/预算、权限、Goal、Memory与系统动作没有变更。A2原3FAIL→32PASS，A3 26类别/trace+16提示PASS（都是fixture）。实际rc7模型/启动/长运行将单独检验，不把fixture当真实整链。
