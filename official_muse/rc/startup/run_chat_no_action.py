@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Observe a declared subset of frozen semantic cases through actual Shell UI.
+"""Observe frozen semantic cases through actual Shell UI.
 
 Root must supply an already authorized, running model-only synthetic candidate.
 One /click is sent per prompt. A remote error never triggers repeat submission.
 Semantic answers require manual review; a terminal success is not semantic PASS.
+Full-corpus mode also uses the existing real synthetic-memory setup/edit UI.
 No profile, mail, calendar or goal confirmation is written by this driver.
 """
 import argparse
@@ -19,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'official_muse/phase2/tests'))
 sys.path.insert(0, str(ROOT / 'official_muse/ui_memory/tests'))
 from remote import Remote
-from visual_capture import shot
+from visual_capture import navigate, shot, type_multiline
 
 
 def read(path):
@@ -35,7 +36,10 @@ def main():
     ap.add_argument('--candidate', type=Path, required=True)
     ap.add_argument('--port', type=int, required=True)
     ap.add_argument('--out', type=Path, required=True)
-    ap.add_argument('--case-ids', nargs='+', required=True)
+    choice = ap.add_mutually_exclusive_group(required=True)
+    choice.add_argument('--case-ids', nargs='+')
+    choice.add_argument('--full-frozen-corpus', action='store_true',
+                        help='Original20 + two real UI memory setup steps + six holdouts')
     ap.add_argument('--no-case-screenshots', action='store_true',
                     help='Retain disk-backed semantics/trace; take final native page shots separately')
     a = ap.parse_args()
@@ -58,46 +62,102 @@ def main():
                                     '-sTCP:LISTEN'], text=True).splitlines()
     assert len(set(pids)) == 1
     corpus = ROOT / 'official_muse/prelim/tests/semantic_expectations.json'
-    cases = {c['id']: c for c in read(corpus)['cases']}
-    assert len(a.case_ids) == len(set(a.case_ids))
-    selected = [cases[key] for key in a.case_ids]
-    assert all(c['execution'] == 'model' and not c.get('memory_operation')
-               for c in selected), 'No memory mutation in this subset'
+    plan = read(corpus)
+    cases = {c['id']: c for c in plan['cases']}
+    if a.full_frozen_corpus:
+        original_path = ROOT / plan['original_corpus']
+        assert sha(original_path) == plan['original_corpus_sha256']
+        assert [(c['id'], c['input']) for c in plan['cases'] if c['suite'] != 'holdout'] == [
+            (c['id'], c['input']) for c in read(original_path)['cases']]
+        assert len(cases) == 28
+        assert {suite: sum(c['suite'] == suite for c in plan['cases'])
+                for suite in ['original20', 'setup', 'holdout']} == {
+                    'original20': 20, 'setup': 2, 'holdout': 6}
+        selected = plan['cases']
+    else:
+        assert len(a.case_ids) == len(set(a.case_ids))
+        selected = [cases[key] for key in a.case_ids]
+        assert all(c['execution'] == 'model' and not c.get('memory_operation')
+                   for c in selected), 'No memory mutation in this subset'
     protected = {n: sha(jail / n) for n in [
         'goals.json', 'goals.backup.json', 'calendar-state.json',
-        'mail-draft.json', 'mail-watch.json', 'memory.json']}
+        'mail-draft.json', 'mail-watch.json'] + ([] if a.full_frozen_corpus else ['memory.json'])}
     usage_path = candidate / 'private/apps/.host/model/ledger.json'
-    report = {'status': 'RUNNING', 'kind': 'ACTUAL_VISIBLE_SHELL_CHAT_SUBSET',
+    report = {'status': 'RUNNING', 'kind': 'ACTUAL_VISIBLE_SHELL_FROZEN28' if a.full_frozen_corpus else 'ACTUAL_VISIBLE_SHELL_CHAT_SUBSET',
               'version': meta['version'], 'source_sha256': meta['source_sha256'],
               'host_sha256': meta['host_sha256'], 'code_commit': meta['commit'],
               'application_commit': meta.get('application_commit', meta['commit']),
               'model_metadata': safe_model, 'fallbacks': [],
-              'expectations_sha256': sha(corpus), 'case_ids': a.case_ids,
+              'expectations_sha256': sha(corpus), 'case_ids': [c['id'] for c in selected],
               'driver_sha256': sha(Path(__file__)), 'cases': [],
               'usage_before': read(usage_path)['apps']['muse-goals'],
               'semantic_review': 'PENDING_MANUAL_REVIEW',
               'not_original20_complete': True, 'external_action_confirmation': False,
-              'case_screenshots': not a.no_case_screenshots}
+              'case_screenshots': not a.no_case_screenshots,
+              'full_frozen_corpus': a.full_frozen_corpus,
+              'flow_sessions': {}, 'memory_operations': {}}
     r = Remote(a.port)
 
     def save():
-        (a.out / 'report.json').write_text(json.dumps(report, ensure_ascii=False,
-                                                   indent=2)+'\n')
+        pending = a.out / 'report.json.pending'
+        pending.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
+        pending.replace(a.out / 'report.json')
 
     def current():
         d = read(jail / 'chat-sessions.json')
         return next(s for s in d['sessions'] if s['id'] == d['selected_id'])
 
-    flow = None
+    def top(area):
+        x, y, width, height = r.find(area)['r']
+        r.scroll(int(x+width-4), int(y+height/2), -10000)
+
+    def select_flow(flow):
+        navigate(r, '对话')
+        if flow in report['flow_sessions']:
+            sid = report['flow_sessions'][flow]
+            if current()['id'] != sid:
+                old = next(s for s in read(jail / 'chat-sessions.json')['sessions']
+                           if s['id'] == sid)
+                top('history_list')
+                r.click_scroll(old['title'], 'history_list')
+                assert current()['id'] == sid
+            return
+        before = current()['id']
+        r.click('＋ 新对话')
+        assert current()['id'] != before
+        report['flow_sessions'][flow] = current()['id']
+        save()
+
+    def memory_operation(case):
+        op = case['memory_operation']
+        before = read(jail / 'memory.json')
+        navigate(r, '记忆')
+        r.set_text('memory_search', op['search'])
+        top('page_content')
+        r.click_scroll('更正 / 遗忘', 'page_content')
+        top('page_content')
+        if op['kind'] == 'forget':
+            r.click('遗忘…')
+            r.click_scroll('确认遗忘这条记忆', 'page_content')
+        else:
+            assert op['kind'] == 'correct'
+            type_multiline(r, 'memory_correction', op['replacement'])
+            r.click('保存更正')
+        after = read(jail / 'memory.json')
+        assert before != after, 'Actual memory UI did not persist the change'
+        proof = a.out / (case['id']+'-memory-operation.json')
+        proof.write_text(json.dumps({'via': 'REAL_MEMORY_UI', 'operation': op,
+                                    'before': before, 'after': after},
+                                   ensure_ascii=False, indent=2)+'\n')
+        report['memory_operations'][case['id']] = {'path': proof.name, 'sha256': sha(proof)}
+        save()
+        navigate(r, '对话')
+
     last_request = 0
     save()
     try:
         for case in selected:
-            if flow != case['flow']:
-                before = current()['id']
-                r.click('＋ 新对话')
-                assert current()['id'] != before
-                flow = case['flow']
+            select_flow(case['flow'])
             if case.get('focus'):
                 wanted = case['focus']
                 if not any(w.get('i') == 'session_focus_project' for w in r.widgets()):
@@ -107,9 +167,13 @@ def main():
                 r.click('使用这个项目')
                 assert current()['focus_project'] == wanted['project']
                 assert current()['focus_owner'] == wanted['owner']
-            gap = 32 - (time.monotonic() - last_request)
-            if gap > 0:
-                time.sleep(gap)
+            if case.get('memory_operation'):
+                memory_operation(case)
+            is_model = case['execution'] == 'model'
+            if is_model:
+                gap = 32 - (time.monotonic() - last_request)
+                if gap > 0:
+                    time.sleep(gap)
             origin = current()
             sid, count = origin['id'], len(origin['messages'])
             usage_before = read(usage_path)['apps']['muse-goals']
@@ -123,7 +187,9 @@ def main():
                 'input_sha256': hashlib.sha256(case['input'].encode()).hexdigest(),
                 'button_rect': button, 'single_attempt': True}
             save()
-            last_request = time.monotonic()
+            submitted_at = time.monotonic()
+            if is_model:
+                last_request = submitted_at
             try:
                 submit_ack = json.loads(r.request('/click', x=int(button[0]+button[2]/2),
                           y=int(button[1]+button[3]/2), wait=1))
@@ -149,16 +215,20 @@ def main():
             row = {'id': case['id'], 'input': case['input'],
                    'requirements': case['semantic_requirements'],
                    'reply': terminal[-1], 'session_id': sid,
-                   'seconds': time.monotonic()-last_request,
+                   'seconds': time.monotonic()-submitted_at,
+                   'suite': case['suite'], 'execution': case['execution'],
+                   'focus': {key: session.get(key) for key in ['focus_project', 'focus_owner']},
                    'single_input': True, 'submit_remote_error': submit_error,
                    'submit_ack': submit_ack,
                    'usage_before': usage_before,
                    'usage_after': read(usage_path)['apps']['muse-goals'],
                    'proposals_before': origin['proposals'],
                    'proposals_after': session['proposals']}
+            retrieval_path = jail / 'memory-retrieval-last.json'
+            row['retrieval_trace'] = read(retrieval_path) if is_model and retrieval_path.is_file() else None
             trace_path = jail / 'model-last-response.json'
             trace = read(trace_path) if trace_path.is_file() else None
-            if trace and trace.get('query_sha256') == hashlib.sha256(case['input'].encode()).hexdigest() and trace.get('session_id') == sid:
+            if is_model and trace and trace.get('query_sha256') == hashlib.sha256(case['input'].encode()).hexdigest() and trace.get('session_id') == sid:
                 row['actual_host_trace'] = trace
                 row['actual_host_trace_sha256'] = sha(trace_path)
             else:
@@ -170,7 +240,12 @@ def main():
                              ensure_ascii=False), flush=True)
             if not a.no_case_screenshots:
                 shot(r, a.out / (case['id']+'.png'))
-            assert terminal[-1]['state'] in ['success', 'waiting_user'], 'Retain actual error response'
+            if is_model:
+                assert terminal[-1]['state'] in ['success', 'waiting_user'], 'Retain actual error response'
+                assert row['actual_host_trace'] is not None, 'Actual official callback proof missing'
+            else:
+                assert row['usage_before'] == row['usage_after'], 'Local mechanism called a model'
+                assert terminal[-1]['state'] in ['success', 'waiting_user', 'cancelled']
         assert all(sha(jail / n) == h for n, h in protected.items())
         report['protected_external_state_unchanged'] = True
         report['status'] = 'OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW'
