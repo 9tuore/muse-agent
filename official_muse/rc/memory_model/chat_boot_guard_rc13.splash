@@ -1,0 +1,54 @@
+let chat_guard_case=nil
+let chat_guard_before=[]
+let chat_guard_continued=false
+let chat_guard_early_exposure=false
+let chat_guard_error=""
+let chat_guard_focus_restored=false
+let chat_guard_polls=0
+let chat_guard_write_baseline=0
+fn chat_guard_begin(){
+ chat_guard_case=fs.read("chat-case.json").parse_json()
+ for path in ["chat-sessions.json","chat-sessions.backup.json"]{chat_guard_before.push({path:path bytes:fs.read(path)})}
+ gm_project="未恢复" gm_owner="未恢复" chat_sessions=[] chat_selected_id="" messages=[] chat_last_state="" chat_ready=false
+ chat_guard_write_baseline=a3_storage_write_count
+ chat_boot_begin("")
+ start_timeout(0.01,||chat_guard_wait())
+}
+fn chat_guard_wait(){
+ chat_guard_polls=chat_guard_polls+1
+ if !chat_guard_continued{
+  if chat_boot_saved!=nil&&(chat_ready||chat_sessions.len()!=0||messages.len()!=0||gm_project!="未恢复"||gm_owner!="未恢复"){chat_guard_early_exposure=true}
+  start_timeout(0.01,||chat_guard_wait())
+ }
+}
+fn chat_guard_continue(step,boot_error){
+ chat_guard_continued=true chat_guard_error=boot_error
+ if step==1&&chat_ready{
+  let active=chat_sessions[chat_session_index(chat_selected_id)]
+  gm_set_focus(active.focus_project,active.focus_owner)
+  chat_guard_focus_restored=true
+ }
+ start_timeout(0.01,||chat_guard_verify())
+}
+fn chat_guard_verify(){
+ let primary_unchanged=fs.read("chat-sessions.json")==chat_guard_before[0].bytes
+ let backup_unchanged=fs.read("chat-sessions.backup.json")==chat_guard_before[1].bytes
+ let state_ok=!chat_ready&&chat_sessions.len()==0&&messages.len()==0&&chat_guard_error!=""&&!chat_guard_focus_restored
+ let chosen=chat_guard_before[0].bytes
+ if chat_guard_case.expected_source=="backup"{chosen=chat_guard_before[1].bytes}
+ let snapshot_ok=chat_last_state==""
+ if chat_guard_case.expected_ready{
+  state_ok=chat_ready&&chat_sessions.len()==chat_guard_case.expected_session_count&&chat_selected_id==chat_guard_case.expected_selected&&chat_guard_focus_restored&&gm_project==chat_guard_case.expected_focus_project&&gm_owner==chat_guard_case.expected_focus_owner&&chat_guard_error==""
+  snapshot_ok=chat_last_state==chosen
+ }
+ let files_ok=primary_unchanged&&backup_unchanged
+ let normalize_ok=true
+ if chat_guard_case.normalize{
+  let persisted=fs.read("chat-sessions.json").parse_json()
+  files_ok=!primary_unchanged&&backup_unchanged
+  snapshot_ok=chat_last_state==fs.read("chat-sessions.json")
+  normalize_ok=persisted.sessions.len()==1&&persisted.sessions[0].messages.len()==2&&persisted.sessions[0].messages[1].role=="assistant"&&persisted.sessions[0].messages[1].state=="cancelled"&&gm_has(persisted.sessions[0],"proposals")&&gm_has(persisted.sessions[0],"focus_project")&&gm_has(persisted.sessions[0],"focus_owner")&&gm_has(persisted.sessions[0],"goal_id")
+ }
+ fs.write("probe.json",{expected_async_boot_state:state_ok no_history_or_focus_before_validation:!chat_guard_early_exposure expected_original_files_or_backup_semantics:files_ok snapshot_source_or_normalized_commit_correct:snapshot_ok legacy_normalization_expected:normalize_ok production_storage_writes_expected:a3_storage_write_count-chat_guard_write_baseline==chat_guard_case.expected_storage_writes no_external_actions:fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0 observed:{id:chat_guard_case.id ready:chat_ready selected:chat_selected_id sessions:chat_sessions.len() selected_messages:messages.len() from_backup:chat_boot_from_backup focus_restored:chat_guard_focus_restored project:gm_project owner:gm_owner polls:chat_guard_polls boot_error:chat_guard_error write_count:a3_storage_write_count-chat_guard_write_baseline write_paths:a3_storage_write_paths} fixture_boundary:"Production chat_boot_* and native jailedfs; boot_load continuation isolates chatguard and copies original focus-restoration branch; otherbootstages notexecuted."}.to_json())
+}
+start_timeout(0.1,||chat_guard_begin())

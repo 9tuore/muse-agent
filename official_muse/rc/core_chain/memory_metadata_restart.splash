@@ -1,0 +1,112 @@
+let metadata_case = "__CASE__"
+let metadata_checks = {}
+let metadata_calls = []
+fn chain_fixture_request(service,args,callback){
+    metadata_calls.push(service)
+    callback({is_ok:false error:"Synthetic Memory probe forbids Host requests"})
+}
+fn metadata_source(id,project){
+    let s=gm_complete_scope(core_memory_scope("local"))
+    s.project_id=project s.owner_id="synthetic-owner"
+    return {source_id:id kind:"user" locator:"synthetic-input:"+id
+        content_sha256:fs.sha256("合成资料") observed_at:"2026-10-05T00:00:00Z"
+        updated_at:"2026-10-05T00:00:00Z" support_excerpt:"合成资料" "scope":s}.to_json().parse_json()
+}
+fn metadata_document(id,source){
+    return {schema_version:"muse.dsl/1" kind:"memory" id:id revision:1
+        created_at:"2026-10-05T00:00:00Z" updated_at:"2026-10-05T00:00:00Z"
+        origin:{type:"user" ref:"synthetic-test"} "scope":source["scope"].to_json().parse_json()
+        payload:{subject_id:"synthetic-subject" predicate:"user_source" value:"合成资料"
+            epistemic_type:"user_statement" source_ids:[source.source_id]
+            observed_at:"2026-10-05T00:00:00Z" valid_from:nil valid_until:nil relations:[] deleted:false}}.to_json().parse_json()
+}
+fn metadata_start(){
+    core_boot_activity() core_boot_memory() gm_boot()
+    gm_set_focus("synthetic-project","synthetic-owner")
+    metadata_checks.boot_ready=gm_ready && core_memory_ready
+    if metadata_case=="user_entry" || metadata_case=="runtime_entry" {
+        task={id:"synthetic-goal" version:1 source:"合成资料第一条；合成资料第二条"
+            project_id:gm_project owner_id:gm_owner}
+        goals=[task]
+        if metadata_case=="user_entry" {
+            memory_remember_goal()
+            metadata_checks.real_user_entry=memory.len()==1 && memory[0].document.payload.predicate=="user_source"
+        } else {
+            fs.write("synthetic-result.json",{task_id:task.id goal:"整理合成资料" source_text:task.source}.to_json())
+            metadata_checks.real_result_entry=core_remember_result(task.id,"synthetic-run","synthetic-result.json",
+                "local","source:synthetic-result","synthetic-result.json",[])
+            metadata_checks.actual_artifact_hash=memory_sources.len()==1
+                && memory_sources[0].content_sha256==fs.sha256(fs.read("synthetic-result.json"))
+                && memory_sources[0].kind=="runtime_receipt"
+        }
+    } else {
+        let source=metadata_source("source:synthetic-a","synthetic-project")
+        let doc=metadata_document("memory:synthetic-a",source)
+        metadata_checks.source_created=core_add_source(source)
+        if !metadata_checks.source_created {
+            metadata_checks.setup_error=core_error metadata_checks.fixture_source=source
+            fs.write("probe.json",metadata_checks.to_json()) return
+        }
+        metadata_checks.claim_created=core_add_claim(doc)
+        if !metadata_checks.claim_created {
+            metadata_checks.setup_error=core_error metadata_checks.fixture_document=doc
+            fs.write("probe.json",metadata_checks.to_json()) return
+        }
+        if metadata_case=="scope_guards" {
+            let before=fs.read("memory.json")
+            let different=doc.to_json().parse_json()
+            different.id="memory:synthetic-wrong-scope"
+            different["scope"].project_id="synthetic-other-project"
+            metadata_checks.project_mismatch_rejected=!core_add_claim(different)
+            different["scope"]=doc["scope"].to_json().parse_json()
+            different["scope"].owner_id="synthetic-other-owner"
+            metadata_checks.owner_mismatch_rejected=!core_add_claim(different)
+            different["scope"]=doc["scope"].to_json().parse_json()
+            different["scope"].account="synthetic-not-authorized"
+            metadata_checks.account_rejected=!core_add_claim(different)
+            different["scope"]=doc["scope"].to_json().parse_json()
+            different["scope"].user_id="synthetic-other-user"
+            metadata_checks.user_mismatch_rejected=!core_add_claim(different)
+            metadata_checks.rejections_no_write=fs.read("memory.json")==before && memory.len()==1
+        }
+        if metadata_case=="duplicate_guard" {
+            let before=fs.read("memory.json")
+            metadata_checks.duplicate_id_rejected=!core_add_claim(doc.to_json().parse_json())
+            metadata_checks.duplicate_source_idempotent=core_add_source(source.to_json().parse_json())
+            metadata_checks.duplicate_no_write=fs.read("memory.json")==before
+                && memory.len()==1 && memory_sources.len()==1
+        }
+        if metadata_case=="forget_guards" {
+            let other=metadata_source("source:synthetic-b","synthetic-other-project")
+            let other_doc=metadata_document("memory:synthetic-b",other)
+            metadata_checks.other_scope_created=core_add_source(other) && core_add_claim(other_doc)
+            metadata_checks.forgotten=gm_forget(doc.id,"local")
+            let before=fs.read("memory.json")
+            metadata_checks.same_id_cannot_revive=!core_add_claim(doc.to_json().parse_json())
+            let revived=doc.to_json().parse_json()
+            revived.id="memory:synthetic-revival"
+            metadata_checks.new_id_old_source_rejected=!core_add_claim(revived)
+            metadata_checks.forget_rejections_no_write=fs.read("memory.json")==before
+            metadata_checks.deleted_content_scrubbed=memory[0].document.payload.deleted
+                && memory[0].document.payload.value=="" && memory[0].history.len()==0
+                && memory_sources[0].support_excerpt==""
+            metadata_checks.other_scope_preserved=gm_entry_access(memory[1])
+                && memory[1].document.to_json()==other_doc.to_json()
+                && !gm_source_forgotten(other.source_id,other_doc)
+        }
+    }
+    let disk=fs.read("memory.json").parse_json()
+    let complete=memory.len()>0 && disk.claims.len()==memory.len()
+    for entry in disk.claims {
+        if !gm_has(entry,"memory_type") || entry.memory_type!="source"
+            || !gm_has(entry,"conversation_id") || entry.conversation_id!=""
+            || !gm_has(entry,"history") || entry.history.to_json()!="[]" {complete=false}
+    }
+    metadata_checks.metadata_on_initial_write=complete
+    let before=fs.read("memory.json")
+    metadata_checks.prepare_success=gm_prepare()
+    metadata_checks.prepare_no_migration=fs.read("memory.json")==before && !fs.exists("memory.pre-global.json")
+    metadata_checks.no_host_requests=metadata_calls.len()==0
+    fs.write("probe.json",metadata_checks.to_json())
+}
+start_timeout(0.1,|| metadata_start())

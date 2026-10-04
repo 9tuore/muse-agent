@@ -6,7 +6,7 @@ These tests run actual production Splash functions in isolated card-host storage
 
 `PUBLIC_SOURCE_ALLOWLIST.json` lists exact repository-relative files for controller staging. Do not stage this directory recursively. `evidence/`, copied production source, repeated bundles, private/state data and raw logs remain local. Public summaries contain only hashes, counts, classifications and local evidence references. Original failures are preserved, not deleted or relabeled as success.
 
-V8 with the 4K-frame CardHost passed the specified production-function fixtures on their first attempts. Real final Shell/ModelHost and live acceptance remain pending. Historical RC5 v5 successes and failures are retained separately. Consult `PUBLIC_TEST_SUMMARY.json` and `PUBLIC_FAILURE_INDEX.json`.
+V8 with the 4K-frame CardHost passed the specified production-function fixtures on their first attempts; V9 account recovery passed its separate delta checks. Actual V9 Shell/ModelHost synthetic HTTP protocol passed 41 assertions across four scenarios. A new controller-reported application boot-budget failure awaits a limited fix/retest; live acceptance and RC_READY remain unresolved. Historical successes and failures are retained separately. Consult `PUBLIC_TEST_SUMMARY.json` and `PUBLIC_FAILURE_INDEX.json`.
 
 ## Required existing helpers
 

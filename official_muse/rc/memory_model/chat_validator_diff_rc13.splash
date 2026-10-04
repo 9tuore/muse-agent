@@ -1,0 +1,82 @@
+fn chat_state_valid_v12_control(saved){
+if!gm_object(saved){return false}
+if saved["schema"]!=1{return false}
+let sessions=saved["sessions"]
+let selected=saved["selected_id"]
+if!gm_array(sessions)
+||sessions.len()==0||sessions.len()>16
+|| !gm_text(selected){return false}
+let ids=[]
+let total=0
+for session in sessions{
+if!gm_object(session){return false}
+let id=session["id"]
+let title=session["title"]
+let created=session["created_at"]
+let updated=session["updated_at"]
+let entries=session["messages"]
+if!gm_text(id)||id==""
+|| !gm_text(title)
+|| !chat_json_number(created)|| !chat_json_number(updated)
+|| !gm_array(entries){return false}
+for earlier in ids{if earlier==id{return false}}
+ids.push(id)
+for key in["focus_project","focus_owner"]{
+if gm_has(session,key)&&(!gm_text(session[key])||session[key].len()>120){return false}
+}
+if gm_has(session,"goal_id")&&(!gm_text(session.goal_id)||session.goal_id.len()>200){return false}
+if gm_has(session,"proposals"){
+let proposals=session["proposals"]
+if!gm_array(proposals)||proposals.len()>8{return false}
+let proposal_ids=[]
+for proposal in proposals{
+if!gm_object(proposal){return false}
+if!gm_text(proposal["id"])||proposal["id"]==""||proposal["session_id"]!=id
+|| !gm_text(proposal["account_id"]){return false}
+for prior in proposal_ids{if prior==proposal["id"]{return false}}
+proposal_ids.push(proposal["id"])
+let action=proposal["action"]let state=proposal["state"]let payload=proposal["payload"]
+if action!="mail_list"&&action!="mail_compose"&&action!="calendar_list"
+&&action!="calendar_candidate"&&action!="goal_plan"{return false}
+if state!="candidate"&&state!="opened"&&state!="dismissed"{return false}
+if!gm_object(payload){return false}
+for key in["to","subject","body","title","start","end","time_zone","location","objective","source"]{
+if!gm_text(payload[key])||payload[key].len()>1200{return false}
+}
+if gm_has(proposal,"memory_refs")&& !chat_refs_valid(proposal.memory_refs){return false}
+for key in["project","owner"]{if gm_has(proposal,key)&& !gm_text(proposal[key]){return false}}
+if gm_has(proposal,"revision")&&(!gm_number(proposal.revision)||proposal.revision<1){return false}
+}
+}
+total=total+entries.len()
+if total>256{return false}
+for entry in entries{
+if!gm_object(entry){return false}
+let role=entry["role"]
+let value=entry["text"]
+let state=entry["state"]
+if(role!="user"&&role!="assistant")|| !gm_text(value)|| !gm_text(state)
+|| !chat_json_number(entry["at"]){return false}
+if gm_has(entry,"memory_refs")&& !chat_refs_valid(entry.memory_refs){return false}
+for key in["project","owner"]{if gm_has(entry,key)&&(!gm_text(entry[key])||entry[key].len()>120){return false}}
+}
+}
+for id in ids{if id==selected{return true}}
+return false
+}
+
+let chat_diff_case=nil
+let chat_diff_primary=nil
+let chat_diff_backup=nil
+let chat_diff_result={}
+fn chat_diff_begin(){
+ chat_diff_case=fs.read("chat-case.json").parse_json()
+ chat_diff_primary=fs.read("chat-sessions.json").parse_json()
+ chat_diff_backup=fs.read("chat-sessions.backup.json").parse_json()
+ start_timeout(0.01,||chat_diff_old_primary())
+}
+fn chat_diff_old_primary(){let before=time_now() chat_diff_result.old_primary=chat_state_valid_v12_control(chat_diff_primary) chat_diff_result.old_primary_ms=(time_now()-before)*1000 start_timeout(0.01,||chat_diff_new_primary())}
+fn chat_diff_new_primary(){let before=time_now() chat_diff_result.new_primary=chat_state_valid(chat_diff_primary) chat_diff_result.new_primary_ms=(time_now()-before)*1000 start_timeout(0.01,||chat_diff_old_backup())}
+fn chat_diff_old_backup(){let before=time_now() chat_diff_result.old_backup=chat_state_valid_v12_control(chat_diff_backup) chat_diff_result.old_backup_ms=(time_now()-before)*1000 start_timeout(0.01,||chat_diff_new_backup())}
+fn chat_diff_new_backup(){let before=time_now() chat_diff_result.new_backup=chat_state_valid(chat_diff_backup) chat_diff_result.new_backup_ms=(time_now()-before)*1000 fs.write("probe.json",{primary_old_new_acceptance_equal:chat_diff_result.old_primary==chat_diff_result.new_primary backup_old_new_acceptance_equal:chat_diff_result.old_backup==chat_diff_result.new_backup independent_primary_expectation:chat_diff_result.new_primary==chat_diff_case.expected_primary_valid independent_backup_expectation:chat_diff_result.new_backup==chat_diff_case.expected_backup_valid no_external_actions:fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0 observed:chat_diff_result}.to_json())}
+start_timeout(0.1,||chat_diff_begin())

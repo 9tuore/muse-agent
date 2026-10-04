@@ -346,6 +346,183 @@
       "reported_failed_checks": [],
       "local_report_sha256": null,
       "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-boot-tombs17_valid_control-r1/large_boot_index_rc10/runtime.log",
+      "runtime_log_sha256": "752e4923f4ee9766b051effd0948fe7702defa785240569805e6a1a9d6d78c10",
+      "instrumented_source_sha256": "9c1dc155582aafefaf4aa24ffb45231dfc3ec8422a9de047d64654482e731e90",
+      "markers": [
+        "[E] present gate stuck 250.982344ms, 4 in flight, rebuilding drawable pool"
+      ],
+      "reported_failed_checks": [],
+      "local_probe_sha256": "c313586ee66edb8c0f0339b6ada062b6f794be99d0b7a823c7720d67120ab8de",
+      "classification": "FIRST_ATTEMPT_ACTUAL_CARD_RUNTIME_RENDERER_ERROR; semantic7true does not erase runtimeERROR",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-scope-r1/scope_cache_rc3/runtime.log",
+      "runtime_log_sha256": "d61327a99bda89553ea9d6364c9f05b60784db3b81527a8874e362f252584741",
+      "instrumented_source_sha256": "b13ad79af3564f37357b5de2a9eaf800f3fe3b882250e8475d3b6e97c8580163",
+      "markers": [
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "FIRST_ATTEMPT_SCOPE_HARNESS_CALLBACK_64MS_FAILURE",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-correction-r1/correction_guard_rc5/runtime.log",
+      "runtime_log_sha256": "b7efa70c2a9a469338c837542a4f0f728694162297fb4cf55f7e06a336968a96",
+      "instrumented_source_sha256": "90d71a77f30a86098b6bc4c2c41a501f2642a077b29f743c9d1257459e8d293d",
+      "markers": [
+        "file not found (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/widgets/src/splash_storage.rs:296)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "FIRST_ATTEMPT_ORCHESTRATION_MISSING_REQUIRED_SYNTHETIC_INPUT",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-large-actions-r1/large_seed_correct/runtime.log",
+      "runtime_log_sha256": "1e9f5e23aa3ab7d8494f76d7c7bdb298c465f7aa9968c65eabeccea482325ad8",
+      "instrumented_source_sha256": "29a2e8c55a3fa9f50cf1ea2c92e3dd5e0dd57f130a8fedc06de6b2541f920cdb",
+      "markers": [
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "FIRST_ATTEMPT_CORRECT_ENTERED_AFTER_SUCCESSFUL_BOOT_64MS_FAIL",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-correction-input-fixed-r2/correction_guard_rc5/runtime.log",
+      "runtime_log_sha256": "ad5946ee79f3629515833d916847cadd436d9d2ee1302d71ef5a01df24ba3f60",
+      "instrumented_source_sha256": "90d71a77f30a86098b6bc4c2c41a501f2642a077b29f743c9d1257459e8d293d",
+      "markers": [
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "INPUT_REPAIRED_CANONICAL_VALIDATION_FIRST_EXECUTION_64MS_FAIL",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-scope-single-check-diagnostic-r1/scope_cache_single_check_rc10/runtime.log",
+      "runtime_log_sha256": "c57b8b189b222d04f359f42735825407a72be73668e90f576bbf50e7b4aa9e05",
+      "instrumented_source_sha256": "d7f9d09d1f54b3f87733a34a6231660b13449ab15a7bf44976be1a922461adfd",
+      "markers": [],
+      "reported_failed_checks": [],
+      "classification": "DIAGNOSTIC_HARNESS_25S_TIMEOUT_NO_RUNTIME_ERROR_NO_FINAL_REPORT",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-scope-single-check-original-fill-diagnostic-r2/scope_cache_single_check_rc10_fill12/runtime.log",
+      "runtime_log_sha256": "9ac2386685929d9e27c6120694d637774d30a7c95984a91f55904646307de077",
+      "instrumented_source_sha256": "8a8d7939935ea81c636344cf47b0cf8904463548c80b499611d548d8904a2ba1",
+      "markers": [
+        "present gate stuck for 251.065286ms with 3 in flight, rebuilding drawable pool",
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "DIAGNOSTIC_SINGLE_ASSERTION_ORIGINAL_FILL12: first22 checks true; fill96/270; rendererERROR +64ms trap; incomplete",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v10-scope-hot-micro-r1/scope_hot_micro_rc10/runtime.log",
+      "runtime_log_sha256": "1c8b5f99a26f2761ec79ae47d54aac088221ce4ad877d6e9cd764619adaa787c",
+      "instrumented_source_sha256": "6e8d9aa636a051e2af551b43a8f6e295265d71f396c63811b99399f84991f2c3",
+      "markers": [
+        "present gate stuck for 253.233034ms with 3 in flight, rebuilding drawable pool"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V10_MICRO_TIMINGS_OBSERVED_HOT12_DISTINCT96; WHOLE_RUNTIME_RENDERERERROR_AND25S_NOFINALPROBE; saturation16persisted/270",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v11b-large-actions-r1/large_seed_correct/runtime.log",
+      "runtime_log_sha256": "bb221d4aa192c6641a82ca6442e9bc0e8ea76cb0c91182c3e841e43f55a04674",
+      "instrumented_source_sha256": "c62df58b95efa5d108e839c5d8a01efcd7af3a295788745f92d1dcdd41706365",
+      "markers": [
+        "present gate stuck for 266.867757ms with 3 in flight, rebuilding drawable pool",
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V11B_FIRST_ATTEMPT_large_seed_correct_BUDGET_ERROR_RETAINED",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v11b-large-actions-r1/large_seed_forget/runtime.log",
+      "runtime_log_sha256": "1c105b1d40b02b3472f23547af1f9a123559592dff344e4049bd9f3cff6ee2da",
+      "instrumented_source_sha256": "2aced5d60776bc5375a2230d8b7dd20b6cc2f6c1edecaaa2cba53ecc1702fddc",
+      "markers": [
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V11B_FIRST_ATTEMPT_large_seed_forget_BUDGET_ERROR_RETAINED",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v11b-scope-r1/scope_cache_rc3/runtime.log",
+      "runtime_log_sha256": "5dacf2f638acf73637cfb0d9f1b10fbc9412a625a1714a1829c3a72d78fb2386",
+      "instrumented_source_sha256": "484b058a16906d350b2a473a06d171d573edd0933d6dd4b66de7e161ee3427aa",
+      "markers": [
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V11B_FIRST_ATTEMPT_scope_cache_rc3_BUDGET_ERROR_RETAINED",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v11b-scope-single-check-fill1-diagnostic-r1/scope_cache_single_check_rc11/runtime.log",
+      "runtime_log_sha256": "20bb8ebc985012d0a8bf3ebd9a1d8e39963e3b402db03b6892d09260ac2da0bd",
+      "instrumented_source_sha256": "cc350b605b6d5bfdefe165eda219deb6b3a8c1eb20d3ba5dee9529b1b065e0c8",
+      "markers": [],
+      "reported_failed_checks": [],
+      "classification": "V11B_SINGLE_ASSERTION_FILL1_HARNESS25S_TIMEOUT_NO_RUNTIMEERROR; first22true andfill96persisted",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v13b-chat-duplicate_session_id-r1/chat_boot_guard_rc13/runtime.log",
+      "runtime_log_sha256": "97fb647546ee27956c71206f32df3c60d612934354499df173bac6183f4dd213",
+      "instrumented_source_sha256": "019d23612ced0631342ff2163334608a72b8d39cf0444f91730e20ec7d44d144",
+      "markers": [
+        "present gate stuck for 262.246314ms with 4 in flight, rebuilding drawable pool"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V13B_FIRST_CHAT_BOOT_duplicate_session_id_NATIVE_RENDERER_ERROR_SEMANTIC7_TRUE_NO_SCRIPTBUDGET",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v13b-chat-bad_proposal-r1/chat_boot_guard_rc13/runtime.log",
+      "runtime_log_sha256": "3a6462a5ed1ad2fa16df323c739a7e3f35d8a3777424af468431523e2da46699",
+      "instrumented_source_sha256": "019d23612ced0631342ff2163334608a72b8d39cf0444f91730e20ec7d44d144",
+      "markers": [
+        "present gate stuck for 256.835438ms with 3 in flight, rebuilding drawable pool"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V13B_FIRST_CHAT_BOOT_bad_proposal_NATIVE_RENDERER_ERROR_SEMANTIC7_TRUE_NO_SCRIPTBUDGET",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v13b-chat-bad_proposal_ref-r1/chat_validator_diff_rc13/runtime.log",
+      "runtime_log_sha256": "69fd3440b8b600569e28d147b2d84fda1a4dfdebbd2f256a70f8ee5c542aa420",
+      "instrumented_source_sha256": "a8430fb276b8d85acf1acf428ceea98a931d47061e77057cc50f018b0219e1cd",
+      "markers": [
+        "script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V13B_FIRST_BAD_PROPOSAL_REF_WHOLE_SYNCHRONOUS_VALIDATOR_DIFFERENTIAL_BUDGETFAIL; actualasyncboot7PASS",
+      "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/rc5v13b-chat-bad-proposal-ref-isolated16-r1/chat_validator_diff_rc13/runtime.log",
+      "runtime_log_sha256": "79f0ce0fdd0604a593ba18a0a6fb315986ebca0e57304bd687813489f923f206",
+      "instrumented_source_sha256": "a7e873af478f09a5492cc19853a153974a103c833465505ef12d16462630e85b",
+      "markers": [
+        "splash: source preparation failed at 44564 of 340033 bytes",
+        "[SPLASH_COMPILE_FAILED] elapsed_ms=95.760 total_ms=105.046 max_chunk_ms=95.760",
+        "splash: /Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/octoscript-makepad/crates/octoscript-widgets/src/kit_shared.rs:26:52: script time budget exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:916)"
+      ],
+      "reported_failed_checks": [],
+      "classification": "V13B_REDUCED_BAD_PROPOSAL_REF_DIAGNOSTIC_SOURCEPREP_FAIL_BEFORE_PROBE_NOT_CHATVALIDATOR_RESULT",
+      "raw_public": false
     }
   ],
   "original_negation_failures": [
@@ -850,6 +1027,57 @@
       "failed": [],
       "source_sha256": "f05de20e1d83957758cc761b560887ffc30efc31affe31c33d7832c49feb4605",
       "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+      "raw_public": false
+    }
+  ],
+  "root_reported_failures": [
+    {
+      "source_thread_id": "01a0ed77-7c64-7511-82e4-182f7373a549",
+      "source": "controller delegation, independently read root-owned frozen report/log, not A3 execution",
+      "root_group": "official_muse/rc/startup/evidence/74a4-final-70-r1/report.json",
+      "root_report_sha256": "0f814553c46dfb956f390a0a27b93b173bfdf4d92aeda5612f4363eed6c8e145",
+      "root_log": "official_muse/rc/startup/evidence/74a4-final-70-r1/cold-19/log.json",
+      "root_log_sha256": "761e2204a52c47b327c3b6a5b6f2da408e6d253cbdb1b87053a6438f488b07ba",
+      "source_sha256": "4ce87cc7dc41e2645e7b4914bd6a2d742f9e056e5b2cc414c3ead37efcbf7746",
+      "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+      "first_failure_index": 19,
+      "completed_cold": 19,
+      "passed_prior": 18,
+      "requested_counts": {
+        "cold": 30,
+        "reopen": 20,
+        "restart": 20
+      },
+      "controller_190_startup_wording": "Root reported; does not mean A3 verified 190 successful boots",
+      "raw_public": false
+    },
+    {
+      "source_thread_id": "01a0ed77-7c64-7511-82e4-182f7373a549",
+      "source": "controllerdelegation and independentlyread rootreport, notA3execution",
+      "root_group": "official_muse/rc/startup/evidence/069d-final-70-r1/report.json",
+      "root_report_sha256": "38fcc0922a2a142424075acb78c009fbf4d9db2238614ace8b3f9eec1bafed3e",
+      "source_sha256": "599aa472ff0de67ae5590889aa289b93c65e7c65b2a5b892937818d9da7c8d62",
+      "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+      "first_failure_index": 16,
+      "passed_prior": 15,
+      "requested_counts": {
+        "cold": 30,
+        "reopen": 20,
+        "restart": 20
+      },
+      "classification": "V12cold16 real64msbudget chat_state_valid256loop",
+      "raw_public": false,
+      "root_log": "official_muse/rc/startup/evidence/069d-final-70-r1/cold-16/log.json",
+      "root_log_sha256": "a2919a9d95e8bdb6e262630df8e996f3d1bc6240cb2bd2161868220a07e08e34",
+      "error_markers": [
+        "[E] splash:140678818252800:6140:93 - script time budget exceeded (.sources/makepad/platform/script/src/vm.rs:1046)"
+      ]
+    },
+    {
+      "source_thread_id": "01a0ed77-7c64-7511-82e4-182f7373a549",
+      "source": "controllerdelegation only; notA3execution",
+      "classification": "V13FIRST_PREFLIGHT variable range notfound; rootreplacedwithverifiedoffsetloop inV13b",
+      "is_budget_failure": false,
       "raw_public": false
     }
   ]

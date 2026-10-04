@@ -35,3 +35,15 @@ The three corrupted-file cases and three freshprocess recoveries nowPASS onV8/ne
 Historical large-seed/runtime failures require their locally retained source/Host/seed bindings in addition to the hashes in the failure index. They are not claimed reproducible from only the current public checkout. The detailed historical raw material is deliberately excluded from Git staging.
 
 Aftereachpreservationcase, usecorrupt_recovery_new_process_rc8 withitsretainedoriginalinputsandpreservedfile (ifpresent) inafreshCardHostprocess; expectedstateis64claimreadyforvalidbackup,stoppedforbothbad/writefailure. Priorfailedattemptsremaininthefailureindex.
+
+
+V10 indexdelta is PARTIAL: newboot indexguard13whole attemptsPASS,17tombcontrol semantic7true butrendererERROR; scope/canonicalguard/singlecorrect budgeterrors remain. See PUBLIC_A3_SUMMARY and FIRST_FAILURE_INDEX. `large_boot_index_rc10.splash` adds explicit pending emptyretrieval/deniedwrites/privateimmutable-snapshot checks. `scope_cache_single_check_rc10_fill12.splash` splits first22 assertions into separatecallbacks while keepingoriginal270inputs/12percallback; saturation only96completed beforebudgeterror. Originalscopefailedattempt is retained. No repeat removes a failure. Supply all required syntheticcorrection inputfiles; the omittedinputfirstattempt is recorded as an orchestration mistake.
+
+
+V13bchat delta remainsPARTIAL: actualasync11cases77savedsemanticchecks true andallnativefileinvariantsPASS; whole9PASS2rendererERROR. Old/newfull10casesPASS; badproposalrefsyncbudgeterror andsmallercomparison sourceprep failure retained. `chat_boot_guard_rc13.splash` exercisesproductionasyncfunctions; `--chat-boot-continuation --count-storage-writes` replacesonlylaterboot_load continuationwithprobecontinuation andcountsproductionwrites in copiedprefix. `chat_validator_diff_rc13.splash` containsbyteboundoldV12validator renamedonly; sharedrefs/numberhelpersverifiedunchanged. NeitherfixtureprovesfullShellboot,modelorOSactions. Rawstates/bundles/logs excluded.
+
+
+FinalV14reuse isread-only: `RC5V14_SHARED_FUNCTION_REUSE_PROOF.json` records187exactbodyhashpairs(sharedchat76/core40/gm71),41prefixedletlines identical, V13b b4ac3453 and V14 201d2cc1. NoV14runtime rerun orupgradeofV13bPARTIAL. Twoasyncnative rendererERROR, onewholevalidatorcomparisonbudgetFAIL andone reducedcomparisonpre-probe sourceprepFAIL retained withprecisephase distinctions.
+
+
+V15twoempty-tombhelpers firstsmallfixture28/28PASS. `empty_tombs_delta_rc15.splash` containsverifiedV14controls withonlynamesrenamed and28independentexpectedcases. `RC5V15_EMPTY_TOMBS_STATIC_PROOF.json` verifies onlyaddedemptytombguard andbadvaluecheckbeforeit, nonemptybody/deps unchanged. Optional `--minimal-bundle-copy` copiesonlyscript/manifest/listing/icon, no media, about0.75MiB observed. ThissmallPASS doesnotupgrade historicalV13bPARTIAL orprovefullUI/performance/fullchain.

@@ -1,0 +1,30 @@
+{
+  "source_v14_sha256": "201d2cc110c921361e9db63b4c6f2dad76a8d7af2609533a83416a14c91fb9a7",
+  "source_v15_sha256": "5092becd21ece0cdc456ffa60b9a7b85ff01e34b65c68d7743658e7b945b4cd8",
+  "readable_v15_sha256": "af68b897addd0a3e9f81256a9192b58ae95bf9de72951d4ce05a36949f29c583",
+  "functions": [
+    {
+      "function": "gm_source_forgotten",
+      "old_function_sha256": "d6b47224f9e30d337540ae6b27e33361150679705cb089573065199338c9f86a",
+      "new_function_sha256": "4a3ce9273e1b995a7ff4d82061e5774a49035e25f6ba4c86e4a818db0bd7fb76",
+      "only_added_guard": "if memory_forget.len()==0{return false}",
+      "remove_only_guard_restores_entire_old_function_exact_bytes": true,
+      "old_nonempty_logic_byte_unchanged": true
+    },
+    {
+      "function": "gm_forgotten_in",
+      "old_function_sha256": "c98e17496bdd249ff84722b4a835e46f5728720ccf1903a4c87cd9924a13b836",
+      "new_function_sha256": "d6c0de37753939e4a9917d159d0fdfdca3980f296562e04f3a93e7f28a44f1bc",
+      "only_added_guard": "if tombs.len()==0{return false}",
+      "remove_only_guard_restores_entire_old_function_exact_bytes": true,
+      "old_nonempty_logic_byte_unchanged": true
+    }
+  ],
+  "unchanged_dependencies": [
+    "gm_tomb_scope",
+    "core_source_index",
+    "gm_normalize_line"
+  ],
+  "badvalue_check_precedes_empty_tombs_guard": true,
+  "boundary": "No cache or authorization behavior changed; staticbyteproof only until smallprobe executes"
+}

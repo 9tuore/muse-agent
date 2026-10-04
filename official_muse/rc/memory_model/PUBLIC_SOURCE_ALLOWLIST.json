@@ -1,6 +1,6 @@
 {
   "kind": "EXPLICIT_FILES_ONLY_NO_RECURSIVE_GIT_ADD",
-  "file_count": 15,
+  "file_count": 25,
   "files": [
     {
       "path": "official_muse/rc/memory_model/PUBLIC_SOURCE_ALLOWLIST.json",
@@ -10,17 +10,17 @@
     {
       "path": "official_muse/rc/memory_model/PUBLIC_TESTS_README.md",
       "role": "maintenance and reproduction entry",
-      "sha256": "0bfe15914f7a6b330e2f6980d7da4cb2741a696fedec32dbb7eec39d152d6fe8"
+      "sha256": "aa69542c27d9c65d6a77c1477bb5ff64732b60e774482a027c600013950c0118"
     },
     {
       "path": "official_muse/rc/memory_model/PUBLIC_A3_SUMMARY.json",
       "role": "sanitized current results",
-      "sha256": "da1c0b0c737db9cbaaca4c5eec235cde660ec8d55c04bbcd9a2acf6f8efbe586"
+      "sha256": "4caebdb15ec129c05de331aa79928ee038dde1208d5748d5af080c1038377989"
     },
     {
       "path": "official_muse/rc/memory_model/FIRST_FAILURE_INDEX.json",
       "role": "first failures and failed followup hashes",
-      "sha256": "87e6567b83e3943d277764b76f77fbc82f87120df1965585b7cb58fb563ad785"
+      "sha256": "5d97810374ddb81412ac2f527dfa6dc6a483dec5b1438dae1fcf2ca2bfa2675f"
     },
     {
       "path": "official_muse/rc/memory_model/PUBLIC_CONTRACT_SCHEMAS.json",
@@ -40,7 +40,7 @@
     {
       "path": "official_muse/rc/memory_model/run_contract_probe.py",
       "role": "existingCardHost fixture orchestration",
-      "sha256": "93118dcd44817ce79315c53a0ce3a02eaf3b2b9b9e8bb5254a92b9bb86ef9ab1"
+      "sha256": "7cfc863a7cdc975630a8e5511aca69304eae7abb0f83be9695a85c4b0e68dc62"
     },
     {
       "path": "official_muse/rc/memory_model/contract_app_cases.splash",
@@ -76,6 +76,56 @@
       "path": "official_muse/rc/memory_model/corrupt_recovery_new_process_rc8.splash",
       "role": "freshprocesscore+globalcorruptrecovery fixture",
       "sha256": "3dbf22ee5510af004f871d7a5d00b57d7aaa9e93c917c439ccd10169a2a406c6"
+    },
+    {
+      "path": "official_muse/rc/memory_model/large_boot_index_rc10.splash",
+      "role": "V10 indexdelta pending/last-record synthetic probe",
+      "sha256": "f13934157367b960644ce0d9227878a98a8539f09cbd2009cfd51ad81989dbfc"
+    },
+    {
+      "path": "official_muse/rc/memory_model/scope_cache_single_check_rc10_fill12.splash",
+      "role": "V10 scope diagnostic preserving28checks270inputs; incomplete result retained",
+      "sha256": "ee80e4db3a65a48dec30d5def447595aaffcae8752355dbfdb63132f5656d688"
+    },
+    {
+      "path": "official_muse/rc/memory_model/scope_cache_single_check_rc11.splash",
+      "role": "oneassertion/fill1 original28/270scope guard fixture",
+      "sha256": "2773bb547d61ed69ce77e0bfa9a4f3d20ecd7576ccb3187a719bf01175df73e3"
+    },
+    {
+      "path": "official_muse/rc/memory_model/scope_hot_micro_rc10.splash",
+      "role": "separatecallbacks single/hot12/distinct96/saturation270 synthetictiming",
+      "sha256": "b7b4106dea46e6d15481710aaeb37cd9cd6c24a1921048a40e07d8ecfce77164"
+    },
+    {
+      "path": "official_muse/rc/memory_model/prepare_semantics_rc12.splash",
+      "role": "V12scanfirst/legacy guards and verifiedV11bpreparefunction control fixture",
+      "sha256": "91377fd38cbe609d3a622df6069f9bc1f510c957064eacef8e9718b0a13ca414"
+    },
+    {
+      "path": "official_muse/rc/memory_model/chat_validator_diff_rc13.splash",
+      "role": "V13b old/new chatvalidator acceptance differential fixture",
+      "sha256": "1fabec19e1a8c30c11e5e77e6b637cefa431a6ba58804749c52065655f45f270"
+    },
+    {
+      "path": "official_muse/rc/memory_model/chat_boot_guard_rc13.splash",
+      "role": "V13b actualasyncchat guard/nativefs/focuscontinuation fixture",
+      "sha256": "c54ed0e98a6567d30c70b538af34195fbec487b05983e92db7a6ba706898b0bc"
+    },
+    {
+      "path": "official_muse/rc/memory_model/RC5V14_SHARED_FUNCTION_REUSE_PROOF.json",
+      "role": "read-only V13b/V14 sharedfunction bytehash reuse proof",
+      "sha256": "669594da8af7d92317d62a0c9cf2c1bad3c09cc42f8ce76e8b25a0073cfddf34"
+    },
+    {
+      "path": "official_muse/rc/memory_model/empty_tombs_delta_rc15.splash",
+      "role": "V15twohelpers28case old/new/independent expectation fixture",
+      "sha256": "91f9840d05337ac0f36bfc444b1073c801f008b97daad6a223b349434999d663"
+    },
+    {
+      "path": "official_muse/rc/memory_model/RC5V15_EMPTY_TOMBS_STATIC_PROOF.json",
+      "role": "V14/V15 nonemptybody exactreuse andguardorder byteproof",
+      "sha256": "494c93c48205386b94bdeb7d9ccc2a3f1de08e07df6ba2d2443b306df8cb43f4"
     }
   ],
   "exclude_patterns": [

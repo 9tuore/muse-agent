@@ -138,5 +138,140 @@
       }
     },
     "unchanged_proof_reuse": "Full core/proposal/fault tests executed on V8. V9 mail_select_account verified separately; only byte-identical unchanged source reuses V8 proof. No claim full chain was rerun on V9."
+  },
+  "protocol_attempts": [
+    {
+      "attempt": "rc5-v9-modelhost-preflight-74a4-r1",
+      "status": "ERROR_BEFORE_PREFLIGHT",
+      "classification": "candidate_not_yet_fully_prepared",
+      "finding": "Candidate had bundle/mirror but no candidate.json; stopped before starting Shell/backend.",
+      "local_reference": "evidence/rc5-v9-modelhost-preflight-74a4-r1/failure.json",
+      "published_raw": false,
+      "controller_followup": "Controller confirmed original r1 is incomplete failed preparation evidence. Do not reuse; wait new successful candidate and verified durable Hub path."
+    },
+    {
+      "attempt": "protocol-http-74a4-r1 on candidate r2",
+      "classification": "harness_startup_readiness_race",
+      "status": "ERROR_ZERO_POSTS_ZERO_SCENARIOS",
+      "evidence": {
+        "local_reference": "evidence/rc5-v9-modelhost-http-74a4-r1/report.json",
+        "sha256": "d35b2000c14b75f85b5f235ec8bcbcbb5b988aca4d3faa44feb77f689b088b49",
+        "bytes": 1168,
+        "published_raw": false
+      },
+      "later_status": "Actual same-hash r2 run passes41checks/4scenarios/6posts after local readiness helper fix; strict-fresh r3 also passes. No ModelHost/product/budget change."
+    }
+  ],
+  "controller_new_boot_risk": {
+    "owner": "controller",
+    "observation": "Controller reports cold-start case19/30 exceeded application boot budget after preceding18passes; source preparation finished104chunks/max6.119ms, line4956:10.",
+    "a2_direct_reproduction": false,
+    "status": "PENDING_CONTROLLER_BOOT_FIX_AND_LIMITED_RETEST",
+    "rc_ready": false
+  },
+  "controller_goal_card_failure_and_delta": {
+    "original_reproduction": "Controller actual V9 model Goal proposal opened with no project/owner; make_plan rejected but card consumed and no goals file. A2 did not perform that live reproduction.",
+    "limited_verification": {
+      "status": "FIXTURE_PASS",
+      "source_sha256": "403c410c921a94d638bf8ff301289c43e9a1e5defcee26a979569293cfa6e7c6",
+      "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+      "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+      "tested_function": "chat_apply_proposal goal_plan branch and actual make_plan/core_add_goal",
+      "passed_cases": 9,
+      "passed_checks": 58,
+      "cases": {
+        "missing_focus": {
+          "status": "PASS",
+          "passed_checks": 7,
+          "failed_checks": [],
+          "disk_fault": {}
+        },
+        "blank_source": {
+          "status": "PASS",
+          "passed_checks": 7,
+          "failed_checks": [],
+          "disk_fault": {}
+        },
+        "invalid_items": {
+          "status": "PASS",
+          "passed_checks": 7,
+          "failed_checks": [],
+          "disk_fault": {}
+        },
+        "write_failure": {
+          "status": "PASS",
+          "passed_checks": 6,
+          "failed_checks": [],
+          "disk_fault": {
+            "kind": "actual_directory_collision",
+            "target": "goals.json"
+          }
+        },
+        "success_duplicate": {
+          "status": "PASS",
+          "passed_checks": 6,
+          "failed_checks": [],
+          "disk_fault": {}
+        },
+        "project_scope": {
+          "status": "PASS",
+          "passed_checks": 6,
+          "failed_checks": [],
+          "disk_fault": {}
+        },
+        "owner_scope": {
+          "status": "PASS",
+          "passed_checks": 6,
+          "failed_checks": [],
+          "disk_fault": {}
+        },
+        "dismissed": {
+          "status": "PASS",
+          "passed_checks": 6,
+          "failed_checks": [],
+          "disk_fault": {}
+        },
+        "stale_memory": {
+          "status": "PASS",
+          "passed_checks": 7,
+          "failed_checks": [],
+          "disk_fault": {}
+        }
+      },
+      "expiry_semantics": "Valid schema has candidate/opened/dismissed states; tests cover dismissed and stale Memory refs. No separate Goal-card TTL is asserted.",
+      "evidence": {
+        "local_reference": "evidence/rc5-v11b-goal-card-20261005-r1/summary.json",
+        "sha256": "17b5c47964183beff2cd66eed66c857d4ed6bec87a036d5ccb07fad90391a186",
+        "bytes": 3435,
+        "published_raw": false
+      },
+      "boundary": "Real isolated card-host/production functions, synthetic candidate; no model/Host/system action",
+      "old_full_suites_rerun": false,
+      "real_goal_model": false,
+      "rc_ready": false
+    }
+  },
+  "memory_metadata_delta": {
+    "controller_reported_live_defect": "V12 successful Goal result entry lacked metadata and first Shell restart migrated memory.json; reported by controller, not independently reproduced live by A2",
+    "root_fix": "core_add_claim initializes memory_type=source, conversation_id empty, history empty, matching legacy migration defaults",
+    "attempts": [
+      {
+        "attempt": "r1",
+        "kind": "PRE_RUNTIME_PREPARATION_ERROR",
+        "detail": "compact output directory lacks manifest.json; zero cases executed in runtime"
+      },
+      {
+        "attempt": "r2",
+        "kind": "PARTIAL_RUN_DRIVER_INTERRUPTED",
+        "detail": "user_entry/runtime_entry PASS; scope/dup rejected non-materialized fixture sources and then read nonexistent file; forget interrupted. Original evidence preserved."
+      },
+      {
+        "attempt": "r3",
+        "kind": "FIXTURE_DRIVER_CORRECTED_GUARDS_PASS",
+        "detail": "only 3 unfinished guards executed; source/document factory now returns JSON-materialized records matching production scope-copy pattern"
+      }
+    ],
+    "result": "5 related cases / 91 checks FIXTURE_PASS; earlier preparation/fixture failures retained, no first-attempt-pass claim",
+    "scope": "A2 Memory-only; no production/SDK/Git edits or ModelHost rerun"
   }
 }

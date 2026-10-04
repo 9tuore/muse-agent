@@ -1,0 +1,79 @@
+fn gm_source_forgotten_v14_control(sid,doc){
+let i=core_source_index(sid,doc["scope"].account)
+for t in memory_forget{
+if(t.source_id==sid||(i>=0&&t.content_sha256==memory_sources[i].content_sha256))&&gm_tomb_scope(t,doc["scope"]){return true}
+}
+return false
+}
+
+fn gm_forgotten_in_v14_control(value,mem_scope,tombs){
+if!gm_text(value){return true}
+for line in value.split("\n"){
+let digest=fs.sha256(gm_normalize_line(line))
+for t in tombs{if t.content_sha256==digest&&gm_tomb_scope(t,mem_scope){return true}}
+}
+let digest=fs.sha256(value.trim())
+for t in tombs{if t.content_sha256==digest&&gm_tomb_scope(t,mem_scope){return true}}
+return false
+}
+
+let tomb_delta_cases=[]
+let tomb_delta_at=0
+let tomb_delta_results=[]
+fn delta_scope(account,owner){return {project:"muse-goals" account:account visibility:"personal" user_id:"user:delta" project_id:"delta-project" owner_id:owner}}
+fn delta_tomb(sid,text,account,owner){return {source_id:sid subject_id:"synthetic" predicate:"preference" account_scope:account at:"2032-01-01T00:00:00Z" content_sha256:fs.sha256(text) "scope":delta_scope(account,owner)}}
+fn delta_text_case(id,value,tombs,account,owner,expected){tomb_delta_cases.push({id:id kind:"text" value:value tombs:tombs "scope":delta_scope(account,owner) expected:expected})}
+fn delta_source_case(id,sid,tombs,account,owner,source_account,expected){tomb_delta_cases.push({id:id kind:"source" sid:sid tombs:tombs "scope":delta_scope(account,owner) source_account:source_account expected:expected})}
+fn tomb_delta_begin(){
+ gm_user_id="user:delta"
+ delta_text_case("empty_tombs_text","合成记忆",[],"local","甲",false)
+ delta_text_case("empty_tombs_empty_text","",[],"local","甲",false)
+ delta_text_case("empty_tombs_nil",nil,[],"local","甲",true)
+ delta_text_case("empty_tombs_number",12,[],"local","甲",true)
+ delta_text_case("empty_tombs_array",[],[],"local","甲",true)
+ delta_text_case("empty_tombs_object",{},[],"local","甲",true)
+ delta_text_case("empty_tombs_boolean",false,[],"local","甲",true)
+ delta_text_case("matching_text","合成记忆",[delta_tomb("source:A","合成记忆","local","甲")],"local","甲",true)
+ delta_text_case("different_text","不同记忆",[delta_tomb("source:A","合成记忆","local","甲")],"local","甲",false)
+ delta_text_case("line_match","合成记忆\n其他资料",[delta_tomb("source:A","合成记忆","local","甲")],"local","甲",true)
+ delta_text_case("trim_match","  合成记忆  ",[delta_tomb("source:A","合成记忆","local","甲")],"local","甲",true)
+ delta_text_case("text_cross_owner","合成记忆",[delta_tomb("source:A","合成记忆","local","甲")],"local","乙",false)
+ delta_text_case("text_cross_account","合成记忆",[delta_tomb("source:A","合成记忆","local","甲")],"other-account","甲",false)
+ let wronguser=delta_tomb("source:A","合成记忆","local","甲") wronguser["scope"].user_id="user:other"
+ delta_text_case("text_cross_user","合成记忆",[wronguser],"local","甲",false)
+ let global=delta_tomb("source:A","合成记忆","local","") global["scope"].project_id=""
+ delta_text_case("global_tomb_other_owner_preserved","合成记忆",[global],"local","乙",true)
+ let legacy={source_id:"source:A" subject_id:"synthetic" predicate:"preference" account_scope:"local" at:"2032-01-01T00:00:00Z" content_sha256:fs.sha256("合成记忆")}
+ delta_text_case("legacy_tomb_other_owner_preserved","合成记忆",[legacy],"local","乙",true)
+ delta_text_case("legacy_tomb_other_account_denied","合成记忆",[legacy],"other-account","甲",false)
+ delta_source_case("source_empty_tombs","source:A",[],"local","甲","local",false)
+ delta_source_case("source_same_id","source:A",[delta_tomb("source:A","不相同文本","local","甲")],"local","甲","local",true)
+ delta_source_case("source_same_hash","source:A",[delta_tomb("source:B","合成记忆","local","甲")],"local","甲","local",true)
+ delta_source_case("source_neither_match","source:A",[delta_tomb("source:B","不相同文本","local","甲")],"local","甲","local",false)
+ delta_source_case("source_id_no_lookup_hit","source:missing",[delta_tomb("source:missing","不相同文本","local","甲")],"local","甲","local",true)
+ delta_source_case("source_cross_owner","source:A",[delta_tomb("source:A","合成记忆","local","甲")],"local","乙","local",false)
+ delta_source_case("source_cross_account","source:A",[delta_tomb("source:A","合成记忆","local","甲")],"other-account","甲","local",false)
+ delta_source_case("source_hash_lookup_account_denied","source:A",[delta_tomb("source:B","合成记忆","local","甲")],"local","甲","other-account",false)
+ delta_source_case("source_global_owner_preserved","source:A",[global],"local","乙","local",true)
+ delta_source_case("source_legacy_owner_preserved","source:A",[legacy],"local","乙","local",true)
+ delta_source_case("source_legacy_account_denied","source:A",[legacy],"other-account","甲","local",false)
+ start_timeout(0.01,||tomb_delta_case())
+}
+fn tomb_delta_case(){
+ let c=tomb_delta_cases[tomb_delta_at]
+ memory_forget=c.tombs
+ let doc={"scope":c["scope"]}
+ let old=false let current=false let before=time_now()
+ if c.kind=="text"{old=gm_forgotten_in_v14_control(c.value,c["scope"],c.tombs) current=gm_forgotten_in(c.value,c["scope"],c.tombs)}
+ else{
+  memory_sources=[{source_id:"source:A" content_sha256:fs.sha256("合成记忆") "scope":delta_scope(c.source_account,"甲")}]
+  old=gm_source_forgotten_v14_control(c.sid,doc) current=gm_source_forgotten(c.sid,doc)
+ }
+ tomb_delta_results.push({id:c.id expected:c.expected old:old actual:current equal:old==current passed:old==current&&current==c.expected duration_ms:(time_now()-before)*1000})
+ tomb_delta_at=tomb_delta_at+1
+ if tomb_delta_at<tomb_delta_cases.len(){start_timeout(0.01,||tomb_delta_case()) return}
+ let passed=0 let failed=[]
+ for result in tomb_delta_results{if result.passed{passed=passed+1}else{failed.push(result.id)}}
+ fs.write("probe.json",{all_expected_and_old_new_equal:failed.len()==0 no_external_actions:fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0 total:tomb_delta_results.len() passed_cases:passed failed_cases:failed results:tomb_delta_results fixture_boundary:"Onlytwofunctions withtypedscopes/source-ID/hash/tomb inputs; notentireMemoryDSLvalidation."}.to_json())
+}
+start_timeout(0.1,||tomb_delta_begin())

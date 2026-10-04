@@ -1,94 +1,7 @@
 {
   "schema": 1,
   "test_level": "production_functions_synthetic_host_real_isolated_fs",
-  "final_acceptance": {
-    "status": "V9_ACCOUNT_RESTORE_PASS_WITH_V8_UNCHANGED_PROOF_REUSE_PROTOCOL_AND_LIVE_PENDING",
-    "source_sha256": "4ce87cc7dc41e2645e7b4914bd6a2d742f9e056e5b2cc414c3ead37efcbf7746",
-    "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
-    "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
-    "core": {
-      "passed": 28,
-      "failed": [],
-      "restart_passed": 4,
-      "evidence": "evidence/rc5v8-4k-core-20261005-r1/summary.json"
-    },
-    "proposal": {
-      "passed": 25,
-      "failed": [],
-      "restart_passed": 6,
-      "evidence": "evidence/rc5v8-4k-proposal-20261005-r1/summary.json"
-    },
-    "fault": {
-      "passed_cases": 20,
-      "failed_cases": [],
-      "restart_cases_passed": 3,
-      "evidence": "evidence/fault-rc5v8-4k-20261005-r1/summary.json"
-    },
-    "compile_metrics": {
-      "core/fixture/runtime.log": [
-        {
-          "bytes": 348858,
-          "chunks": 87,
-          "total_ms": 27.875,
-          "max_chunk_ms": 1.243
-        }
-      ],
-      "core/restart-runtime.log": [
-        {
-          "bytes": 349866,
-          "chunks": 87,
-          "total_ms": 25.709,
-          "max_chunk_ms": 1.527
-        }
-      ],
-      "proposal/fixture/runtime.log": [
-        {
-          "bytes": 347220,
-          "chunks": 86,
-          "total_ms": 24.983,
-          "max_chunk_ms": 0.809
-        }
-      ],
-      "proposal/restart-runtime.log": [
-        {
-          "bytes": 348914,
-          "chunks": 87,
-          "total_ms": 46.766,
-          "max_chunk_ms": 2.932
-        }
-      ]
-    },
-    "modelhost_protocol": "NOT_RUN_FINAL_CANDIDATE_NOT_SUPPLIED",
-    "real_t18": "PARTIAL",
-    "rc_ready": false,
-    "replay_evidence": {
-      "local_reference": "RC5_V8_REPLAY.json",
-      "sha256": "c703bec3f155a9a259ec46b16bc905b6135156dfa93e36f198b494bb632a459f",
-      "bytes": 2554,
-      "published_raw": false
-    },
-    "load_stability": "Not a stress/parallel-load acceptance; historical failures retained.",
-    "full_chain_direct_test_source_sha256": "eeb0b12635661c7f3e37a4d9b4dd628b1d0c2a7fcc90e9e78bba8f8cb4c87e4f",
-    "changed_function_verification": {
-      "function": "mail_select_account",
-      "cases": 8,
-      "passed_checks": 32,
-      "failed_checks": [],
-      "rest_byte_identical_to_v8": true,
-      "baseline_source_sha256": "eeb0b12635661c7f3e37a4d9b4dd628b1d0c2a7fcc90e9e78bba8f8cb4c87e4f",
-      "source_sha256": "4ce87cc7dc41e2645e7b4914bd6a2d742f9e056e5b2cc414c3ead37efcbf7746",
-      "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
-      "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
-      "pending_model_guard": "mail_model_pending",
-      "evidence": {
-        "local_reference": "evidence/rc5v9-account-restore-20261005-r1/summary.json",
-        "sha256": "2ee132c067372b349b3c1967c52747fdcc0992b43b8a5fabfb0c860fb6074ecf",
-        "bytes": 860,
-        "published_raw": false
-      }
-    },
-    "proof_scope": "Full core/proposal/fault tests executed on V8. V9 mail_select_account verified separately; only byte-identical unchanged source reuses V8 proof. No claim full chain was rerun on V9."
-  },
+  "final_acceptance": "V13B_MEMORY_METADATA_RELATED_DELTA_PASS_OTHER_FINAL_GATES_CONTROLLER",
   "latest_historical_replay": {
     "version": "0.3.26-rc5 v5",
     "source_sha256": "e973abe1359c04326b6018d7bb0da3352a7d4817b106e813823b4efaf13826ba",
@@ -135,5 +48,123 @@
     "visual_acceptance": false,
     "paid_calls": false
   },
-  "redaction": "No payloads, messages, prompts, contacts, account settings, private/state bytes, absolute user paths, keys or credential data. Local references identify evidence kept only on the original machine."
+  "redaction": "No payloads, messages, prompts, contacts, account settings, private/state bytes, absolute user paths, keys or credential data. Local references identify evidence kept only on the original machine.",
+  "latest_limited_goal_card_delta": {
+    "status": "FIXTURE_PASS",
+    "source_sha256": "403c410c921a94d638bf8ff301289c43e9a1e5defcee26a979569293cfa6e7c6",
+    "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+    "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "tested_function": "chat_apply_proposal goal_plan branch and actual make_plan/core_add_goal",
+    "passed_cases": 9,
+    "passed_checks": 58,
+    "cases": {
+      "missing_focus": {
+        "status": "PASS",
+        "passed_checks": 7,
+        "failed_checks": [],
+        "disk_fault": {}
+      },
+      "blank_source": {
+        "status": "PASS",
+        "passed_checks": 7,
+        "failed_checks": [],
+        "disk_fault": {}
+      },
+      "invalid_items": {
+        "status": "PASS",
+        "passed_checks": 7,
+        "failed_checks": [],
+        "disk_fault": {}
+      },
+      "write_failure": {
+        "status": "PASS",
+        "passed_checks": 6,
+        "failed_checks": [],
+        "disk_fault": {
+          "kind": "actual_directory_collision",
+          "target": "goals.json"
+        }
+      },
+      "success_duplicate": {
+        "status": "PASS",
+        "passed_checks": 6,
+        "failed_checks": [],
+        "disk_fault": {}
+      },
+      "project_scope": {
+        "status": "PASS",
+        "passed_checks": 6,
+        "failed_checks": [],
+        "disk_fault": {}
+      },
+      "owner_scope": {
+        "status": "PASS",
+        "passed_checks": 6,
+        "failed_checks": [],
+        "disk_fault": {}
+      },
+      "dismissed": {
+        "status": "PASS",
+        "passed_checks": 6,
+        "failed_checks": [],
+        "disk_fault": {}
+      },
+      "stale_memory": {
+        "status": "PASS",
+        "passed_checks": 7,
+        "failed_checks": [],
+        "disk_fault": {}
+      }
+    },
+    "expiry_semantics": "Valid schema has candidate/opened/dismissed states; tests cover dismissed and stale Memory refs. No separate Goal-card TTL is asserted.",
+    "evidence": {
+      "local_reference": "evidence/rc5-v11b-goal-card-20261005-r1/summary.json",
+      "sha256": "17b5c47964183beff2cd66eed66c857d4ed6bec87a036d5ccb07fad90391a186",
+      "bytes": 3435,
+      "published_raw": false
+    },
+    "boundary": "Real isolated card-host/production functions, synthetic candidate; no model/Host/system action",
+    "old_full_suites_rerun": false,
+    "real_goal_model": false,
+    "rc_ready": false
+  },
+  "latest_limited_memory_metadata_delta": {
+    "status": "FIXTURE_PASS",
+    "v13_source_sha256": "11a9013495ac28eb005670386105bcef72252a66210a6416d5e1b9ee149023ef",
+    "v13b_source_sha256": "b4ac34532eea78fd961e8bfc82c954f217c5c527b3cf6b294942c1f92c3cc861",
+    "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+    "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "passed_cases": 5,
+    "passed_checks": 91,
+    "related_functions_byte_identical": 113,
+    "case_statuses": {
+      "user_entry": "PASS",
+      "runtime_entry": "PASS",
+      "scope_guards": "PASS",
+      "duplicate_guard": "PASS",
+      "forget_guards": "PASS"
+    },
+    "first_restart_bytes_and_mtime_unchanged": true,
+    "local_evidence": [
+      {
+        "local_reference": "official_muse/rc/core_chain/evidence/rc5-v13-memory-metadata-20261005-r2/summary.json",
+        "sha256": "88fab5626f8dacbdb2ae97f7213265c98873bcc8a0f678487bdab91565f3254c",
+        "bytes": 3783,
+        "published_raw": false
+      },
+      {
+        "local_reference": "official_muse/rc/core_chain/evidence/rc5-v13b-memory-metadata-20261005-r3/summary.json",
+        "sha256": "834648186a69f33cfa7670ccc6cf1049aa940ffecdd8669df1e56a1bec60b1d1",
+        "bytes": 5270,
+        "published_raw": false
+      },
+      {
+        "local_reference": "official_muse/rc/core_chain/evidence/rc5-v13b-memory-metadata-20261005-r3/function-equivalence.json",
+        "sha256": "4e260d48462dc8ec3b9f8701636c25cee11dadbed2fbc84c17786e13af287179",
+        "bytes": 25101,
+        "published_raw": false
+      }
+    ],
+    "boundary": "Real isolated CardHost and native storage; synthetic user input/artifact; no model/Host/system actions. Reuse two V13 generation cases based on exact 113 related function bodies; three guards run on V13b. Chat startup and overall RC_READY are separate."
+  }
 }

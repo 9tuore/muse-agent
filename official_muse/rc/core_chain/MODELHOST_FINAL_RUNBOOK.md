@@ -1,6 +1,6 @@
 # Final ModelHost and limited SelfMail acceptance
 
-Status: prepared, not executed. No RC_READY claim. Controller is still fixing negative draft edits and startup headroom; RC5 v5 hashes are not automatically final hashes.
+Latest status: actual V9 Shell/ModelHost protocol passed 41 assertions across four scenarios and six localhost POSTs. Exact source/Shell/SDK/Hub evidence is in `PUBLIC_TEST_SUMMARY.json`. This does not establish RC_READY: controller subsequently reported a new application boot-budget failure and is preparing a limited startup delta. The steps below remain the reproducible acceptance gate; do not replace exact verified hashes with old RC5 v5 hashes.
 
 ## Required controller inputs
 
@@ -32,7 +32,7 @@ Preflight checks files, fresh isolation, loopback model route, free ports and ca
 
 Four scenarios: bad JSON followed by valid JSON; bad JSON twice; refusal; truncation. Expected six HTTP POSTs across four logical requests, at most two posts each. Actual ModelHost FORMAT_ERROR/RETRY/FINAL_FAILURE logs, application success/error readback and unchanged default budgets are required. No external actions. A pass is only `SYNTHETIC_HOST_PROTOCOL_PASS`, not real inference, T17/T18 or RC_READY.
 
-Only the runner's own Shell/backend are stopped. Protect 8484/8486/8487/8509/8510. Final visual screenshots are separate. The runner's syntax/help checks passed; no final candidate or final protocol run has occurred.
+Only the runner's own Shell/backend are stopped. Protect 8484/8486/8487/8509/8510. Final visual screenshots are separate. Syntax/readiness checks and actual V9 protocol runs passed; original preparation and zero-POST readiness failures remain retained. No further repeat is needed unless a concrete changed protocol path requires it.
 
 ## Two limited self-to-self messages
 

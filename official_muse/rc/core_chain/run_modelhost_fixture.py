@@ -52,6 +52,17 @@ def port_free(port):
         return probe.connect_ex(("127.0.0.1", port)) != 0
 
 
+def wait_remote(remote, key, seconds):
+    # Read-only readiness probes may precede the Shell's port bind. Never
+    # retry a click/send to compensate for this startup connection race.
+    def ready():
+        try:
+            return remote.find(key)
+        except (OSError, AssertionError):
+            return None
+    return wait_for(ready, seconds)
+
+
 def log_events(text):
     names = ("MODEL_FORMAT_ERROR", "MODEL_RETRY", "MODEL_FINAL_FAILURE")
     return {name: sum(name in line and "app=muse-goals" in line for line in text.splitlines())
@@ -181,9 +192,9 @@ def main():
             # Direct packaged executable keeps the actual ModelHost stderr for audit.
             proc = subprocess.Popen([str(binary), "--test-action", "launch-apphub"], env=env,
                                     cwd=binary.parent, stdout=host_log, stderr=host_log)
-            remote.wait_for("已安装", 30)
+            wait_remote(remote, "已安装", 30)
             remote.click("打开")
-            remote.wait_for("goal_input", 30)
+            wait_remote(remote, "goal_input", 30)
             for scenario in SCENARIOS:
                 backend.configure(scenario)
                 report["current_scenario"] = scenario

@@ -1,0 +1,51 @@
+// RC3 cache guard and saturation checks; no services, no production state.
+let cache_checks = {}
+let cache_stage = 0
+let cache_fill = 0
+let cache_reference_count=0
+let cache_document=nil
+let cache_timing=[]
+fn cache_scope(){return {project:"muse-goals" account:"local" visibility:"personal" user_id:"user:scope-A" project_id:"RC项目" owner_id:"本人"}}
+fn cache_doc(s){return {"scope":s payload:{deleted:false value:"RC作用域验证哨兵" source_ids:[] valid_until:nil}}}
+fn cache_probe(){
+let before=time_now()
+if cache_stage==0{gm_scope_cache={} gm_scope_cache_count=0 cache_checks.valid_strict=gm_scope_valid(cache_scope(),false) cache_reference_count=gm_scope_cache_count}
+if cache_stage==1{cache_checks.repeat_same_content_no_growth=gm_scope_valid(cache_scope().to_json().parse_json(),false)&&gm_scope_cache_count==cache_reference_count}
+if cache_stage==2{cache_checks.legacy_separate_key=gm_scope_valid(cache_scope(),true)&&gm_scope_cache_count==cache_reference_count+1}
+if cache_stage==3{cache_checks.legacy_missing_optional_allowed=gm_scope_valid({project:"muse-goals" account:"local" visibility:"personal"},true)}
+if cache_stage==4{cache_checks.strict_missing_optional_denied=!gm_scope_valid({project:"muse-goals" account:"local" visibility:"personal"},false)}
+if cache_stage==5{let s=cache_scope() s.unexpected="extra" cache_checks.extra_field_denied_after_warm=!gm_scope_valid(s,false)}
+if cache_stage==6{let s=cache_scope() s.unexpected=nil cache_checks.extra_nil_denied_after_warm=!gm_scope_valid(s,false)}
+if cache_stage==7{let s=cache_scope() gm_scope_valid(s,false) s.project="wrong-project" cache_checks.project_mutation_denied=!gm_scope_valid(s,false)}
+if cache_stage==8{let s=cache_scope() gm_scope_valid(s,false) s.account=12 cache_checks.account_type_mutation_denied=!gm_scope_valid(s,false)}
+if cache_stage==9{let s=cache_scope() gm_scope_valid(s,false) s.visibility="public" cache_checks.visibility_mutation_denied=!gm_scope_valid(s,false)}
+if cache_stage==10{let s=cache_scope() gm_scope_valid(s,false) s.user_id=12 cache_checks.user_type_mutation_denied=!gm_scope_valid(s,false)}
+if cache_stage==11{let s=cache_scope() gm_scope_valid(s,false) s.project_id=[] cache_checks.project_id_type_mutation_denied=!gm_scope_valid(s,false)}
+if cache_stage==12{let s=cache_scope() gm_scope_valid(s,false) s.owner_id={} cache_checks.owner_type_mutation_denied=!gm_scope_valid(s,false)}
+if cache_stage==13{let s=cache_scope() gm_scope_valid(s,false) s.account=nil cache_checks.required_missing_denied_after_warm=!gm_scope_valid(s,false) cache_reference_count=gm_scope_cache_count}
+if cache_stage==14{let s=cache_scope() s.account=nil cache_checks.negative_never_cached=!gm_scope_valid(s,false)&&gm_scope_cache_count==cache_reference_count}
+if cache_stage==15{let s=cache_scope() s.user_id=nil cache_checks.optional_nil_legacy_only=gm_scope_valid(s,true)&&!gm_scope_valid(s,false)}
+if cache_stage==16{core_memory_ready=true gm_user_id="user:scope-A" gm_enabled=true memory_forget=[] gm_set_accounts([]) cache_document=cache_doc(cache_scope()) cache_checks.warm_scope_local_access=gm_scope_valid(cache_document["scope"],true)&&gm_access(cache_document)}
+if cache_stage==17{gm_user_id="user:scope-B" cache_checks.profile_change_not_cached_authority=!gm_access(cache_document)}
+if cache_stage==18{gm_user_id="user:scope-A" cache_document["scope"].account="fixture-account" cache_checks.account_shape_warm_not_authorized=gm_scope_valid(cache_document["scope"],true)&&!gm_access(cache_document)}
+if cache_stage==19{gm_set_accounts(["fixture-account"]) cache_checks.authorized_account_access=gm_access(cache_document)}
+if cache_stage==20{gm_set_accounts([]) cache_checks.account_revocation_not_cached_authority=!gm_access(cache_document)}
+if cache_stage==21{cache_document["scope"].account="local" cache_document.payload.deleted=true cache_checks.deleted_not_cached_authority=!gm_access(cache_document) gm_scope_cache={} gm_scope_cache_count=0 cache_checks.saturation_all_valid=true cache_checks.cache_always_bounded=true}
+if cache_stage==22{
+ let s=cache_scope() s.user_id="user:saturation:"+cache_fill
+ if !gm_scope_valid(s,false){cache_checks.saturation_all_valid=false}
+ cache_fill=cache_fill+1
+ if gm_scope_cache_count>256{cache_checks.cache_always_bounded=false}
+ if cache_fill<270{if cache_fill%16==0{fs.write("scope-fill-progress.json",{fill:cache_fill}.to_json())} start_timeout(0.001,||cache_probe()) return}
+}
+if cache_stage==23{cache_checks.cache_bound_and_reset=gm_scope_cache_count<=256&&gm_scope_cache_count==14}
+if cache_stage==24{cache_checks.saturated_old_scope_valid=gm_scope_valid(cache_scope(),false)}
+if cache_stage==25{let s=cache_scope() s.owner_id=1 cache_checks.saturated_invalid_type_denied=!gm_scope_valid(s,false)}
+if cache_stage==26{cache_checks.no_actions_or_services=fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0}
+cache_timing.push({stage:cache_stage duration_ms:(time_now()-before)*1000})
+fs.write("scope-progress.json",{stage:cache_stage fill:cache_fill checks:cache_checks timings:cache_timing}.to_json())
+cache_stage=cache_stage+1
+if cache_stage<27{start_timeout(0.001,||cache_probe()) return}
+fs.write("probe.json",cache_checks.to_json())
+}
+start_timeout(0.1,||cache_probe())

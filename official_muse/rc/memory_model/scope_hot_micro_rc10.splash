@@ -1,0 +1,49 @@
+let scope_micro_phase=0
+let scope_micro_hot_count=0
+let scope_micro_distinct_count=0
+let scope_micro_saturation_count=0
+let scope_micro_measurements=[]
+let scope_micro_valid=true
+let scope_micro_bounded=true
+let scope_micro_reset_ok=false
+let scope_micro_old_valid=false
+let scope_micro_invalid_denied=false
+fn micro_scope(){return {project:"muse-goals" account:"local" visibility:"personal" user_id:"user:scope-micro" project_id:"RC项目" owner_id:"本人"}}
+fn micro_call(label,s){
+ let before=time_now()
+ let accepted=gm_scope_valid(s,false)
+ let elapsed=(time_now()-before)*1000
+ scope_micro_measurements.push({label:label accepted:accepted duration_ms:elapsed cache_count:gm_scope_cache_count})
+ if !accepted{scope_micro_valid=false}
+}
+fn micro_progress(){fs.write("scope-micro-progress.json",{phase:scope_micro_phase hot_count:scope_micro_hot_count distinct_count:scope_micro_distinct_count saturation_count:scope_micro_saturation_count measurements:scope_micro_measurements}.to_json())}
+fn scope_micro_step(){
+ if scope_micro_phase==0{gm_scope_cache={} gm_scope_cache_count=0 micro_call("cold_single",micro_scope()) scope_micro_phase=1}
+ else if scope_micro_phase==1{micro_call("hot_single",micro_scope()) scope_micro_phase=2}
+ else if scope_micro_phase==2{
+  micro_call("hot_repeat_"+scope_micro_hot_count,micro_scope())
+  scope_micro_hot_count=scope_micro_hot_count+1
+  if scope_micro_hot_count==12{scope_micro_phase=3}
+ }
+ else if scope_micro_phase==3{
+  let s=micro_scope() s.user_id="user:micro-distinct:"+scope_micro_distinct_count
+  micro_call("distinct_"+scope_micro_distinct_count,s)
+  scope_micro_distinct_count=scope_micro_distinct_count+1
+  if scope_micro_distinct_count==96{scope_micro_phase=4}
+ }
+ else if scope_micro_phase==4{micro_call("same_scope_after96distinct",micro_scope()) scope_micro_phase=5 gm_scope_cache={} gm_scope_cache_count=0}
+ else if scope_micro_phase==5{
+  let s=micro_scope() s.user_id="user:saturation:"+scope_micro_saturation_count
+  micro_call("saturation_"+scope_micro_saturation_count,s)
+  scope_micro_saturation_count=scope_micro_saturation_count+1
+  if gm_scope_cache_count>256{scope_micro_bounded=false}
+  if scope_micro_saturation_count==270{scope_micro_phase=6}
+ }
+ else if scope_micro_phase==6{scope_micro_reset_ok=gm_scope_cache_count<=256&&gm_scope_cache_count==14 scope_micro_phase=7}
+ else if scope_micro_phase==7{scope_micro_old_valid=gm_scope_valid(micro_scope(),false) scope_micro_phase=8}
+ else if scope_micro_phase==8{let s=micro_scope() s.owner_id=1 scope_micro_invalid_denied=!gm_scope_valid(s,false) scope_micro_phase=9}
+ if scope_micro_phase!=5||scope_micro_saturation_count%16==0{micro_progress()}
+ if scope_micro_phase<9{start_timeout(0.001,||scope_micro_step()) return}
+ fs.write("probe.json",{all_valid_inputs_accepted:scope_micro_valid original270_saturation_completed:scope_micro_saturation_count==270 cache_always_bounded:scope_micro_bounded cache_reset14:scope_micro_reset_ok saturated_old_scope_valid:scope_micro_old_valid saturated_invalid_type_denied:scope_micro_invalid_denied no_external_actions:fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0 observed:{hot_calls:scope_micro_hot_count distinct_calls:scope_micro_distinct_count saturation_calls:scope_micro_saturation_count final_cache_count:gm_scope_cache_count} measurements:scope_micro_measurements}.to_json())
+}
+start_timeout(0.1,||scope_micro_step())

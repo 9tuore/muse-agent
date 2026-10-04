@@ -1,0 +1,67 @@
+fn gm_prepare_v11b_control(){
+if gm_boot_pending|| !core_memory_ready|| !gm_ready{gm_error="记忆尚未完成校验。" return false}
+let claims=memory.to_json().parse_json()
+let sources=memory_sources.to_json().parse_json()
+let first_claim=claims.len()let first_source=sources.len()
+for i in claims.len(){
+if!gm_has(claims[i].document["scope"],"user_id")|| !gm_has(claims[i],"memory_type")
+|| !gm_has(claims[i],"conversation_id")|| !gm_has(claims[i],"history"){
+first_claim=min(first_claim,i)
+claims[i].document["scope"]=gm_complete_scope(claims[i].document["scope"])
+if!gm_has(claims[i],"memory_type"){claims[i].memory_type="source"}
+if!gm_has(claims[i],"conversation_id"){claims[i].conversation_id=""}
+if!gm_has(claims[i],"history"){claims[i].history=[]}
+}
+}
+for i in sources.len(){
+if!gm_has(sources[i]["scope"],"user_id"){
+first_source=min(first_source,i)
+sources[i]["scope"]=gm_complete_scope(sources[i]["scope"])
+}
+}
+if first_claim==claims.len()&&first_source==sources.len(){return true}
+if claims.len()-first_claim>2||sources.len()-first_source>4{gm_boot()return false}
+let next={schema:1 claims:claims sources:sources forget:memory_forget}
+if!gm_validate_part(next,true,"sources",first_source,sources.len())
+|| !gm_validate_part(next,true,"claims",first_claim,claims.len()){gm_error="核心追加记忆字段或作用域无效。" return false}
+if!core_commit_memory(claims,sources,memory_forget){gm_error=core_error return false}
+return true
+}
+let prepare_case=nil
+let prepare_before=[]
+let prepare_boot_loaded=false
+let prepare_write_baseline=0
+fn prepare_begin(){
+ prepare_case=fs.read("prepare-case.json").parse_json()
+ for path in ["memory.json","memory.backup.json","global-memory-settings.json"]{prepare_before.push({path:path bytes:fs.read(path)})}
+ prepare_boot_loaded=core_boot_memory()
+ gm_user_id=fs.read("global-memory-settings.json").parse_json().user_id
+ gm_ready=true gm_enabled=true
+ prepare_write_baseline=a3_storage_write_count
+ start_timeout(0.05,||prepare_action())
+}
+fn prepare_action(){
+ let before=time_now()
+ let result=false
+ if prepare_case.control_v11b{result=gm_prepare_v11b_control()}else{result=gm_prepare()}
+ let elapsed=(time_now()-before)*1000
+ let writes=a3_storage_write_count-prepare_write_baseline
+ let unchanged=true
+ for old in prepare_before{if fs.read(old.path)!=old.bytes{unchanged=false}}
+ let migration_ok=true
+ if prepare_case.expected_migration{
+  let saved=fs.read("memory.json").parse_json()
+  migration_ok=saved.claims.len()==1&&saved.sources.len()==1&&saved.claims[0].memory_type=="source"&&saved.claims[0].conversation_id==""&&saved.claims[0].history.len()==0&&saved.claims[0].document["scope"].user_id==gm_user_id&&saved.sources[0]["scope"].user_id==gm_user_id&&fs.read("memory.backup.json")==prepare_before[0].bytes
+ }
+ let write_ok=writes==0&&unchanged
+ if prepare_case.expected_migration{write_ok=writes==2&&!unchanged}
+ let pending_ok=gm_boot_pending==prepare_case.expected_pending
+ let pending_rejected=true
+ if prepare_case.expected_pending{
+  let again=gm_prepare()
+  let context=gm_context("汇报偏好","A","")
+  pending_rejected=!again&&context.hits.len()==0&&context.text==""&&a3_storage_write_count-prepare_write_baseline==1
+ }
+ fs.write("probe.json",{native_boot_loaded:prepare_boot_loaded expected_return:result==prepare_case.expected_result expected_pending:pending_ok production_storage_writes_expected:write_ok migration_fields_and_backup:migration_ok pending_prepare_and_retrieval_denied:pending_rejected no_external_actions:fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0 observed:{id:prepare_case.id result:result duration_ms:elapsed pending:gm_boot_pending writes:writes write_paths:a3_storage_write_paths error:gm_error} fixture_boundary:"Initialized ready/user-id after native core-load to isolate gm_prepare entry; not full boot acceptance."}.to_json())
+}
+start_timeout(0.1,||prepare_begin())

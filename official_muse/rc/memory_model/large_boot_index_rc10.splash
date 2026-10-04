@@ -1,0 +1,39 @@
+let boot_fault_case=nil
+let boot_fault_before=[]
+let boot_fault_polls=0
+let boot_fault_pending_seen=false
+let boot_fault_mutations_denied=true
+let boot_fault_retrieval_denied=false
+let boot_fault_live_snapshot_unchanged=false
+fn boot_fault_begin(){
+    boot_fault_case=fs.read("boot-case.json").parse_json()
+    for path in ["memory.json","memory.backup.json","global-memory-settings.json"]{boot_fault_before.push({path:path bytes:fs.read(path)})}
+    core_boot_memory()
+    gm_boot()
+    if gm_boot_pending{
+        boot_fault_pending_seen=true
+        let correct=gm_correct("memory:global:1791122432-1591630842","synthetic forbidden mutation while pending","local","fixture-pending")
+        let pin=gm_pin("memory:global:1791122432-1591630842",true,"local")
+        let forget=gm_forget("memory:global:1791122432-1591630842","local")
+        let save=gm_save("synthetic pending value","preference","用户","pending","fixture-pending","","","local")
+        let snapshot=gm_boot_saved.to_json()
+        let context=gm_context("汇报偏好","A","")
+        boot_fault_retrieval_denied=context.hits.len()==0&&context.text==""
+        boot_fault_mutations_denied=!correct&&!pin&&!forget&&!save
+        boot_fault_live_snapshot_unchanged=gm_boot_saved.to_json()==snapshot
+    }
+    start_timeout(0.05,||boot_fault_wait())
+}
+fn boot_fault_wait(){
+    boot_fault_polls=boot_fault_polls+1
+    if gm_boot_pending&&boot_fault_polls<220{start_timeout(0.05,||boot_fault_wait()) return}
+    let unchanged=true
+    for before in boot_fault_before{if fs.read(before.path)!=before.bytes{unchanged=false}}
+    let expected=boot_fault_case.expected_ready
+    let ready=gm_ready&&core_memory_ready&&gm_enabled
+    let closed=!gm_ready&&!core_memory_ready&&!gm_enabled&&!gm_boot_pending
+    let state_ok=closed
+    if expected{state_ok=ready&&!gm_boot_pending}
+    fs.write("probe.json",{expected_state:state_ok original_three_files_unchanged:unchanged pending_observed:boot_fault_pending_seen pending_retrieval_denied:boot_fault_retrieval_denied private_boot_snapshot_unchanged:boot_fault_live_snapshot_unchanged mutations_denied_while_pending:boot_fault_mutations_denied no_external_actions:fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0 observed:{id:boot_fault_case.id pending_seen:boot_fault_pending_seen ready:gm_ready core_ready:core_memory_ready enabled:gm_enabled pending:gm_boot_pending error:gm_error core_error:core_error polls:boot_fault_polls}}.to_json())
+}
+start_timeout(0.1,||boot_fault_begin())

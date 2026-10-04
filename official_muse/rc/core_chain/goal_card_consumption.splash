@@ -1,0 +1,79 @@
+let goal_card_case = "__CASE__"
+let goal_card_checks = {}
+let goal_card_calls = []
+fn chain_fixture_request(service,args,callback){
+    goal_card_calls.push(service)
+    callback({is_ok: false error: "synthetic unexpected Host request"})
+}
+fn goal_card_probe(){
+    core_boot_goals() core_boot_activity() chat_boot()
+    let si = chat_session_index(chat_selected_id)
+    gm_set_focus("synthetic-project","synthetic-owner")
+    chat_sessions[si].focus_project = gm_project
+    chat_sessions[si].focus_owner = gm_owner
+    let payload = {to: "" subject: "" body: "" title: "" start: "" end: ""
+        time_zone: "Asia/Shanghai" location: "" objective: "整理合成资料" source: "合成第一条；合成第二条"}
+    if goal_card_case == "missing_focus" {
+        gm_set_focus("","") chat_sessions[si].focus_project = "" chat_sessions[si].focus_owner = ""
+    }
+    if goal_card_case == "blank_source" { payload.source = "" }
+    if goal_card_case == "invalid_items" { payload.source = "；；" }
+    let card = {id: "synthetic-goal-card" session_id: chat_selected_id account_id: ""
+        action: "goal_plan" payload: payload state: "candidate" revision: 1 memory_refs: []
+        project: chat_sessions[si].focus_project owner: chat_sessions[si].focus_owner}
+    if goal_card_case == "project_scope" { card.project = "synthetic-other-project" }
+    if goal_card_case == "owner_scope" { card.owner = "synthetic-other-owner" }
+    if goal_card_case == "dismissed" { card.state = "dismissed" }
+    if goal_card_case == "stale_memory" {
+        card.memory_refs = [{id: "missing-synthetic-memory" revision: 1 account: "" source_ids: []}]
+    }
+    chat_sessions[si].proposals = [card]
+    if !chat_save() { fs.write("probe.json",{setup_saved: false}.to_json()) return }
+    let before_card = card.to_json()
+    let before_goal = chat_sessions[si].goal_id
+    chat_focus_open = false ui_error = ""
+    if goal_card_case == "write_failure" {
+        fs.write("goal-card-fault-ready.json","{}")
+        start_timeout(0.03,|| goal_card_wait_fault(before_card,before_goal)) return
+    }
+    goal_card_apply(before_card,before_goal)
+}
+fn goal_card_wait_fault(before_card,before_goal){
+    if !fs.exists("goal-card-fault-go.json") {
+        start_timeout(0.03,|| goal_card_wait_fault(before_card,before_goal)) return
+    }
+    goal_card_apply(before_card,before_goal)
+}
+fn goal_card_apply(before_card,before_goal){
+    let si = chat_session_index(chat_selected_id)
+    chat_apply_proposal("synthetic-goal-card")
+    let stored = fs.read("chat-sessions.json").parse_json()
+    if goal_card_case == "success_duplicate" {
+        let goal_id = chat_sessions[si].goal_id
+        let disk = fs.read("goals.json")
+        let data = disk.parse_json()
+        goal_card_checks.created_once = goals.len() == 1 && goal_id != before_goal
+            && data.goals.len() == 1 && data.goals[0].id == goal_id
+        goal_card_checks.opened_only_after_create = chat_sessions[si].proposals[0].state == "opened"
+            && stored.sessions[si].proposals[0].state == "opened"
+            && stored.sessions[si].goal_id == goal_id
+        goal_card_checks.payload_preserved = chat_sessions[si].proposals[0].payload.to_json()
+            == before_card.parse_json().payload.to_json()
+        chat_apply_proposal("synthetic-goal-card")
+        goal_card_checks.duplicate_no_goal = goals.len() == 1 && chat_sessions[si].goal_id == goal_id
+            && fs.read("goals.json") == disk
+    } else {
+        goal_card_checks.card_not_consumed = chat_sessions[si].proposals[0].to_json() == before_card
+        goal_card_checks.persisted_card_not_consumed = stored.sessions[si].proposals[0].to_json() == before_card
+        goal_card_checks.no_goal_created = goals.len() == 0 && chat_sessions[si].goal_id == before_goal
+        if goal_card_case != "write_failure" { goal_card_checks.no_goal_file = !fs.exists("goals.json") }
+        if goal_card_case == "missing_focus" { goal_card_checks.focus_prompt = chat_focus_open && ui_error != "" }
+        if goal_card_case == "blank_source" || goal_card_case == "invalid_items" { goal_card_checks.invalid_input_error = ui_error != "" }
+        if goal_card_case == "write_failure" { goal_card_checks.actual_write_error = core_error != "" && ui_error != "" }
+        if goal_card_case == "stale_memory" { goal_card_checks.stale_context_error = ui_error != "" }
+    }
+    goal_card_checks.no_host_action = goal_card_calls.len() == 0
+    goal_card_checks.no_execution = runs.len() == 0 && actions.len() == 0
+    fs.write("probe.json",goal_card_checks.to_json())
+}
+start_timeout(0.1,|| goal_card_probe())
