@@ -30,6 +30,7 @@
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::io::Read;
 
 use crate::makepad_draw::makepad_platform::makepad_script;
 use makepad_script::*;
@@ -239,6 +240,22 @@ fn target(vm: &mut ScriptVm, path_value: ScriptValue) -> Result<(PathBuf, PathBu
 }
 
 /// Registers the jailed `fs` module into an isolate VM.
+fn file_sha256(real: &Path) -> Result<String, String> {
+    let file = std::fs::File::open(real).map_err(|_| "file not readable".to_string())?;
+    let metadata = file.metadata().map_err(|_| "file metadata unavailable".to_string())?;
+    if !metadata.is_file() || metadata.len() > MAX_FILE_BYTES {
+        return Err("digest requires an ordinary file within the storage file cap".to_string());
+    }
+    let mut bytes = Vec::new();
+    file.take(MAX_FILE_BYTES + 1).read_to_end(&mut bytes)
+        .map_err(|_| "file not readable".to_string())?;
+    if bytes.len() as u64 > MAX_FILE_BYTES {
+        return Err("digest file exceeded the storage file cap".to_string());
+    }
+    let digest = crate::makepad_platform::makepad_network::digest::sha256_hash(&bytes);
+    Ok(digest.iter().map(|byte| format!("{byte:02x}")).collect())
+}
+
 pub fn script_mod(vm: &mut ScriptVm) {
     let fs = vm.new_module(id!(fs));
 
@@ -257,6 +274,17 @@ pub fn script_mod(vm: &mut ScriptVm) {
         match digest {
             Some(Some(value)) => vm.bx.heap.new_string_from_str(&value).into(),
             _ => script_err_io!(vm.trap(), "sha256 requires UTF-8 text of at most 65536 bytes"),
+        }
+    });
+
+    // Local Muse overlay: digest an existing jailed snapshot using the same
+    // path/symlink checks and per-file cap as storage. No network or new grant.
+    // The provenance text digest above retains its separate 64 KiB input cap.
+    vm.add_method(fs, id_lut!(sha256_file), script_args_def!(path = NIL), |vm, args| {
+        let path = script_value!(vm, args.path);
+        match target(vm, path).and_then(|(_root, real)| file_sha256(&real)) {
+            Ok(value) => vm.bx.heap.new_string_from_str(&value).into(),
+            Err(error) => script_err_io!(vm.trap(), "{}", error),
         }
     });
 
@@ -435,6 +463,28 @@ pub fn script_mod(vm: &mut ScriptVm) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn snapshot_digest_preserves_bytes_and_storage_caps() {
+        let dir = std::env::temp_dir().join(format!("mp_jail_digest_test_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("snapshot.json");
+        std::fs::write(&path, b"").unwrap();
+        assert_eq!(file_sha256(&path).unwrap(), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+        let text = "中文,unicode\n".repeat(7000);
+        assert!(text.len() > 65536);
+        std::fs::write(&path, text.as_bytes()).unwrap();
+        let expected: String = crate::makepad_platform::makepad_network::digest::sha256_hash(text.as_bytes())
+            .iter().map(|byte| format!("{byte:02x}")).collect();
+        assert_eq!(file_sha256(&path).unwrap(), expected);
+        std::fs::write(&path, vec![0; MAX_FILE_BYTES as usize]).unwrap();
+        assert!(file_sha256(&path).is_ok());
+        std::fs::write(&path, vec![0; MAX_FILE_BYTES as usize + 1]).unwrap();
+        assert!(file_sha256(&path).is_err());
+        assert!(file_sha256(&dir).is_err());
+        assert!(file_sha256(&dir.join("missing")).is_err());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     #[test]
     fn jail_resolution_contains_and_rejects() {
