@@ -20,6 +20,9 @@
     "official_muse/rc/core_chain/goal_card_consumption.splash",
     "official_muse/rc/core_chain/run_memory_metadata_restart.py",
     "official_muse/rc/core_chain/memory_metadata_restart.splash",
+    "official_muse/rc/core_chain/run_calendar_clarification.py",
+    "official_muse/rc/core_chain/calendar_clarification.splash",
+    "official_muse/rc/core_chain/calendar_date_delta.splash",
     "official_muse/rc/core_chain/PUBLIC_SOURCE_ALLOWLIST.json"
   ],
   "required_existing_helpers": [
@@ -41,7 +44,23 @@
   ],
   "excluded_local_history": "Detailed historical reports, patch suggestions and full raw evidence remain local unless separately reviewed by controller.",
   "raw_evidence_deleted": false,
-  "final_acceptance": "V13B_MEMORY_METADATA_RELATED_DELTA_PASS_OTHER_FINAL_GATES_CONTROLLER",
-  "allowlisted_content_bytes_excluding_this_file": 140728,
-  "selfmail_fixture": "Synthetic placeholder inputs only, never actual account or message data."
+  "final_acceptance": "CALENDAR_CLARIFICATION_AND_DATE_RELATED_DELTAS_PASS_OTHER_FINAL_GATES_CONTROLLER",
+  "allowlisted_content_bytes_excluding_this_file": 174420,
+  "selfmail_fixture": "Synthetic placeholder inputs only, never actual account or message data.",
+  "integration_status": "READY_FOR_CONTROLLER_EXPLICIT_STAGING",
+  "canonical_source_binding": {
+    "canonical_product_commit": "b9cf26b8dc0a9bdb51e493cb6a420636a1291e73",
+    "readable_sha256": "47c56065ab8be64c48734c4c2b1afdb96de1a6fb391dd360e5dd20a4b5b60966",
+    "compact_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+    "tested_readable_sha256": "b154f4971527550132a1f0bef5972a6208be7fc5f160bdc145561a11d3dc8501",
+    "single_settings_label_replacement_verified": true,
+    "other_source_bytes_unchanged": true,
+    "committed_source_and_bundle_hashes_verified": true,
+    "token_equivalence": {
+      "tokens": 90918,
+      "identical": true,
+      "provenance": "Controller supplied; A2 did not rerun tokenizer"
+    },
+    "verification_scope": "Existing b154 related fixtures reused through exact one-label source substitution; no new Card/model/system tests; overall release gates remain controller-owned"
+  }
 }

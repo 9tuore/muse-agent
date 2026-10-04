@@ -1,0 +1,85 @@
+fn cc_date_probe(){
+    cc_original="请安排过几天的合成会议"
+    cc_follow="2026年12月15日15:00到16:00"
+    let expected="candidate"
+    let start="2026-12-15T15:00:00+08:00"
+    let end="2026-12-15T16:00:00+08:00"
+    if cc_case=="date_gaitian_full" {cc_original="请安排改天的合成会议"}
+    if cc_case=="date_only_duration" || cc_case=="date_only_iso" {
+        cc_original="请安排过几天15点到16点的合成会议"
+        cc_follow="2026年12月15日"
+        if cc_case=="date_only_iso" {cc_follow="2026-12-15"}
+    }
+    if cc_case=="date_reambiguous" {
+        cc_original="请安排2026年12月15日的合成会议"
+        cc_follow="改天15点到16点" expected="waiting_user"
+    }
+    if cc_case=="date_time_only" {cc_follow="15:00到16:00" expected="waiting_user"}
+    if cc_case=="date_relative_change" {
+        cc_original="请安排明天的合成会议"
+        cc_follow="改成后天15点到16点"
+        let day=page_date_parts(page_time_floor((time_now()+28800)/86400)+2).date
+        start=day+"T15:00:00+08:00" end=day+"T16:00:00+08:00"
+    }
+    if cc_case=="date_illegal_time" {
+        cc_follow="2026年12月15日25:00到26:00"
+        start="2026-12-15T25:00:00+08:00" end="2026-12-15T26:00:00+08:00" expected="error"
+    }
+    cc_seed_question()
+    if cc_case=="date_other_owner" || cc_case=="date_other_project" {
+        expected="reply"
+        let project=gm_project let owner=gm_owner
+        if cc_case=="date_other_owner" {owner="synthetic-other-owner"}
+        if cc_case=="date_other_project" {project="synthetic-other-project"}
+        gm_set_focus(project,owner)
+        let i=chat_session_index(chat_selected_id)
+        chat_sessions[i].focus_project=project chat_sessions[i].focus_owner=owner
+    }
+    if cc_case=="date_expired_ref" {
+        expected="reply"
+        cc_checks.ref_fixture_saved=gm_save("合成会议来源","fact","synthetic-subject","source",chat_selected_id,gm_project,gm_owner,"local")
+        let doc=memory[0].document
+        messages[1].memory_refs=[{id:doc.id revision:doc.revision account:"local" source_ids:doc.payload.source_ids}]
+        cc_checks.ref_initially_valid=chat_reply_context_valid(messages[1])
+        let claims=memory.to_json().parse_json()
+        claims[0].document.payload.valid_until="2020-01-01T00:00:00Z"
+        cc_checks.ref_expiry_committed=core_commit_memory(claims,memory_sources,memory_forget)
+        cc_checks.ref_expired_legal_question=chat_entry_valid(messages[1]) && chat_reply_is_context(messages[1])
+            && !chat_reply_context_valid(messages[1])
+        cc_checks.ref_question_persisted=chat_save()
+    }
+    let count=cc_models.len()
+    cc_send(cc_follow)
+    cc_checks.date_follow_enqueued=cc_models.len()==count+1
+    if !cc_checks.date_follow_enqueued {cc_finish() return}
+    let input=cc_inputs[cc_inputs.len()-1]
+    let calendar_schema=gm_has(input.schema.properties,"start")
+    cc_checks.date_expected_route=calendar_schema==(expected!="reply")
+    if expected!="reply" {
+        cc_checks.date_original_in_history=input.messages.len()>=3 && input.messages[0].content==cc_original
+        cc_checks.date_correction_prompt=input.task.search("后续")>=0
+    }
+    if calendar_schema {cc_models[cc_models.len()-1]({is_ok:true data:{output:cc_output(start,end)}})}
+    else {cc_models[cc_models.len()-1]({is_ok:true data:{output:{reply:"请说明本次需要处理什么。"}}})}
+    let cards=chat_sessions[chat_session_index(chat_selected_id)].proposals
+    let reply=messages[messages.len()-1]
+    if expected=="candidate" {
+        cc_checks.date_candidate=cards.len()==1 && cards[0].action=="calendar_candidate"
+            && cards[0].state=="candidate" && cards[0].payload.title=="合成会议"
+            && cards[0].payload.start==start && cards[0].payload.end==end
+        cc_checks.date_success=reply.state=="success"
+        cc_checks.date_saved=fs.read("chat-sessions.json").parse_json().sessions[chat_session_index(chat_selected_id)].proposals.to_json()==cards.to_json()
+    } else {
+        cc_checks.date_no_candidate=cards.len()==0
+        let state=expected if expected=="reply" {state="success"}
+        cc_checks.date_expected_state=reply.state==state
+        if expected=="waiting_user" {
+            cc_checks.date_still_question=chat_entry_valid(reply) && reply.clarification_action=="calendar_candidate"
+                && reply.clarification_input.search(cc_original)>=0 && reply.clarification_input.search(cc_follow)>=0
+        }
+        if expected=="error" {cc_checks.date_error_no_metadata=!gm_has(reply,"clarification_action")}
+    }
+    cc_checks.date_diagnostic={expected:expected actual_state:reply.state actual_text:reply.text
+        calendar_schema:calendar_schema card_count:cards.len()}
+    cc_finish()
+}

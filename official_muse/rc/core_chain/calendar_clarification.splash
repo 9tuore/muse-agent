@@ -1,0 +1,220 @@
+let cc_case="__CASE__"
+let cc_phase="first"
+let cc_checks={}
+let cc_calls=[]
+let cc_models=[]
+let cc_inputs=[]
+let cc_error_index=0
+let cc_original="请安排2026年12月15日下午的合成会议"
+let cc_follow="15:00到16:00"
+fn chain_fixture_request(service,args,cb){
+    cc_calls.push(service)
+    if service=="mail.accounts" {cb({is_ok:true data:[]}) return}
+    if service=="model.complete" {cc_inputs.push(args.to_json().parse_json()) cc_models.push(cb) return}
+    cb({is_ok:false error:"Synthetic clarification test forbids system services"})
+}
+fn cc_focus(){
+    gm_set_focus("synthetic-project","synthetic-owner")
+    let i=chat_session_index(chat_selected_id)
+    chat_sessions[i].focus_project=gm_project chat_sessions[i].focus_owner=gm_owner
+}
+fn cc_send(text){ui.goal_input.set_text(text) send_chat()}
+fn cc_output(start,end){
+    return {title:"合成会议" start:start end:end time_zone:"Asia/Shanghai" location:""}.to_json().parse_json()
+}
+fn cc_seed_question(){
+    cc_send(cc_original)
+    if cc_models.len()==0 {cc_checks.initial_model_enqueued=false return}
+    cc_models[cc_models.len()-1]({is_ok:true data:{output:cc_output("","")}})
+    let reply=messages[messages.len()-1]
+    cc_checks.initial_waiting=reply.state=="waiting_user" && reply.text.search("时间")>=0
+    cc_checks.initial_metadata=reply.clarification_action=="calendar_candidate" && reply.clarification_input==cc_original
+    cc_checks.initial_saved=fs.read("chat-sessions.json").parse_json().sessions[chat_session_index(chat_selected_id)].messages[1].to_json()==reply.to_json()
+    cc_checks.initial_not_action=chat_sessions[chat_session_index(chat_selected_id)].proposals.len()==0
+    cc_checks.initial_valid=chat_entry_valid(reply) && chat_state_valid(fs.read("chat-sessions.json").parse_json())
+}
+fn cc_complete(){
+    let before=cc_models.len()
+    cc_send(cc_follow)
+    cc_checks.followup_model_enqueued=cc_models.len()==before+1
+    if !cc_checks.followup_model_enqueued {cc_finish() return}
+    let input=cc_inputs[cc_inputs.len()-1]
+    cc_checks.followup_calendar_schema=gm_has(input.schema.properties,"start")
+    cc_checks.original_date_in_model_context=input.messages.len()>=3 && input.messages[0].content==cc_original
+        && input.messages[1].role=="assistant" && input.messages[1].content.search("时间")>=0
+    cc_models[cc_models.len()-1]({is_ok:true data:{output:cc_output("2026-12-15T15:00:00+08:00","2026-12-15T16:00:00+08:00")}})
+    let cards=chat_sessions[chat_session_index(chat_selected_id)].proposals
+    cc_checks.followup_candidate_only=cards.len()==1 && cards[0].action=="calendar_candidate" && cards[0].state=="candidate"
+        && cards[0].payload.start=="2026-12-15T15:00:00+08:00" && cards[0].payload.end=="2026-12-15T16:00:00+08:00"
+    cc_checks.followup_success=messages[messages.len()-1].state=="success"
+    cc_checks.followup_persisted=fs.read("chat-sessions.json").parse_json().sessions[chat_session_index(chat_selected_id)].proposals.to_json()==cards.to_json()
+    cc_finish()
+}
+fn cc_metadata(){
+    let base=messages[1].to_json().parse_json()
+    let long=__OVERLONG_INPUT__
+    for i in 10 {
+        let bad=base.to_json().parse_json()
+        if i==0 {bad.role="user"}
+        if i==1 {bad.state="error"}
+        if i==2 {bad.clarification_action="mail_compose"}
+        if i==3 {bad.clarification_action=nil}
+        if i==4 {bad.clarification_input=nil}
+        if i==5 {bad.clarification_input=23}
+        if i==6 {bad.clarification_input=""}
+        if i==7 {bad.clarification_input=long}
+        if i==8 {bad.clarification_input=[]}
+        if i==9 {bad.state="cancelled"}
+        cc_checks["malformed_rejected:"+i]=!chat_entry_valid(bad)
+    }
+    cc_checks.waiting_reply_in_history=chat_reply_is_context(base)
+    let no_meta={role:"assistant" text:"旧失败回复" state:"error" at:1}
+    cc_checks.ordinary_error_not_context=!chat_reply_is_context(no_meta)
+    let saved=fs.read("chat-sessions.json").parse_json()
+    saved.sessions[chat_session_index(chat_selected_id)].messages[1].clarification_input=3
+    let invalid=saved.to_json()
+    fs.write("chat-sessions.json",invalid) fs.write("chat-sessions.backup.json",invalid)
+    cc_checks.malformed_store_invalid=!chat_state_valid(saved)
+    cc_finish()
+}
+fn cc_context_guards(){
+    let prior=messages[1].to_json().parse_json()
+    let user=messages[0].to_json().parse_json()
+    messages=[user,prior,{role:"user" text:cc_follow state:"success" at:time_now() project:gm_project owner:gm_owner}].to_json().parse_json()
+    cc_checks.valid_latest_combines=chat_calendar_followup_message(cc_follow)==cc_original+"\n用户补充："+cc_follow
+    gm_set_focus("synthetic-other-project","synthetic-owner")
+    cc_checks.other_project_no_merge=chat_calendar_followup_message(cc_follow)==cc_follow
+    cc_checks.other_project_no_history=chat_model_history(messages).turns.len()==0
+    gm_set_focus("synthetic-project","synthetic-other-owner")
+    cc_checks.other_owner_no_merge=chat_calendar_followup_message(cc_follow)==cc_follow
+    cc_checks.other_owner_no_history=chat_model_history(messages).turns.len()==0
+    cc_focus()
+    messages[1].state="error"
+    cc_checks.error_reply_no_merge=chat_calendar_followup_message(cc_follow)==cc_follow
+    cc_checks.error_reply_no_history=chat_model_history(messages).turns.len()==0
+    messages[1]=prior.to_json().parse_json()
+    messages[1].memory_refs=[{id:"synthetic-missing" revision:1 account:"local" source_ids:[]}]
+    cc_checks.missing_memory_no_merge=chat_calendar_followup_message(cc_follow)==cc_follow
+    messages[1]=prior.to_json().parse_json()
+    cc_checks.expiry_fixture_saved=gm_save("合成日程来源","fact","synthetic-subject","source",chat_selected_id,gm_project,gm_owner,"local")
+    let claims=memory.to_json().parse_json()
+    claims[0].document.payload.valid_until="2020-01-01T00:00:00Z"
+    cc_checks.expiry_fixture_committed=core_commit_memory(claims,memory_sources,memory_forget)
+    let doc=memory[0].document
+    messages[1].memory_refs=[{id:doc.id revision:doc.revision account:"local" source_ids:doc.payload.source_ids}]
+    cc_checks.expiry_guard_precondition=messages[1].state=="waiting_user" && chat_reply_is_context(messages[1])
+        && !gm_entry_access(memory[0]) && !chat_reply_context_valid(messages[1])
+    cc_checks.expired_memory_no_merge=chat_calendar_followup_message(cc_follow)==cc_follow
+    cc_checks.expired_memory_no_history=chat_model_history(messages).turns.len()==0
+    messages=[user,prior,{role:"assistant" text:"较新的普通回答" state:"success" at:time_now()},
+        {role:"user" text:cc_follow state:"success" at:time_now()}].to_json().parse_json()
+    cc_checks.not_latest_no_merge=chat_calendar_followup_message(cc_follow)==cc_follow
+    messages=[user,prior,{role:"user" text:cc_follow state:"success" at:time_now()}].to_json().parse_json()
+    for text in ["请起草邮件给合成账号，明天15点开会","请整理任务资料，明天15点开会","请整理目标资料，明天15点开会","取消","不要继续","现在不用创建"] {
+        cc_checks["new_intent_no_merge:"+text]=chat_calendar_followup_message(text)==text
+    }
+    cc_checks.knowledge_question_no_action=chat_model_config(chat_calendar_followup_message("为什么要15点")).action==""
+    messages[1].clarification_input=__BOUND_INPUT__
+    let bound_follow="15:00-16:00"
+    let combined=chat_calendar_followup_message(bound_follow)
+    cc_checks.bound_diagnostic={input_len:messages[1].clarification_input.len()
+        suffix_len:("\n用户补充："+bound_follow).len() output_len:combined.len()
+        context_valid:chat_reply_context_valid(messages[1]) scope_valid:chat_history_scope_current(messages[1])
+        reply_context:chat_reply_is_context(messages[1]) memory_refs:messages[1].memory_refs}
+    cc_checks.bound_2400_allowed=combined.len()==2400 && combined!=bound_follow
+    messages[1].clarification_input=__BOUND_OVER_INPUT__
+    cc_checks.bound_2401_no_merge=chat_calendar_followup_message(bound_follow)==bound_follow
+    cc_finish()
+}
+fn cc_error_next(){
+    if cc_error_index>=5 {cc_finish() return}
+    if cc_error_index>0 {chat_new_session() cc_focus()}
+    let full="请安排2026年12月15日16:00到15:00的合成会议"
+    if cc_error_index==0 || cc_error_index==1 {full=cc_original}
+    if cc_error_index==3 {full="请安排2026年12月15日25:00到26:00的合成会议"}
+    if cc_error_index==4 {full="请安排2026年12月15日15:00到16:00的合成会议"}
+    let n=cc_models.len()
+    cc_send(full)
+    cc_checks["error_model_enqueued:"+cc_error_index]=cc_models.len()==n+1
+    if cc_models.len()!=n+1 {cc_finish() return}
+    let cb=cc_models[cc_models.len()-1]
+    if cc_error_index==0 {cb({is_ok:false error:"model_unavailable: synthetic"})}
+    if cc_error_index==1 {cb({is_ok:false error:"schema_violation: synthetic"})}
+    if cc_error_index==2 {cb({is_ok:true data:{output:cc_output("2026-12-15T16:00:00+08:00","2026-12-15T15:00:00+08:00")}})}
+    if cc_error_index==3 {cb({is_ok:true data:{output:cc_output("2026-12-15T25:00:00+08:00","2026-12-15T26:00:00+08:00")}})}
+    if cc_error_index==4 {cb({is_ok:true data:{output:cc_output("2026-12-15T15:00:00+08:00","")}})}
+    let reply=messages[messages.len()-1]
+    cc_checks["error_remains_error:"+cc_error_index]=reply.state=="error"
+    cc_checks["error_no_clarification_meta:"+cc_error_index]=!gm_has(reply,"clarification_action") && !gm_has(reply,"clarification_input")
+    cc_checks["error_not_model_history:"+cc_error_index]=!chat_reply_is_context(reply)
+    cc_checks["error_no_candidate:"+cc_error_index]=chat_sessions[chat_session_index(chat_selected_id)].proposals.len()==0
+    cc_error_index=cc_error_index+1
+    start_timeout(0.03,|| cc_error_next())
+}
+fn cc_cancel_new_intents(){
+    let count=cc_models.len()
+    cc_send("取消")
+    cc_checks.cancel_no_model=cc_models.len()==count && messages[messages.len()-1].state=="cancelled"
+    cc_send(cc_follow)
+    cc_checks.cancel_followup_reply_schema=gm_has(cc_inputs[cc_inputs.len()-1].schema.properties,"reply")
+    cc_models[cc_models.len()-1]({is_ok:true data:{output:{reply:"请明确这次要处理什么。"}}})
+    cc_checks.cancel_followup_no_calendar=chat_sessions[chat_session_index(chat_selected_id)].proposals.len()==0
+    chat_new_session() cc_focus() cc_seed_question()
+    cc_send("请起草邮件给self@example.invalid，内容是明天15点开会")
+    cc_checks.new_mail_schema=gm_has(cc_inputs[cc_inputs.len()-1].schema.properties,"to")
+        && !gm_has(cc_inputs[cc_inputs.len()-1].schema.properties,"start")
+    cc_models[cc_models.len()-1]({is_ok:true data:{output:{to:"self@example.invalid" subject:"合成新邮件" body:"明天15点开会"}}})
+    let cards=chat_sessions[chat_session_index(chat_selected_id)].proposals
+    cc_checks.new_mail_only=cards.len()==1 && cards[0].action=="mail_compose"
+    chat_new_session() cc_focus() cc_seed_question()
+    cc_send("请整理目标资料，合成资料明天15点开会；合成第二项")
+    cc_checks.new_goal_schema=gm_has(cc_inputs[cc_inputs.len()-1].schema.properties,"objective")
+        && !gm_has(cc_inputs[cc_inputs.len()-1].schema.properties,"start")
+    cc_models[cc_models.len()-1]({is_ok:true data:{output:{objective:"整理合成资料" source:"合成资料明天15点开会；合成第二项"}}})
+    cards=chat_sessions[chat_session_index(chat_selected_id)].proposals
+    cc_checks.new_goal_only=cards.len()==1 && cards[0].action=="goal_plan" && cards[0].payload.source.search("2026年12月15日")<0
+    cc_finish()
+}
+fn cc_finish(){
+    let forbidden=false
+    for call in cc_calls {if call!="model.complete" && call!="mail.accounts" {forbidden=true}}
+    cc_checks.no_system_host_requests=!forbidden
+    cc_checks.no_goal_run_action=goals.len()==0 && runs.len()==0 && actions.len()==0
+    if cc_case!="malformed_meta" {cc_checks.valid_saved_state=chat_state_valid(fs.read("chat-sessions.json").parse_json())}
+    fs.write("probe.json",cc_checks.to_json())
+}
+fn cc_probe(){
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot()
+    let before="" if fs.exists("chat-sessions.json") {before=fs.read("chat-sessions.json")}
+    let booted=chat_boot()
+    if cc_phase=="restart" {
+        if cc_case=="malformed_meta" {
+            cc_checks.invalid_restart_rejected=!booted && !chat_ready
+            cc_checks.invalid_restart_preserved=fs.read("chat-sessions.json")==before
+            cc_checks.no_model_resend=cc_models.len()==0
+            cc_finish() return
+        }
+        cc_checks.restart_ready=booted && chat_ready
+        cc_checks.restart_bytes_unchanged=fs.read("chat-sessions.json")==before
+        cc_checks.restart_no_model_resend=cc_models.len()==0
+        if cc_case=="waiting_restore" {
+            cc_checks.restored_question=messages.len()==2 && messages[1].state=="waiting_user"
+                && messages[1].clarification_input==cc_original
+            cc_complete() return
+        }
+        cc_checks.restored_candidate=chat_sessions[chat_session_index(chat_selected_id)].proposals.len()==1
+            && chat_sessions[chat_session_index(chat_selected_id)].proposals[0].action=="calendar_candidate"
+        cc_finish() return
+    }
+    cc_focus()
+    cc_checks.boot_ready=booted && chat_ready && gm_ready
+    if cc_case.search("date_")==0 {cc_date_probe() return}
+    if cc_case=="error_types" {cc_error_next() return}
+    cc_seed_question()
+    if cc_case=="flow" {cc_complete() return}
+    if cc_case=="waiting_restore" {cc_finish() return}
+    if cc_case=="malformed_meta" {cc_metadata() return}
+    if cc_case=="context_guards" {cc_context_guards() return}
+    if cc_case=="cancel_new_intents" {cc_cancel_new_intents() return}
+}
+start_timeout(0.1,|| cc_probe())
