@@ -91,7 +91,10 @@ def main():
     previous = baseline
 
     def save():
-        (args.out / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+        # Preserve the last complete observation if the disk fills during a save.
+        temporary = args.out / 'report.json.pending'
+        temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+        temporary.replace(args.out / 'report.json')
 
     save()
     try:

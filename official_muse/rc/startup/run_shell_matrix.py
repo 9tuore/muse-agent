@@ -17,7 +17,9 @@ def sha(path):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--candidate',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--port',type=int,required=True)
-    p.add_argument('--cold-count',type=int,default=10);p.add_argument('--reopen-count',type=int,default=5);p.add_argument('--restart-count',type=int,default=0);p.add_argument('--fail-fast',action='store_true');a=p.parse_args()
+    p.add_argument('--cold-count',type=int,default=10);p.add_argument('--reopen-count',type=int,default=5);p.add_argument('--restart-count',type=int,default=0);p.add_argument('--fail-fast',action='store_true')
+    p.add_argument('--compact-evidence',action='store_true',help='Keep first/failure raw snapshots and PNGs; deduplicate exact source text in other success snapshots')
+    a=p.parse_args()
     assert 1<=a.cold_count<=30 and 0<=a.reopen_count<=20 and 0<=a.restart_count<=20
     assert 8480<=a.port<=8499
     c=a.candidate.resolve();m=json.loads((c/'candidate.json').read_text());assert m['profile_kind']=='LOCAL_MODEL_ONLY_SYNTHETIC'
@@ -47,6 +49,26 @@ def main():
     expected_focus='当前项目 · '+selected['focus_project']+'  /  '+selected['focus_owner']
     report={'kind':'SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN','version':m['version'],'code_commit':m['commit'],'source_sha256':m['source_sha256'],'host_sha256':m['host_sha256'],'wall_budget_ms':64,'seeded_record_counts':seeded_counts,'protected_files_sha256':before,'cold':[],'reopen':[],'restart':[],'requested_counts':{'cold':a.cold_count,'reopen':a.reopen_count,'restart':a.restart_count},'computer_restart':'NOT_TESTED_REQUIRES_USER','scope':'Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.'}
     def save(): (a.out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+    def capture(run,d):
+        raw=remote.request('/snap')
+        if a.compact_evidence and run['pass'] and run['index']>1:
+            snapshot=json.loads(raw); source=(jail/'bundle/main.splash').read_bytes()
+            def deduplicate(value):
+                if isinstance(value,dict):
+                    text=value.get('t')
+                    if isinstance(text,str) and text.encode()==source:
+                        del value['t'];value['t_source_reference']={'path':'../shared-source.splash','sha256':m['source_sha256']}
+                    for item in value.values():deduplicate(item)
+                elif isinstance(value,list):
+                    for item in value:deduplicate(item)
+            deduplicate(snapshot)
+            run['raw_snapshot_sha256']=hashlib.sha256(raw).hexdigest()
+            raw=json.dumps(snapshot,ensure_ascii=False).encode()
+        (d/'snap.json').write_bytes(raw);(d/'log.json').write_bytes(remote.request('/log',n=300))
+        if not a.compact_evidence or run['index']==1 or not run['pass']:remote.shot(d/'visible.png')
+    if a.compact_evidence:
+        (a.out/'shared-source.splash').write_bytes((jail/'bundle/main.splash').read_bytes())
+        report['evidence_storage']={'snapshots':'First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA','pngs':'First per mode and every failure','checks':'All original page, edit, state, ledger and runtime checks unchanged'}
     def inspect(run,started,log_since=0):
         remote.wait_for(expected_focus,20)
         remote.wait_for('goal_input',20)
@@ -94,7 +116,7 @@ def main():
             proc=subprocess.run(command,text=True,capture_output=True,timeout=40);(d/'launch.txt').write_text(proc.stdout+proc.stderr);assert proc.returncode==0
             remote.click('打开');inspect(run,t)
         except Exception as e:run['error']=str(e);run['seconds']=time.monotonic()-t;(d/'exception.txt').write_text(traceback.format_exc())
-        try:(d/'snap.json').write_bytes(remote.request('/snap'));(d/'log.json').write_bytes(remote.request('/log',n=300));remote.shot(d/'visible.png')
+        try:capture(run,d)
         except Exception as e:run['capture_error']=str(e)
         save();print(json.dumps({'kind':'cold',**run},ensure_ascii=False),flush=True)
         stop_on_failure(run)
@@ -105,7 +127,7 @@ def main():
             assert not any(w.get('i')=='goal_input' for w in remote.widgets()),'Muse did not close'
             remote.click('打开');inspect(run,t,offset);assert run['pid']==pid,'Ordinary reopen unexpectedly restarted Shell'
         except Exception as e:run['error']=str(e);run['seconds']=time.monotonic()-t;(d/'exception.txt').write_text(traceback.format_exc())
-        try:(d/'snap.json').write_bytes(remote.request('/snap'));(d/'log.json').write_bytes(remote.request('/log',n=300));remote.shot(d/'visible.png')
+        try:capture(run,d)
         except Exception as e:run['capture_error']=str(e)
         save();print(json.dumps({'kind':'reopen',**run},ensure_ascii=False),flush=True)
         stop_on_failure(run)
@@ -117,7 +139,7 @@ def main():
             proc=subprocess.run(command,text=True,capture_output=True,timeout=40);(d/'launch.txt').write_text(proc.stdout+proc.stderr);assert proc.returncode==0
             remote.click('打开');inspect(run,t);run['prior_pid']=prior_pid;assert run['pid']!=prior_pid,'Shell process did not restart'
         except Exception as e:run['error']=str(e);run['seconds']=time.monotonic()-t;(d/'exception.txt').write_text(traceback.format_exc())
-        try:(d/'snap.json').write_bytes(remote.request('/snap'));(d/'log.json').write_bytes(remote.request('/log',n=300));remote.shot(d/'visible.png')
+        try:capture(run,d)
         except Exception as e:run['capture_error']=str(e)
         save();print(json.dumps({'kind':'restart',**run},ensure_ascii=False),flush=True);stop_on_failure(run)
     report['cold_pass']=sum(r['pass'] for r in report['cold']);report['reopen_pass']=sum(r['pass'] for r in report['reopen']);report['restart_pass']=sum(r['pass'] for r in report['restart']);save()

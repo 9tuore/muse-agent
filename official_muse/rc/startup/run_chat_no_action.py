@@ -36,6 +36,8 @@ def main():
     ap.add_argument('--port', type=int, required=True)
     ap.add_argument('--out', type=Path, required=True)
     ap.add_argument('--case-ids', nargs='+', required=True)
+    ap.add_argument('--no-case-screenshots', action='store_true',
+                    help='Retain disk-backed semantics/trace; take final native page shots separately')
     a = ap.parse_args()
     candidate = a.candidate.resolve(strict=True)
     assert not a.out.exists(), 'Retain old failures; use a fresh output'
@@ -74,7 +76,8 @@ def main():
               'driver_sha256': sha(Path(__file__)), 'cases': [],
               'usage_before': read(usage_path)['apps']['muse-goals'],
               'semantic_review': 'PENDING_MANUAL_REVIEW',
-              'not_original20_complete': True, 'external_action_confirmation': False}
+              'not_original20_complete': True, 'external_action_confirmation': False,
+              'case_screenshots': not a.no_case_screenshots}
     r = Remote(a.port)
 
     def save():
@@ -114,12 +117,21 @@ def main():
             button = r.find('send_button')['r']
             assert button[2] > 2 and button[3] >= 24
             submit_error = None
+            submit_ack = None
+            report['pending_input'] = {'id': case['id'], 'session_id': sid,
+                'messages_before': count, 'usage_before': usage_before,
+                'input_sha256': hashlib.sha256(case['input'].encode()).hexdigest(),
+                'button_rect': button, 'single_attempt': True}
+            save()
             last_request = time.monotonic()
             try:
-                r.request('/click', x=int(button[0]+button[2]/2),
-                          y=int(button[1]+button[3]/2))
+                submit_ack = json.loads(r.request('/click', x=int(button[0]+button[2]/2),
+                          y=int(button[1]+button[3]/2), wait=1))
             except Exception as error:
                 submit_error = repr(error)
+            report['pending_input']['submit_ack'] = submit_ack
+            report['pending_input']['submit_remote_error'] = submit_error
+            save()
             deadline = time.monotonic()+90
             while time.monotonic() < deadline:
                 session = next(s for s in read(jail / 'chat-sessions.json')['sessions']
@@ -139,15 +151,25 @@ def main():
                    'reply': terminal[-1], 'session_id': sid,
                    'seconds': time.monotonic()-last_request,
                    'single_input': True, 'submit_remote_error': submit_error,
+                   'submit_ack': submit_ack,
                    'usage_before': usage_before,
                    'usage_after': read(usage_path)['apps']['muse-goals'],
                    'proposals_before': origin['proposals'],
                    'proposals_after': session['proposals']}
+            trace_path = jail / 'model-last-response.json'
+            trace = read(trace_path) if trace_path.is_file() else None
+            if trace and trace.get('query_sha256') == hashlib.sha256(case['input'].encode()).hexdigest() and trace.get('session_id') == sid:
+                row['actual_host_trace'] = trace
+                row['actual_host_trace_sha256'] = sha(trace_path)
+            else:
+                row['actual_host_trace'] = None
             report['cases'].append(row)
+            report.pop('pending_input', None)
             save()
             print(json.dumps({'id': case['id'], 'state': terminal[-1]['state']},
                              ensure_ascii=False), flush=True)
-            shot(r, a.out / (case['id']+'.png'))
+            if not a.no_case_screenshots:
+                shot(r, a.out / (case['id']+'.png'))
             assert terminal[-1]['state'] in ['success', 'waiting_user'], 'Retain actual error response'
         assert all(sha(jail / n) == h for n, h in protected.items())
         report['protected_external_state_unchanged'] = True

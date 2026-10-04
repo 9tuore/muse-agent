@@ -1,0 +1,72 @@
+{
+  "status": "PARTIAL",
+  "product_commit": "28c5073f9c4304787143f218f8f378500cfd1a57",
+  "version": "0.3.26-rc7",
+  "source_sha256": "ac689fb00a7913bc0b142df6076c0ea75a00ac99ce081f01540a872b6e521c6f",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "updated_at_utc": "2026-10-04T21:15:08.063376+00:00",
+  "memory": {
+    "status": "PASS",
+    "actual_ui_steps": 6,
+    "cross_session_correction_and_forgetting": true,
+    "evidence_report_sha256": "508dc3cfbeffcd6d639f1e94a0e274b5cd1b60e7ecd5272dab5ae75d0fd2b9b5"
+  },
+  "goal": {
+    "status": "PASS",
+    "goal_id": "1791147776-3932159161",
+    "run_id": "run:1791147776-3535395043",
+    "first_restart_equal": true,
+    "no_model_or_action_replay": true,
+    "evidence_report_sha256": "cb233ce295f4ec17ab3482959f7f8ef4293d53cb4a00f78558401169dc8ebada"
+  },
+  "model_semantics": [
+    {
+      "id": "H05",
+      "state": "waiting_user",
+      "manual_semantic_result": "PASS",
+      "actual_host_is_ok": true,
+      "query_sha256": "c4a4069ffe7de23ab36aaaf1b26cffc7778911d5bef9ff5d6545a40d39e06813"
+    },
+    {
+      "id": "S01",
+      "state": "success",
+      "manual_semantic_result": "PASS",
+      "actual_host_is_ok": true,
+      "query_sha256": "c7a9fb229e1b94d6235c67a3b0df647890ef2c065af7a843fc1438849c5bf4fb"
+    },
+    {
+      "id": "S02",
+      "state": "success",
+      "manual_semantic_result": "PASS",
+      "actual_host_is_ok": true,
+      "query_sha256": "d5343f72bdb7535c1d8cdc3cc01d44cd26848bfafb7995c04b754841ae46eaa7"
+    },
+    {
+      "id": "E03",
+      "state": "success",
+      "manual_semantic_result": "PASS",
+      "actual_host_is_ok": true,
+      "query_sha256": "98a90951f89cff34b448ceb69fa1add7ac82eb586dcdbef5ebef5cc01ebe8f71"
+    },
+    {
+      "id": "E04",
+      "state": "success",
+      "manual_semantic_result": "FAIL",
+      "actual_host_is_ok": true,
+      "query_sha256": "7f1094fbc24a6bf48c07b1d75603318c7e0fe4149371a05211dbb622cc9b452c",
+      "reason": "Original card ID and recipient retained, but subject changed from 拒绝邀请 to 请后天再联系 without explicit request"
+    }
+  ],
+  "compose_driver_status": "INTERRUPTED_ENOSPC_DURING_FINAL_SNAPSHOT; original report and partial snap retained, not full driverPASS",
+  "independent_goal_memory_result_sha_still_equal": {
+    "goals.json": true,
+    "goals.backup.json": true,
+    "memory.json": true,
+    "memory.backup.json": true,
+    "results/result-1791147776-3932159161.json": true
+  },
+  "external_mail_calendar_chain": "NOT_PASSED; stable selfmail support not finalrc7 external chain",
+  "startup70": "NOT_STARTED_ENOSPC_WHILE_CREATING_OUTPUT",
+  "soak2h": "NOT_PASSED; both rc7 attempts interrupted by ENOSPC; no samples reconstructed",
+  "next_source_delta": "E04 field preservation under implementation; current rc7 not finalrelease"
+}
