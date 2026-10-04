@@ -1,0 +1,69 @@
+{
+  "version": "0.3.26-rc8",
+  "code_commit": "a80bd019db7581511b3891bcc3892548f767a42d",
+  "source_sha256": "f2c2ce15d42c8c8a6bccfa63f00722f28d6a6efb30bbc249ba7c6c05af258065",
+  "raw_report_sha256": "021a79ae10941edeee186a00cc558c03a01708366cfc43ffde5cf8d824442749",
+  "protected_records": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "computer_restart": "NOT_RUN",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "modes": {
+    "cold": {
+      "pass": 30,
+      "requested": 30,
+      "interactive_seconds": {
+        "min": 11.255074762999996,
+        "median": 11.938057659500004,
+        "max": 12.946115192
+      }
+    },
+    "reopen": {
+      "pass": 20,
+      "requested": 20,
+      "interactive_seconds": {
+        "min": 8.506793916999982,
+        "median": 8.837897241999997,
+        "max": 9.746992620000015
+      }
+    },
+    "restart": {
+      "pass": 20,
+      "requested": 20,
+      "interactive_seconds": {
+        "min": 11.578130632000011,
+        "median": 12.062947305999955,
+        "max": 12.669802517999983
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "version": "0.3.26-rc8",
+  "application_commit": "a80bd019db7581511b3891bcc3892548f767a42d",
+  "source_sha256": "f2c2ce15d42c8c8a6bccfa63f00722f28d6a6efb30bbc249ba7c6c05af258065",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "overall_original20": "PARTIAL",
+  "updated_utc": "2026-10-04T21:53:18.117200+00:00",
+  "memory": {
+    "status": "PASS",
+    "steps": 6,
+    "actual_model_calls": 3,
+    "report_sha256": "3139113b8794864e4adc64e8543b4b8f25fb108812f21156a7de43ab403b8416",
+    "global_cross_session_recall": true,
+    "correction_revision": 2,
+    "forgotten_empty_retrieval": true,
+    "scope": "Synthetic data through visible Shell and actual official model.complete"
+  },
+  "goal": {
+    "status": "PASS",
+    "goal_id": "1791150720-2356101235",
+    "run_id": "run:1791150720-2384868902",
+    "result_count": 2,
+    "approval_clicks": 1,
+    "first_restart_equal": true,
+    "no_model_or_action_replay": true,
+    "protected_sha256": {
+      "goals.json": "3cd002f8349c7003a4110ce41f6cac3b7bcfc47bca6cbf424240e871a0c740ac",
+      "goals.backup.json": "e65d0c2392878815e394d951351ee76c2ed36a46e9d3a720369c78f58745305b",
+      "memory.json": "d996ea2e15358ebdd7d76b0cce6d4ecb865d771a59bd96784052b173fa0e2bbe",
+      "memory.backup.json": "e74e646eaf96b69b4506a0bc3f2f5c46680a9a1a44cc6d5f13526190ed28c945",
+      "chat-sessions.json": "09c47ba327ed8f60680dda1266726131700db0a86344e1427ffa4162dbe1716d",
+      "chat-sessions.backup.json": "7a0fe0f6bea62979f552e1f6e04bfea7e6a490f8b687ff1320b45014f8a30d32",
+      "results/result-1791150720-2356101235.json": "7a096b9d78625c548778d3b674196b66d289f3a8a0925d44e3bb6339aa36ca87",
+      "model_ledger": "0b16cd67fb9272e369181a533995244e116ba20d9cab066135f3837cdf20bb04"
+    },
+    "actual_model_calls": 2,
+    "observed_order": "model proposal, plan, explicit model advice, one user-authorized local approval, storage, readback, first Shell process restart",
+    "report_sha256": "83194ea955e7ff692448c0a0885aed2b634241096e5878996d1deb0c9badcbe8",
+    "computer_restart": false,
+    "scope": "One local task, no actual Mail or Calendar action"
+  },
+  "startup_70": {
+    "status": "PASS",
+    "summary": "official_muse/rc/startup/RC8_STARTUP_70_SUMMARY.json",
+    "cold": 30,
+    "reopen": 20,
+    "restart": 20,
+    "computer_restart": false
+  },
+  "mail_header_fixture": {
+    "status": "PASS",
+    "variants": 16,
+    "assertions": 86,
+    "binding": "official_muse/rc/startup/RC8_DELTA_BINDING.json",
+    "not_actual_model": true
+  },
+  "model_comparison": "RUNNING_DECLARED_EIGHT_CASE_SUBSET_NOT_COMPLETE_T17",
+  "two_hour_soak": "RUNNING_SYNTHETIC_NO_BACKEND_NOT_TRUE_MAIL",
+  "full_chain_T18": "NOT_PASSED",
+  "calendar_fix_in_current_host": false,
+  "previous_real_E04_failure_retained": true,
+  "screenshots_provenance": "official_muse/rc/screenshots/RC8_PROVENANCE.json"
+}
