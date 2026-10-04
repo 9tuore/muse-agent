@@ -106,7 +106,9 @@ def main():
               'original_inputs_fixture_sha256': sha(Path(__file__).with_name('frozen_original_chat_inputs.json')),
               'usage_before': read(usage_path)['apps']['muse-goals'],
               'semantic_review': 'PENDING_MANUAL_REVIEW',
-              'not_original20_complete': True, 'external_action_confirmation': False,
+              'not_original20_complete': True,
+              'not_original20_complete_scope': 'Semantic acceptance is not claimed by this observer',
+              'original20_transport_complete': False, 'external_action_confirmation': False,
               'case_screenshots': not a.no_case_screenshots,
               'full_frozen_corpus': a.full_frozen_corpus,
               'flow_sessions': {}, 'memory_operations': {}}
@@ -262,6 +264,8 @@ def main():
                 assert terminal[-1]['state'] in ['success', 'waiting_user', 'cancelled']
         assert all(sha(jail / n) == h for n, h in protected.items())
         report['protected_external_state_unchanged'] = True
+        report['original20_transport_complete'] = (a.full_frozen_corpus and
+            sum(row['suite'] == 'original20' for row in report['cases']) == 20)
         report['status'] = 'OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW'
     except Exception:
         report['status'] = 'FAIL_RETAINED'
