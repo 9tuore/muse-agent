@@ -6,6 +6,8 @@ Muse 是 **GOSIM Agentic App 2026** 参赛项目，由「星海」团队开发�
 
 **当前官方应用源码：0.3.16 · 总体验收：PARTIAL**
 
+参赛应用入口：[official_muse/app/bundle/main.splash](official_muse/app/bundle/main.splash)，源码采用 **OctoScript / Splash**。App Hub 提交目录为 `official_muse/app/bundle/`；GitHub 完整源码仓库另保留构建工具、测试、宿主依赖和桌面版历史源码。
+
 - 左侧：可折叠对话历史，以及邮箱、日历、记忆、操作记录、能力授权和设置入口。
 - 中间：聚焦当前讨论的聊天与输入；新消息显示在当前聊天末尾，历史可翻页查看。
 - 右侧：有效结果卡、来信提醒和具体动作确认，技术详情默认收起。
