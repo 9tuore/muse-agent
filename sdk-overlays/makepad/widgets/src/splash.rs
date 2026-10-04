@@ -455,7 +455,9 @@ impl Splash {
     /// non-empty `set_text` allocates a fresh isolate as usual.
     fn prepare_source_frame(&mut self, cx: &mut Cx) {
         let Some(mut pending) = self.source_preparation.take() else { return; };
-        let mut end = (pending.offset + 16_384).min(pending.code.len());
+        // Leave more headroom inside the unchanged 64ms isolate deadline.
+        // Preparation still executes no application code until all chunks parse.
+        let mut end = (pending.offset + 4_096).min(pending.code.len());
         while !pending.code.is_char_boundary(end) { end -= 1; }
         if end < pending.code.len() {
             if let Some(newline) = pending.code[pending.offset..end].rfind('\n') {
@@ -488,6 +490,8 @@ impl Splash {
         pending.max_ms = pending.max_ms.max(elapsed);
         if !compiled || !errors.is_empty() {
             log!("splash: source preparation failed at {} of {} bytes", end, pending.code.len());
+            log!("[SPLASH_COMPILE_FAILED] elapsed_ms={:.3} total_ms={:.3} max_chunk_ms={:.3}",
+                elapsed, pending.total_ms, pending.max_ms);
             for error in errors { log!("splash: {}", error); }
             self.style_pending = false;
             self.stop(cx);
@@ -1185,9 +1189,10 @@ mod style_tests {
         assert!(splash.startup_timers.is_empty());
         splash.prepare_source_frame(&mut cx);
         assert!(splash.source_preparation.as_ref().unwrap().offset > 0);
+        assert!(splash.source_preparation.as_ref().unwrap().offset <= 4_096);
         assert!(splash.body_id.is_none());
         assert!(!cx.with_script_vm_id(splash.vm_id, module_keys).contains(&id!(state)));
-        for _ in 0..20 {
+        for _ in 0..64 {
             if splash.source_preparation.is_none() { break; }
             splash.prepare_source_frame(&mut cx);
         }
