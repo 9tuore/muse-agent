@@ -4839,13 +4839,21 @@ fn gm_field(doc,key,fallback){
     if gm_has(doc["scope"],key) { return gm_get(doc["scope"],key) }
     return fallback
 }
+let gm_scope_cache = {}
+let gm_scope_cache_count = 0
 fn gm_scope_valid(s,legacy){
+    // Check keys on every access; cached values never authorize extra fields.
+    if !gm_object(s) || !gm_keys(s,["project","account","visibility","user_id","project_id","owner_id"]) { return false }
+    let cache_key = [legacy,s["project"],s["account"],s["visibility"],s["user_id"],s["project_id"],s["owner_id"]].to_json()
+    if gm_scope_cache[cache_key] == true { return true }
     if !gm_required(s,["project","account","visibility"]) { return false }
-    if !gm_keys(s,["project","account","visibility","user_id","project_id","owner_id"])
-        || s.project != "muse-goals" || s.visibility != "personal" || !gm_string(s.account,200) || s.account == "" { return false }
+    if s.project != "muse-goals" || s.visibility != "personal" || !gm_string(s.account,200) || s.account == "" { return false }
     for key in ["user_id","project_id","owner_id"] {
         if (!legacy || gm_has(s,key)) && !gm_string(s[key],200) { return false }
     }
+    if gm_scope_cache_count >= 256 { gm_scope_cache = {} gm_scope_cache_count = 0 }
+    gm_scope_cache[cache_key] = true
+    gm_scope_cache_count = gm_scope_cache_count + 1
     return true
 }
 fn gm_access(doc){
@@ -8128,7 +8136,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse 官方应用 · 0.3.26-rc2（日程范围与改期修复）" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse 官方应用 · 0.3.26-rc3（日程范围与改期修复）" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
