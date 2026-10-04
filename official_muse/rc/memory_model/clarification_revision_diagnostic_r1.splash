@@ -1,0 +1,14 @@
+// Diagnostic only; first 43-check result remains unchanged.
+fn revision_diag(){
+ core_memory_ready=true gm_user_id="user:synthetic" gm_set_accounts([]) gm_set_focus("P","O") memory_forget=[] memory_sources=[]
+ let raw="{\"document\":{\"id\":\"memory:synthetic\",\"revision\":2,\"scope\":{\"project\":\"muse-goals\",\"account\":\"local\",\"visibility\":\"personal\",\"user_id\":\"user:synthetic\",\"project_id\":\"P\",\"owner_id\":\"O\"},\"payload\":{\"deleted\":false,\"value\":\"合成资料\",\"source_ids\":[\"source:synthetic\"],\"subject_id\":\"synthetic\",\"predicate\":\"fact\"}},\"history\":[]}"
+ memory=[raw.parse_json()]
+ let reply={role:"assistant" text:"补充时间" state:"waiting_user" at:1 project:"P" owner:"O" clarification_action:"calendar_candidate" clarification_input:"请安排明天会议" memory_refs:[]}
+ reply.memory_refs.push("{\"id\":\"memory:synthetic\",\"revision\":1,\"account\":\"local\",\"source_ids\":[\"source:synthetic\"]}".parse_json())
+ messages=[{role:"user" text:"请安排明天会议" state:"success" at:1 project:"P" owner:"O"} reply {role:"user" text:"后天下午三点到四点" state:"success" at:1 project:"P" owner:"O"}]
+ let data={input_doc:memory[0].document input_refs:reply.memory_refs valid_entry:chat_entry_valid(reply) context_guard:chat_reply_context_valid(reply) history:chat_model_history(messages) merged:chat_calendar_followup_message("后天下午三点到四点")}
+ data.revision_mismatch_denied=!data.context_guard&&data.history.turns.len()==0&&data.merged=="后天下午三点到四点"
+ data.no_external_calls=fixture_calls.len()==0&&fixture_writes==0
+ fs.write("probe.json",data.to_json())
+}
+start_timeout(0.1,||revision_diag())

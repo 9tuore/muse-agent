@@ -1,0 +1,33 @@
+{
+  "status": "REVIEW_CHANGES_REQUIRED_CLARIFICATION_AMBIGUITY_NOT_RESOLVED",
+  "readable_source_sha256": "33d5d2ae8126e9d9431ab63db5d9dace22904287e76b3b87970fc580ffa4c2ed",
+  "source_sha256": "ed596500508ec0437ab2c943749e76ce68998a23d9c97cdd54bf03a188927d34",
+  "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "first_attempt_checks": 43,
+  "first_attempt_passed": 40,
+  "first_attempt_failed": [
+    "ref_guard_12",
+    "concrete_followup_resolves_ambiguous_original",
+    "concrete_followup_resolves_changeday_original"
+  ],
+  "runtime_errors": [],
+  "confirmed_product_issue": "Concatenated original input retains 过几天 or 改天, so explicit subsequent date/time still fails candidate_input_error and input_clear.",
+  "revision_diagnostic": {
+    "direct_json_revision2_ref1_denied": true,
+    "history_empty": true,
+    "merge_denied": true,
+    "runtime_errors": [],
+    "generic_harness_failed_field": "context_guard",
+    "harness_summary_shape_mistake": "Raw observational context_guard=false is correct rejection; generic harness treats all top-level false booleans as failed assertions. First summary and report retained; no green rerun.",
+    "first_probe_ref_guard12_cause_unresolved": true
+  },
+  "date_change_original_and_latest_retained": true,
+  "date_change_routed_calendar": true,
+  "latest_date_payload_deterministic_comparison": false,
+  "latest_date_real_model_unverified": true,
+  "send_chat_callback_not_executed": true,
+  "first_failures_retained": true,
+  "no_real_model_or_OS_actions": true,
+  "port8510_released": true,
+  "whole_application_or_RC_READY_claim": false
+}

@@ -523,6 +523,32 @@
       "reported_failed_checks": [],
       "classification": "V13B_REDUCED_BAD_PROPOSAL_REF_DIAGNOSTIC_SOURCEPREP_FAIL_BEFORE_PROBE_NOT_CHATVALIDATOR_RESULT",
       "raw_public": false
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/clarification-followup-review-r1/clarification_followup_review_r1/runtime.log",
+      "runtime_log_sha256": "2c34674adf8c43db513aed7388fe17d5771e924aca3cb1c01e3ebe86ca8034fb",
+      "instrumented_source_sha256": "2d4ced94815bb64b91a5aa603bf920f623cd165cd42d9f7afe6c73f67aaffefd",
+      "markers": [],
+      "reported_failed_checks": [
+        "ref_guard_12",
+        "concrete_followup_resolves_ambiguous_original",
+        "concrete_followup_resolves_changeday_original"
+      ],
+      "local_report_sha256": "9b90ea2106c048629a767247950d7325a8b1104529303d5adaea02f12f1967b2",
+      "raw_public": false,
+      "note": "First clarification fixture 40/43; ambiguity confirmed, ref mutation failure unresolved"
+    },
+    {
+      "local_artifact": "official_muse/rc/memory_model/clarification-revision-diagnostic-r1/clarification_revision_diagnostic_r1/runtime.log",
+      "runtime_log_sha256": "a03b4975598ca4cd5a9a124f40cafe9548a3e8769a2f5bf0970e829e5f787a53",
+      "instrumented_source_sha256": "07ca6cbd42f1bf2749a1b2e7ef314b2f83b336473bf9fa2ab282e6d5d14d0e1c",
+      "markers": [],
+      "reported_failed_checks": [
+        "context_guard"
+      ],
+      "local_report_sha256": "da039d590cd04b70aeaa2c08986c525821882e6ec5b6167979075543a955185d",
+      "raw_public": false,
+      "note": "Diagnostic raw false context_guard is expected rejection but summary shape is misclassified"
     }
   ],
   "original_negation_failures": [

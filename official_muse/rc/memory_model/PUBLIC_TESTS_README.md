@@ -47,3 +47,15 @@ FinalV14reuse isread-only: `RC5V14_SHARED_FUNCTION_REUSE_PROOF.json` records187e
 
 
 V15twoempty-tombhelpers firstsmallfixture28/28PASS. `empty_tombs_delta_rc15.splash` containsverifiedV14controls withonlynamesrenamed and28independentexpectedcases. `RC5V15_EMPTY_TOMBS_STATIC_PROOF.json` verifies onlyaddedemptytombguard andbadvaluecheckbeforeit, nonemptybody/deps unchanged. Optional `--minimal-bundle-copy` copiesonlyscript/manifest/listing/icon, no media, about0.75MiB observed. ThissmallPASS doesnotupgrade historicalV13bPARTIAL orprovefullUI/performance/fullchain.
+
+
+Calendar clarification review: CHANGES_REQUIRED. ActualCard first43checks40true; 过几天/改天 explicit followups still rejected. Third ref mutation failure retained; independent JSON revision2/ref1 diagnostic rejects correctly, raw false observation runner misclassification retained. No runtime error, no real model orsend_chat callback; dateoverride inference unverified. Details CLARIFICATION_REVIEW_FINAL_REPORT.md; source binding/status JSON. Port8510free, noGit/product edits.
+
+
+Root clarification delta2 SHA9fefe620 static review: no new blocker found; reverse only helper/predicate/prompt delta restores33d5d2entire source exactly. Scope/ref/revision/source/expiry/forget/2400guards byte unchanged. Latest explicitdate clearsolder ambiguity byinspection; newer ambiguity retains refusal. A3 no newCard/model run; A2Card andRootM3 pending, previous failures retained. See CLARIFICATION_DELTA2_REVIEW.md andSTATIC_PROOF.json.
+
+
+Finalclarificationreview boundreadable b154f497: onlydate_known OR existingtemporalregex routingdelta versus9fefe620; reversefullsourceSHAproof exact. Scope/expiredrefs/revision/source/forget/2400guards unchanged. A3noCard/modelrun onfinalSHA; finalrealmodel/dateguardPASS unclaimed. Old33d5/9fefereviews andfailuresretained. CLARIFICATION_FINAL_REVIEW.md + FINAL_SOURCE_BINDING.json.
+
+
+RC6Settingslabelonly reuse: SHA47c56065ab8be64c48734c4c2b1afdb96de1a6fb391dd360e5dd20a4b5b60966; reversingrc6→rc5label restoresb154entire fileSHA exactly. Allbusiness functions unchanged; no repeatreview orA3Card/modelrun. Rootreported prior9fefefive modelstepsPASS; raw notverified byA3. FinalpuredateM3/restartpending, no finalPASSclaim. SeeCLARIFICATION_RC6_LABEL_REUSE_PROOF.json.

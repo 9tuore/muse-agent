@@ -1,0 +1,131 @@
+// Actual production functions in existing Card Host; synthetic inputs only.
+let clarification_checks={}
+let clarification_observations={}
+let clarification_stage=0
+let clarification_cases=[]
+let clarification_case_at=0
+fn clarification_entry(role,state){return {role:role text:"合成追问" state:state at:1 memory_refs:[] project:"P" owner:"O"}}
+fn clarification_wait(input){let r=clarification_entry("assistant","waiting_user") r.clarification_action="calendar_candidate" r.clarification_input=input return r}
+fn clarification_messages(input,followup){return [clarification_entry("user","success") clarification_wait(input) clarification_entry("user","success")]}
+fn clarification_reset(){
+ core_memory_ready=true gm_user_id="user:synthetic" gm_set_accounts([]) gm_set_focus("P","O")
+ memory=[] memory_sources=[] memory_forget=[] chat_sessions=[] chat_selected_id="chat:synthetic" messages=[]
+}
+fn clarification_scope(account){return {project:"muse-goals" account:account visibility:"personal" user_id:"user:synthetic" project_id:"P" owner_id:"O"}}
+fn clarification_ref_memory(account){return {document:{id:"memory:synthetic" revision:1 "scope":clarification_scope(account) payload:{deleted:false value:"合成资料" source_ids:["source:synthetic"] subject_id:"synthetic" predicate:"fact"}} history:[]}}
+fn clarification_ref(){return {id:"memory:synthetic" revision:1 account:"local" source_ids:["source:synthetic"]}}
+fn clarification_validation_case(id,entry,expected){clarification_cases.push({id:id entry:entry expected:expected})}
+fn clarification_begin(){
+ clarification_reset()
+ clarification_validation_case("valid_waiting",clarification_wait("请安排明天会议"),true)
+ clarification_validation_case("legacy_waiting",clarification_entry("assistant","waiting_user"),true)
+ for state in ["success","error","cancelled"] {let e=clarification_wait("请安排明天会议") e.state=state clarification_validation_case("metadata_nonwaiting_"+state,e,false)}
+ let user=clarification_wait("请安排明天会议") user.role="user" clarification_validation_case("metadata_user",user,false)
+ let onlyaction=clarification_entry("assistant","waiting_user") onlyaction.clarification_action="calendar_candidate" clarification_validation_case("missing_input",onlyaction,false)
+ let onlyinput=clarification_entry("assistant","waiting_user") onlyinput.clarification_input="原话" clarification_validation_case("missing_action",onlyinput,false)
+ for value in [nil,12,false,[],{},""] {let e=clarification_wait(value) clarification_validation_case("invalid_input_"+value.to_json(),e,false)}
+ let wrong=clarification_wait("原话") wrong.clarification_action="mail_compose" clarification_validation_case("wrong_action",wrong,false)
+ let edge="" for i in 2400 {edge=edge+"a"}
+ clarification_validation_case("input_2400",clarification_wait(edge),true)
+ clarification_validation_case("input_2401",clarification_wait(edge+"a"),false)
+ let invalidref=clarification_wait("原话") invalidref.memory_refs=[{id:"m" revision:0 account:"local" source_ids:[]}]
+ clarification_validation_case("invalid_ref",invalidref,false)
+ start_timeout(0.01,||clarification_validation_next())
+}
+fn clarification_validation_next(){
+ let c=clarification_cases[clarification_case_at]
+ let actual=chat_entry_valid(c.entry)
+ clarification_checks[c.id]=actual==c.expected
+ clarification_case_at=clarification_case_at+1
+ if clarification_case_at<clarification_cases.len(){start_timeout(0.01,||clarification_validation_next()) return}
+ start_timeout(0.01,||clarification_next())
+}
+fn clarification_next(){
+ clarification_reset()
+ let input="请安排明天会议"
+ let followup="改成后天下午三点到四点"
+ messages=clarification_messages(input,followup)
+ if clarification_stage==0{
+  let states=["success","error","cancelled","waiting_user"]
+  let counts=[]
+  for state in states{messages[1]=clarification_entry("assistant",state) counts.push(chat_model_history(messages).turns.len())}
+  clarification_checks.success_kept_error_cancelled_legacy_waiting_excluded=counts.to_json()==[2,0,0,0].to_json()
+ }
+ if clarification_stage==1{clarification_checks.valid_waiting_history_retains_original=chat_model_history(messages).turns.len()==2}
+ if clarification_stage==2{messages[1].project="other" clarification_checks.cross_project_history_and_merge_denied=chat_model_history(messages).turns.len()==0&&chat_calendar_followup_message(followup)==followup}
+ if clarification_stage==3{messages[1].owner="other" clarification_checks.cross_owner_history_and_merge_denied=chat_model_history(messages).turns.len()==0&&chat_calendar_followup_message(followup)==followup}
+ if clarification_stage==4{
+  let combined=chat_calendar_followup_message(followup)
+  clarification_checks.date_change_both_inputs_preserved=combined==input+"\n用户补充："+followup
+  clarification_checks.date_change_routes_calendar=chat_model_config(combined).action=="calendar_candidate"
+  clarification_observations.date_change_combined=combined
+ }
+ if clarification_stage==5{clarification_checks.status_no_merge=chat_calendar_followup_message("创建成功了吗？") == "创建成功了吗？"}
+ if clarification_stage==6{clarification_checks.mail_no_merge=chat_calendar_followup_message("起草邮件说明明天三点到四点") == "起草邮件说明明天三点到四点"}
+ if clarification_stage==7{clarification_checks.ordinary_no_merge=chat_calendar_followup_message("介绍量子纠缠") == "介绍量子纠缠"}
+ if clarification_stage==8{messages[1].state="cancelled" clarification_checks.cancelled_no_merge=chat_calendar_followup_message(followup)==followup}
+ if clarification_stage==9{
+  let separator="\n用户补充：" let tail="明天三点到四点" let prefix="安排"
+  for i in 2400-separator.len()-tail.len()-prefix.len(){prefix=prefix+"a"}
+  messages[1].clarification_input=prefix
+  let boundary=chat_calendar_followup_message(tail)
+  clarification_checks.merge_exact2400_allowed=boundary.len()==2400
+  messages[1].clarification_input=prefix+"a"
+  clarification_checks.merge2401_not_merged=chat_calendar_followup_message(tail)==tail
+ }
+ if clarification_stage>=10&&clarification_stage<=16{
+  memory=[clarification_ref_memory("local")] messages[1].memory_refs=[clarification_ref()]
+  let expected=false
+  if clarification_stage==10{expected=true}
+  if clarification_stage==11{memory[0].document.payload.deleted=true}
+  if clarification_stage==12{memory[0].document.revision=2}
+  if clarification_stage==13{memory[0].document.payload.source_ids=["source:changed"]}
+  if clarification_stage==14{memory=[]}
+  if clarification_stage==15{memory[0].resolved_by="memory:other"}
+  if clarification_stage==16{memory_forget=[{account_scope:"local" content_sha256:fs.sha256("合成资料")} ]}
+  clarification_checks["ref_guard_"+clarification_stage]=(chat_model_history(messages).turns.len()==2)==expected&&(chat_calendar_followup_message(followup)!=followup)==expected
+ }
+ if clarification_stage==17{
+  memory=[clarification_ref_memory("fixture-account")] messages[1].memory_refs=[clarification_ref()] messages[1].memory_refs[0].account="fixture-account"
+  gm_set_accounts(["fixture-account"])
+  clarification_checks.ref_granted_allowed=chat_calendar_followup_message(followup)!=followup
+  gm_set_accounts([])
+  clarification_checks.ref_revoked_history_and_merge_denied=chat_model_history(messages).turns.len()==0&&chat_calendar_followup_message(followup)==followup
+ }
+ if clarification_stage==18{
+  memory_forget=[{account_scope:"local" content_sha256:fs.sha256(input)}]
+  messages[0].text=input
+  clarification_checks.forgotten_input_history_and_merge_denied=chat_model_history(messages).turns.len()==0&&chat_calendar_followup_message(followup)==followup
+ }
+ if clarification_stage==19{
+  messages[1].clarification_input="请安排过几天会议"
+  let combined=chat_calendar_followup_message("后天下午三点到四点")
+  let payload={title:"会议" start:"2040-01-03T15:00:00+08:00" end:"2040-01-03T16:00:00+08:00" time_zone:"Asia/Shanghai" location:""}
+  clarification_observations.ambiguous_resolved_combined=combined
+  clarification_observations.ambiguous_resolved_error=chat_candidate_input_error("calendar_candidate",payload,combined,false)
+  // Expected user outcome: a concrete latest clarification resolves the date ambiguity.
+  clarification_checks.concrete_followup_resolves_ambiguous_original=chat_calendar_input_clear(combined)&&chat_candidate_input_error("calendar_candidate",payload,combined,false)==""
+ }
+ if clarification_stage==20{
+  messages[1].clarification_input="请安排改天会议"
+  let combined=chat_calendar_followup_message("后天下午三点到四点")
+  clarification_checks.concrete_followup_resolves_changeday_original=chat_calendar_input_clear(combined)
+  clarification_observations.changeday_resolved_error=chat_candidate_input_error("calendar_candidate",{title:"会议" start:"2040-01-03T15:00:00+08:00" end:"2040-01-03T16:00:00+08:00" time_zone:"Asia/Shanghai" location:""},combined,false)
+ }
+ if clarification_stage==21{
+  let combined=chat_calendar_followup_message(followup)
+  let wrong={title:"会议" start:"2040-01-02T15:00:00+08:00" end:"2040-01-02T16:00:00+08:00" time_zone:"Asia/Shanghai" location:""}
+  clarification_observations.latest_date_not_deterministically_compared=chat_candidate_input_error("calendar_candidate",wrong,combined,false)==""
+  clarification_observations.model_chooses_actual_date_unverified=true
+ }
+ clarification_stage=clarification_stage+1
+ fs.write("clarification-progress.json",{stage:clarification_stage checks:clarification_checks observations:clarification_observations}.to_json())
+ if clarification_stage<22{start_timeout(0.01,||clarification_next()) return}
+ clarification_checks.no_actions_or_services=fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0
+ let report={}
+ for key value in clarification_checks {report[""+key]=value}
+ report.observations=clarification_observations
+ report.boundary="ActualCard production-function synthetic fixture; no model inference orsend_chat callback coverage. Knownexpected-outcomefailures retained."
+ fs.write("probe.json",report.to_json())
+}
+start_timeout(0.1,||clarification_begin())
