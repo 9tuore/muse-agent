@@ -652,7 +652,11 @@ impl ModelHost {
                     ),
                 };
                 let before = attempts;
-                let text = match self.send(candidate, &system, &user, request.messages.as_deref(), &mut attempts) {
+                let sent = self.send(candidate, &system, &user, request.messages.as_deref(), &mut attempts);
+                if repair_used && attempts > before {
+                    eprintln!("MODEL_RETRY app={app} attempts={attempts}");
+                }
+                let text = match sent {
                     Ok((text, used, stop)) => {
                         usage.add(used);
                         self.ledger.lock().unwrap().charge(app, (self.clock)(), used.total());
@@ -676,7 +680,11 @@ impl ModelHost {
                         break; // existing fallback before any format repair
                     }
                 };
-                match accept(&text, &schema, request.allow_urls) {
+                let accepted = accept(&text, &schema, request.allow_urls);
+                if accepted.is_err() {
+                    eprintln!("MODEL_FORMAT_ERROR app={app} attempts={attempts}");
+                }
+                match accepted {
                     Ok(output) => {
                         let class = effective_model(&candidate.provider)
                             .and_then(|m| catalog::model(family_id(&candidate.provider), &m))
@@ -825,6 +833,9 @@ impl HostService for ModelService {
                 let host = self.host.clone();
                 std::thread::spawn(move || {
                     let answer = host.complete(&call.app_id, request);
+                    if let Err(refusal) = &answer {
+                        eprintln!("MODEL_FINAL_FAILURE app={} code={}", call.app_id, refusal.code.as_str());
+                    }
                     if let Err(Refusal { detail: Some(detail), code, .. }) = &answer {
                         eprintln!("model: {} refused ({}): {detail}", call.app_id, code.as_str());
                     }
