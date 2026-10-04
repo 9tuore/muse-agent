@@ -133,7 +133,11 @@ def main():
                 'historical_rc7_mail_subject_failure': {'application_commit': '28c5073f9c4304787143f218f8f378500cfd1a57',
                                                        'case': 'E04', 'status': 'COORDINATOR_REPORTED_ACTUAL_MODEL_FAIL'},
                 'rc8_subject_preservation_fixture': {'application_commit': 'a80bd019db7581511b3891bcc3892548f767a42d',
-                                                    'cases': 86, 'status': 'COORDINATOR_REPORTED_FIXTURE_PASS_NOT_LIVE_RETEST'},
+                                                    'cases': 86, 'status': 'COORDINATOR_REPORTED_FIXTURE_PASS_HISTORICAL_ONLY'},
+                'historical_rc8_live_support': {'application_commit': 'a80bd019db7581511b3891bcc3892548f767a42d',
+                                               'status': 'COORDINATOR_REPORTED_70_STARTUPS_M3_8_PASS_M27_7_PASS_D05_FAIL_E04_BOTH_PASS_NOT_RC9_OR_FULL_T17'},
+                'rc9_time_question_order_fixture': {'application_commit': '1c9f3b46e7aac0ee17be385de64c97564651152f',
+                                                   'status': 'COORDINATOR_REPORTED_15_VARIANTS_53_PASS_NOT_LIVE_RETEST'},
                 'calendar_full_chain_T18': 'NOT_PASSED',
                 'receiver_two_mac_validation': 'NOT_RUN', 'clean_build': 'BLOCKED_CAPACITY',
                 'formal_publication': 'NOT_PUBLISHED', 'a4_gui_or_model_calls': 'NOT_RUN'}

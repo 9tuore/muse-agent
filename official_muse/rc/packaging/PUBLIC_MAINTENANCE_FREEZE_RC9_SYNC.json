@@ -1,12 +1,7 @@
 {
-  "schema_version": 1,
-  "status": "PUBLIC_37_RC9_SIGNED_STATIC_READY_SOURCE_SNAPSHOT_PENDING",
-  "generated_at": "2026-10-05T06:20:35.053015+08:00",
-  "source_head_at_generation": "1c9f3b46e7aac0ee17be385de64c97564651152f",
-  "final_candidate_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
-  "clean_room_status": "BLOCKED_CAPACITY",
-  "include_rule": "Copy only the exact regular files in files; everything else is excluded; no globs or recursive directory imports. Revalidate length and SHA256 after any edits.",
-  "not_an_intel_application_archive": true,
+  "status": "PUBLIC37_RC9_STATIC_FREEZE_NO_EXPORT",
+  "observed_at": "2026-10-05T06:20:35.053015+08:00",
+  "allowlist_sha256": "326b06f1444782a7a163f15162cbb505a70f600b3908f109400032bb1316fe30",
   "file_count": 37,
   "total_file_bytes": 216583,
   "files": [
@@ -270,70 +265,6 @@
       "mode": "0o644"
     }
   ],
-  "excluded_categories": [
-    "Raw logs and local process/profile evidence",
-    "Ignored .local-state runtime apps, models and binaries",
-    "Private account/user data, credentials, keys and production SQLite",
-    "SDK vendor and CargoHome/target/compiler caches",
-    "Duplicate main.splash and bundle payload copies",
-    "Copied upstream README/Publishing/Development full documents",
-    "Temporary service fixture sources, originals and patches",
-    "Warm-cache diagnostic builders and machine-specific resume helpers",
-    "Internal chronological STATUS/SCOPE and deletion permission records",
-    "Draft listing/privacy/reviewer/submission/screenshot plans not yet finalized by owner"
-  ],
-  "evidence_scope": "Current CHUNK reports are warm incremental builds. Historical model failures remain failures. Pure tests and owner synthetic preflight do not prove external full-chain or receiving-Mac acceptance.",
-  "previous_frozen_candidate_commit": "74a4bfca6880806e7d6764888fc8583714c742cb",
-  "last_clean_room_input_commit": "069dff5b37f0387311d0e8950ff06723b82adb33",
-  "frozen_application_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
-  "portable_status": "ORIGINAL_087_PRESERVED_NEW_PACKAGE_NOT_CREATED",
-  "latest_bridge_fix_commit": "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
-  "runtime_application_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
-  "python_ast_verified": [
-    "official_muse/rc/packaging/clean_room.py",
-    "official_muse/rc/packaging/package_clean_host.py",
-    "official_muse/rc/packaging/inspect_packaging.py",
-    "official_muse/rc/packaging/package_warm_portable.py",
-    "official_muse/rc/packaging/package_thin_source.py"
-  ],
-  "all_json_parse_verified": true,
-  "final_source_export_commit": "0876314bc39301b77e4ad8c0fc3f6d37044c3f2c",
-  "post_root_freeze_changed_files": [
-    "official_muse/rc/packaging/A4_HANDOFF_CURRENT.md",
-    "official_muse/rc/packaging/package_warm_portable.py",
-    "official_muse/rc/packaging/portable_tutorial.html"
-  ],
-  "packager_required_commit_roles": [
-    "--commit",
-    "--application-commit",
-    "--runtime-sdk-commit"
-  ],
-  "pending_application_source_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
-  "runtime_sdk_source_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
-  "pending_version": "0.3.26-rc9",
-  "version_source": "--application-commit official_muse/app/bundle/manifest.json",
-  "new_package_created": false,
-  "pending_source_snapshot": "NOT_YET_DECLARED_BY_ROOT",
-  "thin_source_export_status": "PREPARED_NO_EXPORT_WAITING_SOURCE_SNAPSHOT_AND_CAPACITY_RECHECK",
-  "thin_exporter_static_positive_old_087": "PASS_873_FILES_NO_EXPORT",
-  "thin_exporter_stale_rc6_inventory": "REJECTED_EXPECTED",
-  "latest_maintenance_base_commit": "b21f5d11d7124344828d971cacb5dbad44d24db5",
-  "historical_rc6_application_commit": "b9cf26b8dc0a9bdb51e493cb6a420636a1291e73",
-  "current_candidate_runtime_status": "NOT_OBSERVED_BY_A4_ROOT_RC9_RETESTS_PENDING",
-  "post_b21_changed_files": [
-    "official_muse/rc/packaging/A4_HANDOFF_CURRENT.md",
-    "official_muse/rc/packaging/PUBLIC_DELIVERY_README.md",
-    "official_muse/rc/packaging/THIN_SOURCE_DELIVERY_PLAN.md",
-    "official_muse/rc/packaging/package_thin_source.py",
-    "official_muse/rc/packaging/thin_source_tutorial.html"
-  ],
-  "previous_delivered_087_application_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
-  "runtime_application_commit_scope": "PREVIOUS_DELIVERED_087_ARCHIVE_ONLY",
-  "final_actual_model_retest": "PENDING_RC9_BOTH_MODELS_D05",
-  "root_rc8_fixture_support": "COORDINATOR_REPORTED_86_PASS_NOT_LIVE_RETEST",
-  "historical_rc7_E04": "ACTUAL_MODEL_SUBJECT_CHANGE_FAIL_RETAINED",
-  "root_rc9_fixture_support": "COORDINATOR_REPORTED_15_VARIANTS_53_PASS_NOT_LIVE_RETEST",
-  "historical_rc8_application_commit": "a80bd019db7581511b3891bcc3892548f767a42d",
-  "historical_rc8_live_support": "70_STARTUPS_PASS_M3_8_PASS_M27_7_PASS_D05_FAIL_E04_BOTH_PASS_NOT_RC9_OR_FULL_T17",
-  "latest_root_maintenance_integration": "cafdcad8"
+  "new_archive": false,
+  "source_export_head": "PENDING_ROOT"
 }

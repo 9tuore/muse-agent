@@ -2,7 +2,7 @@
 
 本清单是交总控审阅的最小维护材料集合。它不是可直接运行的 Intel 应用包，也不表示最终 RC 或 App Hub 已发布。
 
-当前新方案见`THIN_SOURCE_DELIVERY_PLAN.md`：`package_thin_source.py`按application manifest版本导出签名mirror和冻结公开源码，不含Host、启动器或模型。离线教程为`thin_source_tutorial.html`。待交付签名应用为0.3.26-rc8 / `a80bd019db7581511b3891bcc3892548f767a42d`，最终sourceHEAD与SOURCE_MANIFEST仍待总控固定，不生成归档。rc7 E04真实失败保留；rc8的86项fixture支持不代替最终模型复测、70启动或2小时验收。旧087桌面运行包保留，新版本接收机入口和包含Calendar92b1修复的新Host仍缺，PARTIAL不变；完整运行包600MiB门禁保持。
+当前新方案见`THIN_SOURCE_DELIVERY_PLAN.md`：`package_thin_source.py`按application manifest版本导出签名mirror和冻结公开源码，不含Host、启动器或模型。离线教程为`thin_source_tutorial.html`。待交付签名应用为0.3.26-rc9 / `1c9f3b46e7aac0ee17be385de64c97564651152f`，最终sourceHEAD与SOURCE_MANIFEST仍待总控固定，不生成归档。rc9的15变体53/53fixture支持不代替真实Memory/Goal、两模型D05、70启动或2小时验收；rc8成功与失败均仅作历史支持。旧087桌面运行包保留，新Host/CalendarT18、接收双Mac/OS/重启和正式Hub尚缺，PARTIAL不变；完整运行包600MiB门禁保持。
 
 `PUBLIC_MAINTENANCE_ALLOWLIST.json` 逐个列出允许复制的文件、长度和 SHA256。仅复制 `files` 中的精确路径；不递归复制整个 packaging 目录。文件修改后先重新核对清单，不套用旧 SHA。
 

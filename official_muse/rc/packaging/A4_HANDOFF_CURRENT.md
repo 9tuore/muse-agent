@@ -1,6 +1,12 @@
 # A4 当前交接 · 2026-10-05
 
-## 最新待交付身份
+## 最新待交付身份 · rc9
+
+签名应用0.3.26-rc9 / 1c9f3b46e7aac0ee17be385de64c97564651152f，mirror为rc9-final-startup-r1/mirror。六文件/Git/mirror/pack和Hub目录、公钥签名静态PASS。最终SourceHEAD/SOURCE_MANIFEST待Root，不导出；薄包不是独立runtime，旧087保持。Host938仍b486/SDK3f，未含Calendar92b1。
+
+Root/A2报告时间询问顺序15变体53/53隔离fixture通过。rc9新70启动、2小时、真实MemoryGoal和两模型D05重测未完成，不标PASS。rc8 70启动/M3八题8PASS/M2.7七PASS+D05FAIL/E04两模型保留字段成功仅为历史a80支持；unknown不等于strong或完整T17。新Host/CalendarT18、第二Mac/OS/电脑重启、正式Hub/严格clean仍欠，PARTIAL。A4无GUI/模型/编译/Git。以下历史保留原时点，不能改标签作新版本验收。
+
+## rc8前次身份（历史）
 
 签名应用0.3.26-rc8 / a80bd019db7581511b3891bcc3892548f767a42d，公开mirror为rc8-final-a80-startup-r1/mirror。六文件/Git/pack与目录、公钥签名静态核验通过；这不代表运行或模型全链通过。最终SOURCE_MANIFEST和source snapshot HEAD待Root给出，无新归档。旧087仍保留，薄包无Host/启动器/模型，旧Host938来自b486/SDK3f，不含Calendar92b1修复。
 
