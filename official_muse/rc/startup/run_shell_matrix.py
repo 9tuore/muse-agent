@@ -48,7 +48,11 @@ def main():
     assert selected.get('focus_project') and selected.get('focus_owner')
     expected_focus='当前项目 · '+selected['focus_project']+'  /  '+selected['focus_owner']
     report={'kind':'SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN','version':m['version'],'code_commit':m['commit'],'source_sha256':m['source_sha256'],'host_sha256':m['host_sha256'],'wall_budget_ms':64,'seeded_record_counts':seeded_counts,'protected_files_sha256':before,'cold':[],'reopen':[],'restart':[],'requested_counts':{'cold':a.cold_count,'reopen':a.reopen_count,'restart':a.restart_count},'computer_restart':'NOT_TESTED_REQUIRES_USER','scope':'Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.'}
-    def save(): (a.out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+    def save():
+        # Keep the last complete observation if a new write runs out of space.
+        temporary=a.out/'report.json.pending'
+        temporary.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+        temporary.replace(a.out/'report.json')
     def capture(run,d):
         raw=remote.request('/snap')
         if a.compact_evidence and run['pass'] and run['index']>1:
