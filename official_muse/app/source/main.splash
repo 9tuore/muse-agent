@@ -2559,7 +2559,7 @@ fn calendar_model_candidate(goal_id,account_id,message_id,subject,body){
                 calendar_links[i].question = "相关安排偏好过多，请先在记忆页核对本次需要保留的限制。"
             }
             calendar_save()
-            calendar_error = "模型未生成日程候选；可手动填写精确字段。"
+            calendar_error = "这次没有整理成功。可重试整理，或手动填写精确字段。"
             if reason != nil && reason.search("memory_scope_incomplete:") == 0 { calendar_error = calendar_links[i].question }
             redraw()
         }
@@ -2720,8 +2720,8 @@ fn mail_watch_boot(){
     }
     if !mail_watch_writable { mail_watch_notice = "来信记录无法恢复，已暂停来信提醒并保留原文件。" return }
     for alert in mail_watch.alerts {
-        if alert.to_json().search("\"draft\":") < 0 && alert.to_json().search("\"request_id\":") < 0 { alert.request_id = "" }
-        if alert.to_json().search("\"request_id\":") >= 0 && alert.request_id != "" {
+        if alert["request_id"] == nil { alert.request_id = "" }
+        if alert["request_id"] != nil && alert.request_id != "" {
             let action_i = core_action_index(alert.request_id)
             if action_i >= 0 && actions[action_i].service == "mail.send" {
                 if actions[action_i].status == "accepted" || actions[action_i].status == "verified" { alert.status = actions[action_i].status }
@@ -3235,7 +3235,7 @@ fn mail_watch_send(key,displayed){
     if i < 0 || draft == nil || mail_sending || mail_model_pending || mail_pending { return }
     if mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" { return }
     if !mail_watch_writable { mail_reply_error = "草稿无法保存，未发送。" mail_watch_refresh() return }
-    if mail_watch.alerts[i].to_json().search("\"request_id\":") >= 0 && mail_watch.alerts[i].request_id != "" {
+    if mail_watch.alerts[i]["request_id"] != nil && mail_watch.alerts[i].request_id != "" {
         let action_i = core_action_index(mail_watch.alerts[i].request_id)
         if action_i < 0 || actions[action_i].status != "failed" {
             mail_reply_error = "这封来信已有发送记录，请核对收件端；不会重复发送。"
@@ -6134,7 +6134,7 @@ fn chat_shows_goal(){
 }
 
 fn model_user_error(raw){
-    if raw == nil { return "模型服务未完成，请稍后重试。" }
+    if raw == nil { return "这次没有整理成功。请重试，或手动填写。" }
     if raw.search("memory_conflict:") == 0 { return raw.split("memory_conflict: ")[1] }
     if raw.search("capability:") == 0 { return "Muse 尚未获得模型能力授权。" }
     if raw.search("no_provider:") == 0 { return "尚未配置可用的模型，请在宿主模型设置中选择。" }
@@ -6142,11 +6142,11 @@ fn model_user_error(raw){
     if raw.search("budget:") == 0 { return "今天的模型调用预算已用完。" }
     if raw.search("bad_request: input is") == 0 { return "对话上下文过长，请开始新对话或缩短内容。" }
     if raw.search("bad_request:") == 0 { return "模型请求内容或格式无效，请检查输入。" }
-    if raw.search("invalid_output:") == 0 { return "模型回复未通过格式校验，请重试。" }
+    if raw.search("invalid_output:") == 0 { return "这次没有整理成功。请重试，或手动填写。" }
     if raw.search("too_large:") == 0 { return "模型回复过长，未保存；请重试。" }
     if raw.search("timed out") >= 0 || raw.search("timeout") >= 0 { return "模型服务等待超时，请稍后重试。" }
     if raw.search("provider:") == 0 { return "模型服务暂不可用，请检查宿主模型连接。" }
-    return "模型服务未完成，请检查宿主模型状态。"
+    return "这次没有整理成功。请重试，或手动填写。"
 }
 
 fn chat_history_scope_current(entry){
@@ -6285,15 +6285,24 @@ fn chat_status_question(text){
     return regex("(吗|么|[?？])$","").test(text.trim())
         && regex("已|成功|完成|回执|结果","").test(text)
 }
+fn chat_mail_reference(text){
+    return text.search("回复他说") == 0 || text.search("回复她说") == 0 || text.search("回复对方说") == 0
+}
+fn chat_mail_reference_candidate(){
+    let active = chat_active_candidate(chat_selected_id)
+    if active != nil && active.action == "mail_compose" && chat_payload_error(active.action,active.payload) == "" { return active }
+    return nil
+}
 fn chat_edit_request(text){
     if chat_status_question(text) { return false }
+    if chat_mail_reference(text) && chat_mail_reference_candidate() != nil { return true }
     for word in ["改","调整","换成","推迟","提前","重新起草"] {
         if text.search(word) >= 0 { return true }
     }
     return false
 }
 fn chat_cancel_request(text){
-    return text.search("取消") == 0 || text == "算了" || text == "不要继续" || text == "停止这个任务"
+    return text.search("取消") == 0 || text == "算了" || text == "不要继续" || text == "停止这个任务" || text == "不用了" || text == "不用了。"
 }
 fn chat_request_binding(id){
     for request in chat_requests { if request.id == id { return request } }
@@ -6817,6 +6826,9 @@ fn chat_add_proposal(session_id,request_id,account,message,output){
         }
     }
     payload = payload.to_json().parse_json()
+    if editing && action == "mail_compose" && chat_mail_reference(message) {
+        payload.to = request.candidate_payload.parse_json().to
+    }
     if action == "calendar_candidate" {
         payload.start = chat_calendar_full_time(payload.start)
         payload.end = chat_calendar_full_time(payload.end)
@@ -7061,6 +7073,10 @@ fn chat_remember(text){
 
 fn chat_local_command(message){
     if chat_memory_command(message) { return true }
+    if chat_mail_reference(message) && chat_mail_reference_candidate() == nil {
+        messages.push({role: "assistant" text: "要回复哪封邮件？请先打开具体来信并准备回复草稿，或选择一张有效邮件候选。" state: "error" at: time_now()})
+        chat_save() return true
+    }
     if chat_cancel_request(message) {
         let cancelled = chat_cancel_candidates()
         let answer = "没有待执行候选；本次请求不发送邮件或写入日历。"
@@ -8112,7 +8128,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse 官方应用 · 0.3.26-rc1（日程范围与改期修复）" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse 官方应用 · 0.3.26-rc2（日程范围与改期修复）" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
@@ -8266,6 +8282,11 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                                 Label{width: Fill text: calendar_links[li].question draw_text.color: ink draw_text.wrap: Words}
                                 schedule_clarification := TextInput{width: Fill height: 54 empty_text: "补充缺少的信息"}
                                 Secondary{text: "补充这次约定" on_click: || schedule_clarify(calendar_selected_goal,ui.schedule_clarification.text())}
+                            }
+                            if calendar_links[li]["schedule_policy"] == nil
+                                && (calendar_links[li].status == "candidate" || calendar_links[li].status == "editing")
+                                && calendar_links[li]["active_generation"] == nil {
+                                Secondary{text: "重试整理" on_click: || schedule_clarify(calendar_selected_goal,nil)}
                             }
                             if calendar_links[li]["schedule_policy"] != nil {
                                 let policy_error = schedule_policy_error(calendar_links[li].candidate,calendar_links[li])

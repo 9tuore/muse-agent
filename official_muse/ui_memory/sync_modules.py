@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Embed verified Splash source modules in the single App Hub entrypoint."""
+"""Sync modules into the readable entry; compact/sign the delivery bundle afterwards."""
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
-path=ROOT/'official_muse/app/bundle/main.splash'
+path=ROOT/'official_muse/app/source/main.splash'
 text=path.read_text()
 if '// BEGIN INCOMING_MAIL\n' not in text:
  a=text.index('// Inbox polling uses only granted Host accounts.')

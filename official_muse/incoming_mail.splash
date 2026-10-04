@@ -151,8 +151,8 @@ fn mail_watch_boot(){
     }
     if !mail_watch_writable { mail_watch_notice = "来信记录无法恢复，已暂停来信提醒并保留原文件。" return }
     for alert in mail_watch.alerts {
-        if alert.to_json().search("\"draft\":") < 0 && alert.to_json().search("\"request_id\":") < 0 { alert.request_id = "" }
-        if alert.to_json().search("\"request_id\":") >= 0 && alert.request_id != "" {
+        if alert["request_id"] == nil { alert.request_id = "" }
+        if alert["request_id"] != nil && alert.request_id != "" {
             let action_i = core_action_index(alert.request_id)
             if action_i >= 0 && actions[action_i].service == "mail.send" {
                 if actions[action_i].status == "accepted" || actions[action_i].status == "verified" { alert.status = actions[action_i].status }
@@ -434,12 +434,6 @@ fn mail_watch_scan(account_id,ai,index,offset,notify){
     })
 }
 
-fn mail_watch_show(){
-    right_tab = "来信"
-    right_page_mode = true
-    redraw()
-}
-
 fn mail_watch_toggle(){
     if !mail_watch_writable { return }
     mail_watch.enabled = !mail_watch.enabled
@@ -672,7 +666,7 @@ fn mail_watch_send(key,displayed){
     if i < 0 || draft == nil || mail_sending || mail_model_pending || mail_pending { return }
     if mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" { return }
     if !mail_watch_writable { mail_reply_error = "草稿无法保存，未发送。" mail_watch_refresh() return }
-    if mail_watch.alerts[i].to_json().search("\"request_id\":") >= 0 && mail_watch.alerts[i].request_id != "" {
+    if mail_watch.alerts[i]["request_id"] != nil && mail_watch.alerts[i].request_id != "" {
         let action_i = core_action_index(mail_watch.alerts[i].request_id)
         if action_i < 0 || actions[action_i].status != "failed" {
             mail_reply_error = "这封来信已有发送记录，请核对收件端；不会重复发送。"
