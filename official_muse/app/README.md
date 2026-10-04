@@ -8,6 +8,8 @@
 
 开发遵循本目录的 [AGENTS.md](AGENTS.md) 和[官方脚本 API](https://github.com/OctoSense-org/OctoScript-App-Design-Flow/blob/main/docs/SCRIPT-API.md)。当前能力包括 storage、model、mail、calendar、glance，其中 calendar 依赖本地宿主扩展；原版准入与本地扩展验证须分别报告。
 
-本地修改后按现有构建流程生成候选、重新 stamp/sign/check，再从该候选验证。开发候选 0.3.19 的二十项回归尚未全部完成，不能将开发 Gate 通过当作正式提交或全链通过。
+本地修改后按现有构建流程生成候选、重新 stamp/sign/check，再从该候选验证。当前候选 0.3.25 的二十项回归尚未全部完成，不能将开发 Gate 通过当作正式提交或全链通过。
 
 完整源码分类、官方格式和未完成的准入项见 [../README.md](../README.md)。
+
+可读开发源码在`source/main.splash`；`bundle/main.splash`为同token的实际compact版本。日历局部修复验收见根目录MUSE_CALENDAR_REPAIR_REPORT.md。

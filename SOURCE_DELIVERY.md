@@ -1,4 +1,18 @@
-# 当前交付：0.3.22稳定候选源码 + SDK瘦身
+# 当前交付：0.3.25日历阻塞修复
+
+源码更新提交`d1f1617`，来源开发提交`5116505`及`5449a27`。当前签名bundle为实际0.3.25候选，可读入口在`official_muse/app/source/main.splash`；此前源码清理已集成。两者88,092个token等价，精确SHA与局部修复验收见MUSE_CALENDAR_REPAIR_REPORT.md。
+
+本地配套扩展Hub check/scan/签名/catalog验证通过。24+102+7项实际card-host合成断言通过；真实创建在0.3.23，真实同ID改期、独立get、一次完整Shell重启、清理与不存在核对在0.3.25。未将不同版本节点拼成同一最终候选全链，未发送新邮件。
+
+产品仍PARTIAL，5 PASS /13 PARTIAL /2 BLOCKED。第二模型及完整同候选邮件链仍待验收。SDK外部锁与完整差异、Git历史、旧Tag和原失败证据保留；私有原始截图、系统ID、邮件、账号、生产数据库与运行资料不上传，不正式提交App Hub或创建新Tag。
+
+SOURCE_MANIFEST.json记录当前普通文件逐个SHA；source_head绑定源码更新提交，文档及证据属于其后的记录提交。之前桌面0.3.22压缩包仍绑定旧来源，不冒充最新版。
+
+---
+
+## 历史交付（以下按原版本保留）
+
+# 0.3.22稳定候选源码 + SDK瘦身
 
 当前产品仍PARTIAL，5 PASS / 13 PARTIAL / 2 BLOCKED，至少18/20尚未达到。原0.3.22签名bundle、manifest和匹配宿主绑定保持不变。未发布、未移动旧Tag。
 

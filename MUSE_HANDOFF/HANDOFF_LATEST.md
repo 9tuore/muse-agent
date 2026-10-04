@@ -1,29 +1,25 @@
-# Handoff：官方源码瘦身
+# Handoff：日历阻塞修复0.3.25
 
 ## Task
 
-2026-10-04，public main基线be552c1e；用户要求一次清完。
-
-## Result
-
-稳定0.3.22payload保持字节；SDK改为锁定官方基础＋完整可读差异。精确验证结果见SDK_SLIMMING_REPORT.md；产品仍PARTIAL。
+用户要求参考Aurora-X日历公开说明，修复尚未解决的日历业务阻塞。基线459b079，分支codex/muse-prelim-stability；无子智能体。
 
 ## Changed
 
-新增依赖锁、bootstrap、76个本地SDK差异文件；移除整套基础源码Git跟踪，保留旧历史。精简README，删旧导出器及10个未用import。主入口清理9d5d763以补丁交付，不覆盖签名payload。
+允许窗口统一校验与错误候选重分析；同Goal新版本/原ID手动改期；账号缓存不代替宿主授权；单次精确软性放宽、查询和独立系统确认。共用原有函数，未新增运行时、Capability或宿主补丁。此前清理一并集成。
 
 ## Tests
 
-SDK全树还原、Cargo锁定依赖检查和源码导出读回结果记录于瘦身报告。主入口合成card-host121项通过；旧selection前后同错保留。
+实际card-host133/133合成断言；88092 token一致；本地扩展Gate/scan/catalog通过。真实创建/get在0.3.23；0.3.25同ID修改/get、一次完整Shell重启七文件相同、删除/get found=false通过。模型3次相关调用known_usage；新发信未执行。失败及观察器错误原件保留。
 
-## Commit
+## Current
 
-本轮快进同步main；不重写历史、不移动Tag、不宣称正式上架。
+最终0.3.25窗口8484；可读0b16836e、实际payload a44677c4、Host0fd99361。原授权测试资料在新私有隔离副本，源基线未覆盖；来信提醒已恢复，未授权模型分析关闭。
 
 ## Remaining
 
-原日历hard_windows为空与最终真实全链、第二模型、发布材料未完成。
+整个项目PARTIAL，5PASS/13PARTIAL/2BLOCKED。第二模型、最终同候选邮件全链、正式材料和电脑重启仍缺。不创建成功Tag或正式发布。详见MUSE_CALENDAR_REPAIR_REPORT.md。
 
-## Important Boundaries
+源码修复提交：`5116505`；候选构建时基线为`459b079`，测试与Gate以本报告的精确源码及payload哈希绑定。
 
-不访问生产资料或密钥，不调用模型、发送邮件或修改日历。基础源码恢复需网络；全Git历史体积仍保留。
+公开源码提交：`d1f161752f977ddea811444dc9443dd3e4d6515f`；GitHub同步结果以最终独立读回为准。当前运行候选为0.3.25，旧桌面0.3.22归档仍保留原绑定。

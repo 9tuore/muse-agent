@@ -186,5 +186,90 @@
     "source_commit": "67612e99b406593a1da840f7a0a68cc9966b4ab6",
     "public_bundle_blake3": "1f0db6c5d401fab733542aa8df4cc66fe8f4709d0c7d51434ba4594b84aeb762"
   },
-  "github_push_during_test_window": false
+  "github_push_during_test_window": false,
+  "historical_fields_note": "Earlier fields preserve version-bound failures and evidence. Current state is described by latest_calendar_repair and MUSE_HANDOFF/CURRENT_STATE.md.",
+  "latest_calendar_repair": {
+    "status": "CALENDAR_BLOCKERS_VERIFIED_PRODUCT_PARTIAL",
+    "version": "0.3.25",
+    "created_at_utc": "2026-10-04T09:49:19.757305+00:00",
+    "readable_sha256": "0b16836eab245b40bd1776bd7d5d2cd2e5b59499024c7230ec2a1c13a8ae4e9b",
+    "payload_sha256": "a44677c447087667ff878a702da5c65385ac2b6b9bf19ae4a91222da0eb2bce2",
+    "host_sha256": "0fd9936126acad3a5c61ac1e7a477ba2c9393d740572ec517472f52da9181047",
+    "fixture": {
+      "policy": 24,
+      "scheduling": 102,
+      "goal": 7,
+      "total": 133
+    },
+    "real": {
+      "create_and_get": "PASS_0.3.23",
+      "same_id_update_and_get": "PASS_0.3.25",
+      "restart_seven_files_equal": true,
+      "restart_no_script_error": true,
+      "delete_and_get_found_false": true,
+      "mail_send": "NOT_EXECUTED",
+      "same_candidate_full_mail_chain": "NOT_COMPLETED"
+    },
+    "model_calls": [
+      {
+        "is_ok": true,
+        "known_usage": true,
+        "attempts": 1,
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1527,
+          "output_tokens": 1905
+        },
+        "request_at": 1791105696.838677,
+        "response_at": 1791105720.811232
+      },
+      {
+        "is_ok": true,
+        "known_usage": true,
+        "attempts": 1,
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2043,
+          "output_tokens": 4830
+        },
+        "request_at": 1791106446.55023,
+        "response_at": 1791106500.724485
+      },
+      {
+        "is_ok": true,
+        "known_usage": true,
+        "attempts": 1,
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2025,
+          "output_tokens": 7136
+        },
+        "request_at": 1791106553.011054,
+        "response_at": 1791106641.389731
+      }
+    ],
+    "gate": "LOCAL_EXTENDED_CHECK_SCAN_SIGN_CATALOG_VERIFY_PASS",
+    "upstream_calendar_acceptance": false,
+    "private_evidence_exported": false,
+    "new_capability": false,
+    "acceptance_counts": {
+      "PASS": 5,
+      "PARTIAL": 13,
+      "BLOCKED": 2
+    },
+    "failures_preserved": [
+      "baseline empty allowed range",
+      "first fixture frame budget",
+      "fixed-date historical calendar_suite before and after",
+      "premature model observer timeout without replay",
+      "UTC/offset test representation mismatch"
+    ]
+  },
+  "current_running_candidate": {
+    "version": "0.3.25",
+    "source_commit": "d1f1617",
+    "dev_code_commit": "5116505",
+    "development_evidence_commit": "5449a27",
+    "private_runtime_exported": false
+  }
 }

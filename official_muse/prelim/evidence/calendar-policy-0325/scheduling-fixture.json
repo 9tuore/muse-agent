@@ -1,0 +1,407 @@
+{
+  "duplicate_confirmation_no_second_write": true,
+  "replan_wrong_event_calendar_refuses": true,
+  "replan_missing_original_does_not_fallback_create": true,
+  "other_account_not_matched": true,
+  "query_relax_flag_alone_does_not_authorize_manual_time": true,
+  "stale_slot_adoption_observed": {
+    "draft": {
+      "calendar_id": "fixture-calendar",
+      "title": "MUSE-R2-SCHEDULING",
+      "start": "2030-06-12T09:00:00+08:00",
+      "end": "2030-06-12T10:00:00+08:00",
+      "time_zone": "Asia/Shanghai",
+      "location": "合成地点"
+    },
+    "link": {
+      "goal_id": "fixture-slot-goal",
+      "message_id": "replacement-mail",
+      "status": "candidate",
+      "event_id": "",
+      "candidate_revision": 2,
+      "candidate": {
+        "calendar_id": "fixture-calendar",
+        "title": "MUSE-R2-SCHEDULING",
+        "start": "2030-06-12T09:00:00+08:00",
+        "end": "2030-06-12T10:00:00+08:00",
+        "time_zone": "Asia/Shanghai",
+        "location": "合成地点"
+      },
+      "schedule_policy": {
+        "search_start": "2030-06-12T00:00:00+08:00",
+        "search_end": "2030-06-16T00:00:00+08:00",
+        "time_zone": "Asia/Shanghai",
+        "reason": "合成已确认软偏好，禁止时间以hard_windows表达",
+        "hard_windows": [
+          {
+            "start": "2030-06-12T09:00:00+08:00",
+            "end": "2030-06-12T12:00:00+08:00"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2030-06-12T09:00:00+08:00",
+            "end": "2030-06-12T10:00:00+08:00"
+          }
+        ]
+      },
+      "slot_check": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-12T00:00:00+08:00",
+        "end": "2030-06-16T00:00:00+08:00",
+        "events": [],
+        "at": 1791107003.032119,
+        "relaxed_once": true,
+        "binding": "{\"goal_id\":\"fixture-slot-goal\",\"account_id\":null,\"message_id\":\"fixture-slot-mail\",\"source_id\":null,\"source_claim_id\":null,\"status\":\"candidate\",\"candidate_revision\":1,\"candidate\":{\"calendar_id\":\"fixture-calendar\",\"title\":\"MUSE-R2-SCHEDULING\",\"start\":\"2030-06-12T09:00:00+08:00\",\"end\":\"2030-06-12T10:00:00+08:00\",\"time_zone\":\"Asia/Shanghai\",\"location\":\"合成地点\"},\"question\":null,\"policy\":{\"search_start\":\"2030-06-12T00:00:00+08:00\",\"search_end\":\"2030-06-16T00:00:00+08:00\",\"time_zone\":\"Asia/Shanghai\",\"reason\":\"合成已确认软偏好，禁止时间以hard_windows表达\",\"hard_windows\":[{\"start\":\"2030-06-12T09:00:00+08:00\",\"end\":\"2030-06-12T12:00:00+08:00\"}],\"preferred_windows\":[{\"start\":\"2030-06-12T09:00:00+08:00\",\"end\":\"2030-06-12T10:00:00+08:00\"}]},\"original_event\":null,\"soft_exception\":null,\"memory_refs\":[]}"
+      }
+    },
+    "calls": [
+      {
+        "service": "calendar.list",
+        "args": {
+          "calendar_id": "fixture-calendar",
+          "start": "2030-06-12T00:00:00+08:00",
+          "end": "2030-06-16T00:00:00+08:00",
+          "limit": 100
+        }
+      }
+    ]
+  },
+  "unavailable_one_minute_overlap_blocks": true,
+  "late_link_revision_observed": {
+    "slots": [],
+    "snapshot": "",
+    "link": {
+      "goal_id": "fixture-slot-goal",
+      "message_id": "fixture-slot-mail",
+      "status": "candidate",
+      "event_id": "",
+      "candidate_revision": 2,
+      "candidate": {
+        "calendar_id": "fixture-calendar",
+        "title": "MUSE-R2-SCHEDULING",
+        "start": "2030-06-12T09:00:00+08:00",
+        "end": "2030-06-12T10:00:00+08:00",
+        "time_zone": "Asia/Shanghai",
+        "location": "合成地点"
+      },
+      "schedule_policy": {
+        "search_start": "2030-06-12T00:00:00+08:00",
+        "search_end": "2030-06-16T00:00:00+08:00",
+        "time_zone": "Asia/Shanghai",
+        "reason": "合成已确认软偏好，禁止时间以hard_windows表达",
+        "hard_windows": [
+          {
+            "start": "2030-06-12T09:00:00+08:00",
+            "end": "2030-06-12T12:00:00+08:00"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2030-06-12T09:00:00+08:00",
+            "end": "2030-06-12T10:00:00+08:00"
+          }
+        ]
+      }
+    }
+  },
+  "forbidden_calls": [],
+  "past_removed_and_quarter_rounded": true,
+  "replan_link_changed_during_read_refuses": true,
+  "old_original_generation_does_not_fill_replan": true,
+  "replan_goal_revision_changed_during_read_refuses": true,
+  "actual_replan_clears_previous_exception": true,
+  "cancel_pending_goal_saved": true,
+  "unverified_dst_boundary_asks": true,
+  "explicit_id_matches": true,
+  "host_calls": [
+    {
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-12T10:00:00+08:00",
+        "end": "2030-06-12T11:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-12T10:00:00+08:00",
+        "end": "2030-06-12T11:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "service": "calendar.status",
+      "args": {}
+    },
+    {
+      "service": "calendar.get",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "event_id": "foreign-probe-event"
+      }
+    },
+    {
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-12T10:00:00+08:00",
+        "end": "2030-06-12T11:00:00+08:00",
+        "limit": 100
+      }
+    }
+  ],
+  "midnight_now_rounds_into_next_local_day": true,
+  "wrong_calendar_list_refuses_candidates": true,
+  "late_slots_reject_changed_link_revision_without_form_change": true,
+  "once_exception_never_bypasses_changed_hard_limit": true,
+  "update_payload_time_fields_only": true,
+  "replan_same_goal_one_event": true,
+  "original_reference_history_kept": true,
+  "old_relaxed_slot_cannot_rebind_exception_to_new_mail": true,
+  "current_bound_relaxed_slot_still_adopts_and_checks_conflicts": true,
+  "soft_cannot_bypass_hard": true,
+  "missing_all_day_refuses": true,
+  "too_short_window_zero_slots": true,
+  "next_mail_direct_reference_continuity": true,
+  "unchecked_slot_cannot_create_exception": true,
+  "title_sender_insufficient": true,
+  "direct_unverified_dst_boundary_refuses_before_query": true,
+  "edit_clears_exception_and_blocks_soft_bypass": true,
+  "old_slot_with_unanswered_question_cannot_grant_exception": true,
+  "leap_month_four_day_plus_one_second_no_query": true,
+  "transparent_overlap_is_free": true,
+  "reference_substring_not_matched": true,
+  "four_day_excess_no_query": true,
+  "late_slots_reject_changed_source_without_form_change": true,
+  "leap_month_query_recommends_exact_slot": true,
+  "target_calendar_only": true,
+  "overlapping_windows_actual": [
+    {
+      "start": "2030-06-12T01:00:00Z",
+      "end": "2030-06-12T02:00:00Z"
+    }
+  ],
+  "late_slots_reject_new_unanswered_question": true,
+  "direct_unique_reference_matches": true,
+  "missing_duration_no_query": true,
+  "direct_shifted_range_cannot_reanchor_past_original_four_days": true,
+  "original_disappeared_blocks_mutation": true,
+  "update_exactly_original_independent_readback": true,
+  "pure_no_external_actions": true,
+  "candidate_outside_hard_rejected_before_conflict_query": true,
+  "replan_account_revoke_during_read_refuses": true,
+  "utc_leap_midnight_next_second_formats_exactly": true,
+  "leap_month_four_day_range_and_exact_hard_edges_valid": true,
+  "soft_conflict_asks_no_relax_no_write": true,
+  "utc_leap_midnight_exact_formats_exactly": true,
+  "before_original_day_no_query": true,
+  "candidate_outside_soft_requires_once_permission": true,
+  "source_digest_mutation_before_callback": {
+    "changed": true,
+    "digest": "6c1aa50442a93e42c0eb2907cf4e017cd19547891fa190f3ea473582b0479290",
+    "callbacks": 1
+  },
+  "replan_recurring_refuses": true,
+  "original_duration_and_fields_preserved": true,
+  "actual_model_complete_fields_question_still_blocks": true,
+  "inflight_original_not_used": true,
+  "late_model_does_not_revive_cancelled_goal": true,
+  "foreign_calendar_approval_observed": {
+    "calls": [
+      {
+        "service": "calendar.list",
+        "args": {
+          "calendar_id": "fixture-calendar",
+          "start": "2030-06-12T10:00:00+08:00",
+          "end": "2030-06-12T11:00:00+08:00",
+          "limit": 100
+        }
+      },
+      {
+        "service": "calendar.list",
+        "args": {
+          "calendar_id": "fixture-calendar",
+          "start": "2030-06-12T10:00:00+08:00",
+          "end": "2030-06-12T11:00:00+08:00",
+          "limit": 100
+        }
+      },
+      {
+        "service": "calendar.status",
+        "args": {}
+      },
+      {
+        "service": "calendar.get",
+        "args": {
+          "calendar_id": "fixture-calendar",
+          "event_id": "foreign-probe-event"
+        }
+      },
+      {
+        "service": "calendar.list",
+        "args": {
+          "calendar_id": "fixture-calendar",
+          "start": "2030-06-12T10:00:00+08:00",
+          "end": "2030-06-12T11:00:00+08:00",
+          "limit": 100
+        }
+      }
+    ],
+    "error": "日历复查返回了其他范围的事件，未执行系统写入。",
+    "preview": ""
+  },
+  "unknown_original_not_used": true,
+  "busy_added_during_approval_refuses_update": true,
+  "answer_alone_waits_new_candidate": true,
+  "late_slots_reject_account_revocation_after_query": true,
+  "changed_mail_cannot_reuse_exception": true,
+  "overlapping_windows_do_not_duplicate_candidate": true,
+  "adjacent_boundaries_do_not_overlap": true,
+  "references_unique_matches": true,
+  "boundary": "FIXTURE_PRODUCTION_FUNCTIONS: synthetic Host/model replies; real isolated fs; no external mail, EventKit or model inference.",
+  "replan_needs_separate_confirmation": true,
+  "one_slot_not_padded": true,
+  "out_of_range_busy_refuses": true,
+  "late_precondition_cannot_write_new_revision": true,
+  "explicit_id_substring_not_matched": true,
+  "late_slots_rejected_after_revision": true,
+  "second_mail_reuses_same_goal": true,
+  "cross_month_midnight_slot_uses_correct_utc_day": true,
+  "failed_query_refuses_candidates": true,
+  "source_claim_binding_observed": {
+    "claim_revision": 2,
+    "refs": [],
+    "slots": [],
+    "link": {
+      "goal_id": "fixture-slot-goal",
+      "message_id": "fixture-slot-mail",
+      "status": "candidate",
+      "event_id": "",
+      "candidate_revision": 1,
+      "candidate": {
+        "calendar_id": "fixture-calendar",
+        "title": "MUSE-R2-SCHEDULING",
+        "start": "2030-06-12T09:00:00+08:00",
+        "end": "2030-06-12T10:00:00+08:00",
+        "time_zone": "Asia/Shanghai",
+        "location": "合成地点"
+      },
+      "schedule_policy": {
+        "search_start": "2030-06-12T00:00:00+08:00",
+        "search_end": "2030-06-16T00:00:00+08:00",
+        "time_zone": "Asia/Shanghai",
+        "reason": "合成已确认软偏好，禁止时间以hard_windows表达",
+        "hard_windows": [
+          {
+            "start": "2030-06-12T09:00:00+08:00",
+            "end": "2030-06-12T12:00:00+08:00"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2030-06-12T09:00:00+08:00",
+            "end": "2030-06-12T10:00:00+08:00"
+          }
+        ]
+      },
+      "account_id": "synthetic-account",
+      "source_id": "slot-source",
+      "source_claim_id": "slot-claim"
+    }
+  },
+  "chain_goal_source_bound": true,
+  "later_mail_does_not_overwrite_pending_first": true,
+  "foreign_calendar_during_approval_refuses_update": true,
+  "truncated_refuses_candidates": true,
+  "question_gate_clears_previous_recommendations": true,
+  "late_slots_reject_replaced_bound_source_digest": true,
+  "direct_soft_window_outside_hard_refuses_before_query": true,
+  "ambiguous_reference_not_guessed": true,
+  "new_model_candidate_clears_previous_exception": true,
+  "once_relax_fits_hard_only": true,
+  "complete_fields_unanswered_question_blocks_conflict_preview_create": true,
+  "utc_leap_midnight_previous_second_formats_exactly": true,
+  "relax_not_permanent": true,
+  "explicit_checked_relaxed_slot_allowed": true,
+  "answered_question_new_candidate_can_continue": true,
+  "source_claim_mutation_before_callback": {
+    "changed": true,
+    "revision": 2,
+    "callbacks": 1
+  },
+  "unanswered_question_blocks_recommendation_query": true,
+  "duplicate_mail_cannot_replan_completed_message": true,
+  "reversed_busy_refuses": true,
+  "calendar_readonly_blocks_mutation": true,
+  "update_preserves_other_metadata": true,
+  "title_change_blocks_update": true,
+  "execution_mode": "full_matching_sdk",
+  "location_change_blocks_update": true,
+  "changed_revision_cannot_reuse_exception": true,
+  "original_version_changed_blocks_mutation": true,
+  "leap_month_query_observed": {
+    "slots": [
+      {
+        "start": "2032-02-29T15:00:00Z",
+        "end": "2032-02-29T16:00:00Z"
+      }
+    ],
+    "error": "",
+    "calls": [
+      {
+        "service": "calendar.list",
+        "args": {
+          "calendar_id": "fixture-calendar",
+          "start": "2032-02-29T00:00:00+08:00",
+          "end": "2032-03-04T00:00:00+08:00",
+          "limit": 100
+        }
+      }
+    ],
+    "start_epoch": 1961679600,
+    "end_epoch": 1961683200,
+    "duration": 3600,
+    "rounded": 1961679600,
+    "now": 1791107002.730968,
+    "windows": [
+      {
+        "start": "2032-02-29T23:00:00+08:00",
+        "end": "2032-03-01T00:00:00+08:00"
+      }
+    ],
+    "pure": {
+      "slots": [
+        {
+          "start": "2032-02-29T15:00:00Z",
+          "end": "2032-02-29T16:00:00Z"
+        }
+      ],
+      "error": ""
+    },
+    "literal": {
+      "slots": [
+        {
+          "start": "2032-02-29T15:00:00Z",
+          "end": "2032-02-29T16:00:00Z"
+        }
+      ],
+      "error": ""
+    }
+  },
+  "one_second_past_midnight_hard_end_refuses": true,
+  "late_slots_reject_bound_source_claim_revision_even_without_context_refs": true,
+  "unanswered_question_calls": [],
+  "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+  "source_sha256": "0b16836eab245b40bd1776bd7d5d2cd2e5b59499024c7230ec2a1c13a8ae4e9b",
+  "passed": 102,
+  "failed": [],
+  "suite_sha256": "ca0f6456cf65971f924eb97b804fac5a3a77d53226d46d546329b35d1ca3e811",
+  "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+  "real_model": false,
+  "real_mail": false,
+  "real_calendar": false
+}

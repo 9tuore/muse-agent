@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前运行候选：0.3.22；产品验收：PARTIAL（5 PASS / 13 PARTIAL / 2 BLOCKED）。** 来源记忆和日程候选已建立，但最终真实链仍被空hard_windows校验阻止。第二模型、正式发布身份与材料尚未齐全。源码同步不代表正式上架。
+**当前运行候选：0.3.25；产品验收：PARTIAL（5 PASS / 13 PARTIAL / 2 BLOCKED）。** 日历安排范围和手动改期阻塞已修复；真实同ID改期、独立读回、Shell重启和合成事件清理通过。第二模型、同一最终候选完整邮件链及正式发布材料仍有缺项。详见[Muse日历修复报告](MUSE_CALENDAR_REPAIR_REPORT.md)。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
@@ -20,12 +20,12 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 原0.3.22签名payload、manifest、listing和资源，字节保持不变 |
+| `official_muse/app/bundle/` | 0.3.25实际签名compact payload、manifest、listing和资源，与实机候选逐字节一致 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
 | `scripts/bootstrap_sdk.py` | 从官方锁定来源恢复依赖，逐文件/模式/链接验证，不接受不匹配的树 |
-| `patches/muse-source-cleanup-20261004.patch` | 已验证的主入口清理补丁；待后续候选集成，当前签名payload不变 |
+| `patches/muse-source-cleanup-20261004.patch` | 历史主入口清理补丁；已集成0.3.25，保留为来源记录 |
 | `official_muse/prelim/`、`ui_memory/`、`round2/`、`phase2/` | 测试、公开证据和历史失败记录 |
 | `app/`、`scripts/`、`miniapp/`、`MUSE_HANDOFF/` | 保留的桌面历史源码、工具和交接 |
 
@@ -51,11 +51,11 @@ cd ../..
 
 四个内部`.sources/`链接由bootstrap恢复。已有vendor时脚本只核验，发现差异立即停止，保留本地修改。开发公钥不是发布私钥；开发check不代替Gate、正式发布身份、catalog、能力授权及人工审查。模型和邮箱/日历账号在官方Host设置中配置。
 
-源码清理补丁应用后必须重新compact、stamp/签名和核验，不能将它直接覆盖到当前签名bundle。完整运行资料不放在源码仓库。
+0.3.25已集成清理补丁，历史补丁不再向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。完整运行资料不放在源码仓库。
 
 ## 4. 验收、支持与隐私
 
-- [二十项判定](ROUND_ACCEPTANCE.md)与[当前最终报告](THREE_HOUR_FINAL_REPORT.md)
+- [最新日历修复报告](MUSE_CALENDAR_REPAIR_REPORT.md)、[二十项判定](ROUND_ACCEPTANCE.md)与[历史三小时报告](THREE_HOUR_FINAL_REPORT.md)
 - [源码清理报告](MUSE_CODE_CLEANUP_REPORT.md)、[SDK瘦身记录](SDK_SLIMMING_REPORT.md)和[历史截图归档](EVIDENCE_ARCHIVE.md)
 - [来源和交付边界](SOURCE_DELIVERY.md)与[SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)
 - [问题反馈](https://github.com/9tuore/muse-agent/issues)
