@@ -1,16 +1,16 @@
 # A4 当前入口 · rc9 · 2026-10-05 07:25 +08
 
-本文件是当前打包交接入口。06:20 材料保持原字节：[冻结记录](PUBLIC_MAINTENANCE_FREEZE_RC9_SYNC.json)、[37 项清单](PUBLIC_MAINTENANCE_ALLOWLIST.json)、[当时交接](A4_HANDOFF_CURRENT.md)、[当时薄包方案](THIN_SOURCE_DELIVERY_PLAN.md)。这些历史文件中的“待重测”描述只代表 06:20 时点；本入口不将其改成新版本验收。
+本文件是07:25打包交接的只读快照；后续终态以仓库根目录SOURCE_DELIVERY、RC_CODE_FREEZE及最终SOURCE_MANIFEST为准。06:20 材料保持原字节：[冻结记录](PUBLIC_MAINTENANCE_FREEZE_RC9_SYNC.json)、[37 项清单](PUBLIC_MAINTENANCE_ALLOWLIST.json)、[当时交接](A4_HANDOFF_CURRENT.md)、[当时薄包方案](THIN_SOURCE_DELIVERY_PLAN.md)。这些历史文件中的“待重测”描述只代表 06:20 时点；本入口不将其改成新版本验收。
 
 ## 当前身份和已读证据
 
 应用为 **0.3.26-rc9**，签名应用提交 A = `1c9f3b46e7aac0ee17be385de64c97564651152f`；mirror 为 `official_muse/app/build/ui-memory-20261003/rc9-final-startup-r1/mirror`。可读源码 SHA256 为 `9d01484cb775329530d00f077fb74cfa8469e61ad3117a21360779c4bda13505`，compact payload SHA256 为 `4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5`。
 
-A4 当前只读核验：Git/application、Git/source snapshot、mirror 与 pack 的六文件逐字节一致；catalog sequence45/39 entries 的签名核验和 bundle 公钥检查 exit0。当前源码 HEAD 仍为 `862c55e153692647b8699c2c715a0ddf60f1477a`，不是总控声明的最终导出 HEAD。
+A4当时只读核验：Git/application、Git/source snapshot、mirror与pack的六文件逐字节一致；catalog sequence45/39 entries的签名核验和bundle公钥检查exit0。当时源码HEAD为 `862c55e153692647b8699c2c715a0ddf60f1477a`，不是总控声明的最终导出HEAD。下列摘要SHA也是该观察时点，后续新增元数据以最终清单为准。
 
 - [70 次启动摘要](../startup/RC9_STARTUP_70_SUMMARY.json)：30 cold、20 reopen、20 Shell restart 全部通过；摘要文件 SHA256 `cbc7813c17310e639284a72f3e87fe2571d581b29e12cb6febafae9bbeccd70b`。这是实际可见 native Shell 加合成非空数据的逐次检查，未重启电脑，未调用真实模型或 Mail backend。
 - [100 次连续应用重开摘要](../startup/RC9_REOPEN_100_SUMMARY.json)：当前已读到 100/100 通过；摘要文件 SHA256 `34dba343eaef4109ea2a18db90c200d0a2f0c7adcda3c7aa28777b57c6e3b95b`。同一 native PID；第1次截图404保留，另行记录第100次最终截图，未重建首次截图。这不代表100次进程冷启动或电脑重启。
-- [D05 两模型复测摘要](../startup/RC9_D05_TWO_MODEL_SEMANTIC_REVIEW.json)：受影响的单题由 M3、M2.7 实际 model.complete 后的应用追问通过；M3 class=strong，M2.7 class=unknown。不是完整两模型15题、完整T17或系统Calendar写入，M3提交端404记录也保留。
+- [D05 两模型复测摘要](../startup/RC9_D05_TWO_MODEL_SEMANTIC_REVIEW.json)：受影响的单题由 M3、M2.7 实际 model.complete 后的应用追问通过；M3 class=strong，M2.7 class=unknown。不是原20题加准备/保留变体的完整双模型测试、完整T17或系统Calendar写入，M3提交端404记录也保留。
 - 06:39:52 开始的7200秒 r2观察尚未取得终态；约08:00模型复测与约08:40观察收口依总控实际报告，计划时间本身不算通过。原rc9 r1的ENOSPC中断保留：[中断摘要](../startup/RC9_STABILITY_INTERRUPTION_SUMMARY.json)。
 
 A2/A3内部评分70/100、旧20项矩阵5 PASS /14 PARTIAL /1 BLOCKED是总控报告，本入口未重评分。新Host/Calendar T18、接收两台Intel Mac、其macOS版本/电脑重启、正式Hub准入和严格clean仍有缺项。A4未执行GUI、模型、系统权限或账号动作；上述运行结果均来自已读的Root摘要。
