@@ -142,7 +142,7 @@ static NSDictionary *perform(NSDictionary *request) {
         }
         return @{ @"result": @{ @"calendar_id": target.calendarIdentifier,
                                   @"start": text(args, @"start"), @"end": text(args, @"end"),
-                                  @"events": events, @"truncated": @(found.count > limit) } };
+                                  @"events": events, @"truncated": found.count > limit ? @YES : @NO } };
     }
 
     if ([method isEqualToString:@"get"]) {
