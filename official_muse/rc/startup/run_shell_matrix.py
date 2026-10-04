@@ -20,7 +20,8 @@ def main():
     p.add_argument('--cold-count',type=int,default=10);p.add_argument('--reopen-count',type=int,default=5);p.add_argument('--restart-count',type=int,default=0);p.add_argument('--fail-fast',action='store_true')
     p.add_argument('--compact-evidence',action='store_true',help='Keep first/failure raw snapshots and PNGs; deduplicate exact source text in other success snapshots')
     a=p.parse_args()
-    assert 1<=a.cold_count<=30 and 0<=a.reopen_count<=20 and 0<=a.restart_count<=20
+    assert 0<=a.cold_count<=30 and 0<=a.reopen_count<=100 and 0<=a.restart_count<=20
+    assert a.cold_count+a.reopen_count+a.restart_count>0
     assert 8480<=a.port<=8499
     c=a.candidate.resolve();m=json.loads((c/'candidate.json').read_text());assert m['profile_kind']=='LOCAL_MODEL_ONLY_SYNTHETIC'
     private=Path(m.get('runtime_private_path',str(c/'private')));jail=private/'apps/muse-goals'
