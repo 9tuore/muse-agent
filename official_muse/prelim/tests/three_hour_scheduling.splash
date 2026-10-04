@@ -1,0 +1,850 @@
+// Production scheduling/calendar functions; transport-only synthetic services.
+// Full path requires the matching SDK fs.sha256. Pure mode remains a separate run.
+let sh_full = true
+let sh_checks = {}
+let sh_calls = []
+let sh_models = []
+let sh_gets = []
+let sh_lists = []
+let sh_hold_get = false
+let sh_hold_list = false
+let sh_event = nil
+let sh_events = []
+let sh_truncated = false
+let sh_list_ok = true
+let sh_permission = true
+let sh_writes = 0
+let sh_forbidden = []
+let sh_goal = ""
+let sh_update_payload = nil
+let sh_model_output = nil
+let sh_block_update = false
+let sh_approval_variant = "after-confirm"
+let sh_approval_near_start = ""
+fn three_hour_request(service,args,cb){
+    sh_calls.push({service: service args: args})
+    if service == "mail.accounts" { cb({is_ok: true data: [{id: "synthetic-account" address: "self@example.invalid"}]}) return }
+    if service == "model.complete" { sh_models.push(cb) return }
+    if service == "calendar.status" {
+        cb({is_ok: true data: {permission: "full_access" calendars: [{id: "fixture-calendar" writable: sh_permission}]}}) return
+    }
+    if service == "calendar.list" {
+        if sh_hold_list { sh_lists.push(cb) return }
+        let events = []
+        for event in sh_events {
+            let a = calendar_iso_epoch(event.start) let b = calendar_iso_epoch(event.end)
+            if a == nil || b == nil || (a < calendar_iso_epoch(args.end) && b > calendar_iso_epoch(args.start)) { events.push(event) }
+        }
+        cb({is_ok: sh_list_ok data: {events: events truncated: sh_truncated}}) return
+    }
+    if service == "calendar.get" {
+        if sh_hold_get { sh_gets.push(cb) return }
+        cb({is_ok: true data: {found: sh_event != nil event: sh_event}}) return
+    }
+    if service == "calendar.update" {
+        if sh_block_update { cb({is_ok: false error: "Boundary probe intercepted mutation"}) return }
+        sh_writes = sh_writes + 1
+        sh_update_payload = args.to_json().parse_json()
+        sh_event.start = args.changes.start sh_event.end = args.changes.end sh_event.version = "fixture-v2"
+        cb({is_ok: true data: {event_id: sh_event.id version: sh_event.version}}) return
+    }
+    // The scenario starts with an existing synthetic event. No creation/deletion/send allowed.
+    sh_forbidden.push(service)
+    cb({is_ok: false error: "Synthetic scheduling forbids this service"})
+}
+fn sh_count(service){
+    let n = 0 for call in sh_calls { if call.service == service { n = n + 1 } }
+    return n
+}
+fn sh_progress(phase){ fs.write("progress.json",{phase: phase checks: sh_checks calls: sh_calls}.to_json()) }
+fn sh_original(){
+    return {id: "fixture-event" calendar_id: "fixture-calendar" version: "fixture-v1"
+        title: "MUSE-R2-SCHEDULING" start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T10:00:00+08:00"
+        time_zone: "Asia/Shanghai" location: "合成地点" recurring: false all_day: false availability: 0
+        attendees: ["synthetic@example.invalid"] notes: "保留的合成备注"}
+}
+fn sh_policy(){
+    return {search_start: "2030-06-12T00:00:00+08:00" search_end: "2030-06-16T00:00:00+08:00"
+        time_zone: "Asia/Shanghai" reason: "合成已确认软偏好，禁止时间以hard_windows表达"
+        hard_windows: [{start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T12:00:00+08:00"}]
+        preferred_windows: [{start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T10:00:00+08:00"}]}
+}
+fn sh_query_reset(){
+    calendar_pending = false calendar_selected_goal = "fixture-slot-goal" calendar_operation = "create"
+    calendar_selected_event = nil calendar_context_refs = [] calendar_candidate_revision = 1
+    calendar_calendar_id = "fixture-calendar" calendar_preview = "" calendar_error = ""
+    calendar_checked = "" calendar_conflicts = []
+    ui.calendar_title.set_text("MUSE-R2-SCHEDULING") ui.calendar_start.set_text("2030-06-12T09:00:00+08:00")
+    ui.calendar_end.set_text("2030-06-12T10:00:00+08:00") ui.calendar_timezone.set_text("Asia/Shanghai")
+    ui.calendar_location.set_text("合成地点")
+    calendar_links = [{goal_id: "fixture-slot-goal" message_id: "fixture-slot-mail" status: "candidate"
+        event_id: "" candidate_revision: 1 candidate: calendar_draft_payload() schedule_policy: sh_policy()}]
+    sh_calls = [] sh_events = [] sh_truncated = false sh_list_ok = true sh_hold_list = false sh_lists = "[]".parse_json()
+    schedule_slots = [] schedule_slot_snapshot = ""
+}
+fn probe(){
+    fixture_seed()
+    let one = [{start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T10:00:00+08:00"}]
+    let answer = schedule_free_slots([],one,3600,"",0)
+    sh_checks.one_slot_not_padded = answer.error == "" && answer.slots.len() == 1
+    answer = schedule_free_slots([],one,3601,"",0)
+    sh_checks.too_short_window_zero_slots = answer.error == "" && answer.slots.len() == 0
+    answer = schedule_free_slots([],one,900,"",calendar_iso_epoch("2030-06-12T09:16:00+08:00"))
+    sh_checks.past_removed_and_quarter_rounded = answer.slots.len() == 2 && answer.slots[0].start == "2030-06-12T01:30:00Z"
+    let touching = [{id: "before" start: "2030-06-12T08:00:00+08:00" end: "2030-06-12T09:00:00+08:00" all_day: false availability: 0}
+        {id: "after" start: "2030-06-12T10:00:00+08:00" end: "2030-06-12T11:00:00+08:00" all_day: false availability: 3}]
+    answer = schedule_free_slots(touching,one,3600,"",0)
+    sh_checks.adjacent_boundaries_do_not_overlap = answer.slots.len() == 1
+    touching[1].start = "2030-06-12T09:59:00+08:00"
+    answer = schedule_free_slots(touching,one,3600,"",0)
+    sh_checks.unavailable_one_minute_overlap_blocks = answer.slots.len() == 0
+    touching[1].availability = 1
+    answer = schedule_free_slots(touching,one,3600,"",0)
+    sh_checks.transparent_overlap_is_free = answer.slots.len() == 1
+    touching[1].availability = 4
+    answer = schedule_free_slots(touching,one,3600,"",0)
+    sh_checks.out_of_range_busy_refuses = answer.error != "" && answer.slots.len() == 0
+    touching[1].availability = 0 touching[1].all_day = nil
+    answer = schedule_free_slots(touching,one,3600,"",0)
+    sh_checks.missing_all_day_refuses = answer.error != "" && answer.slots.len() == 0
+    touching[1].all_day = false touching[1].end = "2030-06-12T09:00:00+08:00"
+    answer = schedule_free_slots(touching,one,3600,"",0)
+    sh_checks.reversed_busy_refuses = answer.error != "" && answer.slots.len() == 0
+    let duplicate_windows = [one[0],one[0]]
+    answer = schedule_free_slots([],duplicate_windows,3600,"",0)
+    sh_checks.overlapping_windows_do_not_duplicate_candidate = answer.slots.len() == 1
+    sh_checks.overlapping_windows_actual = answer.slots
+    sh_checks.pure_no_external_actions = sh_calls.len() == 0 && sh_writes == 0
+    start_timeout(0.03,|| sh_month_boundaries())
+}
+fn sh_month_boundaries(){
+    sh_progress("month-boundaries")
+    let midnight = calendar_iso_epoch("2032-03-01T00:00:00Z")
+    sh_checks.utc_leap_midnight_previous_second_formats_exactly = core_utc_iso(midnight-1) == "2032-02-29T23:59:59Z"
+    sh_checks.utc_leap_midnight_exact_formats_exactly = core_utc_iso(midnight) == "2032-03-01T00:00:00Z"
+    sh_checks.utc_leap_midnight_next_second_formats_exactly = core_utc_iso(midnight+1) == "2032-03-01T00:00:01Z"
+    let windows = [{start: "2032-01-31T23:30:00+08:00" end: "2032-02-01T01:30:00+08:00"}]
+    let busy = [{id: "midnight-busy" start: "2032-01-31T23:30:00+08:00" end: "2032-02-01T00:00:00+08:00" all_day: false availability: 0}]
+    let answer = schedule_free_slots(busy,windows,1800,"",0)
+    sh_checks.cross_month_midnight_slot_uses_correct_utc_day = answer.error == "" && answer.slots.len() == 2
+        && answer.slots[0].start == "2032-01-31T16:00:00Z" && answer.slots[1].end == "2032-01-31T17:00:00Z"
+    sh_checks.midnight_now_rounds_into_next_local_day = schedule_round_up(calendar_iso_epoch("2032-01-31T23:59:59+08:00"))
+        == calendar_iso_epoch("2032-02-01T00:00:00+08:00")
+    sh_query_reset()
+    ui.calendar_start.set_text("2032-02-29T23:00:00+08:00") ui.calendar_end.set_text("2032-03-01T00:00:00+08:00")
+    let policy = {search_start: "2032-02-29T00:00:00+08:00" search_end: "2032-03-04T00:00:00+08:00" time_zone: "Asia/Shanghai"
+        hard_windows: [{start: "2032-02-29T23:00:00+08:00" end: "2032-03-01T00:00:00+08:00"}]
+        preferred_windows: [{start: "2032-02-29T23:00:00+08:00" end: "2032-03-01T00:00:00+08:00"}]}
+    calendar_links[0].schedule_policy = policy calendar_links[0].candidate = calendar_draft_payload()
+    sh_checks.leap_month_four_day_range_and_exact_hard_edges_valid = calendar_draft_error(calendar_draft_payload()) == ""
+    schedule_find_slots(false)
+    sh_checks.leap_month_query_recommends_exact_slot = sh_count("calendar.list") == 1 && schedule_slots.len() == 1
+        && schedule_slots[0].start == "2032-02-29T15:00:00Z" && schedule_slots[0].end == "2032-02-29T16:00:00Z"
+    let leap_start = calendar_iso_epoch(ui.calendar_start.text()) let leap_end = calendar_iso_epoch(ui.calendar_end.text())
+    sh_checks.leap_month_query_observed = {slots: schedule_slots error: calendar_error calls: sh_calls start_epoch: leap_start
+        end_epoch: leap_end duration: leap_end - leap_start rounded: schedule_round_up(leap_start) now: time_now()
+        windows: policy.preferred_windows pure: schedule_free_slots([],policy.preferred_windows,leap_end - leap_start,"",0)
+        literal: schedule_free_slots([],[{start: "2032-02-29T23:00:00+08:00" end: "2032-03-01T00:00:00+08:00"}],3600,"",0)}.to_json().parse_json()
+    ui.calendar_end.set_text("2032-03-01T00:00:01+08:00")
+    sh_checks.one_second_past_midnight_hard_end_refuses = calendar_draft_error(calendar_draft_payload()) != ""
+    ui.calendar_end.set_text("2032-03-01T00:00:00+08:00")
+    policy.search_end = "2032-03-04T00:00:01+08:00"
+    let calls = sh_calls.len() schedule_find_slots(false)
+    sh_checks.leap_month_four_day_plus_one_second_no_query = calendar_draft_error(calendar_draft_payload()) != "" && sh_calls.len() == calls
+    start_timeout(0.03,|| sh_queries())
+}
+fn sh_queries(){
+    sh_progress("queries")
+    sh_query_reset()
+    sh_events = [{id: "busy-soft" calendar_id: "fixture-calendar" version: "v1" start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T10:00:00+08:00" all_day: false availability: 0}]
+    schedule_find_slots(false)
+    sh_checks.target_calendar_only = sh_count("calendar.list") == 1 && sh_calls[0].args.calendar_id == "fixture-calendar"
+        && sh_calls[0].args.start == "2030-06-12T00:00:00+08:00" && sh_calls[0].args.end == "2030-06-16T00:00:00+08:00"
+    sh_checks.soft_conflict_asks_no_relax_no_write = schedule_slots.len() == 0 && calendar_error.search("是否只为这次") >= 0 && sh_writes == 0
+    schedule_find_slots(true)
+    sh_checks.once_relax_fits_hard_only = schedule_slots.len() == 2 && schedule_slots[0].start == "2030-06-12T02:00:00Z"
+        && schedule_slots[1].end == "2030-06-12T04:00:00Z" && calendar_links[0].slot_check.relaxed_once == true && sh_writes == 0
+    schedule_find_slots(false)
+    sh_checks.relax_not_permanent = schedule_slots.len() == 0 && calendar_links[0].schedule_policy.preferred_windows.len() == 1
+        && calendar_links[0].schedule_policy.preferred_windows[0].end == "2030-06-12T10:00:00+08:00"
+    start_timeout(0.03,|| sh_query_bounds())
+}
+fn sh_query_bounds(){
+    sh_progress("query-bounds")
+    sh_query_reset() calendar_links[0].schedule_policy.search_end = "2030-06-16T00:01:00+08:00" schedule_find_slots(false)
+    sh_checks.four_day_excess_no_query = sh_calls.len() == 0 && schedule_slots.len() == 0 && calendar_error != ""
+    sh_query_reset() calendar_links[0].schedule_policy.search_start = "2030-06-11T23:59:00+08:00" schedule_find_slots(false)
+    sh_checks.before_original_day_no_query = sh_calls.len() == 0 && schedule_slots.len() == 0
+    sh_query_reset() calendar_links[0].schedule_policy.preferred_windows[0].end = "2030-06-12T12:01:00+08:00" schedule_find_slots(false)
+    sh_checks.soft_cannot_bypass_hard = sh_calls.len() == 0 && schedule_slots.len() == 0 && calendar_error.search("硬性") >= 0
+    sh_query_reset() sh_truncated = true schedule_find_slots(false)
+    sh_checks.truncated_refuses_candidates = sh_count("calendar.list") == 1 && schedule_slots.len() == 0 && calendar_error != ""
+    sh_query_reset() sh_list_ok = false schedule_find_slots(false)
+    sh_checks.failed_query_refuses_candidates = sh_count("calendar.list") == 1 && schedule_slots.len() == 0 && calendar_error != ""
+    sh_query_reset() ui.calendar_end.set_text("") schedule_find_slots(false)
+    sh_checks.missing_duration_no_query = sh_calls.len() == 0 && schedule_slots.len() == 0
+    sh_query_reset() ui.calendar_timezone.set_text("America/New_York")
+    calendar_links[0].schedule_policy.time_zone = "America/New_York" schedule_find_slots(false)
+    sh_checks.unverified_dst_boundary_asks = sh_calls.len() == 0 && calendar_error.search("边界尚未核实") >= 0
+    start_timeout(0.03,|| sh_query_late())
+}
+fn sh_query_late(){
+    sh_progress("query-late")
+    sh_query_reset() sh_hold_list = true schedule_find_slots(false)
+    calendar_candidate_revision = calendar_candidate_revision + 1
+    sh_lists[0]({is_ok: true data: {events: [] truncated: false}})
+    sh_checks.late_slots_rejected_after_revision = schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    sh_hold_list = false
+    sh_query_reset() ui.calendar_start.set_text("2030-06-12T12:00:00+08:00") ui.calendar_end.set_text("2030-06-12T13:00:00+08:00")
+    sh_checks.candidate_outside_hard_rejected_before_conflict_query = calendar_draft_error(calendar_draft_payload()) != ""
+    sh_query_reset() ui.calendar_start.set_text("2030-06-12T10:00:00+08:00") ui.calendar_end.set_text("2030-06-12T11:00:00+08:00")
+    sh_checks.candidate_outside_soft_requires_once_permission = calendar_draft_error(calendar_draft_payload()) != ""
+    sh_query_reset() sh_events = [{id: "wrong-calendar-event" calendar_id: "another-calendar" version: "v1"
+        start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T10:00:00+08:00" all_day: false availability: 0}]
+    schedule_find_slots(false)
+    sh_checks.wrong_calendar_list_refuses_candidates = schedule_slots.len() == 0 && calendar_error != ""
+    start_timeout(0.03,|| sh_stale_link_revision())
+}
+fn sh_stale_link_revision(){
+    sh_progress("stale-link-revision")
+    sh_query_reset() sh_hold_list = true schedule_find_slots(false)
+    calendar_links[0].candidate_revision = 2
+    sh_lists[0]({is_ok: true data: {events: [] truncated: false}})
+    sh_checks.late_slots_reject_changed_link_revision_without_form_change = schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    sh_checks.late_link_revision_observed = {slots: schedule_slots snapshot: schedule_slot_snapshot link: calendar_links[0]}.to_json().parse_json()
+    start_timeout(0.03,|| sh_stale_link_source())
+}
+fn sh_stale_link_source(){
+    sh_progress("stale-link-source")
+    sh_query_reset() sh_hold_list = true schedule_find_slots(false)
+    calendar_links[0].message_id = "replacement-mail"
+    sh_lists[0]({is_ok: true data: {events: [] truncated: false}})
+    sh_checks.late_slots_reject_changed_source_without_form_change = schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    start_timeout(0.03,|| sh_stale_link_question())
+}
+fn sh_stale_link_question(){
+    sh_progress("stale-link-question")
+    sh_query_reset() sh_hold_list = true schedule_find_slots(false)
+    calendar_links[0].question = "新的时长尚未确认"
+    sh_lists[0]({is_ok: true data: {events: [] truncated: false}})
+    sh_checks.late_slots_reject_new_unanswered_question = schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    start_timeout(0.03,|| sh_stale_slot_adoption())
+}
+fn sh_stale_slot_adoption(){
+    sh_progress("stale-slot-adoption")
+    sh_query_reset() schedule_find_slots(true)
+    let before = calendar_draft_payload().to_json()
+    let slot = schedule_slots[1]
+    calendar_links[0].message_id = "replacement-mail" calendar_links[0].candidate_revision = 2
+    schedule_choose_slot(slot)
+    sh_checks.old_relaxed_slot_cannot_rebind_exception_to_new_mail = calendar_draft_payload().to_json() == before
+        && calendar_links[0]["soft_exception"] == nil && sh_count("calendar.list") == 1
+    sh_checks.stale_slot_adoption_observed = {draft: calendar_draft_payload() link: calendar_links[0] calls: sh_calls}.to_json().parse_json()
+    start_timeout(0.03,|| sh_stale_question_adoption())
+}
+fn sh_stale_question_adoption(){
+    sh_progress("stale-question-adoption")
+    sh_query_reset() schedule_find_slots(true)
+    let slot = schedule_slots[1] let before = calendar_draft_payload().to_json()
+    calendar_links[0].question = "本次是否更改时长？"
+    schedule_find_slots(false)
+    sh_checks.question_gate_clears_previous_recommendations = schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    schedule_choose_slot(slot)
+    sh_checks.old_slot_with_unanswered_question_cannot_grant_exception = calendar_draft_payload().to_json() == before
+        && calendar_links[0]["soft_exception"] == nil && sh_count("calendar.list") == 1
+    start_timeout(0.03,|| sh_source_digest_binding())
+}
+fn sh_source_query_reset(){
+    sh_query_reset()
+    gm_set_accounts(["synthetic-account"])
+    calendar_links[0].account_id = "synthetic-account" calendar_links[0].source_id = "slot-source"
+    calendar_links[0].source_claim_id = "slot-claim"
+    memory_sources = [{source_id: "slot-source" kind: "runtime_receipt" locator: "fixture-mail:slot-mail"
+        content_sha256: fs.sha256("synthetic") observed_at: "2026-10-03T00:00:00Z" updated_at: "2026-10-03T00:00:00Z"
+        support_excerpt: "synthetic" "scope": core_memory_scope("synthetic-account")}]
+    memory = [{pinned: false document: {schema_version: "muse.dsl/1" kind: "memory" id: "slot-claim" revision: 1
+        created_at: "2026-10-03T00:00:00Z" updated_at: "2026-10-03T00:00:00Z"
+        origin: {type: "local_runtime" ref: "fixture-mail-host"} "scope": core_memory_scope("synthetic-account")
+        payload: {subject_id: "fixture-slot-goal" predicate: "calendar_source_message" value: "synthetic" epistemic_type: "external_claim"
+            source_ids: ["slot-source"] observed_at: "2026-10-03T00:00:00Z" valid_from: nil valid_until: nil relations: [] deleted: false}}}]
+    memory_sources = memory_sources.to_json().parse_json() memory = memory.to_json().parse_json()
+}
+fn sh_source_digest_binding(){
+    sh_progress("source-digest-binding")
+    sh_source_query_reset() sh_hold_list = true schedule_find_slots(false)
+    memory_sources[0].content_sha256 = fs.sha256("replaced")
+    let changed = memory_sources[0].content_sha256 == fs.sha256("replaced")
+    sh_checks.source_digest_mutation_before_callback = {changed: changed digest: memory_sources[0].content_sha256 callbacks: sh_lists.len()}
+    sh_lists[sh_lists.len()-1]({is_ok: true data: {events: [] truncated: false}})
+    sh_checks.late_slots_reject_replaced_bound_source_digest = changed && sh_count("calendar.list") == 1 && schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    start_timeout(0.03,|| sh_source_claim_binding())
+}
+fn sh_source_claim_binding(){
+    sh_progress("source-claim-binding")
+    sh_source_query_reset() sh_hold_list = true schedule_find_slots(false)
+    memory[0].document.revision = 2
+    let changed = memory[0].document.revision == 2
+    sh_checks.source_claim_mutation_before_callback = {changed: changed revision: memory[0].document.revision callbacks: sh_lists.len()}
+    sh_lists[sh_lists.len()-1]({is_ok: true data: {events: [] truncated: false}})
+    sh_checks.late_slots_reject_bound_source_claim_revision_even_without_context_refs = changed && sh_count("calendar.list") == 1 && schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    sh_checks.source_claim_binding_observed = {claim_revision: memory[0].document.revision refs: calendar_context_refs
+        slots: schedule_slots link: calendar_links[0]}.to_json().parse_json()
+    start_timeout(0.03,|| sh_source_account_binding())
+}
+fn sh_source_account_binding(){
+    sh_progress("source-account-binding")
+    sh_source_query_reset() sh_hold_list = true schedule_find_slots(false)
+    gm_set_accounts([])
+    sh_lists[sh_lists.len()-1]({is_ok: true data: {events: [] truncated: false}})
+    sh_checks.late_slots_reject_account_revocation_after_query = sh_count("calendar.list") == 1 && schedule_slots.len() == 0 && schedule_slot_snapshot == ""
+    memory = [] memory_sources = []
+    start_timeout(0.03,|| sh_normal_slot_adoption())
+}
+fn sh_normal_slot_adoption(){
+    sh_progress("normal-slot-adoption")
+    sh_query_reset() schedule_find_slots(true)
+    schedule_choose_slot(schedule_slots[1])
+    sh_checks.current_bound_relaxed_slot_still_adopts_and_checks_conflicts = calendar_links[0]["soft_exception"] != nil
+        && calendar_draft_error(calendar_draft_payload()) == "" && sh_count("calendar.list") == 2 && sh_writes == 0
+    start_timeout(0.03,|| sh_direct_bounds())
+}
+fn sh_direct_bounds(){
+    sh_progress("direct-bounds")
+    sh_query_reset()
+    ui.calendar_start.set_text("2030-06-13T09:00:00+08:00") ui.calendar_end.set_text("2030-06-13T10:00:00+08:00")
+    let policy = calendar_links[0].schedule_policy
+    policy.search_start = "2030-06-13T00:00:00+08:00" policy.search_end = "2030-06-17T00:00:00+08:00"
+    policy.hard_windows = [{start: "2030-06-13T09:00:00+08:00" end: "2030-06-13T12:00:00+08:00"}]
+    policy.preferred_windows = [{start: "2030-06-13T09:00:00+08:00" end: "2030-06-13T10:00:00+08:00"}]
+    let error = calendar_draft_error(calendar_draft_payload())
+    calendar_check_conflicts()
+    sh_checks.direct_shifted_range_cannot_reanchor_past_original_four_days = error != "" && sh_calls.len() == 0 && calendar_checked == ""
+    sh_query_reset()
+    calendar_links[0].schedule_policy.preferred_windows[0].end = "2030-06-12T13:00:00+08:00"
+    error = calendar_draft_error(calendar_draft_payload())
+    calendar_check_conflicts()
+    sh_checks.direct_soft_window_outside_hard_refuses_before_query = error != "" && sh_calls.len() == 0 && calendar_checked == ""
+    sh_query_reset()
+    ui.calendar_timezone.set_text("America/New_York") calendar_links[0].schedule_policy.time_zone = "America/New_York"
+    error = calendar_draft_error(calendar_draft_payload())
+    calendar_check_conflicts()
+    sh_checks.direct_unverified_dst_boundary_refuses_before_query = error != "" && sh_calls.len() == 0
+    start_timeout(0.03,|| sh_unanswered_question())
+}
+fn sh_unanswered_question(){
+    sh_progress("unanswered-question")
+    sh_query_reset()
+    calendar_links[0].question = "这次是否沿用原来一小时？"
+    calendar_checked = calendar_draft_payload().to_json()
+    calendar_check_conflicts() calendar_preview_action() calendar_confirm_action()
+    sh_checks.complete_fields_unanswered_question_blocks_conflict_preview_create = sh_calls.len() == 0
+        && calendar_preview == "" && sh_writes == 0 && sh_count("calendar.create") == 0 && sh_count("calendar.update") == 0
+    schedule_find_slots(false)
+    sh_checks.unanswered_question_blocks_recommendation_query = sh_calls.len() == 0 && schedule_slots.len() == 0
+    sh_checks.unanswered_question_calls = sh_calls.to_json().parse_json()
+    start_timeout(0.03,|| sh_exceptions())
+}
+fn sh_relax_candidate(){
+    sh_query_reset()
+    sh_events = [{id: "busy-soft" calendar_id: "fixture-calendar" version: "v1"
+        start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T10:00:00+08:00" all_day: false availability: 0}]
+    schedule_find_slots(true)
+    if schedule_slots.len() == 0 { return false }
+    schedule_choose_slot(schedule_slots[0])
+    return calendar_links[0]["soft_exception"] != nil && calendar_draft_error(calendar_draft_payload()) == ""
+}
+fn sh_exceptions(){
+    sh_progress("exceptions-edit")
+    sh_checks.explicit_checked_relaxed_slot_allowed = sh_relax_candidate() && sh_writes == 0
+    ui.calendar_start.set_text("2030-06-12T10:15:00+08:00") ui.calendar_end.set_text("2030-06-12T11:15:00+08:00") calendar_edit()
+    sh_checks.edit_clears_exception_and_blocks_soft_bypass = calendar_links[0]["soft_exception"] == nil && calendar_draft_error(calendar_draft_payload()) != ""
+    start_timeout(0.03,|| sh_exception_message())
+}
+fn sh_exception_message(){
+    sh_progress("exception-message")
+    let bound = sh_relax_candidate()
+    calendar_links[0].message_id = "new-message"
+    sh_checks.changed_mail_cannot_reuse_exception = bound && calendar_draft_error(calendar_draft_payload()) != ""
+    start_timeout(0.03,|| sh_exception_revision())
+}
+fn sh_exception_revision(){
+    sh_progress("exception-revision")
+    let bound = sh_relax_candidate()
+    calendar_links[0].candidate_revision = calendar_links[0].candidate_revision + 1
+    sh_checks.changed_revision_cannot_reuse_exception = bound && calendar_draft_error(calendar_draft_payload()) != ""
+    start_timeout(0.03,|| sh_exception_hard())
+}
+fn sh_exception_hard(){
+    sh_progress("exception-hard")
+    let bound = sh_relax_candidate()
+    calendar_links[0].schedule_policy.hard_windows[0].end = "2030-06-12T10:30:00+08:00"
+    sh_checks.once_exception_never_bypasses_changed_hard_limit = bound && calendar_draft_error(calendar_draft_payload()) != ""
+    start_timeout(0.03,|| sh_exception_unchecked())
+}
+fn sh_exception_unchecked(){
+    sh_progress("exception-unchecked")
+    sh_query_reset() schedule_find_slots(true)
+    let unchanged = calendar_draft_payload().to_json()
+    schedule_choose_slot({start: "2030-06-12T04:15:00Z" end: "2030-06-12T05:15:00Z"})
+    sh_checks.unchecked_slot_cannot_create_exception = calendar_draft_payload().to_json() == unchanged && calendar_links[0]["soft_exception"] == nil
+    sh_query_reset() schedule_find_slots(true)
+    ui.calendar_start.set_text("2030-06-12T10:00:00+08:00") ui.calendar_end.set_text("2030-06-12T11:00:00+08:00")
+    sh_checks.query_relax_flag_alone_does_not_authorize_manual_time = calendar_links[0]["soft_exception"] == nil && calendar_draft_error(calendar_draft_payload()) != ""
+    start_timeout(0.03,|| sh_matching())
+}
+fn sh_matching(){
+    sh_progress("matching")
+    calendar_links = [{goal_id: "goal-a" account_id: "synthetic-account" event_id: "fixture-event" status: "verified" rfc_message_id: "<original@example.invalid>"}]
+    let mail = {id: "reply-1" subject: "same title" sender: "same sender" body: "请改期" in_reply_to: "<original@example.invalid>"}
+    sh_checks.direct_unique_reference_matches = schedule_match_original("synthetic-account",mail) == "goal-a"
+    sh_checks.other_account_not_matched = schedule_match_original("other-account",mail) == ""
+    mail.in_reply_to = nil mail.references = "<unrelated@example.invalid> <original@example.invalid>"
+    sh_checks.references_unique_matches = schedule_match_original("synthetic-account",mail) == "goal-a"
+    mail.references = "<prefix-original@example.invalid>"
+    sh_checks.reference_substring_not_matched = schedule_match_original("synthetic-account",mail) == ""
+    mail.references = nil
+    sh_checks.title_sender_insufficient = schedule_match_original("synthetic-account",mail) == ""
+    mail.body = "事项ID：goal-a；请改期"
+    sh_checks.explicit_id_matches = schedule_match_original("synthetic-account",mail) == "goal-a"
+    mail.body = "事项ID：goal-ab；请改期"
+    sh_checks.explicit_id_substring_not_matched = schedule_match_original("synthetic-account",mail) == ""
+    calendar_links.push({goal_id: "goal-b" account_id: "synthetic-account" event_id: "event-b" status: "verified" rfc_message_id: "<original@example.invalid>"})
+    mail.in_reply_to = "<original@example.invalid>"
+    sh_checks.ambiguous_reference_not_guessed = schedule_match_original("synthetic-account",mail) == ""
+    calendar_links = [calendar_links[0]] calendar_links[0].status = "unknown"
+    sh_checks.unknown_original_not_used = schedule_match_original("synthetic-account",mail) == ""
+    calendar_links[0].status = "in_flight"
+    sh_checks.inflight_original_not_used = schedule_match_original("synthetic-account",mail) == ""
+    let original = sh_original()
+    sh_query_reset() calendar_operation = "update" calendar_selected_event = original
+    calendar_links[0].original_event = original
+    let payload = calendar_action_payload("fixture-request")
+    sh_checks.update_payload_time_fields_only = gm_keys(payload.changes,["start","end"]) && payload.changes.start != nil && payload.changes.end != nil
+        && payload.event_id == original.id && payload.expected_version == original.version && payload.calendar_id == original.calendar_id
+    ui.calendar_location.set_text("外部要求的新地点")
+    sh_checks.location_change_blocks_update = calendar_draft_error(calendar_draft_payload()).search("只改变日期") >= 0
+    ui.calendar_location.set_text(original.location) ui.calendar_title.set_text("外部要求的新标题")
+    sh_checks.title_change_blocks_update = calendar_draft_error(calendar_draft_payload()).search("只改变日期") >= 0
+    start_timeout(0.03,|| sh_preconditions())
+}
+fn sh_prepare_update(){
+    calendar_pending = false calendar_selected_goal = "" calendar_context_refs = [] calendar_ready = true
+    calendar_operation = "update" calendar_selected_event = sh_original() calendar_links = []
+    calendar_calendar_id = "fixture-calendar" calendar_permission = "full_access"
+    calendar_calendars = [{id: "fixture-calendar" writable: true}]
+    ui.calendar_title.set_text("MUSE-R2-SCHEDULING") ui.calendar_start.set_text("2030-06-12T10:00:00+08:00")
+    ui.calendar_end.set_text("2030-06-12T11:00:00+08:00") ui.calendar_timezone.set_text("Asia/Shanghai") ui.calendar_location.set_text("合成地点")
+    calendar_preview = "" calendar_checked = "" sh_events = [] sh_permission = true sh_event = sh_original()
+    sh_hold_get = false sh_hold_list = false sh_list_ok = true sh_truncated = false
+    calendar_check_conflicts() calendar_preview_action()
+}
+fn sh_preconditions(){
+    sh_progress("preconditions")
+    sh_prepare_update() sh_event = nil calendar_confirm_action()
+    sh_checks.original_disappeared_blocks_mutation = calendar_preview == "" && sh_writes == 0 && sh_count("calendar.update") == 0
+    sh_prepare_update() sh_event.version = "externally-changed" calendar_confirm_action()
+    sh_checks.original_version_changed_blocks_mutation = calendar_preview == "" && sh_writes == 0 && sh_count("calendar.update") == 0
+    sh_prepare_update() sh_permission = false calendar_confirm_action()
+    sh_checks.calendar_readonly_blocks_mutation = calendar_preview == "" && sh_writes == 0
+    sh_prepare_update() sh_hold_get = true calendar_confirm_action()
+    calendar_candidate_revision = calendar_candidate_revision + 1
+    sh_gets[0]({is_ok: true data: {found: true event: sh_original()}})
+    sh_checks.late_precondition_cannot_write_new_revision = calendar_preview == "" && sh_writes == 0
+    sh_hold_get = false
+    start_timeout(0.03,|| sh_external_busy_during_approval())
+}
+fn sh_external_busy_during_approval(){
+    sh_progress("external-busy-during-approval")
+    sh_calls = [] sh_prepare_update() sh_lists = [] sh_hold_list = true calendar_confirm_action()
+    let busy = {id: "added-during-approval" calendar_id: "fixture-calendar" version: "v1"
+        start: "2030-06-12T10:00:00+08:00" end: "2030-06-12T11:00:00+08:00" all_day: false availability: 0}
+    sh_lists[0]({is_ok: true data: {events: [busy] truncated: false}})
+    sh_checks.busy_added_during_approval_refuses_update = calendar_preview == "" && sh_writes == 0 && sh_count("calendar.update") == 0
+    sh_hold_list = false
+    start_timeout(0.03,|| sh_replan_negatives())
+}
+fn sh_foreign_calendar_approval(){
+    sh_progress("foreign-calendar-approval")
+    let before_writes = sh_writes
+    sh_calls = [] sh_prepare_update()
+    calendar_selected_event.id = "foreign-probe-event" sh_event.id = "foreign-probe-event"
+    let free = {id: "scoped-free-id" calendar_id: "fixture-calendar" version: "v1"
+        start: "2030-06-12T10:00:00+08:00" end: "2030-06-12T11:00:00+08:00" all_day: false availability: 1}
+    sh_events = [free] calendar_check_conflicts() calendar_preview_action()
+    sh_lists = [] sh_hold_list = true sh_block_update = true calendar_confirm_action()
+    let foreign = free.to_json().parse_json() foreign.calendar_id = "foreign-calendar"
+    sh_lists[0]({is_ok: true data: {events: [foreign] truncated: false}})
+    sh_checks.foreign_calendar_during_approval_refuses_update = sh_count("calendar.update") == 0 && calendar_preview == "" && sh_writes == before_writes
+    sh_checks.foreign_calendar_approval_observed = {calls: sh_calls error: calendar_error preview: calendar_preview}.to_json().parse_json()
+    sh_hold_list = false sh_block_update = false
+    sh_finish()
+}
+fn sh_replan_reset(){
+    sh_calls = [] sh_event = sh_original() sh_hold_get = false sh_gets = [] calendar_error = ""
+    gm_set_accounts(["synthetic-account"])
+    goals = [{id: "negative-replan" version: 1 status: "completed" archived: false}]
+    calendar_links = [{goal_id: "negative-replan" account_id: "synthetic-account" event_id: "fixture-event"
+        calendar_id: "fixture-calendar" version: "fixture-v1" status: "verified"}]
+}
+fn sh_replan_message(){ return {id: "negative-mail" body: "改期合成邮件" subject: "合成改期"} }
+fn sh_replan_negatives(){
+    sh_progress("replan-negatives")
+    sh_replan_reset() sh_event = nil schedule_replan_original("negative-replan","synthetic-account",sh_replan_message())
+    sh_checks.replan_missing_original_does_not_fallback_create = sh_count("calendar.get") == 1 && sh_count("calendar.create") == 0
+        && goals[0].version == 1 && calendar_links[0].status == "verified" && calendar_error.search("不存在") >= 0
+    sh_replan_reset() sh_event.recurring = true schedule_replan_original("negative-replan","synthetic-account",sh_replan_message())
+    sh_checks.replan_recurring_refuses = goals[0].version == 1 && calendar_error.search("循环") >= 0
+    sh_replan_reset() sh_event.calendar_id = "another-calendar" schedule_replan_original("negative-replan","synthetic-account",sh_replan_message())
+    sh_checks.replan_wrong_event_calendar_refuses = goals[0].version == 1 && sh_writes == 0 && calendar_error != ""
+    sh_replan_reset() sh_hold_get = true schedule_replan_original("negative-replan","synthetic-account",sh_replan_message())
+    gm_set_accounts([]) sh_gets[0]({is_ok: true data: {found: true event: sh_original()}})
+    sh_checks.replan_account_revoke_during_read_refuses = goals[0].version == 1 && calendar_error.search("授权") >= 0 && sh_writes == 0
+    sh_replan_reset() sh_hold_get = true schedule_replan_original("negative-replan","synthetic-account",sh_replan_message())
+    goals[0].version = 2 sh_gets[0]({is_ok: true data: {found: true event: sh_original()}})
+    sh_checks.replan_goal_revision_changed_during_read_refuses = goals[0].version == 2 && calendar_error != "" && sh_writes == 0
+    sh_replan_reset() sh_hold_get = true schedule_replan_original("negative-replan","synthetic-account",sh_replan_message())
+    calendar_links[0].version = "new-link-version" sh_gets[0]({is_ok: true data: {found: true event: sh_original()}})
+    sh_checks.replan_link_changed_during_read_refuses = goals[0].version == 1 && calendar_error != "" && sh_writes == 0
+    sh_hold_get = false
+    if sh_full { fs.write("pure-checks.json",sh_checks.to_json()) start_timeout(0.03,|| sh_chain_start()) } else { sh_finish() }
+}
+fn sh_chain_start(){
+    sh_progress("chain-start")
+    calendar_pending = false goals = [] runs = [] actions = [] calendar_links = [] calendar_receipts = []
+    fixture_seed() chat_boot() gm_boot() gm_set_focus("合成安排项目","本人") gm_set_accounts(["synthetic-account"])
+    notification_enabled = false mail_analysis.enabled = false mail_analysis.permitted = false
+    mail_scope_project = "合成安排项目" mail_scope_owner = "本人"
+    mail_account = {id: "synthetic-account" address: "self@example.invalid"}
+    mail_selected = {id: "original-mail" message_id: "<original@example.invalid>" address: "sender@example.invalid"
+        subject: "MUSE-R2-SCHEDULING" body: "项目：合成安排项目；归属：本人；2030-06-12 09:00到10:00，Asia/Shanghai。"}
+    mail_link_calendar() sh_goal = selected_id
+    let li = calendar_link_index(sh_goal)
+    sh_checks.chain_goal_source_bound = goals.len() == 1 && li >= 0 && sh_models.len() == 1
+    if !sh_checks.chain_goal_source_bound { sh_finish() return }
+    // Seed an independently existing external event, then use the real replan path.
+    sh_event = sh_original()
+    calendar_links[li].status = "verified" calendar_links[li].calendar_id = sh_event.calendar_id
+    calendar_links[li].event_id = sh_event.id calendar_links[li].version = sh_event.version
+    calendar_links[li].original_event = sh_event calendar_links[li].candidate = calendar_draft_payload()
+    calendar_links[li].soft_exception = {payload: calendar_draft_payload().to_json() message_id: "original-mail" revision: 1}
+    calendar_save()
+    let next_mail = {id: "reschedule-mail-1" address: "sender@example.invalid" subject: "改期MUSE-R2-SCHEDULING"
+        body: "事项ID：" + sh_goal + "；改到2030-06-13 10:00，时长不变。" in_reply_to: "<original@example.invalid>" message_id: "<reschedule-1@example.invalid>"}
+    schedule_replan_original(sh_goal,"synthetic-account",next_mail)
+    li = calendar_link_index(sh_goal)
+    sh_checks.replan_same_goal_one_event = goals.len() == 1 && goals[0].id == sh_goal && goals[0].version == 2
+        && calendar_links.len() == 1 && calendar_links[li].operation == "update" && calendar_links[li].event_id == "fixture-event"
+        && calendar_links[li].history.len() == 1 && calendar_links[li].history[0].message_id == "original-mail" && sh_writes == 0
+    sh_checks.actual_replan_clears_previous_exception = calendar_links[li]["soft_exception"] == nil
+    if !sh_checks.replan_same_goal_one_event || sh_models.len() < 2 { sh_finish() return }
+    let competing_mail = {id: "reschedule-mail-2" address: "sender@example.invalid" subject: "后一封改期"
+        body: "事项ID：" + sh_goal + "；再改到2030-06-14。"}
+    schedule_replan_original(sh_goal,"synthetic-account",competing_mail)
+    sh_checks.later_mail_does_not_overwrite_pending_first = goals[0].version == 2 && calendar_links[li].message_id == "reschedule-mail-1"
+        && sh_models.len() == 2 && sh_writes == 0
+    sh_models[0]({is_ok: true data: {output: {title: "迟到的原邮件候选" start: "2030-06-12T09:00:00+08:00"
+        end: "2030-06-12T10:00:00+08:00" time_zone: "Asia/Shanghai" location: "旧地点" question: "" policy: sh_policy()
+        duration_changed: false duration_quote: ""}}})
+    sh_checks.old_original_generation_does_not_fill_replan = calendar_links[li].message_id == "reschedule-mail-1"
+        && calendar_links[li].candidate.title == "MUSE-R2-SCHEDULING" && calendar_links[li].candidate.location == "合成地点"
+    start_timeout(0.03,|| sh_chain_candidate())
+}
+fn sh_chain_candidate(){
+    sh_progress("chain-candidate")
+    let li = calendar_link_index(sh_goal)
+    calendar_links[li].soft_exception = {payload: calendar_draft_payload().to_json() message_id: calendar_links[li].message_id revision: calendar_links[li].candidate_revision}
+    let update_policy = sh_policy()
+    update_policy.search_start = "2030-06-13T00:00:00+08:00" update_policy.search_end = "2030-06-17T00:00:00+08:00"
+    update_policy.hard_windows = [{start: "2030-06-13T10:00:00+08:00" end: "2030-06-13T12:00:00+08:00"}]
+    update_policy.preferred_windows = update_policy.hard_windows
+    sh_model_output = {title: "模型改错的标题" location: "模型改错的地点" time_zone: "UTC"
+        start: "2030-06-13T10:00:00+08:00" end: "2030-06-13T12:00:00+08:00" question: "这次是否沿用原来一小时？" policy: update_policy
+        duration_changed: false duration_quote: ""}
+    sh_models[1]({is_ok: true data: {output: sh_model_output}})
+    li = calendar_link_index(sh_goal)
+    sh_checks.new_model_candidate_clears_previous_exception = calendar_links[li]["soft_exception"] == nil
+    sh_checks.original_duration_and_fields_preserved = calendar_links[li].candidate.title == sh_event.title
+        && calendar_links[li].candidate.location == sh_event.location && calendar_links[li].candidate.time_zone == sh_event.time_zone
+        && calendar_iso_epoch(calendar_links[li].candidate.end) - calendar_iso_epoch(calendar_links[li].candidate.start) == 3600
+    let prior_queries = sh_count("calendar.list")
+    calendar_check_conflicts() calendar_preview_action()
+    sh_checks.actual_model_complete_fields_question_still_blocks = sh_count("calendar.list") == prior_queries
+        && calendar_preview == "" && sh_writes == 0
+    schedule_clarify(sh_goal,"是，沿用原来一小时。")
+    sh_checks.answer_alone_waits_new_candidate = sh_models.len() == 3 && calendar_links[li].question != ""
+        && calendar_draft_error(calendar_draft_payload()) != "" && sh_writes == 0
+    start_timeout(0.03,|| sh_chain_clarified())
+}
+fn sh_chain_clarified(){
+    sh_progress("chain-clarified")
+    let output = sh_model_output.to_json().parse_json() output.question = ""
+    sh_models[2]({is_ok: true data: {output: output}})
+    let li = calendar_link_index(sh_goal)
+    sh_checks.answered_question_new_candidate_can_continue = calendar_links[li].question == ""
+        && calendar_draft_error(calendar_draft_payload()) == "" && calendar_links[li].user_clarification == "是，沿用原来一小时。"
+    calendar_check_conflicts() calendar_preview_action()
+    sh_checks.replan_needs_separate_confirmation = calendar_preview != "" && sh_writes == 0 && actions.len() == 0
+    fs.write("before-confirm.json",{goals: goals links: calendar_links calls: sh_calls}.to_json())
+    start_timeout(0.03,|| sh_chain_confirm())
+}
+fn sh_chain_confirm(){
+    sh_progress("chain-confirm")
+    calendar_confirm_action()
+    let li = calendar_link_index(sh_goal)
+    sh_checks.update_exactly_original_independent_readback = sh_writes == 1 && sh_count("calendar.update") == 1
+        && sh_count("calendar.create") == 0 && sh_count("calendar.delete") == 0 && sh_event.id == "fixture-event"
+        && calendar_links[li].status == "verified" && actions.len() == 1 && actions[0].status == "verified"
+        && runs.len() == 1 && runs[0].status == "completed" && goals.len() == 1 && goals[0].id == sh_goal
+    sh_checks.update_preserves_other_metadata = sh_event.title == "MUSE-R2-SCHEDULING" && sh_event.location == "合成地点"
+        && sh_event.time_zone == "Asia/Shanghai" && sh_event.notes == "保留的合成备注"
+        && sh_event.attendees.len() == 1 && gm_keys(sh_update_payload.changes,["start","end"])
+    calendar_confirm_action()
+    sh_checks.duplicate_confirmation_no_second_write = sh_writes == 1
+    fs.write("after-confirm.json",{event: sh_event goals: goals links: calendar_links actions: actions calls: sh_calls}.to_json())
+    start_timeout(0.03,|| sh_chain_duplicates())
+}
+fn sh_chain_duplicates(){
+    sh_progress("chain-duplicates")
+    let before_version = goals[0].version
+    let before_history = calendar_links[calendar_link_index(sh_goal)].history.len()
+    let duplicate = {id: "reschedule-mail-1" address: "sender@example.invalid" subject: "重复的改期邮件"
+        body: "事项ID：" + sh_goal + "；改到2030-06-13 10:00，时长不变。" in_reply_to: "<original@example.invalid>" message_id: "<reschedule-1@example.invalid>"}
+    schedule_replan_original(sh_goal,"synthetic-account",duplicate)
+    sh_checks.duplicate_mail_cannot_replan_completed_message = goals[0].version == before_version
+        && calendar_links[calendar_link_index(sh_goal)].history.len() == before_history && sh_writes == 1
+    let next = {id: "reschedule-mail-2" body: "后续再改期" in_reply_to: "<reschedule-1@example.invalid>"}
+    sh_checks.next_mail_direct_reference_continuity = schedule_match_original("synthetic-account",next) == sh_goal
+    next.in_reply_to = "<original@example.invalid>"
+    sh_checks.original_reference_history_kept = schedule_match_original("synthetic-account",next) == sh_goal
+    start_timeout(0.03,|| sh_chain_cancel())
+}
+fn sh_chain_cancel(){
+    sh_progress("chain-cancel")
+    let before_models = sh_models.len()
+    let mail = {id: "cancelled-reschedule" address: "sender@example.invalid" subject: "随后取消的改期"
+        body: "事项ID：" + sh_goal + "；改期后本次取消。" message_id: "<cancelled@example.invalid>"}
+    schedule_replan_original(sh_goal,"synthetic-account",mail)
+    let queued = sh_models.len() == before_models + 1
+    sh_checks.second_mail_reuses_same_goal = queued && goals.len() == 1 && goals[0].id == sh_goal
+        && calendar_links.len() == 1 && calendar_links[0].event_id == "fixture-event" && sh_writes == 1
+    if queued {
+        let before = calendar_links[0].candidate.to_json()
+        sh_checks.cancel_pending_goal_saved = core_cancel_goal(sh_goal)
+        sh_models[before_models]({is_ok: true data: {output: {title: "已取消后迟到候选"
+            start: "2030-06-14T09:00:00+08:00" end: "2030-06-14T10:00:00+08:00" time_zone: "Asia/Shanghai"
+            location: "旧地点" question: "" policy: sh_policy() duration_changed: false duration_quote: ""}}})
+        sh_checks.late_model_does_not_revive_cancelled_goal = goals[0].status == "cancelled"
+            && calendar_links[0].candidate.to_json() == before && sh_writes == 1
+    }
+    start_timeout(0.03,|| sh_foreign_calendar_approval())
+}
+// One approval-boundary case; uses canonical Goal/source/replan production paths.
+fn sh_approval_source_start(){
+    fixture_seed() chat_boot() gm_boot() gm_set_focus("批准绑定复现","本人") gm_set_accounts(["synthetic-account"])
+    if sh_approval_variant == "time-expired" { sh_approval_near_start = core_utc_iso(time_now()+8) }
+    notification_enabled = false mail_analysis.enabled = false mail_analysis.permitted = false
+    mail_scope_project = "批准绑定复现" mail_scope_owner = "本人"
+    mail_account = {id: "synthetic-account" address: "self@example.invalid"}
+    mail_selected = {id: "approval-origin" message_id: "<approval-origin@example.invalid>" address: "sender@example.invalid"
+        subject: "MUSE-R2-SCHEDULING" body: "项目：批准绑定复现；归属：本人；2030-06-12 09:00至10:00，Asia/Shanghai。"}
+    mail_link_calendar() sh_goal = selected_id
+    start_timeout(0.03,|| sh_approval_source_replan())
+}
+fn sh_approval_source_replan(){
+    let li = calendar_link_index(sh_goal)
+    if li < 0 || sh_models.len() != 1 { sh_checks.approved_update_rejects_canonical_source_change = false sh_finish() return }
+    sh_event = sh_original()
+    if sh_approval_variant == "time-expired" { sh_event.time_zone = "UTC" }
+    calendar_links[li].status = "verified" calendar_links[li].calendar_id = sh_event.calendar_id
+    calendar_links[li].event_id = sh_event.id calendar_links[li].version = sh_event.version
+    calendar_links[li].original_event = sh_event calendar_links[li].candidate = calendar_draft_payload()
+    calendar_save()
+    let requested_time = "2030-06-12 10:00至11:00"
+    if sh_approval_variant == "time-expired" { requested_time = sh_approval_near_start }
+    schedule_replan_original(sh_goal,"synthetic-account",{id: "approval-replan" message_id: "<approval-replan@example.invalid>"
+        in_reply_to: "<approval-origin@example.invalid>" address: "sender@example.invalid" subject: "改期合成约定"
+        body: "事项ID：" + sh_goal + "；改到" + requested_time + "，沿用原来时长。"})
+    start_timeout(0.03,|| sh_approval_source_preview())
+}
+fn sh_approval_source_preview(){
+    if sh_models.len() != 2 { sh_checks.approved_update_rejects_canonical_source_change = false sh_finish() return }
+    let policy = sh_policy() policy.preferred_windows = policy.hard_windows
+    if sh_approval_variant == "soft-exception" { policy = sh_policy() }
+    let start = "2030-06-12T10:00:00+08:00" let end = "2030-06-12T11:00:00+08:00" let zone = "Asia/Shanghai"
+    if sh_approval_variant == "time-expired" {
+        start = sh_approval_near_start end = core_utc_iso(calendar_iso_epoch(start)+3600) zone = "UTC"
+        let day = page_time_floor(calendar_iso_epoch(start)/86400)*86400
+        policy = {search_start: core_utc_iso(day) search_end: core_utc_iso(day+345600) time_zone: "UTC"
+            hard_windows: [{start: core_utc_iso(day) end: core_utc_iso(day+345600)}]
+            preferred_windows: [{start: core_utc_iso(day) end: core_utc_iso(day+345600)}]}
+    }
+    sh_models[1]({is_ok: true data: {output: {title: "MUSE-R2-SCHEDULING" start: start
+        end: end time_zone: zone location: "合成地点"
+        question: "" policy: policy duration_changed: false duration_quote: ""}}})
+    if sh_approval_variant == "different-event" {
+        let other = sh_original().to_json().parse_json()
+        other.id = "fixture-event-b" other.version = "fixture-b-v1"
+        other.start = "2030-06-12T12:00:00+08:00" other.end = "2030-06-12T13:00:00+08:00"
+        sh_event = other
+        calendar_select_event(other)
+        sh_checks.other_event_selection = {original_goal: sh_goal selected_goal: calendar_selected_goal
+            selected_event: calendar_selected_event original_link: calendar_links[calendar_link_index(sh_goal)] refs: calendar_context_refs}.to_json().parse_json()
+        ui.calendar_start.set_text("2030-06-12T11:00:00+08:00") ui.calendar_end.set_text("2030-06-12T12:00:00+08:00")
+        calendar_edit()
+    }
+    if sh_approval_variant == "same-event" {
+        let refs_before = calendar_context_refs.to_json().parse_json()
+        let same = sh_original().to_json().parse_json()
+        sh_event = same
+        calendar_select_event(same)
+        sh_checks.same_event_selection = {original_goal: sh_goal selected_goal: calendar_selected_goal
+            selected_event: calendar_selected_event original_link: calendar_links[calendar_link_index(sh_goal)]
+            refs_before: refs_before refs: calendar_context_refs}.to_json().parse_json()
+        ui.calendar_start.set_text("2030-06-12T11:00:00+08:00") ui.calendar_end.set_text("2030-06-12T12:00:00+08:00")
+        calendar_edit()
+    }
+    if sh_approval_variant == "soft-exception" { schedule_find_slots(true) schedule_choose_slot(schedule_slots[1]) }
+    calendar_check_conflicts() calendar_preview_action()
+    let li = calendar_link_index(sh_goal)
+    sh_checks.approval_source_before = {preview: calendar_preview goal: goals[core_goal_index(sh_goal)] link: calendar_links[li]
+        refs: calendar_context_refs calls: sh_calls source_binding: calendar_preview_binding}.to_json().parse_json()
+    start_timeout(0.03,|| sh_approval_source_mutate())
+}
+fn sh_approval_source_mutate(){
+    let li = calendar_link_index(sh_goal)
+    let si = core_source_index(calendar_links[li].source_id,"synthetic-account")
+    let mi = core_memory_index(calendar_links[li].source_claim_id,"synthetic-account")
+    let ready = calendar_preview != "" && calendar_links[li].status == "waiting_user" && si >= 0 && mi >= 0
+        && calendar_context_refs.len() > 0 && sh_count("calendar.update") == 0 && calendar_preview_binding != ""
+    if sh_approval_variant == "different-event" {
+        ready = calendar_preview != "" && calendar_selected_event.id == "fixture-event-b" && sh_count("calendar.update") == 0
+    }
+    if sh_approval_variant == "soft-exception" { ready = ready && calendar_links[li]["soft_exception"] != nil && calendar_draft_error(calendar_draft_payload()) == "" }
+    if !ready { sh_checks.approved_update_rejects_canonical_source_change = false sh_checks.approval_setup_error = calendar_error sh_finish() return }
+    let old_digest = memory_sources[si].content_sha256 let old_claim_revision = memory[mi].document.revision
+    sh_hold_get = true sh_gets = "[]".parse_json()
+    if sh_approval_variant != "before-confirm" && sh_approval_variant != "soft-exception" { calendar_confirm_action() }
+    if sh_approval_variant == "time-expired" {
+        sh_checks.approval_time_before = {now: time_now() start: ui.calendar_start.text() preview_age: time_now()-calendar_preview_at callbacks: sh_gets.len()}
+        start_timeout(9,|| sh_approval_time_release()) return
+    }
+    let committed = false
+    if sh_approval_variant == "after-confirm" || sh_approval_variant == "before-confirm" {
+        let next_sources = memory_sources.to_json().parse_json()
+        next_sources[si].content_sha256 = fs.sha256("隔离批准期间新来源内容")
+        next_sources[si].updated_at = core_utc_iso(time_now()+1)
+        next_sources[si].support_excerpt = "隔离批准期间新来源内容"
+        committed = core_commit_memory(memory,next_sources,memory_forget)
+    }
+    let changed = committed && memory_sources[si].content_sha256 != old_digest
+        && memory[mi].document.revision == old_claim_revision
+    sh_checks.approval_source_mutation = {variant: sh_approval_variant committed: committed changed: changed old_digest: old_digest new_digest: memory_sources[si].content_sha256
+        claim_revision: memory[mi].document.revision refs: calendar_context_refs refs_still_valid: chat_reply_context_valid({memory_refs: calendar_context_refs})
+        callbacks: sh_gets.len()}.to_json().parse_json()
+    if sh_approval_variant == "before-confirm" { calendar_confirm_action() }
+    let cleared = false
+    if sh_approval_variant == "soft-exception" {
+        calendar_links[li].soft_exception = nil cleared = calendar_save()
+        sh_checks.approval_soft_exception_after = {saved: cleared exception: calendar_links[li]["soft_exception"]
+            candidate_error: schedule_candidate_error(calendar_draft_payload(),calendar_links[li])}
+        calendar_confirm_action()
+    }
+    sh_hold_get = false sh_block_update = sh_approval_variant != "control"
+    let read_event = sh_original()
+    if sh_approval_variant == "different-event" { read_event = sh_event }
+    if sh_gets.len() > 0 { sh_gets[sh_gets.len()-1]({is_ok: true data: {found: true event: read_event}}) }
+    if sh_approval_variant == "after-confirm" {
+        sh_checks.approved_update_rejects_canonical_source_change = changed && sh_gets.len() == 1
+            && sh_count("calendar.update") == 0 && sh_writes == 0 && calendar_preview == ""
+    }
+    if sh_approval_variant == "before-confirm" {
+        sh_checks.preview_update_rejects_canonical_source_change_before_click = changed && sh_gets.len() == 0
+            && sh_count("calendar.update") == 0 && sh_writes == 0 && calendar_preview == ""
+    }
+    if sh_approval_variant == "control" {
+        sh_checks.unchanged_source_approved_update_and_independent_readback = memory_sources[si].content_sha256 == old_digest && sh_gets.len() == 1
+            && sh_count("calendar.update") == 1 && sh_count("calendar.get") == 3 && sh_writes == 1
+            && calendar_links[calendar_link_index(sh_goal)].status == "verified"
+            && goals.len() == 1 && goals[0].status == "completed" && runs.len() == 1 && runs[0].status == "completed"
+            && actions.len() == 1 && actions[0].status == "verified"
+    }
+    if sh_approval_variant == "soft-exception" {
+        sh_checks.preview_update_rejects_cleared_actual_one_time_soft_exception = cleared && calendar_links[li]["soft_exception"] == nil
+            && sh_gets.len() == 0 && sh_count("calendar.update") == 0 && sh_writes == 0 && calendar_preview == ""
+    }
+    if sh_approval_variant == "different-event" {
+        let wrong_goal = false
+        for action in actions {
+            if action.service == "calendar.update" && action.goal_id == sh_goal
+                && action.payload_json.parse_json().event_id == "fixture-event-b" { wrong_goal = true }
+        }
+        sh_checks.select_other_event_detaches_goal_before_approved_update = calendar_selected_goal == ""
+            && sh_count("calendar.update") == 1 && sh_writes == 0 && !wrong_goal && actions.len() == 1
+            && actions[0].goal_id == "" && actions[0].run_id == "" && runs.len() == 0
+            && goals.len() == 1 && goals[0].status == "planned" && calendar_links[li].event_id == "fixture-event"
+    }
+    if sh_approval_variant == "same-event" {
+        let selection = sh_checks.same_event_selection
+        let bound_action = false
+        if actions.len() == 1 {
+            let payload = actions[0].payload_json.parse_json()
+            bound_action = actions[0].goal_id == sh_goal && actions[0].run_id != ""
+                && payload.event_id == "fixture-event" && payload.calendar_id == "fixture-calendar"
+                && payload.changes.start == "2030-06-12T11:00:00+08:00" && payload.changes.end == "2030-06-12T12:00:00+08:00"
+        }
+        sh_checks.select_same_event_preserves_goal_before_approved_update = selection.selected_goal == sh_goal
+            && selection.selected_event.id == "fixture-event" && selection.refs_before.len() > 0
+            && selection.refs.to_json() == selection.refs_before.to_json() && calendar_selected_goal == sh_goal
+            && sh_gets.len() == 1 && sh_count("calendar.update") == 1 && sh_writes == 0 && bound_action
+            && runs.len() == 1 && goals.len() == 1 && goals[0].id == sh_goal && calendar_links[li].event_id == "fixture-event"
+        sh_checks.same_event_interception = {writes: sh_writes runs: runs goals: goals actions: actions
+            selected_goal: calendar_selected_goal refs: calendar_context_refs}.to_json().parse_json()
+    }
+    sh_checks.approval_source_after = {calls: sh_calls goals: goals links: calendar_links actions: actions
+        error: calendar_error preview: calendar_preview}.to_json().parse_json()
+    sh_hold_get = false sh_block_update = false sh_finish()
+}
+fn sh_approval_time_release(){
+    let expired = calendar_iso_epoch(ui.calendar_start.text()) <= time_now()
+    let card_live = time_now()-calendar_preview_at < 300
+    sh_hold_get = false sh_block_update = true
+    if sh_gets.len() > 0 { sh_gets[sh_gets.len()-1]({is_ok: true data: {found: true event: sh_event}}) }
+    sh_checks.pending_update_rejects_start_expiry_while_confirmation_card_live = expired && card_live && sh_gets.len() == 1
+        && sh_count("calendar.update") == 0 && sh_writes == 0 && calendar_preview == ""
+    sh_checks.approval_time_after = {now: time_now() start: ui.calendar_start.text() preview_age: time_now()-calendar_preview_at
+        error: calendar_error calls: sh_calls actions: actions}
+    sh_block_update = false sh_finish()
+}
+fn sh_candidate_input_start(){
+    fixture_seed() chat_boot()
+    let payload = {title: "合成日程" start: "" end: "" time_zone: "Asia/Shanghai" location: ""}
+    let message = "安排过几天的合成日程。"
+    let error = chat_candidate_input_error("calendar_candidate",payload,message,false)
+    let added = chat_add_proposal(chat_selected_id,"fixture-d07-vague","",message,
+        {intent: "calendar_candidate" proposal: payload})
+    let si = chat_session_index(chat_selected_id)
+    sh_checks.vague_day_empty_times_asks_date_without_candidate = error.search("哪一天") >= 0
+        && !added && si >= 0 && chat_sessions[si].proposals.len() == 0
+        && sh_calls.len() == 0 && goals.len() == 0 && actions.len() == 0
+    sh_checks.vague_day_observed = {input: payload message: message error: error added: added
+        proposals: chat_sessions[si].proposals}.to_json().parse_json()
+    start_timeout(0.03,|| sh_candidate_input_missing_end())
+}
+fn sh_candidate_input_missing_end(){
+    let payload = {title: "合成日程" start: "2030-06-12T15:00:00+08:00" end: "" time_zone: "Asia/Shanghai" location: ""}
+    let message = "安排2030-06-12下午15点的合成日程，结束时间待补。"
+    let error = chat_candidate_input_error("calendar_candidate",payload,message,false)
+    sh_checks.explicit_date_start_only_asks_missing_end = error == "请补充明确的结束时间。"
+        && error.search("日期") < 0 && error.search("哪一天") < 0 && error.search("标题") < 0
+        && sh_calls.len() == 0 && goals.len() == 0 && actions.len() == 0
+    sh_checks.missing_end_observed = {input: payload message: message error: error}.to_json().parse_json()
+    sh_finish()
+}
+fn sh_finish(){
+    sh_checks.forbidden_calls = sh_forbidden sh_checks.host_calls = sh_calls
+    sh_checks.execution_mode = "pure"
+    if sh_full { sh_checks.execution_mode = "full_matching_sdk" }
+    sh_checks.boundary = "FIXTURE_PRODUCTION_FUNCTIONS: synthetic Host/model replies; real isolated fs; no external mail, EventKit or model inference."
+    fs.write("probe.json",sh_checks.to_json())
+}
+start_timeout(0.1,|| probe())

@@ -58,8 +58,17 @@ def main():
                     help='Existing Root-initialized global paid accounting table; CNY30 maximum')
     ap.add_argument('--host-app', type=Path)
     ap.add_argument('--host-source', type=Path, help='Root-attested frozen SDK source directory matching --host-app')
+    ap.add_argument('--input-contract', type=Path,
+                    default=ROOT / 'official_muse/prelim/evidence/ai/paid-runner-preparation/input-bound-contract.json',
+                    help='Reviewed immutable chat-only input contract for this candidate')
     ap.add_argument('--resume', action='store_true')
+    ap.add_argument('--supplemental', type=Path,
+                    help='Frozen extra variants appended after all original/setup/holdout cases')
+    ap.add_argument('--diagnostic-extra-only', action='store_true',
+                    help='Run only the separate frozen repair variants; never counts as original28 acceptance')
     a = ap.parse_args()
+    if a.diagnostic_extra_only and not a.supplemental:
+        ap.error('--diagnostic-extra-only needs a separately frozen --supplemental file')
     assert a.port not in [8414, 8401], 'User windows are excluded'
     paid = a.authorized_model
     if paid and (a.wire or not a.cost_ledger or not a.host_source):
@@ -79,7 +88,7 @@ def main():
     host_binary = host_app / 'Contents/MacOS/octosense'
     assert sha(host_binary) == meta['host_sha256'], 'Host differs from candidate metadata'
     assert not (candidate / 'private/apps/.host/mail').exists(), 'No mailbox state permitted'
-    contract_path = ROOT / 'official_muse/prelim/evidence/ai/paid-runner-preparation/input-bound-contract.json'
+    contract_path = a.input_contract.resolve()
     input_contract = read(contract_path) if paid else None
     guard_sha = sha(Path(__file__).with_name('ai_paid_guard.py'))
     contract_sha = sha(contract_path) if paid else None
@@ -108,6 +117,15 @@ def main():
     assert sum(c['suite'] == 'setup' for c in plan['cases']) == 2
     assert sum(c['suite'] == 'holdout' for c in plan['cases']) == 6
     assert len({c['id'] for c in plan['cases']}) == 28
+    supplemental_path = a.supplemental.resolve() if a.supplemental else None
+    supplemental_sha = sha(supplemental_path) if supplemental_path else None
+    if supplemental_path:
+        extra = read(supplemental_path)
+        assert extra['status'] == 'FROZEN_BEFORE_LIVE_RUN' and extra['cases']
+        assert all(c['suite'] == 'supplemental' and c['execution'] == 'model' for c in extra['cases'])
+        plan['cases'] = extra['cases'] if a.diagnostic_extra_only else plan['cases'] + extra['cases']
+        assert len({c['id'] for c in plan['cases']}) == len(plan['cases']), 'Extra cases cannot replace frozen cases'
+    suites = ['supplemental'] if a.diagnostic_extra_only else ['original20', 'setup', 'holdout'] + (['supplemental'] if supplemental_path else [])
     manifest_sha = sha(jail / 'bundle/manifest.json')
     driver_sha = sha(Path(__file__))
     runtime_pids = subprocess.check_output(
@@ -125,6 +143,8 @@ def main():
         assert sha(jail / 'bundle/manifest.json') == manifest_sha
         assert sha(host_binary) == meta['host_sha256']
         assert sha(EXPECTATIONS) == expectations_sha
+        if supplemental_path:
+            assert sha(supplemental_path) == supplemental_sha
         assert sha(Path(__file__)) == driver_sha
         if paid_guard:
             assert sha(Path(__file__).with_name('ai_paid_guard.py')) == guard_sha
@@ -139,6 +159,8 @@ def main():
         assert report['host_sha256'] == meta['host_sha256']
         assert report['expectations_sha256'] == expectations_sha
         assert report['driver_sha256'] == driver_sha
+        assert report.get('supplemental_sha256') == supplemental_sha
+        assert report.get('diagnostic_extra_only', False) == a.diagnostic_extra_only
         assert report['port'] == a.port and report['wire_path'] == (str(wire_path) if wire_path else None)
         assert report.get('authorized_model', False) == paid
         if paid:
@@ -153,10 +175,14 @@ def main():
         assert not (out / 'report.json').exists() and not (out / 'semantic_expectations.json').exists()
         out.mkdir(parents=True, exist_ok=True)
         (out / 'semantic_expectations.json').write_bytes(EXPECTATIONS.read_bytes())
+        if supplemental_path:
+            (out / 'supplemental_expectations.json').write_bytes(supplemental_path.read_bytes())
         report = {'kind': 'LIVE_AUTHORIZED_MODEL_VISIBLE_SHELL_SYNTHETIC_DATA' if paid else 'LIVE_LOCAL_MODEL_VISIBLE_SHELL_SYNTHETIC_DATA',
                   'status': 'RUNNING', 'version': meta['version'],
                   'source_sha256': meta['source_sha256'], 'host_sha256': meta['host_sha256'],
                   'manifest_sha256': manifest_sha, 'expectations_sha256': expectations_sha,
+                  'supplemental_sha256': supplemental_sha,
+                  'diagnostic_extra_only': a.diagnostic_extra_only,
                   'driver_sha256': driver_sha, 'candidate': str(candidate),
                   'runtime_pid': int(runtime_pid), 'runtime_executable': runtime_executable,
                   'helper_sha256': {str(p.relative_to(ROOT)): sha(p) for p in [
@@ -169,13 +195,13 @@ def main():
                   'memory_operations': {}, 'started_at': time.time(),
                   'mail_send': False, 'calendar_write': False,
                   'semantic_review': 'PENDING_MANUAL_REVIEW',
-                  'count_note': '20 original functional cases include S06 local cancellation; 19 expect model calls. Two setup and six frozen holdout are separate.'}
+                  'count_note': ('Repair diagnostics only. Original28 and T01-T20 acceptance are NOT_RUN in this report.' if a.diagnostic_extra_only else '20 original functional cases include S06 local cancellation; 19 expect model calls. Two setup and six frozen holdout are separate.')}
         if paid:
             report.update({'authorized_model': True, 'cost_ledger': str(a.cost_ledger.resolve()),
                            'profile_sha256': paid_guard.profile_sha,
                            'host_source_root_attested': str(a.host_source.resolve()),
                            'input_bound_contract_sha256': contract_sha, 'paid_guard_sha256': guard_sha,
-                           'acceptance_rule': 'All original20 must receive manual semantic PASS; a completed run or partial score is not PASS',
+                           'acceptance_rule': ('Diagnostic results cannot count as original28 or product acceptance.' if a.diagnostic_extra_only else 'All original20 must receive manual semantic PASS; a completed run or partial score is not PASS'),
                            'billing_note': 'CNY30 global cap; conservative usage upper bounds, never an actual invoice'})
     r = Remote(a.port)
     last_model = time.monotonic() if a.resume else 0
@@ -393,13 +419,13 @@ def main():
                 'local_turns_zero_increment': sum(c['suite'] == suite and c['execution_expected'] != 'model' and c['transport_expectation_met'] for c in report['cases']),
                 'model_calls': sum(c.get('model_calls', 0) for c in report['cases'] if c['suite'] == suite),
                 'provider_attempts': sum(c.get('provider_attempts', 0) for c in report['cases'] if c['suite'] == suite)}
-                for suite in ['original20', 'setup', 'holdout']}
+                for suite in suites}
         else:
             report['counts'] = {suite: {'cases': sum(c['suite'] == suite for c in report['cases']),
                                    'model_turns_with_wire': sum(c['suite'] == suite and c['execution_expected'] == 'model' and c['wire_requests'] > 0 for c in report['cases']),
                                    'local_turns_without_wire': sum(c['suite'] == suite and c['execution_expected'] != 'model' and c['wire_requests'] == 0 for c in report['cases']),
                                    'backend_wire_requests': sum(c['wire_requests'] for c in report['cases'] if c['suite'] == suite)}
-                            for suite in ['original20', 'setup', 'holdout']}
+                            for suite in suites}
         report['status'] = 'COMPLETED_AWAITING_SEMANTIC_REVIEW'
         report['ended_at'] = time.time()
         report['not_run_cases'] = []

@@ -1,0 +1,33 @@
+--- a/apps/mail/host-service/src/lib.rs
++++ b/apps/mail/host-service/src/lib.rs
+@@ -672,11 +672,19 @@
+                         Ok(account) => account,
+                         Err(e) => return reply.send(Err(e)),
+                     };
++                    for key in ["in_reply_to", "references"] {
++                        let value = text(&call.args, key);
++                        if value.len() > 2000 || value.contains(['\r', '\n']) {
++                            return reply.send(Err("Reply metadata is invalid".into()));
++                        }
++                    }
+                     let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+                     let domain = text(&account, "address").split('@').nth(1).unwrap_or("octosense.local").to_string();
+                     let draft = json!({
+                         "to": text(&call.args, "to"), "subject": text(&call.args, "subject"), "body": text(&call.args, "body"),
+                         "message_id": format!("<{now:x}@{domain}>"),
++                        "in_reply_to": text(&call.args, "in_reply_to"),
++                        "references": text(&call.args, "references"),
+                     });
+                     let sent = transport.send(&account, &draft);
+                     if sent.is_ok() {
+--- a/apps/mail/host-service/src/network.rs
++++ b/apps/mail/host-service/src/network.rs
+@@ -439,7 +439,7 @@
+     };
+     Ok(
+         json!({"id":&hash(uid)[..24],"uid":uid,"sender":sender,"address":address,"subject":subject,
+-        "to":header("To"),"cc":header("Cc"),"message_id":header("Message-ID"),"reply_to":header("Reply-To"),"references":header("References"),
++        "to":header("To"),"cc":header("Cc"),"message_id":header("Message-ID"),"reply_to":header("Reply-To"),"references":header("References"),"in_reply_to":header("In-Reply-To"),
+         "body":plain,"preview":plain.split_whitespace().collect::<Vec<_>>().join(" ").chars().take(180).collect::<String>(),
+         "html":html,"inline_images":images,"attachment_items":attachments,"attachments":attachments.len(),
+         "date":date.to_rfc3339(),"time":date.format("%b %d").to_string(),"unread":true,"flagged":false,"archived":false,"source":"gmail"}),

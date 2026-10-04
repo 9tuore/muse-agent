@@ -1,0 +1,30 @@
+// Same production functions, synthetic calendar data; no OS writes or model calls.
+let schedule_test = {}
+fn probe(){
+    fixture_seed()
+    let windows = [{start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T12:00:00+08:00"}]
+    let busy = [{id: "busy" start: "2030-06-12T09:00:00+08:00" end: "2030-06-12T10:00:00+08:00" all_day: false availability: 0}]
+    let answer = schedule_free_slots(busy,windows,3600,"",0)
+    schedule_test.two_only = answer.error == "" && answer.slots.len() == 2
+    schedule_test.busy_skipped = answer.slots[0].start == "2030-06-12T02:00:00Z" && answer.slots[1].start == "2030-06-12T03:00:00Z"
+    busy[0].availability = 1
+    answer = schedule_free_slots(busy,windows,3600,"",0)
+    schedule_test.transparent_does_not_block = answer.slots[0].start == "2030-06-12T01:00:00Z"
+    busy[0].availability = 2
+    answer = schedule_free_slots(busy,windows,3600,"",0)
+    schedule_test.tentative_blocks = answer.slots[0].start == "2030-06-12T02:00:00Z"
+    busy[0].availability = -1
+    answer = schedule_free_slots(busy,windows,3600,"",0)
+    schedule_test.unknown_blocks_recommendations = answer.error != "" && answer.slots.len() == 0
+    busy[0].availability = 0 busy[0].all_day = true
+    busy[0].start = "2030-06-12T00:00:00+08:00" busy[0].end = "2030-06-13T00:00:00+08:00"
+    answer = schedule_free_slots(busy,windows,3600,"",0)
+    schedule_test.all_day_blocks = answer.slots.len() == 0 && answer.error == ""
+    answer = schedule_free_slots(busy,windows,3600,"busy",0)
+    schedule_test.original_event_ignored = answer.slots.len() == 2
+    schedule_test.window_validation = schedule_windows_valid(windows,calendar_iso_epoch(windows[0].start),calendar_iso_epoch(windows[0].end))
+    schedule_test.oversize_window_rejected = !schedule_windows_valid(windows,calendar_iso_epoch("2030-06-12T09:01:00+08:00"),calendar_iso_epoch(windows[0].end))
+    schedule_test.no_external_actions = fixture_calls.len() == 0 && fixture_writes == 0
+    fs.write("probe.json",schedule_test.to_json())
+}
+start_timeout(0.1,|| probe())

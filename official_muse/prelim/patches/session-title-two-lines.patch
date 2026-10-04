@@ -1,0 +1,17 @@
+--- a/official_muse/app/bundle/main.splash
++++ b/official_muse/app/bundle/main.splash
+@@ -7358,8 +7358,12 @@
+                     if chat_history_group(session.updated_at) == group {
+                         let row_color = #x1f2023
+                         if session.id == chat_selected_id { row_color = panel }
+-                        View{width: Fill height: Fit flow: Right spacing: 4
+-                            Nav{width: Fill text: session.title draw_bg.color: row_color on_click: || chat_select_session(session.id)}
++                        View{width: Fill height: 54 flow: Right spacing: 4 align: Align{x: 0 y: 0.5}
++                            Nav{width: Fill height: Fill text: session.title draw_bg.color: row_color
++                                flow: Right{wrap: true} align: Align{x: 0 y: 0.5}
++                                label_walk: Walk{width: Fill height: Fit}
++                                draw_text.max_lines: 2 draw_text.text_overflow: Ellipsis
++                                on_click: || chat_select_session(session.id)}
+                             Nav{width: 46 text: "删除" on_click: || chat_request_delete(session.id)}
+                         }
+                     }

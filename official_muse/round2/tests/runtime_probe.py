@@ -13,7 +13,7 @@ import time
 from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parents[3]
-HOST = Path('/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host/OctoSense/target/release/card-host')
+HOST = Path(os.environ.get('MUSE_CARD_HOST', '/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host/OctoSense/target/release/card-host'))
 
 
 def replace_function(text, name, replacement):

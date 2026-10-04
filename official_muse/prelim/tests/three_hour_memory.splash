@@ -1,0 +1,409 @@
+// Production functions with queued synthetic Host replies and isolated storage.
+// A failed assertion is evidence, not permission to relax the acceptance rule.
+let tm_checks = {}
+let tm_ids = {}
+let tm_reply = nil
+let tm_reload_attempts = 0
+let tm_chat_focus = {}
+let tm_validation_saved = nil
+let tm_validation_phase = "sources"
+let tm_validation_index = 0
+let tm_validation_ok = true
+
+fn tm_id(value){
+    for entry in memory { if entry.document.payload.value == value { return entry.document.id } }
+    return ""
+}
+fn tm_wire(){
+    if fixture_calls.len() == 0 { return "" }
+    for offset in fixture_calls.len() {
+        let call = fixture_calls[fixture_calls.len()-1-offset]
+        if call.service == "model.complete" { return call.payload.to_json() }
+    }
+    return ""
+}
+fn tm_request(project,owner,account,query){
+    tm_reply = nil
+    muse_model_request(query,"conversation:B","",|| true,{
+        task: "合成范围检查，不执行动作。" class: "fast"
+        input: {project_id: project owner_id: owner source_account: account}
+        schema: {type: "object" properties: {reply: {type: "string"}} required: ["reply"] additionalProperties: false}
+    },fn(r){ tm_reply = r })
+}
+fn tm_mail_fact(id,value){
+    let observed = core_utc_iso(time_now())
+    let sid = "source:tm-" + id
+    let source = {source_id: sid kind: "runtime_receipt" locator: "mail:fixture-account:" + id
+        content_sha256: fs.sha256(value) observed_at: observed updated_at: observed support_excerpt: value}
+    source["scope"] = task_memory_scope("tm-matter","fixture-account")
+    if !core_add_source(source) { return false }
+    let doc = {schema_version: "muse.dsl/1" kind: "memory" id: "memory:tm-" + id revision: 1
+        created_at: observed updated_at: observed origin: {type: "local_runtime" ref: "mail-host"}
+        payload: {subject_id: "tm-matter" predicate: "calendar_source_message:" + id value: value
+            epistemic_type: "external_claim" source_ids: [sid] observed_at: observed valid_from: nil valid_until: nil relations: [] deleted: false}}
+    doc["scope"] = task_memory_scope("tm-matter","fixture-account")
+    return core_add_claim(doc)
+}
+fn tm_seed(){
+    fixture_seed()
+    tm_checks.boot = gm_boot()
+    gm_set_accounts(["fixture-account","synthetic-account"])
+    gm_set_focus("当前聊天项目","聊天归属")
+    tm_checks.local_project_preference_saved = gm_save("星帆安排偏好在下午","preference","星帆","安排偏好","conversation:A","星帆项目","本人","local")
+    tm_ids.local = tm_id("星帆安排偏好在下午")
+    tm_checks.other_project_preference_saved = gm_save("星帆安排偏好在上午","preference","星帆","安排偏好","conversation:A2","同名另一项目","本人","local")
+    fs.write("progress.json",{next: "tm_accounts" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_accounts())
+}
+fn tm_accounts(){
+    tm_checks.mail_account_preference_saved = gm_save("星帆安排偏好避开周五","preference","星帆","安排偏好","conversation:mail-A","星帆项目","本人","fixture-account")
+    tm_ids.mail = tm_id("星帆安排偏好避开周五")
+    tm_checks.other_account_preference_saved = gm_save("星帆安排偏好仅周五","preference","星帆","安排偏好","conversation:mail-B","星帆项目","本人","synthetic-account")
+    tm_ids.foreign = tm_id("星帆安排偏好仅周五")
+    fs.write("progress.json",{next: "tm_chat_remember" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_chat_remember())
+}
+fn tm_chat_remember(){
+    tm_chat_focus = {project: gm_project owner: gm_owner conversation: chat_selected_id}
+    gm_set_focus("星帆项目","本人") chat_selected_id = "conversation:remember-A"
+    tm_checks.chat_project_preference_saved = chat_remember("项目安排偏好=只在下午")
+    tm_ids.chat_project = tm_id("项目安排偏好=只在下午")
+    let own = core_memory_index(tm_ids.chat_project,"local")
+    tm_checks.chat_project_preference_type_and_scope = own >= 0 && memory[own].memory_type == "preference"
+        && memory[own].document["scope"].project_id == "星帆项目" && memory[own].document["scope"].owner_id == "本人"
+        && memory[own].conversation_id == "conversation:remember-A"
+    gm_set_focus("同名另一项目","本人") chat_selected_id = "conversation:remember-B"
+    tm_checks.chat_other_project_preference_saved = chat_remember("项目安排偏好=只在上午")
+    fs.write("progress.json",{next: "tm_chat_remember_scope" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_chat_remember_scope())
+}
+fn tm_chat_remember_scope(){
+    gm_set_focus("星帆项目","本人")
+    let context = gm_context("项目安排偏好","conversation:remember-C","")
+    tm_checks.chat_remember_cross_chat_same_project = context.text.search("项目安排偏好=只在下午") >= 0
+        && context.text.search("项目安排偏好=只在上午") < 0
+    gm_set_focus("同名另一项目","本人")
+    context = gm_context("项目安排偏好","conversation:remember-C","")
+    tm_checks.chat_remember_other_project_isolated = context.text.search("项目安排偏好=只在上午") >= 0
+        && context.text.search("项目安排偏好=只在下午") < 0
+    let before = fs.read("memory.json")
+    gm_set_focus("","本人")
+    tm_checks.chat_scoped_preference_missing_project_blocked = !chat_remember("约定偏好=不在午间") && fs.read("memory.json") == before
+    gm_set_focus("星帆项目","")
+    tm_checks.chat_scoped_preference_missing_owner_blocked = !chat_remember("会议时段偏好=不在周二") && fs.read("memory.json") == before
+    gm_set_focus("星帆项目","本人") chat_selected_id = "conversation:remember-format"
+    tm_checks.chat_format_preference_saved = chat_remember("回答时偏好先给结论")
+    tm_ids.chat_format = tm_id("回答时偏好先给结论")
+    let i = core_memory_index(tm_ids.chat_format,"local")
+    tm_checks.chat_format_preference_remains_global = i >= 0 && memory[i].memory_type == "preference"
+        && memory[i].document["scope"].project_id == "" && memory[i].document["scope"].owner_id == ""
+    gm_set_focus("第三项目","第三归属")
+    context = gm_context("回答结论","conversation:remember-D","")
+    tm_checks.chat_global_format_cross_project = context.text.search("回答时偏好先给结论") >= 0
+        && context.text.search("项目安排偏好=只在下午") < 0 && context.text.search("项目安排偏好=只在上午") < 0
+    gm_set_focus(tm_chat_focus.project,tm_chat_focus.owner) chat_selected_id = tm_chat_focus.conversation
+    fs.write("progress.json",{next: "tm_preferences" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_preferences())
+}
+fn tm_preferences(){
+    tm_checks.nonlexical_hard_preference_saved = gm_save("周二午间完全禁止约见","preference","本轮硬约束","禁时","conversation:A","星帆项目","本人","local")
+    tm_ids.hard = tm_id("周二午间完全禁止约见")
+    tm_checks.nonlexical_global_preference_saved = gm_save("每次会面请携带纸质记录","preference","会面要求","材料","conversation:A","","","local")
+    tm_ids.global = tm_id("每次会面请携带纸质记录")
+    fs.write("progress.json",{next: "tm_foreign_project" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_foreign_project())
+}
+fn tm_foreign_project(){
+    tm_checks.foreign_only_project_saved = gm_save("仅另一邮箱可用的约见规则","preference","委托","约见规则","conversation:foreign","仅另一账号项目","另外归属","synthetic-account")
+    fs.write("progress.json",{next: "tm_nonlexical" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_nonlexical())
+}
+fn tm_nonlexical(){
+    // Select valid stored entries, then restore the exact original records.
+    let original_memory = memory.to_json().parse_json()
+    let original_goals = goals.to_json().parse_json()
+    let selected = []
+    for entry in memory {
+        if entry.document.id == tm_ids.hard || entry.document.id == tm_ids.global
+            || entry.document.payload.value == "星帆安排偏好在上午" { selected.push(entry) }
+    }
+    memory = selected
+    goals = [{id: "tm-preference-goal" kind: "calendar" version: 1 status: "planned" archived: false project_id: "星帆项目" owner_id: "本人"}]
+    tm_reply = nil
+    muse_model_request("未出现禁时措辞的独立代号QZ","conversation:B","tm-preference-goal",|| true,{
+        task: "仅合成偏好检索。" class: "fast"
+        input: {source_account: "fixture-account"}
+        schema: {type: "object" properties: {policy: {type: "object"}} required: ["policy"] additionalProperties: false}
+    },fn(r){ tm_reply = r })
+    let wire = tm_wire()
+    tm_checks.nonlexical_hard_preference_in_calendar_context = wire.search("周二午间完全禁止约见") >= 0
+    tm_checks.nonlexical_global_preference_in_calendar_context = wire.search("每次会面请携带纸质记录") >= 0
+    tm_checks.nonlexical_other_project_excluded = wire.search("星帆安排偏好在上午") < 0
+    if tm_reply == nil {
+        let callback = fixture_queue[fixture_queue.len()-1]
+        callback({is_ok: true data: {output: {policy: {}}}})
+    }
+    let template = memory[core_memory_index(tm_ids.hard,"local")].to_json().parse_json()
+    let bounded = []
+    for i in 7 {
+        let entry = template.to_json().parse_json()
+        entry.document.id = "memory:tm-bounded:" + i
+        entry.document.payload.predicate = "独立约束" + i
+        bounded.push(entry)
+    }
+    memory = bounded
+    let count = fixture_queue.len()
+    tm_reply = nil
+    muse_model_request("未出现禁时措辞的独立代号QZ","conversation:B","tm-preference-goal",|| true,{
+        task: "仅合成上下文容量检查。" class: "fast" input: {source_account: "fixture-account"}
+        schema: {type: "object" properties: {policy: {type: "object"}} required: ["policy"] additionalProperties: false}
+    },fn(r){ tm_reply = r })
+    tm_checks.incomplete_preference_context_blocks_model = fixture_queue.len() == count && tm_reply != nil
+        && !tm_reply.is_ok && tm_reply.error.search("memory_scope_incomplete") >= 0
+    memory = original_memory goals = original_goals
+    fs.write("progress.json",{next: "tm_scope" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_scope())
+}
+fn tm_scope(){
+    let current_project = gm_project let current_owner = gm_owner
+    tm_request("星帆项目","本人","fixture-account","星帆安排偏好")
+    let wire = tm_wire()
+    tm_checks.cross_conversation_local_preference = wire.search("星帆安排偏好在下午") >= 0
+    tm_checks.explicit_mail_project_overrides_chat = wire.search("星帆安排偏好在上午") < 0
+    tm_checks.mail_request_own_account_present = wire.search("星帆安排偏好避开周五") >= 0
+    tm_checks.mail_request_other_account_excluded = wire.search("星帆安排偏好仅周五") < 0
+    tm_checks.request_restores_current_chat_focus = gm_project == current_project && gm_owner == current_owner
+    let local_i = core_memory_index(tm_ids.local,"local")
+    let mail_i = core_memory_index(tm_ids.mail,"fixture-account")
+    let foreign_i = core_memory_index(tm_ids.foreign,"synthetic-account")
+    let local_sid = memory[local_i].document.payload.source_ids[0]
+    let mail_sid = memory[mail_i].document.payload.source_ids[0]
+    let foreign_sid = memory[foreign_i].document.payload.source_ids[0]
+    tm_checks.source_scopes_and_conversations_separate = local_sid != mail_sid && mail_sid != foreign_sid
+        && memory_sources[core_source_index(local_sid,"local")].locator == "conversation:conversation:A"
+        && memory_sources[core_source_index(mail_sid,"fixture-account")]["scope"].account == "fixture-account"
+        && memory_sources[core_source_index(foreign_sid,"synthetic-account")]["scope"].account == "synthetic-account"
+    let known = schedule_scope("项目：星帆项目；归属：本人；普通约定","fixture-account")
+    tm_checks.explicit_known_project_identified = known != nil && known.project == "星帆项目" && known.owner == "本人"
+    tm_checks.unknown_project_not_guessed = schedule_scope("星帆同名人的普通约定","fixture-account") == nil
+    tm_checks.other_account_project_not_inferred = schedule_scope("项目：仅另一账号项目；归属：另外归属；普通约定","fixture-account") == nil
+    let other = schedule_scope("项目：仅另一账号项目；归属：另外归属；普通约定","synthetic-account")
+    tm_checks.explicit_own_account_project_identified = other != nil && other.project == "仅另一账号项目" && other.owner == "另外归属"
+    let cb = fixture_queue[fixture_queue.len()-1]
+    cb({is_ok: true data: {output: {reply: "合成已读"}}})
+    tm_request("","","fixture-account","星帆安排偏好")
+    wire = tm_wire()
+    tm_checks.unknown_scope_excludes_project_records = wire.search("星帆安排偏好在下午") < 0 && wire.search("星帆安排偏好在上午") < 0
+        && wire.search("星帆安排偏好避开周五") < 0 && wire.search("星帆安排偏好仅周五") < 0
+    cb = fixture_queue[fixture_queue.len()-1]
+    cb({is_ok: true data: {output: {reply: "请明确项目归属"}}})
+    let dispatched = fixture_queue.len()
+    tm_request("星帆项目","本人","not-authorized","星帆安排偏好")
+    tm_checks.unauthorized_source_stops_before_model = fixture_queue.len() == dispatched && tm_reply != nil && !tm_reply.is_ok
+    fs.write("progress.json",{next: "tm_correction" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_correction())
+}
+fn tm_correction(){
+    tm_request("星帆项目","本人","fixture-account","星帆安排偏好")
+    let old_callback = fixture_queue[fixture_queue.len()-1]
+    tm_checks.explicit_correction_saved = gm_correct(tm_ids.local,"星帆安排偏好在傍晚","local","conversation:C")
+    let i = core_memory_index(tm_ids.local,"local")
+    tm_checks.correction_preserves_audit = memory[i].document.revision == 2 && memory[i].history.len() == 1
+        && memory[i].history[0].payload.value == "星帆安排偏好在下午"
+    old_callback({is_ok: true data: {output: {reply: "迟到的旧偏好回答"}}})
+    tm_checks.corrected_memory_rejects_late_model = tm_reply != nil && !tm_reply.is_ok && tm_reply.error.search("memory_conflict") >= 0
+    tm_request("星帆项目","本人","fixture-account","星帆安排偏好")
+    let wire = tm_wire()
+    tm_checks.corrected_value_retrieved_old_value_absent = wire.search("星帆安排偏好在傍晚") >= 0 && wire.search("星帆安排偏好在下午") < 0
+    let cb = fixture_queue[fixture_queue.len()-1]
+    cb({is_ok: true data: {output: {reply: "合成新偏好"}}})
+    fs.write("progress.json",{next: "tm_grant_revocation" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_grant_revocation())
+}
+fn tm_grant_revocation(){
+    tm_request("星帆项目","本人","fixture-account","星帆安排偏好")
+    let callback = fixture_queue[fixture_queue.len()-1]
+    gm_set_accounts(["synthetic-account"])
+    callback({is_ok: true data: {output: {reply: "授权撤回后的迟到回答"}}})
+    tm_checks.revoked_account_rejects_late_model = tm_reply != nil && !tm_reply.is_ok
+    gm_set_accounts(["fixture-account","synthetic-account"])
+    tm_checks.source_grants_restored_after_fixture = gm_account_allowed("fixture-account") && gm_account_allowed("synthetic-account")
+    fs.write("progress.json",{next: "tm_conflict" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_conflict())
+}
+fn tm_conflict(){
+    tm_checks.conflicting_preference_saved = gm_save("星帆安排偏好只在清晨","preference","星帆","安排偏好","conversation:D","星帆项目","本人","fixture-account")
+    tm_ids.conflict = tm_id("星帆安排偏好只在清晨")
+    let count = fixture_queue.len()
+    tm_request("星帆项目","本人","fixture-account","星帆安排偏好")
+    tm_checks.conflict_requires_question_before_model = fixture_queue.len() == count && tm_reply != nil && !tm_reply.is_ok
+        && tm_reply.error.search("memory_conflict") >= 0
+    let a = core_memory_index(tm_ids.mail,"fixture-account") let b = core_memory_index(tm_ids.conflict,"fixture-account")
+    tm_checks.conflicting_user_preferences_preserved = !memory[a].document.payload.deleted && !memory[b].document.payload.deleted
+        && gm_entry_access(memory[a]) && gm_entry_access(memory[b])
+    fs.write("progress.json",{next: "tm_results_old" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_results_old())
+}
+fn tm_results_old(){
+    goals = [{id: "tm-matter" kind: "calendar" version: 2 status: "planned" archived: false project_id: "星帆项目" owner_id: "本人"}]
+    calendar_links = [{goal_id: "tm-matter" account_id: "fixture-account" message_id: "new-mail" source_id: "source:tm-new-mail"
+        event_id: "same-event" status: "verified"}]
+    tm_checks.old_mail_external_claim_saved = tm_mail_fact("old-mail","旧来信提出2030-06-12见面。")
+    tm_checks.new_mail_external_claim_saved = tm_mail_fact("new-mail","新来信提出2030-06-14改期。")
+    tm_checks.old_mail_fields_normalized = gm_prepare()
+    fs.write("progress.json",{next: "tm_runtime_facts" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_runtime_facts())
+}
+fn tm_runtime_facts(){
+    fs.mkdir("results")
+    fs.write("results/tm-old.json",{task_id: "tm-matter" event_id: "same-event" start: "2030-06-12T07:00:00Z" end: "2030-06-12T08:00:00Z"}.to_json())
+    tm_checks.old_readback_fact_saved = core_remember_result("tm-matter","tm-old","results/tm-old.json","fixture-account","source:tm-old","calendar:fixture:same-event",["source:tm-old-mail"])
+    fs.write("results/tm-foreign.json",{task_id: "tm-matter" event_id: "foreign-event" start: "2030-06-13T07:00:00Z" end: "2030-06-13T08:00:00Z"}.to_json())
+    tm_checks.other_account_readback_fact_saved = core_remember_result("tm-matter","tm-foreign","results/tm-foreign.json","synthetic-account","source:tm-foreign","calendar:foreign:foreign-event",[])
+    tm_checks.runtime_fact_fields_normalized = gm_prepare()
+    fs.write("progress.json",{next: "tm_results_new" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_results_new())
+}
+fn tm_results_new(){
+    fs.write("results/tm-new.json",{task_id: "tm-matter" event_id: "same-event" start: "2030-06-14T07:00:00Z" end: "2030-06-14T08:00:00Z"}.to_json())
+    tm_checks.new_readback_fact_saved = core_remember_result("tm-matter","tm-new","results/tm-new.json","fixture-account","source:tm-new","calendar:fixture:same-event",["source:tm-new-mail"])
+    fs.write("progress.json",{next: "tm_results_supersede" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_results_supersede())
+}
+fn tm_results_supersede(){
+    tm_checks.latest_result_supersedes_previous = schedule_supersede_result("tm-matter","memory:result:tm-new","fixture-account")
+    fs.write("progress.json",{next: "tm_results_assert" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_results_assert())
+}
+fn tm_results_assert(){
+    let old_i = core_memory_index("memory:result:tm-old","fixture-account")
+    let new_i = core_memory_index("memory:result:tm-new","fixture-account")
+    let foreign_i = core_memory_index("memory:result:tm-foreign","synthetic-account")
+    tm_checks.old_fact_kept_as_audit_and_hidden = memory[old_i]["resolved_by"] == "memory:result:tm-new"
+        && memory[old_i].history.len() == 0 && memory[old_i].document.payload.value.search("2030-06-12T07:00:00Z") >= 0
+        && !memory[old_i].document.payload.deleted && !gm_entry_access(memory[old_i])
+    tm_checks.current_readback_fact_accessible = gm_entry_access(memory[new_i]) && memory[new_i].document.payload.value.search("2030-06-14") >= 0
+    tm_checks.result_account_scope_preserved = gm_entry_access(memory[foreign_i]) && memory[foreign_i]["resolved_by"] == nil
+    let a = core_memory_index(tm_ids.mail,"fixture-account") let b = core_memory_index(tm_ids.conflict,"fixture-account")
+    tm_checks.calendar_supersession_keeps_preference_conflict = gm_entry_access(memory[a]) && gm_entry_access(memory[b])
+        && gm_hit_conflicts(memory[a].document,"星帆安排偏好","","").len() > 0
+    tm_checks.result_source_retains_goal_project = memory[new_i].document["scope"].project_id == "星帆项目"
+        && memory_sources[core_source_index("source:tm-new","fixture-account")]["scope"].project_id == "星帆项目"
+    let old_mail = core_memory_index("memory:tm-old-mail","fixture-account")
+    let new_mail = core_memory_index("memory:tm-new-mail","fixture-account")
+    tm_checks.previous_mail_claim_kept_as_audit = memory[old_mail]["resolved_by"] == nil
+        && !memory[old_mail].document.payload.deleted && memory[old_mail].history.len() == 1
+        && memory[old_mail].history[0].payload.value == "旧来信提出2030-06-12见面。"
+        && memory[old_mail].document.revision == 2 && memory[old_mail].document.payload.valid_until != nil
+        && !gm_entry_access(memory[old_mail])
+    tm_checks.latest_mail_claim_not_promoted_to_preference = gm_entry_access(memory[new_mail])
+        && memory[new_mail].document.payload.epistemic_type == "external_claim" && memory[new_mail].memory_type != "preference"
+    fs.write("progress.json",{next: "tm_validate_begin" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_validate_begin())
+}
+fn tm_validate_begin(){
+    // Validate every canonical source/claim with the production chunk validator.
+    // No production quota, validator, history rule or assertion is replaced.
+    tm_validation_saved = fs.read("memory.json").parse_json()
+    tm_checks.persisted_memory_matches_active_records = tm_validation_saved.to_json() == {schema: 1 claims: memory sources: memory_sources forget: memory_forget}.to_json()
+    tm_validation_phase = "sources" tm_validation_index = 0 tm_validation_ok = true
+    fs.write("progress.json",{next: "tm_validate_step" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_validate_step())
+}
+fn tm_validate_step(){
+    let valid = gm_validate_canonical_part(tm_validation_saved,true,tm_validation_phase,tm_validation_index,tm_validation_index+1)
+    if !valid { tm_validation_ok = false }
+    let total = tm_validation_saved.sources.len()
+    if tm_validation_phase == "claims" { total = tm_validation_saved.claims.len() }
+    if tm_validation_index + 1 < total {
+        tm_validation_index = tm_validation_index + 1
+        fs.write("progress.json",{next: "tm_validate_step" checks: tm_checks}.to_json())
+        start_timeout(0.05,|| tm_validate_step())
+        return
+    }
+    if tm_validation_phase == "sources" {
+        tm_validation_phase = "claims" tm_validation_index = 0
+        fs.write("progress.json",{next: "tm_validate_step" checks: tm_checks}.to_json())
+        start_timeout(0.05,|| tm_validate_step())
+        return
+    }
+    tm_checks.superseded_memory_remains_valid_dsl = tm_validation_ok
+    if !tm_checks.superseded_memory_remains_valid_dsl {
+        tm_checks.remaining_checks = "Generation/forget skipped after invalid persisted DSL; original evidence preserved."
+        tm_checks.no_external_actions = fixture_writes == 0 && actions.len() == 0
+        fs.write("probe.json",tm_checks.to_json())
+        return
+    }
+    fs.write("progress.json",{next: "tm_late_generation" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_late_generation())
+}
+
+fn tm_late_generation(){
+    tm_checks.explicit_conflict_adjudication_saved = gm_correct(tm_ids.mail,"星帆安排偏好避开周五","fixture-account","conversation:F")
+    let original_memory = memory.to_json().parse_json()
+    let selected = []
+    for entry in memory { if entry.document.id == "memory:tm-new-mail" || entry.document.id == tm_ids.mail { selected.push(entry) } }
+    memory = selected
+    calendar_ready = true
+    calendar_links[0].status = "candidate"
+    calendar_links[0].source_claim_id = "memory:tm-new-mail"
+    calendar_links[0].candidate = {title: "原候选" start: "" end: "" time_zone: "Asia/Shanghai" location: ""}
+    calendar_links[0].candidate_revision = 1
+    goals[0].mail_source = {account_id: "fixture-account" message_id: "new-mail" source_id: "source:tm-new-mail"}
+    let queued = fixture_queue.len()
+    calendar_model_candidate("tm-matter","fixture-account","new-mail","合成约定","新来信提出2030-06-14改期。")
+    tm_checks.bound_calendar_model_dispatched = fixture_queue.len() == queued + 1
+    goals[0].status = "cancelled"
+    if fixture_queue.len() == queued + 1 {
+        let callback = fixture_queue[fixture_queue.len()-1]
+        callback({is_ok: true data: {output: {title: "迟到候选" start: "2030-06-15T07:00:00Z" end: "2030-06-15T08:00:00Z"
+            time_zone: "Asia/Shanghai" location: "" question: "" duration_changed: false duration_quote: "" policy: {}}}})
+    }
+    tm_checks.cancelled_late_model_cannot_restore_matter = goals[0].status == "cancelled"
+        && calendar_links[0].candidate.title == "原候选" && calendar_links[0].candidate_revision == 1
+    goals[0].status = "planned"
+    let context = calendar_generation_begin("tm-matter","fixture-account","new-mail")
+    tm_checks.bound_generation_valid = context != nil && calendar_generation_current(context)
+    goals[0].status = "cancelled"
+    tm_checks.cancelled_generation_rejected = context != nil && !calendar_generation_current(context)
+    goals[0].status = "planned"
+    calendar_links[0].candidate_revision = 2
+    tm_checks.edited_candidate_rejects_generation = context != nil && !calendar_generation_current(context)
+    calendar_links[0].candidate_revision = 1
+    memory_sources[core_source_index("source:tm-new-mail","fixture-account")].content_sha256 = fs.sha256("外部来源已变")
+    tm_checks.changed_source_rejects_generation = context != nil && !calendar_generation_current(context)
+    // Restore the exact synthetic source before testing persistence/forget.
+    memory_sources[core_source_index("source:tm-new-mail","fixture-account")].content_sha256 = fs.sha256("新来信提出2030-06-14改期。")
+    memory = original_memory
+    fs.write("progress.json",{next: "tm_forget" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_forget())
+}
+fn tm_forget(){
+    tm_checks.forget_saved = gm_forget(tm_ids.local,"local")
+    gm_set_focus("星帆项目","本人")
+    let context = gm_context("星帆安排偏好在傍晚","conversation:E","")
+    tm_checks.forgotten_corrected_value_not_retrieved = context.text.search("星帆安排偏好在傍晚") < 0
+    tm_checks.forgotten_value_not_reindexed = !gm_save("星帆安排偏好在傍晚","preference","星帆","安排偏好","conversation:E","星帆项目","本人","local")
+    core_boot_memory()
+    gm_boot()
+    fs.write("progress.json",{next: "tm_reload" checks: tm_checks}.to_json())
+    start_timeout(0.05,|| tm_reload())
+}
+fn tm_reload(){
+    if gm_boot_pending && tm_reload_attempts < 100 {
+        tm_reload_attempts = tm_reload_attempts + 1
+        fs.write("progress.json",{next: "tm_reload" checks: tm_checks}.to_json())
+        start_timeout(0.05,|| tm_reload())
+        return
+    }
+    tm_checks.persisted_memory_boots_after_forget = gm_ready && core_memory_ready && !gm_boot_pending
+    gm_set_accounts(["fixture-account","synthetic-account"])
+    gm_set_focus("星帆项目","本人")
+    let context = gm_context("系统日历事件","conversation:new","tm-matter")
+    tm_checks.latest_fact_survives_reopen = context.text.search("2030-06-14T07:00:00Z") >= 0 && context.text.search("2030-06-12T07:00:00Z") < 0
+    context = gm_context("星帆安排偏好在傍晚","conversation:new","")
+    tm_checks.forgotten_value_stays_hidden_after_reopen = context.text.search("星帆安排偏好在傍晚") < 0
+    tm_checks.no_external_actions = fixture_writes == 0 && actions.len() == 0
+    fs.write("probe.json",tm_checks.to_json())
+}
+start_timeout(0.1,|| tm_seed())

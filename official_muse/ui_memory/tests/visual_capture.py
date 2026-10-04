@@ -7,7 +7,7 @@ from PIL import Image, ImageChops
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'official_muse/phase2/tests'))
 from remote import Remote
-HOST=Path('/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host/OctoSense/target/release/card-host')
+HOST=Path(os.environ.get('MUSE_CARD_HOST', '/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host/OctoSense/target/release/card-host'))
 TRANSPORT='''
 let visual_calls = []
 fn visual_host(service,args,cb){
@@ -174,6 +174,9 @@ def main():
   if probe.connect_ex(('127.0.0.1',a.port))==0: raise RuntimeError('Remote port already in use; leave that process untouched.')
  a.out.mkdir(parents=True,exist_ok=True);bundle=a.out/'bundle';state=a.out/'state'
  shutil.copytree(a.source.parent,bundle,dirs_exist_ok=True)
+ manifest_path=bundle/'manifest.json'
+ manifest=json.loads(manifest_path.read_text());manifest['integrity'].pop('signature',None)
+ manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
  source=a.source.read_text()
  scene=(a.scene or Path(__file__).with_name('visual_scene.splash')).read_text() if a.long else ''
  seeded='\nstart_timeout(1.0, || visual_seed())' if a.long else ''

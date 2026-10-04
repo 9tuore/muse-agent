@@ -64,6 +64,11 @@ def run_suite(name, source, bundle_source, output, port, probe_path=None):
     output.mkdir(parents=True)
     bundle, state = output / 'bundle', output / 'state'
     shutil.copytree(bundle_source, bundle)
+    manifest_path = bundle / 'manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    # Instrumentation changes the copied bundle; never carry a production signature.
+    manifest['integrity'].pop('signature', None)
+    manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
     transport = 'let fixture_accounts_queue = []\nlet fixture_accounts_deferred = false\n' + existing.TRANSPORT.replace('    if service == "model.complete"',
         '    if service == "mail.accounts" { if fixture_accounts_deferred { fixture_accounts_queue.push(callback) return } callback({is_ok: true data: [{id: "fixture-account" address: "self@example.invalid"} {id: "synthetic-account" address: "synthetic@example.invalid"}]}) return }\n'
         '    if service == "model.complete"')
@@ -83,7 +88,8 @@ def run_suite(name, source, bundle_source, output, port, probe_path=None):
                 time.sleep(.2)
             time.sleep(.1)
             result = json.loads(report.read_text())
-            if "[E]" in (output / "runtime.log").read_text():
+            runtime_log = (output / "runtime.log").read_text()
+            if "[E]" in runtime_log or "script time budget exceeded" in runtime_log:
                 raise RuntimeError("Runtime logged an error; original log/report preserved")
             if not isinstance(result, dict):
                 raise RuntimeError('Probe report is not an object; inspect preserved probe.json and runtime.log')
@@ -115,6 +121,8 @@ def main():
     p.add_argument('--source', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--port', type=int, default=8485)
+    p.add_argument('--compact-tokenizer', type=Path,
+                   help='Use a token-verified compact copy without changing Host budgets.')
     p.add_argument('--suites', nargs='+', default=['selection_suite', 'calendar_suite', 'model_suite', 'incoming_suite', 'chat_binding', 'chat_proposal', 'model_preflight', 'chat_derived'])
     args = p.parse_args()
     args.out = args.out.resolve()
@@ -123,15 +131,32 @@ def main():
     snapshot = args.out / 'source-bundle'
     shutil.copytree(args.source.resolve().parent, snapshot)
     source = (snapshot / args.source.name).read_text()
+    instrumented_source = source
+    compact_evidence = None
+    if args.compact_tokenizer:
+        tokenizer = args.compact_tokenizer.resolve(strict=True)
+        compact_bundle = args.out / 'compact-source-bundle'
+        compact = subprocess.run([sys.executable, str(ROOT / 'official_muse/ui_memory/compact_bundle.py'),
+                                  '--source', str(snapshot), '--out', str(compact_bundle)],
+                                 check=True, capture_output=True, text=True)
+        tokens = subprocess.run([str(tokenizer), str(snapshot / args.source.name),
+                                 str(compact_bundle / args.source.name)],
+                                check=True, capture_output=True, text=True)
+        compact_evidence = {'compact': json.loads(compact.stdout), 'tokens': json.loads(tokens.stdout),
+                            'tokenizer_sha256': hashlib.sha256(tokenizer.read_bytes()).hexdigest()}
+        (args.out / 'compact-equivalence.json').write_text(json.dumps(compact_evidence, indent=2) + '\n')
+        instrumented_source = (compact_bundle / args.source.name).read_text()
     results = {}
     for name in args.suites:
         try:
-            results[name] = run_suite(name, source, snapshot, args.out / name, args.port)
+            results[name] = run_suite(name, instrumented_source, snapshot, args.out / name, args.port)
         except Exception as error:
             results[name] = {'status': 'ERROR', 'error': str(error)}
         print(name, json.dumps(results[name], ensure_ascii=False), flush=True)
     summary = {'source_sha256': hashlib.sha256(source.encode()).hexdigest(),
                'created_at': time.strftime('%Y-%m-%dT%H:%M:%S%z'), 'suites': results,
+               'instrumented_source_sha256': hashlib.sha256(instrumented_source.encode()).hexdigest(),
+               'compact_equivalence': compact_evidence,
                'boundary': 'FIXTURE only; candidate may be intermediate until controller freezes it.'}
     (args.out / 'report.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
     return 1 if any(v.get('failed') or v.get('status') == 'ERROR' for v in results.values()) else 0

@@ -32,7 +32,7 @@ def main():
     assert meta['profile_kind'] == 'AUTHORIZED_MODEL_ONLY_SYNTHETIC'
     assert hashlib.sha256((jail / 'bundle/main.splash').read_bytes()).hexdigest() == meta['source_sha256']
     ledger = candidate / 'private/apps/.host/model/ledger.json'
-    before = ledger.read_bytes()
+    before = ledger.read_bytes() if ledger.is_file() else None
     r = Remote(args.port)
     out.mkdir(parents=True, exist_ok=True)
     report = {'kind': 'REAL_VISIBLE_SHELL_UI_ONLY', 'source_sha256': meta['source_sha256'],
@@ -141,7 +141,7 @@ def main():
         'official_model_management_text': '模型由 OctoSense 的“AI 模型设置”管理；此处只读。' in labels}
     shot(r, out / 'settings-current.png')
     navigate(r, '对话')
-    report['ledger_bytes_unchanged'] = ledger.read_bytes() == before
+    report['ledger_bytes_unchanged'] = (ledger.read_bytes() if ledger.is_file() else None) == before
     report['status'] = 'PASS_UI_SUBSET' if report['ledger_bytes_unchanged'] and all(
         c['input_usable'] and c['long_input_readback'] and all(v['body_usable'] for v in c['pages'].values())
         for c in report['cases']) else 'FAIL'

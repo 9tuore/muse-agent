@@ -1,0 +1,12 @@
+--- a/apps/calendar/host-service/src/eventkit.m
++++ b/apps/calendar/host-service/src/eventkit.m
+@@ -53,6 +53,9 @@
+         @"time_zone": event.timeZone.name ?: @"",
+         @"location": event.location ?: @"",
+         @"last_modified": @([event.lastModifiedDate timeIntervalSince1970]),
++        @"all_day": @(event.allDay),
++        @"availability": @((NSInteger)event.availability),
++        @"recurring": @(event.hasRecurrenceRules),
+     };
+ }
+ 

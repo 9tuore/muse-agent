@@ -66,6 +66,12 @@ fn incoming_probe_drafts(){
     mail_watch_again("synthetic-account:incoming-1")
     let regenerated = mail_model_pending && page == "Chat"
     incoming_model_callback({is_ok: true data: {output: {subject: "回复：合成邀请" body: "好的，我周五下午可以参加。"}}})
+    // New requirement: regeneration proposes a separate draft; adoption is explicit.
+    let kept_handwriting = mail_watch_draft("synthetic-account:incoming-1").body == "感谢邀请，我周五下午可以参加。"
+    mail_watch = fs.read("mail-watch.json").parse_json()
+    let proposed = mail_watch_draft("synthetic-account:incoming-1")["proposed"]
+    let proposed_restored = proposed != nil && proposed.body == "好的，我周五下午可以参加。"
+    if proposed != nil { mail_watch_adopt_proposed("synthetic-account:incoming-1",proposed.to_json().parse_json()) }
     mail_watch = fs.read("mail-watch.json").parse_json()
     let draft_restored = mail_watch_draft("synthetic-account:incoming-1").body == "好的，我周五下午可以参加。"
     let exact = mail_watch_draft("synthetic-account:incoming-1").to_json().parse_json()
@@ -118,6 +124,7 @@ fn incoming_probe_drafts(){
         cancelled_model_draft_discarded: cancelled_callback echo_draft_rejected: echo_rejected edited_intent_bound: updated_intent_bound
         displaced_draft_preserved: old_preserved stays_in_chat: stayed_chat
         inline_regenerate: regenerated stale_preview_blocked: stale_preview_blocked
+        regenerate_preserves_handwriting: kept_handwriting proposal_survives_reload: proposed_restored
         restored_inline_draft: draft_restored single_confirmation_single_send: one_click_send prior_action_blocks_resend: journal_guard}
     start_timeout(0.05,|| incoming_probe_reply())
 }

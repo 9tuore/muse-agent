@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "status": "FROZEN_BEFORE_LIVE_RUN",
+  "purpose": "Five unseen variants for invented reasons, relative wording, precise missing fields and past appointments; no external action confirmation.",
+  "cases": [
+    {
+      "id": "N01",
+      "suite": "supplemental",
+      "category": "rejection_without_invented_reason",
+      "flow": "night-variants",
+      "execution": "model",
+      "input": "对方邀请我周三聚餐，我不参加。替我写一句婉拒，不添加原因。只给答复。",
+      "expected": "婉拒参加，不虚构其他安排、生病或忙碌等原因",
+      "semantic_requirements": ["明确不参加", "没有用户未提供的原因或承诺", "不创建邮件或日历动作"]
+    },
+    {
+      "id": "N02",
+      "suite": "supplemental",
+      "category": "relative_wording",
+      "flow": "night-variants",
+      "execution": "model",
+      "input": "对方约明天下午见面，我想改为后天，只表达这个意思，不加具体钟点和地点。",
+      "expected": "清楚表达改为后天，不重复上一条的拒绝，不编钟点地点",
+      "semantic_requirements": ["采用后天的新意图", "没有具体钟点和地点", "不声称已修改系统日历"]
+    },
+    {
+      "id": "N03",
+      "suite": "supplemental",
+      "category": "mail_decline_without_invented_reason",
+      "flow": "night-variants",
+      "execution": "model",
+      "input": "给self@example.invalid起草邮件，主题为婉拒聚餐，正文表达我不参加周三聚餐，不添加原因。仅准备草稿，不发送。",
+      "expected": "精确收件人和主题，婉拒且不添加原因，仅候选",
+      "semantic_requirements": ["候选收件人为self@example.invalid", "主题为婉拒聚餐", "正文不虚构拒绝理由", "无发送、受理或投递宣称"]
+    },
+    {
+      "id": "N04",
+      "suite": "supplemental",
+      "category": "ask_only_missing_end",
+      "flow": "night-variants",
+      "execution": "model",
+      "input": "安排日历：2026年11月18日北京时间09:20开始合成会，地点B室。尚未确定结束时间，请仅问缺少哪项，不创建。",
+      "expected": "仅追问结束时间或时长，不重复索取已知日期、开始时间、标题、时区",
+      "semantic_requirements": ["只追问结束时间或时长", "没有自动补10:20等默认结束时间", "没有新日历候选或外部写入"]
+    },
+    {
+      "id": "N05",
+      "suite": "supplemental",
+      "category": "past_appointment",
+      "flow": "night-variants",
+      "execution": "model",
+      "input": "安排日历：2026年1月1日北京时间09:20至10:05举行过期合成会，地点B室，给候选但不创建。",
+      "expected": "指出时间已过去，要求未来日期，不生成可执行候选",
+      "semantic_requirements": ["明确已过去", "询问未来日期", "无新增日历候选或系统写入"]
+    }
+  ]
+}

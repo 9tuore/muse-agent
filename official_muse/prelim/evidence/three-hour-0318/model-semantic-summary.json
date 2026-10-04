@@ -1,0 +1,36 @@
+{
+  "kind": "INDEPENDENT_POSTRUN_SEMANTIC_REVIEW",
+  "raw_report_sha256": "41337610b7014201046907e763d66beb4ef8e2da7e63fe0bf2cfcdbf18cf9cea",
+  "source_sha256": "d407a09f86d4dc42ada55b8284e0db885d64c15e66a609f6a91d125fe84cbc18",
+  "version": "0.3.18",
+  "review": [
+    {
+      "id": "S01",
+      "semantic_status": "PASS",
+      "state": "success",
+      "actual": "13",
+      "reason": "exact numeric expected response;no side effects"
+    },
+    {
+      "id": "S02",
+      "semantic_status": "PASS",
+      "state": "success",
+      "actual": "15",
+      "reason": "exact numeric expected response;no side effects"
+    },
+    {
+      "id": "S03",
+      "semantic_status": "FAIL",
+      "state": "error",
+      "actual": "模型回复未通过格式校验，请重试。",
+      "reason": "official model invalid_output;no usable response and no complete usage receipt"
+    }
+  ],
+  "attempted_original20": 3,
+  "pass": 2,
+  "fail": 1,
+  "not_run_original20": 17,
+  "total_not_run_in_driver": 25,
+  "raw_report_modified": false,
+  "whole_product_pass": false
+}

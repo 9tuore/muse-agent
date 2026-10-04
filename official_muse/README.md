@@ -1,56 +1,49 @@
-# Muse 官方应用历史说明 · 0.2.8
+# Muse · OctoSense 脚本应用源码
 
-> 本文件保留0.2.8开发说明；当前源码为0.3.16，功能、推送授权与构建入口请看仓库根README及SOURCE_DELIVERY.md。下文“尚未上传/不推送”等为历史状态。
+当前开发候选为 **0.3.19**，稳定基线为 **0.3.16**。本目录是 Muse 在 OctoSense / App Hub 中运行的应用源码与配套开发材料。当前整体验收为 **PARTIAL**；最后冷启动仍触发64ms预算，同一事项完整链尚未通过。
 
-这是参赛应用的 OctoScript / Splash 源码与配套宿主补丁。应用在 OctoSense / App Hub 中运行，使用 Makepad 布局、manifest capability、官方存储和账号权限入口。整体验收状态为 **PARTIAL**；源码整理完成不等于比赛提交或官方准入完成。
+## 官方要求的源码形式
 
-## 入口
+Muse 采用官方的 **OctoScript / Splash script app** 形式，实际程序入口是 [app/bundle/main.splash](app/bundle/main.splash)，由 Makepad 的受限脚本运行环境执行。这个入口包含实际界面、事件处理和状态逻辑。
 
-- 应用：`official_muse/app/bundle/main.splash`；`manifest.json` 声明精确的 storage、model、mail、calendar 能力。
-- 结构化 Goal/Memory 状态逻辑：`official_muse/phase2/core_logic.splash`。同一逻辑内嵌在主 Splash 中；修改后应保持两处一致并验证。
-- 测试：`official_muse/phase2/tests/`，操作真实 Makepad remote 输入及隔离存储；不把 fixture 当外部成功。
-- 宿主补丁与构建边界：`official_muse/phase2/host_extension/README.md`。
-- 最终验收：根目录 `PHASE2_LIVE_ACCEPTANCE.md`、`PHASE2_LIVE_TEST_REPORT.md`、`PHASE2_LIVE_EVIDENCE_INDEX.md`。
+官方说明：[Script API](https://github.com/OctoSense-org/OctoScript-App-Design-Flow/blob/main/docs/SCRIPT-API.md)、[应用包与准入要求](https://github.com/OctoSense-org/OctoScript-App-Design-Flow/blob/main/docs/PUBLISHING.md)。App Hub 提交的是应用的 `bundle/`，完整 GitHub 源码仓库可以另含构建工具、测试和依赖源码。
 
-源码导出只包含官方应用与配套测试/补丁，不包含旧独立版安装包、生产数据、模型权重、账号、私钥和本机构建缓存。该导出尚未上传 GitHub。
-
-## 已实测的功能
-
-中文八页、宽窗三栏、窄窗与矮窗滚动；真实模型对话、多会话历史；多 Goal 的计划、批准、模型建议、应用隔离写入与独立读回；来源记忆更正/置顶/遗忘；真实 Activity；系统日历查询、创建、修改、删除及每一步的独立读回。正常退出和重启后的完整结果以最终报告为准。
-
-Mail 使用官方 Host Service。本人登录、真实收发及邮件到系统日历的同 Goal 全链尚未验收。Qwen3-0.6B 的三轮对话语义复测为 2/3，不可宣称稳定通过。模型/provider/预算 UI 仍有只读差异，来源 content_sha256 尚未补齐。
-
-## 宿主基线与重现
-
-宿主补丁 README 提供基线文件哈希、应用顺序、locked 构建与 `.app` 打包命令。App Hub 的精确 Git 基线为 `e8601b80ce104db2e48208094714bdcffdce6b5a`；OctoSense 归档标签为 `7f962547cd8035ed2bb05962cf7824d8aa33e3a3`，本机没有其 Git 对象核验，不能将标签当作已核实 HEAD。框架依赖由 `native-runtime.lock.json` 与对应 runtime.json 锁定。
-
-Calendar 是隔离的 EventKit 宿主扩展，原版 App Hub Gate 仍拒绝此 capability。原生多轮 model.complete 和本机 Metal 回调修复也以独立补丁交付。上游尚未接受这些补丁；本机使用 ad hoc 测试签名，不是正式签名或发布。
-
-从隔离扩展宿主源码构建 `hub` 和 `card-host` 后，可先运行：
-
-```sh
-"$MUSE_HUB" check official_muse/app/bundle --allow-unsigned
-"$MUSE_HUB" scan official_muse/app/bundle --packet build/review.json
+```text
+official_muse/app/
+  README.md                    开发与源码入口说明
+  AGENTS.md                    官方开发流程说明
+  bundle/                      App Hub 的应用包
+    main.splash                OctoScript / Splash 主程序
+    manifest.json              身份、版本、能力与完整性声明
+    listing.json               应用中心展示信息
+    assets/icon.svg            图标
+    screenshots/01-main.png    展示截图
 ```
 
-`MUSE_HUB` 指向按补丁 README 构建的扩展 CLI；原版 CLI 不能替代它验证 calendar。`--allow-unsigned` 仅用于开发源码检查。签名候选须按真实公钥注册检查；扫描生成的问题仍须人工回答，不能视作正式准入。
+## 各类源码的职责
 
-Shell 运行应使用新的 OCTOSENSE_HOME、OCTOSENSE_APP_DATA 与经过 Gate 的 App Hub 镜像。禁止 `--dev-grant-all` 或修改 TCC 数据库。先在应用中心安装/打开 Muse；本地模型须由宿主 profile 配置，测试使用无 Key 的本机 Qwen 服务。账号密码只进入官方 Host 登录面板。
+| 路径 | 职责 | 是否放入应用 bundle |
+| --- | --- | --- |
+| `app/bundle/main.splash` | 实际参赛脚本应用入口 | 是 |
+| `global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 开发模块；构建时同步到主入口，不是另一套运行时 | 否 |
+| `ui_memory/`、`prelim/tests/` | Python 构建、压缩和测试工具；不会在应用内执行 | 否 |
+| `phase2/host_extension/` 及后续宿主补丁目录 | Rust 宿主扩展与框架补丁、对应测试和构建说明 | 否 |
+| 仓库根部 `app/` | 保留的旧独立桌面版源码，不是当前参赛应用入口 | 否 |
 
-## 实机测试示例
+应用包中没有 Python、Objective-C、Rust、可执行文件或运行数据库。辅助工具使用 Python 不改变应用的 Splash 源码形式；官方开发工具 `tools/octo` 本身也使用 Python。
 
-以下 `8401` 是测试 Shell 的 remote 端口，`$MUSE_JAIL` 指向新建的测试 app-data 中的 `muse-goals`，不使用生产目录：
+## 应用运行路径
 
-```sh
-python3 official_muse/phase2/tests/goal_chain.py 8401 "$MUSE_JAIL" --goal MUSE-TEST --source '合成资料。' --model --shot build/goal.png
-python3 official_muse/phase2/tests/live_chat_rounds.py 8401 "$MUSE_JAIL" build/chat
-python3 official_muse/phase2/tests/live_shell_layout.py 8401 build/layout --jail "$MUSE_JAIL"
-python3 official_muse/phase2/tests/visible_nav.py 8401 build/pages
-python3 official_muse/phase2/tests/audit_state.py "$MUSE_JAIL" --min-goals 3 --require-completed
-```
+App Hub 核对 bundle、manifest 和 capability → OctoSense Shell 的 Card runner → Makepad 受限 Splash 环境。AI 对话使用宿主 `model.complete`；账号与密码/授权码由宿主面板处理；存储限制在应用自己的 jail 中。旧独立版不是这个运行路径的依赖。
 
-日历 CRUD 驱动只允许唯一测试编号；参数/日期请先阅读脚本并人工核对。每次真实系统动作都有单独批准，失败或结果未知时不自动重做。真实邮箱测试需要本人登录和最终发送确认。
+官方 `model.complete` 是有界单次模型服务，不能称作已经接入完整 octos Agent peer。当前 `manifest.agent` 为 `null`，官方脚本应用允许不声明 agent。
 
-## 提交前仍须完成
+## 仍需明确的准入差异
 
-补齐 Mail 与邮件→日历全链、处理模型语义稳定性及其余验收差异；补真实 publisher/support/privacy 信息；明确本地宿主扩展的主办方准入。然后确定要推送的最终版本及队伍名。当前不推送 GitHub，不在主办方 issue 留言。
+- **源码语言与目录形式已符合脚本应用形式**；这不表示官方原版已经接纳整个产品。
+- 当前 `calendar` capability 与 EventKit 服务依赖本地宿主/准入扩展；必须同时交付补丁、锁定源码和构建环境，不能把扩展 Gate 的通过写成官方原版通过。
+- 配套 Mail 后台工作队列、可信框架注册与原生标题渲染属于补丁范围，须保留来源和对应验证。
+- 当前 listing 仍有 publisher/support/privacy 的模板值，展示截图也需绑定最终候选更新。当前开发签名不代表正式发布者身份；正式提交流程尚未完成。
+- 本人最新要求先同步GitHub：单独同步当前开发源码及脱敏报告，保留PARTIAL；完整二十项和同候选真实外部链全部通过前不创建通过版本Tag或发布应用。历史失败和稳定版本保留。
+
+本轮使用的实际来源、版本和测试边界见仓库根目录 `BUILD_EVIDENCE.json`、`ROUND_ACCEPTANCE.md` 及 `MUSE_HANDOFF/CURRENT_STATE.md`。GitHub 完整源码交付还须逐文件核对 `SOURCE_MANIFEST.json`，排除凭据、私人邮件、生产数据库、模型权重和本机运行资料。

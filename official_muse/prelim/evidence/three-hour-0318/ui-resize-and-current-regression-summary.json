@@ -1,0 +1,116 @@
+{
+  "kind": "CURRENT_UI_FIX_WITH_BOUND_REUSED_SUPPORT",
+  "version": "0.3.19",
+  "source_sha256": "1bdcb11de319d56268e4e8952cc25ae349e853d6c33656cf713c69a4c018b682",
+  "source_commit": "b0708d8620ae0cd84f231a36081ba2578f064b79",
+  "shell_sha256": "a86364ccb3b4733d24193159fea264d19379df511b5943c6aa513cd09e2f816e",
+  "business_functions_identical_to_C8": 392,
+  "source_and_compact_official_tokens_equal": true,
+  "official_token_count": 86343,
+  "ui_height_resize_failure_C8_preserved": true,
+  "C9_resize_input_visible": true,
+  "C9_real_input_edit_clear_no_send": true,
+  "current_native_shell_sizes": [
+    [
+      412,
+      539
+    ],
+    [
+      990,
+      539
+    ],
+    [
+      1280,
+      539
+    ],
+    [
+      1280,
+      390
+    ]
+  ],
+  "normal_hub_update_same_authorized_profile": true,
+  "C9_cold_restart": {
+    "status": "FAIL_COLD_START_OFFICIAL64MS",
+    "cold_view": false,
+    "persistent_file_hash_checks": {
+      "chat-sessions.json": true,
+      "memory.json": true,
+      "goals.json": true,
+      "calendar-state.json": true,
+      "mail-watch.json": true,
+      "mail-draft.json": true
+    },
+    "model_ledger_unchanged": true,
+    "actions_count": 4,
+    "budget_changed": false
+  },
+  "paid_calls_by_UI_driver": 0,
+  "mail_fixture_checks": {
+    "main_true": [
+      "exact_send_body_bound",
+      "accepted_confirmation_not_resent",
+      "wrong_event_binding_rejected_state_and_error",
+      "exact_send_to_bound",
+      "unauthorized_account_binding_rejected",
+      "missing_goal_binding_rejected_state_and_error",
+      "wrong_event_binding_zero_send",
+      "timeout_marked_unknown",
+      "exact_send_subject_bound",
+      "preview_alone_does_not_send",
+      "preview_change_account_invalidates_confirmation",
+      "preview_change_body_invalidates_confirmation",
+      "preview_change_to_invalidates_confirmation",
+      "preview_change_subject_invalidates_confirmation",
+      "unknown_not_resent",
+      "valid_exact_confirmation_accepted_once",
+      "unknown_state_reload_not_resent",
+      "exact_send_account_bound",
+      "missing_goal_binding_zero_send"
+    ],
+    "restart_true": [
+      "new_process_restores_unknown_draft_and_journal",
+      "new_process_unknown_no_send_or_model",
+      "new_process_original_reminder_not_duplicated"
+    ],
+    "count": 22,
+    "all_true": true
+  },
+  "mail_raw_main_scores": [
+    {
+      "passed": 15,
+      "total": 17
+    },
+    {
+      "passed": 19,
+      "total": 21
+    }
+  ],
+  "mail_fixture_extra_failures_retained": true,
+  "mail_UNKNOWN_new_process_restart_passed": 3,
+  "title_visible_fixture_actual_sizes": [
+    [
+      412,
+      813
+    ],
+    [
+      990,
+      539
+    ],
+    [
+      1280,
+      539
+    ],
+    [
+      990,
+      360
+    ]
+  ],
+  "title_short_lines": 1,
+  "title_long_lines": 2,
+  "title_rows54_and_separate_hit_targets": true,
+  "native_equivalent_user_confirmed": true,
+  "C8_real_external_nodes": "separate user-confirmed mail and Calendar CRUD; not T18",
+  "C9_real_external_chain": "NOT_RUN",
+  "whole_product_pass": false,
+  "private_data_exported": false
+}

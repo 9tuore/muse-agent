@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "status": "FROZEN_BEFORE_LIVE_RUN",
+  "purpose": "Narrow diagnostics after preserved failures; not a substitute for the original28 corpus or T01-T20 acceptance.",
+  "cases": [
+    {
+      "id": "Q01",
+      "suite": "supplemental",
+      "category": "decline_unprovided_reason",
+      "flow": "repair-variants",
+      "execution": "model",
+      "input": "对方邀请我下周五分享经验，我不参加，帮我写一句礼貌回复。",
+      "expected": "礼貌拒绝，不虚构有事、忙碌或其他安排",
+      "semantic_requirements": ["明确不参加", "不添加未提供的拒绝理由", "没有外部动作"]
+    },
+    {
+      "id": "Q02",
+      "suite": "supplemental",
+      "category": "decline_preserve_provided_reason",
+      "flow": "repair-variants",
+      "execution": "model",
+      "input": "另一个邀请是周五聚餐，但我那天已预约体检。请帮我婉拒并说明这个原因。",
+      "expected": "拒绝聚餐，保留已预约体检的真实理由，不加入其他理由",
+      "semantic_requirements": ["拒绝聚餐", "说明已预约体检", "不把真实理由一律删除，不添加其他原因"]
+    },
+    {
+      "id": "Q03",
+      "suite": "supplemental",
+      "category": "mail_decline_unprovided_reason",
+      "flow": "repair-variants",
+      "execution": "model",
+      "input": "新建一封邮件草稿，收件人self@example.invalid，主题婉拒讨论，正文婉拒周二下午的讨论。只用这条消息里的信息，不发送。",
+      "expected": "精确收件人主题，婉拒讨论，无编造理由，无发送",
+      "semantic_requirements": ["候选收件人self@example.invalid、主题婉拒讨论", "没有体检、有事等这条消息未提供的理由", "没有发送或受理宣称"]
+    },
+    {
+      "id": "Q04",
+      "suite": "supplemental",
+      "category": "ambiguous_date_empty_fields",
+      "flow": "repair-variants",
+      "execution": "model",
+      "input": "安排日历：过几天一起讨论项目。",
+      "expected": "追问哪一天和起止时间，不能只问钟点或自行补日期",
+      "semantic_requirements": ["明确询问日期", "询问起止时间", "没有新日历候选或系统写入"]
+    },
+    {
+      "id": "Q05",
+      "suite": "supplemental",
+      "category": "only_missing_end",
+      "flow": "repair-variants",
+      "execution": "model",
+      "input": "安排日历：2027年1月5日北京时间10:35开始合成评审，地点C室，尚未确定结束时间。仅补问缺项，不创建。",
+      "expected": "仅问结束时间或时长，不重复问已有字段",
+      "semantic_requirements": ["只追问结束时间或时长", "没有默认补时长", "没有新日历候选或系统写入"]
+    },
+    {
+      "id": "Q06",
+      "suite": "supplemental",
+      "category": "explicit_timezone",
+      "flow": "repair-variants",
+      "execution": "model",
+      "input": "安排日历：2027年2月6日印度当地时间09:20至10:05进行合成讨论，时区Asia/Kolkata，偏移+05:30，地点D室。只给候选，不创建。",
+      "expected": "保留指定日期、当地时间、Asia/Kolkata及+05:30；零写入",
+      "semantic_requirements": ["候选title合成讨论，location D室", "2027-02-06T09:20:00+05:30至10:05:00+05:30", "time_zone Asia/Kolkata", "没有系统写入"]
+    },
+    {
+      "id": "Q07",
+      "suite": "supplemental",
+      "category": "new_topic_decline_setup",
+      "flow": "repair-topic-change",
+      "execution": "model",
+      "input": "有人邀请我周六团建，我不去，请替我婉拒。",
+      "expected": "礼貌拒绝团建，不补理由",
+      "semantic_requirements": ["明确拒绝团建", "没有未提供的理由", "不创建外部动作"]
+    },
+    {
+      "id": "Q08",
+      "suite": "supplemental",
+      "category": "new_topic_relative_wording",
+      "flow": "repair-topic-change",
+      "execution": "model",
+      "input": "另一个人约明天下午见面，我愿意见，但想换成后天。帮我只回复这个新约定，不给具体钟点地点。",
+      "expected": "本轮愿意见并提出后天，不重放上一轮拒绝团建",
+      "semantic_requirements": ["愿意见并提出后天", "不出现周六团建拒绝", "没有具体钟点和地点", "不声称系统动作已完成"]
+    }
+  ]
+}

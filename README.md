@@ -4,7 +4,7 @@
 
 Muse 是 **GOSIM Agentic App 2026** 参赛项目，由「星海」团队开发。它在 OctoSense 官方容器中提供中文 AI 对话、邮件提醒与回复、系统日历操作、带来源的全局记忆和可核对的任务结果。
 
-**当前官方应用源码：0.3.16 · 总体验收：PARTIAL**
+**当前官方应用源码：0.3.19 · 总体验收：PARTIAL**
 
 参赛应用入口：[official_muse/app/bundle/main.splash](official_muse/app/bundle/main.splash)，源码采用 **OctoScript / Splash**。App Hub 提交目录为 `official_muse/app/bundle/`；GitHub 完整源码仓库另保留构建工具、测试、宿主依赖和桌面版历史源码。
 
@@ -22,14 +22,16 @@ Muse 是 **GOSIM Agentic App 2026** 参赛项目，由「星海」团队开发�
 
 | 模块 | 实现与边界 |
 | --- | --- |
-| Chat | 使用官方 `model.complete`，保存对话，支持具名删除确认；0.3.16 改进新消息与回复的可见性 |
-| 邮箱 | 官方 Host 登录、读取正文、自动来信卡、按意图起草或手写回复、逐项确认发送；0.3.14 修正真实Host的字符串时间字段兼容 |
-| 系统日历 | 使用配套 EventKit 宿主扩展；查询、候选确认、创建/修改/删除及独立读回，不能把本地模拟当系统完成 |
+| Chat | 使用官方 `model.complete`，保存对话，支持具名删除确认；0.3.19 修复矮窗口输入区的缓存坐标 |
+| 邮箱 | 官方 Host 登录、读取正文、自动来信卡、按意图起草或手写回复、逐项确认发送；保留时间字段兼容修复，并接入原邮件引用元数据 |
+| 系统日历 | 使用配套 EventKit 宿主扩展；查询、候选确认、同事件改期及独立读回；忙闲/全天/循环元数据参与核验，真实整链尚未通过 |
 | 全局记忆 | 真实存储、来源、归属、有界检索、更正和遗忘；冲突保留并要求处理 |
 | 一次性任务 | 计划/批准/执行/结果/验证/恢复与防重复；外部动作以实际服务回执及独立读回为准 |
 | 交互稳定性 | 16个对话后有明确删除入口；Mail慢操作使用单后台线程和8项队列，避免钥匙串等待卡住UI |
 
-本仓库保留源码、相关测试与真实通过/失败记录。**上传源码不代表20项产品验收已全部通过。** 旧候选的模型、邮件、日历和重启证据不能代替0.3.16完整链验证；本次上传没有重新执行真实外发、日历写入或付费模型测试。
+本仓库保留源码、相关测试与真实通过/失败记录。**当前二十项：5 PASS / 11 PARTIAL / 3 BLOCKED / 1 FAIL。** 0.3.19 矮窗输入修复已验证，但最后完整冷启动触发官方 64ms 预算，主界面未载入。同一事项的邮件→日历→回复→重启→跨对话模型记忆整链尚未完成；模型 S03 格式错误且用量回执不完整，新增付费调用暂停。
+
+0.3.18 已验证一封真实来信、一次手写回复与本人收件确认、同一合成日历事件创建/改期/删除及独立读回、两次相关重启；这些是分别完成的真实节点，未改部分仅作为0.3.19支持证据，不冒充同候选完整链。**本次按本人“先同步到GitHub”要求交付开发源码，不代表稳定发布或二十项全过。** 上传期间没有新增真实外发、日历写入或付费模型调用。
 
 Calendar及配套宿主/框架补丁是本地扩展，尚未被官方上游接受。本地扩展 `hub check` 通过也不等于官方原版已接纳；本机运行包采用开发用 ad hoc 签名。
 
@@ -37,8 +39,8 @@ Calendar及配套宿主/框架补丁是本地扩展，尚未被官方上游接�
 
 | 路径 | 内容 |
 | --- | --- |
-| `official_muse/app/bundle/` | 当前0.3.16 Splash入口、manifest、listing与资源 |
-| `official_muse/global_memory.splash`、`incoming_mail.splash` | 记忆DSL与来信模块源码；实际应用入口仍是bundle/main.splash |
+| `official_muse/app/bundle/` | 当前0.3.19 Splash入口、manifest、listing与资源 |
+| `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 记忆DSL、来信与安排/改期模块源码；实际应用入口仍是bundle/main.splash |
 | `official_muse/ui_memory/`、`prelim/`、`round2/`、`phase2/` | 迭代源码、测试、宿主补丁与可公开证据 |
 | `vendor/octosense/` | 实际配套完整宿主源码，包含Mail后台工作队列与系统日历服务 |
 | `vendor/app-hub/` | 配套App Hub源码与本地Calendar准入扩展 |
@@ -79,7 +81,10 @@ cd ../..
 
 - [当前源码交付](SOURCE_DELIVERY.md)
 - [本轮修补指南核对](MUSE_FIX_GUIDE_AUDIT.md)
-- [0.3.16聊天末尾可见测试](official_muse/prelim/evidence/chat/tail-visible-040/README.md)
+- [本轮最终报告](THREE_HOUR_FINAL_REPORT.md)
+- [二十项验收矩阵](ROUND_ACCEPTANCE.md)
+- [脱敏真实节点与失败摘要](official_muse/prelim/evidence/three-hour-0318/)
+- [0.3.16聊天末尾可见历史测试](official_muse/prelim/evidence/chat/tail-visible-040/README.md)
 - [0.3.13稳定性与来信卡证据](official_muse/prelim/evidence/fix-guide-0313/README.md)
 - [开发规则与后续GitHub同步](MUSE_HANDOFF/AGENTS.md)
 

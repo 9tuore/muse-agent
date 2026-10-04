@@ -18,6 +18,21 @@ sys.path.insert(0, str(ROOT/'official_muse/ui_memory/tests'))
 from remote import Remote
 from visual_capture import navigate, shot, type_multiline
 from ai_paid_guard import PaidGuard, input_bound_check
+from goal_bound_check import goal_input_bound_check
+
+
+def global_preference_matches(claims, value, user_id):
+    matches = []
+    for claim in claims:
+        doc, payload = claim['document'], claim['document']['payload']
+        scope = doc['scope']
+        if (claim.get('memory_type') == 'preference' and not claim.get('resolved_by')
+                and not payload['deleted'] and payload['subject_id'] == 'user'
+                and payload['value'] == value and scope['account'] == 'local'
+                and scope['user_id'] == user_id and scope['project_id'] == ''
+                and scope['owner_id'] == ''):
+            matches.append(claim)
+    return matches
 
 
 def main():
@@ -26,6 +41,9 @@ def main():
     parser.add_argument('--out', type=Path, default=ROOT/'official_muse/prelim/evidence/live/rc6-goal-memory-restart')
     parser.add_argument('--port', type=int, default=8412)
     parser.add_argument('--goal-query', default='为当前项目建立一次性整理计划，目标：初赛回归合成资料归档。资料：合成甲项已完成；合成乙项待确认。仅保存到应用空间。')
+    parser.add_argument('--host-source', type=Path, required=True)
+    parser.add_argument('--chat-contract', type=Path, required=True)
+    parser.add_argument('--goal-contract', type=Path, required=True)
     args = parser.parse_args()
     assert args.port not in [8401,8413,8414], 'User and real-account windows are excluded'
     candidate = args.candidate.resolve()
@@ -37,13 +55,17 @@ def main():
     assert hashlib.sha256((jail/'bundle/main.splash').read_bytes()).hexdigest()==meta['source_sha256']
     binary=Path(meta['host_app_path'])/'Contents/MacOS/octosense'
     assert hashlib.sha256(binary.read_bytes()).hexdigest()==meta['host_sha256']
-    host_source = ROOT/'official_muse/app/build/ui-memory-20261003/mail-host-033/OctoSense'
-    contract = json.loads((ROOT/'official_muse/prelim/evidence/ai/paid-runner-preparation/input-bound-contract.json').read_text())
+    host_source = args.host_source.resolve()
+    contract = json.loads(args.chat_contract.read_text())
+    goal_contract = json.loads(args.goal_contract.read_text())
     guard = PaidGuard(candidate, ROOT/'official_muse/app/build/ui-memory-20261003/paid-budget-20261003/global-cost-table.json', str(out))
     r = Remote(args.port)
     report = {'status': 'RUNNING', 'source_sha256': meta['source_sha256'],
         'host_sha256': meta['host_sha256'], 'kind': 'REAL_VISIBLE_SHELL_MODEL_STORAGE_MEMORY_RESTART',
         'guard_sha256': hashlib.sha256((ROOT/'official_muse/prelim/tests/ai_paid_guard.py').read_bytes()).hexdigest(),
+        'candidate': str(candidate), 'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        'chat_contract_sha256': hashlib.sha256(args.chat_contract.read_bytes()).hexdigest(),
+        'goal_contract_sha256': hashlib.sha256(args.goal_contract.read_bytes()).hexdigest(),
         'turns': [], 'external_mail_or_calendar_actions': False}
 
     def read(name):
@@ -95,6 +117,15 @@ def main():
     save()
     try:
         navigate(r,'对话');r.click('＋ 新对话');focus()
+        preference = '汇报应先写结论，再列三项重点。'
+        user_id = read('global-memory-settings.json')['user_id']
+        matches = global_preference_matches(read('memory.json')['claims'], preference, user_id) if (jail/'memory.json').exists() else []
+        if not matches:
+            turn('global-format-setup','记住：'+preference,False)
+            matches = global_preference_matches(read('memory.json')['claims'], preference, user_id)
+        assert matches, 'No active authorized global preference was stored'
+        preference_id = matches[0]['document']['id']
+        report['global_preference_identity'] = matches[0]['document'];save()
         goal_query=args.goal_query
         first=turn('goal-candidate',goal_query,True)
         card=current()['proposals'][-1]
@@ -103,10 +134,9 @@ def main():
         state=read('goals.json');goal=next(g for g in state['goals'] if g['id']==state['selected_id'])
         assert goal['status']=='planned' and goal['version']==1
         report['plan']=goal;save();shot(r,out/'plan.png')
-        # input.current includes goal/source/items; bound that whole JSON
-        # conservatively in addition to history/Memory/framing allowances.
-        goal_data=json.dumps({k:goal[k] for k in ['goal','source','items']},ensure_ascii=True)
-        bound=input_bound_check(candidate,current(),goal_data,host_source,contract)
+        # This input branch has a separately reviewed Host-admitted bound.
+        # Chat history/focus projections do not describe its actual request.
+        bound=goal_input_bound_check(candidate,host_source,goal_contract,'goal-suggestion')
         before=guard.begin('goal-suggestion');at=time.time()
         report['inflight']={'id':'goal-suggestion','before':before,'goal_id':goal['id'],'input_bound':bound};save()
         top('detail_view');r.click_scroll('请模型给建议','detail_view')
@@ -131,18 +161,30 @@ def main():
         report['goal_result']={'goal':done,'result':result,'state':state};save();shot(r,out/'storage-readback.png')
 
         navigate(r,'对话')
-        turn('conflict-one','记住：收口状态=待核对',False)
-        turn('conflict-two','记住：收口状态=待确认',False)
-        conflict=turn('conflict-block','收口状态是什么？只根据有效记忆回答。',False)
+        topic = '验收收口状态-' + hashlib.sha256(str(out).encode()).hexdigest()[:12]
+        first_value, second_value, corrected_value = topic+'=待核对', topic+'=待确认', topic+'=已核对'
+        turn('conflict-one','记住：'+first_value,False)
+        targets = [c for c in read('memory.json')['claims']
+                   if c['document']['payload']['value'] == first_value
+                   and c['document']['origin']['ref'] == current()['id']
+                   and c['document']['scope']['account'] == 'local'
+                   and c['document']['scope']['user_id'] == user_id
+                   and c['document']['scope']['project_id'] == '合成验收'
+                   and c['document']['scope']['owner_id'] == '个人']
+        assert len(targets) == 1, 'Conflict target identity is ambiguous'
+        target = targets[0]['document']['id']
+        report['conflict_target_identity'] = targets[0]['document'];save()
+        turn('conflict-two','记住：'+second_value,False)
+        conflict=turn('conflict-block',topic+'是什么？只根据有效记忆回答。',False)
         assert '冲突' in conflict['answer']['text']
         report['conflict_memory']=read('memory.json');save()
-        navigate(r,'记忆');r.set_text('memory_search','待核对');top('page_content')
+        navigate(r,'记忆');r.set_text('memory_search',first_value);top('page_content')
         r.click_scroll('更正 / 遗忘','page_content');top('page_content')
-        type_multiline(r,'memory_correction','收口状态=已核对');r.click('保存更正')
+        type_multiline(r,'memory_correction',corrected_value);r.click('保存更正')
         report['corrected_memory']=read('memory.json');save();shot(r,out/'conflict-corrected.png')
-        target = next(c['document']['id'] for c in report['corrected_memory']['claims']
-            if c['document']['payload']['value']=='收口状态=已核对' and not c['document']['payload']['deleted'])
-        r.set_text('memory_search','已核对');top('page_content')
+        corrected = next(c for c in report['corrected_memory']['claims'] if c['document']['id'] == target)
+        assert corrected['document']['payload']['value'] == corrected_value and not corrected['document']['payload']['deleted']
+        r.set_text('memory_search',corrected_value);top('page_content')
         r.click_scroll('更正 / 遗忘','page_content');top('page_content')
         r.click('遗忘…');r.click_scroll('确认遗忘这条记忆','page_content')
         deadline=time.monotonic()+10
@@ -179,18 +221,21 @@ def main():
         assert all(e['kind']=='restart restore' for e in extra)
         shot(r,out/'restart.png')
         navigate(r,'对话');r.click('＋ 新对话');focus()
-        cross=turn('cross-session-after-restart','请按我保存的汇报格式回答：当前项目星尘的内部代号是什么？收口状态是什么？不知道就说明没有资料。',True)
-        assert not any(value in cross['answer']['text'] for value in ['ORBIT-472','NOVA-593','收口状态=待核对','收口状态=待确认','收口状态=已核对'])
+        cross=turn('cross-session-after-restart','请按我保存的汇报格式回答：当前项目星尘的内部代号是什么？'+topic+'是什么？不知道就说明没有资料。',True)
+        assert not any(value in cross['answer']['text'] for value in ['ORBIT-472','NOVA-593',first_value,second_value,corrected_value])
         report['retrieval_after_restart']=read('memory-retrieval-last.json')
         report['memory_after_restart']=read('memory.json')
         deleted_ids={c['document']['id'] for c in report['memory_after_restart']['claims'] if c['document']['payload']['deleted']}
         assert all(h['id'] not in deleted_ids for h in report['retrieval_after_restart']['hits'])
-        preference=next(c['document']['id'] for c in report['memory_after_restart']['claims']
-            if c['document']['payload']['value']=='汇报应先写结论，再列三项重点。')
-        assert any(h['id']==preference for h in report['retrieval_after_restart']['hits']), 'Live global preference was not actually retrieved'
+        assert any(c['document']['id'] == preference_id for c in global_preference_matches(report['memory_after_restart']['claims'], preference, user_id))
+        assert any(h['id']==preference_id for h in report['retrieval_after_restart']['hits']), 'The recorded global preference was not actually retrieved'
         report['status']='TECHNICAL_CHECKS_COMPLETE_SEMANTIC_REVIEW_PENDING';save()
         print(json.dumps({'status':report['status'],'goal_id':goal['id'],'internal_storage_goal_completed':True,'actual_system_chain_pending':True}))
     except Exception as error:
+        # Preserve the existing observation before fail-closed accounting marks UNKNOWN.
+        report['pending_accounting_id'] = guard.pending
+        report['last_usage_observation'] = guard.last_observation
+        save()
         guard.unknown()
         report['status']='PARTIAL';report['error']=str(error);save()
         (out/'failure.txt').write_text(traceback.format_exc())
