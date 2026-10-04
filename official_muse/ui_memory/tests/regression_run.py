@@ -35,6 +35,8 @@ def run_suite(name, source, bundle_source, output, port, probe_path=None):
     prefix = existing.replace_function(prefix, 'set_page', 'fn set_page(next){ page = next }')
     prefix = existing.replace_function(prefix, 'calendar_enabled', 'fn calendar_enabled(){ return true }')
     widget = existing.WIDGET
+    if name in ('three_hour_scheduling', 'calendar_policy'):
+        prefix = prefix.replace('fixture_request(', 'three_hour_request(')
     if name == 'mail_calendar_chain':
         prefix = prefix.replace('fixture_request(', 'chain_fixture_request(')
         prefix = existing.replace_function(prefix, 'mail_redraw', 'fn mail_redraw(){}')
@@ -59,6 +61,8 @@ def run_suite(name, source, bundle_source, output, port, probe_path=None):
                   'model_preflight': 'regression_preflight.splash', 'model_suite': 'regression_model.splash',
                   'chat_derived': 'regression_derived.splash', 'mail_monitor': 'regression_mail_monitor.splash',
                   'mail_calendar_chain': 'regression_mail_calendar.splash', 'chat_goal_binding': 'regression_chat_goal.splash', 'incoming_suite': 'regression_incoming.splash', 'task_focus': 'regression_task_focus.splash'}
+    if probe_path is None and name in ('three_hour_scheduling', 'calendar_policy'):
+        probe_path = ROOT / 'official_muse/prelim/tests' / (name + '.splash')
     if probe_path is None:
         probe_path = Path(__file__).with_name(own_suites[name]) if name in own_suites else Path(existing.__file__).with_name(name + '.splash')
     output.mkdir(parents=True)
@@ -72,7 +76,11 @@ def run_suite(name, source, bundle_source, output, port, probe_path=None):
     transport = 'let fixture_accounts_queue = []\nlet fixture_accounts_deferred = false\n' + existing.TRANSPORT.replace('    if service == "model.complete"',
         '    if service == "mail.accounts" { if fixture_accounts_deferred { fixture_accounts_queue.push(callback) return } callback({is_ok: true data: [{id: "fixture-account" address: "self@example.invalid"} {id: "synthetic-account" address: "synthetic@example.invalid"}]}) return }\n'
         '    if service == "model.complete"')
-    (bundle / 'main.splash').write_text(prefix + transport + probe_path.read_text() + widget)
+    probe_source = probe_path.read_text()
+    if name == 'calendar_policy':
+        fixtures = (ROOT / 'official_muse/prelim/tests/three_hour_scheduling.splash').read_text()
+        probe_source = fixtures[:fixtures.index('fn probe(){')] + probe_source
+    (bundle / 'main.splash').write_text(prefix + transport + probe_source + widget)
     env = dict(os.environ, MAKEPAD_REMOTE=str(port), MAKEPAD_HIDE_WINDOWS='1')
     env.pop('MAKEPAD_FOCUS', None)
     with (output / 'runtime.log').open('w') as log:

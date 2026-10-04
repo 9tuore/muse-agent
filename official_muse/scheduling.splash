@@ -243,8 +243,9 @@ fn schedule_time_only(payload,original){
 }
 
 fn schedule_windows_valid(windows,start,end){
-    if !windows.is_array() || windows.len() > 16 { return false }
+    if !gm_array(windows) || windows.len() > 16 { return false }
     for window in windows {
+        if !gm_object(window) { return false }
         let a = calendar_iso_epoch(window["start"])
         let b = calendar_iso_epoch(window["end"])
         if a == nil || b == nil || a < start || b > end || b <= a { return false }
@@ -267,17 +268,20 @@ fn schedule_window_contains(windows,start,end){
     return false
 }
 
-// This gate also covers direct form edits, not just suggested slots.
-fn schedule_candidate_error(payload,link){
+// hard_windows are allowed intervals, never a list of forbidden intervals.
+// Share the same contract at model ingestion, slot search and direct edits.
+fn schedule_policy_error(payload,link){
     let policy = link["schedule_policy"]
-    if policy == nil { return "" }
+    if !gm_object(policy) || !gm_text(policy["search_start"]) || !gm_text(policy["search_end"])
+        || !gm_text(policy["time_zone"]) { return "安排范围未生成完整，请重新分析；未查询或写入日历。" }
     let start = calendar_iso_epoch(payload.start) let end = calendar_iso_epoch(payload.end)
     if start == nil || end == nil || end <= start { return "请先补全明确日期和时长。" }
     let a = calendar_iso_epoch(policy.search_start) let b = calendar_iso_epoch(policy.search_end)
     if a == nil || b == nil || b <= a || b-a > 345600 || policy.time_zone != payload.time_zone
-        || !schedule_windows_valid(policy.hard_windows,a,b) || !schedule_windows_valid(policy.preferred_windows,a,b) {
+        || !schedule_windows_valid(policy["hard_windows"],a,b) || !schedule_windows_valid(policy["preferred_windows"],a,b) {
         return "安排范围或时区无效，请重新核对这次约定。"
     }
+    if policy.hard_windows.len() == 0 { return "可安排时间范围为空，请重新分析；未查询或写入日历。" }
     let offset = 0
     if payload.time_zone == "Asia/Shanghai" { offset = 28800 }
     else if payload.time_zone != "UTC" { return "这个时区的日期边界尚未核实，请补充明确时间并重新核对。" }
@@ -290,6 +294,16 @@ fn schedule_candidate_error(payload,link){
             return "软性偏好超出了硬性可安排范围，请重新核对。"
         }
     }
+    return ""
+}
+
+// This gate also covers direct form edits, not just suggested slots.
+fn schedule_candidate_error(payload,link){
+    let policy = link["schedule_policy"]
+    if policy == nil { return "" }
+    let error = schedule_policy_error(payload,link)
+    if error != "" { return error }
+    let start = calendar_iso_epoch(payload.start) let end = calendar_iso_epoch(payload.end)
     if !schedule_window_contains(policy.hard_windows,start,end) { return "这个时间超出了本次硬性安排范围，未查询或执行。" }
     if schedule_window_contains(policy.preferred_windows,start,end) { return "" }
     let exception = link["soft_exception"]
@@ -380,33 +394,11 @@ fn schedule_find_slots(relax_soft){
     if policy == nil || duration <= 0 || duration > 86400 {
         calendar_error = "请先补全明确日期、时长和安排范围。" redraw() return
     }
-    if policy.time_zone != candidate.time_zone || !chat_reply_context_valid({memory_refs: calendar_context_refs}) {
+    if !chat_reply_context_valid({memory_refs: calendar_context_refs}) {
         calendar_error = "项目偏好或时区已改变，请重新分析。" redraw() return
     }
-    let start = calendar_iso_epoch(policy.search_start)
-    let end = calendar_iso_epoch(policy.search_end)
-    let offset = 0
-    if candidate.time_zone == "Asia/Shanghai" { offset = 28800 }
-    else if candidate.time_zone != "UTC" {
-        calendar_error = "这个时区的日期边界尚未核实，请明确时间并手动查询；不会按北京时间猜测。" redraw() return
-    }
-    let anchor = candidate_start
-    if calendar_links[li]["candidate"] != nil && calendar_iso_epoch(calendar_links[li].candidate.start) != nil { anchor = calendar_iso_epoch(calendar_links[li].candidate.start) }
-    let first_day = page_time_floor((anchor + offset) / 86400) * 86400 - offset
-    if start == nil || end == nil || end <= start || end - start > 345600
-        || start < first_day || end > first_day + 345600
-        || !schedule_windows_valid(policy.hard_windows,start,end)
-        || !schedule_windows_valid(policy.preferred_windows,start,end) {
-        calendar_error = "可安排范围无效或超过原日期及其后三天。" redraw() return
-    }
-    for preferred in policy.preferred_windows {
-        let contained = false
-        for hard in policy.hard_windows {
-            if calendar_iso_epoch(preferred.start) >= calendar_iso_epoch(hard.start)
-                && calendar_iso_epoch(preferred.end) <= calendar_iso_epoch(hard.end) { contained = true }
-        }
-        if !contained { calendar_error = "软性偏好超出了硬性可安排范围，未查询。" redraw() return }
-    }
+    let policy_error = schedule_policy_error(candidate,calendar_links[li])
+    if policy_error != "" { calendar_error = policy_error redraw() return }
     let windows = policy.preferred_windows
     if relax_soft { windows = policy.hard_windows }
     let ignored = ""
@@ -588,18 +580,52 @@ fn schedule_supersede_result(goal_id,memory_id,account){
     return core_commit_memory(claims,memory_sources,memory_forget)
 }
 
+fn schedule_allow_candidate_once(goal_id){
+    let li = calendar_link_index(goal_id) let gi = core_goal_index(goal_id)
+    if li < 0 || gi < 0 || calendar_selected_goal != goal_id || goals[gi].status != "planned"
+        || calendar_pending || calendar_links[li]["active_generation"] != nil { return }
+    let question = calendar_links[li]["question"]
+    if question != nil && question != "" { return }
+    if !chat_reply_context_valid({memory_refs: calendar_context_refs}) { calendar_error = "相关记忆已变化，请重新核对。" redraw() return }
+    let previous = calendar_links[li].to_json().parse_json()
+    let payload = calendar_draft_payload()
+    calendar_links[li].soft_exception = {payload: payload.to_json() message_id: previous.message_id revision: previous.candidate_revision}
+    let error = calendar_draft_error(payload)
+    if error != "" { calendar_links[li] = previous calendar_error = error redraw() return }
+    if !calendar_save() { redraw() return }
+    calendar_check_conflicts()
+}
+
 fn schedule_clarify(goal_id,value){
     let li = calendar_link_index(goal_id)
     let gi = core_goal_index(goal_id)
-    if li < 0 || gi < 0 || goals[gi].status != "planned" || calendar_pending || value.trim() == "" || value.len() > 500 { return }
+    if li < 0 || gi < 0 || calendar_pending { return }
+    if value != nil && (value.trim() == "" || value.len() > 500) { return }
+    if value == nil && calendar_links[li]["active_generation"] != nil { return }
+    if goals[gi].status == "completed" {
+        let candidate = calendar_draft_payload()
+        let start = calendar_iso_epoch(candidate.start) let end = calendar_iso_epoch(candidate.end)
+        if value == nil || start == nil || end == nil || end <= start || start <= time_now()
+            || !schedule_time_only(candidate,calendar_links[li]["original_event"])
+            || !calendar_prepare_update_goal(goal_id) { calendar_error = "请核对原事项和明确的改期时间，原事件未修改。" redraw() return }
+        calendar_links[li].candidate = {title: candidate.title start: candidate.start end: candidate.end
+            time_zone: candidate.time_zone location: candidate.location}
+        calendar_links[li].operation = "update"
+        calendar_links[li].schedule_policy = {}
+        result = nil
+    }
+    if goals[gi].status != "planned" { return }
     let revision = calendar_links[li]["candidate_revision"]
     if revision == nil { revision = 1 }
-    calendar_links[li].user_clarification = value.trim()
+    if value != nil { calendar_links[li].user_clarification = value.trim() }
     calendar_links[li].candidate_revision = revision + 1
     calendar_links[li].active_generation = nil
+    calendar_links[li].soft_exception = nil
     calendar_links[li].status = "candidate"
     calendar_preview = ""
     calendar_checked = ""
+    calendar_preview_binding = ""
+    schedule_slots = [] schedule_slot_snapshot = ""
     if !calendar_save() { redraw() return }
     calendar_model_candidate(goal_id,calendar_links[li].account_id,calendar_links[li].message_id,goals[gi].goal,goals[gi].source)
 }

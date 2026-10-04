@@ -1,0 +1,138 @@
+// Reproduces the empty-hard-window output from 0.3.22 with synthetic sources.
+// Uses the existing scheduling fixture transport; no real OS/model mutations.
+fn policy_output(){
+    return {title: "MUSE-POLICY" start: "2030-06-12T09:00:00+08:00"
+        end: "2030-06-12T10:00:00+08:00" time_zone: "Asia/Shanghai" location: "合成地点"
+        question: "" policy: sh_policy() duration_changed: false duration_quote: ""}
+}
+fn probe(){
+    fixture_seed() chat_boot() gm_boot() gm_set_focus("合成安排项目","本人") gm_set_accounts(["synthetic-account"])
+    notification_enabled = false mail_analysis.enabled = false mail_analysis.permitted = false
+    mail_scope_project = "合成安排项目" mail_scope_owner = "本人"
+    mail_account = {id: "synthetic-account" address: "self@example.invalid"}
+    mail_selected = {id: "policy-mail" message_id: "<policy@example.invalid>" address: "sender@example.invalid"
+        subject: "MUSE-POLICY" body: "项目：合成安排项目；归属：本人；2030-06-12 09:00到10:00，Asia/Shanghai。"}
+    mail_link_calendar() sh_goal = selected_id
+    start_timeout(0.03,|| policy_model_invalid())
+}
+fn policy_model_invalid(){
+    let output = policy_output() output.policy.hard_windows = []
+    sh_models[0]({is_ok: true data: {output: output}})
+    start_timeout(0.03,|| policy_reproduce())
+}
+fn policy_reproduce(){
+    let li = calendar_link_index(sh_goal)
+    let output = policy_output()
+    let error = schedule_candidate_error(calendar_draft_payload(),calendar_links[li])
+    sh_checks.empty_allowed_window_is_repairable_error = error.search("重新分析") >= 0
+    calendar_check_conflicts() calendar_preview_action() schedule_find_slots(false)
+    sh_checks.invalid_policy_never_queries_or_writes = sh_count("calendar.list") == 0 && sh_writes == 0 && calendar_preview == ""
+    sh_checks.model_keeps_known_fields_and_human_question = calendar_links[li].candidate.start == output.start
+        && calendar_links[li]["question"] == "" && calendar_links[li].event_id == ""
+    sh_checks.invalid_policy_survives_restore = calendar_save() && calendar_boot()
+        && calendar_links[li].schedule_policy.hard_windows.len() == 0
+    fs.write("before-repair.json",{checks: sh_checks link: calendar_links[li] calls: sh_calls}.to_json())
+    // The old implementation lacks the retry action; keep its failed report.
+    if !sh_checks.empty_allowed_window_is_repairable_error { policy_finish() return }
+    start_timeout(0.03,|| policy_retry())
+}
+fn policy_retry(){
+    let li = calendar_link_index(sh_goal)
+    let clarification = calendar_links[li]["user_clarification"]
+    calendar_checked = "old-check" calendar_preview = "old-preview"
+    schedule_clarify(sh_goal,nil)
+    sh_checks.reanalyse_preserves_user_clarification = calendar_links[li]["user_clarification"] == clarification
+        && sh_models.len() == 2 && calendar_checked == "" && calendar_preview == ""
+    schedule_clarify(sh_goal,nil)
+    sh_checks.reanalyse_click_in_flight_is_not_duplicate = sh_models.len() == 2
+    start_timeout(0.03,|| policy_repaired_output())
+}
+fn policy_repaired_output(){
+    let li = calendar_link_index(sh_goal)
+    let output = policy_output()
+    sh_models[1]({is_ok: true data: {output: output}})
+    calendar_calendar_id = "fixture-calendar"
+    calendar_check_conflicts() calendar_preview_action()
+    fs.write("repaired-candidate.json",{error: calendar_error checked: calendar_checked preview: calendar_preview ready: calendar_ready storage: core_storage_ready link: calendar_links[li] calls: sh_calls}.to_json())
+    sh_checks.valid_reanalysis_reaches_bound_confirmation = calendar_checked != "" && calendar_preview != ""
+        && calendar_links[li].status == "waiting_user" && sh_writes == 0
+    sh_checks.reanalysis_is_not_write_permission = sh_count("calendar.create") == 0 && sh_count("calendar.update") == 0
+    start_timeout(0.03,|| policy_manual_update())
+}
+fn policy_manual_update(){
+    let li = calendar_link_index(sh_goal) let gi = core_goal_index(sh_goal)
+    sh_event = sh_original() sh_event.title = "MUSE-POLICY"
+    goals[gi].status = "completed"
+    calendar_links[li].status = "verified" calendar_links[li].calendar_id = sh_event.calendar_id
+    calendar_links[li].event_id = sh_event.id calendar_links[li].version = sh_event.version
+    calendar_links[li].original_event = sh_event
+    let narrow = sh_policy() narrow.hard_windows = narrow.preferred_windows
+    calendar_links[li].schedule_policy = narrow
+    calendar_select_link(sh_goal)
+    ui.calendar_start.set_text("2030-06-12T10:00:00+08:00") ui.calendar_end.set_text("2030-06-12T11:00:00+08:00")
+    sh_checks.old_creation_window_blocks_new_time = schedule_candidate_error(calendar_draft_payload(),calendar_links[li]).search("硬性") >= 0
+    let version = goals[gi].version
+    gm_set_accounts([]) // Cold start has no cached account list; model dispatch refreshes grants.
+    schedule_clarify(sh_goal,"本次改为2030-06-12 10:00至11:00，其他字段不变。")
+    sh_checks.manual_update_replans_same_goal_and_event = goals.len() == 1 && goals[gi].version == version + 1
+        && goals[gi].status == "planned" && calendar_links.len() == 1 && calendar_links[li].event_id == "fixture-event"
+        && calendar_links[li].operation == "update" && sh_writes == 0 && sh_models.len() == 3
+    sh_checks.manual_update_refreshes_host_account_grants = gm_account_allowed("synthetic-account")
+        && sh_count("mail.accounts") == 3
+    sh_checks.old_approval_cleared_before_model = calendar_preview == "" && calendar_checked == "" && calendar_preview_binding == ""
+        && schedule_candidate_error(calendar_draft_payload(),calendar_links[li]) != ""
+    start_timeout(0.03,|| policy_manual_candidate())
+}
+fn policy_manual_candidate(){
+    let output = policy_output()
+    output.start = "2030-06-12T10:00:00+08:00" output.end = "2030-06-12T11:00:00+08:00"
+    output.policy.hard_windows = [{start: output.start end: output.end}] output.policy.preferred_windows = []
+    sh_models[2]({is_ok: true data: {output: output}})
+    schedule_find_slots(false)
+    sh_checks.new_time_keeps_soft_preference_confirmation = schedule_slots.len() == 0 && calendar_error.search("是否只为这次") >= 0 && sh_writes == 0
+    schedule_find_slots(true)
+    sh_checks.relaxed_time_is_target_calendar_verified = schedule_slots.len() == 1 && sh_count("calendar.list") >= 2 && sh_writes == 0
+    let list_count = sh_count("calendar.list")
+    schedule_allow_candidate_once(sh_goal)
+    let exact_query = nil
+    for call in sh_calls { if call.service == "calendar.list" { exact_query = call.args } }
+    fs.write("exact-query.json",{before: list_count after: sh_count("calendar.list") exact: exact_query checked: calendar_checked payload: calendar_draft_payload() error: calendar_error calls: sh_calls}.to_json())
+    sh_checks.exact_soft_ack_queries_only_filled_interval = calendar_checked == calendar_draft_payload().to_json()
+        && sh_count("calendar.list") == list_count + 1
+        && calendar_iso_epoch(exact_query.start) == calendar_iso_epoch("2030-06-12T10:00:00+08:00")
+        && calendar_iso_epoch(exact_query.end) == calendar_iso_epoch("2030-06-12T11:00:00+08:00") && sh_writes == 0
+    calendar_preview_action()
+    let li = calendar_link_index(sh_goal)
+    sh_checks.manual_update_confirmation_uses_original_id = calendar_preview != "" && calendar_preview.parse_json().event_id == "fixture-event"
+        && calendar_links[li]["soft_exception"] != nil && sh_writes == 0
+    start_timeout(0.03,|| policy_variants())
+}
+fn policy_variants(){
+    sh_query_reset()
+    let error = ""
+    calendar_links[0].schedule_policy.hard_windows = []
+    calendar_links[0].schedule_policy.preferred_windows = []
+    error = schedule_candidate_error(calendar_draft_payload(),calendar_links[0])
+    sh_checks.both_empty_still_block = error.search("重新分析") >= 0
+    sh_query_reset() calendar_links[0].schedule_policy.hard_windows = "not windows"
+    sh_checks.non_array_refuses = schedule_candidate_error(calendar_draft_payload(),calendar_links[0]) != ""
+    sh_query_reset() calendar_links[0].schedule_policy.hard_windows = [nil]
+    sh_checks.non_object_window_refuses = schedule_candidate_error(calendar_draft_payload(),calendar_links[0]) != ""
+    sh_query_reset() calendar_links[0].schedule_policy = {}
+    sh_checks.missing_policy_fields_refuse = schedule_candidate_error(calendar_draft_payload(),calendar_links[0]) != ""
+    sh_query_reset() calendar_links[0].schedule_policy.preferred_windows[0].end = "2030-06-12T12:30:00+08:00"
+    sh_checks.preference_outside_hard_scope_refuses = schedule_candidate_error(calendar_draft_payload(),calendar_links[0]).search("软性") >= 0
+    sh_query_reset() ui.calendar_start.set_text("2030-06-12T08:00:00+08:00") ui.calendar_end.set_text("2030-06-12T09:00:00+08:00")
+    sh_checks.explicit_hard_prohibition_still_refuses = schedule_candidate_error(calendar_draft_payload(),calendar_links[0]).search("硬性") >= 0
+    sh_query_reset() ui.calendar_start.set_text("2030-06-12T10:00:00+08:00") ui.calendar_end.set_text("2030-06-12T11:00:00+08:00")
+    sh_checks.outside_soft_preference_requires_confirmation = schedule_candidate_error(calendar_draft_payload(),calendar_links[0]).search("是否只为这次") >= 0
+    sh_query_reset() calendar_links[0].question = "请补充结束时间。"
+    schedule_find_slots(false)
+    sh_checks.real_missing_fields_still_ask = calendar_error.search("请补充结束时间") >= 0 && sh_count("calendar.list") == 0
+    policy_finish()
+}
+fn policy_finish(){
+    sh_checks.forbidden_calls = sh_forbidden
+    fs.write("probe.json",sh_checks.to_json())
+}
+start_timeout(0.1,|| probe())
