@@ -2,6 +2,8 @@
 
 本清单是交总控审阅的最小维护材料集合。它不是可直接运行的 Intel 应用包，也不表示最终 RC 或 App Hub 已发布。
 
+当前新方案见`THIN_SOURCE_DELIVERY_PLAN.md`：`package_thin_source.py`导出rc6签名mirror和冻结公开源码，不含Host、启动器或模型。离线教程为`thin_source_tutorial.html`。等待最终sourceHEAD与SOURCE_MANIFEST后才导出；旧087桌面运行包保留，rc6接收机运行入口和新Calendar Host仍是缺项，PARTIAL状态不改变。完整运行包600MiB门禁保持。
+
 `PUBLIC_MAINTENANCE_ALLOWLIST.json` 逐个列出允许复制的文件、长度和 SHA256。仅复制 `files` 中的精确路径；不递归复制整个 packaging 目录。文件修改后先重新核对清单，不套用旧 SHA。
 
 ## 源码复现入口

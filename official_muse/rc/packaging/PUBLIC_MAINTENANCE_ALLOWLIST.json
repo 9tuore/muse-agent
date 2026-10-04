@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "status": "FROZEN_34_PUBLIC_FILES_READY_FOR_ROOT_REVIEW",
-  "generated_at": "2026-10-05T03:24:13.252141+08:00",
-  "source_head_at_generation": "637cbe519686d6d28f30b31292b0e8a7f10102c7",
+  "status": "PUBLIC_37_STATIC_FROZEN_THIN_EXPORT_PENDING_SOURCE_HEAD",
+  "generated_at": "2026-10-05T04:31:01.597984+08:00",
+  "source_head_at_generation": "b9cf26b8dc0a9bdb51e493cb6a420636a1291e73",
   "final_candidate_commit": "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
   "clean_room_status": "BLOCKED_CAPACITY",
   "include_rule": "Copy only the exact regular files in files; everything else is excluded; no globs or recursive directory imports. Revalidate length and SHA256 after any edits.",
   "not_an_intel_application_archive": true,
-  "file_count": 34,
-  "total_file_bytes": 189567,
+  "file_count": 37,
+  "total_file_bytes": 210745,
   "files": [
     {
       "path": "official_muse/rc/packaging/PUBLIC_DELIVERY_README.md",
       "kind": "entry",
-      "bytes": 2823,
-      "sha256": "f146984c94e7a8044c04a9685f4292fcbb9580619e278b414204d6e0ec2fd683",
+      "bytes": 3228,
+      "sha256": "1847b2fe3de27f44bcd3752e9d76c17e6a3269844d754a679ef3a33a74f695a8",
       "mode": "0o644"
     },
     {
@@ -195,22 +195,22 @@
     {
       "path": "official_muse/rc/packaging/portable_tutorial.html",
       "kind": "current_portable_preparation_or_maintenance",
-      "bytes": 10936,
-      "sha256": "f92d05859046ff317eced4e1f86da06912c197985e9c2cd65f7833ba73197b1b",
+      "bytes": 10976,
+      "sha256": "bdd19ef04542f0d807e492edb202563426b32fec1316ea265a5d0b184e054abe",
       "mode": "0o644"
     },
     {
       "path": "official_muse/rc/packaging/package_warm_portable.py",
       "kind": "current_portable_preparation_or_maintenance",
-      "bytes": 21294,
-      "sha256": "6477b9549e5032abef2272712c9aa1ea45128cec2f76e056e17c86e884f8c623",
+      "bytes": 22861,
+      "sha256": "5fc5e374e4fa67a07979c46f4552882a252a5f778ea00a9e06cb6e19ce1397c7",
       "mode": "0o644"
     },
     {
       "path": "official_muse/rc/packaging/A4_HANDOFF_CURRENT.md",
       "kind": "current_portable_preparation_or_maintenance",
-      "bytes": 1390,
-      "sha256": "2319e865406d5385e21c03d2bdfecd69de926a7b5598b530a5140b3c4869203b",
+      "bytes": 2707,
+      "sha256": "fc9603706ae7d2acc6b95c034c0ac79125b50bbd26e70d65ad6a376df1a9c19f",
       "mode": "0o644"
     },
     {
@@ -247,6 +247,27 @@
       "bytes": 844,
       "sha256": "43197c935375dece1fcf900c38cd0e7a8ee8610ef61aee2dbe7ceaca89a4c0b1",
       "mode": "0o644"
+    },
+    {
+      "path": "official_muse/rc/packaging/package_thin_source.py",
+      "kind": "thin_signed_materials_source_preparation",
+      "bytes": 11086,
+      "sha256": "7294afe5d87fe0680cd6b7e686f38da4ba3d03e0b638b6448bdec01a4368ec95",
+      "mode": "0o644"
+    },
+    {
+      "path": "official_muse/rc/packaging/thin_source_tutorial.html",
+      "kind": "thin_signed_materials_source_preparation",
+      "bytes": 4762,
+      "sha256": "eaf2b56bf4ec44891e28d897b6479153c6f053dfe58ef89100377d8c03aa16e3",
+      "mode": "0o644"
+    },
+    {
+      "path": "official_muse/rc/packaging/THIN_SOURCE_DELIVERY_PLAN.md",
+      "kind": "thin_signed_materials_source_preparation",
+      "bytes": 2001,
+      "sha256": "f18072c1e9d9f8688aca0ea94dafa48d30f3c974f71558d7ffc3a40ae1a3188b",
+      "mode": "0o644"
     }
   ],
   "excluded_categories": [
@@ -265,14 +286,35 @@
   "previous_frozen_candidate_commit": "74a4bfca6880806e7d6764888fc8583714c742cb",
   "last_clean_room_input_commit": "069dff5b37f0387311d0e8950ff06723b82adb33",
   "frozen_application_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
-  "portable_status": "DUAL_PART_PREVIEW_VERIFIED_WAITING_ROOT_FINAL_SOURCE_HEAD",
+  "portable_status": "ORIGINAL_087_PRESERVED_NEW_PACKAGE_NOT_CREATED",
   "latest_bridge_fix_commit": "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
   "runtime_application_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
   "python_ast_verified": [
     "official_muse/rc/packaging/clean_room.py",
     "official_muse/rc/packaging/package_clean_host.py",
     "official_muse/rc/packaging/inspect_packaging.py",
-    "official_muse/rc/packaging/package_warm_portable.py"
+    "official_muse/rc/packaging/package_warm_portable.py",
+    "official_muse/rc/packaging/package_thin_source.py"
   ],
-  "all_json_parse_verified": true
+  "all_json_parse_verified": true,
+  "final_source_export_commit": "0876314bc39301b77e4ad8c0fc3f6d37044c3f2c",
+  "post_root_freeze_changed_files": [
+    "official_muse/rc/packaging/A4_HANDOFF_CURRENT.md",
+    "official_muse/rc/packaging/package_warm_portable.py",
+    "official_muse/rc/packaging/portable_tutorial.html"
+  ],
+  "packager_required_commit_roles": [
+    "--commit",
+    "--application-commit",
+    "--runtime-sdk-commit"
+  ],
+  "pending_application_source_commit": "b9cf26b8dc0a9bdb51e493cb6a420636a1291e73",
+  "runtime_sdk_source_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
+  "pending_version": "0.3.26-rc6_STATIC_BINDING_PASS_RUNTIME_PARTIAL",
+  "version_source": "--application-commit official_muse/app/bundle/manifest.json",
+  "new_package_created": false,
+  "pending_source_snapshot": "NOT_YET_DECLARED_BY_ROOT",
+  "thin_source_export_status": "PREPARED_NOT_EXPORTED",
+  "thin_exporter_static_positive_old_087": "PASS_873_FILES_NO_EXPORT",
+  "thin_exporter_stale_rc6_inventory": "REJECTED_EXPECTED"
 }

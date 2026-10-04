@@ -18,20 +18,26 @@ ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--commit', required=True, help='Latest source snapshot commit')
-parser.add_argument('--runtime-commit', required=True, help='Frozen application and old Host SDK source commit')
+parser.add_argument('--application-commit', required=True, help='Signed application bundle and catalog source commit')
+parser.add_argument('--runtime-sdk-commit', required=True, help='SDK source commit used to compile the Host (b486 for Host938)')
 parser.add_argument('--mirror', required=True, type=Path)
 parser.add_argument('--host', required=True, type=Path)
 parser.add_argument('--host-report', required=True, type=Path)
 args = parser.parse_args()
 COMMIT = args.commit
-RUNTIME_COMMIT = args.runtime_commit
-assert len(COMMIT) == 40 and int(COMMIT, 16) >= 0
-VERSION = '0.3.26-rc5'
+APPLICATION_COMMIT = args.application_commit
+RUNTIME_SDK_COMMIT = args.runtime_sdk_commit
+for commit in [COMMIT, APPLICATION_COMMIT, RUNTIME_SDK_COMMIT]:
+    assert len(commit) == 40 and int(commit, 16) >= 0
+APPLICATION_MANIFEST = json.loads(subprocess.check_output(['git', 'show', f'{APPLICATION_COMMIT}:official_muse/app/bundle/manifest.json'], cwd=ROOT))
+VERSION = APPLICATION_MANIFEST['version']
+assert APPLICATION_MANIFEST['id'] == 'muse-goals' and isinstance(VERSION, str) and VERSION
+assert '/' not in VERSION and '\\' not in VERSION
 ANCHOR = '3581c1c9087a917630bc8560495189c5f1bb842a797ad5203cad0ed94ab5a840'
 PUBLISHER = 'muse-local-rehearsal=bb05ce91333a0045f9f8187eba865f11d9e14ec636aeaee80144708984e740c5'
 STATE = HERE / ('.local-state/portable-warm-' + COMMIT[:8])
-STAGE = STATE / 'Muse-0.3.26-rc5-Intel复现与源码-2026-10-05'
-APP = STAGE / 'Muse 0.3.26-rc5.app'
+STAGE = STATE / f'Muse-{VERSION}-Intel复现与源码-2026-10-05'
+APP = STAGE / f'Muse {VERSION}.app'
 RES = APP / 'Contents/Resources'
 MIRROR = args.mirror.resolve()
 WARM = HERE / '.local-state/chunk-delta-r2'
@@ -41,7 +47,7 @@ CARD = WARM / 'Muse Chunk RC Card Host.app'
 HUB = HERE / '.local-state/tools/hub'
 HOST_SHA = HOST_REPORT['signed_executable_sha256']
 CARD_SHA = '52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837'
-BUNDLE = 'artifacts/muse-goals-0.3.26-rc5.bundle'
+BUNDLE = f'artifacts/muse-goals-{VERSION}.bundle'
 
 
 def sha(path):
@@ -78,11 +84,30 @@ def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
 
 
+def validate_frozen_inputs(entry):
+    runtime_lock = subprocess.check_output(['git', 'show', f'{RUNTIME_SDK_COMMIT}:dependencies.lock.json'], cwd=ROOT)
+    assert HOST_REPORT['sdk_lock_sha256'] == hashlib.sha256(runtime_lock).hexdigest(), 'Host SDK does not match the explicitly selected runtime SDK commit'
+    assert entry['artifact'] == BUNDLE and entry['source']['commit'] == APPLICATION_COMMIT, 'Catalog source does not match the application commit'
+    manifest = json.loads(subprocess.check_output(['git', 'show', f'{APPLICATION_COMMIT}:official_muse/app/bundle/manifest.json'], cwd=ROOT))
+    assert entry['manifest'] == manifest, 'Catalog manifest does not match the frozen application manifest'
+    assert manifest['id'] == 'muse-goals' and manifest['version'] == VERSION
+    assert manifest['integrity']['bundle_blake3'], 'Signed application digest is missing'
+    bundle_paths = ['assets/icon.svg', 'listing.json', 'main.splash', 'manifest.json',
+                    'screenshots/01-main.png', 'screenshots/02-global-memory.png']
+    pack = json.loads((MIRROR / (BUNDLE + '.pack.json')).read_text())
+    assert sorted(pack['files']) == sorted(bundle_paths)
+    for rel in bundle_paths:
+        frozen = subprocess.check_output(['git', 'show', f'{APPLICATION_COMMIT}:official_muse/app/bundle/{rel}'], cwd=ROOT)
+        assert (MIRROR / BUNDLE / rel).read_bytes() == frozen, 'Mirror bytes do not match the application commit: ' + rel
+        assert frozen == subprocess.check_output(['git', 'show', f'{COMMIT}:official_muse/app/bundle/{rel}'], cwd=ROOT), 'Source snapshot does not include the selected application bytes: ' + rel
+        assert base64.b64decode(pack['files'][rel], validate=True) == frozen
+    return bundle_paths
+
+
 def main():
     assert Path.cwd().resolve() == ROOT, 'Run from the specified RC checkout'
     assert not STAGE.exists(), 'Preserve existing output; use a new owned stage'
     assert shutil.disk_usage(ROOT).free > 600 * 1024**2, 'Insufficient space for the warm package'
-    assert HOST_REPORT['sdk_lock_sha256'] == hashlib.sha256(subprocess.check_output(['git', 'show', f'{RUNTIME_COMMIT}:dependencies.lock.json'], cwd=ROOT)).hexdigest(), 'Host SDK does not match the explicitly selected runtime source'
     checks = []
     inputs = []
     host_input = inventory(HOST); card_input = inventory(CARD)
@@ -96,18 +121,7 @@ def main():
                 and e['manifest']['version'] == VERSION]
     assert len(selected) == 1
     entry = selected[0]
-    assert entry['artifact'] == BUNDLE and entry['source']['commit'] == RUNTIME_COMMIT
-    assert entry['manifest']['integrity']['bundle_blake3'] == 'e06e766518bba9be3acc002583b04024cde6021ead3bde23f397f84ee3e74d50'
-    bundle_paths = ['assets/icon.svg', 'listing.json', 'main.splash', 'manifest.json',
-                    'screenshots/01-main.png', 'screenshots/02-global-memory.png']
-    pack = json.loads((MIRROR / (BUNDLE + '.pack.json')).read_text())
-    assert sorted(pack['files']) == sorted(bundle_paths)
-    for rel in bundle_paths:
-        a = MIRROR / BUNDLE / rel
-        frozen = subprocess.check_output(['git', 'show', f'{RUNTIME_COMMIT}:official_muse/app/bundle/{rel}'], cwd=ROOT)
-        assert a.read_bytes() == frozen
-        assert frozen == subprocess.check_output(['git', 'show', f'{COMMIT}:official_muse/app/bundle/{rel}'], cwd=ROOT), 'The source and runtime application payload must remain identical'
-        assert base64.b64decode(pack['files'][rel], validate=True) == frozen
+    bundle_paths = validate_frozen_inputs(entry)
     checks.append(run([HUB, 'check', MIRROR / BUNDLE, '--publisher-key', PUBLISHER]))
     before = shutil.disk_usage(ROOT).free
     (APP / 'Contents/MacOS').mkdir(parents=True)
@@ -126,7 +140,7 @@ def main():
                        'bytes': src.stat().st_size, 'sha256': sha(src)})
     shutil.copy2(HUB, STAGE / '03-诊断工具/hub')
     assert sha(STAGE / '03-诊断工具/hub') == 'de6840e5aa85c73c915434488da2cd4ec8f633bde7f2f69f6259e17993318e6f'
-    tutorial = (HERE / 'portable_tutorial.html').read_text().replace('Muse Reproduction 0.3.26-rc5 b48618ac', 'Muse Reproduction 0.3.26-rc5 ' + COMMIT[:8])
+    tutorial = (HERE / 'portable_tutorial.html').read_text().replace('__SOURCE_COMMIT__', COMMIT).replace('__APPLICATION_COMMIT__', APPLICATION_COMMIT).replace('Muse Reproduction 0.3.26-rc5 b48618ac', 'Muse Reproduction 0.3.26-rc5 ' + COMMIT[:8]).replace('0.3.26-rc5', VERSION).replace('0.3.26-RC5', VERSION.upper())
     (STAGE / '00-先看这里.html').write_text(tutorial)
     (RES / 'tutorial.html').write_text(tutorial)
     # The exact tracked-file list is the source allowlist, fixed before copying.
@@ -157,7 +171,7 @@ def main():
             data = archive.extractfile(item).read()
             assert len(data) == row['bytes']
             assert hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest() == row['git_blob']
-            dst = STAGE / '04-最新源码-92b1df15' / item.name
+            dst = STAGE / '04-最新源码' / item.name
             dst.parent.mkdir(parents=True, exist_ok=True); dst.write_bytes(data)
             dst.chmod(0o755 if row['git_mode'] == '100755' else 0o644)
             row['sha256'] = sha(dst)
@@ -174,7 +188,7 @@ def main():
     for name in ['portable_launcher.m', 'portable_tutorial.html', 'package_warm_portable.py']:
         source = (HERE / name).read_text()
         if name == 'portable_launcher.m':
-            source = source.replace('b48618ac', COMMIT[:8])
+            source = source.replace('b48618ac', COMMIT[:8]).replace('0.3.26-rc5', VERSION)
         elif name == 'portable_tutorial.html':
             source = tutorial
         (STAGE / '05-打包入口源码' / name).write_text(source)
@@ -184,10 +198,10 @@ def main():
     executable = APP / 'Contents/MacOS/muse-launcher'
     checks.append(run(['/usr/bin/clang', '-fobjc-arc', '-mmacosx-version-min=13.3',
                        '-framework', 'AppKit', launcher_source, '-o', executable]))
-    info = {'CFBundleIdentifier': 'org.xinghai.muse.reproduction0326rc5.' + COMMIT[:8],
-            'CFBundleExecutable': 'muse-launcher', 'CFBundleName': 'Muse 0.3.26-rc5',
-            'CFBundleDisplayName': 'Muse 0.3.26-rc5', 'CFBundlePackageType': 'APPL',
-            'CFBundleVersion': '5', 'CFBundleShortVersionString': '0.3.26',
+    info = {'CFBundleIdentifier': 'org.xinghai.muse.reproduction.' + COMMIT[:8],
+            'CFBundleExecutable': 'muse-launcher', 'CFBundleName': 'Muse ' + VERSION,
+            'CFBundleDisplayName': 'Muse ' + VERSION, 'CFBundlePackageType': 'APPL',
+            'CFBundleVersion': VERSION.split('-')[0], 'CFBundleShortVersionString': VERSION.split('-')[0],
             'CFBundleDevelopmentRegion': 'zh_CN', 'CFBundleLocalizations': ['zh_CN'],
             'LSMinimumSystemVersion': '13.3', 'LSUIElement': True,
             'NSCalendarsFullAccessUsageDescription': '在你授权和确认后，Muse 读取或操作本机测试日历并核对结果。'}
@@ -225,7 +239,7 @@ status=0
 printf '结果已保存：%s\\n' "$report"
 open -t "$report"
 exit "$status"
-'''.replace('ANCHOR_VALUE', ANCHOR).replace('PUBLISHER_VALUE', PUBLISHER)
+'''.replace('ANCHOR_VALUE', ANCHOR).replace('PUBLISHER_VALUE', PUBLISHER).replace('0.3.26-rc5', VERSION)
     command = STAGE / '02-系统检查.command'; command.write_text(system_check); command.chmod(0o755)
     checks.append(run(['/bin/bash', '-n', command]))
     record = f'''Muse Intel 双机复现记录 · {VERSION} / {COMMIT}
@@ -261,14 +275,15 @@ macOS 版本：
 未执行：A4 打包任务没有启动 GUI、连接模型或账号、发送邮件、操作 EventKit、接收两台 Mac 上的复现或电脑重启。
 源码92b1/新SDK da756dde已修Calendar桥；本包运行Host938/旧SDK3f未含该修复，truncated仍可返回数字0，完整Calendar/T18未通过。
 独立便携启动器GUI smoke：NOT_OBSERVED；只有--check资源检查已执行，不能代替窗口实测。
-总控报告原938Host70次启动全部通过；这是旧Host支持证据，2h仍继续，不计新桥通过。
+总控原V15/b486应用+938Host的70次启动与持续运行证据仅作旧候选支持；不计新应用或新日历桥通过。
 严格全新目录编译：BLOCKED_CAPACITY；中断证据保留。此包不是从零构建通过的证明。
 整体业务验收：PARTIAL；主线最终矩阵和持续运行结果另有对应报告，本说明不代报结果。
 不含模型权重 / 凭据 / 私人历史 / 生产数据库。两台 Mac 各自配置模型和账号。
 Apple Silicon 未验证；启动器最低 macOS 13.3。
 宿主签名：ad hoc、未 Apple 公证；内部已验证宿主未重签或修改。
 ''')
-    (STAGE / '04-最新源码-92b1df15/本包源码说明.txt').write_text(f'''源码来自 frozen Git {COMMIT}（92b1），新SDK锁da756dde，Calendar truncated布尔序列化已在源码修复。
+    (STAGE / '04-最新源码/本包源码说明.txt').write_text(f'''源码快照来自 frozen Git {COMMIT}；签名应用来源 {APPLICATION_COMMIT}；宿主SDK来源 {RUNTIME_SDK_COMMIT}。
+源码包含92b1日历桥修复，新SDK锁da756dde，Calendar truncated布尔序列化已在源码修复。
 运行Host仍938ba58a/旧SDK3f1bbb4e，未重编译该修复。两者不得声称同一修复状态。
 普通使用只需打开上级目录的 Muse.app，不需要开发工具。
 开发恢复：在本目录运行 python3 scripts/bootstrap_sdk.py，再运行 python3 scripts/bootstrap_sdk.py --verify。
@@ -277,10 +292,10 @@ Apple Silicon 未验证；启动器最低 macOS 13.3。
 上级05-打包入口源码的clean_room.py与package_clean_host.py是A4维护副本；本目录不包含 Git 历史；包含冻结提交的全部{len(source_rows)}个tracked允许文件及测试。
 没有 publisher 私钥，不能直接重签新的应用载荷。
 ''')
-    metadata = {'schema': 1, 'version': VERSION, 'status': 'DEVELOPMENT_PARTIAL', 'latest_source_commit': COMMIT, 'runtime_application_commit': RUNTIME_COMMIT,
+    metadata = {'schema': 1, 'version': VERSION, 'status': 'DEVELOPMENT_PARTIAL', 'latest_source_commit': COMMIT, 'application_source_commit': APPLICATION_COMMIT, 'runtime_sdk_source_commit': RUNTIME_SDK_COMMIT,
                 'bundle_blake3': entry['manifest']['integrity']['bundle_blake3'],
                 'bundle_main_sha256': sha(RES / 'mirror' / BUNDLE / 'main.splash'),
-                'latest_source_sdk_lock_sha256': sha(STAGE / '04-最新源码-92b1df15/dependencies.lock.json'),
+                'latest_source_sdk_lock_sha256': sha(STAGE / '04-最新源码/dependencies.lock.json'),
                 'host_sdk_lock_at_build': HOST_REPORT['sdk_lock_sha256'],
                 'source_and_host_same_sdk_revision': False,
                 'calendar_truncated_boolean_fix_in_source': True,
@@ -297,8 +312,8 @@ Apple Silicon 未验证；启动器最低 macOS 13.3。
                 'clean_build_status': 'BLOCKED_CAPACITY', 'business_acceptance': 'DEVELOPMENT_PARTIAL',
                 'receiver_two_mac_validation': 'NOT_RUN', 'arm_validation': 'NOT_RUN',
                 'packager_gui_or_external_actions': 'NOT_RUN',
-                'root_old_host_70_startups': 'COORDINATOR_REPORTED_PASS_OLD_SDK_SUPPORT_ONLY',
-                'root_old_host_two_hour_soak': 'IN_PROGRESS_AS_OF_PACKAGING',
+                'root_old_host_70_startups': 'COORDINATOR_REPORTED_PASS_b486_APPLICATION_AND_938_HOST_SUPPORT_ONLY',
+                'root_old_host_two_hour_soak': 'OLD_V15_CANDIDATE_EVIDENCE_ONLY_SEE_ROOT_REPORT',
                 'formal_publication': 'NOT_PUBLISHED'}
     write_json(STAGE / '版本与校验.json', metadata)
     manifest = {'schema': 1, 'include_rule': 'Only these exact files and relative symlinks, plus this manifest itself.',
