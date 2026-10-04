@@ -1,3 +1,13 @@
+## 2026-10-05 03:22：70次通过；真实日历定位序列化错误
+
+产品b48618ac/0.3.26-rc5/source5092冻结，实际Host938/SDK3f完成30冷启动20普通重开20Shell重启、六页/编辑/非空16对话256消息64记忆65来源及存储SHA通过。最慢可交互24.844秒，不称秒开。三次真实M3跨对话更正/遗忘、两次Goal模型、一个批准/Run、首次Shell重启八SHA不变通过。宽/矮三尺寸通过，412×892被当前900px桌面/Dock遮挡失败保留，额外412×700通过。
+
+本人授权稳定QQ自发自收一次、自动卡、独立收件正文SHA匹配；真实Mail长运行5357秒原生绘制池错误FAIL保留。最终V15合成2h在继续，不替代真实Mail后端。旧授权Calendar实际读取成功却返回truncated数字0，严格UI拒绝；92b1df15只改EventKit一行布尔序列化和SDK锁，实际Foundation三边界及完整桥object编译PASS、SDK12000PASS。完整新Host因空间不足未构建；源码/旧暖运行包分开，不能称已安装修复。
+
+总体5PASS/13PARTIAL/2BLOCKED；T17第二强模型、T18同候选实际Calendar写入/改期/回复/电脑重启、clean构建与正式Hub材料未过。公开main稳定0.3.25和旧Tag不动，无push/发布；旧独立版及生产資料保护。晨间入口MORNING_CHAMPIONSHIP_REPORT/MORNING_HUMAN_QUEUE。
+
+---
+
 ## 2026-10-05 02:29：V15记忆分页与空遗忘集合热点修复
 
 V13b全Shell第二次在Memory on_render64张卡64ms失败，完整Chat焦点/编辑/六页已恢复；保留失败。V14每页8卡实际全部64条可scroll到且磁盘SHA保持，但最终搜索重绘又触发core_source_index64ms。V15只在空遗忘集合跳过无用source lookup与SHA；坏value仍保守拒绝，非空墓碑全代码原字节，实际28变体首轮通过。

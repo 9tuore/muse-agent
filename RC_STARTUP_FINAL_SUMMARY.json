@@ -1,0 +1,111 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.26-rc5",
+  "code_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
+  "source_sha256": "5092becd21ece0cdc456ffa60b9a7b85ff01e34b65c68d7743658e7b945b4cd8",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "wall_budget_ms": 64,
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "chat-sessions.backup.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "12d73915c579b367d9fb67fc3c826fdcf3af6e373adf66f7be5e02762639148f",
+    "goals.backup.json": null,
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "requested_counts": {
+    "cold": 30,
+    "reopen": 20,
+    "restart": 20
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "cold_pass": 30,
+  "reopen_pass": 20,
+  "restart_pass": 20,
+  "status": "PASS_30_COLD_20_REOPEN_20_RESTART",
+  "raw_report_sha256": "52efd04d37d54f85c07958539eb3f759dcaef6ae610383e6304439f9da54aef1",
+  "raw_report_local": "official_muse/rc/startup/evidence/b486-final-70-r1/report.json",
+  "new_calendar_bridge_host_tested": false,
+  "cold": {
+    "count": 30,
+    "passed": 30,
+    "first_content_seconds": {
+      "min": 11.547941594999998,
+      "median": 12.368959885499976,
+      "max": 23.543035517999996
+    },
+    "first_interactive_seconds": {
+      "min": 12.153742046999923,
+      "median": 13.09302315550002,
+      "max": 24.843596643999987
+    }
+  },
+  "reopen": {
+    "count": 20,
+    "passed": 20,
+    "first_content_seconds": {
+      "min": 8.088849971999934,
+      "median": 8.475685158000033,
+      "max": 8.814594187000012
+    },
+    "first_interactive_seconds": {
+      "min": 8.708699331999924,
+      "median": 9.084830274500007,
+      "max": 9.426713325000037
+    }
+  },
+  "restart": {
+    "count": 20,
+    "passed": 20,
+    "first_content_seconds": {
+      "min": 11.25443011799996,
+      "median": 11.903013354500104,
+      "max": 13.058365761999994
+    },
+    "first_interactive_seconds": {
+      "min": 11.908810572999982,
+      "median": 12.557410468499938,
+      "max": 13.64076299500016
+    }
+  }
+}

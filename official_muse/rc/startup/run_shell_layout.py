@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT / 'official_muse/phase2/tests'))
 sys.path.insert(0, str(ROOT / 'official_muse/ui_memory/tests'))
 from remote import Remote
 from live_shell_layout import drag, settle
-from visual_capture import navigate
+from visual_capture import navigate, shot
 
 
 def sha(path):
@@ -75,7 +75,7 @@ def main():
                 row['left_collapsed_for_narrow'] = True
             input_rect = r.find('goal_input')['r']
             send_rect = r.find('发送')['r']
-            content_rect = r.find('page_content')['r']
+            content_rect = r.find('chat_list')['r']
             assert input_rect[2] > 80 and input_rect[3] >= 28
             assert content_rect[2] > 80 and content_rect[3] >= 80
             dock_top = native['w'][0]['sz'][1] - 88
@@ -85,7 +85,7 @@ def main():
             r.set_text('goal_input', '长文本可编辑检查：' + '合成输入，不提交。' * 12)
             assert r.find('goal_input')['val'].endswith('合成输入，不提交。')
             r.set_text('goal_input', '')
-            r.shot(folder / 'chat.png')
+            shot(r, folder / 'chat.png')
             pages = []
             for page, pane in [('记忆', 'memory_body'), ('邮箱', 'mail_list_body'),
                                ('日历', 'calendar_editor'), ('操作记录', 'activity_body'),
@@ -93,14 +93,18 @@ def main():
                 goto(page)
                 if width <= 740 and any(w.get('t') == '‹' for w in r.widgets()):
                     r.click('‹')
-                area = r.find(pane)['r']
+                r.wait_for('calendar_editor' if page == '日历' else 'page_content', 15)
+                actual_pane = pane if any(w.get('i') == pane for w in r.widgets()) else 'page_content'
+                area = r.find(actual_pane)['r']
                 assert area[2] > 80 and area[3] >= 80, (page, area)
                 r.scroll(int(area[0] + area[2] - 4), int(area[1] + area[3] / 2), 500)
-                r.shot(folder / (pane + '-scrolled.png'))
+                shot(r, folder / (pane + '-scrolled.png'))
                 r.scroll(int(area[0] + area[2] - 4), int(area[1] + area[3] / 2), -10000)
-                pages.append({'page': page, 'pane': area, 'scrolled': True})
+                pages.append({'page': page, 'pane_id': actual_pane, 'pane': area, 'scrolled': True})
             row['pages'] = pages
             row['long_input_edited_and_cleared'] = True
+            errors = [line for line in r.log(300)['l'] if '[E]' in line or 'budget exceeded' in line]
+            assert not errors, errors
             row['pass'] = True
         except Exception as error:
             row['error'] = f'{type(error).__name__}: {error}'
@@ -108,7 +112,7 @@ def main():
         try:
             (folder / 'snap.json').write_bytes(r.request('/snap'))
             (folder / 'log.json').write_bytes(r.request('/log', n=300))
-            r.shot(folder / 'visible.png')
+            shot(r, folder / 'visible.png')
         except Exception as error:
             row['capture_error'] = str(error)
         (a.out / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
