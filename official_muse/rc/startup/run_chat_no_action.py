@@ -8,6 +8,8 @@ Full-corpus mode also uses the existing real synthetic-memory setup/edit UI.
 No profile, mail, calendar or goal confirmation is written by this driver.
 """
 import argparse
+import ctypes
+import ctypes.util
 import hashlib
 import json
 from pathlib import Path
@@ -61,14 +63,24 @@ def main():
     pids = subprocess.check_output(['lsof', '-t', '-iTCP:'+str(a.port),
                                     '-sTCP:LISTEN'], text=True).splitlines()
     assert len(set(pids)) == 1
+    r = Remote(a.port)
+    assert str(json.loads(r.request('/s'))['pid']) == pids[0]
+    # macOS ps/lsof escape non-ASCII paths; libproc returns the real UTF-8 path.
+    library = ctypes.CDLL(ctypes.util.find_library('proc'))
+    library.proc_pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+    library.proc_pidpath.restype = ctypes.c_int
+    executable = ctypes.create_string_buffer(4096)
+    assert library.proc_pidpath(int(pids[0]), executable, len(executable)) > 0
+    assert Path(executable.value.decode('utf8')).resolve() == host.resolve()
     corpus = ROOT / 'official_muse/prelim/tests/semantic_expectations.json'
     plan = read(corpus)
     cases = {c['id']: c for c in plan['cases']}
     if a.full_frozen_corpus:
-        original_path = ROOT / plan['original_corpus']
-        assert sha(original_path) == plan['original_corpus_sha256']
+        original_path = Path(__file__).with_name('frozen_original_chat_inputs.json')
+        original = read(original_path)
+        assert original['original_corpus_sha256'] == plan['original_corpus_sha256']
         assert [(c['id'], c['input']) for c in plan['cases'] if c['suite'] != 'holdout'] == [
-            (c['id'], c['input']) for c in read(original_path)['cases']]
+            (c['id'], c['input']) for c in original['cases']]
         assert len(cases) == 28
         assert {suite: sum(c['suite'] == suite for c in plan['cases'])
                 for suite in ['original20', 'setup', 'holdout']} == {
@@ -90,14 +102,14 @@ def main():
               'model_metadata': safe_model, 'fallbacks': [],
               'expectations_sha256': sha(corpus), 'case_ids': [c['id'] for c in selected],
               'driver_sha256': sha(Path(__file__)), 'cases': [],
+              'runtime_pid': int(pids[0]), 'runtime_host_path_verified': True,
+              'original_inputs_fixture_sha256': sha(Path(__file__).with_name('frozen_original_chat_inputs.json')),
               'usage_before': read(usage_path)['apps']['muse-goals'],
               'semantic_review': 'PENDING_MANUAL_REVIEW',
               'not_original20_complete': True, 'external_action_confirmation': False,
               'case_screenshots': not a.no_case_screenshots,
               'full_frozen_corpus': a.full_frozen_corpus,
               'flow_sessions': {}, 'memory_operations': {}}
-    r = Remote(a.port)
-
     def save():
         pending = a.out / 'report.json.pending'
         pending.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
@@ -243,6 +255,8 @@ def main():
             if is_model:
                 assert terminal[-1]['state'] in ['success', 'waiting_user'], 'Retain actual error response'
                 assert row['actual_host_trace'] is not None, 'Actual official callback proof missing'
+                assert row['actual_host_trace']['is_ok'] is True
+                assert row['actual_host_trace']['known_usage'] is True
             else:
                 assert row['usage_before'] == row['usage_after'], 'Local mechanism called a model'
                 assert terminal[-1]['state'] in ['success', 'waiting_user', 'cancelled']
