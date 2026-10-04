@@ -1,0 +1,132 @@
+{
+  "conclusion": "REBUILDABLE_CARGO_CACHE_CAN_REMOVE_TARGET_ONLY_AFTER_ROOT_AUTHORIZATION",
+  "deleted_by_A3": false,
+  "built_or_tested_by_A3_this_turn": false,
+  "target_path": "official_muse/rc/memory_model/overnight-native-schema/target",
+  "regular_file_count": 396,
+  "logical_bytes": 51979317,
+  "unique_inode_allocated_bytes": 50253824,
+  "du_KiB": 49076,
+  "debug_groups": {
+    ".rustc_info.json": 1,
+    ".cargo-artifact-lock": 1,
+    ".cargo-build-lock": 1,
+    "muse-contract-schema-unit": 1,
+    "incremental": 112,
+    "build": 22,
+    "muse-contract-schema-unit.d": 1,
+    "CACHEDIR.TAG": 1,
+    ".cargo-lock": 1,
+    ".fingerprint": 90,
+    "deps": 165
+  },
+  "symlink_count": 0,
+  "json_only_cargo_metadata": true,
+  "unique_failure_log_or_nonrebuildable_binary_found": false,
+  "build_script_stderr_files_all_empty": true,
+  "lsof": {
+    "exit_code": 1,
+    "stdout_empty": true,
+    "stderr_empty": true,
+    "no_open_handles_at_check": true
+  },
+  "preserve_outside_target": {
+    "official_muse/rc/memory_model/overnight-native-schema/Cargo.toml": "c7eb1e79cd6ab1e83834a7d7c1114e5ee383d940351a9a3698a1fb555d580e94",
+    "official_muse/rc/memory_model/overnight-native-schema/Cargo.lock": "f508186f98e783f8d25c6176c1fbf5ebd63ed700a9f31973160b77068dc45e32",
+    "official_muse/rc/memory_model/overnight-native-schema/src/main.rs": "50cd248ea9fc7438b68f26de8ee2151563d9e1e5fcc999fe4225bb5c35ddc321",
+    "official_muse/rc/memory_model/overnight-native-schema/src/production_schema.rs": "6a4ade8e629c6f46f01150c019a382e92d2bff6b2c1cb3a3e06a09e7756ea2d7",
+    "official_muse/rc/memory_model/overnight-native-schema/SOURCE_BINDING.json": "ab9637bfd0848964ad17d91331741de231c053909e18961802ea2ec0fd47f9d2",
+    "official_muse/rc/memory_model/overnight-native-schema/REPORT.json": "05da156229c5129ce4ecfdae23b4a11142a3baa75024fee0b76feb231166b353"
+  },
+  "retained_report": {
+    "total": 306,
+    "passed": 306,
+    "failed": 0,
+    "path": "official_muse/rc/memory_model/overnight-native-schema/REPORT.json"
+  },
+  "existing_test_entry": "cargo run --locked --offline --manifest-path official_muse/rc/memory_model/overnight-native-schema/Cargo.toml -- <wire-cases.json> <result.json>",
+  "existing_scripts_directly_depend_on_target_binary": false,
+  "after_cleanup_cargo_run_rebuilds_before_execution": true,
+  "cargo_rustc_commands_present": true,
+  "all_locked_registry_dependencies_cached": true,
+  "dependencies": [
+    {
+      "package": "equivalent-1.0.2",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "hashbrown-0.17.1",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "indexmap-2.14.2",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "itoa-1.0.18",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "memchr-2.8.3",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "proc-macro2-1.0.107",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "quote-1.0.47",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "serde-1.0.229",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "serde_core-1.0.229",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "serde_derive-1.0.229",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "serde_json-1.0.151",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "syn-3.0.6",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "unicode-ident-1.0.26",
+      "source_cached": true,
+      "archive_cached": true
+    },
+    {
+      "package": "zmij-1.0.23",
+      "source_cached": true,
+      "archive_cached": true
+    }
+  ],
+  "offline_rebuild_not_executed_under_low_disk": true,
+  "source_and_input_preservation_requirements": [
+    "Keepmanifest/lock/src, SDK schema module, source-binding/report, synthetic corpus/results and failure index.",
+    "Regenerate synthetic input viaexisting generate_contract_cases.py if /tmp inputs absent.",
+    "Direct hand-run oldtarget/debug binary needs cargo build first; no such checked-in script dependency found."
+  ],
+  "does_not_meet600MiB_full_Host_gate": true,
+  "gate_relaxed": false
+}

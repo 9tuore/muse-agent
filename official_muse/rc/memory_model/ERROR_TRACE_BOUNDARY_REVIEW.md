@@ -1,0 +1,9 @@
+# Proposed error trace boundary review
+
+Root拟议改动合理：在既有唯一Host结果trace新增error_code，只允许官方10种code（含refused/truncated）及应用cancelled/memory_conflict，其余unknown；同一model_user_error增加refused/truncated准确中文提示。无须SDK改动，不存raw error/detail/prompt/answer/providerroute/Secret。仅建议，A3未修改产品或发起测试。
+
+语义边界：现有trace在Host callback开始保存，然后才检查captured_refs；若Host成功但引用后来失效，trace记录Host成功，UI会显示memory_conflict。应明确error_code描述Host回包，不假称最终UI状态。Host之前的应用cancelled/memory_conflict等guard不会进入该唯一结果trace；允许这两个code不等于已覆盖所有guard。成功meta路径和失败known_usage=false保持现有含义，不能把false记成免费。
+
+最窄验证建议：纯分类器覆盖12种前缀、未知/nil/非string，未知值不崩溃；带合成sentinel后缀验证savedtrace只含code、不含原文；现有实际Card注入一条失败回包和一条成功meta回包，分别检查failurecode/known_usage及原successmeta；UI只检查refused/truncated对应中文、unknown保留generic。均是建议，本轮未执行。下一次Root已有授权实测如出现失败，逐case保存安全trace即可，不另造模型请求来制造错误。
+
+旧M3 S02仍UNKNOWN；+1161tokens不证明truncated。M2.7 D07按Root报告仍UNKNOWN，T17不PASS。Root补充Shell stderr FD2=/dev/null、remote log无finalfailure，是Controller信息；A3未另行检查该进程FD。

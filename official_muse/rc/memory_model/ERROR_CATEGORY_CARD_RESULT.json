@@ -1,0 +1,333 @@
+{
+  "status": "PASS_FIRST_CARD_EXECUTION_EXTRACTED_ERROR_CLASSIFIER_MAPPING_AND_TRACE_PROJECTION",
+  "proposal_source_sha256": "977c00ec5fe6e7191946af84a68a62023e14e3a5f14e603cfff398f8efe6d25a",
+  "extracted_source_sha256": "6170fd70a8b588697b651b7cb594257eb21deebd118a7ee0297adc817c89aef4",
+  "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "fixture_sha256": "3ad0b6258a158d9df17796968de71c1639bc2caed30cea357a1f5b951b8fa687",
+  "category_and_failed_trace_cases": 26,
+  "category_and_failed_trace_cases_passed": 26,
+  "UI_mapping_cases": 16,
+  "UI_mapping_cases_passed": 16,
+  "old_UI_control_byte_exact_except_two_new_branches": true,
+  "success_meta_preserved": true,
+  "success_trace_no_raw": true,
+  "success_without_meta_preserved": true,
+  "all_failed_trace_cases_only_enum_no_raw": true,
+  "raw_output_or_error_detail_not_recorded": true,
+  "runtime_errors": [],
+  "first_preparation_drift_failure_retained": "official_muse/rc/memory_model/ERROR_CATEGORY_PREPARE_FIRST_FAILURE.json",
+  "first_preparation_failure_was_before_Card_and_no_fixture_created": true,
+  "Card_runtime_attempts": 1,
+  "classifier_typed_4096_guard_verified": true,
+  "category_cases": [
+    {
+      "id": "enum_capability",
+      "expected": "capability",
+      "actual": "capability",
+      "trace_code": "capability",
+      "passed": true
+    },
+    {
+      "id": "enum_no_provider",
+      "expected": "no_provider",
+      "actual": "no_provider",
+      "trace_code": "no_provider",
+      "passed": true
+    },
+    {
+      "id": "enum_rate",
+      "expected": "rate",
+      "actual": "rate",
+      "trace_code": "rate",
+      "passed": true
+    },
+    {
+      "id": "enum_budget",
+      "expected": "budget",
+      "actual": "budget",
+      "trace_code": "budget",
+      "passed": true
+    },
+    {
+      "id": "enum_bad_request",
+      "expected": "bad_request",
+      "actual": "bad_request",
+      "trace_code": "bad_request",
+      "passed": true
+    },
+    {
+      "id": "enum_invalid_output",
+      "expected": "invalid_output",
+      "actual": "invalid_output",
+      "trace_code": "invalid_output",
+      "passed": true
+    },
+    {
+      "id": "enum_refused",
+      "expected": "refused",
+      "actual": "refused",
+      "trace_code": "refused",
+      "passed": true
+    },
+    {
+      "id": "enum_truncated",
+      "expected": "truncated",
+      "actual": "truncated",
+      "trace_code": "truncated",
+      "passed": true
+    },
+    {
+      "id": "enum_too_large",
+      "expected": "too_large",
+      "actual": "too_large",
+      "trace_code": "too_large",
+      "passed": true
+    },
+    {
+      "id": "enum_provider",
+      "expected": "provider",
+      "actual": "provider",
+      "trace_code": "provider",
+      "passed": true
+    },
+    {
+      "id": "enum_cancelled",
+      "expected": "cancelled",
+      "actual": "cancelled",
+      "trace_code": "cancelled",
+      "passed": true
+    },
+    {
+      "id": "enum_memory_conflict",
+      "expected": "memory_conflict",
+      "actual": "memory_conflict",
+      "trace_code": "memory_conflict",
+      "passed": true
+    },
+    {
+      "id": "nil",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "number",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "boolean",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "array",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "object",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "unknown_detail",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "empty",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "leading_space",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "uppercase",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "prefix_lookalike",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "embedded_prefix",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "no_colon",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    },
+    {
+      "id": "4096bytes",
+      "expected": "provider",
+      "actual": "provider",
+      "trace_code": "provider",
+      "passed": true
+    },
+    {
+      "id": "4097bytes",
+      "expected": "unknown",
+      "actual": "unknown",
+      "trace_code": "unknown",
+      "passed": true
+    }
+  ],
+  "mapping_cases": [
+    {
+      "id": "nil",
+      "expected": "这次没有整理成功。请重试，或手动填写。",
+      "actual": "这次没有整理成功。请重试，或手动填写。",
+      "old": "这次没有整理成功。请重试，或手动填写。",
+      "passed": true
+    },
+    {
+      "id": "unknown",
+      "expected": "这次没有整理成功。请重试，或手动填写。",
+      "actual": "这次没有整理成功。请重试，或手动填写。",
+      "old": "这次没有整理成功。请重试，或手动填写。",
+      "passed": true
+    },
+    {
+      "id": "capability",
+      "expected": "Muse 尚未获得模型能力授权。",
+      "actual": "Muse 尚未获得模型能力授权。",
+      "old": "Muse 尚未获得模型能力授权。",
+      "passed": true
+    },
+    {
+      "id": "no_provider",
+      "expected": "尚未配置可用的模型，请在宿主模型设置中选择。",
+      "actual": "尚未配置可用的模型，请在宿主模型设置中选择。",
+      "old": "尚未配置可用的模型，请在宿主模型设置中选择。",
+      "passed": true
+    },
+    {
+      "id": "rate",
+      "expected": "模型请求过于频繁，请稍后重试。",
+      "actual": "模型请求过于频繁，请稍后重试。",
+      "old": "模型请求过于频繁，请稍后重试。",
+      "passed": true
+    },
+    {
+      "id": "budget",
+      "expected": "今天的模型调用预算已用完。",
+      "actual": "今天的模型调用预算已用完。",
+      "old": "今天的模型调用预算已用完。",
+      "passed": true
+    },
+    {
+      "id": "bad_request_input",
+      "expected": "对话上下文过长，请开始新对话或缩短内容。",
+      "actual": "对话上下文过长，请开始新对话或缩短内容。",
+      "old": "对话上下文过长，请开始新对话或缩短内容。",
+      "passed": true
+    },
+    {
+      "id": "bad_request",
+      "expected": "模型请求内容或格式无效，请检查输入。",
+      "actual": "模型请求内容或格式无效，请检查输入。",
+      "old": "模型请求内容或格式无效，请检查输入。",
+      "passed": true
+    },
+    {
+      "id": "invalid_output",
+      "expected": "这次没有整理成功。请重试，或手动填写。",
+      "actual": "这次没有整理成功。请重试，或手动填写。",
+      "old": "这次没有整理成功。请重试，或手动填写。",
+      "passed": true
+    },
+    {
+      "id": "too_large",
+      "expected": "模型回复过长，未保存；请重试。",
+      "actual": "模型回复过长，未保存；请重试。",
+      "old": "模型回复过长，未保存；请重试。",
+      "passed": true
+    },
+    {
+      "id": "timeout",
+      "expected": "模型服务等待超时，请稍后重试。",
+      "actual": "模型服务等待超时，请稍后重试。",
+      "old": "模型服务等待超时，请稍后重试。",
+      "passed": true
+    },
+    {
+      "id": "provider",
+      "expected": "模型服务暂不可用，请检查宿主模型连接。",
+      "actual": "模型服务暂不可用，请检查宿主模型连接。",
+      "old": "模型服务暂不可用，请检查宿主模型连接。",
+      "passed": true
+    },
+    {
+      "id": "cancelled",
+      "expected": "这次没有整理成功。请重试，或手动填写。",
+      "actual": "这次没有整理成功。请重试，或手动填写。",
+      "old": "这次没有整理成功。请重试，或手动填写。",
+      "passed": true
+    },
+    {
+      "id": "memory_conflict",
+      "expected": "合成记忆冲突",
+      "actual": "合成记忆冲突",
+      "old": "合成记忆冲突",
+      "passed": true
+    },
+    {
+      "id": "refused",
+      "expected": "模型未接受这次请求，未采用结果。请调整需求后重试。",
+      "actual": "模型未接受这次请求，未采用结果。请调整需求后重试。",
+      "old": "这次没有整理成功。请重试，或手动填写。",
+      "passed": true
+    },
+    {
+      "id": "truncated",
+      "expected": "模型回复未完整生成，未采用结果。请缩短问题，或在宿主中切换模型后重试。",
+      "actual": "模型回复未完整生成，未采用结果。请缩短问题，或在宿主中切换模型后重试。",
+      "old": "这次没有整理成功。请重试，或手动填写。",
+      "passed": true
+    }
+  ],
+  "native_trace_final_file_sha256": "f37cc4c87263f5db0765beac8d316af621a8bc440dd8c721066d9f70bc9f6e96",
+  "runtime_log_local_sha256": "475e4ba5da43557544a7cc690ba447a64a4a70574204a051f42f3d1e686febbd",
+  "raw_Card_report_local_sha256": "83d483f33ec760fa2d42dca1d1910ecca413a988f2eb644994aa820b36988efa",
+  "no_external_actions_or_model": true,
+  "whole_muse_model_request_send_chat_realcallback_not_executed": true,
+  "projection_fixture_boundary": "Exact suggested callback prefix copied through storage_write, synthetic current/request context; real isolated Card fs. No real model transport.",
+  "existing_M3_S02_unknown": true,
+  "Root_reported_M2_7_D07_unknown_and_T17_notPASS_retained": true,
+  "Root_reported_schema_target_deleted_and_now_absent": true,
+  "external_schema_manifest_lock_src_binding_report_SHA_unchanged_after_cleanup": true,
+  "port8510_released": true,
+  "product_SDK_and_Git_modified_by_A3": false,
+  "whole_application_live_model_T17_or_RC_READY_PASS_claim": false
+}

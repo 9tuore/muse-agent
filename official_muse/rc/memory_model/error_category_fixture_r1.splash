@@ -1,0 +1,87 @@
+// Synthetic enum/mapping/projection only; exact suggested functions in minimal bundle.
+let error_category_cases=[]
+let error_mapping_cases=[]
+let error_category_at=0
+let error_mapping_at=0
+let error_category_results=[]
+let error_mapping_results=[]
+let error_fixture_sentinel="A3_SYNTHETIC_UNSAFE_DETAIL_FAKE_KEY_PASSWORD_TOKEN"
+fn error_case(id,raw,expected){error_category_cases.push({id:id raw:raw expected:expected})}
+fn error_map_case(id,raw,expected){error_mapping_cases.push({id:id raw:raw expected:expected})}
+fn error_fixture_begin(){
+ for code in ["capability","no_provider","rate","budget","bad_request","invalid_output","refused","truncated","too_large","provider","cancelled","memory_conflict"] {error_case("enum_"+code,code+": "+error_fixture_sentinel,code)}
+ error_case("nil",nil,"unknown")
+ error_case("number",12,"unknown")
+ error_case("boolean",true,"unknown")
+ error_case("array",[],"unknown")
+ error_case("object",{synthetic:error_fixture_sentinel},"unknown")
+ error_case("unknown_detail","unrecognized: "+error_fixture_sentinel,"unknown")
+ error_case("empty","","unknown")
+ error_case("leading_space"," provider: "+error_fixture_sentinel,"unknown")
+ error_case("uppercase","PROVIDER: "+error_fixture_sentinel,"unknown")
+ error_case("prefix_lookalike","provider_extra: "+error_fixture_sentinel,"unknown")
+ error_case("embedded_prefix",error_fixture_sentinel+" provider: later","unknown")
+ error_case("no_colon","provider","unknown")
+ let edge="provider:"
+ for i in 4096-edge.len(){edge=edge+"a"}
+ error_case("4096bytes",edge,"provider")
+ error_case("4097bytes",edge+"a","unknown")
+ error_map_case("nil",nil,"这次没有整理成功。请重试，或手动填写。")
+ error_map_case("unknown","unrecognized: synthetic","这次没有整理成功。请重试，或手动填写。")
+ error_map_case("capability","capability: synthetic","Muse 尚未获得模型能力授权。")
+ error_map_case("no_provider","no_provider: synthetic","尚未配置可用的模型，请在宿主模型设置中选择。")
+ error_map_case("rate","rate: synthetic","模型请求过于频繁，请稍后重试。")
+ error_map_case("budget","budget: synthetic","今天的模型调用预算已用完。")
+ error_map_case("bad_request_input","bad_request: input is synthetic","对话上下文过长，请开始新对话或缩短内容。")
+ error_map_case("bad_request","bad_request: synthetic","模型请求内容或格式无效，请检查输入。")
+ error_map_case("invalid_output","invalid_output: synthetic","这次没有整理成功。请重试，或手动填写。")
+ error_map_case("too_large","too_large: synthetic","模型回复过长，未保存；请重试。")
+ error_map_case("timeout","timeout: synthetic","模型服务等待超时，请稍后重试。")
+ error_map_case("provider","provider: synthetic","模型服务暂不可用，请检查宿主模型连接。")
+ error_map_case("cancelled","cancelled: synthetic","这次没有整理成功。请重试，或手动填写。")
+ error_map_case("memory_conflict","memory_conflict: 合成记忆冲突","合成记忆冲突")
+ error_map_case("refused","refused: synthetic","模型未接受这次请求，未采用结果。请调整需求后重试。")
+ error_map_case("truncated","truncated: synthetic","模型回复未完整生成，未采用结果。请缩短问题，或在宿主中切换模型后重试。")
+ start_timeout(0.01,||error_fixture_next())
+}
+fn error_fixture_next(){
+ let c=error_category_cases[error_category_at]
+ let actual=model_error_code(c.raw)
+ let projected=fixture_trace_projection({is_ok:false error:c.raw raw_detail:error_fixture_sentinel})
+ let serial=projected.to_json()
+ let allowed_fields=true
+ for key value in projected {
+  let k=""+key
+  if k!="schema"&&k!="request_at"&&k!="response_at"&&k!="query_sha256"&&k!="session_id"&&k!="goal_id"&&k!="current"&&k!="is_ok"&&k!="known_usage"&&k!="error_code" {allowed_fields=false}
+ }
+ let no_raw=serial.search(error_fixture_sentinel)<0&&!gm_has(projected,"raw_detail")&&!gm_has(projected,"error")
+ let passed=actual==c.expected&&projected.error_code==c.expected&&!projected.is_ok&&!projected.known_usage&&!gm_has(projected,"meta")&&no_raw&&allowed_fields
+ error_category_results.push({id:c.id expected:c.expected actual:actual trace_code:projected.error_code code_expected:actual==c.expected projection_expected:projected.error_code==c.expected trace_no_raw:no_raw only_allowed_fields:allowed_fields passed:passed})
+ error_category_at=error_category_at+1
+ if error_category_at<error_category_cases.len(){start_timeout(0.01,||error_fixture_next()) return}
+ start_timeout(0.01,||error_fixture_map_next())
+}
+fn error_fixture_map_next(){
+ let c=error_mapping_cases[error_mapping_at]
+ let actual=model_user_error(c.raw)
+ let old=old_model_user_error_control(c.raw)
+ let changed=c.id=="refused"||c.id=="truncated"
+ let old_expected=old==actual
+ if changed {old_expected=old=="这次没有整理成功。请重试，或手动填写。"&&old!=actual}
+ error_mapping_results.push({id:c.id expected:c.expected actual:actual old:old unchanged_or_only_new_branches:old_expected passed:actual==c.expected&&old_expected})
+ error_mapping_at=error_mapping_at+1
+ if error_mapping_at<error_mapping_cases.len(){start_timeout(0.01,||error_fixture_map_next()) return}
+ start_timeout(0.01,||error_fixture_finish())
+}
+fn error_fixture_finish(){
+ let success=fixture_trace_projection({is_ok:true error:error_fixture_sentinel data:{output:{reply:error_fixture_sentinel} meta:{class:"fast" requested:"fast" attempts:1 usage:{input_tokens:2 output_tokens:1 estimated:false} budget:{calls_today:1 tokens_today:3} extra_detail:error_fixture_sentinel}}})
+ let success_meta=success.is_ok&&success.known_usage&&!gm_has(success,"error_code")&&success.meta.attempts==1&&success.meta.usage.input_tokens==2&&success.meta.usage.output_tokens==1&&success.meta.requested=="fast"
+ let success_no_raw=success.to_json().search(error_fixture_sentinel)<0&&!gm_has(success.meta,"extra_detail")
+ let no_meta=fixture_trace_projection({is_ok:true data:{output:{reply:error_fixture_sentinel}}})
+ let success_without_meta=no_meta.is_ok&&!no_meta.known_usage&&!gm_has(no_meta,"error_code")&&!gm_has(no_meta,"meta")&&no_meta.to_json().search(error_fixture_sentinel)<0
+ let classified=0 let maps=0 let failed=[]
+ for r in error_category_results {if r.passed{classified=classified+1}else{failed.push(r.id)}}
+ for r in error_mapping_results {if r.passed{maps=maps+1}else{failed.push("map_"+r.id)}}
+ fs.write("probe.json",{all_category_and_failed_trace_cases_passed:classified==error_category_results.len() all_mapping_old_control_cases_passed:maps==error_mapping_results.len() success_meta_preserved:success_meta success_trace_no_raw:success_no_raw success_without_meta_preserved:success_without_meta no_external_actions_or_model:fixture_calls.len()==0&&fixture_writes==0&&actions.len()==0 category_cases:error_category_results.len() category_cases_passed:classified mapping_cases:error_mapping_results.len() mapping_cases_passed:maps failed_cases:failed category_results:error_category_results mapping_results:error_mapping_results fixture_boundary:"Exact suggested classifier/UI functions andcallback traceprefix; current/request context synthetic; nativeisolatedfs projection. Notfullmuse_model_request/send_chat orrealmodel/Hostcallback."}.to_json())
+}
+start_timeout(0.1,||error_fixture_begin())

@@ -1,0 +1,91 @@
+{
+  "status": "UNKNOWN_MODEL_COMPLETE_FAILURE_CATEGORY_FROM_EXISTING_SAFE_RECORDS",
+  "category": "UNKNOWN",
+  "known_observations": {
+    "source_sha256": "f5cd33b79421130ce4368e6a095a6b11c77fcd120d2197c17e24efc9a38d0ec0",
+    "source_file_sha_matches_record": true,
+    "commit": "b9cf26b8dc0a9bdb51e493cb6a420636a1291e73",
+    "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+    "host_binary_sha_matches_record": true,
+    "S01_reply_numeric13_success": true,
+    "S02_state": "error",
+    "S02_generic_error_message": "这次没有整理成功。请重试，或手动填写。",
+    "S02_single_input": true,
+    "S02_usage_before": {
+      "calls": 35,
+      "tokens": 34188
+    },
+    "S02_usage_after": {
+      "calls": 36,
+      "tokens": 35349
+    },
+    "S02_ledger_tokens_delta": 1161,
+    "S02_ledger_calls_delta": 1,
+    "S02_saved_callback_is_ok": false,
+    "S02_saved_known_usage": false,
+    "S02_trace_query_hash_matches_case": true,
+    "S02_trace_has_no_meta": true,
+    "safe_log_final_failure_codes": [],
+    "safe_log_host_refusal_codes": [],
+    "remote_log_runtime_E_markers": 0,
+    "remote_log_script_budget_markers": 0
+  },
+  "official_host_source_binding": {
+    "model_module": "vendor/octosense/apps/ai-providers/host-service/src/complete/mod.rs",
+    "sha256": "1ccf4531f3ed293cb891685d31cf3e27e64094c75ab311a12cb76fa5d289728f",
+    "packaged_build_input_sha256": "1ccf4531f3ed293cb891685d31cf3e27e64094c75ab311a12cb76fa5d289728f",
+    "model_module_matches_packaged_build_inputs": true,
+    "build_host_sha_matches_run": true
+  },
+  "why_unknown": [
+    "Generic UI maps invalid_output plus nil/unhandled codes including refused/truncated to identical text.",
+    "Failure callback saves is_ok=false but does not store stable error prefix; meta copied only when r.is_ok.",
+    "Ledger charging occurs before terminal stops/schema acceptance; tokens may be consumed by multiple failure paths.",
+    "Preserved remote log has no matched final failure/refusal code marker; launcher uses open without capturing process stdout/stderr.",
+    "M2.7 success does not reveal prior M3 refusal code."
+  ],
+  "minimal_proposed_observability": {
+    "product_boundary": "muse_model_request host model.complete callback, existing model-last-response.json trace only",
+    "new_field_proposed_not_implemented": "host_error_code",
+    "allowed_codes": [
+      "capability",
+      "no_provider",
+      "rate",
+      "budget",
+      "bad_request",
+      "invalid_output",
+      "refused",
+      "truncated",
+      "too_large",
+      "provider"
+    ],
+    "unknown_fallback": "unknown",
+    "rule": "Only when r.is_ok is false, inspect typed r.error prefix before colon and store it only if exact allowlist match; otherwise unknown. Never store raw error suffix/detail.",
+    "no_new_SDK_change_required": true,
+    "no_raw_error_prompt_answer_key_provider_detail_route_or_profile_recording": true,
+    "failed_known_usage_must_remain_false_without_actual_meta": true,
+    "preserve_trace_per_case_in_existing_root_test_driver": "Capture already-sanitized trace after each response before next request overwrites it.",
+    "optional_host_side_capture": "Capture only existing MODEL_FINAL_FAILURE app/code marker; do not collect raw detail line."
+  },
+  "reported_by_controller_only": {
+    "same_app_host_M2_7_S01_S02_S03_S04_S05_H01_success": true,
+    "not_independently_reviewed_by_A3": true
+  },
+  "boundary": {
+    "read_only_product_SDK_root_evidence": true,
+    "A3_new_model_GUI_Git_operations": false,
+    "credential_or_production_profile_fields_read": false,
+    "screenshots_and_snap_not_read": true,
+    "raw_errors_not_output": true,
+    "new_agents_or_chats": false,
+    "no_fabricated_model_error_class": true
+  },
+  "safe_evidence_hashes": {
+    "retained_report": "453cd1e2820490d9e33b0abb4087e19ee606130fc617fe1b83dc5fea7252e9cd",
+    "raw_remote_log_local_only": "7018b9c4b4e60f72d13754efbb7a1ddd8dc0872d6c6e3223df3a290131838e3a",
+    "last_response_trace": "34d6918afd2bcdab188e0f626acb548c9bf5e757a72ba86a4e976b7c69ca1ca1",
+    "chat_source_readable_current": "47c56065ab8be64c48734c4c2b1afdb96de1a6fb391dd360e5dd20a4b5b60966",
+    "chat_driver": "3cc254d76989872cc2d7d927a3da960c9d69ee2b123ce9512011eac71ca04009",
+    "launcher": "84d39770240853804bd042947143ca7d021f5352605533fdca739654d3d0612b"
+  }
+}

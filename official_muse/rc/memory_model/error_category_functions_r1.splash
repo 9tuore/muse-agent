@@ -1,0 +1,92 @@
+let storage_fault_count=0
+let storage_last_fault=nil
+let actions=[]
+fn model_error_code(raw){
+    if !gm_string(raw,4096) { return "unknown" }
+    for code in ["capability","no_provider","rate","budget","bad_request","invalid_output","refused","truncated","too_large","provider","cancelled","memory_conflict"] {
+        if raw.search(code + ":") == 0 { return code }
+    }
+    return "unknown"
+}
+fn model_user_error(raw){
+    if raw == nil { return "这次没有整理成功。请重试，或手动填写。" }
+    if raw.search("memory_conflict:") == 0 { return raw.split("memory_conflict: ")[1] }
+    if raw.search("capability:") == 0 { return "Muse 尚未获得模型能力授权。" }
+    if raw.search("no_provider:") == 0 { return "尚未配置可用的模型，请在宿主模型设置中选择。" }
+    if raw.search("rate:") == 0 { return "模型请求过于频繁，请稍后重试。" }
+    if raw.search("budget:") == 0 { return "今天的模型调用预算已用完。" }
+    if raw.search("bad_request: input is") == 0 { return "对话上下文过长，请开始新对话或缩短内容。" }
+    if raw.search("bad_request:") == 0 { return "模型请求内容或格式无效，请检查输入。" }
+    if raw.search("invalid_output:") == 0 { return "这次没有整理成功。请重试，或手动填写。" }
+    if raw.search("refused:") == 0 { return "模型未接受这次请求，未采用结果。请调整需求后重试。" }
+    if raw.search("truncated:") == 0 { return "模型回复未完整生成，未采用结果。请缩短问题，或在宿主中切换模型后重试。" }
+    if raw.search("too_large:") == 0 { return "模型回复过长，未保存；请重试。" }
+    if raw.search("timed out") >= 0 || raw.search("timeout") >= 0 { return "模型服务等待超时，请稍后重试。" }
+    if raw.search("provider:") == 0 { return "模型服务暂不可用，请检查宿主模型连接。" }
+    return "这次没有整理成功。请重试，或手动填写。"
+}
+fn storage_write(path,data){
+    return try { fs.write(path,data) } {
+        storage_fault_count = storage_fault_count + 1
+        storage_last_fault = {operation: "write" path: path}
+        "storage_write_failed"
+    }
+}
+fn storage_read(path){
+    return try { fs.read(path) } {
+        storage_fault_count = storage_fault_count + 1
+        storage_last_fault = {operation: "read" path: path}
+        ""
+    }
+}
+fn gm_object(v){ return v.is_object() }
+fn gm_get(obj,key){
+    if !gm_object(obj) { return nil }
+    return obj[key]
+}
+fn gm_has(obj,key){ return gm_object(obj) && gm_get(obj,key) != nil }
+fn gm_text(v){ return v.is_string() }
+fn gm_string(v,limit){ return gm_text(v) && v.len() <= limit }
+fn old_model_user_error_control(raw){
+    if raw == nil { return "这次没有整理成功。请重试，或手动填写。" }
+    if raw.search("memory_conflict:") == 0 { return raw.split("memory_conflict: ")[1] }
+    if raw.search("capability:") == 0 { return "Muse 尚未获得模型能力授权。" }
+    if raw.search("no_provider:") == 0 { return "尚未配置可用的模型，请在宿主模型设置中选择。" }
+    if raw.search("rate:") == 0 { return "模型请求过于频繁，请稍后重试。" }
+    if raw.search("budget:") == 0 { return "今天的模型调用预算已用完。" }
+    if raw.search("bad_request: input is") == 0 { return "对话上下文过长，请开始新对话或缩短内容。" }
+    if raw.search("bad_request:") == 0 { return "模型请求内容或格式无效，请检查输入。" }
+    if raw.search("invalid_output:") == 0 { return "这次没有整理成功。请重试，或手动填写。" }
+    if raw.search("too_large:") == 0 { return "模型回复过长，未保存；请重试。" }
+    if raw.search("timed out") >= 0 || raw.search("timeout") >= 0 { return "模型服务等待超时，请稍后重试。" }
+    if raw.search("provider:") == 0 { return "模型服务暂不可用，请检查宿主模型连接。" }
+    return "这次没有整理成功。请重试，或手动填写。"
+}
+fn fixture_trace_projection(r){
+let request_at=1
+let query_hash=fs.sha256("synthetic-query")
+let session_id="chat:synthetic-error"
+let goal_id=""
+let current=fn(){return true}
+
+            // Host-owned usage, without prompt, answer, credential or provider secret.
+            let trace = {schema: 1 request_at: request_at response_at: time_now()
+                query_sha256: query_hash session_id: session_id goal_id: goal_id
+                current: current() is_ok: r.is_ok known_usage: false}
+            if !r.is_ok { trace.error_code = model_error_code(r["error"]) }
+            if r.is_ok && r.data != nil && gm_has(r.data,"meta") {
+                let meta = r.data.meta
+                if gm_has(meta,"usage") && gm_has(meta,"budget") && gm_has(meta,"attempts") {
+                    trace.meta = {class: meta["class"] requested: meta["requested"]
+                        attempts: meta.attempts usage: meta.usage budget: meta.budget}
+                    trace.known_usage = true
+                }
+            }
+            storage_write("model-last-response.json",trace.to_json())
+return storage_read("model-last-response.json").parse_json()
+}
+fn redraw(){}
+fn set_page(next){}
+fn calendar_enabled(){return false}
+fn boot(){}
+start_timeout(0.05,||boot())

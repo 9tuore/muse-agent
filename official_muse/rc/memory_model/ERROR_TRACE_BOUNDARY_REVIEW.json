@@ -1,0 +1,43 @@
+{
+  "status": "READ_ONLY_MINIMAL_ERROR_OBSERVABILITY_BOUNDARY_REASONABLE",
+  "product_modified_by_A3": false,
+  "SDK_modified_by_A3": false,
+  "new_model_GUI_Git_operations": false,
+  "root_proposed_field": "trace.error_code",
+  "official_allowlist": [
+    "capability",
+    "no_provider",
+    "rate",
+    "budget",
+    "bad_request",
+    "invalid_output",
+    "refused",
+    "truncated",
+    "too_large",
+    "provider"
+  ],
+  "application_allowlist": [
+    "cancelled",
+    "memory_conflict"
+  ],
+  "unknown_fallback": "unknown",
+  "safe_boundary": "Existing model.complete callback trace only; extract exact prefix from typed string, no raw error suffix/detail",
+  "UI_delta": "Only add accurate refused/truncated branches in existing model_user_error, no reinterpretation of old UNKNOWN failures",
+  "necessary_semantics": [
+    "Host trace records original Host callback before captured_refs app-side rejection; distinguish this from final UI status.",
+    "Application guard failures before Host callback do not produce this Host result trace; do not claim all error paths become observable.",
+    "Success must retain existing meta/usage behavior; unknown should mean failed unrecognized/missing code, not zero usage.",
+    "Do not claim S02 truncated from +1161tokens or generic text.",
+    "M2.7 D07 remains UNKNOWN; T17 remains notPASS."
+  ],
+  "proposed_narrow_verification_not_executed": [
+    "Synthetic pure classifier checks all12 prefixes plus nil/nonstring/unknownprefix ->unknown without rawsuffix storage.",
+    "Synthetic sentinel error suffix absent from savedtrace and logs; compare only enum code.",
+    "ExistingactualCard fixture onefailedcallback verifies is_ok=false,error_code,known_usage=false andsuccessmeta remainsunchanged.",
+    "ExistingUI mapper tests refused/truncated accurateChinese andunknown keepsgenericfallback.",
+    "Root nextalready-authorized actualfailure capture sanitized trace before subsequent request overwrites it; no extra model call solely to manufacture a failure."
+  ],
+  "Root_reported_FD2_devnull_and_no_remote_final_failure_marker_not_independently_verified": true,
+  "M3_S02_final_category": "UNKNOWN",
+  "M2_7_D07_category": "UNKNOWN"
+}
