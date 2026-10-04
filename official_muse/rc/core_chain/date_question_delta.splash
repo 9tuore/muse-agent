@@ -1,0 +1,95 @@
+let dq_checks={}
+let dq_details=[]
+let dq_calls=[]
+let dq_index=0
+let dq_cases=[
+    {id:"which_day_evening" message:"哪天傍晚聊一下，结束时间尚未确定" missing:true editing:false expected:"date_and_times"}
+    {id:"when_meet" message:"什么时候见面，起止时间没确定" missing:true editing:false expected:"date_and_times"}
+    {id:"evening_range_without_day" message:"傍晚17:00到18:00合成会议" missing:true editing:false expected:"date_and_times"}
+    {id:"unspecified_day_model_guess" message:"请安排一次合成交流" missing:false editing:false expected:"date_and_times"}
+    {id:"tomorrow_missing_times" message:"请安排明天的合成交流" missing:true editing:false expected:"times_only"}
+    {id:"explicit_valid" message:"请安排2026年12月15日15:00到16:00合成交流" missing:false editing:false expected:"valid"}
+    {id:"editing_location" message:"改到合成会议室B" missing:false editing:true expected:"valid"}
+    {id:"editing_ambiguous_day" message:"改天再说" missing:false editing:true expected:"date_and_times"}
+    {id:"explicit_correction" message:"请安排过几天的合成交流\n用户补充：2026年12月15日15:00到16:00" missing:false editing:false expected:"valid"}
+    {id:"explicit_then_ambiguous" message:"请安排2026年12月15日的合成交流\n用户补充：改天再说" missing:false editing:false expected:"date_and_times"}
+    {id:"invalid_end_order" message:"请安排2026年12月15日16:00到15:00合成交流" missing:false editing:false expected:"invalid_end"}
+]
+fn chain_fixture_request(service,args,cb){dq_calls.push(service) cb({is_ok:false error:"Synthetic delta forbids all Host requests"})}
+fn dq_payload(test){
+    let start="2026-12-15T15:00:00+08:00" let end="2026-12-15T16:00:00+08:00"
+    if test.missing {start="" end=""}
+    if test.id=="invalid_end_order" {start="2026-12-15T16:00:00+08:00" end="2026-12-15T15:00:00+08:00"}
+    return {title:"合成交流" start:start end:end time_zone:"Asia/Shanghai" location:"合成会议室B"}.to_json().parse_json()
+}
+fn dq_next(){
+    if dq_index>=dq_cases.len() {dq_guards() return}
+    let test=dq_cases[dq_index] let payload=dq_payload(test)
+    let result=chat_candidate_input_error("calendar_candidate",payload,test.message,test.editing)
+    let check_ok=false
+    if test.expected=="date_and_times" {
+        check_ok=(result.search("哪一天")>=0||result.search("日期")>=0)
+            && result.search("开始")>=0 && result.search("结束")>=0
+    }
+    if test.expected=="times_only" {
+        check_ok=result=="请补充明确的开始时间、结束时间。"
+    }
+    if test.expected=="valid" {check_ok=result==""}
+    if test.expected=="invalid_end" {check_ok=result.search("结束时间须晚于开始时间")>=0}
+    dq_checks["question:"+test.id]=check_ok
+    dq_details.push({id:test.id message:test.message editing:test.editing expected:test.expected actual_error:result})
+    if test.expected!="valid" && !test.editing {
+        let count=chat_sessions[chat_session_index(chat_selected_id)].proposals.len()
+        let added=chat_add_proposal(chat_selected_id,"synthetic-question:"+test.id,"","请安排日程："+test.message,
+            {intent:"calendar_candidate" proposal:payload})
+        dq_checks["no_candidate:"+test.id]=!added && chat_sessions[chat_session_index(chat_selected_id)].proposals.len()==count
+    }
+    dq_index=dq_index+1
+    start_timeout(0.03,|| dq_next())
+}
+fn dq_messages(user,reply,follow){
+    messages=[user,reply,{role:"user" text:follow state:"success" at:time_now() project:gm_project owner:gm_owner}].to_json().parse_json()
+}
+fn dq_guards(){
+    let original="请安排哪天傍晚的合成交流"
+    let follow="2026年12月15日15:00到16:00"
+    let error=chat_candidate_input_error("calendar_candidate",dq_payload({missing:true id:"guard"}),original,false)
+    let user={role:"user" text:original state:"success" at:time_now() project:gm_project owner:gm_owner}
+    let reply={role:"assistant" text:error state:"waiting_user" at:time_now() project:gm_project owner:gm_owner
+        memory_refs:[] clarification_action:"calendar_candidate" clarification_input:original}
+    dq_checks.legal_waiting_record=chat_entry_valid(reply)
+    dq_messages(user,reply,follow)
+    dq_checks.valid_followup_combines=chat_calendar_followup_message(follow)==original+"\n用户补充："+follow
+    gm_set_focus("synthetic-other-project","synthetic-owner")
+    dq_checks.other_project_blocks=chat_calendar_followup_message(follow)==follow
+    gm_set_focus("synthetic-project","synthetic-other-owner")
+    dq_checks.other_owner_blocks=chat_calendar_followup_message(follow)==follow
+    gm_set_focus("synthetic-project","synthetic-owner")
+    dq_checks.memory_fixture_saved=gm_save("合成交流来源","fact","synthetic-subject","source",chat_selected_id,gm_project,gm_owner,"local")
+    let doc=memory[0].document
+    messages[1].memory_refs=[{id:doc.id revision:doc.revision account:"local" source_ids:doc.payload.source_ids}]
+    dq_checks.ref_initially_valid=chat_reply_context_valid(messages[1])
+    let claims=memory.to_json().parse_json()
+    claims[0].document.payload.valid_until="2020-01-01T00:00:00Z"
+    dq_checks.expiry_saved=core_commit_memory(claims,memory_sources,memory_forget)
+    dq_checks.expiry_precondition=chat_reply_is_context(messages[1]) && !chat_reply_context_valid(messages[1])
+    dq_checks.expired_ref_blocks=chat_calendar_followup_message(follow)==follow
+    dq_messages(user,reply,follow)
+    messages[1].memory_refs=[{id:"synthetic-missing" revision:1 account:"local" source_ids:[]}]
+    dq_checks.missing_ref_blocks=chat_calendar_followup_message(follow)==follow
+    dq_checks.no_date_vocabulary_expansion=!chat_calendar_date_known("哪天傍晚")
+        && !chat_calendar_date_known("什么时候见面") && !chat_calendar_date_known("下个月")
+    dq_checks.no_host_requests=dq_calls.len()==0
+    dq_checks.no_goal_run_action=goals.len()==0 && runs.len()==0 && actions.len()==0
+    dq_checks.details=dq_details
+    fs.write("probe.json",dq_checks.to_json())
+}
+fn dq_probe(){
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot()
+    gm_set_focus("synthetic-project","synthetic-owner")
+    let i=chat_session_index(chat_selected_id)
+    chat_sessions[i].focus_project=gm_project chat_sessions[i].focus_owner=gm_owner
+    dq_checks.boot_ready=gm_ready && chat_ready && core_memory_ready
+    dq_next()
+}
+start_timeout(0.1,|| dq_probe())

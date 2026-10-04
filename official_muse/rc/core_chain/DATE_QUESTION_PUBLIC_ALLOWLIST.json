@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "scope": "A2 narrow date-question suggestion; additive independent list, original21file allowlist untouched",
+  "integration_status": "PROPOSAL_FIXTURE_EVIDENCE_FOR_ROOT_REVIEW",
+  "files": [
+    "official_muse/rc/core_chain/run_date_question_delta.py",
+    "official_muse/rc/core_chain/date_question_delta.splash",
+    "official_muse/rc/core_chain/DATE_QUESTION_PUBLIC_SUMMARY.json",
+    "official_muse/rc/core_chain/DATE_QUESTION_PUBLIC_ALLOWLIST.json",
+    "official_muse/rc/core_chain/DATE_QUESTION_DELTA_REPORT.md"
+  ],
+  "required_existing_helpers": [
+    "official_muse/ui_memory/tests/regression_run.py",
+    "official_muse/round2/tests/runtime_probe.py"
+  ],
+  "excluded": [
+    "official_muse/rc/core_chain/evidence/**",
+    "**/main.splash",
+    "**/bundle/**",
+    "**/state/**",
+    "**/runtime.log",
+    "**/__pycache__/**"
+  ],
+  "raw_evidence_deleted": false,
+  "staging_policy": "Root-only explicit integration, no recursive add; A2 did not stage/commit/push",
+  "original_public_allowlist_changed": false,
+  "deidentification": "Generic synthetic inputs and static future dates only; public summary uses hashes, counts and classifications. No credentials, actual accounts, contacts, provider responses or raw model content."
+}
