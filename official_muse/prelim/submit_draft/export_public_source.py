@@ -65,6 +65,9 @@ def main():
         raise ValueError("Manifest must not contain its own hash")
     expected["SOURCE_MANIFEST.json"] = manifest_hash
     links = manifest["relative_dependency_links"]
+    acceptance = manifest.get("product_acceptance_counts", manifest.get("delivery", {}).get("product_acceptance_counts"))
+    if not isinstance(acceptance, dict):
+        raise ValueError("Source manifest lacks explicit product acceptance counts")
     if expected.keys() & links.keys():
         raise ValueError("A path is declared as both a regular file and a link")
     excluded_parts = {".git", "target", "node_modules", "__pycache__", ".venv"}
@@ -154,7 +157,7 @@ def main():
         "internal_dependency_links": "PASS", "source_deletions": 0,
         "workspace_bytes_freed": 0, "git_history_rewritten": False,
         "build_gate_cold_start": "NOT_EXECUTED", "publisher_review": "NOT_EXECUTED",
-        "product_acceptance": manifest["delivery"]["product_acceptance_counts"],
+        "product_acceptance": acceptance,
         "note": "Every approved file retained, including public historical failures, licenses, locks and SDK resources. No public checkout writes. Compression comparison uses identical regular-file inventory; it is not disk cleanup."
     }
     (output / "EXPORT_VERIFICATION.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
