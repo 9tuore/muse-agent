@@ -53,6 +53,9 @@ static NSDictionary *eventValue(EKEvent *event) {
         @"time_zone": event.timeZone.name ?: @"",
         @"location": event.location ?: @"",
         @"last_modified": @([event.lastModifiedDate timeIntervalSince1970]),
+        @"all_day": @(event.allDay),
+        @"availability": @((NSInteger)event.availability),
+        @"recurring": @(event.hasRecurrenceRules),
     };
 }
 

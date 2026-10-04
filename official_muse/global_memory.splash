@@ -98,6 +98,10 @@ fn gm_access(doc){
     if !core_memory_ready || !gm_object(doc) || !gm_scope_valid(doc["scope"],true) || !gm_object(doc.payload)
         || !gm_bool(doc.payload.deleted) || doc.payload.deleted || !gm_account_allowed(doc["scope"].account) { return false }
     if gm_field(doc,"user_id",gm_user_id) != gm_user_id { return false }
+    if doc.payload["valid_until"] != nil {
+        let expiry = calendar_iso_epoch(doc.payload.valid_until)
+        if expiry == nil || expiry <= time_now() { return false }
+    }
     if gm_forgotten_scope(doc.payload.value,doc["scope"]) { return false }
     for sid in doc.payload.source_ids {
         if gm_source_forgotten(sid,doc) { return false }
@@ -528,6 +532,9 @@ fn gm_score(entry,query,conversation_id,goal_id){
     let task_source = gm_entry_field(entry,"memory_type","source") == "source" && project == "" && owner == "" && goal_id != "" && doc.payload.subject_id == goal_id
     if !global_pref && !task_source && (gm_project == "" || gm_owner == "" || project != gm_project || owner != gm_owner) { return -1 }
     let score = 0
+    let scheduling_goal = core_goal_index(goal_id)
+    if scheduling_goal >= 0 && is_calendar_goal(goals[scheduling_goal])
+        && gm_entry_field(entry,"memory_type","source") == "preference" { score = score + 12 }
     if goal_id != "" && doc.payload.subject_id == goal_id { score = score + 30 }
     let subject = gm_semantic_key(doc.payload.subject_id) let predicate = gm_semantic_key(doc.payload.predicate)
     let hay = doc.payload.value

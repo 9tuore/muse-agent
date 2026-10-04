@@ -36,7 +36,8 @@ def main():
     binary = app / 'Contents/MacOS/octosense'
     assert binary.is_file(), 'Candidate test Host is missing'
     assert hashlib.sha256(binary.read_bytes()).hexdigest() == record['host_sha256'], 'Test Host differs from candidate inventory'
-    private = candidate / 'private'
+    private = Path(record.get('runtime_private_path', str(candidate / 'private'))).resolve()
+    assert private.is_relative_to(ROOT / 'official_muse/app/build/ui-memory-20261003')
     installed = private / 'apps/muse-goals/bundle/main.splash'
     assert hashlib.sha256(installed.read_bytes()).hexdigest() == record['source_sha256']
     core = private / 'home/octos-home/.octos'

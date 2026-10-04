@@ -2,6 +2,15 @@
 // Display dates are Asia/Shanghai (UTC+08:00), independent of event timezone.
 fn page_two(n){ if n < 10 { return "0" + n } return "" + n }
 
+// Shader floor narrows to f32. Date quotients in the supported 1900–2100
+// range stay below 2^24; one comparison corrects its at-most-one rounding error.
+fn page_time_floor(value){
+    let result = floor(value)
+    if result > value { result = result - 1 }
+    if result + 1 <= value { result = result + 1 }
+    return result
+}
+
 fn page_month_days(year,month){
     if month == 2 {
         let leap = year - floor(year / 4) * 4 == 0
@@ -115,15 +124,15 @@ fn calendar_display_time(value){
     let epoch = page_event_epoch(value)
     if epoch == nil { return "" }
     let local = epoch + 28800
-    let day = floor(local / 86400)
-    let second = floor(local - day * 86400)
+    let day = page_time_floor(local / 86400)
+    let second = page_time_floor(local - day * 86400)
     let hour = floor(second / 3600)
     let minute = floor((second - hour * 3600) / 60)
     return page_date_parts(day).date + " " + page_two(hour) + ":" + page_two(minute) + " +08:00"
 }
 
 fn calendar_display_today(){
-    return page_date_parts(floor((time_now() + 28800) / 86400)).date
+    return page_date_parts(page_time_floor((time_now() + 28800) / 86400)).date
 }
 
 fn calendar_display_move(cursor,view,step){
@@ -184,8 +193,8 @@ fn calendar_display_rows(events,view,cursor){
             let end = page_event_epoch(event["end"])
             if start == nil || end == nil || end <= start { display.skipped = display.skipped + 1 }
             else {
-                let first = floor((start + 28800) / 86400)
-                let last = floor((end + 28800) / 86400)
+                let first = page_time_floor((start + 28800) / 86400)
+                let last = page_time_floor((end + 28800) / 86400)
                 if end + 28800 == last * 86400 { last = last - 1 }
                 if first < start_day { first = start_day }
                 if last >= end_day { last = end_day - 1 }

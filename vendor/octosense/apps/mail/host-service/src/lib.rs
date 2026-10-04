@@ -672,11 +672,19 @@ impl HostService for MailService {
                         Ok(account) => account,
                         Err(e) => return reply.send(Err(e)),
                     };
+                    for key in ["in_reply_to", "references"] {
+                        let value = text(&call.args, key);
+                        if value.len() > 2000 || value.contains(['\r', '\n']) {
+                            return reply.send(Err("Reply metadata is invalid".into()));
+                        }
+                    }
                     let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
                     let domain = text(&account, "address").split('@').nth(1).unwrap_or("octosense.local").to_string();
                     let draft = json!({
                         "to": text(&call.args, "to"), "subject": text(&call.args, "subject"), "body": text(&call.args, "body"),
                         "message_id": format!("<{now:x}@{domain}>"),
+                        "in_reply_to": text(&call.args, "in_reply_to"),
+                        "references": text(&call.args, "references"),
                     });
                     let sent = transport.send(&account, &draft);
                     if sent.is_ok() {

@@ -1,4 +1,4 @@
-// Inbox polling uses only granted Host accounts. No model call or send occurs on arrival.
+// Inbox polling uses only granted Host accounts; reminders are independent of authorized model analysis.
 let mail_watch = {schema: 1 enabled: true accounts: [] alerts: []}
 let mail_watch_busy = false
 let mail_watch_failed = false
@@ -134,6 +134,7 @@ fn mail_watch_read_body(key){
         if r.is_ok && r.data != nil && r.data.id == alert.message_id {
             mail_watch.alerts[current].source_body = r.data.body
             mail_watch.alerts[current].source_address = r.data.address
+            mail_watch.alerts[current].source_message = r.data
             mail_watch_save()
         } else { mail_watch.alerts[current].body_error = "正文读取失败，请点击重试。" }
         mail_watch_refresh()
@@ -173,6 +174,7 @@ fn mail_watch_boot(){
             }
         }
     }
+    mail_analysis_boot()
     mail_watch_save()
     mail_watch_schedule()
     mail_watch_poll()
@@ -187,6 +189,7 @@ fn mail_watch_schedule(){
         mail_watch_timer = false
         mail_watch_schedule()
         mail_watch_poll()
+        mail_analysis_pump()
     })
 }
 
@@ -212,7 +215,7 @@ fn mail_watch_current(){
     for alert in mail_watch.alerts {
         if mail_watch_account(alert.account_id) != nil && alert.key == mail_watch_focus && alert.status != "dismissed" { return alert }
         if mail_watch_account(alert.account_id) != nil && alert.status != "dismissed" && alert.status != "verified" && alert.status != "accepted" {
-            chosen = alert
+            if chosen == nil { chosen = alert }
             if alert.key == mail_watch_focus { return alert }
         }
     }
@@ -241,7 +244,7 @@ fn mail_body_preview(body){
 fn mail_watch_refresh(){
     ui.right_content.render()
     ui.right_page_content.render()
-    if page == "Chat" { ui.page_content.render() }
+    if page == "Chat" { chat_render() }
 }
 
 fn mail_watch_poll(){
@@ -349,8 +352,11 @@ fn mail_watch_scan(account_id,ai,index,offset,notify){
             valid = r.data.messages.len() <= 200 && offset + r.data.messages.len() <= r.data.total
                 && (r.data.messages.len() > 0 || offset == r.data.total)
             for message in r.data.messages {
+                // 宿主 mail.list 的 time 是给人看的显示串（如 "Oct 03"，见宿主 header()），
+                // 机器时间在 date（ISO 8601）。两者都接受，只有既非数字也非字符串才算坏数据；
+                // 之前写死 is_number() 会把每一次真实 mail.list 判为无效 → 同步报错且永不产生来信提醒。
                 if !message.is_object() || !message["id"].is_string() || message.id == ""
-                    || !message["time"].is_number()
+                    || (message["time"] != nil && !message["time"].is_number() && !message["time"].is_string())
                     || (message["historical"] != nil && !message.historical.is_bool()) { valid = false }
             }
         }
@@ -399,8 +405,9 @@ fn mail_watch_scan(account_id,ai,index,offset,notify){
                     mail_watch.alerts.push({key: account_id + ":" + message.id account_id: account_id
                         message_id: message.id sender: sender subject: subject
                         date: stamp(message.time) status: "new" intent: "" request_id: "" accepted_at: 0 draft_intent: ""})
-                    mail_watch_focus = account_id + ":" + message.id
-                    new_keys.push(mail_watch_focus)
+                    let incoming_key = account_id + ":" + message.id
+                    if mail_watch_focus == "" { mail_watch_focus = incoming_key }
+                    new_keys.push(incoming_key)
                     added = true
                 }
             }
@@ -463,6 +470,8 @@ fn mail_watch_intent(key,value){
             mail_watch.alerts[i].draft_intent = mail_watch.alerts[i].intent
         }
         mail_watch.alerts[i].intent = value
+        if mail_watch.alerts[i]["draft"] != nil { mail_watch.alerts[i].draft.proposed = nil }
+        if mail_draft.incoming_key == key { mail_draft.proposed = nil mail_draft.preview = "" mail_save() }
         if mail_watch.alerts[i].status == "draft_ready" || mail_watch.alerts[i].status == "waiting_user" {
             mail_watch.alerts[i].status = "intent"
         }
@@ -502,6 +511,20 @@ fn mail_watch_prepare(key,use_model){
     if mail_draft.status == "sending" || mail_draft.status == "unknown" {
         mail_reply_error = "上一封邮件仍在发送或结果未知，请先核对收件端；不会重复发送。"
         mail_watch_refresh()
+        return
+    }
+    let existing_draft = mail_watch_draft(key)
+    if use_model && existing_draft != nil && existing_draft.body != "" {
+        mail_account = account
+        mail_selected = {id: alert.message_id subject: alert.subject body: alert.source_body address: alert.source_address}
+        mail_draft = existing_draft.to_json().parse_json()
+        mail_draft.status = "DRAFT"
+        mail_draft.preview = ""
+        ui.mail_to.set_text(mail_draft.to)
+        ui.mail_subject.set_text(mail_draft.subject)
+        ui.mail_body.set_text(mail_draft.body)
+        ui.mail_intent.set_text(intent)
+        mail_model_draft()
         return
     }
     mail_watch.alerts[i].status = "intent"
@@ -593,12 +616,39 @@ fn mail_watch_again(key){
     mail_watch_generate(key)
 }
 
+fn mail_watch_adopt_proposed(key,shown){
+    let i = mail_watch_alert_index(key)
+    let draft = mail_watch_draft(key)
+    if i < 0 || draft == nil || mail_model_pending || mail_sending || draft["proposed"] == nil { return }
+    let proposal = draft.proposed
+    if shown.to_json() != proposal.to_json() || draft.body != proposal.base_body || draft.subject != proposal.base_subject
+        || proposal.intent != mail_watch.alerts[i].intent
+        || (mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "intent" && mail_watch.alerts[i].status != "waiting_user") {
+        mail_reply_error = "当前文字已变化，新稿没有覆盖正文。" mail_watch_refresh() return
+    }
+    draft.body = proposal.body draft.subject = proposal.subject draft.proposed = nil
+    draft.status = "DRAFT" draft.preview = ""
+    mail_watch.alerts[i].draft = draft
+    mail_watch.alerts[i].status = "draft_ready"
+    mail_watch.alerts[i].reply_mode = "manual"
+    mail_watch.alerts[i].draft_intent = mail_watch.alerts[i].intent
+    if mail_draft.incoming_key == key {
+        mail_draft = draft.to_json().parse_json()
+        ui.mail_body.set_text(draft.body) ui.mail_subject.set_text(draft.subject)
+        mail_save()
+    }
+    mail_watch_save()
+    mail_watch_refresh()
+}
+
 fn mail_watch_edit_body(key,value){
     let i = mail_watch_alert_index(key)
     let draft = mail_watch_draft(key)
-    if i < 0 || draft == nil || mail_sending || mail_model_pending { return }
-    if mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" { return }
+    if i < 0 || draft == nil || mail_sending { return }
+    if mail_watch.alerts[i].status != "draft_ready" && mail_watch.alerts[i].status != "waiting_user" && mail_watch.alerts[i].status != "intent" { return }
     mail_watch.alerts[i].reply_mode = "manual"
+    mail_watch.alerts[i].draft_intent = mail_watch.alerts[i].intent
+    draft.proposed = nil
     draft.body = value
     draft.status = "DRAFT"
     draft.preview = ""
@@ -606,6 +656,7 @@ fn mail_watch_edit_body(key,value){
     mail_watch.alerts[i].status = "draft_ready"
     if mail_draft.incoming_key == key {
         mail_draft.body = value
+        mail_draft.proposed = nil
         mail_draft.status = "DRAFT"
         mail_draft.preview = ""
         ui.mail_body.set_text(value)
