@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "application_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+  "source_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+  "status": "BOTH_R1_INFRASTRUCTURE_INTERRUPTED_NOT_FULL_PASS",
+  "records": [
+    {
+      "path": "official_muse/rc/startup/evidence/rc9-1c9-final-70-r1/INTERRUPTION_RECORD.json",
+      "sha256": "2639b6cde7f27e3c56c9311ff23af6e7a608bb741f6a10f12bcb59acc802dde1",
+      "record": {
+        "status": "INFRASTRUCTURE_INTERRUPTED_ENOSPC_NOT_70_PASS",
+        "actual_report_bytes": 122651,
+        "actual_report_sha256": "02c0b4e7cb6f8a509d7d34836ca4d5d2489153d409954548e385907cfa11f01e",
+        "completed_disk_backed_counts": {
+          "cold": 30,
+          "reopen": 13,
+          "restart": 0
+        },
+        "passed_disk_backed_counts": {
+          "cold": 30,
+          "reopen": 13,
+          "restart": 0
+        },
+        "original_report_unchanged": true,
+        "no_missing_entries_reconstructed": true,
+        "exception_observed": "OSError Errno28 writing report.json, session53611 exit1",
+        "recorded_at": "2026-10-04T22:33:29.673728+00:00"
+      }
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-final-soak-evidence-r1/INTERRUPTION_RECORD.json",
+      "sha256": "26cfe574d41062e3fb2893e3512b251737dd316eb53fa51c5d6cef3b3475a923",
+      "record": {
+        "status": "INFRASTRUCTURE_INTERRUPTED_ENOSPC_NOT_2H_PASS",
+        "actual_report_bytes": 13246,
+        "actual_report_sha256": "9dfb7aad6510225c0fa12cba2c865f035236186f69edfaf6be7fc2d62d7e1cb5",
+        "retained_status": "RUNNING",
+        "retained_samples": 19,
+        "last_disk_backed_sample": {
+          "elapsed_seconds": 542.153900389,
+          "utc": "2026-10-04T22:25:19.061532+00:00",
+          "cpu_percent": 0.4,
+          "rss_kib": 157112,
+          "records": {
+            "mail_enabled": true,
+            "accounts": 1,
+            "ready_accounts": 1,
+            "seen": 64,
+            "alerts": 0,
+            "claims": 64,
+            "sources": 65,
+            "sessions": 16,
+            "messages": 256,
+            "calendar_links": 0,
+            "actions": 0
+          },
+          "model_usage": {
+            "day": null,
+            "calls": 0,
+            "tokens": 0
+          },
+          "content_changes": [],
+          "unchanged_content_rewrites": [],
+          "runtime_error_count": 0
+        },
+        "original_report_unchanged": true,
+        "no_missing_samples_reconstructed": true,
+        "exception_observed": "OSError Errno28 writing atomic report.json.pending, session11456 exit1",
+        "recorded_at": "2026-10-04T22:33:29.677856+00:00"
+      }
+    }
+  ],
+  "failures_not_deleted": true,
+  "coverage_not_summed_with_prior_versions": true
+}
