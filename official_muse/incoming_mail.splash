@@ -51,8 +51,8 @@ fn mail_watch_state_valid(saved){
 fn mail_watch_save(){
     if !mail_watch_writable { return false }
     let value = mail_watch.to_json()
-    if fs.exists("mail-watch.json") && fs.read("mail-watch.json") == value { return true }
-    if fs.write("mail-watch.json",value) != nil || fs.read("mail-watch.json") != value {
+    if fs.exists("mail-watch.json") && storage_read("mail-watch.json") == value { return true }
+    if storage_write("mail-watch.json",value) != nil || storage_read("mail-watch.json") != value {
         mail_watch_writable = false
         mail_watch_notice = "提醒状态无法保存，来信提醒已暂停；不会发送邮件。"
         return false
@@ -145,7 +145,7 @@ fn mail_watch_boot(){
     mail_watch_epoch = mail_watch_epoch + 1 mail_watch_busy = false
     mail_watch_body_epoch = mail_watch_body_epoch + 1
     if fs.exists("mail-watch.json") {
-        let saved = fs.read("mail-watch.json").parse_json()
+        let saved = storage_read("mail-watch.json").parse_json()
         if !mail_watch_state_valid(saved) { mail_watch_writable = false }
         else { mail_watch = saved }
     }
@@ -572,7 +572,7 @@ fn mail_watch_archive_current(){
     if mail_draft.to == "" && mail_draft.subject == "" && mail_draft.body == "" { return true }
     let saved = {schema: 1 drafts: []}
     if fs.exists("mail-draft-archive.json") {
-        saved = fs.read("mail-draft-archive.json").parse_json()
+        saved = storage_read("mail-draft-archive.json").parse_json()
         if saved == nil || saved.to_json().search("\"drafts\":") < 0 {
             mail_reply_error = "旧草稿暂时无法保留，请稍后重试；没有发送。"
             return false
@@ -580,7 +580,7 @@ fn mail_watch_archive_current(){
     }
     saved.drafts.push({at: time_now() draft: mail_draft.to_json().parse_json()})
     let value = saved.to_json()
-    if fs.write("mail-draft-archive.json",value) != nil || fs.read("mail-draft-archive.json") != value {
+    if storage_write("mail-draft-archive.json",value) != nil || storage_read("mail-draft-archive.json") != value {
         mail_reply_error = "旧草稿保存未完成，请稍后重试；没有发送。"
         return false
     }

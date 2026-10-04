@@ -7,6 +7,7 @@ let gm_owner = ""
 let gm_ready = false
 let gm_boot_pending = false
 let gm_boot_saved = nil
+let gm_boot_index = nil
 let gm_boot_generated = false
 let gm_boot_enabled = true
 let gm_enabled = true
@@ -89,7 +90,12 @@ let gm_scope_cache = {}
 let gm_scope_cache_count = 0
 fn gm_scope_valid(s,legacy){
     // Check keys on every access; cached values never authorize extra fields.
-    if !gm_object(s) || !gm_keys(s,["project","account","visibility","user_id","project_id","owner_id"]) { return false }
+    if !gm_object(s) { return false }
+    for k v in s {
+        let key = "" + k
+        if key != "project" && key != "account" && key != "visibility"
+            && key != "user_id" && key != "project_id" && key != "owner_id" { return false }
+    }
     let cache_key = [legacy,s["project"],s["account"],s["visibility"],s["user_id"],s["project_id"],s["owner_id"]].to_json()
     if gm_scope_cache[cache_key] == true { return true }
     if !gm_required(s,["project","account","visibility"]) { return false }
@@ -217,31 +223,48 @@ fn gm_validate_part(saved,legacy,phase,start,end){
     if !gm_object(saved) { return false }
     return gm_validate_canonical_part(saved.to_json().parse_json(),legacy,phase,start,end)
 }
-fn gm_validate_canonical_part(saved,legacy,phase,start,end){
-    if !gm_required(saved,["schema","claims","sources","forget"]) { return false }
+fn gm_validation_index(saved,legacy){
+    if !gm_required(saved,["schema","claims","sources","forget"]) { return nil }
     if !gm_object(saved) || saved.schema != 1 || !gm_array(saved.claims) || !gm_array(saved.sources) || !gm_array(saved.forget)
-        || saved.claims.len() > 64 || saved.sources.len() > 128 || saved.forget.len() > 256 { return false }
+        || saved.claims.len() > 64 || saved.sources.len() > 128 || saved.forget.len() > 256 { return nil }
     let source_map = {}
     let claim_map = {}
     for i in saved.sources.len() {
         let s = saved.sources[i]
-        if !gm_required(s,["source_id","scope"]) || !gm_string(s.source_id,200) || !gm_scope_valid(s["scope"],legacy) { return false }
-        if (phase == "all" || (phase == "sources" && i >= start && i < end)) && !gm_source_valid(s,legacy) { return false }
-        if source_map[s.source_id] != nil { return false }
+        if !gm_required(s,["source_id","scope"]) || !gm_string(s.source_id,200) || !gm_scope_valid(s["scope"],legacy) { return nil }
+        if source_map[s.source_id] != nil { return nil }
         source_map[s.source_id] = i + 1
     }
-    for t in saved.forget { if !gm_tomb_valid(t) { return false } }
+    for t in saved.forget { if !gm_tomb_valid(t) { return nil } }
     for i in saved.claims.len() {
         let entry = saved.claims[i]
         if !gm_required(entry,["document"]) || !gm_required(entry.document,["id","scope","payload"])
             || !gm_required(entry.document.payload,["deleted"]) || !gm_bool(entry.document.payload.deleted)
-            || !gm_scope_valid(entry.document["scope"],legacy) { return false }
+            || !gm_scope_valid(entry.document["scope"],legacy) { return nil }
         let id = entry.document.id
-        if !gm_string(id,200) || claim_map[id] != nil { return false }
+        if !gm_string(id,200) || claim_map[id] != nil { return nil }
         claim_map[id] = i + 1
     }
+    return {sources: source_map claims: claim_map}
+}
+fn gm_validate_canonical_part(saved,legacy,phase,start,end){
+    if phase != "all" && phase != "sources" && phase != "claims" && phase != "correction" { return false }
+    let index = gm_validation_index(saved,legacy)
+    if index == nil { return false }
+    if phase == "correction" && (!gm_number(start) || floor(start) != start || start >= saved.claims.len()
+        || !gm_number(end) || floor(end) != end || end >= saved.sources.len()) { return false }
+    return gm_validate_indexed_part(saved,legacy,phase,start,end,index)
+}
+// Only the private, immutable boot snapshot reuses this index across slices.
+// Ordinary writes rebuild it and validate every identity, scope and tombstone.
+fn gm_validate_indexed_part(saved,legacy,phase,start,end,index){
+    let source_map = index.sources let claim_map = index.claims
+    for i in saved.sources.len() {
+        if (phase == "all" || (phase == "sources" && i >= start && i < end)
+            || (phase == "correction" && i == end)) && !gm_source_valid(saved.sources[i],legacy) { return false }
+    }
     for i in saved.claims.len() {
-        if phase == "all" || (phase == "claims" && i >= start && i < end) {
+        if phase == "all" || (phase == "claims" && i >= start && i < end) || (phase == "correction" && i == start) {
         let e = saved.claims[i]
         if !gm_required(e,["document","pinned","source_history"]) { return false }
         let d = e.document
@@ -310,7 +333,7 @@ fn gm_boot(){
     let generated_profile = false
     let settings = {schema: 1 enabled: true forget_pending: false}
     if fs.exists("global-memory-settings.json") {
-        settings = fs.read("global-memory-settings.json").parse_json()
+        settings = storage_read("global-memory-settings.json").parse_json()
         if !gm_keys(settings,["schema","enabled","user_id","forget_pending"]) || settings.schema != 1 || !gm_bool(settings.enabled)
             || (gm_has(settings,"user_id") && (!gm_string(settings.user_id,200) || settings.user_id == "")) {
             gm_error = "记忆设置或用户标识不可读；原文件保留。" gm_enabled = false core_memory_ready = false return false
@@ -319,7 +342,7 @@ fn gm_boot(){
     if !gm_has(settings,"user_id") {
         settings.user_id = "user:profile:" + random_u32() + "-" + random_u32() + "-" + random_u32() + "-" + random_u32()
         let encoded = settings.to_json()
-        if fs.write("global-memory-settings.json",encoded) != nil || fs.read("global-memory-settings.json") != encoded {
+        if storage_write("global-memory-settings.json",encoded) != nil || storage_read("global-memory-settings.json") != encoded {
             gm_error = "用户资料标识未独立读回；停止读写。" gm_enabled = false core_memory_ready = false return false
         }
         generated_profile = true
@@ -344,24 +367,33 @@ fn gm_boot(){
         gm_ready = false
         // Normalize once; repeated full-library JSON copies consumed the slice budget.
         gm_boot_saved = saved.to_json().parse_json()
+        gm_boot_index = nil
         gm_boot_generated = generated_profile
         gm_boot_enabled = gm_enabled
         core_memory_ready = false
         gm_enabled = false
         gm_error = "全局记忆正在分批校验。"
-        start_timeout(0.02, || gm_boot_part("sources",0))
+        start_timeout(0.02, || gm_boot_begin())
         return false
     }
     if !gm_validate(saved,true) { gm_error = "记忆记录字段或引用损坏；原库保留，停止读写。" gm_enabled = false core_memory_ready = false return false }
     return gm_finish_boot(saved,generated_profile)
 }
+fn gm_boot_begin(){
+    gm_boot_index = gm_validation_index(gm_boot_saved,true)
+    if gm_boot_index == nil {
+        gm_boot_pending = false gm_error = "记忆记录字段或引用损坏；原库保留，停止读写。"
+        core_memory_ready = false gm_enabled = false return
+    }
+    start_timeout(0.02, || gm_boot_part("sources",0))
+}
 fn gm_boot_part(phase,start){
     // Keep each validation slice below the unchanged Host callback budget.
     let batch = 2
-    let valid = gm_validate_canonical_part(gm_boot_saved,true,phase,start,start+batch)
+    let valid = gm_boot_index != nil && gm_validate_indexed_part(gm_boot_saved,true,phase,start,start+batch,gm_boot_index)
     if !valid {
         gm_boot_pending = false gm_error = "记忆记录字段或引用损坏；原库保留，停止读写。"
-        core_memory_ready = false gm_enabled = false return
+        core_memory_ready = false gm_enabled = false gm_boot_index = nil return
     }
     let total = gm_boot_saved.sources.len()
     if phase == "claims" { total = gm_boot_saved.claims.len() }
@@ -372,6 +404,7 @@ fn gm_boot_part(phase,start){
     gm_boot_pending = false
     gm_finish_boot(gm_boot_saved,gm_boot_generated)
     gm_boot_saved = nil
+    gm_boot_index = nil
 }
 fn gm_finish_boot(saved,generated_profile){
     let claims = memory.to_json().parse_json() let sources = memory_sources.to_json().parse_json()
@@ -396,7 +429,7 @@ fn gm_finish_boot(saved,generated_profile){
         if gm_forget_pending { return gm_fail_closed("遗忘恢复记录需要额外迁移；原文件保留，停止读写。") }
         if !fs.exists("memory.pre-global.json") {
             let original = core_last_memory
-            if original != "" && (fs.write("memory.pre-global.json",original) != nil || fs.read("memory.pre-global.json") != original) {
+            if original != "" && (storage_write("memory.pre-global.json",original) != nil || storage_read("memory.pre-global.json") != original) {
                 gm_error = "迁移前快照无法独立读回，未迁移。" gm_enabled = false return false
             }
         }
@@ -404,7 +437,7 @@ fn gm_finish_boot(saved,generated_profile){
     }
     if gm_forget_pending {
         let clean = saved.to_json()
-        if fs.sha256(clean) != gm_resume_hash { return gm_fail_closed("遗忘恢复记录发生变化；停止读写。") }
+        if storage_read("memory.backup.json") != clean || storage_file_hash("memory.backup.json") != gm_resume_hash { return gm_fail_closed("遗忘恢复记录发生变化；停止读写。") }
         core_last_memory = clean
         if !core_commit_memory(saved.claims,saved.sources,saved.forget) { return gm_fail_closed(core_error) }
         gm_forget_pending = false
@@ -413,7 +446,7 @@ fn gm_finish_boot(saved,generated_profile){
             return gm_fail_closed("遗忘恢复已读回，开关未保存；保持停止。")
         }
         gm_last_trace = {hits: [] bytes: 0 truncated: false conflicts: []}
-        fs.write("memory-retrieval-last.json",gm_last_trace.to_json())
+        storage_write("memory-retrieval-last.json",gm_last_trace.to_json())
     }
     gm_ready = true
     gm_error = ""
@@ -422,7 +455,7 @@ fn gm_finish_boot(saved,generated_profile){
 fn gm_enable(next){
     if !gm_bool(next) || (next && gm_forget_pending) { gm_error = "记忆开关无效。" return false }
     let value = {schema: 1 enabled: next user_id: gm_user_id forget_pending: gm_forget_pending}.to_json()
-    if fs.write("global-memory-settings.json",value) != nil || fs.read("global-memory-settings.json") != value {
+    if storage_write("global-memory-settings.json",value) != nil || storage_read("global-memory-settings.json") != value {
         gm_error = "记忆设置未保存。" return false
     }
     gm_enabled = next return true
@@ -630,7 +663,7 @@ fn gm_context(query,conversation_id,goal_id){
     let text_bytes = text.len()
     gm_last_trace = {query_sha256: digest conversation_id: conversation_id goal_id: goal_id
         hits: ids bytes: text_bytes truncated: truncated conflicts: conflicts reasons: reasons at: trace_time}
-    fs.write("memory-retrieval-last.json",gm_last_trace.to_json())
+    storage_write("memory-retrieval-last.json",gm_last_trace.to_json())
     let context_result = {text: text hits: ids bytes: text_bytes truncated: truncated conflicts: conflicts requires_resolution: conflicts.len() > 0}
     return context_result
 }
@@ -706,13 +739,16 @@ fn gm_correct(id,value,account,conversation_id){
     // This explicit correction decides the fact; other statements remain as audit rows.
     claims[i].source_history.push(sid) sources.push(source)
     for j in claims.len() {
-        if j != i && !claims[j].document.payload.deleted && gm_same_scope(claims[j].document["scope"],doc["scope"])
-            && claims[j].document.payload.subject_id == doc.payload.subject_id && claims[j].document.payload.predicate == doc.payload.predicate {
+        if j != i && !claims[j].document.payload.deleted
+            && claims[j].document.payload.subject_id == doc.payload.subject_id && claims[j].document.payload.predicate == doc.payload.predicate
+            && gm_same_scope(claims[j].document["scope"],doc["scope"]) {
             claims[j].resolved_by = id
         }
     }
-    let next = {schema: 1 claims: claims sources: sources forget: memory_forget}
-    if !gm_validate_part(next,true,"sources",sources.len()-1,sources.len()) || !gm_validate_part(next,true,"claims",i,i+1)
+    let next = {schema: 1 claims: claims sources: sources forget: memory_forget}.to_json().parse_json()
+    // The same canonical candidate and full identity/reference indexes cover
+    // both the changed claim and its new source, without rebuilding them twice.
+    if !gm_validate_canonical_part(next,true,"correction",i,sources.len()-1)
         || !core_commit_memory(claims,sources,memory_forget) { gm_error = "更正校验或提交失败：" + core_error return false }
     return true
 }
@@ -729,21 +765,22 @@ fn gm_fail_closed(message){
 }
 fn gm_forget_receipt(record){
     let encoded = record.to_json()
-    return fs.write("memory-forget-commit.json",encoded) == nil && fs.read("memory-forget-commit.json") == encoded
+    return storage_write("memory-forget-commit.json",encoded) == nil && storage_read("memory-forget-commit.json") == encoded
 }
 fn gm_forget_snapshot(){
     if !fs.exists("memory-forget-commit.json") || !fs.exists("memory.backup.json") || !fs.exists("memory.json") { return nil }
-    let receipt = fs.read("memory-forget-commit.json").parse_json()
-    if !gm_keys(receipt,["schema","phase","user_id","id","enabled","before_sha256","clean_sha256"])
+    let receipt = storage_read("memory-forget-commit.json").parse_json()
+    if !gm_required(receipt,["schema","phase","user_id","id","enabled","before_sha256","clean_sha256"])
+        || !gm_keys(receipt,["schema","phase","user_id","id","enabled","before_sha256","clean_sha256"])
         || receipt.schema != 1 || (receipt.phase != "preparing" && receipt.phase != "commit") || receipt.user_id != gm_user_id
         || !gm_bool(receipt.enabled) || !gm_string(receipt.id,200) || receipt.id == ""
         || !core_hash_valid(receipt.before_sha256) || !core_hash_valid(receipt.clean_sha256) { return nil }
-    let clean = fs.read("memory.backup.json")
+    let clean = storage_read("memory.backup.json")
     // Even a preparing receipt is recoverable only if every required snapshot
     // has already read back as the exact confirmed clean bytes.
-    let current = fs.sha256(fs.read("memory.json"))
-    if fs.sha256(clean) != receipt.clean_sha256 || (current != receipt.before_sha256 && current != receipt.clean_sha256) { return nil }
-    if fs.exists("memory.pre-global.json") && fs.sha256(fs.read("memory.pre-global.json")) != receipt.clean_sha256 { return nil }
+    let current = storage_file_hash("memory.json")
+    if storage_file_hash("memory.backup.json") != receipt.clean_sha256 || (current != receipt.before_sha256 && current != receipt.clean_sha256) { return nil }
+    if fs.exists("memory.pre-global.json") && storage_file_hash("memory.pre-global.json") != receipt.clean_sha256 { return nil }
     let saved = clean.parse_json()
     if !core_memory_valid(saved) || !gm_array(saved.claims) || !gm_array(saved.sources) || !gm_array(saved.forget) { return nil }
     let target = -1
@@ -833,14 +870,25 @@ fn gm_forget(id,account){
     if forget.len() > 256 { gm_error = "遗忘墓碑达到容量上限；未写入。" return false }
     let was_enabled = gm_enabled
     let clean = {schema: 1 claims: claims sources: sources forget: forget}.to_json()
+    // Hash an independently read-back, already sanitized jailed snapshot.
+    // Native file hashing retains the storage file cap and produces raw SHA256,
+    // preserving the existing receipt format and restart compatibility.
+    if storage_write("memory-forget-candidate.json",clean) != nil || storage_read("memory-forget-candidate.json") != clean {
+        gm_error = "遗忘候选快照无法独立读回；未开始遗忘。" return false
+    }
+    let before_digest = storage_file_hash("memory.json")
+    let clean_digest = storage_file_hash("memory-forget-candidate.json")
+    if !core_hash_valid(before_digest) || !core_hash_valid(clean_digest) {
+        gm_error = "原记忆或遗忘快照摘要无效；未开始遗忘。" return false
+    }
     let receipt = {schema: 1 phase: "preparing" user_id: gm_user_id id: id enabled: was_enabled
-        before_sha256: fs.sha256(fs.read("memory.json")) clean_sha256: fs.sha256(clean)}
+        before_sha256: before_digest clean_sha256: clean_digest}
     if !gm_forget_receipt(receipt) { gm_error = "遗忘提交摘要未独立读回；未开始遗忘。" return false }
     gm_forget_pending = true
     if !gm_enable(false) { return gm_fail_closed("遗忘保护状态未独立读回；停止读写。") }
     // Sanitize fallback copies BEFORE the primary write: failed commits fail closed.
     for path in ["memory.backup.json","memory.pre-global.json"] {
-        if (path == "memory.backup.json" || fs.exists(path)) && (fs.write(path,clean) != nil || fs.read(path) != clean) { return gm_fail_closed("遗忘快照清理失败；停止读写。") }
+        if (path == "memory.backup.json" || fs.exists(path)) && (storage_write(path,clean) != nil || storage_read(path) != clean) { return gm_fail_closed("遗忘快照清理失败；停止读写。") }
     }
     receipt.phase = "commit"
     if !gm_forget_receipt(receipt) { return gm_fail_closed("遗忘提交摘要未保存；停止读写。") }
@@ -850,7 +898,7 @@ fn gm_forget(id,account){
         return gm_fail_closed(core_error)
     }
     gm_last_trace = {hits: [] bytes: 0 truncated: false conflicts: []}
-    fs.write("memory-retrieval-last.json",gm_last_trace.to_json())
+    storage_write("memory-retrieval-last.json",gm_last_trace.to_json())
     gm_forget_pending = false
     if !gm_enable(was_enabled) { return gm_fail_closed("遗忘已提交，但开关状态未恢复；保持停止。") }
     return true

@@ -1,0 +1,28 @@
+// Preserve the jailed native fs contract. IO exceptions must reach the existing
+// commit/readback guards as failure values, rather than aborting a UI callback.
+let storage_fault_count = 0
+let storage_last_fault = nil
+fn storage_write(path,data){
+    return try { fs.write(path,data) } {
+        storage_fault_count = storage_fault_count + 1
+        storage_last_fault = {operation: "write" path: path}
+        "storage_write_failed"
+    }
+}
+fn storage_read(path){
+    return try { fs.read(path) } {
+        storage_fault_count = storage_fault_count + 1
+        storage_last_fault = {operation: "read" path: path}
+        ""
+    }
+}
+fn storage_file_hash(path){
+    return try { fs.sha256_file(path) } {
+        storage_fault_count = storage_fault_count + 1
+        storage_last_fault = {operation: "digest" path: path}
+        ""
+    }
+}
+fn storage_hash_valid(value){
+    return value.is_string() && value.len() == 64 && regex("^[0-9a-f]{64}$","").test(value)
+}

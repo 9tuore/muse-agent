@@ -1,0 +1,49 @@
+// Keep at most 200 active events. Older batches stay in immutable jailed files;
+// an independently read-back index makes rotation recoverable and idempotent.
+// No archive is deleted. The 32-file bound respects the existing storage caps.
+fn core_archive_activity(items){
+    let encoded = items.to_json()
+    let index = {schema: 1 archives: []}
+    if fs.exists("activity-archive-index.json") {
+        index = storage_read("activity-archive-index.json").parse_json()
+        if !index.is_object() || index["schema"] != 1 || !index["archives"].is_array() {
+            core_error = "活动归档索引不可读，旧历史仍保留。" return false
+        }
+    }
+    if index.archives.len() > 32 { core_error = "活动归档索引超限，未轮转。" return false }
+    for i in index.archives.len() {
+        let entry = index.archives[i]
+        let path = "activity-archive-" + (i + 1) + ".json"
+        if !entry.is_object() || entry["path"] != path || entry["count"] != 100
+            || !storage_hash_valid(entry["content_digest"]) || !storage_hash_valid(entry["before_digest"])
+            || entry["digest_format"] != "sha256" || !fs.exists(path) {
+            core_error = "活动归档记录损坏或缺失，未覆盖旧历史。" return false
+        }
+    }
+    let before_digest = storage_file_hash("activity.json")
+    if before_digest == "" { core_error = "活动原记录摘要无法验证，未轮转。" return false }
+    if index.archives.len() > 0 {
+        let last = index.archives[index.archives.len() - 1]
+        if last.before_digest == before_digest {
+            if storage_file_hash(last.path) == last.content_digest && storage_read(last.path) == encoded { return true }
+            core_error = "上次活动轮转内容不一致，旧历史仍保留。" return false
+        }
+    }
+    if index.archives.len() >= 32 { core_error = "活动归档已满，需先导出；未删除历史。" return false }
+    let path = "activity-archive-" + (index.archives.len() + 1) + ".json"
+    if fs.exists(path) && storage_read(path) != encoded {
+        core_error = "待恢复的活动归档内容不同，未覆盖。" return false
+    }
+    if !fs.exists(path) && (storage_write(path,encoded) != nil || storage_read(path) != encoded) {
+        core_error = "活动归档未独立读回，未轮转。" return false
+    }
+    let digest = storage_file_hash(path)
+    if !storage_hash_valid(digest) { core_error = "旧活动摘要无法验证，未轮转。" return false }
+    index.archives.push({path: path count: 100 content_digest: digest before_digest: before_digest
+        digest_format: "sha256"})
+    let next = index.to_json()
+    if storage_write("activity-archive-index.json",next) != nil || storage_read("activity-archive-index.json") != next {
+        core_error = "活动归档索引未独立读回，未轮转。" return false
+    }
+    return true
+}
