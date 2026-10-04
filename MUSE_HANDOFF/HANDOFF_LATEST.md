@@ -1,25 +1,3 @@
-# Handoff
+# Muse夜间交接 · 2026-10-05 02:09
 
-## Task
-
-夜间RC收口，codex/muse-rc-finalization；稳定公开d8a2989/0.3.25保留。
-
-## Result
-
-PARTIAL，0.3.26-rc5 V12。V9启动第19次64ms失败保留；索引分8条、无迁移不复制整库、Goal候选仅成功创建才消费。SDK和预算不变。
-
-## Tests
-
-V12可见Shell16/256+64/65预检通过；64记忆更正/遗忘与独立磁盘8/12通过，更正墙钟66.055ms，不能称64ms内。迁移6变体7项各通过，失败遗忘新进程9+4通过。MiniMax跨对话召回、更正、遗忘3次真实调用通过；Goal模型/批准/保存/读回完成，重启待。稳定版真实自发自收/提醒/正文SHA一致，非同RC全链。
-
-## Commit
-
-本地提交以Git为准，无push/成功Tag/正式Hub提交。
-
-## Remaining
-
-固定候选70启动、四尺寸、2h、清洁构建；T17第二模型、T18新Host系统权限和精确Calendar写入、电脑重启及正式材料。
-
-## Important Boundaries
-
-原错误均保留。fixture、稳定实机、新RC分别判定；最新授权允许自发自收和Calendar读取，未自动授系统权限或真实日历写入。
+当前codex/muse-rc-finalization，0.3.26-rc5 V13b（readable78cea03e/payloadb4ac3453/SDK3f1bbb4e/Host938ba58a）。V12 cold16真实Chat全256校验64ms失败已保留；同guard每回调8条修复，V13b一次大容量实机预检六页/编辑/SHA通过，完整70/2h/四尺寸与新清洁构建待。新core claim元数据补齐避免首次重启迁移，相关第二进程和实际Goal重启待。V12真实MiniMax记忆跨对话更正/遗忘3调用通过；Goal模型建议/批准/保存/读回已过但首重启文件变更不标PASS。稳定0.3.25本人自发自收+自动卡+正文独立SHA通过，仅稳定来源。T17第二模型、T18同最终真实Calendar写入与电脑重启/正式Hub材料未过；总体PARTIAL。用户睡前授权本人自发自收与Calendar读取，今晚不新增日历写入/授权/登录。三真实聊天协作，仅root写产品SDKGit。旧安装/历史/生产资料保留，无push/新成功Tag。

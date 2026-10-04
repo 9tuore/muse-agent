@@ -4801,7 +4801,8 @@ return false
 }
 let next_claims=[]
 for item in memory{next_claims.push(item)}
-next_claims.push({document:document pinned:false source_history:document.payload.source_ids})
+next_claims.push({document:document pinned:false source_history:document.payload.source_ids
+memory_type:"source" conversation_id:"" history:[]})
 return core_commit_memory(next_claims,memory_sources,memory_forget)
 }
 
@@ -6074,17 +6075,23 @@ for i in chat_sessions.len(){if chat_sessions[i].id==id{return i}}
 return-1
 }
 
-fn chat_state_valid(saved){
-if!gm_object(saved){return false}
-if saved["schema"]!=1{return false}
+fn chat_state_header(saved){
+if!gm_object(saved)||saved["schema"]!=1{return false}
 let sessions=saved["sessions"]
 let selected=saved["selected_id"]
-if!gm_array(sessions)
-||sessions.len()==0||sessions.len()>16
-|| !gm_text(selected){return false}
-let ids=[]
-let total=0
+if!gm_array(sessions)||sessions.len()==0||sessions.len()>16|| !gm_text(selected){return false}
+let ids=[]let total=0 let found=false
 for session in sessions{
+if!gm_object(session)|| !gm_text(session["id"])||session["id"]==""|| !gm_array(session["messages"]){return false}
+for prior in ids{if prior==session["id"]{return false}}
+ids.push(session["id"])
+if session["id"]==selected{found=true}
+total=total+session["messages"].len()
+if total>256{return false}
+}
+return found
+}
+fn chat_session_valid(session){
 if!gm_object(session){return false}
 let id=session["id"]
 let title=session["title"]
@@ -6095,8 +6102,6 @@ if!gm_text(id)||id==""
 || !gm_text(title)
 || !chat_json_number(created)|| !chat_json_number(updated)
 || !gm_array(entries){return false}
-for earlier in ids{if earlier==id{return false}}
-ids.push(id)
 for key in["focus_project","focus_owner"]{
 if gm_has(session,key)&&(!gm_text(session[key])||session[key].len()>120){return false}
 }
@@ -6124,9 +6129,9 @@ for key in["project","owner"]{if gm_has(proposal,key)&& !gm_text(proposal[key]){
 if gm_has(proposal,"revision")&&(!gm_number(proposal.revision)||proposal.revision<1){return false}
 }
 }
-total=total+entries.len()
-if total>256{return false}
-for entry in entries{
+return true
+}
+fn chat_entry_valid(entry){
 if!gm_object(entry){return false}
 let role=entry["role"]
 let value=entry["text"]
@@ -6135,10 +6140,15 @@ if(role!="user"&&role!="assistant")|| !gm_text(value)|| !gm_text(state)
 || !chat_json_number(entry["at"]){return false}
 if gm_has(entry,"memory_refs")&& !chat_refs_valid(entry.memory_refs){return false}
 for key in["project","owner"]{if gm_has(entry,key)&&(!gm_text(entry[key])||entry[key].len()>120){return false}}
+return true
 }
+fn chat_state_valid(saved){
+if!chat_state_header(saved){return false}
+for session in saved.sessions{
+if!chat_session_valid(session){return false}
+for entry in session.messages{if!chat_entry_valid(entry){return false}}
 }
-for id in ids{if id==selected{return true}}
-return false
+return true
 }
 
 fn chat_refs_valid(refs){
@@ -6219,18 +6229,7 @@ chat_ready=false
 ui_error="对话记录不可读，原文件已保留。"
 return false
 }
-chat_sessions=saved.sessions
-chat_selected_id=saved.selected_id
-let index=chat_session_index(chat_selected_id)
-if index<0||chat_sessions.len()>16
-|| !gm_array(chat_sessions[index].messages){
-chat_ready=false
-ui_error="对话列表无效，原文件已保留。"
-return false
-}
-messages=chat_sessions[index].messages
-chat_last_state=snapshot
-chat_ready=true
+return chat_boot_apply(saved,snapshot)
 }else{
 let imported=[]
 if fs.exists("chat.json"){
@@ -6253,6 +6252,26 @@ messages=imported
 chat_ready=true
 if!chat_save(){return false}
 }
+return chat_boot_finish()
+}
+
+fn chat_boot_apply(saved,snapshot){
+chat_sessions=saved.sessions
+chat_selected_id=saved.selected_id
+let index=chat_session_index(chat_selected_id)
+if index<0||chat_sessions.len()>16
+|| !gm_array(chat_sessions[index].messages){
+chat_ready=false
+ui_error="对话列表无效，原文件已保留。"
+return false
+}
+messages=chat_sessions[index].messages
+chat_last_state=snapshot
+chat_ready=true
+return chat_boot_finish()
+}
+
+fn chat_boot_finish(){
 let interrupted=false
 for i in chat_sessions.len(){
 if!gm_has(chat_sessions[i],"proposals"){chat_sessions[i].proposals=[]interrupted=true}
@@ -6268,6 +6287,58 @@ interrupted=true
 messages=chat_sessions[chat_session_index(chat_selected_id)].messages
 if interrupted&& !chat_save(){return false}
 return true
+}
+
+
+let chat_boot_saved=nil
+let chat_boot_snapshot=""
+let chat_boot_from_backup=false
+fn chat_boot_begin(boot_error){
+chat_ready=false
+if!fs.exists("chat-sessions.json")&& !fs.exists("chat-sessions.backup.json"){
+if!chat_boot_data(){boot_error="对话记录："+ui_error}
+start_timeout(0.03,||boot_load(1,boot_error))return
+}
+chat_boot_read(!fs.exists("chat-sessions.json"),boot_error)
+}
+fn chat_boot_read(from_backup,boot_error){
+chat_boot_from_backup=from_backup
+let path="chat-sessions.json"
+if from_backup{path="chat-sessions.backup.json"}
+chat_boot_snapshot=storage_read(path)
+chat_boot_saved=chat_boot_snapshot.parse_json()
+start_timeout(0.03,||chat_boot_check_header(boot_error))
+}
+fn chat_boot_reject(boot_error){
+if!chat_boot_from_backup&&fs.exists("chat-sessions.backup.json"){
+start_timeout(0.03,||chat_boot_read(true,boot_error))return
+}
+chat_boot_saved=nil chat_boot_snapshot=""
+ui_error="对话记录不可读，原文件已保留。"
+start_timeout(0.03,||boot_load(1,"对话记录："+ui_error))
+}
+fn chat_boot_check_header(boot_error){
+if!chat_state_header(chat_boot_saved){chat_boot_reject(boot_error)return}
+start_timeout(0.03,||chat_boot_check(0,0,boot_error))
+}
+fn chat_boot_check(session_index,entry_start,boot_error){
+let session=chat_boot_saved.sessions[session_index]
+if entry_start==0&& !chat_session_valid(session){chat_boot_reject(boot_error)return}
+let end=min(entry_start+8,session.messages.len())
+for offset in end-entry_start{
+let i=entry_start+offset
+if!chat_entry_valid(session.messages[i]){chat_boot_reject(boot_error)return}
+}
+if end<session.messages.len(){start_timeout(0.03,||chat_boot_check(session_index,end,boot_error))return}
+if session_index+1<chat_boot_saved.sessions.len(){
+start_timeout(0.03,||chat_boot_check(session_index+1,0,boot_error))return
+}
+start_timeout(0.03,||chat_boot_complete(boot_error))
+}
+fn chat_boot_complete(boot_error){
+if!chat_boot_apply(chat_boot_saved,chat_boot_snapshot){boot_error="对话记录："+ui_error}
+chat_boot_saved=nil chat_boot_snapshot=""
+start_timeout(0.03,||boot_load(1,boot_error))
 }
 
 fn chat_new_session(){
@@ -7497,7 +7568,7 @@ boot_load(-1,"")
 
 fn boot_load(step,boot_error){
 if step== -1{ui_layout_boot()notification_boot()}
-if step==0&& !chat_boot_data(){boot_error="对话记录："+ui_error}
+if step==0{chat_boot_begin(boot_error)return}
 if step==1&&chat_ready{
 let active=chat_sessions[chat_session_index(chat_selected_id)]
 gm_set_focus(active.focus_project,active.focus_owner)

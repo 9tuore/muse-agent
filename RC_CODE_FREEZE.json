@@ -1,13 +1,13 @@
 {
   "version": "0.3.26-rc5",
-  "payload_stage": "v12",
-  "readable_sha256": "f2ccdd14527b6b809dd92b0885866f46623337873c9c3771d1dabe2d7ec0ef0b",
-  "payload_sha256": "599aa472ff0de67ae5590889aa289b93c65e7c65b2a5b892937818d9da7c8d62",
+  "payload_stage": "v13b",
+  "readable_sha256": "78cea03eeffc60d67f766c34e846e87ff7cbc8b08657d4b746371bf71d382f9e",
+  "payload_sha256": "b4ac34532eea78fd961e8bfc82c954f217c5c527b3cf6b294942c1f92c3cc861",
   "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
   "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
   "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
   "hub_sha256": "de6840e5aa85c73c915434488da2cd4ec8f633bde7f2f69f6259e17993318e6f",
-  "frozen_at_utc": "2026-10-04T17:53:45.420005+00:00",
+  "frozen_at_utc": "2026-10-04T18:09:02.615612+00:00",
   "budgets_increased": false,
   "status": "DEVELOPMENT_PARTIAL_FINAL_VALIDATION_PENDING",
   "fixture_proof": {
@@ -25,8 +25,8 @@
   },
   "source_compact_token_equivalence": {
     "tokens_equal": true,
-    "original_count": 89748,
-    "artifact_count": 89748
+    "original_count": 90298,
+    "artifact_count": 90298
   },
   "full_shell_preflight": {
     "sessions": 16,
@@ -35,21 +35,24 @@
     "memory_sources": 65,
     "chat_bytes": 880869,
     "memory_bytes": 133259,
-    "input_editable_seconds": 10.396037509,
-    "protected_storage_unchanged": true
+    "input_editable_seconds": 13.247102924,
+    "protected_storage_unchanged": true,
+    "source_sha256": "b4ac34532eea78fd961e8bfc82c954f217c5c527b3cf6b294942c1f92c3cc861"
   },
-  "startup_70": "PENDING_AFTER_REPAIR; V9 failed cold19/30 after18 passes, retained",
+  "startup_70": "PENDING_NEW_FINAL_RETEST; V12 cold16 failed Chat full256 validation after15passes",
   "clean_rebuild": "PENDING_FRESH_FIXED_COMMIT",
   "final_live_chain": "NOT_PASSED_CALENDAR_SYSTEM_WRITE_AND_SECOND_MODEL_PENDING",
   "hub_scope": "LOCAL_EXTENDED_DEVELOPMENT_ONLY",
   "listing_screenshots": "actual visible V12 native Shell; synthetic real model/Goal test data; original captures preserved in private build",
-  "real_model_memory": "V12 UI sixsteps with3actualMiniMax calls; firstPASS recallrevision1, correctionrevision2, forgetnohits; separate synthetic profile",
+  "real_model_memory": "V12 realMiniMax sixsteps/3calls unchanged memory functions; actual V13b related retest pending",
   "bundle_file_sha256": {
     "listing.json": "7a73463b0ab0954216df18b45264a53c4f4e77add229fbb5abbab6df3f9c9a65",
-    "main.splash": "599aa472ff0de67ae5590889aa289b93c65e7c65b2a5b892937818d9da7c8d62",
-    "manifest.json": "caa430cf9a9467725d8d1cb244a488f76ae1a0eb37229ac715c23a7b6a229302",
+    "main.splash": "b4ac34532eea78fd961e8bfc82c954f217c5c527b3cf6b294942c1f92c3cc861",
+    "manifest.json": "1e0f0bcae72d9b1b3e6e7a195a5d06ea74202789a60c8ef9bde211bd4125bc9b",
     "screenshots/02-global-memory.png": "336b144406e24b93addb920b9e305ef9ce4970bc1ee1713de39e7b82204256ef",
     "screenshots/01-main.png": "e3a85b8b5a6a20db1beae6e75d30e64b95a550ca45f7576f46c6ac7d4f80073e",
     "assets/icon.svg": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3"
-  }
+  },
+  "goal_restart": "V12 first restart memory metadata migration changed primary/backup; V13b writes canonical metadata at creation, actual final restart pending",
+  "startup_repair": "Same complete session/entry/refs guards shared; boot validates8 entries/callback; restores Chat only after all valid; no budget/history changes"
 }
