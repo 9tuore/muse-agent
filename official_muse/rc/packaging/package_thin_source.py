@@ -126,8 +126,15 @@ def main():
                 'old_host_runtime_sdk_commit': 'b48618acef0ff291ad3dc23b09946b0b15fa4f2f',
                 'old_host_sdk_lock_sha256': '3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e',
                 'calendar_bridge_fix_in_old_host': False,
-                'rc6_bound_receiver_launcher': 'NOT_INCLUDED_NOT_VERIFIED',
-                'root_rc6_startup': 'COLD2_FAIL_PREPARATION_124MS',
+                'receiver_launcher': 'NOT_INCLUDED_NOT_VERIFIED',
+                'current_application_runtime_validation': 'NOT_OBSERVED_BY_A4_SEE_MATCHING_ROOT_REPORT',
+                'historical_rc6_b9cf_startup': {'application_commit': 'b9cf26b8dc0a9bdb51e493cb6a420636a1291e73',
+                                               'status': 'COLD2_FAIL_PREPARATION_124MS'},
+                'historical_rc7_mail_subject_failure': {'application_commit': '28c5073f9c4304787143f218f8f378500cfd1a57',
+                                                       'case': 'E04', 'status': 'COORDINATOR_REPORTED_ACTUAL_MODEL_FAIL'},
+                'rc8_subject_preservation_fixture': {'application_commit': 'a80bd019db7581511b3891bcc3892548f767a42d',
+                                                    'cases': 86, 'status': 'COORDINATOR_REPORTED_FIXTURE_PASS_NOT_LIVE_RETEST'},
+                'calendar_full_chain_T18': 'NOT_PASSED',
                 'receiver_two_mac_validation': 'NOT_RUN', 'clean_build': 'BLOCKED_CAPACITY',
                 'formal_publication': 'NOT_PUBLISHED', 'a4_gui_or_model_calls': 'NOT_RUN'}
     expected = {}

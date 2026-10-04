@@ -2,7 +2,7 @@
 
 本清单是交总控审阅的最小维护材料集合。它不是可直接运行的 Intel 应用包，也不表示最终 RC 或 App Hub 已发布。
 
-当前新方案见`THIN_SOURCE_DELIVERY_PLAN.md`：`package_thin_source.py`导出rc6签名mirror和冻结公开源码，不含Host、启动器或模型。离线教程为`thin_source_tutorial.html`。等待最终sourceHEAD与SOURCE_MANIFEST后才导出；旧087桌面运行包保留，rc6接收机运行入口和新Calendar Host仍是缺项，PARTIAL状态不改变。完整运行包600MiB门禁保持。
+当前新方案见`THIN_SOURCE_DELIVERY_PLAN.md`：`package_thin_source.py`按application manifest版本导出签名mirror和冻结公开源码，不含Host、启动器或模型。离线教程为`thin_source_tutorial.html`。待交付签名应用为0.3.26-rc8 / `a80bd019db7581511b3891bcc3892548f767a42d`，最终sourceHEAD与SOURCE_MANIFEST仍待总控固定，不生成归档。rc7 E04真实失败保留；rc8的86项fixture支持不代替最终模型复测、70启动或2小时验收。旧087桌面运行包保留，新版本接收机入口和包含Calendar92b1修复的新Host仍缺，PARTIAL不变；完整运行包600MiB门禁保持。
 
 `PUBLIC_MAINTENANCE_ALLOWLIST.json` 逐个列出允许复制的文件、长度和 SHA256。仅复制 `files` 中的精确路径；不递归复制整个 packaging 目录。文件修改后先重新核对清单，不套用旧 SHA。
 
@@ -24,4 +24,4 @@ App Hub 契约/状态和 Calendar Issue/PR 文件是核对材料或草稿。最�
 
 原始日志、旧失败细节、临时源码/patch、诊断缓存脚本、重复 main/bundle、源码归档缓存、vendor、CargoHome、运行 app、模型及私人资料都不在公开 allowlist 中。已有原件继续保留；本清单不授权删除它们。最终应用包有另一份交付清单，不能从本目录整体打包代替。
 
-最新069d R2支持证据：fresh SDK验证及native依赖下载通过，Host构建在低磁盘空间下按总控要求受控停止，未产生成品包；CLEAN_ROOM_R2_FINAL_AUDIT.json保留精确输入/命令/退出/清理和欠项。最终V14源码包仍待定，不把旧阶段当最终clean-build或跨Mac运行通过。
+历史069d R2支持证据：fresh SDK验证及native依赖下载通过，Host构建在低磁盘空间下按总控要求受控停止，未产生成品包；CLEAN_ROOM_R2_FINAL_AUDIT.json保留精确输入/命令/退出/清理和欠项。不把该历史阶段当当前候选的最终clean-build或跨Mac运行通过。
