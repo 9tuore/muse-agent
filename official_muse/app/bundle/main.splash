@@ -51,6 +51,7 @@ let goals=[]
 let selected_id=""
 let memory=[]
 let memory_query=""
+let memory_page_offset=0
 let memory_scope="local"
 let memory_selected_id=""
 let right_open=true
@@ -4929,6 +4930,7 @@ if!gm_has(mem_scope,"project_id")|| !gm_has(mem_scope,"owner_id")||mem_scope.pro
 return gm_same_scope(t["scope"],mem_scope)
 }
 fn gm_source_forgotten(sid,doc){
+if memory_forget.len()==0{return false}
 let i=core_source_index(sid,doc["scope"].account)
 for t in memory_forget{
 if(t.source_id==sid||(i>=0&&t.content_sha256==memory_sources[i].content_sha256))&&gm_tomb_scope(t,doc["scope"]){return true}
@@ -5376,6 +5378,7 @@ return false
 fn gm_forgotten_scope(value,mem_scope){return gm_forgotten_in(value,mem_scope,memory_forget)}
 fn gm_forgotten_in(value,mem_scope,tombs){
 if!gm_text(value){return true}
+if tombs.len()==0{return false}
 for line in value.split("\n"){
 let digest=fs.sha256(gm_normalize_line(line))
 for t in tombs{if t.content_sha256==digest&&gm_tomb_scope(t,mem_scope){return true}}
@@ -8110,7 +8113,7 @@ Secondary{text:"使用这个项目" on_click: ||chat_focus_save()}
 }
 }}
 memory_tools:=View{visible:false width:Fill height:Fit flow:Down spacing:5
-memory_search:=TextInput{width:Fill height:34 empty_text:"搜索已授权的全局记忆" on_change: |text|{memory_query=text ui.page_content.render()}
+memory_search:=TextInput{width:Fill height:34 empty_text:"搜索已授权的全局记忆" on_change: |text|{memory_query=text memory_page_offset=0 ui.page_content.render()}
 draw_bg+:{color:#x3c3e44 color_hover:#x3c3e44 color_focus:#x3c3e44 color_empty:#x3c3e44}
 draw_text+:{color:ink color_hover:ink color_focus:ink color_empty:muted color_empty_hover:muted}}
 }
@@ -8187,7 +8190,16 @@ Primary{text:"保存到全局记忆" on_click: ||memory_add()}
 }
 let found=gm_entries(memory_query)
 if found.len()==0{Label{width:Fill text:"还没有匹配的记忆。" draw_text.color:muted draw_text.wrap:Words}}
-for entry in found{
+if memory_page_offset>=found.len(){memory_page_offset=max(0,floor((found.len()-1)/8)*8)}
+if found.len()>8{
+View{width:Fill height:Fit flow:Right spacing:6
+if memory_page_offset>0{Secondary{text:"上一页" width:72 on_click: ||{memory_page_offset=max(0,memory_page_offset-8)ui.page_content.render()}}}
+Label{width:Fill text:"第 "+(floor(memory_page_offset/8)+1)+" / "+floor((found.len()+7)/8)+" 页 · "+found.len()+" 条" draw_text.color:muted draw_text.text_style.font_size:12}
+if memory_page_offset+8<found.len(){Secondary{text:"下一页" width:72 on_click: ||{memory_page_offset=memory_page_offset+8 ui.page_content.render()}}}
+}
+}
+for offset in min(8,found.len()-memory_page_offset){
+let entry=found[memory_page_offset+offset]
 let doc=entry.document
 RoundedView{width:Fill height:Fit flow:Down padding:14 spacing:7 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
 Label{width:Fill text:doc.payload.value draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:14}

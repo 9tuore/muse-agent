@@ -1,13 +1,13 @@
 {
   "version": "0.3.26-rc5",
-  "payload_stage": "v13b",
-  "readable_sha256": "78cea03eeffc60d67f766c34e846e87ff7cbc8b08657d4b746371bf71d382f9e",
-  "payload_sha256": "b4ac34532eea78fd961e8bfc82c954f217c5c527b3cf6b294942c1f92c3cc861",
+  "payload_stage": "v15",
+  "readable_sha256": "af68b897addd0a3e9f81256a9192b58ae95bf9de72951d4ce05a36949f29c583",
+  "payload_sha256": "5092becd21ece0cdc456ffa60b9a7b85ff01e34b65c68d7743658e7b945b4cd8",
   "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
   "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
   "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
   "hub_sha256": "de6840e5aa85c73c915434488da2cd4ec8f633bde7f2f69f6259e17993318e6f",
-  "frozen_at_utc": "2026-10-04T18:09:02.615612+00:00",
+  "frozen_at_utc": "2026-10-04T18:27:44.793146+00:00",
   "budgets_increased": false,
   "status": "DEVELOPMENT_PARTIAL_FINAL_VALIDATION_PENDING",
   "fixture_proof": {
@@ -21,12 +21,15 @@
     },
     "goal_card_delta": "V11b 9variants/58assert; chat_apply_proposal bytes identical to V12",
     "V12_memory_actions": "64claim correction true 66.055ms wall; forget true56.730ms; noE, host budgets unchanged; not claiming wall64ms",
-    "V12_migration": "6variants7each; old/new2comparisons7each; diskJSONsame; partialforget newprocess9+4readback"
+    "V12_migration": "6variants7each; old/new2comparisons7each; diskJSONsame; partialforget newprocess9+4readback",
+    "V13_metadata": "5related groups/91assert actual two processes, bytes/SHA/mtime unchanged; fixture preparation failures retained",
+    "V13b_chat_boot": "11async semantic groups+independent disk checks, original2render/prep/full synchronous failures retained; overallPARTIAL",
+    "V15_empty_tomb_delta": "28/28 firstPASS actualCard; empty guards only; noE; nonempty original bytes retained"
   },
   "source_compact_token_equivalence": {
     "tokens_equal": true,
-    "original_count": 90298,
-    "artifact_count": 90298
+    "original_count": 90541,
+    "artifact_count": 90541
   },
   "full_shell_preflight": {
     "sessions": 16,
@@ -35,11 +38,11 @@
     "memory_sources": 65,
     "chat_bytes": 880869,
     "memory_bytes": 133259,
-    "input_editable_seconds": 13.247102924,
+    "input_editable_seconds": 13.397822267,
     "protected_storage_unchanged": true,
-    "source_sha256": "b4ac34532eea78fd961e8bfc82c954f217c5c527b3cf6b294942c1f92c3cc861"
+    "source_sha256": "5092becd21ece0cdc456ffa60b9a7b85ff01e34b65c68d7743658e7b945b4cd8"
   },
-  "startup_70": "PENDING_NEW_FINAL_RETEST; V12 cold16 failed Chat full256 validation after15passes",
+  "startup_70": "PENDING_NEW_FINAL_V15; V13b cold2 Memory on_render64ms after complete boot; retained",
   "clean_rebuild": "PENDING_FRESH_FIXED_COMMIT",
   "final_live_chain": "NOT_PASSED_CALENDAR_SYSTEM_WRITE_AND_SECOND_MODEL_PENDING",
   "hub_scope": "LOCAL_EXTENDED_DEVELOPMENT_ONLY",
@@ -47,12 +50,64 @@
   "real_model_memory": "V12 realMiniMax sixsteps/3calls unchanged memory functions; actual V13b related retest pending",
   "bundle_file_sha256": {
     "listing.json": "7a73463b0ab0954216df18b45264a53c4f4e77add229fbb5abbab6df3f9c9a65",
-    "main.splash": "b4ac34532eea78fd961e8bfc82c954f217c5c527b3cf6b294942c1f92c3cc861",
-    "manifest.json": "1e0f0bcae72d9b1b3e6e7a195a5d06ea74202789a60c8ef9bde211bd4125bc9b",
+    "main.splash": "5092becd21ece0cdc456ffa60b9a7b85ff01e34b65c68d7743658e7b945b4cd8",
+    "manifest.json": "bec577601aa0b21a3093fa92a0f42e6157533a4b2fdafe8661a2db113d994949",
     "screenshots/02-global-memory.png": "336b144406e24b93addb920b9e305ef9ce4970bc1ee1713de39e7b82204256ef",
     "screenshots/01-main.png": "e3a85b8b5a6a20db1beae6e75d30e64b95a550ca45f7576f46c6ac7d4f80073e",
     "assets/icon.svg": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3"
   },
   "goal_restart": "V12 first restart memory metadata migration changed primary/backup; V13b writes canonical metadata at creation, actual final restart pending",
-  "startup_repair": "Same complete session/entry/refs guards shared; boot validates8 entries/callback; restores Chat only after all valid; no budget/history changes"
+  "startup_repair": "Same complete session/entry/refs guards shared; boot validates8 entries/callback; restores Chat only after all valid; no budget/history changes",
+  "memory_render_repair": "Render8records/page without truncating storage or search. Empty tomb collections skip source lookup/hash only; nonempty branches byte-identical.",
+  "memory_pagination": {
+    "status": "PASS",
+    "source_sha256": "5092becd21ece0cdc456ffa60b9a7b85ff01e34b65c68d7743658e7b945b4cd8",
+    "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+    "pages": [
+      {
+        "page": 1,
+        "records": 8,
+        "scroll_steps": 19
+      },
+      {
+        "page": 2,
+        "records": 8,
+        "scroll_steps": 20
+      },
+      {
+        "page": 3,
+        "records": 8,
+        "scroll_steps": 19
+      },
+      {
+        "page": 4,
+        "records": 8,
+        "scroll_steps": 19
+      },
+      {
+        "page": 5,
+        "records": 8,
+        "scroll_steps": 19
+      },
+      {
+        "page": 6,
+        "records": 8,
+        "scroll_steps": 19
+      },
+      {
+        "page": 7,
+        "records": 8,
+        "scroll_steps": 20
+      },
+      {
+        "page": 8,
+        "records": 8,
+        "scroll_steps": 20
+      }
+    ],
+    "external_actions": false,
+    "all64_reachable": true,
+    "search_reset": true,
+    "memory_sha256_unchanged": true
+  }
 }
