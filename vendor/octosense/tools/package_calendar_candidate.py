@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAKEPAD_WIDGETS = ROOT.parent / "makepad-splash-budget/widgets/resources"
+MAKEPAD_WIDGETS = ROOT / ".sources/makepad/widgets/resources"
 
 
 def main() -> None:
