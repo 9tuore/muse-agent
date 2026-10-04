@@ -1,3 +1,15 @@
+# 当前交付：0.3.22稳定候选源码 + SDK瘦身
+
+当前产品仍PARTIAL，5 PASS / 13 PARTIAL / 2 BLOCKED，至少18/20尚未达到。原0.3.22签名bundle、manifest和匹配宿主绑定保持不变。未发布、未移动旧Tag。
+
+官方应用入口使用OctoScript/Splash。基础SDK改为五个固定官方commit，由scripts/bootstrap_sdk.py恢复；76个本地差异源码文件及4个内部链接完整保留。依赖的完整树哈希必须与原vendor相同；不是换成没有补丁的上游原版。首次构建需要下载固定SDK，源码导出包不再内嵌621MiB基础副本。
+
+开发入口清理累计移除9个无引用函数及冗余UI，121项合成断言通过；为保护已运行候选，公开原payload不覆盖，清理补丁在patches/muse-source-cleanup-20261004.patch。后续集成必须重新compact、stamp/签名、Gate和受影响验证。当前失败selection fixture和日历hard_windows阻塞保留。
+
+来源清单SOURCE_MANIFEST.json记录当前允许公开的普通文件SHA256；外部SDK锁单独记录，不再把尚未恢复的vendor链接当作源码导出成员。SDK_SLIMMING_REPORT.md记录实际还原、构建与导出检查及未测边界。历史完整SDK可从be552c1e提交恢复。原公开证据、失败和Git历史保留；没有凭据、私人邮件、生产数据库或模型权重。
+
+## 历史交付记录
+
 # 0.3.22 开发源码交付
 
 2026-10-04。总体验收PARTIAL；至少18/20门槛未达到。最新真实payload和匹配宿主逐文件SHA绑定。最终版本一次真实冷启动，旧0.3.20 10+5作为支持证据。源码、评审和运行宿主分开，排除账号、凭据、生产数据库、模型权重、缓存和私密实机截图。未正式申请App Hub；旧Tag不动。

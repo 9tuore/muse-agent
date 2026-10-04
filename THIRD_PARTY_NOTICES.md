@@ -1,8 +1,11 @@
-# 第三方源码与许可证
+# 第三方来源与许可
+
+2026-10-04：官方基础源码由`dependencies.lock.json`锁定commit并恢复到vendor；本仓库跟踪可读本地差异sdk-overlays，不再复制全部基础源码。已通过官方Git树/对象核对基线，后续恢复必须符合原完整SDK树的内容、执行模式和链接哈希。具体重建结果见SDK_SLIMMING_REPORT.md。
+
 
 | 目录 | 原始来源 | 基线 |
 | --- | --- | --- |
-| vendor/octosense | OctoSense-org/OctoSense | 归档标签7f962547cd8035ed2bb05962cf7824d8aa33e3a3；原本没有Git对象核验 |
+| vendor/octosense | OctoSense-org/OctoSense | 锁定commit 7f962547cd8035ed2bb05962cf7824d8aa33e3a3；本轮官方Git树已核对 |
 | vendor/app-hub | OctoSense-org/OctoSense-App-Hub | 核验基线e8601b80ce104db2e48208094714bdcffdce6b5a，隔离扩展HEAD97d75ac011818d4f8978f1a9e19cfae5e678d41d |
 | vendor/makepad | OctoSense-org/makepad | runtime.json锁定bf318136a375c4d1fb7ee10e13e27336b6d98744，含 Splash 入口、Metal 回调及 storage SHA-256 交付补丁 |
 | vendor/octoscript-makepad | OctoSense-org/Octoscript-Makepad | native-runtime.lock.json锁定019e6bf043b484676ff39d6ff5be58a1e94abed8 |

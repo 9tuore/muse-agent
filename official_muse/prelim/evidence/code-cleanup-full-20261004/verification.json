@@ -1,0 +1,122 @@
+{
+  "scope": "LOCAL_SOURCE_CLEANUP_VERIFICATION",
+  "source_sha256": "c3ca33dbc2ce5dbc6799b4e5701bcfe3d4269a6beb2d2a8d797ba5689f9988ca",
+  "unused_imports": [
+    {
+      "file": "official_muse/phase2/tests/zh_ui_smoke.py",
+      "removed_imports": [
+        "time"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "official_muse/prelim/tests/chat_mutation.py",
+      "removed_imports": [
+        "hashlib"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "official_muse/prelim/tests/memory_budget_isolation.py",
+      "removed_imports": [
+        "Path"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "official_muse/prelim/tests/memory_regression.py",
+      "removed_imports": [
+        "Path"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "official_muse/ui_memory/tests/memory_acceptance.py",
+      "removed_imports": [
+        "Path"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "official_muse/ui_memory/tests/memory_budget_load.py",
+      "removed_imports": [
+        "Path"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "official_muse/ui_memory/tests/overnight_restart_perf.py",
+      "removed_imports": [
+        "urlopen"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "scripts/test_g04_native_layout.py",
+      "removed_imports": [
+        "tempfile"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "scripts/test_g04_textedit_ui.py",
+      "removed_imports": [
+        "time"
+      ],
+      "other_AST_identical": true
+    },
+    {
+      "file": "scripts/test_muse_mail_bridge_ui.py",
+      "removed_imports": [
+        "time"
+      ],
+      "other_AST_identical": true
+    }
+  ],
+  "installed_old_app_binary_plist_signature_unchanged": true,
+  "production_data_accessed": false,
+  "core_protected_sources_changed": false,
+  "historic_evidence_changed": false,
+  "memory_bool_checks": 59,
+  "memory_checks_passed": true,
+  "memory_no_external_transport": true,
+  "mail_checks": 40,
+  "chat_checks": 15,
+  "goal_checks": 7,
+  "visible_window": {
+    "source_sha256": "c353a98b140900df652e086537e68d56ef1c8a2a51d89830ba665166e38ebb9f",
+    "size": "990x539",
+    "test_kind": "FIXTURE_VISIBLE_CARD_HOST",
+    "captures": [
+      "chat",
+      "日历",
+      "设置"
+    ],
+    "external_actions": false,
+    "png_pixels": [
+      1980,
+      1078
+    ],
+    "long_scene": false,
+    "host_calls": [],
+    "unexpected_side_effects": [],
+    "interactions": {},
+    "input_check": {},
+    "page_entry_checks": {}
+  },
+  "historical_selection_fixture": {
+    "current": "ERROR",
+    "baseline": "ERROR",
+    "same_error": "property status not found in prototype chain",
+    "reason": "Old fixture calendar_links omits required status; production calendar_select_link unchanged",
+    "original_records_preserved": true
+  },
+  "real_model": false,
+  "real_mail_send": false,
+  "real_calendar_write": false,
+  "deployment_updated": false,
+  "runtime_budgets_changed": false,
+  "grants_changed": false,
+  "visual_initial_chat": "Early capture had missing button glyphs; original retained in ignored evidence",
+  "visual_readback": "Chat captured again after ordinary page navigation; inspect actual PNG"
+}

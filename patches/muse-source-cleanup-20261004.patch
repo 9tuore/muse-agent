@@ -1,0 +1,262 @@
+diff --git a/official_muse/app/source/main.splash b/official_muse/app/source/main.splash
+index 1b2a675..4bbbb77 100644
+--- a/official_muse/app/source/main.splash
++++ b/official_muse/app/source/main.splash
+@@ -907,13 +907,6 @@ fn calendar_list_events(){
+     })
+ }
+
+-fn calendar_two_number(part){
+-    if part.len() != 2 { return nil }
+-    let parsed = part.to_f64()
+-    if parsed != parsed { return nil }
+-    return parsed
+-}
+-
+ fn calendar_iso_utc(value){
+     let epoch = calendar_iso_epoch(value)
+     if epoch == nil { return "" }
+@@ -2193,13 +2186,6 @@ fn mail_enabled(){
+     return false
+ }
+
+-fn memory_set_scope(next){
+-    memory_scope = next
+-    memory_selected_id = ""
+-
+-    ui.page_content.render()
+-}
+-
+ fn memory_select(id){
+     let i = -1
+     for j in memory.len() { if memory[j].document.id == id && gm_access(memory[j].document) { i = j } }
+@@ -2982,12 +2968,6 @@ fn mail_watch_scan(account_id,ai,index,offset,notify){
+     })
+ }
+
+-fn mail_watch_show(){
+-    right_tab = "来信"
+-    right_page_mode = true
+-    redraw()
+-}
+-
+ fn mail_watch_toggle(){
+     if !mail_watch_writable { return }
+     mail_watch.enabled = !mail_watch.enabled
+@@ -4688,54 +4668,6 @@ fn core_add_claim(document){
+     return core_commit_memory(next_claims,memory_sources,memory_forget)
+ }
+
+-fn core_find_memory(query,account_scope,goal_id){
+-    let found = []
+-    if account_scope == "" { return found }
+-    for entry in memory {
+-        let doc = entry.document
+-        if doc["scope"].account == account_scope && !doc.payload.deleted
+-            && (goal_id == "" || doc.payload.subject_id == goal_id)
+-            && (query == "" || doc.payload.value.split(query).len() > 1
+-                || doc.payload.predicate.split(query).len() > 1) {
+-            found.push(entry)
+-        }
+-    }
+-    return found
+-}
+-
+-fn core_correct_memory(id,value,account_scope){
+-    let i = core_memory_index(id,account_scope)
+-    if i < 0 || memory[i].document.payload.deleted || value.trim() == "" || value.len() > 4000 {
+-        core_error = "记忆不存在、已删除或更正内容无效。"
+-        return false
+-    }
+-    let current = memory[i]
+-    let next_claims = []
+-    let now = core_utc_iso(time_now())
+-    let source_id = "source:user:" + floor(time_now()) + "-" + random_u32()
+-    let source = {source_id: source_id kind: "user" locator: "user-correction:" + id
+-        content_sha256: fs.sha256(value.trim()) observed_at: now updated_at: now support_excerpt: core_excerpt(value.trim())}
+-    source["scope"] = core_memory_scope(account_scope)
+-    let next_sources = []
+-    for item in memory_sources { next_sources.push(item) }
+-    next_sources.push(source)
+-    for j in memory.len() {
+-        if j == i {
+-            let revised = current.to_json().parse_json()
+-            revised.document.revision = revised.document.revision + 1
+-            revised.document.updated_at = now
+-            revised.document.origin = {type: "user" ref: "muse-ui"}
+-            revised.document.payload.value = value.trim()
+-            revised.document.payload.epistemic_type = "user_statement"
+-            revised.document.payload.source_ids = [source_id]
+-            revised.document.payload.observed_at = now
+-            revised.source_history.push(source_id)
+-            next_claims.push(revised)
+-        } else { next_claims.push(memory[j]) }
+-    }
+-    return core_commit_memory(next_claims,next_sources,memory_forget)
+-}
+-
+ fn core_pin_memory(id,pinned,account_scope){
+     let i = core_memory_index(id,account_scope)
+     if i < 0 || memory[i].document.payload.deleted { core_error = "记忆不存在或已删除。" return false }
+@@ -4750,37 +4682,6 @@ fn core_pin_memory(id,pinned,account_scope){
+     return core_commit_memory(next_claims,memory_sources,memory_forget)
+ }
+
+-fn core_delete_memory(id,account_scope){
+-    let i = core_memory_index(id,account_scope)
+-    if i < 0 || memory[i].document.payload.deleted { core_error = "记忆不存在或已删除。" return false }
+-    let old = memory[i]
+-    let next_forget = []
+-    for item in memory_forget { next_forget.push(item) }
+-    for source_id in old.source_history {
+-        if !core_is_forgotten(source_id,old.document.payload.subject_id,old.document.payload.predicate,account_scope) {
+-            next_forget.push({source_id: source_id subject_id: old.document.payload.subject_id
+-                predicate: old.document.payload.predicate account_scope: account_scope at: core_utc_iso(time_now())
+-                content_sha256: memory_sources[core_source_index(source_id,account_scope)].content_sha256})
+-        }
+-    }
+-    let next_claims = []
+-    for j in memory.len() {
+-        if j == i {
+-            let revised = old.to_json().parse_json()
+-            revised.document.revision = revised.document.revision + 1
+-            revised.document.updated_at = core_utc_iso(time_now())
+-            revised.document.payload.value = ""
+-            revised.document.payload.source_ids = []
+-            revised.document.payload.relations = []
+-            revised.document.payload.deleted = true
+-            revised.pinned = false
+-            revised.source_history = []
+-            next_claims.push(revised)
+-        } else { next_claims.push(memory[j]) }
+-    }
+-    return core_commit_memory(next_claims,memory_sources,next_forget)
+-}
+-
+ // Store only the verified receipt summary; source digest covers the exact stored artifact.
+ fn core_remember_result(goal_id,run_id,path,account_scope,source_id,locator,prior_sources){
+     let memory_id = "memory:result:" + run_id
+@@ -5767,14 +5668,6 @@ fn gm_import(raw){
+ }
+ // END GLOBAL_MEMORY
+
+-fn state_label(value){
+-    if value == "planned" { return "waiting_user" }
+-    if value == "completed" { return "success" }
+-    if value == "failed" { return "error" }
+-    if value == "paused" || value == "cancelled" { return "disabled" }
+-    return value
+-}
+-
+ fn status_name(value){
+     if value == "DRAFT" || value == "candidate" || value == "editing" { return "草稿 / 待核对" }
+     if value == "sending" || value == "in_flight" { return "宿主处理中" }
+@@ -5863,18 +5756,6 @@ fn capability_name(value){
+     return value
+ }
+
+-fn memory_scope_name(value){
+-    if value == "local" { return "本地目标" }
+-    return "邮箱账号 " + value
+-}
+-
+-fn memory_type_name(value){
+-    if value == "fact" { return "已核验事实" }
+-    if value == "user_statement" { return "用户陈述" }
+-    if value == "external_claim" { return "外部陈述" }
+-    if value == "inference" { return "推断" }
+-    return "未识别类型"
+-}
+ fn source_kind_name(value){
+     if value == "user" { return "用户资料" }
+     if value == "runtime_receipt" { return "执行回执" }
+@@ -5932,9 +5813,7 @@ fn set_page(next){
+     right_page_mode = false
+     goal_mode = false
+     ui.page_title.set_text(page_name(next))
+-    ui.status_line.set_visible(false)
+     ui.goal_fields.set_visible(goal_mode)
+-    ui.result_shortcut.set_visible((next != "Chat" && next != "Goals" && next != "Goal Detail") || goal_mode)
+     ui.page_content.set_visible(next != "Chat" && next != "Goal Detail" && next != "Calendar" && (next != "Mail" || !mail_compose_open))
+     ui.chat_list.set_visible(next == "Chat")
+     ui.detail_view.set_visible(next == "Goal Detail")
+@@ -5943,7 +5822,7 @@ fn set_page(next){
+     ui.calendar_fields.set_visible(next == "Calendar" && calendar_enabled() && calendar_permission == "full_access" && calendar_form_open)
+     ui.memory_tools.set_visible(next == "Memory")
+
+-    ui.goal_composer.set_visible(next == "Chat" || next == "Goals" || next == "Goal Detail")
++    ui.goal_composer.set_visible(next == "Chat" || next == "Goal Detail")
+     if next == "Mail" && mail_accounts.len() == 0 { mail_accounts_load() }
+     if next == "Calendar" && calendar_enabled() {
+         calendar_status_load(false)
+@@ -6214,7 +6093,7 @@ fn chat_restore_goal_view(){
+ }
+ fn chat_shows_goal(){
+     if task == nil { return false }
+-    if page == "Goals" || page == "Goal Detail" { return true }
++    if page == "Goal Detail" { return true }
+     let i = chat_session_index(chat_selected_id)
+     return i >= 0 && gm_has(chat_sessions[i],"goal_id") && chat_sessions[i].goal_id == task.id
+ }
+@@ -7328,16 +7207,7 @@ fn redraw(){
+     ui.chat_delete_prompt.render()
+     ui.chat_focus_bar.set_visible(page == "Chat")
+     ui.chat_focus_bar.render()
+-    let goal_state = "idle"
+-    if task != nil { goal_state = state_label(task.status) }
+-    let execution = "idle"
+-    if goal_state == "success" { execution = "success" }
+-    if goal_state == "error" || ui_error != "" { execution = "error" }
+-    if model_pending || chat_pending || goal_state == "running" { execution = "running" }
+-    ui.status_line.set_text("目标 · " + status_name(goal_state) + "   执行 · " + status_name(execution) + "   模型由 OctoSense 管理")
+-    ui.status_line.set_visible(false)
+     ui.goal_fields.set_visible(goal_mode)
+-    ui.result_shortcut.set_visible((page != "Chat" && page != "Goals" && page != "Goal Detail") || goal_mode)
+     ui.central_main.set_visible(!right_page_mode)
+     ui.right_column.set_visible(right_open && !right_page_mode)
+     ui.right_page.set_visible(right_page_mode)
+@@ -7349,8 +7219,7 @@ fn redraw(){
+     ui.calendar_fields.set_visible(page == "Calendar" && calendar_enabled() && calendar_permission == "full_access" && calendar_form_open)
+     ui.memory_tools.set_visible(page == "Memory")
+
+-    ui.goal_composer.set_visible(page == "Chat" || page == "Goals" || page == "Goal Detail")
+-    ui.composer_clearance.set_visible(false)
++    ui.goal_composer.set_visible(page == "Chat" || page == "Goal Detail")
+     chat_render()
+     ui.page_content.render()
+     ui.detail_view.render()
+@@ -7895,9 +7764,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
+             View{width: Fill height: Fit flow: Right spacing: 5
+                 page_title := Label{width: Fill text: "对话" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 21}}
+                 Secondary{text: "结果" width: 60 on_click: || right_as_page()}
+-                result_shortcut := Secondary{visible: false text: "结果页" width: 64 on_click: || right_as_page()}
+             }
+-            status_line := Label{width: Fill text: "目标 · 空闲   执行 · 空闲   模型由 OctoSense 管理" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
+         }
+         chat_focus_bar := View{visible: true width: Fill height: Fit flow: Down spacing: 4 on_render: || {
+             View{width: Fill height: Fit flow: Right spacing: 4
+@@ -8129,16 +7996,6 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
+                 }
+             }
+             }
+-            if page == "Calendar" {
+-                calendar_legacy_body := ScrollYView{width: Fill height: Fill flow: Down spacing: 9
+-                Label{text: "系统日历" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
+-                SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 6 draw_bg.color: panel
+-                    Label{text: "当前宿主版本尚无日历服务" draw_text.color: #xff9c94 draw_text.text_style: theme.font_bold{font_size: 14}}
+-                    Label{width: Fill text: "查询、新建、修改和删除依赖正在开发的受控宿主扩展；此版本不会把本地 JSON 冒充系统日历。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
+-                    Label{width: Fill text: "扩展接口核实并通过权限准入后，本页才会启用真实系统操作。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
+-                }
+-            }
+-            }
+             if page == "Capabilities" {
+                 capabilities_body := ScrollYView{width: Fill height: Fill flow: Down spacing: 9
+                 Label{text: "能力与授权" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
+@@ -8621,7 +8478,6 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
+             }
+             notice := Label{visible: false width: Fill text: "写下目标和资料，再查看计划。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
+         }
+-        composer_clearance := View{visible: false width: Fill height: 0}
+     }
+     result_rail := View{width: 32 height: Fill flow: Down padding: 2 spacing: 6
+         Nav{width: 28 text: "›" on_click: || right_column_toggle()}

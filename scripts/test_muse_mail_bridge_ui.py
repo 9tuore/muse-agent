@@ -7,7 +7,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
 from pathlib import Path
 
 from test_muse_desktop_package import ax, wait_for, window_ready

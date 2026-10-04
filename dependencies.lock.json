@@ -1,0 +1,405 @@
+{
+  "schema": 1,
+  "baseline_source_head": "be552c1e3d41602370a8a9bcc64c9f1bcab8f3a2",
+  "method": "pinned_official_archive_plus_exact_local_overlay",
+  "product_version": "0.3.22",
+  "dependencies": [
+    {
+      "name": "makepad",
+      "repository": "https://github.com/OctoSense-org/makepad",
+      "commit": "bf318136a375c4d1fb7ee10e13e27336b6d98744",
+      "archive_url": "https://codeload.github.com/OctoSense-org/makepad/tar.gz/bf318136a375c4d1fb7ee10e13e27336b6d98744",
+      "delete": [
+        ".gitattributes",
+        ".gitignore",
+        "apps/photos/resources/image-tiles/smbc/library.sqlite",
+        "examples/map/local",
+        "libs/asset/client/.gitignore",
+        "libs/gif/weezl/.gitignore",
+        "libs/jni-sys/.gitignore",
+        "libs/piano_model/tools/.gitignore",
+        "libs/rapier/vendor/safe_arch/.gitignore",
+        "libs/rapier/vendor/wide/.gitignore",
+        "libs/regex/src/fuzz/.gitignore",
+        "libs/sdfer/.gitignore",
+        "libs/show_control/resources/dmx/2025-04-30/.gitignore",
+        "libs/stitch/fuzz/.gitignore",
+        "libs/vulkan/thiserror/build/probe.rs",
+        "libs/xatlas/.gitignore",
+        "tools/open_harmony/deveco/.gitignore",
+        "tools/open_harmony/deveco/entry/.gitignore",
+        "tools/open_harmony/deveco/entry/libs/arm64-v8a/.gitkeep",
+        "tools/windows_strip/.gitignore"
+      ],
+      "files": 8724,
+      "tree_sha256": "1d77976e6da1a8d26c690d3bc606bd4990779e9098d778f4445c126087e00096",
+      "overlay_files": {
+        "Cargo.lock": {
+          "mode": "100644",
+          "sha256": "c5371d6ed3a0bf38cec727b320fd7699bdb6d52c36b1b5796481138f83192724"
+        },
+        "apps/sheets/demos/household_budget.csv": {
+          "mode": "100644",
+          "sha256": "4945232b463a6670b6470bac2da8c3b44d3bd2f38c780429696efca8f48a8965"
+        },
+        "apps/sheets/demos/project_plan.csv": {
+          "mode": "100644",
+          "sha256": "ba4b2d0c0e3ecc39bf8f1966dde9bd111baf98c579409b12701f3c7b5bba138a"
+        },
+        "apps/sheets/demos/sales_table.csv": {
+          "mode": "100644",
+          "sha256": "1d0ed5cfb6245763b11f454e6272a0563f25ab0785c8fbea3c6e8dd4f1b49e12"
+        },
+        "draw/src/shader/draw_text.rs": {
+          "mode": "100644",
+          "sha256": "2964011bfc1507955a90f544502d0e98c07e0e1627e73bc4c43fcd352c4e7664"
+        },
+        "libs/i_overlay/LICENSE-APACHE": {
+          "mode": "100644",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        "platform/script/src/vm.rs": {
+          "mode": "100644",
+          "sha256": "28dddefa959ae6ec8c34f7df40140cd6bea47773e0cb98dff8d9593aec6e81d3"
+        },
+        "platform/src/accessibility.rs": {
+          "mode": "100644",
+          "sha256": "937e3c14b608a5e4d33466da1ed3151697d897d1e68cd0af0f75b200b703863a"
+        },
+        "platform/src/cx.rs": {
+          "mode": "100644",
+          "sha256": "df98d0f00e146331085bae680c65b2ad8a8f356cb260476bd1bcd75a16bf3759"
+        },
+        "platform/src/event/event.rs": {
+          "mode": "100644",
+          "sha256": "b958ae1550c0d0a8ac463f8ce7361ab62ef0134251285c0f16373466925593ff"
+        },
+        "platform/src/lib.rs": {
+          "mode": "100644",
+          "sha256": "11889206c84b9adb954db8c3b41ce400154d1dd38dd1ff2d01967c75d20d53cd"
+        },
+        "platform/src/os/apple/metal.rs": {
+          "mode": "100644",
+          "sha256": "e1b66bc2c84700d59999e903077ffe9892a2659d9d91aa023ffc4de9815994b8"
+        },
+        "platform/src/os/linux/android/android.rs": {
+          "mode": "100644",
+          "sha256": "62aec4be038d5443622883680cf69678f728f81f9d5d9e666125b03eb96a7e5d"
+        },
+        "platform/src/os/linux/android/android_ime.rs": {
+          "mode": "100644",
+          "sha256": "a8467a847300518ec7ddf15df4e0143796da4dd343cdc25fdaa89d7a4b7c82f0"
+        },
+        "platform/src/os/linux/android/android_jni.rs": {
+          "mode": "100644",
+          "sha256": "7636000e5c26e29f7057aaef97890a28588028380cc738f291faa87d55af95e1"
+        },
+        "platform/src/os/linux/android/mod.rs": {
+          "mode": "100644",
+          "sha256": "909a20626145e13c6d28da4914c4f52f8e43461b0afb51f4f65371cfe3cec962"
+        },
+        "platform/src/os/linux/gl_sys.rs": {
+          "mode": "100644",
+          "sha256": "fa43656abc6d72425fb95f19bbdd924365449407537f60dde1edaf41baa2c06e"
+        },
+        "platform/src/os/linux/opengl.rs": {
+          "mode": "100644",
+          "sha256": "e1b111a4f99beea0059797a7a69b4f92366756e37213b5f2b37a7833435058d6"
+        },
+        "platform/src/window.rs": {
+          "mode": "100644",
+          "sha256": "524d3b0b5d7c1b27bd86be101692b696e7664966c5c51ed7c04ae6ec7bd7243e"
+        },
+        "tools/agents.ps1": {
+          "mode": "100644",
+          "sha256": "ae7df177f1be3934727c3c2795880414741760d8cb7f0e83390ca27b909146d5"
+        },
+        "tools/aihub-node-update.ps1": {
+          "mode": "100644",
+          "sha256": "ccad32a2933e6c93341876658e740f740db34b5930e7640b9edab8555da308cd"
+        },
+        "tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadActivity.java": {
+          "mode": "100644",
+          "sha256": "76381e90eb933a4108d07713d3c158e35ce550a547714f2c343f2f1d29ccc6e8"
+        },
+        "tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadInputConnection.java": {
+          "mode": "100644",
+          "sha256": "c5ee736a1c2e8baa2ce73bfae9346868d80fd28ac1d51f867022326aeaf59537"
+        },
+        "tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadNative.java": {
+          "mode": "100644",
+          "sha256": "4203ec4281f80654299d78fb47e5838d8fda023fe669eef78bdd2b2a5dba54a7"
+        },
+        "tools/open_harmony/cmd/aarch64-unknown-linux-ohos-clang++.cmd": {
+          "mode": "100644",
+          "sha256": "248f7dfe1d7e0081b6b6b482582e9662e81201bf4ffca61d1e0c9069fd423a0e"
+        },
+        "tools/open_harmony/cmd/aarch64-unknown-linux-ohos-clang.cmd": {
+          "mode": "100644",
+          "sha256": "2c6691f2d42a984c49167b0a81663b024cc1cdd8abb05b7a83a219abacae589d"
+        },
+        "tools/open_harmony/cmd/x86_64-unknown-linux-ohos-clang++.cmd": {
+          "mode": "100644",
+          "sha256": "3bcc8a081fb5f920953ba9e05b6eb83aae54df0769ff9887d9d5140fdf954906"
+        },
+        "tools/open_harmony/cmd/x86_64-unknown-linux-ohos-clang-cl.cmd": {
+          "mode": "100644",
+          "sha256": "2894732a7f46df3d7944806bf272fda9841def80bd859c7c1276c6ff9847db75"
+        },
+        "tools/open_harmony/cmd/x86_64-unknown-linux-ohos-clang.cmd": {
+          "mode": "100644",
+          "sha256": "18e0021dc989b3bd120d7ab731db739a8ea9b944a5adbb1413cfcefa10c0efe2"
+        },
+        "tools/rustup/windows_rustup.bat": {
+          "mode": "100644",
+          "sha256": "c0393e060bccf373b9afa49da17ed83e2671d92a77b27997535ec9ed1f0f13a6"
+        },
+        "widgets/src/animator.rs": {
+          "mode": "100644",
+          "sha256": "ab7810d66840cdb907be03fdecb72fd6fffe4935c4e7b94444b0bb806ba9218d"
+        },
+        "widgets/src/splash.rs": {
+          "mode": "100644",
+          "sha256": "a6cddfc5fba7cb3d87b73fbaabaee4c29d753c0d51f1d0302915e2a3862423a7"
+        },
+        "widgets/src/splash_storage.rs": {
+          "mode": "100644",
+          "sha256": "b8afad29183ab97b05f5ef9de08491f9a12bf415debb1c79dd29f7e112359dd3"
+        },
+        "widgets/src/text_input.rs": {
+          "mode": "100644",
+          "sha256": "3a28f69ca87bde528173545164ce6a0e8a9c621169defe73cf9102397e298910"
+        },
+        "widgets/src/view.rs": {
+          "mode": "100644",
+          "sha256": "a6d266a567c12e38cd718aa42480356bd3fd09a092bf2b73f7f6ad39c72f2105"
+        }
+      }
+    },
+    {
+      "name": "octosense",
+      "repository": "https://github.com/OctoSense-org/OctoSense",
+      "commit": "7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
+      "archive_url": "https://codeload.github.com/OctoSense-org/OctoSense/tar.gz/7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
+      "delete": [
+        "apps/appcard/docs/ohos-evidence/install-rejection.log"
+      ],
+      "files": 2309,
+      "tree_sha256": "245528b38ceddcb14ea4457034ad41fbe4877cef18910145f70aed0391c4d128",
+      "overlay_files": {
+        ".sources/app-hub": {
+          "mode": "120000",
+          "target": "../../app-hub"
+        },
+        ".sources/makepad": {
+          "mode": "120000",
+          "target": "../../makepad"
+        },
+        ".sources/octoscript": {
+          "mode": "120000",
+          "target": "../../octoscript"
+        },
+        ".sources/octoscript-makepad": {
+          "mode": "120000",
+          "target": "../../octoscript-makepad"
+        },
+        "Cargo.lock": {
+          "mode": "100644",
+          "sha256": "ee7f8402951342b4b22afaeca4cf08b2e3a71c7fdf43720326d6f0f91559b9fd"
+        },
+        "Cargo.toml": {
+          "mode": "100644",
+          "sha256": "1bc1a38c60bd6e9bbb25a57ece30ed41701de1bd6bff7b20f746dc7f428bf9b4"
+        },
+        "apps/ai-providers/bundle/main.splash": {
+          "mode": "100644",
+          "sha256": "3e12f7567212b45297e1b24b3f5840c94167764a08252b7d6eff2f0f39050615"
+        },
+        "apps/ai-providers/bundle/manifest.json": {
+          "mode": "100644",
+          "sha256": "d135ffe8a316306be63f03192301dca3e85c88141a28c7ba92f0a5544258ab8b"
+        },
+        "apps/ai-providers/host-service/examples/model_complete_live.rs": {
+          "mode": "100644",
+          "sha256": "5059ea21aefd5917ac7128029f6e90a18a772b3ddb1590940bcf1f45e058762a"
+        },
+        "apps/ai-providers/host-service/src/complete/mod.rs": {
+          "mode": "100644",
+          "sha256": "3cb27be291c0cb5cc77aa9acfca313dffb8b05fcd7eb0c0ab5b21352bcad0f12"
+        },
+        "apps/ai-providers/host-service/src/complete/wire.rs": {
+          "mode": "100644",
+          "sha256": "d47db1ed0d66ae74633a7702eb5cb60997eca95c489ffe4de822f0b84573106a"
+        },
+        "apps/ai-providers/host-service/src/lib.rs": {
+          "mode": "100644",
+          "sha256": "2ae3c89d0146ec9b87c569d70fa951c5ba2330065c9de240e44b2d7c2dd37fb7"
+        },
+        "apps/ai-providers/host-service/src/sheets.rs": {
+          "mode": "100644",
+          "sha256": "32a1bce34997215f1a4090fe08e74a267dcee68c7b475aa45f45f9d901074372"
+        },
+        "apps/ai-providers/host-service/tests/complete.rs": {
+          "mode": "100644",
+          "sha256": "2ab83b78f19e5ae1a21a927e58efe729e946742bdfbcbe2480d57ed24227bbad"
+        },
+        "apps/calendar/host-service/Cargo.toml": {
+          "mode": "100644",
+          "sha256": "65a56a6eaa58870838ad7edb63ff5f82c019a82bb2d0d2479ee888dac3d2c31b"
+        },
+        "apps/calendar/host-service/build.rs": {
+          "mode": "100644",
+          "sha256": "c5536479c7dff511aa9059b2b86243c5662904c3b80c59589846318ccd820c34"
+        },
+        "apps/calendar/host-service/src/eventkit.m": {
+          "mode": "100644",
+          "sha256": "f961ae5c0b3ff5f4079e2c9c467d0a4070080acac8325e167eb04ebdf0fb2a1f"
+        },
+        "apps/calendar/host-service/src/lib.rs": {
+          "mode": "100644",
+          "sha256": "9ed94317c35a7b8b487798c434c63078f34b50e72f4a8f8d8a968ea744229588"
+        },
+        "apps/mail/host-service/src/imap.rs": {
+          "mode": "100644",
+          "sha256": "7e401ec4835e1d851ca04de94304c282a7dd00ebcde3ebe19dce688644bbc765"
+        },
+        "apps/mail/host-service/src/lib.rs": {
+          "mode": "100644",
+          "sha256": "c4de95999d399389cc1681af77f345ef66fa2a6cbdf55b8940b67856e90f33aa"
+        },
+        "apps/mail/host-service/src/network.rs": {
+          "mode": "100644",
+          "sha256": "92291f0b3f2df9ab8af04b3597678e4b134fd310202575f2f25a4d37fd76c7bf"
+        },
+        "apps/mail/host-service/src/vault.rs": {
+          "mode": "100644",
+          "sha256": "5a81d0df77a3d8ea7235db368970ccdd0d38fe1c8c1a0c94187e62c76fd47a98"
+        },
+        "crates/ai-host/src/toolbox_peers.rs": {
+          "mode": "100644",
+          "sha256": "47519a75799272fa25b93dceef3f385254b466db5276b3dfd6d1b5d565f9160b"
+        },
+        "crates/shell/Cargo.toml": {
+          "mode": "100644",
+          "sha256": "5eb601a4d5cb4eb653c79ac4b2a7a32f94e73953bb927896aa8530c19b126d3b"
+        },
+        "crates/shell/resources/startup.splash": {
+          "mode": "100644",
+          "sha256": "015a100d4c1b61f94538214726b046bddcdb6adf07ddd7908cd1e1cfc25ac0c7"
+        },
+        "crates/shell/src/apps.rs": {
+          "mode": "100644",
+          "sha256": "9cbdbdab2b8229668631b741220dfae1cf2f1a7f54397f414e85984a4ca8ca8a"
+        },
+        "crates/shell/src/binds.rs": {
+          "mode": "100644",
+          "sha256": "781230af7b53f028475f416e93eab0c5563f1befcfa0854c565d854a29eee155"
+        },
+        "crates/shell/src/desk.rs": {
+          "mode": "100644",
+          "sha256": "bd3b277a32bee2b4e894b3f3e05b563db3bb871e1b9b7d623546bc612da478fd"
+        },
+        "crates/shell/src/desktop.rs": {
+          "mode": "100644",
+          "sha256": "342cb9b6057440e06f175834ccd7b5a271ca3f6ac6dfee96b08dcced10a05e81"
+        },
+        "crates/shell/src/host.rs": {
+          "mode": "100644",
+          "sha256": "52b224aa5c97e506cc2f19028670434b1e1ca375d344ec3acacfc2b1f73d9581"
+        },
+        "crates/shell/src/run_view.rs": {
+          "mode": "100644",
+          "sha256": "f555d03ee7756083e4e8abf33611572fa808c483088de1f6ea1a55aa4feb7ab6"
+        },
+        "crates/shell/src/shell/bar.rs": {
+          "mode": "100644",
+          "sha256": "0a53d90ef167f76834cac06294e8fdf37441ca83106c505768a6bc10aa6ec19a"
+        },
+        "crates/shell/src/shell/launcher.rs": {
+          "mode": "100644",
+          "sha256": "c51f23eeefed9be97697dbcafe5fa944d3ba744237d451d64e72503f91154f0a"
+        },
+        "crates/shell/src/shell/menu.rs": {
+          "mode": "100644",
+          "sha256": "d1b14196e5a2827b8ea5391a3c730dae7aff2b6b2c389724b30cb74086b5661e"
+        },
+        "native-apps.json": {
+          "mode": "100644",
+          "sha256": "6f0bfd5009046beb79274ecda0421461fdcf3eac25de30ad5f78fd889ff79780"
+        },
+        "tools/package_calendar_candidate.py": {
+          "mode": "100644",
+          "sha256": "bd7e8aed1412758a2972f5f722ccc5d7cbb6e71e3212d3e7c06559a7d7f2cef7"
+        }
+      }
+    },
+    {
+      "name": "app-hub",
+      "repository": "https://github.com/OctoSense-org/OctoSense-App-Hub",
+      "commit": "e8601b80ce104db2e48208094714bdcffdce6b5a",
+      "archive_url": "https://codeload.github.com/OctoSense-org/OctoSense-App-Hub/tar.gz/e8601b80ce104db2e48208094714bdcffdce6b5a",
+      "delete": [],
+      "files": 121,
+      "tree_sha256": "dd0becd97554c0349d58313bba065f17eb0d191c3ae81927890cf269b5af7064",
+      "overlay_files": {
+        "Cargo.lock": {
+          "mode": "100644",
+          "sha256": "14cab6d67325786d9d79c06576d20fa64032676754389201a1664129c2712107"
+        },
+        "LICENSE": {
+          "mode": "100644",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        "crates/app-hub-app/src/catalog.rs": {
+          "mode": "100644",
+          "sha256": "3c93d4ae4cb6589c5fa2d3dd8f8a85914ab4ca399c80fca28ecddee6ddbbd109"
+        },
+        "crates/app-hub-app/src/module.rs": {
+          "mode": "100644",
+          "sha256": "16439bfa10e6b745e0a0212525eaa1237151b5d6f3bb7d393f9bcdee6598a160"
+        },
+        "crates/app-hub-app/src/view.rs": {
+          "mode": "100644",
+          "sha256": "12b0924fe4d029bd9f342fd7af05a4a7aaf759f3b7e71a13fac890e6bb579bb9"
+        },
+        "crates/app-hub/src/index.rs": {
+          "mode": "100644",
+          "sha256": "feb3b24cc49b5dfa6ff5e13a3dee0e9c0e3f538f9af650a8b62436d8ac9ce7c3"
+        },
+        "crates/app-policy/src/listing.rs": {
+          "mode": "100644",
+          "sha256": "e12edbe29683c58b0192b0cfa1dd92b72ddfc8f2c9adb664f66d5b2265c24a1a"
+        },
+        "crates/app-policy/src/manifest.rs": {
+          "mode": "100644",
+          "sha256": "d586ed708d8fbdb9cae7e58fc505b2e6c403cd901a1d114c2ad73e5e568a2212"
+        },
+        "crates/app-policy/tests/admission.rs": {
+          "mode": "100644",
+          "sha256": "b9c4c460211cd75249459b412c4030f4af590dd9350695104ddb0e993fa3ad28"
+        }
+      }
+    },
+    {
+      "name": "octoscript",
+      "repository": "https://github.com/OctoSense-org/Octoscript",
+      "commit": "68f6a9df55692b5d8ef8873a12721e279a3f40d6",
+      "archive_url": "https://codeload.github.com/OctoSense-org/Octoscript/tar.gz/68f6a9df55692b5d8ef8873a12721e279a3f40d6",
+      "delete": [],
+      "files": 278,
+      "tree_sha256": "cacc27110a2c3691083b37fbb1f375e39917bb20b2a85c1b02c19b2a708d58f2",
+      "overlay_files": {}
+    },
+    {
+      "name": "octoscript-makepad",
+      "repository": "https://github.com/OctoSense-org/OctoScript-Makepad",
+      "commit": "019e6bf043b484676ff39d6ff5be58a1e94abed8",
+      "archive_url": "https://codeload.github.com/OctoSense-org/OctoScript-Makepad/tar.gz/019e6bf043b484676ff39d6ff5be58a1e94abed8",
+      "delete": [],
+      "files": 568,
+      "tree_sha256": "732341716284e2b5f7ec9cf7d4dd68a93260b339596c51ba05bbfa45cbe8dc22",
+      "overlay_files": {}
+    }
+  ],
+  "note": "Reproduces all approved SDK bytes, executable modes and internal links. Local Calendar/admission/runtime extensions are not upstream acceptance."
+}

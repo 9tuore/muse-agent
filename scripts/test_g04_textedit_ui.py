@@ -8,7 +8,6 @@ import os
 import shutil
 import sqlite3
 import subprocess
-import time
 import uuid
 from pathlib import Path
 

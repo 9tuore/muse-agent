@@ -2,7 +2,6 @@
 """Frozen old/new modules and identical synthetic input; no model or services."""
 import hashlib
 import json
-from pathlib import Path
 import shutil
 
 from memory_runtime import ROOT, run

@@ -1,0 +1,82 @@
+{
+  "baseline_source_head": "be552c1e3d41602370a8a9bcc64c9f1bcab8f3a2",
+  "upstream_source": "Official Git commit trees, SHA1-verified retained blobs, official changed blobs, and fixed upstream archives",
+  "archived_base_excluded_files": "20 already excluded entries absent; gitattributes retained to exercise deletion. Exclusions match lock. Not a successful full codeload fetch for Makepad/OctoSense.",
+  "result": "EXACT_SDK_RECONSTRUCTION_PASS",
+  "dependencies": [
+    {
+      "sdk": "makepad",
+      "files": 8724,
+      "tree_sha256": "1d77976e6da1a8d26c690d3bc606bd4990779e9098d778f4445c126087e00096",
+      "exact_original": "PASS",
+      "exact_reconstruction": "PASS"
+    },
+    {
+      "sdk": "octosense",
+      "files": 2309,
+      "tree_sha256": "245528b38ceddcb14ea4457034ad41fbe4877cef18910145f70aed0391c4d128",
+      "exact_original": "PASS",
+      "exact_reconstruction": "PASS"
+    },
+    {
+      "sdk": "app-hub",
+      "files": 121,
+      "tree_sha256": "dd0becd97554c0349d58313bba065f17eb0d191c3ae81927890cf269b5af7064",
+      "exact_original": "PASS",
+      "exact_reconstruction": "PASS"
+    },
+    {
+      "sdk": "octoscript",
+      "files": 278,
+      "tree_sha256": "cacc27110a2c3691083b37fbb1f375e39917bb20b2a85c1b02c19b2a708d58f2",
+      "exact_original": "PASS",
+      "exact_reconstruction": "PASS"
+    },
+    {
+      "sdk": "octoscript-makepad",
+      "files": 568,
+      "tree_sha256": "732341716284e2b5f7ec9cf7d4dd68a93260b339596c51ba05bbfa45cbe8dc22",
+      "exact_original": "PASS",
+      "exact_reconstruction": "PASS"
+    }
+  ],
+  "ordinary_overlay_files": 76,
+  "overlay_links": 4,
+  "git_history_rewritten": false,
+  "tag_changes": false,
+  "old_signed_bundle_unchanged": true,
+  "production_data_accessed": false,
+  "full_shell_rebuild": "NOT_EXECUTED: exact 12000-entry SDK tree verified, Hub built and Calendar service compiled; no full product acceptance claim",
+  "product_acceptance": "PARTIAL",
+  "external_actions": false,
+  "cargo_metadata": [
+    {
+      "workspace": "octosense",
+      "returncode": 0,
+      "packages": 18,
+      "error": ""
+    },
+    {
+      "workspace": "app-hub",
+      "returncode": 0,
+      "packages": 8,
+      "error": ""
+    }
+  ],
+  "hub_check": {
+    "scope": "Reconstructed local extended Hub checks unchanged signed 0.3.22 bundle",
+    "returncode": 0,
+    "stdout": "muse-goals 0.3.22 \u2014 PASSED\n  grants: capabilities {\"calendar\", \"glance\", \"mail\", \"model\", \"storage\"}, hosts {}, storage 16777216 bytes, agent none\n",
+    "stderr": "",
+    "official_upstream_acceptance": false
+  },
+  "hub_build": "PASS: locked offline, 45.81 seconds",
+  "calendar_service_cargo_check": "PASS: locked offline, 2m08s",
+  "historical_evidence_archive": {
+    "png_files": 38,
+    "bytes": 103481088,
+    "immutable_commit": "be552c1e3d41602370a8a9bcc64c9f1bcab8f3a2",
+    "local_sha256_readback": "PASS",
+    "failures_logs_json_and_tests_retained": true
+  }
+}

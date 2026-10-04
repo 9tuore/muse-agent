@@ -5,7 +5,6 @@ password, signs into an account, sends mail, or changes system calendars.
 """
 import argparse
 import json
-import time
 from pathlib import Path
 
 from remote import Remote

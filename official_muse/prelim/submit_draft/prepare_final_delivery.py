@@ -164,6 +164,8 @@ def main():
     files = {name: (ordinary(root, name, baseline=True), digest_value(digest))
              for name, digest in baseline["files"].items()}
     files.pop("SOURCE_MANIFEST.json", None)
+    files.pop("BASELINE_SOURCE_MANIFEST.json", None)
+    files.pop("DELIVERY_BINDING.json", None)
     links = dict(baseline["relative_dependency_links"])
     validate_links(root, files, links)
     changes, change_root, change_head = {}, None, None

@@ -1,63 +1,43 @@
-# Muse
+# Muse · 星海队
 
-## 把对话变成可核对的行动
+## 1. 把对话变成可核对的行动
 
-Muse 是 **GOSIM Agentic App 2026** 参赛项目，由「星海」团队开发。它在 OctoSense 官方容器中提供中文 AI 对话、邮件提醒与回复、系统日历操作、带来源的全局记忆和可核对的任务结果。
+Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮件起草与确认发送、系统日历安排与改期，以及带来源、跨对话检索的全局记忆。
 
-**当前官方应用源码：0.3.22 · 总体验收：PARTIAL**
+- 左侧：可折叠聊天历史与邮箱、日历、记忆等快捷入口。
+- 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
+- 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-参赛应用入口：[official_muse/app/bundle/main.splash](official_muse/app/bundle/main.splash)，源码采用 **OctoScript / Splash**。App Hub 提交目录为 `official_muse/app/bundle/`；GitHub 完整源码仓库另保留构建工具、测试、宿主依赖和桌面版历史源码。
+**当前运行候选：0.3.22；产品验收：PARTIAL（5 PASS / 13 PARTIAL / 2 BLOCKED）。** 来源记忆和日程候选已建立，但最终真实链仍被空hard_windows校验阻止。第二模型、正式发布身份与材料尚未齐全。源码同步不代表正式上架。
 
-- 左侧：可折叠对话历史，以及邮箱、日历、记忆、操作记录、能力授权和设置入口。
-- 中间：聚焦当前讨论的聊天与输入；新消息显示在当前聊天末尾，历史可翻页查看。
-- 右侧：有效结果卡、来信提醒和具体动作确认，技术详情默认收起。
-- 新对话沿用同一用户授权范围内的全局记忆，每轮只检索相关内容，保留项目与归属边界。
-- 长期目标产品页面已移除；一次性任务的计划、批准、执行、结果、记忆和恢复保留，历史数据保留。
+![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
-![合成新来信自动结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
+*0.3.13真实可见card-host中的合成邮箱截图，仅展示交互；不冒充当前版本真实邮件验收。*
 
-*真实可见 card-host 截图，0.3.13 合成邮箱输入；历史截图仅展示交互，不作为0.3.22真实邮件验收。*
+## 2. 官方源码与依赖
 
-## 核心功能与当前修复
+官方应用使用 **OctoScript / Splash / Makepad**，入口是[main.splash](official_muse/app/bundle/main.splash)，提交目录为`official_muse/app/bundle/`。可读源码位于`official_muse/app/source/main.splash`；Python为测试和构建工具，Rust为官方宿主配套扩展。
 
-| 模块 | 实现与边界 |
+| 路径 | 用途 |
 | --- | --- |
-| Chat | 使用官方 `model.complete`，保存对话，支持具名删除确认；0.3.22 保留矮窗口输入修补、将历史恢复与焦点分段初始化 |
-| 邮箱 | 官方 Host 登录、读取正文、自动来信卡、按意图起草或手写回复、逐项确认发送；保留时间字段兼容修复，并接入原邮件引用元数据 |
-| 系统日历 | 使用配套 EventKit 宿主扩展；查询、候选确认、同事件改期及独立读回；忙闲/全天/循环元数据参与核验，真实整链尚未通过 |
-| 全局记忆 | 真实存储、来源、归属、有界检索、更正和遗忘；冲突保留并要求处理 |
-| 一次性任务 | 计划/批准/执行/结果/验证/恢复与防重复；外部动作以实际服务回执及独立读回为准 |
-| 交互稳定性 | 16个对话后有明确删除入口；Mail慢操作使用单后台线程和8项队列，避免钥匙串等待卡住UI |
+| `official_muse/app/bundle/` | 原0.3.22签名payload、manifest、listing和资源，字节保持不变 |
+| `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
+| `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
+| `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
+| `scripts/bootstrap_sdk.py` | 从官方锁定来源恢复依赖，逐文件/模式/链接验证，不接受不匹配的树 |
+| `patches/muse-source-cleanup-20261004.patch` | 已验证的主入口清理补丁；待后续候选集成，当前签名payload不变 |
+| `official_muse/prelim/`、`ui_memory/`、`round2/`、`phase2/` | 测试、公开证据和历史失败记录 |
+| `app/`、`scripts/`、`miniapp/`、`MUSE_HANDOFF/` | 保留的桌面历史源码、工具和交接 |
 
-本仓库保留源码、相关测试与真实通过/失败记录。**当前二十项：5 PASS / 13 PARTIAL / 2 BLOCKED。** 0.3.20 在保留原64ms限制的真实可见OctoSense Shell中完成10次完整进程冷启动和5次普通重开，恢复16对话/256消息的大合成历史并检查输入、页面切换与文件完整性。仍有框架初始化停顿告警；用户电脑重启后的首次启动和同事项真实全链尚未完成，T20为PARTIAL。模型S03旧费用未知保留；本人已允许有限新增调用，新S03两次实际通过，T07仍PARTIAL。T17、T18继续BLOCKED。
+官方基础源码按锁定版本下载；本地Calendar、准入、模型和框架扩展可重建，但尚未声称获官方上游接受。许可见[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)，瘦身说明见[sdk-overlays/README.md](sdk-overlays/README.md)。
 
-0.3.18 已验证一封真实来信、一次手写回复与本人收件确认、同一合成日历事件创建/改期/删除及独立读回、两次相关重启；这些是分别完成的真实节点，未改部分仅作为0.3.19支持证据，不冒充同候选完整链。**本次沿用本人持续同步授权交付开发源码，不代表稳定发布或二十项全过。** 本轮实际新增有限model.complete调用已有独立回执，不把旧UNKNOWN清账。当前尚无新真实邮件发送或系统日历写入。
+## 3. 构建和检查
 
-Calendar及配套宿主/框架补丁是本地扩展，尚未被官方上游接受。本地扩展 `hub check` 通过也不等于官方原版已接纳；本机运行包采用开发用 ad hoc 签名。
-
-## 完整源码
-
-| 路径 | 内容 |
-| --- | --- |
-| `official_muse/app/bundle/` | 当前0.3.22 实测compact Splash入口、manifest、listing与资源 |
-| `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 记忆DSL、来信与安排/改期模块源码；实际应用入口仍是bundle/main.splash |
-| `official_muse/ui_memory/`、`prelim/`、`round2/`、`phase2/` | 迭代源码、测试、宿主补丁与可公开证据 |
-| `vendor/octosense/` | 实际配套完整宿主源码，包含Mail后台工作队列与系统日历服务 |
-| `vendor/app-hub/` | 配套App Hub源码与本地Calendar准入扩展 |
-| `vendor/makepad/` | 锁定框架源码，含可信模块补丁及有界分帧源码准备补丁；64ms防护保留 |
-| `vendor/octoscript/`、`vendor/octoscript-makepad/` | 配套语言和脚本运行时源码 |
-| `app/`、`scripts/`、`miniapp/`、`patches/` | 保留的桌面版源码、脚本、测试与历史补丁 |
-| `MUSE_HANDOFF/` | 开发规则、历史状态与交接资料 |
-| `official_muse/app/source/main.splash` | 与实测compact入口token等价的可读开发源 |
-| `SOURCE_MANIFEST.json` | 来源版本、文件SHA256与四个相对依赖链接 |
-
-凭据、账号配置、生产数据库、私密实机截图、模型权重、编译缓存与安装包不上传。第三方来源与许可证见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-
-## 构建
-
-环境：macOS、Rust工具链、Apple Command Line Tools；外部Cargo依赖按锁文件获取。四个 `.sources/` 链接均指向本仓库内部对应vendor目录。
+环境：macOS、Rust、Apple Command Line Tools、Python 3。首次准备需要访问官方GitHub及Cargo依赖；无需输入私人密钥。
 
 ```sh
+python3 scripts/bootstrap_sdk.py
+python3 scripts/bootstrap_sdk.py --verify
 cd vendor/octosense
 cargo build --locked --release -p octosense --bin octosense --no-default-features --features app-hub
 python3 tools/package_calendar_candidate.py --release --output ../../build/Muse-OctoSense.app
@@ -65,34 +45,19 @@ cd ../app-hub
 cargo build --locked -p octosense-app-hub --bin hub
 cargo build --locked -p octosense-card-host --bin card-host
 cd ../..
-```
-
-当前bundle带有本地开发签名，核对时需显式提供它的公开验证密钥：
-
-```sh
 ./vendor/app-hub/target/debug/hub check official_muse/app/bundle --allow-unsigned \
   --publisher-key muse-local-rehearsal=bb05ce91333a0045f9f8187eba865f11d9e14ec636aeaee80144708984e740c5
 ```
 
-上面仅含公钥，不含发布私钥。开发检查不代替真实安装所需的Gate、catalog与能力授权；禁止通过 `dev-grant-all` 绕过。模型在官方Host设置中配置，账号密码/授权码只输入官方Host面板。
+四个内部`.sources/`链接由bootstrap恢复。已有vendor时脚本只核验，发现差异立即停止，保留本地修改。开发公钥不是发布私钥；开发check不代替Gate、正式发布身份、catalog、能力授权及人工审查。模型和邮箱/日历账号在官方Host设置中配置。
 
-仓库是完整源码快照，不包含上游Git对象；不宣称上游Git provenance检查已通过。构建运行仍须按照[宿主说明](official_muse/phase2/host_extension/README.md)和对应测试文档确认环境。桌面历史入口见[本地运行说明](README_LOCAL_AGENT.md)。
+源码清理补丁应用后必须重新compact、stamp/签名和核验，不能将它直接覆盖到当前签名bundle。完整运行资料不放在源码仓库。
 
-## 版本与证据
+## 4. 验收、支持与隐私
 
-- [当前源码交付](SOURCE_DELIVERY.md)
-- [本轮修补指南核对](MUSE_FIX_GUIDE_AUDIT.md)
-- [本轮最终报告](THREE_HOUR_FINAL_REPORT.md)
-- [二十项验收矩阵](ROUND_ACCEPTANCE.md)
-- [脱敏真实节点与失败摘要](official_muse/prelim/evidence/three-hour-0318/)
-- [0.3.16聊天末尾可见历史测试](official_muse/prelim/evidence/chat/tail-visible-040/README.md)
-- [0.3.13稳定性与来信卡证据](official_muse/prelim/evidence/fix-guide-0313/README.md)
-- [开发规则与后续GitHub同步](MUSE_HANDOFF/AGENTS.md)
+- [二十项判定](ROUND_ACCEPTANCE.md)与[当前最终报告](THREE_HOUR_FINAL_REPORT.md)
+- [源码清理报告](MUSE_CODE_CLEANUP_REPORT.md)、[SDK瘦身记录](SDK_SLIMMING_REPORT.md)和[历史截图归档](EVIDENCE_ARCHIVE.md)
+- [来源和交付边界](SOURCE_DELIVERY.md)与[SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)
+- [问题反馈](https://github.com/9tuore/muse-agent/issues)
 
-用户已授权：**每次完成版本更新后同步源码、提交并推送本仓库main，随后核对远端HEAD**。保留失败证据和验收边界，不上传私人运行资料，不覆盖远端历史或公开Tag。
-
-## 0.3.22 配套宿主与冷启动证据
-
-日历外部观察/日期入口/本地完成81项隔离检查，已完成事项重新改期26项正常流程与63项守卫变体通过；原失败不删除。原生VM61项、Widget6项、模型宿主59项通过，1个已有Keychain测试忽略。这些隔离证据不能替代真实邮箱、macOS日历或模型业务整链。
-
-本版实际bundle入口为实测compact，开发请编辑`official_muse/app/source/main.splash`，按`official_muse/ui_memory/compact_bundle.py`重新生成bundle，并重新进行Gate、token及受影响测试。配套补丁与具体源SHA见`official_muse/prelim/patches/README-0320.md`和`official_muse/prelim/evidence/host-0320/`。正式政策URL和publisher身份尚未核实；没有正式提交AppHub，也没有创建成功Tag。
+仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。保留唯一失败证据、旧Git历史和公开Tag。正式隐私政策地址与publisher材料尚待核实，未正式提交App Hub。每次完成更新按本人已有授权同步main并独立读回；不强推、不移动旧Tag。

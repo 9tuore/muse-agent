@@ -12,7 +12,7 @@ import time
 from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parents[3]
-HOST = Path('/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host/OctoSense/target/release/card-host')
+HOST = Path(os.environ.get('MUSE_CARD_HOST', '/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host/OctoSense/target/release/card-host'))
 
 def run(output, port=8482, probe='memory_suite', module_source=None, main_source=None, visible=False):
     output = output.resolve()
@@ -28,6 +28,11 @@ def run(output, port=8482, probe='memory_suite', module_source=None, main_source
     script = (Path(__file__).parent / (probe + '.splash')).read_text()
     bundle, state = output / 'bundle', output / 'state'
     shutil.copytree(ROOT / 'official_muse/app/bundle', bundle, dirs_exist_ok=True)
+    # The copied probe changes the payload; keep its admission explicitly unsigned.
+    manifest_path = bundle / 'manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    manifest.get('integrity', {}).pop('signature', None)
+    manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
     if main_source:
         # Current memory core depends on task scope helpers elsewhere in main.
         # Keep every production function; replace only rendering and transport.

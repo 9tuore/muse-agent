@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Execute the concrete P0 chat cases against a frozen source. FIXTURE only."""
-import argparse, hashlib, json, shutil, sys
+import argparse, json, shutil, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT / "official_muse/ui_memory/tests"))

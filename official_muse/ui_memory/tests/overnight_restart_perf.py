@@ -7,7 +7,6 @@ from pathlib import Path
 import subprocess
 import sys
 import time
-from urllib.request import urlopen
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'official_muse/phase2/tests'))
 from remote import Remote
