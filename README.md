@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前开发候选：0.3.26-rc5；产品验收：PARTIAL（5 PASS / 13 PARTIAL / 2 BLOCKED）。** 公开稳定基线0.3.25保留。V15真实模型、跨对话记忆和一次性任务首次恢复已验证，30冷启动/20重开/20Shell重启全部通过。新发现的Calendar桥布尔序列化错误仅完成源码修复，尚未重编译进运行Host；第二模型、同候选外部整链与正式发布材料仍缺。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
+**当前开发候选：0.3.26-rc9；验收PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 公开稳定基线0.3.25保留。rc9真实模型跨聊天记忆更正/遗忘、一次性任务首次恢复、两个模型受影响日历追问已验证。70启动/两小时第二轮进行；Calendar桥源码已修但未进入运行Host，完整双模型15题与同候选外部链仍缺。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。不把旧运行包当成最新版。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
@@ -20,7 +20,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc5 compact payload、manifest、listing和资源；source5092对应V15实机候选，listing截图仍为有身份记录的V12支持材料 |
+| `official_muse/app/bundle/` | 0.3.26-rc9 compact payload、manifest、listing和资源；source4c970e04对应rc9实机候选，listing截图仍为有身份记录的V12支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |

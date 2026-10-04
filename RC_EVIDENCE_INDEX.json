@@ -1,6 +1,6 @@
 {
-  "product_commit": "b48618acef0ff291ad3dc23b09946b0b15fa4f2f",
-  "status": "IN_PROGRESS_PARTIAL",
+  "product_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+  "status": "CURRENT_RC8_PARTIAL",
   "raw_records_publication": "local only; no credentials, Mail bodies or production data included in public repository",
   "rows": [
     {
@@ -52,12 +52,19 @@
       "scope": "Exact b486 product source, pre92b1 Host938/SDK3f; NOT newCalendar bridge Host"
     },
     {
-      "id": "v15-2h-running",
+      "id": "v15-2h-final",
       "path": "official_muse/app/build/ui-memory-20261003/rc5-final-b486-soak-evidence-r1/report.json",
-      "bytes": 53761,
-      "sha256": "27b963c56aa0e7a4b1f0ea13571f1c612386a90e989c7d0347f3e9a474d88db1",
-      "observed_status": "RUNNING",
-      "scope": "Synthetic ready account NO live backend, ongoing"
+      "bytes": 155404,
+      "sha256": "30ae2c9b0fabfbeba3301e5ede98816a71a49bf9c5b8ab591878597250e8582c",
+      "observed_status": "PASS_7200_SECONDS_SYNTHETIC_ONLY",
+      "scope": "Historical b486 no Mail backend; original PASS does not replace rc8 observation or true Mail failure",
+      "prior_observation": {
+        "id": "v15-2h-running",
+        "bytes": 53761,
+        "sha256": "27b963c56aa0e7a4b1f0ea13571f1c612386a90e989c7d0347f3e9a474d88db1",
+        "observed_status": "RUNNING",
+        "scope": "Synthetic ready account NO live backend, ongoing"
+      }
     },
     {
       "id": "stable-live-mail-retained-soak-failure",
@@ -169,7 +176,80 @@
       "scope": "Separate real412x700 allsixpages/input/scroll; does not replace412x892 failure",
       "bytes": 1414,
       "sha256": "f911cc83cbce122dfc95ad08d7284c00335f95fbde62c3ec24c72cdffb0af9cf"
+    },
+    {
+      "id": "rc8-memory-live",
+      "path": "official_muse/app/build/ui-memory-20261003/rc8-final-a80-model-r1/live-evidence/report.json",
+      "bytes": 6098,
+      "sha256": "3139113b8794864e4adc64e8543b4b8f25fb108812f21156a7de43ab403b8416",
+      "observed_status": "PASS",
+      "scope": "Current rc8 actual M3/global recall, correction revision2, forget empty across chats"
+    },
+    {
+      "id": "rc8-goal-first-restart",
+      "path": "official_muse/app/build/ui-memory-20261003/rc8-final-a80-model-r1/goal-restart-evidence/report.json",
+      "bytes": 3143,
+      "sha256": "83194ea955e7ff692448c0a0885aed2b634241096e5878996d1deb0c9badcbe8",
+      "observed_status": "PASS",
+      "scope": "Current rc8 two model calls/one local approval/storage/readback/FIRST Shell restart; NOT external full chain"
+    },
+    {
+      "id": "rc8-startup-70",
+      "path": "official_muse/rc/startup/evidence/rc8-a80-final-70-r1/report.json",
+      "bytes": 147035,
+      "sha256": "021a79ae10941edeee186a00cc558c03a01708366cfc43ffde5cf8d824442749",
+      "observed_status": "PASS_30_20_20",
+      "scope": "Current rc8 synthetic nonempty 16sessions/256messages/64claims; not OS reboot"
+    },
+    {
+      "id": "rc8-m3-eight-review",
+      "path": "official_muse/rc/startup/RC8_M3_EIGHT_SEMANTIC_REVIEW.json",
+      "bytes": 3706,
+      "sha256": "3932f063aef52e460bc764983bd5d0c234c59f4bf5966b5b0b44e2745abc7944",
+      "observed_status": "PASS_DECLARED_EIGHT_ONLY",
+      "scope": "Current actual official model; one UI submission each, S02 Host attempts2 retained; not full T17"
+    },
+    {
+      "id": "rc7-soak2-capacity-interruption",
+      "path": "official_muse/app/build/ui-memory-20261003/rc7-final-28c-soak-evidence-r2/INTERRUPTION_RECORD.json",
+      "bytes": 637,
+      "sha256": "48a11e8d06ab6d89cf3533b0c9bd1625e63ffe1a5844100eb0f9698559882a70",
+      "observed_status": "INTERRUPTED_ENOSPC_NOT_PASS",
+      "scope": "Last complete 2samples/30sec retained, no reconstructed samples"
+    },
+    {
+      "id": "rc8-m27-eight-review",
+      "path": "official_muse/rc/startup/RC8_M27_EIGHT_SEMANTIC_REVIEW.json",
+      "bytes": 3525,
+      "sha256": "5f2836b7c25249a3e0f6e9bc63b86959ae2387e1650bef4e5bb763b7d5aec595",
+      "observed_status": "7PASS_1D05_FAIL",
+      "scope": "Actual oldrc8 eight-group M2.7, original question failure preserved"
+    },
+    {
+      "id": "rc9-memory-goal-first-restart",
+      "path": "RC9_LIVE_NODE_SUMMARY.json",
+      "bytes": 4694,
+      "sha256": "304c3f09fbcfc5e95711ea18cfa8d9ca56bfbc3db6e10323844210243d335cb7",
+      "observed_status": "PASS_DECLARED_NODES_ONLY",
+      "scope": "RealM3 memory six steps/three calls, local goal/two calls/one approval/eight SHA first restart, no external writes"
+    },
+    {
+      "id": "rc9-calendar-two-model-D05",
+      "path": "official_muse/rc/startup/RC9_D05_TWO_MODEL_SEMANTIC_REVIEW.json",
+      "bytes": 3899,
+      "sha256": "11ecc7b1b75d3ce2f4143cced8286bd8347d722a7975a5fd604384108877e33e",
+      "observed_status": "BOTH_D05_PASS_NOT_FULL_T17",
+      "scope": "Actual official model.complete, one UI input each, no guessed candidate or system action"
+    },
+    {
+      "id": "rc9-stability-r1-capacity",
+      "path": "official_muse/rc/startup/RC9_STABILITY_INTERRUPTION_SUMMARY.json",
+      "bytes": 2786,
+      "sha256": "1881e7a42ef5a0175096a57fe58f12b66de5347c0462f969029a9f9ae117c588",
+      "observed_status": "ENOSPC_INTERRUPTED_NOT_PASS",
+      "scope": "Original thirty cold/thirteen reopen and19samples542.154s retained; no missing observations reconstructed"
     }
   ],
-  "last_index_utc": "2026-10-04T19:22:07.818347+00:00"
+  "last_index_utc": "2026-10-04T22:46:01.985627+00:00",
+  "previous_product_commit": "a80bd019db7581511b3891bcc3892548f767a42d"
 }

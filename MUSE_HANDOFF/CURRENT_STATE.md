@@ -1,4 +1,12 @@
-## 2026-10-05 06:16 · rc9 日历缺时间问询顺序
+## 2026-10-05 06:46 · rc9核心节点通过，稳定性第二轮进行
+
+产品1c9f3b46/0.3.26-rc9，compact4c970e04，可读9d01484c，91195 token相同。六步真实M3跨聊天记忆更正/遗忘及一次性任务首次Shell重启八SHA通过；D05两个真实模型准确追问，97calls/89960tokens连续账本未提高预算。rc8 M27 D05 FAIL保留。
+
+rc9首轮70启动/2h因ENOSPC中断，磁盘记录30冷13重开、19样本542.154s保留。清理164份Git字节相同无占用旧分发PNG后，可用41254912→357711872B；真实截图/失败/state/生产不删。第二轮同source70及完整2h进行。5PASS/14PARTIAL/1BLOCKED，最终真系统链仍待，新Calendar源码桥未进入Host。当前报告以MORNING_CHAMPIONSHIP_REPORT为准；旧087运行ZIP不是rc9。只本地提交，未push/tag/发布。
+
+---
+
+## 2026-10-05 06:13 · rc9 日历缺时间问询顺序
 
 从当前rc8继续，只移动chat_candidate_input_error既有起止完整性检查；日期已知却缺起止时优先问开始/结束，不被模型反向/臆造时段遮住。实际Card 15变体53检查通过；同卡地点编辑、revision2、native/Python读回、stale/reverse/past/timezone及Mail/Goal控制均保持。原版50PASS/3FAIL和r1-r7测试错误保留。
 

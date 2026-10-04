@@ -1,23 +1,22 @@
-# 夜间持续运行实测
+# 持续运行记录 · rc9
 
-## 最终产品 V15 合成账户：RUNNING
+## 当前观察
 
-实际可见 OctoSense Shell，产品 b48618ac/source5092becd，Host938ba58a/SDK3f。原64ms预算与非空16对话256消息、64记忆65来源、64已见合成邮件保持。合成账户没有Mail后端或凭据，不能证明真实收信网络的持续可靠性。日历异步回调实际返回not_determined，未替本人授权。
+最终0.3.26-rc9 / 1c9f3b46 / payload4c970e04 / Host938ba58a。r2完整7200秒采样于2026-10-05 06:39:52北京时间开始，30秒间隔，**RUNNING，不能标2h PASS**。原始目录official_muse/app/build/ui-memory-20261003/rc9-final-soak-evidence-r2。
 
-- 开始：2026-10-05 02:41:03，北京时间。目标7200秒，预计04:41左右结束。
-- 当前仍在采样，不能写2h PASS。最终统计在完成后填入本页。
-- 每30秒读取实际远程日志、资料SHA/mtime、动作数量及model ledger；不以进程存活替代这些检查。
-- 脚本不能观察全部Host请求计数，明确记NOT_OBSERVABLE；不能写零网络请求。
-- 原件：`official_muse/app/build/ui-memory-20261003/rc5-final-b486-soak-evidence-r1/report.json`。
+真实可见Shell，16聊天/256非空消息/64claims/65sources、收信循环启用、一个合成未连接账号ready及64seen。没有真实邮箱后端或模型路由，因此即使通过也不代替T18或真实收信长运行。检查固定PID、输入框、CPU/RSS、记录数量、无未授权模型/动作、无相同内容反复写入、无[E]与预算错误。报告原子写入保留上一次完整观测；不干预采样窗口。
 
-这是新Calendar一行修复前的Host。源码SDKda756dde/92b1df15完整Host还没编译，不能把本次测试身份换成新Host。
+## 已保留历史
 
-## 稳定0.3.25真实账号：FAIL
+| 来源 | 实际结果 | 范围 |
+|---|---|---|
+| V15/b486 | PASS，7200.300927秒/240样本 | 合成无后端，未调用模型/外部动作，CPU max35.9%、RSS124536–424456KiB |
+| 稳定0.3.25真Mail | FAIL，5357.143秒/178样本 | 原生present gate331.364ms/3inflight/Drawable pool错误，不能称稳定2小时 |
+| rc6/b9 | ENOSPC中断，非PASS | 最后观察约2229秒，原报告可能截断，保留原件 |
+| rc7 r1 | ENOSPC中断，非PASS | 约300.9秒，原错误保留 |
+| rc7 r2 | ENOSPC中断，非PASS | 两样本/约30.1秒最后完整原子报告及中断记录 |
+| rc8/a80 | CONTROLLED_STOP，非PASS | 为必要的rc9问询修复停止，2678.479秒/90样本；不累计到rc9 |
+| rc9 r1 | ENOSPC中断，非PASS | 19磁盘样本/542.153900秒，原报告RUNNING及中断记录保留 |
+| rc9 r2 | RUNNING | 独立新完整7200秒测试，不接续/拼接旧时间 |
 
-实际观察5357.14秒，178份完整样本；遇到原生macOS日志present gate stuck331.36408ms/3inflight/drawable pool恢复而停止。原驱动exit1、失败日志与资料保持，不把89分钟补写成2h。CPU曾约22–58%，不称低功耗；没有新增模型/action/相同内容落盘。实际自发自收独立正文SHA已过，不抹去到达证据，也不以到达替代长运行。
-
-原件：`official_muse/app/build/ui-memory-20261003/rc5-existing-live-soak-r1/report.json`。来源Host0fd99361/sourcea44677c4，与V15合成分别记账。
-
-## 原短测试与受控停止
-
-V9观察4006秒、V13b361.575秒均因源码修复被受控停止，非2hPASS；069d启动探针为driver标签错误，原FAIL保留。不同运行时长不相加。电脑重启尚未执行，Shell重启不等于电脑重启。
+所有失败、真实截图、日志和生产状态均保留。只精确清理可恢复的旧分发资源，未提高预算、清空历史或把后台循环等同真实服务请求。Host请求数量在现有Remote表面不可观测，明确记录为NOT_OBSERVABLE。

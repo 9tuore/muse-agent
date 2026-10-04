@@ -1,60 +1,31 @@
-# 最终候选真实模型与任务验证
+# 最终候选真实节点报告 · rc9
 
-产品冻结：`b48618acef0ff291ad3dc23b09946b0b15fa4f2f`，Muse `0.3.26-rc5` / V15。本文是已观察节点的记录，整体仍为 **PARTIAL**。
+产品1c9f3b46 / 0.3.26-rc9 / payload4c970e04。真实运行Host938ba58a，运行SDK3f1bbb4e；源码SDKda756dde及Calendar桥修复未集成到该Host。总体验收PARTIAL。
 
-## 身份与方法
+## 官方模型、记忆、一次性任务
 
-- 交付入口 SHA256：`5092becd21ece0cdc456ffa60b9a7b85ff01e34b65c68d7743658e7b945b4cd8`。
-- 真实原生 OctoSense Shell：`938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d`。
-- 官方 `model.complete` 路由：MiniMax-M3 / minimax-cn / OpenAI API 协议，没有 fallback。模型 API 不构成第二套 Runtime。
-- 专用隔离资料仅包含合成记忆和合成任务；沿用既有模型设置，不包含邮箱凭据或生产数据库。
-- 每个按钮只提交一次。成功由独立磁盘读取与真实进程替换验证；未把卡片出现或模型文字当作系统动作成功。
+在独立合成数据目录、真实可见OctoSense Shell中复用已有授权MiniMax-M3。未带入邮箱账号、生产库或日历数据。
 
-## 跨对话记忆：PASS
+记忆六步通过：保存两条要点偏好→新聊天实际召回revision1→更正为三条revision2/同ID→新聊天读取新值→遗忘并清空值/历史/来源历史→新聊天检索为空且回答没有资料。三次真实model.complete。不是只交DSL格式或fixture。
 
-真实界面依次执行记住、另开对话检索、更正、另开对话检索、遗忘、另开对话检索。三次真实模型请求分别采用当前有效记忆：两条要点 → revision 2 三条要点 → 无有效资料。独立读取确认更正保留同一记忆 ID；遗忘后的 value、history、source_history 为空，墓碑保留；最后检索没有命中，也没有旧值引用。
+一次性任务真实model.complete生成计划，再实际调用模型给建议；只点击一次本地批准。独立保存并读回两条结果。Goal1791152640-2512520148 / Run run:1791152640-1493131825。第一次Shell进程重启后Goal、Memory、Chat、各backup、结果和模型ledger八项SHA相同，只有一个Goal/Run、没有动作或模型重放。不是电脑重启/Calendar写入。详情RC9_LIVE_NODE_SUMMARY.json。
 
-证据：`official_muse/app/build/ui-memory-20261003/rc5-final-b486-model-r1/live-evidence/report.json` 及真实 PNG。属于本候选，不复用旧 V12 成功截图。
+两张当前真实中文窗口截图和SHA在official_muse/rc/screenshots/RC9_PROVENANCE.json。Root实际查看过。截图均为合成资料，不包含私人邮件或账号。
 
-## 一次性任务及首次重启：PASS
+## 受影响的日历问询
 
-真实顺序：自然语言模型候选 → Plan → 请求真实模型建议 → 一次本地执行批准 → Storage → 独立 Readback → 第一次 Shell 进程重启。这个实际顺序如实记录，不改写成批准后才调用模型。
+rc9同一源码两个真实模型D05都准确问开始及结束，无默认候选，无Calendar动作。每模型一次UI输入/一次Host attempt、known_usage=true，无fallback。M3的提交remote返回404但实际磁盘ACK/trace证明输入到达，没有重发。M2.7 class实际unknown，不能称strong。连续账本从95/88292→96/89141→97/89960，未提高或清空默认预算；token不是人民币账单。
 
-- Goal：`1791138816-2381008225`。
-- Run：`run:1791138816-700995093`；一个 Goal、一个 Run、结果两条资料。
-- 新来源记忆在创建时就具备完整 metadata；首次重启无需补写迁移。
-- 重启前先保存 SHA 基线，重启后独立核对 Goal/backup、Memory/backup、Chat/backup、结果文件和 model ledger：全部相同。
-- 没有模型重放、外部 action、新邮件发送或 Calendar 写入。
-- 本候选截至这一步共 5 次真实模型调用、4,973 tokens；这是用量，不是人民币账单。
+该问询由应用输入完整性守卫产生，不能因此宣称原始模型回答更准确。完整两模型15题仍PARTIAL。先前rc8 M3八题PASS、M2.7七PASS/D05 FAIL和E04两模型PASS保持旧版本身份。
 
-证据：同目录 `goal-restart-evidence/report.json`、前后哈希、进程启动日志、前后真实 PNG。旧 V12 首次重启的 Memory 哈希失败完整保留；它不被新 PASS 覆盖。
+## 真邮箱与真日历的范围
 
-## 真实邮箱支持证据：PASS，来源为稳定 0.3.25
+今晚0.3.25稳定版自发自收一封MUSE-OVERNIGHT-20261005-0107，SMTP仅提交一次，收信提醒自动出现；独立mail.message正文SHA与发送正文一致。私人账号、原始正文/系统ID证据仅本机留存。未伪造“本人收件确认”，不把它标为rc9全链。
 
-按本人新授权，通过原已登录 QQ 宿主向本人同一邮箱发送一次带唯一编号的合成邮件。SMTP 返回受理后，原生提醒检测到新增邮件；随后独立 `mail.message` 读取收件箱正文，与原草稿 SHA256 完全一致。收件到达有实际读回支持，没有通过点击“本人已核对”伪造本人声明。
+已授权旧Host的Calendar真实只读返回full_access/目标日历/合法查询结果；truncated为JSON数字0，产品UI严格布尔守卫拒绝。原失败、范围和一行桥源码见RC_CALENDAR_READONLY_REPORT.md。Foundation0/100/101边界及原生桥对象编译通过，完整新Host尚未构建。新身份not_determined没有绕过系统权限。
 
-- 唯一编号：`MUSE-OVERNIGHT-20261005-0107`。
-- Request：`mail-1791133568-2961204906`。
-- 收件消息 ID：`b13af7a7d0d899d55517bbfa`。
-- 正文 SHA256：`db474e2614d0e9b7ba1ce2d50bce582989b3897092dcc985a2c3ee23913605f0`。
-- 接收读回及提醒截图仅本地保存，公开材料不包含私人地址、账号配置或原邮件内容。
+## 稳定性与未完成
 
-来源是保留的稳定版本及原宿主；**不能计为 V15 的 T18 整链通过**。原宿主接口未提供完整 RFC threading 字段，因此也不计为真实第二封改期绑定证明。
+rc9首轮70启动和两小时被ENOSPC中断，原报告与中断记录保留；容量恢复后同source第二轮运行。旧rc8完整70次与旧V15合成7200.3秒只是历史支持。旧稳定真Mail5357秒原生绘制FAIL保留。
 
-## 尚未通过
-
-T17 第二个独立较强模型未配置。T18 同一 V15 候选的真实邮箱登录、Calendar 创建/改期/独立读回及关联回复仍需本人节点；新宿主实际返回日历 `not_determined`，没有自动授予 TCC。本人最新授权允许读取用户日历，未覆盖本轮新事件修改/删除。电脑重启未执行。
-
-最终 V15 另外观察了通用科学解释和上下文追问，能够承接前文；回答有简化和“月球引力比太阳更强”这一不够准确的表述，不能作为自由聊天准确性满分证据。第三个 SMTP 问题的原生 remote 返回按钮帧错误，但独立 Chat 记录证实请求已收到一次、回复一次，因此没有重发。第四题未运行，原 driver FAIL 保留；不能把这组改记成完整 PASS。第三回复区分了服务器受理与邮箱落地/阅读，但没有真实收件投递动作，属于解释文本。
-
-旧模型对 SMTP 受理的过度推断失败保留；少量真实聊天或协议 fixture 成功不等于全套模型语义通过。总体状态与二十项门槛由晨间报告统一说明。
-
-
-## 真实稳定邮箱持续运行：FAIL，原始结果保留
-
-只读观察持续5,357.14秒，178份完整样本。随后原生macOS日志出现`present gate stuck for 331.36408ms with 3 in flight, rebuilding drawable pool`，驱动按原标准停止并保存原始失败日志。错误来自旧宿主呈现层，不把它描述为业务操作成功，也不忽略为PASS。失败前没有新增模型调用、外部action或相同内容重复落盘，提醒仍为5项。既有实际投递读回仍成立；2小时真实Mail持续运行门槛没有通过。V15独立合成2h测试另行记录。
-
-
-## 系统日历读取实测与新发现
-
-旧已授权Host真实读取“工作”日历2026-10-07至10-10范围成功，真实返回0事件。但原生bridge把truncated返回数字0，稳定应用按接口契约拒绝结果，因此稳定UI读回不得标PASS。已通过隔离真实Host诊断和Foundation对照确认原因，只修复SDK一行布尔序列化，source5092becd保持。桥修复92b1df15/新SDK锁da756dde，配套Host重建及权限下最终UI读回待。详见RC_CALENDAR_READONLY_REPORT；没有做Calendar mutation。
+尚无同最终Mail→记忆→Calendar创建/改期/独立get→回复到达→首次重启完整证据。没有新真实系统写入授权、TCC代确认、公开上传或正式App Hub提交。

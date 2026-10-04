@@ -1,30 +1,31 @@
-# Muse 晨间收口报告
+# Muse 晨间收口报告 · 0.3.26-rc9
 
-**PARTIAL · 0.3.26-rc5 / V15**。本页仍在等待最终两小时采样完成，最后更新：2026-10-05 03:22北京时间。
+**状态：PARTIAL，5 PASS / 14 PARTIAL / 1 BLOCKED。** 本页为当前候选摘要；历史证据保留在版本摘要、原日志和Git中。未达到原二十项全过、READY或比赛第一的证据门槛。
 
-| 项目 | 当前结果 |
-| --- | --- |
-| 昨晚开始 | 10月4日21:51:29开始RC；23:13:37转整夜任务，原稳定0.3.25保护 |
-| 现在 | 冷启动/恢复、记忆、真实模型及Goal修复已验证；原20项5PASS/13PARTIAL/2BLOCKED |
-| 内部排名目标 | 目标超过给定AI基准；当前证据未达到，不宣称比赛排名或第一 |
-| A score | 66/100，按已计证据和缺项的内部估计 |
-| B score | 65/100，同上；没有官方评分 |
-| T18 | BLOCKED：同最终候选真实Mail→Calendar创建/改期→回复→电脑重启未完成 |
-| Stability | V15 30冷启动+20普通重开+20Shell重启全部PASS；合成2h仍运行；旧真Mail5357s绘制层FAIL保留 |
-| Source | 产品b48618ac；新发现Calendar一行桥修复92b1df15，Foundation及object编译PASS，完整新Host尚未构建 |
-| Hub | LOCAL_EXTENDED_HUB开发验证；正式政策/publisher/最终视频/本人摘要未齐，不提交/上架 |
-| 需要用户做的 | 新Host构建后授权及登录、精确测试事件操作、第二独立模型、电脑重启、最终材料确认；按MORNING_HUMAN_QUEUE |
+## 实际完成
 
-## 详细证据与交付边界
+- 官方OctoScript/Splash主入口、Makepad、App Hub、manifest权限与官方model.complete保持。产品冻结1c9f3b46；readable9d01484c / payload4c970e04，91,195 token完全等价。
+- 邮件未请求修改的收件人/主题保留：16变体86检查；rc8两个真实模型E04均保持同卡、收件人、主题，只更新正文。原rc7失败保留。
+- 日历日期已知但缺时段时，先询问开始及结束，避免把模型臆造或反向时段当用户输入。15变体53检查；rc9 M3和M2.7实际D05均通过，零候选/零系统写入。原rc8 D05失败保留。
+- rc9跨聊天授权记忆六步/三次M3调用通过：更正同ID/revision2，新聊天读取新值，遗忘后内容及历史清除、墓碑保留、检索为空。
+- rc9一次性任务真实模型计划与建议→一次批准→保存→独立读回→第一次Shell重启通过。八项SHA和账本相同，没有重放；结果来源记忆metadata在创建时完整。
 
-- [原二十项](RC_ACCEPTANCE_MATRIX.md)：没有用18/20降低本轮门槛。
-- [真实模型、记忆、Goal及自发自收](RC_FINAL_LIVE_REPORT.md)：V15三次真实记忆检索验证更正/遗忘，两个模型参与的一次任务；首次Shell重启八文件SHA不变、无动作或模型重放。真实邮箱支持来自原稳定版本，不能拼成V15整链。
-- [70次启动](COLD_START_PROFILE.md)：非空16对话256消息、64记忆65来源全部恢复；冷启动可交互中位13.093秒，最慢24.844秒，预算仍64ms。不是电脑重启或OS缓存清除。
-- [日历实际读取与一行修复](RC_CALENDAR_READONLY_REPORT.md)：系统真实读取成功，宿主错误编码数字0/1导致UI拒绝；布尔修复原生边界通过但新Host因空间未编译。旧运行包仍有该缺陷。
-- [长运行](OVERNIGHT_SOAK.md)：合成与真实账号分别记录。真实Mail 89分钟失败不改成2小时通过。
-- [证据索引](RC_EVIDENCE_INDEX.md)：实际截图/日志/JSON的本地位置及SHA；公开交付不含私人邮件、凭据或生产资料。
-- [源码结构](SOURCE_STRUCTURE_AUDIT.md)、[独立实现](MUSE_CLEANROOM_FINAL.md)：保留官方技术路线，无第二Runtime，未恢复长期Goal页面。
-- [内部计分](CHAMPIONSHIP_SCORECARD.md)、[演示脚本](CHAMPIONSHIP_DEMO.md)：脚本不是已录视频，评分不是正式名次。
-- [晨间队列](MORNING_HUMAN_QUEUE.md)：按步骤补实际证据；构建资源、第二模型、材料缺项可能超过一小时。
+## 稳定性与外部实测
 
-源码和运行包分开交付：最新源码使用SDK锁da756dde，现有暖运行Host938ba58a仍来自SDK3f1bbb4e。不能把旧Host标为已集成日历修复。另一Mac/ARM/完整clean构建尚未通过。只做本地小步提交，无push、成功Tag或正式AppHub提交；旧安装、用户资料、旧失败及旧Tag保留。
+rc8完整30冷启动/20重开/20Shell重启通过。rc9首轮保存报告ENOSPC中断，30冷/13重开的磁盘证据保留；两小时首轮19样本542.154秒后同样中断，均不写PASS。容量恢复后，同rc9第二轮70启动及完整两小时采样进行，结果更新见COLD_START_PROFILE.md、OVERNIGHT_SOAK.md。
+
+今晚稳定0.3.25真实本人邮箱自发自收一次，自动提醒、独立mail.message和正文SHA匹配。真实只读Calendar诊断也已完成：Host把truncated编码成数字0/1，产品严格布尔守卫拒绝。92b1df15一行桥源码及Foundation三边界/Clang对象/SDK12000条目检查通过；现有运行Host仍未包含修复，不称日历已跑通。
+
+## 仍缺什么
+
+同最终候选真实邮件→项目记忆→系统日历创建/原事件改期/独立get→回复到达→首次恢复未完成。最新授权允许自发自收和日历读取，新的系统事件修改需精确授权；新Host身份权限/凭据状态不同于已授权稳定版。没有夜间代点TCC或寻找密钥。
+
+双模型完整15题、电脑重启、clean Host、第二Mac/ARM、窄高窗原尺寸、最终实际视频与正式发布身份/政策仍有缺项。不能用局部模型成功、空框或历史节点拼接替代。
+
+## 文件与交付
+
+清理只针对已结束候选的可恢复分发PNG，逐Git SHA/长度和lsof核对。最新164份操作前后可用从41,254,912增至357,711,872字节；APFS逻辑507MB不当实际释放。原始截图、失败、源码/包、账本、私人资料与生产数据未删。完整Host600MiB门禁未降低。
+
+最新源码薄交付将按最终Git清单+签名镜像导出；它不含独立运行Host/启动器/模型权重。桌面已有087 Intel运行ZIP仍是旧rc5，不能称最新版独立运行包。未push、未移动旧Tag、未正式提交App Hub。
+
+入口：RC_ACCEPTANCE_MATRIX.md、RC9_LIVE_NODE_SUMMARY.json、RC_CODE_FREEZE.json、RC_EVIDENCE_INDEX.json、MORNING_HUMAN_QUEUE.md、SOURCE_STRUCTURE_AUDIT.md。
