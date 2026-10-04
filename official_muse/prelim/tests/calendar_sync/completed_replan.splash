@@ -1,0 +1,131 @@
+// Patched production path. Each synthetic Host reply returns on a later frame.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+let cs_host_event = nil
+let cs_old_run = ""
+let cs_old_receipt = ""
+let cs_old_artifact = ""
+let cs_old_action = ""
+let cs_updates = 0
+let cs_waits = 0
+let cs_new_path = ""
+fn cs_event(){
+    return {id: "sync-fixture-event" calendar_id: "fixture-calendar" version: "v1" title: "MUSE-COMPLETED-REPLAN-SYNTHETIC"
+        start: "2030-06-13T13:00:00+08:00" end: "2030-06-13T14:00:00+08:00"
+        time_zone: "Asia/Shanghai" location: "synthetic" recurring: false all_day: false availability: 0}
+}
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({service: service args: args})
+    if service == "calendar.list" { start_timeout(0.03,|| callback({is_ok: true data: {events: [] truncated: false}})) return }
+    if service == "calendar.status" {
+        start_timeout(0.03,|| callback({is_ok: true data: {permission: "full_access" calendars: [{id: "fixture-calendar" writable: true}]}})) return
+    }
+    if service == "calendar.get" {
+        let event = cs_host_event.to_json().parse_json()
+        start_timeout(0.03,|| callback({is_ok: true data: {found: true event: event}})) return
+    }
+    if service == "calendar.update" {
+        cs_updates = cs_updates + 1
+        cs_checks.exact_update_original_identity_version = args.calendar_id == "fixture-calendar" && args.event_id == "sync-fixture-event" && args.expected_version == "v1"
+        cs_checks.update_changes_only_explicit_time = args.changes.to_json() == {start: "2030-06-14T13:00:00+08:00" end: "2030-06-14T14:00:00+08:00"}.to_json()
+        cs_host_event.start = args.changes.start cs_host_event.end = args.changes.end cs_host_event.version = "v2"
+        start_timeout(0.03,|| callback({is_ok: true data: {event_id: "sync-fixture-event" version: "v2"}})) return
+    }
+    cs_forbidden.push(service)
+    start_timeout(0.03,|| callback({is_ok: false error: "Fixture forbids create/model/mail and all other services"}))
+}
+fn cs_begin(){
+    fixture_seed() calendar_ready = true gm_boot()
+    start_timeout(0.03,|| cs_wait_memory())
+}
+fn cs_wait_memory(){
+    cs_waits = cs_waits + 1
+    if cs_waits > 100 { cs_checks.memory_initialization_completed = false fs.write("probe.json",cs_checks.to_json()) return }
+    if gm_boot_pending || !gm_ready { start_timeout(0.03,|| cs_wait_memory()) return }
+    gm_accounts = ["local","fixture-account"] gm_project = "fixture-project" gm_owner = "fixture-owner"
+    cs_checks.memory_initialization_completed = true
+    start_timeout(0.03,|| cs_seed_goal())
+}
+fn cs_seed_goal(){
+    cs_host_event = cs_event()
+    let goal = {schema: 1 id: "completed-replan-goal" version: 1 goal: cs_host_event.title project_id: gm_project owner_id: gm_owner
+        source: "Synthetic source" items: [] status: "planned" approved_at: 0 model_summary: ""
+        result_path: "results/completed-replan-goal-v1.json" updated_at: time_now() kind: "calendar"
+        mail_source: {account_id: "fixture-account" message_id: "fixture-message" source_id: "source:fixture" observed_at: "2030-01-01T00:00:00Z"}}
+    goal.goal_spec = calendar_goal_spec(goal.id,1,goal.goal,goal.result_path)
+    cs_checks.synthetic_goal_created = core_add_goal(goal)
+    cs_old_run = core_start_run(goal.id,1,"fixture-prior-create")
+    let source = {source_id: "source:fixture" kind: "runtime_receipt" locator: "mail:fixture-account:fixture-message"
+        content_sha256: fs.sha256("Synthetic source") observed_at: "2030-01-01T00:00:00Z"
+        updated_at: "2030-01-01T00:00:00Z" support_excerpt: "Synthetic source"}
+    source["scope"] = task_memory_scope(goal.id,"fixture-account")
+    cs_checks.actual_scoped_source_saved = core_add_source(source)
+    start_timeout(0.03,|| cs_seed_history())
+}
+fn cs_seed_history(){
+    let event = cs_host_event
+    let payload = {calendar_id: event.calendar_id title: event.title start: event.start end: event.end time_zone: event.time_zone location: event.location request_id: "fixture-prior-create"}
+    calendar_links = [{goal_id: "completed-replan-goal" account_id: "fixture-account" message_id: "fixture-message" source_id: "source:fixture"
+        source_claim_id: "memory:fixture" observed_at: "2030-01-01T00:00:00Z" candidate: payload
+        calendar_id: event.calendar_id run_id: cs_old_run event_id: event.id version: event.version operation: "create"
+        original_event: event.to_json().parse_json() latest_event: event.to_json().parse_json() status: "verified" last_error: ""
+        updated_at: time_now() candidate_revision: 3 memory_refs: []}]
+    cs_checks.synthetic_old_action_saved = core_begin_action("completed-replan-goal",cs_old_run,1,"calendar.create",event.calendar_id,"fixture-prior-create",payload.to_json())
+        && core_finish_action("fixture-prior-create","accepted") && core_finish_action("fixture-prior-create","verified")
+    cs_checks.synthetic_old_receipt_saved = calendar_store_receipt("fixture-prior-create","completed-replan-goal",cs_old_run,"calendar.create",payload,event.id,event.version,"verified")
+    let artifact = {schema: 1 task_id: "completed-replan-goal" run_id: cs_old_run request_id: "fixture-prior-create"
+        calendar_id: event.calendar_id event_id: event.id version: event.version title: event.title start: event.start end: event.end
+        time_zone: event.time_zone location: event.location verified_at: 1 source_id: "source:fixture"}
+    fs.mkdir("results") fs.write("results/completed-replan-goal-v1.json",artifact.to_json())
+    cs_checks.production_finish_synthetic_prior_run = core_finish_run("completed-replan-goal",cs_old_run,"completed","results/completed-replan-goal-v1.json")
+    cs_old_receipt = calendar_receipts[0].to_json() cs_old_action = actions[0].to_json()
+    cs_old_artifact = fs.read("results/completed-replan-goal-v1.json")
+    calendar_select_link("completed-replan-goal")
+    ui.calendar_start.set_text("2030-06-14T13:00:00+08:00") ui.calendar_end.set_text("2030-06-14T14:00:00+08:00") calendar_edit()
+    start_timeout(0.03,|| cs_conflicts())
+}
+fn cs_conflicts(){ calendar_check_conflicts() start_timeout(0.08,|| cs_preview()) }
+fn cs_preview(){
+    calendar_preview_action()
+    let gi = core_goal_index("completed-replan-goal")
+    cs_new_path = goals[gi].result_path
+    cs_checks.completed_matter_now_same_goal_planned_v2 = goals[gi].id == "completed-replan-goal" && goals[gi].version == 2 && goals[gi].status == "planned"
+    cs_checks.new_result_path_and_update_spec = cs_new_path != "results/completed-replan-goal-v1.json"
+        && goals[gi].goal_spec.steps[0].capability == "calendar.update" && goals[gi].goal_spec.permissions.capabilities.to_json() == ["calendar.update"].to_json()
+    cs_checks.original_event_id_version_retained_before_confirm = calendar_selected_event.id == "sync-fixture-event" && calendar_selected_event.version == "v1"
+    cs_checks.actual_preview_generated = calendar_preview != "" && calendar_error == "" && calendar_links[0].operation == "update"
+    calendar_confirm_action()
+    start_timeout(0.05,|| cs_wait_finished())
+}
+fn cs_wait_finished(){
+    cs_waits = cs_waits + 1
+    if calendar_pending && cs_waits < 120 { start_timeout(0.05,|| cs_wait_finished()) return }
+    // Allow the actual delayed auto-reply hook to run and prove no external call follows.
+    start_timeout(0.15,|| cs_report())
+}
+fn cs_report(){
+    let gi = core_goal_index("completed-replan-goal")
+    cs_checks.exactly_one_synthetic_update = cs_updates == 1
+    cs_checks.same_goal_completed_v2 = goals.len() == 1 && goals[gi].status == "completed" && goals[gi].version == 2
+    cs_checks.original_native_event_now_v2_new_time = calendar_selected_event.id == "sync-fixture-event" && calendar_selected_event.calendar_id == "fixture-calendar"
+        && calendar_selected_event.version == "v2" && calendar_selected_event.start == "2030-06-14T13:00:00+08:00"
+    cs_checks.link_verified_same_event_v2 = calendar_links.len() == 1 && calendar_links[0].status == "verified" && calendar_links[0].event_id == "sync-fixture-event" && calendar_links[0].version == "v2"
+    cs_checks.new_result_written_independently_readback = fs.exists(cs_new_path) && fs.read(cs_new_path).parse_json().task_id == "completed-replan-goal"
+        && fs.read(cs_new_path).parse_json().version == "v2" && fs.read(cs_new_path).parse_json().start == "2030-06-14T13:00:00+08:00"
+    cs_checks.old_result_bytes_preserved = fs.read("results/completed-replan-goal-v1.json") == cs_old_artifact
+    cs_checks.old_create_receipt_preserved = calendar_receipts.len() == 2 && calendar_receipts[0].to_json() == cs_old_receipt
+    cs_checks.new_update_receipt_verified = calendar_receipts.len() == 2 && calendar_receipts[1].service == "calendar.update" && calendar_receipts[1].status == "verified"
+    cs_checks.old_action_preserved = actions.len() == 2 && actions[0].to_json() == cs_old_action
+    cs_checks.new_action_verified_once = actions.len() == 2 && actions[1].service == "calendar.update" && actions[1].status == "verified"
+    cs_checks.new_run_completed_old_run_preserved = runs.len() == 2 && runs[0].id == cs_old_run && runs[0].status == "completed"
+        && runs[0].plan_revision == 1 && runs[1].status == "completed" && runs[1].plan_revision == 2
+    cs_checks.finish_has_no_error = calendar_error == "" && !calendar_pending
+    let gets = 0 for call in cs_calls { if call.service == "calendar.get" { gets = gets + 1 } }
+    cs_checks.precondition_and_postwrite_get_both_observed = gets == 2
+    cs_checks.no_create_model_mail_calls = cs_forbidden.len() == 0
+    cs_checks.observed = {goal: goals[gi] link: calendar_links[0] receipts: calendar_receipts runs: runs actions: actions error: calendar_error core_error: core_error}
+    cs_checks.calls = cs_calls cs_checks.forbidden_calls = cs_forbidden
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

@@ -1,0 +1,39 @@
+{
+  "status": "PARTIAL",
+  "version": "0.3.22",
+  "code_commit": "0d3405f7959d52a841667518548c6567e099539a",
+  "payload_sha256": "d9e220591645277bcc4457532b64a8828b1f36d555a846998340b35ef86ae853",
+  "readable_sha256": "0b5905acbf704d2f66f03f652f41692fb7984ba47a050a7bb288ed9356e7a0cd",
+  "host_sha256": "0fd9936126acad3a5c61ac1e7a477ba2c9393d740572ec517472f52da9181047",
+  "memory_shape_fixture": {
+    "pass": 7,
+    "total": 7,
+    "host": "baseline card-host; no external services"
+  },
+  "real_nodes": {
+    "calendar_permission": "full_access",
+    "mail_sync": "PASS",
+    "mail_baseline": 253,
+    "mail_current": 254,
+    "unique_synthetic_incoming_card": "PASS_0.3.21_PRESERVED_IN_0.3.22",
+    "project_preference_recall": "PASS_REAL_MODEL_0.3.21",
+    "editor_candidate_restored": "PASS_0.3.22",
+    "calendar_write": "NOT_EXECUTED",
+    "mail_send": "NOT_EXECUTED",
+    "same_candidate_full_chain": "NOT_COMPLETED"
+  },
+  "preserved_failures": [
+    "0.3.20 memory mutation 64ms limit at gm_enable and core_excerpt; raw original logs retained",
+    "0.3.21 calendar month-render 64ms limit and linked editor not open; raw logs retained",
+    "older original cold and S03 failures retained"
+  ],
+  "fixes": [
+    "core_memory_valid uses native object/number/array shape checks instead of full-store serialization",
+    "calendar_select_link opens real candidate editor",
+    "calendar month grid is hidden while editing; collapse editor restores month display"
+  ],
+  "acceptance_threshold": 18,
+  "acceptance": "No untested item promoted to PASS",
+  "official_upstream_calendar_acceptance": false,
+  "formal_submission": "NOT_EXECUTED"
+}

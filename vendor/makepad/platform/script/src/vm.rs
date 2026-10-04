@@ -1614,6 +1614,21 @@ impl<'a> ScriptVm<'a> {
         code: &str,
         source: ScriptObject,
     ) -> ScriptValue {
+        let body_id = match self.prepare_append_source(script_mod, code, source) {
+            Ok(body_id) => body_id,
+            Err(value) => return value,
+        };
+        self.eval_prepared_body(body_id)
+    }
+
+    /// Compile an append-only prefix without executing any application statement.
+    /// Each host entry retains its existing wall-clock and heap limits.
+    pub fn prepare_append_source(
+        &mut self,
+        script_mod: ScriptMod,
+        code: &str,
+        source: ScriptObject,
+    ) -> Result<u16, ScriptValue> {
         // Look for an existing body with matching file/line/column
         let existing_body_id = {
             let bodies = self.bx.code.bodies.borrow();
@@ -1715,19 +1730,24 @@ impl<'a> ScriptVm<'a> {
             if let Some(sink) = &mut self.bx.captured_errors {
                 sink.extend(new_parse_errors);
             }
-            // Silence runtime errors during incremental eval — incomplete code
-            // will inevitably produce errors that are meaningless until the
-            // source is fully received.
-            self.bx.silence_errors = true;
-            let result = self.run_root(body_id);
-            self.bx.silence_errors = false;
-            if let Some(result_obj) = result.as_object() {
-                self.bx.heap.set_from_eval(result_obj);
+            if self.bx.run_budget.as_ref().is_some_and(|budget|
+                crate::clock::monotonic_now() >= budget.hard_deadline) {
+                return Err(self.bail_resource_limit("script time budget exceeded"));
             }
-            result
+            Ok(body_id)
         } else {
-            NIL
+            Err(NIL)
         }
+    }
+
+    fn eval_prepared_body(&mut self, body_id: u16) -> ScriptValue {
+        self.bx.silence_errors = true;
+        let result = self.run_root(body_id);
+        self.bx.silence_errors = false;
+        if let Some(result_obj) = result.as_object() {
+            self.bx.heap.set_from_eval(result_obj);
+        }
+        result
     }
 }
 
@@ -2018,6 +2038,30 @@ mod tests {
         );
 
         assert_eq!(result.as_u40(), Some(2));
+    }
+
+    #[test]
+    fn source_preparation_does_not_execute_partial_application() {
+        let mut host = ScriptVmHost::new((), ());
+        let mut vm = plain_vm(&mut host);
+        let hits = std::rc::Rc::new(std::cell::Cell::new(0u32));
+        let counter = hits.clone();
+        let probe = vm.bx.heap.new_module(id!(probe));
+        vm.add_method(probe, id!(touch), &[], move |_, _| {
+            counter.set(counter.get() + 1);
+            41.into()
+        });
+        let module = || ScriptMod { file: "prepared-source.octoscript".into(), ..Default::default() };
+        let prefix = "use mod.probe\nlet marker = probe.touch()\n";
+        let code = format!("{prefix}return marker + 1\n;");
+        vm.prepare_append_source(module(), prefix, ScriptObject::ZERO).unwrap();
+        assert_eq!(hits.get(), 0, "preparing the first prefix must not call native actions");
+        vm.prepare_append_source(module(), &code, ScriptObject::ZERO).unwrap();
+        assert_eq!(hits.get(), 0, "preparing the complete body still must not execute it");
+        let value = vm.with_instruction_limit(1000, |vm|
+            vm.eval_with_append_source(module(), &code, ScriptObject::ZERO));
+        assert_eq!(value.as_f64(), Some(42.0));
+        assert_eq!(hits.get(), 1, "the complete application executes once");
     }
 
     #[test]

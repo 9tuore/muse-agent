@@ -1,0 +1,13 @@
+let shape_checks=[]
+fn shape_check(name,pass){shape_checks.push({name:name pass:pass})}
+shape_check("valid",core_memory_valid({schema:1 claims:[] sources:[] forget:[]}))
+shape_check("nil",!core_memory_valid(nil))
+shape_check("wrong_schema",!core_memory_valid({schema:2 claims:[] sources:[] forget:[]}))
+shape_check("claims_object",!core_memory_valid({schema:1 claims:{} sources:[] forget:[]}))
+shape_check("missing_sources",!core_memory_valid({schema:1 claims:[] forget:[]}))
+shape_check("forget_string",!core_memory_valid({schema:1 claims:[] sources:[] forget:"bad"}))
+let large_claims=[]
+for i in 64 {large_claims.push({id:"synthetic:"+i value:"合成资料，不含私人信息。"})}
+shape_check("bounded_large_shape",core_memory_valid({schema:1 claims:large_claims sources:[] forget:[]}))
+fs.write("cold-validation.json",{cases:shape_checks calls:[]}.to_json())
+View{height:Fit Label{text:"Memory shape test"}}

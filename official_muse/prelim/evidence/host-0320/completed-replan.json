@@ -1,0 +1,84 @@
+{
+  "status": "PASS_FIXTURE_ONLY_NARROW_COMPLETED_REPLAN_PATCH",
+  "source_sha256": "de0492eafea7f27c0edd8f931277203275f71126e375a3b8f032d20c1c21cba3",
+  "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+  "budget": "unchanged64ms",
+  "async_transport": true,
+  "calendar_function_count": 66,
+  "changed_calendar_functions": [
+    "calendar_preview_action"
+  ],
+  "parallel_root_boot_changes": {
+    "added": [
+      "chat_boot_data"
+    ],
+    "changed": [
+      "chat_boot",
+      "boot",
+      "boot_load"
+    ]
+  },
+  "approval_current_confirm_execute_function_sha_unchanged": true,
+  "function_scope_audit_sha256": "cbe197e3649a21ee02c30853c5e03358dfe752480adc543abd685ee738b26299",
+  "runs": [
+    {
+      "run": "patched-happy-r1",
+      "passed": 26,
+      "failed": [],
+      "report_sha256": "3c542b717f49ad2a486f992f0b4900a0b9596682fb2f36621e86b7be2a899455",
+      "runtime_log_sha256": "4b423d5000604c99ec68c24d547e84642219006c2e9915ff7e7762721768f79e",
+      "probe_sha256": "743873131c38a5fe5af52469c4827557c4b5b0f7868fc71edc8b31ab5274d24b",
+      "synthetic_service_counts": {
+        "calendar.list": 2,
+        "calendar.status": 1,
+        "calendar.get": 2,
+        "calendar.update": 1
+      },
+      "current_production_functions_retained": 404,
+      "allowed_substitutions": 5,
+      "other_instrumented_functions_byte_equal": 399
+    },
+    {
+      "run": "patched-guards-r1",
+      "passed": 63,
+      "failed": [],
+      "report_sha256": "4f40e20f59ff613dca9027a69f4f4da137df9fced7f1021d8b84107d9b138df0",
+      "runtime_log_sha256": "6942d873dccf024b28ae1582bc75c7d056910b7d108476d375db87d9b6f556b3",
+      "probe_sha256": "aef89decc886d831878c4a2aa8f63a294caccc8303900431d41ce19cc7782bbe",
+      "synthetic_service_counts": {
+        "calendar.list": 10,
+        "calendar.status": 1,
+        "calendar.get": 1
+      },
+      "current_production_functions_retained": 404,
+      "allowed_substitutions": 5,
+      "other_instrumented_functions_byte_equal": 399
+    }
+  ],
+  "real_calendar_model_mail_forwarding": 0,
+  "old81_rerun": false,
+  "passed": 89,
+  "failed": [],
+  "guards": [
+    "unknown",
+    "in_flight",
+    "stale selected version",
+    "wrong selected Calendar",
+    "archived",
+    "unchanged time",
+    "editing retry",
+    "waiting_user retry",
+    "existing planned mail revision unchanged",
+    "native version changes between preview and confirmation"
+  ],
+  "original_failure_preserved": {
+    "path": "r1/report.json",
+    "sha256": "bbbbad2ce634aa8fe6dff1d05aaa80d90d0ef87f0287b50a2f1ad0202976a43c",
+    "passed": 10,
+    "failed": [
+      "same_matter_replanned_as_new_planned_revision"
+    ]
+  },
+  "scope": "Actual production functions in real baseline card-host; historical and Host events synthetic, separate async reply frames; not actual Calendar/Shell/manual acceptance.",
+  "auto_reply_note": "Normal default mail_analysis.permitted=false and no live account; delayed production auto-reply hook ran without extra service request. Other configurations are not claimed."
+}

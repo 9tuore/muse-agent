@@ -1,0 +1,157 @@
+{
+  "status": "OFFLINE_FIXTURE_PASS_NOT_PRODUCT_ACCEPTANCE",
+  "checks": [
+    {
+      "check": "/tmp/outside.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "../outside.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "a/../outside.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "a//b.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "./x.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "private/events.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "profiles/mail.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "keys/publisher.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "db/data.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "state/events.json",
+      "result": "PASS"
+    },
+    {
+      "check": ".host/accounts.json",
+      "result": "PASS"
+    },
+    {
+      "check": "a.sqlite",
+      "result": "PASS"
+    },
+    {
+      "check": "a.db-wal",
+      "result": "PASS"
+    },
+    {
+      "check": "a.sqlite3-shm",
+      "result": "PASS"
+    },
+    {
+      "check": "publisher.key",
+      "result": "PASS"
+    },
+    {
+      "check": "a.pem",
+      "result": "PASS"
+    },
+    {
+      "check": "a/.env",
+      "result": "PASS"
+    },
+    {
+      "check": "a/.env.local",
+      "result": "PASS"
+    },
+    {
+      "check": "model.gguf",
+      "result": "PASS"
+    },
+    {
+      "check": "credentials.json",
+      "result": "PASS"
+    },
+    {
+      "check": "ordinary source path",
+      "result": "PASS"
+    },
+    {
+      "check": "approved Android policy source",
+      "result": "PASS"
+    },
+    {
+      "check": "same private path forbidden for overlay",
+      "result": "PASS"
+    },
+    {
+      "check": "approved static profile source: vendor/makepad/tools/open_harmony/deveco/entry/src/main/resources/base/profile/backup_config.json",
+      "result": "PASS"
+    },
+    {
+      "check": "same static profile path forbidden for overlay: vendor/makepad/tools/open_harmony/deveco/entry/src/main/resources/base/profile/backup_config.json",
+      "result": "PASS"
+    },
+    {
+      "check": "approved static profile source: vendor/makepad/tools/open_harmony/deveco/entry/src/main/resources/base/profile/main_pages.json",
+      "result": "PASS"
+    },
+    {
+      "check": "same static profile path forbidden for overlay: vendor/makepad/tools/open_harmony/deveco/entry/src/main/resources/base/profile/main_pages.json",
+      "result": "PASS"
+    },
+    {
+      "check": "file symlink rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "symlink parent rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "symlink root rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "absolute dependency target rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "relative dependency escape rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "approved internal dependency target",
+      "result": "PASS"
+    },
+    {
+      "check": "tiny stream archive exact inventory/hash/internal link",
+      "result": "PASS"
+    },
+    {
+      "check": "archive hash mismatch rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "failed archive remains partial, no success artifact",
+      "result": "PASS"
+    }
+  ],
+  "passed": 36,
+  "failed": 0,
+  "sdk_build": "NOT_EXECUTED",
+  "final_archive": "NOT_CREATED",
+  "production_private_keys_db": "NOT_READ",
+  "existing_source_archive": "UNCHANGED",
+  "scope": "OFFLINE_PACKAGE_SELECTION_TESTS_NOT_PRODUCT_OR_CLEAN_BUILD",
+  "actual_final_archive": "NOT_CREATED"
+}

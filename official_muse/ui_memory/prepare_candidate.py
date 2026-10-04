@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Local-only App Hub gate and isolated candidate. No remote publication or account data export."""
-import argparse, hashlib, json, shutil, subprocess
+import argparse, hashlib, json, os, shutil, subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 HOST_ROOT=Path('/Users/mima0000/.codex/worktrees/muse-official-migration/phase2-host')
 LEGACY_BUILD=Path('/Users/mima0000/.codex/worktrees/muse-official-migration/Agent APP黑客松/official_muse/app/build')
 BASE_MIRROR=Path('/Users/mima0000/.codex/worktrees/muse-round2-improvements/Agent APP黑客松/official_muse/app/build/round2/mirror')
 BASE_APPS=LEGACY_BUILD/'phase2-final-029-r2-apps'
-HUB=HOST_ROOT/'OctoSense-App-Hub/target/release/hub'
+HUB=Path(os.environ.get('MUSE_HUB_CLI', str(HOST_ROOT/'OctoSense-App-Hub/target/release/hub')))
 ANCHOR='3581c1c9087a917630bc8560495189c5f1bb842a797ad5203cad0ed94ab5a840'
 HOST_APP=HOST_ROOT/'OctoSense/target/muse-calendar-test/OctoSense Muse 中文版 0.2.10-r2.app'
 def copy_authorized_model_profile(authorized,private):
@@ -104,6 +104,7 @@ def main():
          'manifest':json.loads((bundle/'manifest.json').read_text()),'commit':head,'gate':'LOCAL_EXTENDED_HUB_PASS',
          'review':'packet generated, no independent publisher review','upstream_calendar_acceptance':False,
          'host_app_path':str(host_app),'host_sha256':hashlib.sha256(host_binary.read_bytes()).hexdigest(),
+         'hub_cli_sha256':hashlib.sha256(HUB.read_bytes()).hexdigest(),
          'profile_kind':'AUTHORIZED_MODEL_ONLY_SYNTHETIC' if a.authorized_model_only else 'LOCAL_MODEL_ONLY_SYNTHETIC' if a.local_model_only else 'PRIVATE_AUTHORIZED_CLONE' if a.clone_host_profile else 'NO_PROFILE'}
  if model_metadata:record['model_metadata']=model_metadata
  if a.clone_host_profile:record['authorized_profile_source']=str(authorized) if authorized else 'legacy phase2 authorized profile'

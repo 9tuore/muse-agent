@@ -1,0 +1,123 @@
+// Only the patched preview boundary and its existing approval preflight guards.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+let cs_cases = ["unknown","in_flight","stale_selected_version","wrong_selected_calendar","archived","unchanged_time",
+    "editing_retry","waiting_user_retry","already_planned_mail","native_stale_after_preview"]
+let cs_case_index = 0
+let cs_case = ""
+let cs_trace = []
+let cs_base_goal = nil
+let cs_base_link = nil
+let cs_base_receipts = nil
+let cs_original_artifact = ""
+let cs_pending_waits = 0
+fn cs_event(){
+    return {id: "sync-fixture-event" calendar_id: "fixture-calendar" version: "v1" title: "MUSE-COMPLETED-REPLAN-SYNTHETIC"
+        start: "2030-06-13T13:00:00+08:00" end: "2030-06-13T14:00:00+08:00"
+        time_zone: "Asia/Shanghai" location: "synthetic" recurring: false all_day: false availability: 0}
+}
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({case: cs_case service: service args: args})
+    if service == "calendar.list" {
+        start_timeout(0.03,|| { callback({is_ok: true data: {events: [] truncated: false}}) start_timeout(0.03,|| cs_preview()) }) return
+    }
+    if service == "calendar.status" {
+        start_timeout(0.03,|| callback({is_ok: true data: {permission: "full_access" calendars: [{id: "fixture-calendar" writable: true}]}})) return
+    }
+    if service == "calendar.get" {
+        let event = cs_event() event.version = "external-v99"
+        start_timeout(0.03,|| callback({is_ok: true data: {found: true event: event}})) return
+    }
+    cs_forbidden.push(service)
+    start_timeout(0.03,|| callback({is_ok: false error: "Guard fixture forbids every mutation/model/mail request"}))
+}
+fn cs_begin(){
+    fixture_seed() calendar_ready = true gm_accounts = ["local","fixture-account"]
+    start_timeout(0.03,|| cs_seed())
+}
+fn cs_seed(){
+    let event = cs_event()
+    cs_base_goal = {schema: 1 id: "completed-replan-guard" version: 1 goal: event.title project_id: gm_project owner_id: gm_owner
+        source: "Synthetic existing mail" items: [] status: "completed" approved_at: 1 model_summary: ""
+        result_path: "results/completed-replan-guard-v1.json" updated_at: time_now() kind: "calendar" archived: false
+        mail_source: {account_id: "fixture-account" message_id: "fixture-message" source_id: "source:fixture" observed_at: "2030-01-01T00:00:00Z"}}
+    cs_base_goal.goal_spec = calendar_goal_spec(cs_base_goal.id,1,cs_base_goal.goal,cs_base_goal.result_path)
+    cs_checks.base_synthetic_completed_goal_saved = core_add_goal(cs_base_goal)
+    let payload = {calendar_id: event.calendar_id title: event.title start: event.start end: event.end time_zone: event.time_zone location: event.location}
+    calendar_links = [{goal_id: cs_base_goal.id account_id: "fixture-account" message_id: "fixture-message" source_id: "source:fixture"
+        source_claim_id: "memory:fixture" observed_at: "2030-01-01T00:00:00Z" candidate: payload calendar_id: event.calendar_id
+        run_id: "fixture-prior-run" event_id: event.id version: event.version operation: "update" original_event: event latest_event: event
+        status: "verified" last_error: "" updated_at: time_now() candidate_revision: 3 memory_refs: []}]
+    cs_checks.base_synthetic_old_receipt_saved = calendar_store_receipt("fixture-prior-create",cs_base_goal.id,"fixture-prior-run","calendar.create",payload,event.id,event.version,"verified")
+    cs_base_link = calendar_links[0].to_json().parse_json() cs_base_receipts = calendar_receipts.to_json().parse_json()
+    let artifact = {schema: 1 task_id: cs_base_goal.id run_id: "fixture-prior-run" request_id: "fixture-prior-create"
+        calendar_id: event.calendar_id event_id: event.id version: event.version title: event.title start: event.start end: event.end
+        time_zone: event.time_zone location: event.location verified_at: 1 source_id: "source:fixture"}
+    fs.mkdir("results") fs.write(cs_base_goal.result_path,artifact.to_json()) cs_original_artifact = fs.read(cs_base_goal.result_path)
+    start_timeout(0.03,|| cs_prepare_case())
+}
+fn cs_prepare_case(){
+    cs_case = cs_cases[cs_case_index]
+    calendar_pending = false calendar_error = "" calendar_preview = "" calendar_checked = ""
+    cs_checks[cs_case + "_reset_saved"] = core_commit_goals([cs_base_goal.to_json().parse_json()],[],[],cs_base_goal.id)
+    calendar_links = [cs_base_link.to_json().parse_json()] calendar_receipts = cs_base_receipts.to_json().parse_json()
+    if cs_case == "unknown" || cs_case == "in_flight" { calendar_links[0].status = cs_case }
+    if cs_case == "editing_retry" { calendar_links[0].status = "editing" }
+    if cs_case == "waiting_user_retry" { calendar_links[0].status = "waiting_user" }
+    if cs_case == "archived" { cs_checks.archive_fixture_saved = core_archive_goal(cs_base_goal.id) }
+    if cs_case == "already_planned_mail" {
+        let next = goals[0].to_json().parse_json() next.version = 2 next.status = "planned" next.phase = "calendar"
+        next.result_path = "results/calendar-existing-mail-v2.json"
+        next.goal_spec = calendar_goal_spec(next.id,2,next.goal,next.result_path)
+        next.goal_spec.steps[0].capability = "calendar.update" next.goal_spec.permissions.capabilities = ["calendar.update"]
+        cs_checks.existing_mail_plan_prepared_with_production_replan = core_replan_goal(next.id,next)
+        calendar_links[0].status = "candidate"
+    }
+    calendar_save() calendar_select_link(cs_base_goal.id)
+    if cs_case == "stale_selected_version" { calendar_selected_event = calendar_selected_event.to_json().parse_json() calendar_selected_event.version = "stale-v0" }
+    if cs_case == "wrong_selected_calendar" { calendar_selected_event = calendar_selected_event.to_json().parse_json() calendar_selected_event.calendar_id = "different-calendar" }
+    if cs_case != "unchanged_time" {
+        ui.calendar_start.set_text("2030-06-14T13:00:00+08:00") ui.calendar_end.set_text("2030-06-14T14:00:00+08:00")
+    }
+    calendar_edit()
+    start_timeout(0.03,|| calendar_check_conflicts())
+}
+fn cs_preview(){
+    cs_checks[cs_case + "_actual_conflict_check_valid"] = calendar_checked != "" && calendar_conflicts.len() == 0
+    calendar_preview_action()
+    let reject = cs_case == "unknown" || cs_case == "in_flight" || cs_case == "stale_selected_version"
+        || cs_case == "wrong_selected_calendar" || cs_case == "archived" || cs_case == "unchanged_time"
+    if reject {
+        cs_checks[cs_case + "_preview_rejected"] = calendar_preview == "" && calendar_error != ""
+        cs_checks[cs_case + "_old_goal_revision_preserved"] = goals[0].version == 1 && goals[0].status == "completed"
+            && goals[0].result_path == cs_base_goal.result_path
+    } else {
+        cs_checks[cs_case + "_same_goal_planned_v2_once"] = goals.len() == 1 && goals[0].version == 2 && goals[0].status == "planned"
+            && calendar_preview != "" && calendar_links[0].status == "waiting_user"
+        if cs_case == "already_planned_mail" { cs_checks.existing_planned_mail_result_path_unchanged = goals[0].result_path == "results/calendar-existing-mail-v2.json" }
+    }
+    if cs_case == "native_stale_after_preview" {
+        calendar_confirm_action() start_timeout(0.05,|| cs_wait_stale()) return
+    }
+    start_timeout(0.03,|| cs_finish_case())
+}
+fn cs_wait_stale(){
+    cs_pending_waits = cs_pending_waits + 1
+    if calendar_pending && cs_pending_waits < 50 { start_timeout(0.03,|| cs_wait_stale()) return }
+    cs_checks.native_changed_version_invalidates_actual_confirmation = calendar_preview == "" && calendar_error != "" && !calendar_pending
+        && goals[0].version == 2 && goals[0].status == "planned" && actions.len() == 0 && runs.len() == 0
+    start_timeout(0.03,|| cs_finish_case())
+}
+fn cs_finish_case(){
+    cs_checks[cs_case + "_old_receipt_result_preserved"] = calendar_receipts.to_json() == cs_base_receipts.to_json()
+        && fs.read(cs_base_goal.result_path) == cs_original_artifact
+    cs_checks[cs_case + "_no_new_action_or_run"] = actions.len() == 0 && runs.len() == 0
+    cs_trace.push({case: cs_case goal: goals[0].to_json().parse_json() link: calendar_links[0].to_json().parse_json() error: calendar_error has_preview: calendar_preview != ""})
+    cs_case_index = cs_case_index + 1
+    if cs_case_index < cs_cases.len() { start_timeout(0.03,|| cs_prepare_case()) return }
+    cs_checks.no_create_update_model_mail_request = cs_forbidden.len() == 0
+    cs_checks.calls = cs_calls cs_checks.forbidden_calls = cs_forbidden cs_checks.trace = cs_trace
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

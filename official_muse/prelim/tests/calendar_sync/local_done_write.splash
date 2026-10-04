@@ -1,0 +1,52 @@
+// Persist synthetic local completion for an independent next card-host process.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+let cs_original_goal_state = ""
+let cs_original_receipts = ""
+let cs_original_event = ""
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({service: service args: args}) cs_forbidden.push(service)
+    callback({is_ok: false error: "Local-completion fixture permits no Calendar/model service"})
+}
+fn cs_event(){
+    return {id: "sync-fixture-event" calendar_id: "fixture-calendar" version: "v1" title: "MUSE-LOCAL-DONE-SYNTHETIC"
+        start: "2030-06-13T13:00:00+08:00" end: "2030-06-13T14:00:00+08:00"
+        time_zone: "Asia/Shanghai" location: "synthetic" recurring: false all_day: false availability: 0}
+}
+fn cs_begin(){
+    fixture_seed() calendar_boot()
+    start_timeout(0.03,|| cs_prepare())
+}
+fn cs_prepare(){
+    let event = cs_event()
+    let goal = {schema: 1 id: "calendar-local-goal" version: 1 goal: event.title project_id: gm_project owner_id: gm_owner
+        source: "Synthetic source" items: [] status: "completed" approved_at: 1 model_summary: ""
+        result_path: "results/calendar-local-goal.json" updated_at: time_now() kind: "calendar"}
+    goal.goal_spec = calendar_goal_spec(goal.id,1,goal.goal,goal.result_path)
+    cs_checks.persisted_completed_fixture_goal = core_add_goal(goal)
+    calendar_selected_goal = goal.id calendar_selected_event = event calendar_pending = false
+    cs_original_goal_state = {goals: goals runs: runs actions: actions}.to_json()
+    cs_original_receipts = calendar_receipts.to_json() cs_original_event = event.to_json()
+    start_timeout(0.03,|| cs_write())
+}
+fn cs_write(){
+    let event = cs_event()
+    cs_checks.initial_state_uncompleted = !calendar_local_done(event)
+    cs_checks.toggle_saved_successfully = calendar_toggle_local_done(event)
+    cs_checks.local_done_true_after_toggle = calendar_local_done(event)
+    let stored = fs.read("calendar-state.json").parse_json()
+    cs_checks.persisted_schema1_local_flag = stored.schema == 1 && stored["local_states"].is_array()
+        && stored.local_states.len() == 1 && stored.local_states[0].completed == true
+    cs_checks.exact_event_and_calendar_key_saved = stored.local_states[0].event_id == event.id
+        && stored.local_states[0].calendar_id == event.calendar_id
+    let other = event.to_json().parse_json() other.calendar_id = "different-calendar"
+    cs_checks.same_event_id_other_calendar_not_marked = !calendar_local_done(other)
+    cs_checks.system_event_fields_not_changed = calendar_selected_event.to_json() == cs_original_event
+    cs_checks.completed_execution_not_reset = {goals: goals runs: runs actions: actions}.to_json() == cs_original_goal_state
+    cs_checks.historical_receipts_not_changed = calendar_receipts.to_json() == cs_original_receipts
+    cs_checks.no_calendar_queries_mutations_models = cs_calls.len() == 0 && cs_forbidden.len() == 0
+    cs_checks.calls = cs_calls cs_checks.forbidden_calls = cs_forbidden
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

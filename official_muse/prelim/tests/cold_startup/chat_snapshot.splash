@@ -1,0 +1,40 @@
+// Real storage + production snapshot decoder; synthetic records only.
+let cold_cases = []
+let cold_index = 0
+let cold_raw = ""
+fn cold_snapshot_step(){
+    let saved = {schema: 1 selected_id: "synthetic" sessions: [{id: "synthetic" title: "合成快照"
+        created_at: 1 updated_at: 2 focus_project: "合成项目" focus_owner: "synthetic" goal_id: "" proposals: []
+        messages: [{role: "assistant" text: "合成历史" state: "success" at: 2}]}]}
+    if cold_index == 0 {
+        cold_raw = "  " + saved.to_json() + "\n"
+        fs.write("chat-sessions.json",cold_raw)
+        fs.write("chat-sessions.backup.json",cold_raw)
+        chat_ready = false
+        let ready = chat_boot_data()
+        cold_cases.push({name: "valid_raw_retained_without_reserialization" pass: ready && chat_ready
+            && chat_last_state == cold_raw && chat_selected_id == "synthetic"
+            && fs.read("chat-sessions.json") == cold_raw && fs.read("chat-sessions.backup.json") == cold_raw})
+    }
+    if cold_index == 1 {
+        fs.write("chat-sessions.json","synthetic corrupt primary")
+        chat_ready = false
+        let ready = chat_boot_data()
+        cold_cases.push({name: "valid_backup_loaded_corrupt_primary_not_overwritten" pass: ready && chat_ready
+            && chat_last_state == cold_raw && fs.read("chat-sessions.json") == "synthetic corrupt primary"
+            && fs.read("chat-sessions.backup.json") == cold_raw})
+    }
+    if cold_index == 2 {
+        fs.write("chat-sessions.backup.json","synthetic corrupt backup")
+        chat_ready = false
+        let ready = chat_boot_data()
+        cold_cases.push({name: "invalid_both_fail_closed_and_preserve_files" pass: !ready && !chat_ready
+            && fs.read("chat-sessions.json") == "synthetic corrupt primary"
+            && fs.read("chat-sessions.backup.json") == "synthetic corrupt backup"})
+    }
+    cold_index = cold_index + 1
+    if cold_index < 3 { start_timeout(0.03, || cold_snapshot_step()) return }
+    fs.write("cold-validation.json",{schema: 1 cases: cold_cases calls: 0 kind: "actual card-host snapshot decoder with synthetic storage"}.to_json())
+}
+start_timeout(0.05, || cold_snapshot_step())
+View{width: Fill height: Fill Label{text: "合成快照恢复边界"}}

@@ -1,0 +1,1695 @@
+{
+  "native_stale_after_preview_actual_conflict_check_valid": true,
+  "editing_retry_reset_saved": true,
+  "unchanged_time_no_new_action_or_run": true,
+  "unchanged_time_old_receipt_result_preserved": true,
+  "unchanged_time_preview_rejected": true,
+  "unchanged_time_old_goal_revision_preserved": true,
+  "already_planned_mail_actual_conflict_check_valid": true,
+  "waiting_user_retry_reset_saved": true,
+  "native_stale_after_preview_reset_saved": true,
+  "already_planned_mail_reset_saved": true,
+  "editing_retry_no_new_action_or_run": true,
+  "editing_retry_old_receipt_result_preserved": true,
+  "native_changed_version_invalidates_actual_confirmation": true,
+  "waiting_user_retry_no_new_action_or_run": true,
+  "editing_retry_same_goal_planned_v2_once": true,
+  "already_planned_mail_no_new_action_or_run": true,
+  "waiting_user_retry_old_receipt_result_preserved": true,
+  "already_planned_mail_old_receipt_result_preserved": true,
+  "waiting_user_retry_same_goal_planned_v2_once": true,
+  "forbidden_calls": [],
+  "base_synthetic_completed_goal_saved": true,
+  "in_flight_actual_conflict_check_valid": true,
+  "native_stale_after_preview_no_new_action_or_run": true,
+  "native_stale_after_preview_same_goal_planned_v2_once": true,
+  "existing_mail_plan_prepared_with_production_replan": true,
+  "native_stale_after_preview_old_receipt_result_preserved": true,
+  "trace": [
+    {
+      "case": "unknown",
+      "goal": {
+        "status": "completed",
+        "result_path": "results/completed-replan-guard-v1.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 1,
+        "updated_at": 1791091333.207647,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 1,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "create-calendar-event",
+              "capability": "calendar.create",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.create"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/completed-replan-guard-v1.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 1,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "unknown",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091333.209507,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "此邮件任务已有系统事件或待对账动作，禁止再次创建。",
+      "has_preview": false
+    },
+    {
+      "case": "in_flight",
+      "goal": {
+        "status": "completed",
+        "result_path": "results/completed-replan-guard-v1.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 1,
+        "updated_at": 1791091333.207647,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 1,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "create-calendar-event",
+              "capability": "calendar.create",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.create"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/completed-replan-guard-v1.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 1,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "in_flight",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091333.209507,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "此邮件任务已有系统事件或待对账动作，禁止再次创建。",
+      "has_preview": false
+    },
+    {
+      "case": "stale_selected_version",
+      "goal": {
+        "status": "completed",
+        "result_path": "results/completed-replan-guard-v1.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 1,
+        "updated_at": 1791091333.207647,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 1,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "create-calendar-event",
+              "capability": "calendar.create",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.create"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/completed-replan-guard-v1.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 1,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "verified",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091333.209507,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "请先刷新核对原事项，再为原事件准备新改期计划。",
+      "has_preview": false
+    },
+    {
+      "case": "wrong_selected_calendar",
+      "goal": {
+        "status": "completed",
+        "result_path": "results/completed-replan-guard-v1.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 1,
+        "updated_at": 1791091333.207647,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 1,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "create-calendar-event",
+              "capability": "calendar.create",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.create"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/completed-replan-guard-v1.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 1,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "verified",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091333.209507,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "请先刷新核对原事项，再为原事件准备新改期计划。",
+      "has_preview": false
+    },
+    {
+      "case": "archived",
+      "goal": {
+        "status": "completed",
+        "result_path": "results/completed-replan-guard-v1.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 1,
+        "updated_at": 1791091334.057286,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 1,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "create-calendar-event",
+              "capability": "calendar.create",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.create"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/completed-replan-guard-v1.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 1,
+        "schema": 1,
+        "archived": true
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "verified",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091333.209507,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "请先刷新核对原事项，再为原事件准备新改期计划。",
+      "has_preview": false
+    },
+    {
+      "case": "unchanged_time",
+      "goal": {
+        "status": "completed",
+        "result_path": "results/completed-replan-guard-v1.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 1,
+        "updated_at": 1791091333.207647,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 1,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "create-calendar-event",
+              "capability": "calendar.create",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.create"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/completed-replan-guard-v1.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 1,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "verified",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091333.209507,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "改期时间尚未改变，请填写新时间。",
+      "has_preview": false
+    },
+    {
+      "case": "editing_retry",
+      "goal": {
+        "status": "planned",
+        "result_path": "results/calendar-completed-replan-guard-v2.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 0,
+        "updated_at": 1791091334.826215,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 2,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "update-calendar-event",
+              "capability": "calendar.update",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.update"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/calendar-completed-replan-guard-v2.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "phase": "calendar",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 2,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "waiting_user",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091334.828089,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-14T13:00:00+08:00",
+          "end": "2030-06-14T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "",
+      "has_preview": true
+    },
+    {
+      "case": "waiting_user_retry",
+      "goal": {
+        "status": "planned",
+        "result_path": "results/calendar-completed-replan-guard-v2.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 0,
+        "updated_at": 1791091335.060016,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 2,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "update-calendar-event",
+              "capability": "calendar.update",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.update"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/calendar-completed-replan-guard-v2.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "phase": "calendar",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 2,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "waiting_user",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091335.061409,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-14T13:00:00+08:00",
+          "end": "2030-06-14T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "",
+      "has_preview": true
+    },
+    {
+      "case": "already_planned_mail",
+      "goal": {
+        "status": "planned",
+        "result_path": "results/calendar-existing-mail-v2.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 0,
+        "updated_at": 1791091333.207647,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 2,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "create-calendar-event",
+              "capability": "calendar.update",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.update"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/calendar-existing-mail-v2.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "phase": "calendar",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 2,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "waiting_user",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091335.468805,
+        "last_error": "",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-14T13:00:00+08:00",
+          "end": "2030-06-14T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "",
+      "has_preview": true
+    },
+    {
+      "case": "native_stale_after_preview",
+      "goal": {
+        "status": "planned",
+        "result_path": "results/calendar-completed-replan-guard-v2.json",
+        "model_summary": "",
+        "source": "Synthetic existing mail",
+        "approved_at": 0,
+        "updated_at": 1791091335.662492,
+        "id": "completed-replan-guard",
+        "items": [],
+        "kind": "calendar",
+        "goal_spec": {
+          "schema_version": "muse.goal/0.1",
+          "goal_id": "completed-replan-guard",
+          "revision": 2,
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "objective": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "priority": "normal",
+          "deadline": null,
+          "timezone": "UTC",
+          "triggers": [
+            {
+              "kind": "event",
+              "topic": "user.message",
+              "source_ref": "muse.ui"
+            }
+          ],
+          "context_refs": [
+            {
+              "ref": "mail.message",
+              "purpose": "已授权读取的邮件来源，仅作为资料"
+            }
+          ],
+          "steps": [
+            {
+              "id": "update-calendar-event",
+              "capability": "calendar.update",
+              "args": {}
+            }
+          ],
+          "permissions": {
+            "capabilities": [
+              "calendar.update"
+            ],
+            "resource_refs": [],
+            "send_message": "deny",
+            "send_rule_ref": null,
+            "cloud_context": "none"
+          },
+          "budget": {
+            "period": "goal",
+            "money": {
+              "mode": "capped",
+              "currency": "CNY",
+              "amount": 0
+            },
+            "max_model_tokens": 0,
+            "max_searches": 0,
+            "max_run_seconds": 60
+          },
+          "verification": [
+            {
+              "type": "calendar.get",
+              "target_ref": "results/calendar-completed-replan-guard-v2.json",
+              "expected": {
+                "task_id": "completed-replan-guard"
+              }
+            }
+          ],
+          "notify": {
+            "on_major_update": false,
+            "on_need_decision": true,
+            "on_complete": true
+          },
+          "failure_policy": {
+            "max_retries": 0,
+            "escalate": true
+          }
+        },
+        "goal": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+        "phase": "calendar",
+        "mail_source": {
+          "account_id": "fixture-account",
+          "message_id": "fixture-message",
+          "source_id": "source:fixture",
+          "observed_at": "2030-01-01T00:00:00Z"
+        },
+        "project_id": "",
+        "owner_id": "",
+        "version": 2,
+        "schema": 1,
+        "archived": false
+      },
+      "link": {
+        "latest_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "original_event": {
+          "id": "sync-fixture-event",
+          "calendar_id": "fixture-calendar",
+          "version": "v1",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-13T13:00:00+08:00",
+          "end": "2030-06-13T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic",
+          "recurring": false,
+          "all_day": false,
+          "availability": 0
+        },
+        "status": "waiting_user",
+        "active_generation": null,
+        "goal_id": "completed-replan-guard",
+        "updated_at": 1791091335.664919,
+        "last_error": "目标系统事件已变化或无法读回，请重新读取版本。",
+        "candidate": {
+          "calendar_id": "fixture-calendar",
+          "title": "MUSE-COMPLETED-REPLAN-SYNTHETIC",
+          "start": "2030-06-14T13:00:00+08:00",
+          "end": "2030-06-14T14:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "location": "synthetic"
+        },
+        "run_id": "fixture-prior-run",
+        "soft_exception": null,
+        "account_id": "fixture-account",
+        "message_id": "fixture-message",
+        "source_id": "source:fixture",
+        "source_claim_id": "memory:fixture",
+        "event_id": "sync-fixture-event",
+        "observed_at": "2030-01-01T00:00:00Z",
+        "candidate_revision": 4,
+        "approval_revision": 11,
+        "operation": "update",
+        "memory_refs": [],
+        "version": "v1",
+        "calendar_id": "fixture-calendar"
+      },
+      "error": "目标系统事件已变化或无法读回，请重新读取版本。",
+      "has_preview": false
+    }
+  ],
+  "base_synthetic_old_receipt_saved": true,
+  "archived_actual_conflict_check_valid": true,
+  "calls": [
+    {
+      "case": "unknown",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "in_flight",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "stale_selected_version",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "wrong_selected_calendar",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "archived",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "unchanged_time",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-13T13:00:00+08:00",
+        "end": "2030-06-13T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "editing_retry",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "waiting_user_retry",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "already_planned_mail",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "native_stale_after_preview",
+      "service": "calendar.list",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "start": "2030-06-14T13:00:00+08:00",
+        "end": "2030-06-14T14:00:00+08:00",
+        "limit": 100
+      }
+    },
+    {
+      "case": "native_stale_after_preview",
+      "service": "calendar.status",
+      "args": {}
+    },
+    {
+      "case": "native_stale_after_preview",
+      "service": "calendar.get",
+      "args": {
+        "calendar_id": "fixture-calendar",
+        "event_id": "sync-fixture-event"
+      }
+    }
+  ],
+  "stale_selected_version_actual_conflict_check_valid": true,
+  "archive_fixture_saved": true,
+  "unknown_reset_saved": true,
+  "unchanged_time_actual_conflict_check_valid": true,
+  "in_flight_reset_saved": true,
+  "wrong_selected_calendar_actual_conflict_check_valid": true,
+  "unknown_actual_conflict_check_valid": true,
+  "unknown_no_new_action_or_run": true,
+  "stale_selected_version_reset_saved": true,
+  "unknown_old_receipt_result_preserved": true,
+  "unknown_preview_rejected": true,
+  "unknown_old_goal_revision_preserved": true,
+  "in_flight_no_new_action_or_run": true,
+  "wrong_selected_calendar_reset_saved": true,
+  "no_create_update_model_mail_request": true,
+  "in_flight_old_receipt_result_preserved": true,
+  "in_flight_preview_rejected": true,
+  "in_flight_old_goal_revision_preserved": true,
+  "archived_reset_saved": true,
+  "stale_selected_version_no_new_action_or_run": true,
+  "existing_planned_mail_result_path_unchanged": true,
+  "unchanged_time_reset_saved": true,
+  "stale_selected_version_old_receipt_result_preserved": true,
+  "stale_selected_version_preview_rejected": true,
+  "stale_selected_version_old_goal_revision_preserved": true,
+  "wrong_selected_calendar_no_new_action_or_run": true,
+  "waiting_user_retry_actual_conflict_check_valid": true,
+  "wrong_selected_calendar_old_receipt_result_preserved": true,
+  "wrong_selected_calendar_preview_rejected": true,
+  "wrong_selected_calendar_old_goal_revision_preserved": true,
+  "archived_no_new_action_or_run": true,
+  "archived_old_receipt_result_preserved": true,
+  "archived_preview_rejected": true,
+  "archived_old_goal_revision_preserved": true,
+  "editing_retry_actual_conflict_check_valid": true,
+  "already_planned_mail_same_goal_planned_v2_once": true,
+  "kind": "FIXTURE",
+  "readable_source_sha256": "de0492eafea7f27c0edd8f931277203275f71126e375a3b8f032d20c1c21cba3",
+  "compact_source_sha256": "d3dcdaad7193ad361311277332f3e85e3dae21be387ee0183b7a9be7b1e807d7",
+  "host_sha256": "c2dd49332dffce99023264d2fec636fcae2529e3a082ee14494532cec46b0e61",
+  "probe_sha256": "aef89decc886d831878c4a2aa8f63a294caccc8303900431d41ce19cc7782bbe",
+  "passed": 63,
+  "failed": []
+}

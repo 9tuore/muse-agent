@@ -29,6 +29,15 @@ script_mod! {
     }
 }
 
+// One bounded compile prefix per frame; no partial source is executed.
+struct SplashSourcePreparation {
+    code: String,
+    offset: usize,
+    chunks: usize,
+    total_ms: f64,
+    max_ms: f64,
+}
+
 #[derive(Script, WidgetRef, WidgetRegister)]
 pub struct Splash {
     #[uid]
@@ -99,6 +108,12 @@ pub struct Splash {
     stylesheet: Option<crate::desktop_style::StyleSheet>,
     #[rust]
     style_pending: bool,
+    #[rust]
+    source_preparation: Option<SplashSourcePreparation>,
+    #[rust]
+    source_next_frame: NextFrame,
+    #[rust]
+    prepared_source: String,
     /// Script timers the body's top-level statements registered at its last
     /// run. A style reapply runs those statements again, so these are stopped
     /// first; timers a handler started later are left alone.
@@ -211,7 +226,7 @@ impl Splash {
     }
 
     fn eval_styled_body_with_apply(&mut self, cx: &mut Cx, preserve: bool, apply: &Apply) {
-        if self.body.as_ref().is_empty() {
+        if self.body.as_ref().is_empty() || (preserve && self.body_id.is_none()) {
             return;
         }
 
@@ -254,6 +269,16 @@ impl Splash {
             code: String::new(),
             values: vec![],
         };
+
+        if !preserve && self.body_id.is_none() && code.len() > 65_536 && self.prepared_source != code {
+            self.source_preparation = Some(SplashSourcePreparation {
+                code, offset: 0, chunks: 0, total_ms: 0.0, max_ms: 0.0,
+            });
+            self.source_next_frame = cx.new_next_frame();
+            self.style_pending = false;
+            self.view.redraw(cx);
+            return;
+        }
 
         let vm_id = self.vm_id;
         let sheet=self.stylesheet.clone();
@@ -428,7 +453,64 @@ impl Splash {
     /// in the main VM BEFORE the isolate is reclaimed; the reclamation then
     /// stops the isolate's timers and drops its storage-jail binding. A later
     /// non-empty `set_text` allocates a fresh isolate as usual.
+    fn prepare_source_frame(&mut self, cx: &mut Cx) {
+        let Some(mut pending) = self.source_preparation.take() else { return; };
+        let mut end = (pending.offset + 16_384).min(pending.code.len());
+        while !pending.code.is_char_boundary(end) { end -= 1; }
+        if end < pending.code.len() {
+            if let Some(newline) = pending.code[pending.offset..end].rfind('\n') {
+                end = pending.offset + newline + 1;
+            }
+        }
+        let script_mod = ScriptMod {
+            module_path: self.body_key(), file: self.source_label(),
+            ..Default::default()
+        };
+        let start = std::time::Instant::now();
+        let mut result = None;
+        crate::widget_async::contain_isolate_panic("app source preparation", || {
+            result = Some(cx.with_script_vm_id(self.vm_id, |vm| {
+                let previous = vm.bx.captured_errors.replace(Vec::new());
+                let compiled = vm.prepare_append_source(script_mod, &pending.code[..end], NIL.into());
+                let errors = vm.take_errors();
+                vm.bx.captured_errors = previous;
+                (compiled.is_ok(), errors)
+            }));
+        });
+        let Some((compiled, errors)) = result else {
+            self.style_pending = false;
+            self.stop(cx);
+            return;
+        };
+        let elapsed = start.elapsed().as_secs_f64() * 1000.0;
+        pending.chunks += 1;
+        pending.total_ms += elapsed;
+        pending.max_ms = pending.max_ms.max(elapsed);
+        if !compiled || !errors.is_empty() {
+            log!("splash: source preparation failed at {} of {} bytes", end, pending.code.len());
+            for error in errors { log!("splash: {}", error); }
+            self.style_pending = false;
+            self.stop(cx);
+            return;
+        }
+        pending.offset = end;
+        if end < pending.code.len() {
+            self.source_preparation = Some(pending);
+            self.source_next_frame = cx.new_next_frame();
+            self.view.redraw(cx);
+            return;
+        }
+        log!("[SPLASH_COMPILE] bytes={} chunks={} total_ms={:.3} max_chunk_ms={:.3}",
+            end, pending.chunks, pending.total_ms, pending.max_ms);
+        self.prepared_source = pending.code;
+        self.eval_body(cx);
+        self.view.redraw(cx);
+    }
+
     fn stop(&mut self, cx: &mut Cx) {
+        self.source_preparation = None;
+        self.source_next_frame = NextFrame::default();
+        self.prepared_source.clear();
         if self.vm_id == MAIN_SPLASH_VM_ID {
             return; // nothing running
         }
@@ -627,6 +709,10 @@ impl Drop for Splash {
 
 impl Widget for Splash {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        if self.source_next_frame.is_event(event).is_some() {
+            self.source_next_frame = NextFrame::default();
+            self.prepare_source_frame(cx);
+        }
         if self.allow_net {
             if let Event::NetworkResponses(responses) = event {
                 crate::widget_async::handle_splash_network_responses(cx, self.vm_id, responses);
@@ -674,7 +760,7 @@ impl Widget for Splash {
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
-        if self.style_pending && self.vm_id!=MAIN_SPLASH_VM_ID {self.eval_styled_body(cx,true);}
+        if self.style_pending && self.vm_id!=MAIN_SPLASH_VM_ID && self.source_preparation.is_none() {self.eval_styled_body(cx,true);}
         //let tree = self.view.widget_tree();
         //cx.with_vm(|vm| {
         //    log!("{}", tree.display(vm.heap()));
@@ -689,6 +775,9 @@ impl Widget for Splash {
     fn set_text(&mut self, cx: &mut Cx, v: &str) {
         if self.body.as_ref() != v {
             self.body.set(v);
+            self.source_preparation = None;
+            self.source_next_frame = NextFrame::default();
+            self.prepared_source.clear();
             // Empty body = tear down the app: reclaim its isolate (stopping its
             // timers and dropping its storage jail) rather than leaving it
             // running behind a blank view. A reused Splash (e.g. a live-preview
@@ -1083,6 +1172,60 @@ mod style_tests {
             let value = vm.eval(makepad_script::script! {use mod.widgets.* Splash{}});
             Splash::script_from_value(vm, value)
         })
+    }
+
+    #[test]
+    fn large_cold_source_is_prepared_before_one_application_run() {
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        let mut splash = new_splash(&mut cx);
+        let body = format!("mod.state = {{starts: 1}}\nlabel := Label{{text: \"ready\"}}\n{}", "// bounded preparation padding\n".repeat(3000));
+        splash.set_text(&mut cx, &body);
+        assert!(splash.source_preparation.is_some());
+        assert!(splash.body_id.is_none());
+        assert!(splash.startup_timers.is_empty());
+        splash.prepare_source_frame(&mut cx);
+        assert!(splash.source_preparation.as_ref().unwrap().offset > 0);
+        assert!(splash.body_id.is_none());
+        assert!(!cx.with_script_vm_id(splash.vm_id, module_keys).contains(&id!(state)));
+        for _ in 0..20 {
+            if splash.source_preparation.is_none() { break; }
+            splash.prepare_source_frame(&mut cx);
+        }
+        assert!(splash.source_preparation.is_none());
+        assert!(splash.body_id.is_some());
+        assert_eq!(splash.view.children.iter().find(|(id, _)| *id == id!(label)).unwrap().1.text(), "ready");
+        splash.stop(&mut cx);
+    }
+
+    #[test]
+    fn closing_a_partly_prepared_source_cancels_the_remaining_frames() {
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        let mut splash = new_splash(&mut cx);
+        let body = format!("mod.state = {{starts: 1}}\n{}", "// bounded preparation padding\n".repeat(3000));
+        splash.set_text(&mut cx, &body);
+        splash.prepare_source_frame(&mut cx);
+        splash.stop(&mut cx);
+        assert!(splash.source_preparation.is_none());
+        assert!(splash.body_id.is_none());
+        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+        assert!(splash.startup_timers.is_empty());
+    }
+
+    #[test]
+    fn a_failed_cold_preparation_cannot_restart_through_style_reapply() {
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        let mut splash = new_splash(&mut cx);
+        let body = format!("let loop = []\n{}", "// bounded preparation padding\n".repeat(3000));
+        splash.set_text(&mut cx, &body);
+        splash.style_pending = true;
+        splash.prepare_source_frame(&mut cx);
+        assert!(splash.source_preparation.is_none());
+        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+        assert!(!splash.style_pending);
+        splash.eval_styled_body(&mut cx, true);
+        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+        assert!(splash.body_id.is_none());
+        assert!(splash.startup_timers.is_empty());
     }
 
     /// What a host does on a style change: install the sheet, reapply the

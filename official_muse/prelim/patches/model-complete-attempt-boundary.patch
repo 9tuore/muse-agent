@@ -1,0 +1,411 @@
+--- a/apps/ai-providers/host-service/src/complete/mod.rs
++++ b/apps/ai-providers/host-service/src/complete/mod.rs
+@@ -94,7 +94,7 @@
+ pub const RESPONSE_MAX: u64 = 1024 * 1024;
+ /// One provider request: long enough for a reasoning model.
+ pub const TIMEOUT: Duration = Duration::from_secs(120);
+-/// Attempts on one provider when the reply is refused.
++/// Maximum HTTP posts across all providers for one logical request.
+ pub const ATTEMPTS: u32 = 2;
+ /// Recent app conversation turns accepted by `model.complete`.
+ pub const MESSAGES_MAX: usize = 8;
+@@ -134,9 +134,13 @@
+     Budget,
+     /// The request itself is wrong (a missing field, a size, the schema).
+     BadRequest,
+-    /// The reply was not JSON, failed the schema, or carried a URL, twice.
++    /// The reply was not JSON, failed the schema, or carried a URL.
+     InvalidOutput,
+-    /// The reply was over [`OUTPUT_MAX`], twice.
++    /// The provider explicitly refused the request.
++    Refused,
++    /// The provider reported a reply truncated by its output limit.
++    Truncated,
++    /// The reply was over [`OUTPUT_MAX`].
+     TooLarge,
+     /// Every provider failed.
+     Provider,
+@@ -151,6 +155,8 @@
+             Code::Budget => "budget",
+             Code::BadRequest => "bad_request",
+             Code::InvalidOutput => "invalid_output",
++            Code::Refused => "refused",
++            Code::Truncated => "truncated",
+             Code::TooLarge => "too_large",
+             Code::Provider => "provider",
+         }
+@@ -349,6 +355,7 @@
+ }
+ 
+ /// Token usage, as reported (or estimated when a provider reports none).
++/// `estimated` also marks incomplete usage after any posted provider failure.
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+ pub struct Usage {
+     pub input_tokens: u64,
+@@ -555,6 +562,7 @@
+ struct Rejected {
+     code: Code,
+     why: String,
++    retryable: bool,
+ }
+ 
+ impl ModelHost {
+@@ -625,9 +633,14 @@
+         let (system, user) = (request.system_prompt(), request.user_prompt());
+         let mut usage = Usage::default();
+         let mut failures = Vec::new();
++        let mut attempts = 0;
++        let mut repair_used = false;
+         for candidate in &ordered {
+             let mut note: Option<String> = None;
+-            for attempt in 1..=ATTEMPTS {
++            for _ in 1..=ATTEMPTS {
++                if attempts >= ATTEMPTS {
++                    return Err(Refusal::new(Code::Provider, "The request reached its two provider attempts; no further retry was made."));
++                }
+                 let user = match (&request.messages, &note) {
+                     (Some(_), None) => String::new(),
+                     (Some(_), Some(why)) => format!(
+@@ -638,15 +651,29 @@
+                         "{user}\n\nYour previous answer was refused: {why}. Answer again with only one JSON value that validates against the schema."
+                     ),
+                 };
+-                let text = match self.send(candidate, &system, &user, request.messages.as_deref()) {
+-                    Ok((text, used)) => {
++                let before = attempts;
++                let text = match self.send(candidate, &system, &user, request.messages.as_deref(), &mut attempts) {
++                    Ok((text, used, stop)) => {
+                         usage.add(used);
+                         self.ledger.lock().unwrap().charge(app, (self.clock)(), used.total());
+-                        text
++                        match stop {
++                            Some(wire::Stop::Refused) => return Err(Refusal::new(Code::Refused, "The model refused the request; no format retry was made.")),
++                            Some(wire::Stop::Truncated) => return Err(Refusal::new(Code::Truncated, "The model reply was truncated; no format retry was made.")),
++                            None => text,
++                        }
+                     }
+                     Err(why) => {
++                        // A posted failure has no complete usage; never claim it was free.
++                        if attempts > before { usage.estimated = true; }
++                        let stop = repair_used || why.starts_with("timeout:");
+                         failures.push(why);
+-                        break; // the next provider
++                        if stop {
++                            return Err(Refusal {
++                                detail: Some(failures.join("; ")),
++                                ..Refusal::new(Code::Provider, "The model request did not complete; no further retry was made.")
++                            });
++                        }
++                        break; // existing fallback before any format repair
+                     }
+                 };
+                 match accept(&text, &schema, request.allow_urls) {
+@@ -654,13 +681,22 @@
+                         let class = effective_model(&candidate.provider)
+                             .and_then(|m| catalog::model(family_id(&candidate.provider), &m))
+                             .map(|m| Class::of(m.tier));
+-                        return Ok(Completion { output, requested: request.class, class, attempts: attempt, usage, budget: self.budget(app) });
++                        return Ok(Completion { output, requested: request.class, class, attempts, usage, budget: self.budget(app) });
+                     }
+-                    Err(rejected) if attempt < ATTEMPTS => note = Some(rejected.why),
++                    Err(rejected) if !repair_used && rejected.retryable && !usage.estimated => {
++                        let correction = format!("\n\nYour previous answer was refused: {}. Answer again with only one JSON value that validates against the schema.", rejected.why);
++                        let estimate = request.estimate().saturating_add(((correction.len() + 2) / 3) as u64);
++                        let budget = self.budget(app);
++                        if budget.tokens_today.saturating_add(estimate) > budget.tokens_per_day {
++                            return Err(Refusal::new(Code::Budget, "The remaining token budget cannot admit a format retry."));
++                        }
++                        repair_used = true;
++                        note = Some(rejected.why);
++                    }
+                     Err(rejected) => {
+                         return Err(Refusal::new(
+                             rejected.code,
+-                            format!("The model's answer was refused twice: {}.", rejected.why),
++                            format!("The model's answer was refused: {}.", rejected.why),
+                         ))
+                     }
+                 }
+@@ -674,16 +710,17 @@
+ 
+     /// One request to one provider: the reply text and its usage, or why the
+     /// provider failed (with the key removed).
+-    fn send(&self, c: &Candidate, system: &str, user: &str, messages: Option<&[ChatMessage]>) -> Result<(String, Usage), String> {
++    fn send(&self, c: &Candidate, system: &str, user: &str, messages: Option<&[ChatMessage]>, attempts: &mut u32) -> Result<(String, Usage, Option<wire::Stop>), String> {
+         let key = c.key.as_deref();
+         let prepared = wire::prepare_with_messages(&c.provider, key, system, user, messages)?;
++        *attempts += 1; // count actual transport entries, not preparation failures
+         let (status, body) = self.transport.post(&prepared.url, &prepared.headers, &prepared.body).map_err(|e| {
+             format!("{}: {}", probe::transport_reason(&e), probe::describe_error(&e, key))
+         })?;
+         if let Some(error) = probe::describe_response(status, &body, key) {
+             return Err(format!("{}: {error}", probe::status_reason(status)));
+         }
+-        let (text, tokens) = wire::parse(prepared.api, &body)?;
++        let (text, tokens, stop) = wire::parse_reply(prepared.api, &body)?;
+         let usage = match tokens {
+             Some(t) => Usage { input_tokens: t.input, output_tokens: t.output, estimated: false },
+             None => {
+@@ -694,7 +731,7 @@
+                 Usage { input_tokens: ((system.len() + user_len) / 3) as u64, output_tokens: (text.len() / 3) as u64, estimated: true }
+             },
+         };
+-        Ok((text, usage))
++        Ok((text, usage, stop))
+     }
+ }
+ 
+@@ -743,12 +780,12 @@
+ fn accept(text: &str, schema: &Schema, allow_urls: bool) -> Result<Value, Rejected> {
+     let json = wire::unwrap_json(text);
+     if json.len() > OUTPUT_MAX {
+-        return Err(Rejected { code: Code::TooLarge, why: format!("it was {} bytes; the most is {OUTPUT_MAX}", json.len()) });
+-    }
+-    let value: Value = serde_json::from_str(json).map_err(|_| Rejected { code: Code::InvalidOutput, why: "it was not valid JSON".into() })?;
+-    schema.validate(&value).map_err(|e| Rejected { code: Code::InvalidOutput, why: format!("it does not match the schema ({e})") })?;
++        return Err(Rejected { code: Code::TooLarge, why: format!("it was {} bytes; the most is {OUTPUT_MAX}", json.len()), retryable: false });
++    }
++    let value: Value = serde_json::from_str(json).map_err(|_| Rejected { code: Code::InvalidOutput, why: "it was not valid JSON".into(), retryable: true })?;
++    schema.validate(&value).map_err(|e| Rejected { code: Code::InvalidOutput, why: format!("it does not match the schema ({e})"), retryable: true })?;
+     if !allow_urls && contains_url(&value) {
+-        return Err(Rejected { code: Code::InvalidOutput, why: "it contains a URL".into() });
++        return Err(Rejected { code: Code::InvalidOutput, why: "it contains a URL".into(), retryable: false });
+     }
+     Ok(value)
+ }
+--- a/apps/ai-providers/host-service/src/complete/wire.rs
++++ b/apps/ai-providers/host-service/src/complete/wire.rs
+@@ -96,21 +96,45 @@
+     pub output: u64,
+ }
+ 
+-/// The reply text and usage out of a 2xx answer.
++/// An explicit provider stop that must not be repaired as a format error.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum Stop { Refused, Truncated }
++
++/// Existing text-only parser; terminal provider stops remain errors.
+ pub fn parse(api: ApiType, body: &[u8]) -> Result<(String, Option<Tokens>), String> {
++    let (text, usage, stop) = parse_reply(api, body)?;
++    match stop {
++        Some(Stop::Refused) => Err("the provider refused the request".into()),
++        Some(Stop::Truncated) => Err("the provider truncated the reply".into()),
++        None => Ok((text, usage)),
++    }
++}
++
++/// Keep usage available internally even for a terminal OpenAI provider stop.
++pub fn parse_reply(api: ApiType, body: &[u8]) -> Result<(String, Option<Tokens>, Option<Stop>), String> {
+     let v: Value = serde_json::from_slice(body).map_err(|_| "the provider's answer was not JSON".to_string())?;
+     let n = |p: &str| v.pointer(p).and_then(Value::as_u64);
++    let stop = match api {
++        ApiType::OpenAi => match v.pointer("/choices/0/finish_reason").and_then(Value::as_str) {
++            Some("length") => Some(Stop::Truncated),
++            Some("content_filter") => Some(Stop::Refused),
++            _ if v.pointer("/choices/0/message/refusal").and_then(Value::as_str)
++                .is_some_and(|s| !s.trim().is_empty()) => Some(Stop::Refused),
++            _ => None,
++        },
++        _ => None,
++    };
+     let (text, usage) = match api {
+         ApiType::OpenAi => {
+             let text = v.pointer("/choices/0/message/content").and_then(Value::as_str).map(str::to_string);
+-            let usage = n("/usage/prompt_tokens").map(|i| Tokens { input: i, output: n("/usage/completion_tokens").unwrap_or(0) });
++            let usage = n("/usage/prompt_tokens").zip(n("/usage/completion_tokens")).map(|(input, output)| Tokens { input, output });
+             (text, usage)
+         }
+         ApiType::Anthropic => {
+             let text = v["content"].as_array().map(|blocks| {
+                 blocks.iter().filter(|b| b["type"] == "text").filter_map(|b| b["text"].as_str()).collect::<Vec<_>>().join("")
+             });
+-            let usage = n("/usage/input_tokens").map(|i| Tokens { input: i, output: n("/usage/output_tokens").unwrap_or(0) });
++            let usage = n("/usage/input_tokens").zip(n("/usage/output_tokens")).map(|(input, output)| Tokens { input, output });
+             (text, usage)
+         }
+         ApiType::Responses => {
+@@ -126,12 +150,13 @@
+                         .join("")
+                 })
+             });
+-            let usage = n("/usage/input_tokens").map(|i| Tokens { input: i, output: n("/usage/output_tokens").unwrap_or(0) });
++            let usage = n("/usage/input_tokens").zip(n("/usage/output_tokens")).map(|(input, output)| Tokens { input, output });
+             (text, usage)
+         }
+     };
+     match text {
+-        Some(t) if !t.trim().is_empty() => Ok((t, usage)),
++        Some(t) if !t.trim().is_empty() || stop.is_some() => Ok((t, usage, stop)),
++        None if stop.is_some() => Ok((String::new(), usage, stop)),
+         _ => Err("the provider answered with no text".into()),
+     }
+ }
+@@ -175,4 +200,31 @@
+         assert_eq!(t, "1");
+         assert!(parse(ApiType::OpenAi, br#"{"choices":[]}"#).is_err());
+     }
+-}
++
++
++    #[test]
++    fn partial_usage_does_not_claim_known_zero_output() {
++        for (api, body) in [
++            (ApiType::OpenAi, r#"{"choices":[{"message":{"content":"{}"}}],"usage":{"prompt_tokens":17}}"#),
++            (ApiType::Anthropic, r#"{"content":[{"type":"text","text":"{}"}],"usage":{"input_tokens":17}}"#),
++            (ApiType::Responses, r#"{"output_text":"{}","usage":{"input_tokens":17}}"#),
++        ] {
++            assert!(parse(api, body.as_bytes()).unwrap().1.is_none());
++        }
++    }
++
++    #[test]
++    fn explicitly_reported_zero_output_is_complete_usage() {
++        let (_, usage) = parse(ApiType::OpenAi, br#"{"choices":[{"message":{"content":"{}"}}],"usage":{"prompt_tokens":17,"completion_tokens":0}}"#).unwrap();
++        assert_eq!(usage, Some(Tokens { input: 17, output: 0 }));
++    }
++
++    #[test]
++    fn terminal_provider_stop_keeps_internal_usage() {
++        let (_, usage, stop) = parse_reply(ApiType::OpenAi, br#"{"choices":[{"message":{"content":null,"refusal":"synthetic refusal"},"finish_reason":"stop"}],"usage":{"prompt_tokens":17,"completion_tokens":9}}"#).unwrap();
++        assert_eq!(usage, Some(Tokens { input: 17, output: 9 }));
++        assert_eq!(stop, Some(Stop::Refused));
++        let (_, _, stop) = parse_reply(ApiType::OpenAi, br#"{"choices":[{"message":{"content":"{}"},"finish_reason":"length"}],"usage":{"prompt_tokens":17,"completion_tokens":9}}"#).unwrap();
++        assert_eq!(stop, Some(Stop::Truncated));
++    }
++}
+--- a/apps/ai-providers/host-service/tests/complete.rs
++++ b/apps/ai-providers/host-service/tests/complete.rs
+@@ -272,9 +272,10 @@
+ fn a_url_in_the_reply_is_refused_unless_the_app_allows_urls() {
+     let rig = Rig::new("url", vec![deepseek("deepseek-v4-flash")]);
+     let with_url = r#"{"title":"See https://evil.example","tags":[]}"#;
+-    rig.fake.says(with_url).says(r#"{"title":"www.evil.example","tags":[]}"#);
++    rig.fake.says(with_url);
+     let err = rig.complete(args()).unwrap_err();
+     assert!(err.starts_with("invalid_output: ") && err.contains("URL"), "{err}");
++    assert_eq!(rig.fake.seen().len(), 1, "URL rejection is not a safe format retry");
+     rig.fake.says(with_url);
+     let mut a = args();
+     a["allow_urls"] = json!(true);
+@@ -289,9 +290,10 @@
+ fn an_oversized_reply_is_refused() {
+     let rig = Rig::new("size", vec![deepseek("deepseek-v4-flash")]);
+     let huge = json!({"title": "x", "tags": ["y".repeat(OUTPUT_MAX)]}).to_string();
+-    rig.fake.says(&huge).says(&huge);
++    rig.fake.says(&huge);
+     let err = rig.complete(args()).unwrap_err();
+     assert!(err.starts_with("too_large: "), "{err}");
++    assert_eq!(rig.fake.seen().len(), 1, "oversized output is not repaired");
+     // Request caps too: the input and the schema.
+     let mut a = args();
+     a["input"] = json!("z".repeat(complete::INPUT_MAX + 1));
+@@ -444,20 +446,20 @@
+ 
+ #[test]
+ fn a_failing_provider_falls_back_in_the_persons_order_and_classes_come_first() {
+-    // The person's order: a strong model, then two fast ones.
+-    let rig = Rig::new("fallback", vec![deepseek("deepseek-v4-pro"), deepseek("deepseek-v4-flash"), anthropic("claude-haiku-4-5-20251001")]);
+-    rig.fake.answer(Ok((503, r#"{"error":{"message":"overloaded"}}"#.into()))).answer(Err("connection refused".into()));
+-    rig.fake.says(GOOD);
+-    // "fast": the two fast models first (in the person's order), then the strong one.
++    // Keep class ordering and fallback, within the shared two-post limit.
++    let rig = Rig::new("fallback", vec![deepseek("deepseek-v4-pro"), deepseek("deepseek-v4-flash")]);
++    rig.fake.answer(Ok((503, r#"{"error":{"message":"overloaded"}}"#.into()))).says(GOOD);
+     let r = rig.complete(args()).unwrap();
+     assert_eq!(r["meta"]["class"], "strong");
+-    let urls: Vec<String> = rig.fake.seen().iter().map(|s| s.0.clone()).collect();
++    assert_eq!(r["meta"]["attempts"], 2);
++    assert_eq!(r["meta"]["usage"]["estimated"], true, "posted failure usage is incomplete");
+     let models: Vec<String> = rig.fake.seen().iter().map(|s| s.2["model"].as_str().unwrap().to_string()).collect();
+-    assert_eq!(models, ["deepseek-v4-flash", "claude-haiku-4-5-20251001", "deepseek-v4-pro"], "{urls:?}");
+-    // Every provider down: the error says so without naming one.
+-    rig.fake.answer(Ok((401, r#"{"error":{"message":"bad key"}}"#.into()))).answer(Err("dns".into())).answer(Err("dns".into()));
++    assert_eq!(models, ["deepseek-v4-flash", "deepseek-v4-pro"]);
++    // Every provider down: no third post, no provider identity in the error.
++    rig.fake.answer(Ok((401, r#"{"error":{"message":"bad key"}}"#.into()))).answer(Err("dns".into()));
+     let err = rig.complete(args()).unwrap_err();
+     assert!(err.starts_with("provider: "), "{err}");
++    assert_eq!(rig.fake.seen().len(), 4, "two posts in each logical request");
+     for name in ["deepseek", "anthropic", "claude", KEY] {
+         assert!(!err.contains(name), "{err}");
+     }
+@@ -540,3 +542,79 @@
+     let huge = Request { input: json!("x".repeat(complete::HOST_INPUT_MAX + 1)), ..request(Some("s")) };
+     assert_eq!(rig.host.complete(APP, huge).unwrap_err().code, Code::BadRequest);
+ }
++
++
++#[test]
++fn boundary_two_posts_are_shared_across_three_providers() {
++    let rig = Rig::new("boundary-global-cap", vec![deepseek("deepseek-v4-flash"), deepseek("deepseek-v4-pro"), anthropic("claude-haiku-4-5-20251001")]);
++    rig.fake.answer(Ok((503, "{}".into()))).answer(Err("unreachable".into())).says(GOOD);
++    assert!(rig.complete(args()).unwrap_err().starts_with("provider: "));
++    assert_eq!(rig.fake.seen().len(), 2, "the third provider is outside this logical request's reserve");
++}
++
++#[test]
++fn boundary_format_retry_cannot_reset_after_timeout() {
++    let rig = Rig::new("boundary-repair-timeout", vec![deepseek("deepseek-v4-flash"), deepseek("deepseek-v4-pro")]);
++    rig.fake.says("synthetic non-JSON").answer(Err("synthetic timeout".into())).says(GOOD);
++    assert!(rig.complete(args()).unwrap_err().starts_with("provider: "));
++    assert_eq!(rig.fake.seen().len(), 2);
++}
++
++#[test]
++fn boundary_initial_timeout_does_not_fall_back() {
++    let rig = Rig::new("boundary-timeout", vec![deepseek("deepseek-v4-flash"), deepseek("deepseek-v4-pro")]);
++    rig.fake.answer(Err("synthetic timeout".into())).says(GOOD);
++    assert!(rig.complete(args()).unwrap_err().starts_with("provider: "));
++    assert_eq!(rig.fake.seen().len(), 1);
++}
++
++#[test]
++fn boundary_truncated_complete_json_is_not_accepted_or_repaired() {
++    let rig = Rig::new("boundary-truncated", vec![deepseek("deepseek-v4-flash")]);
++    let body = json!({"choices":[{"message":{"content":GOOD},"finish_reason":"length"}],"usage":{"prompt_tokens":100,"completion_tokens":20}});
++    rig.fake.answer(Ok((200, body.to_string()))).says(GOOD);
++    assert!(rig.complete(args()).unwrap_err().starts_with("truncated: "));
++    assert_eq!(rig.fake.seen().len(), 1);
++    assert_eq!(rig.host.budget(APP).tokens_today, 120, "a refused answer still consumed tokens");
++}
++
++#[test]
++fn boundary_explicit_refusal_is_not_repaired() {
++    for (tag, content, finish) in [("refusal-null", Value::Null, "stop"), ("refusal-text", json!(GOOD), "stop"), ("content-filter", Value::Null, "content_filter")] {
++        let rig = Rig::new(tag, vec![deepseek("deepseek-v4-flash")]);
++        let body = json!({"choices":[{"message":{"content":content,"refusal":"synthetic refusal"},"finish_reason":finish}],"usage":{"prompt_tokens":100,"completion_tokens":20}});
++        rig.fake.answer(Ok((200, body.to_string()))).says(GOOD);
++        assert!(rig.complete(args()).unwrap_err().starts_with("refused: "));
++        assert_eq!(rig.fake.seen().len(), 1);
++        assert_eq!(rig.host.budget(APP).tokens_today, 120);
++    }
++}
++
++#[test]
++fn boundary_preparation_failure_is_not_an_http_attempt() {
++    let bad = Candidate { provider: Provider::new("vertex", Some("fixture-unlisted".into())), key: Some(KEY.into()) };
++    let rig = Rig::new("boundary-prepare", vec![bad, deepseek("fixture-unlisted")]);
++    rig.fake.says(GOOD);
++    let r = rig.complete(args()).unwrap();
++    assert_eq!(rig.fake.seen().len(), 1);
++    assert_eq!(r["meta"]["attempts"], 1);
++    assert_eq!(r["meta"]["usage"]["estimated"], false);
++}
++
++#[test]
++fn boundary_remaining_token_budget_blocks_format_retry() {
++    let estimate = Request::from_args(&args()).unwrap().estimate();
++    let rig = Rig::with("boundary-repair-budget", vec![deepseek("deepseek-v4-flash")], |o| o.limits(Limits { tokens_per_day: estimate+120, ..Limits::default() }));
++    rig.fake.says("synthetic non-JSON").says(GOOD);
++    assert!(rig.complete(args()).unwrap_err().starts_with("budget: "));
++    assert_eq!(rig.fake.seen().len(), 1);
++}
++
++#[test]
++fn boundary_missing_output_usage_blocks_format_retry() {
++    let rig = Rig::new("boundary-partial-usage", vec![deepseek("deepseek-v4-flash")]);
++    let body = json!({"choices":[{"message":{"content":"synthetic non-JSON"}}],"usage":{"prompt_tokens":17}});
++    rig.fake.answer(Ok((200, body.to_string()))).says(GOOD);
++    assert!(rig.complete(args()).unwrap_err().starts_with("invalid_output: "));
++    assert_eq!(rig.fake.seen().len(), 1);
++}

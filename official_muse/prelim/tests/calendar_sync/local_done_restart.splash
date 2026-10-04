@@ -1,0 +1,36 @@
+// A new process reads the prior synthetic process's exact persisted state bytes.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({service: service args: args}) cs_forbidden.push(service)
+    callback({is_ok: false error: "Local-completion restart fixture permits no external service"})
+}
+fn cs_event(){ return {id: "sync-fixture-event" calendar_id: "fixture-calendar"} }
+fn cs_begin(){
+    fixture_seed()
+    cs_checks.real_new_process_loaded_calendar_state = calendar_boot()
+    start_timeout(0.03,|| cs_restore_and_undo())
+}
+fn cs_restore_and_undo(){
+    let event = cs_event()
+    let goal_state = {goals: goals runs: runs actions: actions}.to_json()
+    let gi = core_goal_index("calendar-local-goal")
+    cs_checks.completed_goal_still_completed = gi >= 0 && goals[gi].status == "completed"
+    cs_checks.saved_done_restored_in_new_process = calendar_local_done(event)
+    cs_checks.undo_saved_successfully = calendar_toggle_local_done(event)
+    cs_checks.undo_sets_local_flag_false = !calendar_local_done(event)
+    let stored = fs.read("calendar-state.json").parse_json()
+    cs_checks.undo_persisted = stored.local_states.len() == 1 && stored.local_states[0].completed == false
+    calendar_local_states = [] calendar_last_state = ""
+    cs_checks.undo_restored_by_production_boot = calendar_boot() && !calendar_local_done(event)
+    cs_checks.completed_goal_and_actions_still_unchanged = {goals: goals runs: runs actions: actions}.to_json() == goal_state
+    cs_checks.old_schema1_state_remains_valid = calendar_state_valid({schema: 1 links: [] receipts: []})
+    cs_checks.malformed_optional_local_state_rejected = !calendar_state_valid({schema: 1 links: [] receipts: [] local_states: {bad: "object"}})
+    cs_checks.non_bool_local_flag_rejected = !calendar_state_valid({schema: 1 links: [] receipts: []
+        local_states: [{calendar_id: "fixture-calendar" event_id: "sync-fixture-event" completed: "yes" updated_at: 1}]})
+    cs_checks.no_calendar_queries_mutations_models = cs_calls.len() == 0 && cs_forbidden.len() == 0
+    cs_checks.calls = cs_calls cs_checks.forbidden_calls = cs_forbidden
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

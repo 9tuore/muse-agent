@@ -1,3 +1,9 @@
+# 0.3.22 开发源码交付
+
+2026-10-04。总体验收PARTIAL；至少18/20门槛未达到。最新真实payload和匹配宿主逐文件SHA绑定。最终版本一次真实冷启动，旧0.3.20 10+5作为支持证据。源码、评审和运行宿主分开，排除账号、凭据、生产数据库、模型权重、缓存和私密实机截图。未正式申请App Hub；旧Tag不动。
+
+官方应用入口仍为OctoScript/Splash，配套Calendar/框架/模型Rust扩展未宣称官方上游已接纳。
+
 # Muse 参赛源码交付 · 0.3.19（PARTIAL）
 
 - 仓库：https://github.com/9tuore/muse-agent，分支 `main`。

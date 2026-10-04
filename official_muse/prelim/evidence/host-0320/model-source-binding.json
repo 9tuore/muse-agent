@@ -1,0 +1,38 @@
+{
+  "kind": "OFFLINE_RUST_TESTED_HOST_CANDIDATE_NOT_REAL_PROVIDER",
+  "created_at": "2026-10-04T12:20:17.509190+08:00",
+  "patch_sha256": "d57b35a7e99b064e60787d861fd84b4ad1a7636255dd56f58c3105695e1f3bda",
+  "files": [
+    {
+      "file": "apps/ai-providers/host-service/src/complete/mod.rs",
+      "before_sha256": "6e3a8a1287b2a253eda3fd69c4aa9c9bd46141079c7533bd6f2119dc4b409075",
+      "candidate_sha256": "3cb27be291c0cb5cc77aa9acfca313dffb8b05fcd7eb0c0ab5b21352bcad0f12",
+      "added_lines": 56,
+      "removed_lines": 19
+    },
+    {
+      "file": "apps/ai-providers/host-service/src/complete/wire.rs",
+      "before_sha256": "3af912428fdef0a1ea086076e3f328a339aadb878a9ad86b42ac988d3b594dd2",
+      "candidate_sha256": "d47db1ed0d66ae74633a7702eb5cb60997eca95c489ffe4de822f0b84573106a",
+      "added_lines": 58,
+      "removed_lines": 6
+    },
+    {
+      "file": "apps/ai-providers/host-service/tests/complete.rs",
+      "before_sha256": "e51c3caed8b84d4ea15a8951ed64682bf6a46c7e3593fda3ae899518ecb88f85",
+      "candidate_sha256": "2ab83b78f19e5ae1a21a927e58efe729e946742bdfbcbe2480d57ed24227bbad",
+      "added_lines": 89,
+      "removed_lines": 11
+    }
+  ],
+  "http_post_upper_bound_per_logical_request": 2,
+  "schema_source_unchanged": true,
+  "public_failure_meta_contract": "MISSING_BLOCKED_NO_STRING_INJECTION",
+  "formatter": "UNAVAILABLE_NOT_INSTALLED",
+  "rust_builds_in_this_chat": 0,
+  "verified_tests": {
+    "passed": 59,
+    "ignored": 1,
+    "paid_calls": 0
+  }
+}

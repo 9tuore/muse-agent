@@ -272,9 +272,10 @@ fn invalid_json_then_a_good_reply_passes_on_the_retry() {
 fn a_url_in_the_reply_is_refused_unless_the_app_allows_urls() {
     let rig = Rig::new("url", vec![deepseek("deepseek-v4-flash")]);
     let with_url = r#"{"title":"See https://evil.example","tags":[]}"#;
-    rig.fake.says(with_url).says(r#"{"title":"www.evil.example","tags":[]}"#);
+    rig.fake.says(with_url);
     let err = rig.complete(args()).unwrap_err();
     assert!(err.starts_with("invalid_output: ") && err.contains("URL"), "{err}");
+    assert_eq!(rig.fake.seen().len(), 1, "URL rejection is not a safe format retry");
     rig.fake.says(with_url);
     let mut a = args();
     a["allow_urls"] = json!(true);
@@ -289,9 +290,10 @@ fn a_url_in_the_reply_is_refused_unless_the_app_allows_urls() {
 fn an_oversized_reply_is_refused() {
     let rig = Rig::new("size", vec![deepseek("deepseek-v4-flash")]);
     let huge = json!({"title": "x", "tags": ["y".repeat(OUTPUT_MAX)]}).to_string();
-    rig.fake.says(&huge).says(&huge);
+    rig.fake.says(&huge);
     let err = rig.complete(args()).unwrap_err();
     assert!(err.starts_with("too_large: "), "{err}");
+    assert_eq!(rig.fake.seen().len(), 1, "oversized output is not repaired");
     // Request caps too: the input and the schema.
     let mut a = args();
     a["input"] = json!("z".repeat(complete::INPUT_MAX + 1));
@@ -444,20 +446,20 @@ fn the_default_grant_reads_the_apps_own_manifest() {
 
 #[test]
 fn a_failing_provider_falls_back_in_the_persons_order_and_classes_come_first() {
-    // The person's order: a strong model, then two fast ones.
-    let rig = Rig::new("fallback", vec![deepseek("deepseek-v4-pro"), deepseek("deepseek-v4-flash"), anthropic("claude-haiku-4-5-20251001")]);
-    rig.fake.answer(Ok((503, r#"{"error":{"message":"overloaded"}}"#.into()))).answer(Err("connection refused".into()));
-    rig.fake.says(GOOD);
-    // "fast": the two fast models first (in the person's order), then the strong one.
+    // Keep class ordering and fallback, within the shared two-post limit.
+    let rig = Rig::new("fallback", vec![deepseek("deepseek-v4-pro"), deepseek("deepseek-v4-flash")]);
+    rig.fake.answer(Ok((503, r#"{"error":{"message":"overloaded"}}"#.into()))).says(GOOD);
     let r = rig.complete(args()).unwrap();
     assert_eq!(r["meta"]["class"], "strong");
-    let urls: Vec<String> = rig.fake.seen().iter().map(|s| s.0.clone()).collect();
+    assert_eq!(r["meta"]["attempts"], 2);
+    assert_eq!(r["meta"]["usage"]["estimated"], true, "posted failure usage is incomplete");
     let models: Vec<String> = rig.fake.seen().iter().map(|s| s.2["model"].as_str().unwrap().to_string()).collect();
-    assert_eq!(models, ["deepseek-v4-flash", "claude-haiku-4-5-20251001", "deepseek-v4-pro"], "{urls:?}");
-    // Every provider down: the error says so without naming one.
-    rig.fake.answer(Ok((401, r#"{"error":{"message":"bad key"}}"#.into()))).answer(Err("dns".into())).answer(Err("dns".into()));
+    assert_eq!(models, ["deepseek-v4-flash", "deepseek-v4-pro"]);
+    // Every provider down: no third post, no provider identity in the error.
+    rig.fake.answer(Ok((401, r#"{"error":{"message":"bad key"}}"#.into()))).answer(Err("dns".into()));
     let err = rig.complete(args()).unwrap_err();
     assert!(err.starts_with("provider: "), "{err}");
+    assert_eq!(rig.fake.seen().len(), 4, "two posts in each logical request");
     for name in ["deepseek", "anthropic", "claude", KEY] {
         assert!(!err.contains(name), "{err}");
     }
@@ -539,4 +541,80 @@ fn a_host_caller_may_send_a_larger_input_than_an_app() {
     rig.host.complete(APP, request(Some("You write a digest."))).unwrap();
     let huge = Request { input: json!("x".repeat(complete::HOST_INPUT_MAX + 1)), ..request(Some("s")) };
     assert_eq!(rig.host.complete(APP, huge).unwrap_err().code, Code::BadRequest);
+}
+
+
+#[test]
+fn boundary_two_posts_are_shared_across_three_providers() {
+    let rig = Rig::new("boundary-global-cap", vec![deepseek("deepseek-v4-flash"), deepseek("deepseek-v4-pro"), anthropic("claude-haiku-4-5-20251001")]);
+    rig.fake.answer(Ok((503, "{}".into()))).answer(Err("unreachable".into())).says(GOOD);
+    assert!(rig.complete(args()).unwrap_err().starts_with("provider: "));
+    assert_eq!(rig.fake.seen().len(), 2, "the third provider is outside this logical request's reserve");
+}
+
+#[test]
+fn boundary_format_retry_cannot_reset_after_timeout() {
+    let rig = Rig::new("boundary-repair-timeout", vec![deepseek("deepseek-v4-flash"), deepseek("deepseek-v4-pro")]);
+    rig.fake.says("synthetic non-JSON").answer(Err("synthetic timeout".into())).says(GOOD);
+    assert!(rig.complete(args()).unwrap_err().starts_with("provider: "));
+    assert_eq!(rig.fake.seen().len(), 2);
+}
+
+#[test]
+fn boundary_initial_timeout_does_not_fall_back() {
+    let rig = Rig::new("boundary-timeout", vec![deepseek("deepseek-v4-flash"), deepseek("deepseek-v4-pro")]);
+    rig.fake.answer(Err("synthetic timeout".into())).says(GOOD);
+    assert!(rig.complete(args()).unwrap_err().starts_with("provider: "));
+    assert_eq!(rig.fake.seen().len(), 1);
+}
+
+#[test]
+fn boundary_truncated_complete_json_is_not_accepted_or_repaired() {
+    let rig = Rig::new("boundary-truncated", vec![deepseek("deepseek-v4-flash")]);
+    let body = json!({"choices":[{"message":{"content":GOOD},"finish_reason":"length"}],"usage":{"prompt_tokens":100,"completion_tokens":20}});
+    rig.fake.answer(Ok((200, body.to_string()))).says(GOOD);
+    assert!(rig.complete(args()).unwrap_err().starts_with("truncated: "));
+    assert_eq!(rig.fake.seen().len(), 1);
+    assert_eq!(rig.host.budget(APP).tokens_today, 120, "a refused answer still consumed tokens");
+}
+
+#[test]
+fn boundary_explicit_refusal_is_not_repaired() {
+    for (tag, content, finish) in [("refusal-null", Value::Null, "stop"), ("refusal-text", json!(GOOD), "stop"), ("content-filter", Value::Null, "content_filter")] {
+        let rig = Rig::new(tag, vec![deepseek("deepseek-v4-flash")]);
+        let body = json!({"choices":[{"message":{"content":content,"refusal":"synthetic refusal"},"finish_reason":finish}],"usage":{"prompt_tokens":100,"completion_tokens":20}});
+        rig.fake.answer(Ok((200, body.to_string()))).says(GOOD);
+        assert!(rig.complete(args()).unwrap_err().starts_with("refused: "));
+        assert_eq!(rig.fake.seen().len(), 1);
+        assert_eq!(rig.host.budget(APP).tokens_today, 120);
+    }
+}
+
+#[test]
+fn boundary_preparation_failure_is_not_an_http_attempt() {
+    let bad = Candidate { provider: Provider::new("vertex", Some("fixture-unlisted".into())), key: Some(KEY.into()) };
+    let rig = Rig::new("boundary-prepare", vec![bad, deepseek("fixture-unlisted")]);
+    rig.fake.says(GOOD);
+    let r = rig.complete(args()).unwrap();
+    assert_eq!(rig.fake.seen().len(), 1);
+    assert_eq!(r["meta"]["attempts"], 1);
+    assert_eq!(r["meta"]["usage"]["estimated"], false);
+}
+
+#[test]
+fn boundary_remaining_token_budget_blocks_format_retry() {
+    let estimate = Request::from_args(&args()).unwrap().estimate();
+    let rig = Rig::with("boundary-repair-budget", vec![deepseek("deepseek-v4-flash")], |o| o.limits(Limits { tokens_per_day: estimate+120, ..Limits::default() }));
+    rig.fake.says("synthetic non-JSON").says(GOOD);
+    assert!(rig.complete(args()).unwrap_err().starts_with("budget: "));
+    assert_eq!(rig.fake.seen().len(), 1);
+}
+
+#[test]
+fn boundary_missing_output_usage_blocks_format_retry() {
+    let rig = Rig::new("boundary-partial-usage", vec![deepseek("deepseek-v4-flash")]);
+    let body = json!({"choices":[{"message":{"content":"synthetic non-JSON"}}],"usage":{"prompt_tokens":17}});
+    rig.fake.answer(Ok((200, body.to_string()))).says(GOOD);
+    assert!(rig.complete(args()).unwrap_err().starts_with("invalid_output: "));
+    assert_eq!(rig.fake.seen().len(), 1);
 }

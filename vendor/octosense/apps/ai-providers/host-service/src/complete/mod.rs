@@ -94,7 +94,7 @@ pub const OUTPUT_MAX: usize = 16 * 1024;
 pub const RESPONSE_MAX: u64 = 1024 * 1024;
 /// One provider request: long enough for a reasoning model.
 pub const TIMEOUT: Duration = Duration::from_secs(120);
-/// Attempts on one provider when the reply is refused.
+/// Maximum HTTP posts across all providers for one logical request.
 pub const ATTEMPTS: u32 = 2;
 /// Recent app conversation turns accepted by `model.complete`.
 pub const MESSAGES_MAX: usize = 8;
@@ -134,9 +134,13 @@ pub enum Code {
     Budget,
     /// The request itself is wrong (a missing field, a size, the schema).
     BadRequest,
-    /// The reply was not JSON, failed the schema, or carried a URL, twice.
+    /// The reply was not JSON, failed the schema, or carried a URL.
     InvalidOutput,
-    /// The reply was over [`OUTPUT_MAX`], twice.
+    /// The provider explicitly refused the request.
+    Refused,
+    /// The provider reported a reply truncated by its output limit.
+    Truncated,
+    /// The reply was over [`OUTPUT_MAX`].
     TooLarge,
     /// Every provider failed.
     Provider,
@@ -151,6 +155,8 @@ impl Code {
             Code::Budget => "budget",
             Code::BadRequest => "bad_request",
             Code::InvalidOutput => "invalid_output",
+            Code::Refused => "refused",
+            Code::Truncated => "truncated",
             Code::TooLarge => "too_large",
             Code::Provider => "provider",
         }
@@ -349,6 +355,7 @@ impl Request {
 }
 
 /// Token usage, as reported (or estimated when a provider reports none).
+/// `estimated` also marks incomplete usage after any posted provider failure.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Usage {
     pub input_tokens: u64,
@@ -555,6 +562,7 @@ pub struct ModelHost {
 struct Rejected {
     code: Code,
     why: String,
+    retryable: bool,
 }
 
 impl ModelHost {
@@ -625,9 +633,14 @@ impl ModelHost {
         let (system, user) = (request.system_prompt(), request.user_prompt());
         let mut usage = Usage::default();
         let mut failures = Vec::new();
+        let mut attempts = 0;
+        let mut repair_used = false;
         for candidate in &ordered {
             let mut note: Option<String> = None;
-            for attempt in 1..=ATTEMPTS {
+            for _ in 1..=ATTEMPTS {
+                if attempts >= ATTEMPTS {
+                    return Err(Refusal::new(Code::Provider, "The request reached its two provider attempts; no further retry was made."));
+                }
                 let user = match (&request.messages, &note) {
                     (Some(_), None) => String::new(),
                     (Some(_), Some(why)) => format!(
@@ -638,15 +651,29 @@ impl ModelHost {
                         "{user}\n\nYour previous answer was refused: {why}. Answer again with only one JSON value that validates against the schema."
                     ),
                 };
-                let text = match self.send(candidate, &system, &user, request.messages.as_deref()) {
-                    Ok((text, used)) => {
+                let before = attempts;
+                let text = match self.send(candidate, &system, &user, request.messages.as_deref(), &mut attempts) {
+                    Ok((text, used, stop)) => {
                         usage.add(used);
                         self.ledger.lock().unwrap().charge(app, (self.clock)(), used.total());
-                        text
+                        match stop {
+                            Some(wire::Stop::Refused) => return Err(Refusal::new(Code::Refused, "The model refused the request; no format retry was made.")),
+                            Some(wire::Stop::Truncated) => return Err(Refusal::new(Code::Truncated, "The model reply was truncated; no format retry was made.")),
+                            None => text,
+                        }
                     }
                     Err(why) => {
+                        // A posted failure has no complete usage; never claim it was free.
+                        if attempts > before { usage.estimated = true; }
+                        let stop = repair_used || why.starts_with("timeout:");
                         failures.push(why);
-                        break; // the next provider
+                        if stop {
+                            return Err(Refusal {
+                                detail: Some(failures.join("; ")),
+                                ..Refusal::new(Code::Provider, "The model request did not complete; no further retry was made.")
+                            });
+                        }
+                        break; // existing fallback before any format repair
                     }
                 };
                 match accept(&text, &schema, request.allow_urls) {
@@ -654,13 +681,22 @@ impl ModelHost {
                         let class = effective_model(&candidate.provider)
                             .and_then(|m| catalog::model(family_id(&candidate.provider), &m))
                             .map(|m| Class::of(m.tier));
-                        return Ok(Completion { output, requested: request.class, class, attempts: attempt, usage, budget: self.budget(app) });
+                        return Ok(Completion { output, requested: request.class, class, attempts, usage, budget: self.budget(app) });
                     }
-                    Err(rejected) if attempt < ATTEMPTS => note = Some(rejected.why),
+                    Err(rejected) if !repair_used && rejected.retryable && !usage.estimated => {
+                        let correction = format!("\n\nYour previous answer was refused: {}. Answer again with only one JSON value that validates against the schema.", rejected.why);
+                        let estimate = request.estimate().saturating_add(((correction.len() + 2) / 3) as u64);
+                        let budget = self.budget(app);
+                        if budget.tokens_today.saturating_add(estimate) > budget.tokens_per_day {
+                            return Err(Refusal::new(Code::Budget, "The remaining token budget cannot admit a format retry."));
+                        }
+                        repair_used = true;
+                        note = Some(rejected.why);
+                    }
                     Err(rejected) => {
                         return Err(Refusal::new(
                             rejected.code,
-                            format!("The model's answer was refused twice: {}.", rejected.why),
+                            format!("The model's answer was refused: {}.", rejected.why),
                         ))
                     }
                 }
@@ -674,16 +710,17 @@ impl ModelHost {
 
     /// One request to one provider: the reply text and its usage, or why the
     /// provider failed (with the key removed).
-    fn send(&self, c: &Candidate, system: &str, user: &str, messages: Option<&[ChatMessage]>) -> Result<(String, Usage), String> {
+    fn send(&self, c: &Candidate, system: &str, user: &str, messages: Option<&[ChatMessage]>, attempts: &mut u32) -> Result<(String, Usage, Option<wire::Stop>), String> {
         let key = c.key.as_deref();
         let prepared = wire::prepare_with_messages(&c.provider, key, system, user, messages)?;
+        *attempts += 1; // count actual transport entries, not preparation failures
         let (status, body) = self.transport.post(&prepared.url, &prepared.headers, &prepared.body).map_err(|e| {
             format!("{}: {}", probe::transport_reason(&e), probe::describe_error(&e, key))
         })?;
         if let Some(error) = probe::describe_response(status, &body, key) {
             return Err(format!("{}: {error}", probe::status_reason(status)));
         }
-        let (text, tokens) = wire::parse(prepared.api, &body)?;
+        let (text, tokens, stop) = wire::parse_reply(prepared.api, &body)?;
         let usage = match tokens {
             Some(t) => Usage { input_tokens: t.input, output_tokens: t.output, estimated: false },
             None => {
@@ -694,7 +731,7 @@ impl ModelHost {
                 Usage { input_tokens: ((system.len() + user_len) / 3) as u64, output_tokens: (text.len() / 3) as u64, estimated: true }
             },
         };
-        Ok((text, usage))
+        Ok((text, usage, stop))
     }
 }
 
@@ -743,12 +780,12 @@ pub fn contains_url(v: &Value) -> bool {
 fn accept(text: &str, schema: &Schema, allow_urls: bool) -> Result<Value, Rejected> {
     let json = wire::unwrap_json(text);
     if json.len() > OUTPUT_MAX {
-        return Err(Rejected { code: Code::TooLarge, why: format!("it was {} bytes; the most is {OUTPUT_MAX}", json.len()) });
+        return Err(Rejected { code: Code::TooLarge, why: format!("it was {} bytes; the most is {OUTPUT_MAX}", json.len()), retryable: false });
     }
-    let value: Value = serde_json::from_str(json).map_err(|_| Rejected { code: Code::InvalidOutput, why: "it was not valid JSON".into() })?;
-    schema.validate(&value).map_err(|e| Rejected { code: Code::InvalidOutput, why: format!("it does not match the schema ({e})") })?;
+    let value: Value = serde_json::from_str(json).map_err(|_| Rejected { code: Code::InvalidOutput, why: "it was not valid JSON".into(), retryable: true })?;
+    schema.validate(&value).map_err(|e| Rejected { code: Code::InvalidOutput, why: format!("it does not match the schema ({e})"), retryable: true })?;
     if !allow_urls && contains_url(&value) {
-        return Err(Rejected { code: Code::InvalidOutput, why: "it contains a URL".into() });
+        return Err(Rejected { code: Code::InvalidOutput, why: "it contains a URL".into(), retryable: false });
     }
     Ok(value)
 }

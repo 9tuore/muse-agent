@@ -1,0 +1,90 @@
+// Source-bound range/get/late callback tests. Responses are wholly synthetic.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+let cs_response = []
+let cs_truncated = false
+let cs_get_response = nil
+let cs_get_hold = false
+let cs_pending = []
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({service: service args: args})
+    if service == "calendar.list" { callback({is_ok: true data: {events: cs_response truncated: cs_truncated}}) return }
+    if service == "calendar.get" {
+        if cs_get_hold { cs_pending.push(callback) return }
+        callback({is_ok: true data: cs_get_response}) return
+    }
+    cs_forbidden.push(service) callback({is_ok: false error: "Outside-readback fixture forbids mutations/model/native transport"})
+}
+fn cs_event(version,start,end){
+    return {id: "sync-fixture-event" calendar_id: "fixture-calendar" version: version title: "MUSE-SYNC-SYNTHETIC"
+        start: start end: end time_zone: "Asia/Shanghai" location: "synthetic" recurring: false all_day: false availability: 0}
+}
+fn cs_begin(){
+    fixture_seed() calendar_ready = true calendar_pending = false calendar_selected_goal = ""
+    calendar_select_event(cs_event("v1","2030-06-12T09:00:00+08:00","2030-06-12T10:00:00+08:00"))
+    ui.calendar_range_start.set_text("2030-06-01T00:00:00+08:00") ui.calendar_range_end.set_text("2030-07-01T00:00:00+08:00")
+    start_timeout(0.03,|| cs_outside())
+}
+fn cs_outside(){
+    let moved = cs_event("v2","2030-07-04T13:00:00+08:00","2030-07-04T14:00:00+08:00")
+    cs_response = [] cs_get_response = {found: true event: moved}
+    calendar_list_events()
+    cs_checks.list_absence_gets_original_exact_id_once = cs_calls.len() == 2 && cs_calls[1].service == "calendar.get"
+        && cs_calls[1].args.calendar_id == "fixture-calendar" && cs_calls[1].args.event_id == "sync-fixture-event"
+    cs_checks.outside_range_selected_event_updates = calendar_selected_event.version == "v2" && calendar_selected_event.start == moved.start
+    cs_checks.outside_event_not_injected_into_range_grid = calendar_events.len() == 0 && calendar_loaded.calendar_id == "fixture-calendar"
+    cs_checks.pending_cleared_after_outside_get = !calendar_pending
+    start_timeout(0.03,|| cs_missing_or_changed_id())
+}
+fn cs_missing_or_changed_id(){
+    cs_get_response = {found: false} calendar_list_events()
+    cs_checks.missing_exact_get_does_not_recreate = calendar_selected_event.id == "sync-fixture-event"
+        && calendar_selected_event.version == "v2" && calendar_error != "" && !calendar_pending
+    let changed = cs_event("wrong-id-version","2030-07-04T13:00:00+08:00","2030-07-04T14:00:00+08:00")
+    changed.id = "different-event-id"
+    cs_get_response = {found: true event: changed} calendar_list_events()
+    cs_checks.changed_identifier_not_rebound_by_title = calendar_selected_event.id == "sync-fixture-event"
+        && calendar_selected_event.version == "v2" && calendar_error != "" && !calendar_pending
+    start_timeout(0.03,|| cs_late_edit())
+}
+fn cs_late_edit(){
+    cs_get_hold = true calendar_list_events()
+    cs_checks.pending_held_until_get_callback = calendar_pending && cs_pending.len() == 1
+    ui.calendar_start.set_text("2030-07-05T13:00:00+08:00")
+    ui.calendar_end.set_text("2030-07-05T14:00:00+08:00") calendar_edit()
+    cs_pending[0]({is_ok: true data: {found: true event: cs_event("late-v3","2030-07-06T13:00:00+08:00","2030-07-06T14:00:00+08:00")}})
+    cs_checks.late_get_cannot_overwrite_new_candidate = calendar_selected_event.version == "v2"
+        && ui.calendar_start.text() == "2030-07-05T13:00:00+08:00" && !calendar_pending
+    cs_get_hold = false
+    start_timeout(0.03,|| cs_invalid_and_projection())
+}
+fn cs_invalid_and_projection(){
+    cs_response = {bad: "not array"} calendar_list_events()
+    cs_checks.malformed_list_rejected_without_runtime_error = calendar_events.len() == 0 && calendar_loaded.calendar_id == "" && !calendar_pending
+    let foreign = cs_event("foreign","2030-06-13T13:00:00+08:00","2030-06-13T14:00:00+08:00")
+    foreign.calendar_id = "other-calendar" cs_response = [foreign] calendar_list_events()
+    cs_checks.foreign_event_cannot_mark_selected_calendar = calendar_events.len() == 0 && calendar_loaded.calendar_id == "" && !calendar_pending
+    let before_duplicate = cs_calls.len()
+    cs_response = [cs_event("duplicate-a","2030-06-13T13:00:00+08:00","2030-06-13T14:00:00+08:00"),
+        cs_event("duplicate-b","2030-06-14T13:00:00+08:00","2030-06-14T14:00:00+08:00")]
+    calendar_list_events()
+    cs_checks.duplicate_target_id_rejected_without_get_or_guess = cs_calls.len() == before_duplicate + 1
+        && cs_calls[cs_calls.len()-1].service == "calendar.list" && calendar_selected_event.version == "v2"
+        && calendar_error != "" && !calendar_pending
+    cs_response = [cs_event("v3","2030-06-13T13:00:00+08:00","2030-06-13T14:00:00+08:00")]
+    cs_truncated = true calendar_list_events()
+    cs_checks.truncation_retained_as_incomplete = calendar_loaded.truncated && calendar_events.len() == 1
+    calendar_draft.start = "2030-06-20T13:00:00+08:00" calendar_draft.end = "2030-06-20T14:00:00+08:00"
+    let display = calendar_display_rows(calendar_events,"month","2030-06-01")
+    let query_marks = 0 let candidate_marks = 0
+    for cell in display.rows {
+        if cell.date == "2030-06-13" { query_marks = cell.events.len() }
+        if cell.date == "2030-06-20" { candidate_marks = cell.events.len() }
+    }
+    cs_checks.day_marks_derive_from_actual_query_only = query_marks == 1 && candidate_marks == 0 && display.rows.len() == 42
+    cs_checks.no_mutation_model_or_title_search_calls = cs_forbidden.len() == 0
+    cs_checks.calls = cs_calls cs_checks.forbidden_calls = cs_forbidden
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

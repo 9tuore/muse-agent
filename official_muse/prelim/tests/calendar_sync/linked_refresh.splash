@@ -1,0 +1,73 @@
+// Synthetic persisted verified association, no real mail/Calendar/model call.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+let cs_response = []
+let cs_original_receipts = ""
+let cs_original_goals = ""
+let cs_original_artifact = ""
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({service: service args: args})
+    if service == "calendar.list" {
+        callback({is_ok: true data: {events: cs_response truncated: false}})
+        return
+    }
+    cs_forbidden.push(service)
+    callback({is_ok: false error: "Linked-refresh fixture forbids mutation/model/native transport"})
+}
+fn cs_event(version,start,end){
+    return {id: "sync-fixture-event" calendar_id: "fixture-calendar" version: version title: "MUSE-SYNC-SYNTHETIC"
+        start: start end: end time_zone: "Asia/Shanghai" location: "synthetic" recurring: false all_day: false availability: 0}
+}
+fn cs_begin(){
+    fixture_seed()
+    calendar_ready = true
+    start_timeout(0.03,|| cs_persist_verified_fixture())
+}
+fn cs_persist_verified_fixture(){
+    let old = cs_event("v1","2030-06-12T09:00:00+08:00","2030-06-12T10:00:00+08:00")
+    let goal = {schema: 1 id: "calendar-sync-goal" version: 1 goal: "MUSE-SYNC-SYNTHETIC"
+        project_id: gm_project owner_id: gm_owner source: "Synthetic authorized source" items: [] status: "completed"
+        approved_at: 1 model_summary: "" result_path: "results/calendar-sync-goal.json" updated_at: time_now() kind: "calendar"
+        mail_source: {account_id: "fixture-account" message_id: "fixture-message" source_id: "source:fixture" observed_at: "2030-01-01T00:00:00Z"}}
+    goal.goal_spec = calendar_goal_spec(goal.id,1,goal.goal,goal.result_path)
+    cs_checks.persisted_completed_fixture_goal = core_add_goal(goal)
+    let candidate = {title: old.title start: old.start end: old.end time_zone: old.time_zone location: old.location}
+    calendar_links = [{goal_id: goal.id account_id: "fixture-account" message_id: "fixture-message" source_id: "source:fixture"
+        source_claim_id: "memory:fixture" observed_at: "2030-01-01T00:00:00Z" candidate: candidate
+        calendar_id: old.calendar_id run_id: "fixture-prior-run" event_id: old.id version: old.version
+        operation: "update" original_event: old status: "verified" last_error: "" updated_at: time_now()
+        candidate_revision: 3 memory_refs: []}]
+    let receipt_payload = candidate.to_json().parse_json()
+    receipt_payload.calendar_id = old.calendar_id
+    cs_checks.persisted_fixture_receipt = calendar_store_receipt("fixture-prior-request",goal.id,"fixture-prior-run","calendar.update",receipt_payload,old.id,old.version,"verified")
+    let artifact = {schema: 1 task_id: goal.id run_id: "fixture-prior-run" request_id: "fixture-prior-request"
+        calendar_id: old.calendar_id event_id: old.id version: old.version title: old.title start: old.start end: old.end
+        time_zone: old.time_zone location: old.location verified_at: 1 source_id: "source:fixture"}
+    fs.mkdir("results") fs.write(goal.result_path,artifact.to_json())
+    cs_original_receipts = calendar_receipts.to_json()
+    cs_original_goals = {goals: goals runs: runs actions: actions}.to_json()
+    cs_original_artifact = fs.read(goal.result_path)
+    calendar_select_link(goal.id)
+    cs_checks.actual_select_link_loaded_fixture = calendar_selected_goal == goal.id && result != nil && result.version == "v1"
+    ui.calendar_range_start.set_text("2030-06-01T00:00:00+08:00") ui.calendar_range_end.set_text("2030-07-01T00:00:00+08:00")
+    start_timeout(0.03,|| cs_refresh())
+}
+fn cs_refresh(){
+    cs_response = [cs_event("v2","2030-06-13T13:00:00+08:00","2030-06-13T14:00:00+08:00")]
+    calendar_list_events()
+    cs_checks.link_original_event_updated_same_id = calendar_links[0].original_event.version == "v2"
+        && calendar_links[0].original_event.id == "sync-fixture-event" && calendar_links[0].original_event.start == cs_response[0].start
+    cs_checks.link_current_version_updated = calendar_links[0].version == "v2"
+    cs_checks.original_goal_association_retained = calendar_selected_goal == "calendar-sync-goal" && calendar_links.len() == 1
+    cs_checks.selected_detail_updated = calendar_selected_event != nil && calendar_selected_event.version == "v2"
+        && ui.calendar_start.text() == cs_response[0].start
+    cs_checks.historical_receipts_unchanged = calendar_receipts.to_json() == cs_original_receipts
+    cs_checks.completed_goal_and_runs_not_replayed = {goals: goals runs: runs actions: actions}.to_json() == cs_original_goals
+    cs_checks.historical_artifact_unchanged = fs.read("results/calendar-sync-goal.json") == cs_original_artifact
+    cs_checks.only_read_queries_no_external_writes = cs_forbidden.len() == 0
+    cs_checks.observed = {selected: calendar_selected_event link: calendar_links[0] historical_result: result}.to_json().parse_json()
+    cs_checks.forbidden_calls = cs_forbidden cs_checks.calls = cs_calls
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

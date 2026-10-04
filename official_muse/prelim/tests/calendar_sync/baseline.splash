@@ -1,0 +1,62 @@
+// Current implementation only: synthetic service responses, no mutation service.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+let cs_response = []
+let cs_hold = false
+let cs_pending = []
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({service: service args: args})
+    if service == "calendar.list" {
+        if cs_hold { cs_pending.push(callback) return }
+        callback({is_ok: true data: {events: cs_response truncated: false}})
+        return
+    }
+    cs_forbidden.push(service)
+    callback({is_ok: false error: "Calendar-sync fixture forbids real/mutation/model service"})
+}
+fn cs_event(version,start,end){
+    return {id: "sync-fixture-event" calendar_id: "fixture-calendar" version: version title: "MUSE-SYNC-SYNTHETIC"
+        start: start end: end time_zone: "Asia/Shanghai" location: "synthetic" recurring: false all_day: false availability: 0}
+}
+fn cs_begin(){
+    fixture_seed()
+    start_timeout(0.03,|| cs_prepare())
+}
+fn cs_prepare(){
+    calendar_ready = true calendar_pending = false calendar_context_refs = [] calendar_selected_goal = ""
+    calendar_operation = "update" calendar_selected_event = cs_event("v1","2030-06-12T09:00:00+08:00","2030-06-12T10:00:00+08:00")
+    ui.calendar_title.set_text("MUSE-SYNC-SYNTHETIC") ui.calendar_start.set_text("2030-06-12T10:00:00+08:00")
+    ui.calendar_end.set_text("2030-06-12T11:00:00+08:00") ui.calendar_location.set_text("synthetic")
+    ui.calendar_range_start.set_text("2030-06-01T00:00:00+08:00") ui.calendar_range_end.set_text("2030-07-01T00:00:00+08:00")
+    cs_response = [] calendar_check_conflicts() calendar_preview_action()
+    cs_checks.valid_actual_preview_before_refresh = calendar_preview != "" && calendar_checked != ""
+    start_timeout(0.03,|| cs_refresh_changed())
+}
+fn cs_refresh_changed(){
+    cs_response = [cs_event("v2","2030-06-13T13:00:00+08:00","2030-06-13T14:00:00+08:00")]
+    calendar_list_events()
+    let last = cs_calls[cs_calls.len()-1]
+    cs_checks.query_selected_calendar_and_limit100 = last.service == "calendar.list" && last.args.calendar_id == "fixture-calendar" && last.args.limit == 100
+    cs_checks.cache_updates_from_actual_list_callback = calendar_events.len() == 1 && calendar_events[0].version == "v2"
+    cs_checks.refresh_updates_selected_exact_event = calendar_selected_event.version == "v2" && calendar_selected_event.start == cs_response[0].start
+    cs_checks.refresh_invalidates_old_preview_and_checked = calendar_preview == "" && calendar_checked == ""
+    cs_checks.after_refresh = {selected: calendar_selected_event cached: calendar_events preview: calendar_preview checked: calendar_checked}.to_json().parse_json()
+    start_timeout(0.03,|| cs_scope_and_stale())
+}
+fn cs_scope_and_stale(){
+    let foreign = cs_event("foreign-v1","2030-06-12T09:00:00+08:00","2030-06-12T10:00:00+08:00")
+    foreign.calendar_id = "unselected-calendar"
+    cs_response = [foreign] calendar_list_events()
+    cs_checks.foreign_calendar_response_not_adopted = calendar_events.len() == 0 || calendar_events[0].calendar_id == "fixture-calendar"
+    cs_checks.foreign_response_observed = {events: calendar_events error: calendar_error}.to_json().parse_json()
+    calendar_events = [] calendar_loaded = {calendar_id: "" start: "" end: "" truncated: false}
+    cs_hold = true calendar_list_events()
+    ui.calendar_range_start.set_text("2030-07-01T00:00:00+08:00")
+    cs_pending[0]({is_ok: true data: {events: [foreign] truncated: false}})
+    cs_checks.stale_range_callback_ignored = calendar_events.len() == 0 && calendar_loaded.calendar_id == ""
+    cs_checks.only_read_queries_no_external_writes = cs_forbidden.len() == 0
+    cs_checks.forbidden_calls = cs_forbidden cs_checks.calls = cs_calls
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

@@ -96,21 +96,45 @@ pub struct Tokens {
     pub output: u64,
 }
 
-/// The reply text and usage out of a 2xx answer.
+/// An explicit provider stop that must not be repaired as a format error.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Stop { Refused, Truncated }
+
+/// Existing text-only parser; terminal provider stops remain errors.
 pub fn parse(api: ApiType, body: &[u8]) -> Result<(String, Option<Tokens>), String> {
+    let (text, usage, stop) = parse_reply(api, body)?;
+    match stop {
+        Some(Stop::Refused) => Err("the provider refused the request".into()),
+        Some(Stop::Truncated) => Err("the provider truncated the reply".into()),
+        None => Ok((text, usage)),
+    }
+}
+
+/// Keep usage available internally even for a terminal OpenAI provider stop.
+pub fn parse_reply(api: ApiType, body: &[u8]) -> Result<(String, Option<Tokens>, Option<Stop>), String> {
     let v: Value = serde_json::from_slice(body).map_err(|_| "the provider's answer was not JSON".to_string())?;
     let n = |p: &str| v.pointer(p).and_then(Value::as_u64);
+    let stop = match api {
+        ApiType::OpenAi => match v.pointer("/choices/0/finish_reason").and_then(Value::as_str) {
+            Some("length") => Some(Stop::Truncated),
+            Some("content_filter") => Some(Stop::Refused),
+            _ if v.pointer("/choices/0/message/refusal").and_then(Value::as_str)
+                .is_some_and(|s| !s.trim().is_empty()) => Some(Stop::Refused),
+            _ => None,
+        },
+        _ => None,
+    };
     let (text, usage) = match api {
         ApiType::OpenAi => {
             let text = v.pointer("/choices/0/message/content").and_then(Value::as_str).map(str::to_string);
-            let usage = n("/usage/prompt_tokens").map(|i| Tokens { input: i, output: n("/usage/completion_tokens").unwrap_or(0) });
+            let usage = n("/usage/prompt_tokens").zip(n("/usage/completion_tokens")).map(|(input, output)| Tokens { input, output });
             (text, usage)
         }
         ApiType::Anthropic => {
             let text = v["content"].as_array().map(|blocks| {
                 blocks.iter().filter(|b| b["type"] == "text").filter_map(|b| b["text"].as_str()).collect::<Vec<_>>().join("")
             });
-            let usage = n("/usage/input_tokens").map(|i| Tokens { input: i, output: n("/usage/output_tokens").unwrap_or(0) });
+            let usage = n("/usage/input_tokens").zip(n("/usage/output_tokens")).map(|(input, output)| Tokens { input, output });
             (text, usage)
         }
         ApiType::Responses => {
@@ -126,12 +150,13 @@ pub fn parse(api: ApiType, body: &[u8]) -> Result<(String, Option<Tokens>), Stri
                         .join("")
                 })
             });
-            let usage = n("/usage/input_tokens").map(|i| Tokens { input: i, output: n("/usage/output_tokens").unwrap_or(0) });
+            let usage = n("/usage/input_tokens").zip(n("/usage/output_tokens")).map(|(input, output)| Tokens { input, output });
             (text, usage)
         }
     };
     match text {
-        Some(t) if !t.trim().is_empty() => Ok((t, usage)),
+        Some(t) if !t.trim().is_empty() || stop.is_some() => Ok((t, usage, stop)),
+        None if stop.is_some() => Ok((String::new(), usage, stop)),
         _ => Err("the provider answered with no text".into()),
     }
 }
@@ -174,5 +199,32 @@ mod tests {
         let (t, _) = parse(ApiType::Responses, br#"{"output":[{"type":"message","content":[{"type":"output_text","text":"1"}]}]}"#).unwrap();
         assert_eq!(t, "1");
         assert!(parse(ApiType::OpenAi, br#"{"choices":[]}"#).is_err());
+    }
+
+
+    #[test]
+    fn partial_usage_does_not_claim_known_zero_output() {
+        for (api, body) in [
+            (ApiType::OpenAi, r#"{"choices":[{"message":{"content":"{}"}}],"usage":{"prompt_tokens":17}}"#),
+            (ApiType::Anthropic, r#"{"content":[{"type":"text","text":"{}"}],"usage":{"input_tokens":17}}"#),
+            (ApiType::Responses, r#"{"output_text":"{}","usage":{"input_tokens":17}}"#),
+        ] {
+            assert!(parse(api, body.as_bytes()).unwrap().1.is_none());
+        }
+    }
+
+    #[test]
+    fn explicitly_reported_zero_output_is_complete_usage() {
+        let (_, usage) = parse(ApiType::OpenAi, br#"{"choices":[{"message":{"content":"{}"}}],"usage":{"prompt_tokens":17,"completion_tokens":0}}"#).unwrap();
+        assert_eq!(usage, Some(Tokens { input: 17, output: 0 }));
+    }
+
+    #[test]
+    fn terminal_provider_stop_keeps_internal_usage() {
+        let (_, usage, stop) = parse_reply(ApiType::OpenAi, br#"{"choices":[{"message":{"content":null,"refusal":"synthetic refusal"},"finish_reason":"stop"}],"usage":{"prompt_tokens":17,"completion_tokens":9}}"#).unwrap();
+        assert_eq!(usage, Some(Tokens { input: 17, output: 9 }));
+        assert_eq!(stop, Some(Stop::Refused));
+        let (_, _, stop) = parse_reply(ApiType::OpenAi, br#"{"choices":[{"message":{"content":"{}"},"finish_reason":"length"}],"usage":{"prompt_tokens":17,"completion_tokens":9}}"#).unwrap();
+        assert_eq!(stop, Some(Stop::Truncated));
     }
 }

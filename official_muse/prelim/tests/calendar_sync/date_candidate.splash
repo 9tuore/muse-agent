@@ -1,0 +1,47 @@
+// Requires the integrated date entry; no Calendar/model transport is permitted.
+let cs_checks = {}
+let cs_calls = []
+let cs_forbidden = []
+fn cal_sync_request(service,args,callback){
+    cs_calls.push({service: service args: args}) cs_forbidden.push(service)
+    callback({is_ok: false error: "Date-candidate fixture permits no external service"})
+}
+fn cs_begin(){
+    fixture_seed() calendar_ready = true calendar_pending = false
+    start_timeout(0.03,|| cs_date())
+}
+fn cs_date(){
+    calendar_preview = "old" calendar_checked = "old" calendar_preview_binding = "old"
+    calendar_selected_event = {id: "old-event" calendar_id: "fixture-calendar"}
+    calendar_selected_goal = "old-selection" calendar_context_refs = [{id: "old-source"}]
+    calendar_create_on_day("2030-06-13")
+    cs_checks.date_and_known_page_zone_retained = calendar_candidate_date == "2030-06-13"
+        && calendar_day_focus == "2030-06-13" && ui.calendar_timezone.text() == "Asia/Shanghai"
+    cs_checks.selected_writable_calendar_retained = calendar_calendar_id == "fixture-calendar"
+    cs_checks.opens_create_candidate_only = calendar_form_open && calendar_operation == "create"
+        && calendar_selected_event == nil && calendar_selected_goal == "" && calendar_context_refs.len() == 0
+    cs_checks.no_guessed_start_end_or_duration = ui.calendar_start.text() == "" && ui.calendar_end.text() == ""
+    cs_checks.old_preview_invalidated = calendar_preview == "" && calendar_checked == "" && calendar_preview_binding == ""
+    ui.calendar_title.set_text("MUSE-DATE-SYNTHETIC")
+    cs_checks.missing_time_requires_answer = calendar_draft_error(calendar_draft_payload()).search("起止时间") >= 0
+    ui.calendar_start.set_text("2030-06-14T10:00:00+08:00") ui.calendar_end.set_text("2030-06-14T11:00:00+08:00")
+    cs_checks.other_day_input_rejected = calendar_draft_error(calendar_draft_payload()) != ""
+    ui.calendar_start.set_text("2030-06-12T16:00:00Z") ui.calendar_end.set_text("2030-06-12T17:00:00Z")
+    cs_checks.same_beijing_date_from_utc_expression_accepted = calendar_draft_error(calendar_draft_payload()) == ""
+    calendar_permission = "unavailable" calendar_error = ""
+    calendar_create_on_day("2030-06-14")
+    cs_checks.ungranted_calendar_rejected = calendar_candidate_date == "2030-06-13" && calendar_error != ""
+    calendar_permission = "full_access" calendar_calendars = [{id: "fixture-calendar" writable: false}] calendar_error = ""
+    calendar_create_on_day("2030-06-14")
+    cs_checks.readonly_calendar_rejected = calendar_candidate_date == "2030-06-13" && calendar_error != ""
+    calendar_calendars = [{id: "fixture-calendar" writable: true}] calendar_calendar_id = "" calendar_error = ""
+    calendar_create_on_day("2030-06-14")
+    cs_checks.no_selected_calendar_rejected = calendar_candidate_date == "2030-06-13" && calendar_error != ""
+    calendar_calendar_id = "fixture-calendar" calendar_error = ""
+    calendar_create_on_day("2030-02-30")
+    cs_checks.invalid_date_rejected = calendar_candidate_date == "2030-06-13" && calendar_error != ""
+    cs_checks.no_calendar_queries_or_writes = cs_calls.len() == 0 && cs_forbidden.len() == 0
+    cs_checks.calls = cs_calls cs_checks.forbidden_calls = cs_forbidden
+    fs.write("probe.json",cs_checks.to_json())
+}
+start_timeout(0.1,|| cs_begin())

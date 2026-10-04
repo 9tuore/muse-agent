@@ -1,0 +1,24 @@
+{
+  "files": [
+    {
+      "file": "platform/script/src/vm.rs",
+      "before_sha256": "d587e566bbe5b72d6b68309884618e92b51d741d85f0c9b6630a7c328134da02",
+      "after_sha256": "28dddefa959ae6ec8c34f7df40140cd6bea47773e0cb98dff8d9593aec6e81d3"
+    },
+    {
+      "file": "widgets/src/splash.rs",
+      "before_sha256": "8f541d0c8d1311be1e77eb64a333cf87c4e4093d5e2e0dde4fd7ca9827687622",
+      "after_sha256": "a6cddfc5fba7cb3d87b73fbaabaee4c29d753c0d51f1d0302915e2a3862423a7"
+    }
+  ],
+  "per_entry_wall_budget": "UNCHANGED_64MS",
+  "instruction_budget": "UNCHANGED",
+  "partial_source_executions": 0,
+  "chunk_bytes": 16384,
+  "trigger_source_bytes": 65536,
+  "scope": "Cold first evaluation only; active application source updates keep their existing synchronous path",
+  "review_fixes": [
+    "existing panic containment, failed isolate stopped",
+    "style reapply requires successful body, not automatic failed preparation retry"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "scope": "OFFLINE_NATIVE_RUST_ONLY_NOT_FINAL_SHELL_OR_PROVIDER_ACCEPTANCE",
+  "new_paid_calls": 0,
+  "wall_budget_ms": 64,
+  "eval_instruction_budget": 200000,
+  "model": {
+    "library_passed": 30,
+    "library_ignored": 1,
+    "integration_passed": 29,
+    "log_sha256": "89ea5e3a87ab029c7a7087051d38c685476eacc09857f740d294fde4730496f7",
+    "existing_s03_cost": "UNKNOWN_NOT_RECONCILED"
+  },
+  "startup_vm": {
+    "r1_passed": 60,
+    "r1_failed": 1,
+    "r1_log_sha256": "ca8c9b4e8f5148df5789b1ca14f3d6bc75bc4690256896ef5752634a4974b57d",
+    "r2_passed": 61,
+    "r2_failed": 0,
+    "r2_log_sha256": "18ce8ea95f820e2e439723d42f0f112d05e072130d5a886be5ac58e76e4c2337",
+    "r1_note": "The original test assumed a missing heap value is NIL. It is a not-found error; the same test now measures actual native call count before and after execution. The failure is retained."
+  },
+  "widgets": {
+    "passed": 6,
+    "failed": 0,
+    "filtered_out": 434,
+    "log_sha256": "474190451f99355ad595e20f0b395f41b57ff3099281bd75e8b3fbaa954823aa",
+    "coverage": [
+      "compile preparation does not execute application",
+      "close cancels preparation",
+      "failed preparation cannot restyle-retry",
+      "module state and edited UI preserved on restyle",
+      "startup timers not duplicated"
+    ]
+  },
+  "shell_matrix": "NOT_RUN",
+  "upstream_acceptance": false
+}
