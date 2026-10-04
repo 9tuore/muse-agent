@@ -1,6 +1,6 @@
-# RC evidence index
+# RC 实际证据索引
 
-Product b48618ac / 0.3.26-rc5. Calendar source fix92b1df15 is not compiled into Host938. Local raw evidence remains private; public hashes locate retained originals. Mutable soak hashes represent this snapshot and will be updated at completion.
+产品b48618ac / 0.3.26-rc5。Calendar源码修复92b1df15没有编译进Host938。原始实机材料本地保留，公开SHA用于定位；仍在采样的soak摘要只是本次快照，结束后更新。fixture、真实服务读取、系统动作与不同版本分别计入。
 
 | Item | Status | Scope | Local source | SHA256 |
 | --- | --- | --- | --- | --- |

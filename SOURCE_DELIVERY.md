@@ -1,4 +1,18 @@
-# 当前交付：0.3.25日历阻塞修复
+# 当前交付：0.3.26-rc5开发源码与旧暖运行环境
+
+状态PARTIAL。产品冻结b48618acef0ff291ad3dc23b09946b0b15fa4f2f；可读af68b897、compact5092becd，官方tokenizer90,541个token一致。跨对话记忆、真实模型Goal首重启与70次启动已有身份绑定证据，完整同候选外部整链、第二模型及电脑重启未过。
+
+新实际Calendar只读诊断发现宿主truncated为数字0/1，应用严格布尔契约拒绝。92b1df15一行SDK修复已通过Foundation三边界、整桥Clang object编译及12000文件SDK验证；最新锁da756dde。完整新Host因为磁盘容量未完成构建。
+
+交付严格分两部分：最新允许清单源码及SDKda；已有严格签名Intel暖运行Host938/Card5276及旧SDK3f。旧运行包仍有Calendar序列化缺陷，不声明已修、官方接受、clean复现、ARM或第二Mac通过。源码快照含公开测试与原失败摘要，不含凭据、私人邮件、生产数据库、模型权重、编译缓存或重复运行包。
+
+SOURCE_MANIFEST.json按当前明确Git普通文件库存刷新SHA；不读取未提交原件，不递归收集私有build目录。inventory生成commit与最终导出snapshot commit分别记录，manifest不含自身摘要。BASELINE_SOURCE_MANIFEST及历史清单原样保留。当前source SDK与旧runtime SDK身份不可合并。
+
+最新报告：MORNING_CHAMPIONSHIP_REPORT、RC_ACCEPTANCE_MATRIX、RC_EVIDENCE_INDEX、RC_CODE_FREEZE。只有原20项和旧关键门槛全部真实通过才提交公开main、新成功Tag或正式AppHub；本轮未push或发布。
+
+---
+
+## 历史交付：0.3.25日历阻塞修复
 
 源码更新提交`d1f1617`，来源开发提交`5116505`及`5449a27`。当前签名bundle为实际0.3.25候选，可读入口在`official_muse/app/source/main.splash`；此前源码清理已集成。两者88,092个token等价，精确SHA与局部修复验收见MUSE_CALENDAR_REPAIR_REPORT.md。
 

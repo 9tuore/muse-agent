@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前运行候选：0.3.25；产品验收：PARTIAL（5 PASS / 13 PARTIAL / 2 BLOCKED）。** 日历安排范围和手动改期阻塞已修复；真实同ID改期、独立读回、Shell重启和合成事件清理通过。第二模型、同一最终候选完整邮件链及正式发布材料仍有缺项。详见[Muse日历修复报告](MUSE_CALENDAR_REPAIR_REPORT.md)。
+**当前开发候选：0.3.26-rc5；产品验收：PARTIAL（5 PASS / 13 PARTIAL / 2 BLOCKED）。** 公开稳定基线0.3.25保留。V15真实模型、跨对话记忆和一次性任务首次恢复已验证，30冷启动/20重开/20Shell重启全部通过。新发现的Calendar桥布尔序列化错误仅完成源码修复，尚未重编译进运行Host；第二模型、同候选外部整链与正式发布材料仍缺。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
@@ -20,7 +20,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.25实际签名compact payload、manifest、listing和资源，与实机候选逐字节一致 |
+| `official_muse/app/bundle/` | 0.3.26-rc5 compact payload、manifest、listing和资源；source5092对应V15实机候选，listing截图仍为有身份记录的V12支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
@@ -51,13 +51,14 @@ cd ../..
 
 四个内部`.sources/`链接由bootstrap恢复。已有vendor时脚本只核验，发现差异立即停止，保留本地修改。开发公钥不是发布私钥；开发check不代替Gate、正式发布身份、catalog、能力授权及人工审查。模型和邮箱/日历账号在官方Host设置中配置。
 
-0.3.25已集成清理补丁，历史补丁不再向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。完整运行资料不放在源码仓库。
+历史清理补丁已集成，不向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。最新SDK锁da756dde包含Calendar布尔修复；当前可复用Intel暖Host938来自旧SDK3f，不能宣称已集成新修复。完整clean build因空间不足受控中止，记录在[源码及运行交付边界](SOURCE_DELIVERY.md)。完整运行资料不放在源码仓库。
 
 ## 4. 验收、支持与隐私
 
-- [最新日历修复报告](MUSE_CALENDAR_REPAIR_REPORT.md)、[二十项判定](ROUND_ACCEPTANCE.md)与[历史三小时报告](THREE_HOUR_FINAL_REPORT.md)
+- [晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)、[原二十项判定](RC_ACCEPTANCE_MATRIX.md)、[日历实际诊断](RC_CALENDAR_READONLY_REPORT.md)与[真实模型和邮箱证据](RC_FINAL_LIVE_REPORT.md)
+- [历史日历修复报告](MUSE_CALENDAR_REPAIR_REPORT.md)、[历史判定](ROUND_ACCEPTANCE.md)与[历史三小时报告](THREE_HOUR_FINAL_REPORT.md)
 - [源码清理报告](MUSE_CODE_CLEANUP_REPORT.md)、[SDK瘦身记录](SDK_SLIMMING_REPORT.md)和[历史截图归档](EVIDENCE_ARCHIVE.md)
 - [来源和交付边界](SOURCE_DELIVERY.md)与[SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)
 - [问题反馈](https://github.com/9tuore/muse-agent/issues)
 
-仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。保留唯一失败证据、旧Git历史和公开Tag。正式隐私政策地址与publisher材料尚待核实，未正式提交App Hub。每次完成更新按本人已有授权同步main并独立读回；不强推、不移动旧Tag。
+仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。最新两张原生截图使用隔离合成资料，并记录source/Host身份。保留唯一失败证据、旧Git历史和公开Tag。正式隐私政策地址与publisher材料尚待核实，未正式提交App Hub。本轮仅本地小步提交，原20项及关键门槛未全过前不同步公开main或创建成功Tag。
