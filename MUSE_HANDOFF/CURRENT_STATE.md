@@ -1,6 +1,6 @@
 ## 当前：官方SDK瘦身，0.3.22签名payload不变
 
-2026-10-04，基线公开main be552c1e。用户要求一次清完并按清单处理大体积。五个官方commit锁定，完整本地修改保留在sdk-overlays；SDK恢复由bootstrap逐树验证。详情SDK_SLIMMING_REPORT.md。历史失败、Tag和生产资料不动。
+2026-10-04，基线公开main be552c1e。用户要求一次清完并按清单处理大体积。五个官方commit锁定，完整本地修改保留在sdk-overlays；SDK恢复由bootstrap逐树验证。详情SDK_SLIMMING_REPORT.md。当前744条目/约16.5MiB，比原705.4MiB减少97.7%；12000项SDK精确重建、Hub构建/Gate和Calendar编译检查通过，744文件源码归档读回PASS。完整Git历史保留。历史失败、Tag和生产资料不动。
 
 开发主入口清理已在9d5d763提交，121项隔离断言通过；公开以可应用补丁交付，原签名bundle保持字节。产品仍PARTIAL，日历hard_windows为空及同候选整链、第二模型、正式发布材料未解决。群内初赛截止按本人“6号之前”，具体时分未知。
 

@@ -8,6 +8,8 @@
 
 来源清单SOURCE_MANIFEST.json记录当前允许公开的普通文件SHA256；外部SDK锁单独记录，不再把尚未恢复的vendor链接当作源码导出成员。SDK_SLIMMING_REPORT.md记录实际还原、构建与导出检查及未测边界。历史完整SDK可从be552c1e提交恢复。原公开证据、失败和Git历史保留；没有凭据、私人邮件、生产数据库或模型权重。
 
+本轮源码快照1365dbf允许清单744文件逐个SHA256、执行模式和归档成员读回PASS，压缩后约9.24MiB；依赖原树12000条目还原PASS，Hub构建/Gate、Calendar宿主编译检查PASS。详见SDK_VERIFICATION.json。原导出摘要缺delivery字段的失败保留，校验脚本已最小修复。
+
 ## 历史交付记录
 
 # 0.3.22 开发源码交付

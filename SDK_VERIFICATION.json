@@ -78,5 +78,40 @@
     "immutable_commit": "be552c1e3d41602370a8a9bcc64c9f1bcab8f3a2",
     "local_sha256_readback": "PASS",
     "failures_logs_json_and_tests_retained": true
+  },
+  "source_export": {
+    "status": "SOURCE_SNAPSHOT_VERIFIED_NOT_RELEASE",
+    "created_at_utc": "2026-10-04T08:58:51.138461+00:00",
+    "source_repository": "https://github.com/9tuore/muse-agent",
+    "source_head": "1365dbfb6af02e42d1c4687b463b7e2b20439bb1",
+    "version": "0.3.22",
+    "source_manifest_sha256": "5bf7e14fddf6f3ee0c3a3b9c46fc81b7d2ae420b4850ae26e230572de4d32e2b",
+    "regular_file_count": 744,
+    "internal_link_count": 0,
+    "input_regular_file_logical_bytes": 17315458,
+    "archive_bytes": 9686653,
+    "compression_saved_bytes_same_inventory": 7628805,
+    "archive_sha256": "14ab9e94b7ab8f5683747647874d38644f1621b9757419b790f30872ea6c2e5b",
+    "archive_name": "muse-source-0.3.22-1365dbf.tar.gz",
+    "readback_hashes_and_executable_modes": "PASS",
+    "exact_archive_members": "PASS",
+    "internal_dependency_links": "PASS",
+    "source_deletions": 0,
+    "workspace_bytes_freed": 0,
+    "git_history_rewritten": false,
+    "build_gate_cold_start": "NOT_EXECUTED",
+    "publisher_review": "NOT_EXECUTED",
+    "product_acceptance": {
+      "PASS": 5,
+      "PARTIAL": 13,
+      "BLOCKED": 2
+    },
+    "note": "Every approved file retained, including public historical failures, licenses, locks and SDK resources. No public checkout writes. Compression comparison uses identical regular-file inventory; it is not disk cleanup."
+  },
+  "prepare_final_delivery_plan": "PASS: 741 selected source files plus generated provenance, no links",
+  "source_export_initial_failure": {
+    "head": "eba2924db8a8531a3affe8882a7c5b89fb0c220d",
+    "error": "KeyError: 'delivery'",
+    "scope": "Archive members/hashes had already read back; old summary formatter assumed obsolete manifest metadata nesting. Fixed with explicit acceptance validation in 1365dbf; original archive retained."
   }
 }
