@@ -223,29 +223,46 @@ fn gm_validate_part(saved,legacy,phase,start,end){
     if !gm_object(saved) { return false }
     return gm_validate_canonical_part(saved.to_json().parse_json(),legacy,phase,start,end)
 }
-fn gm_validation_index(saved,legacy){
-    if !gm_required(saved,["schema","claims","sources","forget"]) { return nil }
-    if !gm_object(saved) || saved.schema != 1 || !gm_array(saved.claims) || !gm_array(saved.sources) || !gm_array(saved.forget)
-        || saved.claims.len() > 64 || saved.sources.len() > 128 || saved.forget.len() > 256 { return nil }
-    let source_map = {}
-    let claim_map = {}
-    for i in saved.sources.len() {
+fn gm_validation_header(saved){
+    return gm_required(saved,["schema","claims","sources","forget"])
+        && gm_object(saved) && saved.schema == 1 && gm_array(saved.claims) && gm_array(saved.sources) && gm_array(saved.forget)
+        && saved.claims.len() <= 64 && saved.sources.len() <= 128 && saved.forget.len() <= 256
+}
+fn gm_index_part(saved,legacy,index,phase,start,end){
+    if phase == "sources" {
+    for offset in end-start {
+        let i = start+offset
         let s = saved.sources[i]
-        if !gm_required(s,["source_id","scope"]) || !gm_string(s.source_id,200) || !gm_scope_valid(s["scope"],legacy) { return nil }
-        if source_map[s.source_id] != nil { return nil }
-        source_map[s.source_id] = i + 1
+        if !gm_required(s,["source_id","scope"]) || !gm_string(s.source_id,200) || !gm_scope_valid(s["scope"],legacy) { return false }
+        if index.sources[s.source_id] != nil { return false }
+        index.sources[s.source_id] = i + 1
     }
-    for t in saved.forget { if !gm_tomb_valid(t) { return nil } }
-    for i in saved.claims.len() {
+    return true
+    }
+    if phase == "forget" {
+        for offset in end-start { if !gm_tomb_valid(saved.forget[start+offset]) { return false } }
+        return true
+    }
+    if phase != "claims" { return false }
+    for offset in end-start {
+        let i = start+offset
         let entry = saved.claims[i]
         if !gm_required(entry,["document"]) || !gm_required(entry.document,["id","scope","payload"])
             || !gm_required(entry.document.payload,["deleted"]) || !gm_bool(entry.document.payload.deleted)
-            || !gm_scope_valid(entry.document["scope"],legacy) { return nil }
+            || !gm_scope_valid(entry.document["scope"],legacy) { return false }
         let id = entry.document.id
-        if !gm_string(id,200) || claim_map[id] != nil { return nil }
-        claim_map[id] = i + 1
+        if !gm_string(id,200) || index.claims[id] != nil { return false }
+        index.claims[id] = i + 1
     }
-    return {sources: source_map claims: claim_map}
+    return true
+}
+fn gm_validation_index(saved,legacy){
+    if !gm_validation_header(saved) { return nil }
+    let index = {sources: {} claims: {}}
+    if !gm_index_part(saved,legacy,index,"sources",0,saved.sources.len())
+        || !gm_index_part(saved,legacy,index,"forget",0,saved.forget.len())
+        || !gm_index_part(saved,legacy,index,"claims",0,saved.claims.len()) { return nil }
+    return index
 }
 fn gm_validate_canonical_part(saved,legacy,phase,start,end){
     if phase != "all" && phase != "sources" && phase != "claims" && phase != "correction" { return false }
@@ -380,12 +397,26 @@ fn gm_boot(){
     return gm_finish_boot(saved,generated_profile)
 }
 fn gm_boot_begin(){
-    gm_boot_index = gm_validation_index(gm_boot_saved,true)
-    if gm_boot_index == nil {
+    if !gm_validation_header(gm_boot_saved) {
         gm_boot_pending = false gm_error = "记忆记录字段或引用损坏；原库保留，停止读写。"
         core_memory_ready = false gm_enabled = false return
     }
-    start_timeout(0.02, || gm_boot_part("sources",0))
+    gm_boot_index = {sources: {} claims: {}}
+    start_timeout(0.02,|| gm_boot_index_part("sources",0))
+}
+fn gm_boot_index_part(phase,start){
+    let count = gm_boot_saved.sources.len()
+    if phase == "forget" { count = gm_boot_saved.forget.len() }
+    if phase == "claims" { count = gm_boot_saved.claims.len() }
+    let end = min(start+8,count)
+    if !gm_index_part(gm_boot_saved,true,gm_boot_index,phase,start,end) {
+        gm_boot_pending = false gm_error = "记忆记录字段或引用损坏；原库保留，停止读写。"
+        core_memory_ready = false gm_enabled = false gm_boot_index = nil return
+    }
+    if end < count { start_timeout(0.02,|| gm_boot_index_part(phase,end)) return }
+    if phase == "sources" { start_timeout(0.02,|| gm_boot_index_part("forget",0)) return }
+    if phase == "forget" { start_timeout(0.02,|| gm_boot_index_part("claims",0)) return }
+    start_timeout(0.02,|| gm_boot_part("sources",0))
 }
 fn gm_boot_part(phase,start){
     // Keep each validation slice below the unchanged Host callback budget.
@@ -522,9 +553,20 @@ fn gm_entry_field(entry,key,fallback){
 }
 fn gm_prepare(){
     if gm_boot_pending || !core_memory_ready || !gm_ready { gm_error = "记忆尚未完成校验。" return false }
+    let first_claim = memory.len() let first_source = memory_sources.len()
+    // Read-only discovery needs no whole-store clone. Canonical copies are
+    // needed only when a legacy row actually requires migration.
+    for i in memory.len() {
+        if !gm_has(memory[i].document["scope"],"user_id") || !gm_has(memory[i],"memory_type")
+            || !gm_has(memory[i],"conversation_id") || !gm_has(memory[i],"history") { first_claim = min(first_claim,i) }
+    }
+    for i in memory_sources.len() {
+        if !gm_has(memory_sources[i]["scope"],"user_id") { first_source = min(first_source,i) }
+    }
+    if first_claim == memory.len() && first_source == memory_sources.len() { return true }
+    if memory.len() - first_claim > 2 || memory_sources.len() - first_source > 4 { gm_boot() return false }
     let claims = memory.to_json().parse_json()
     let sources = memory_sources.to_json().parse_json()
-    let first_claim = claims.len() let first_source = sources.len()
     for i in claims.len() {
         if !gm_has(claims[i].document["scope"],"user_id") || !gm_has(claims[i],"memory_type")
             || !gm_has(claims[i],"conversation_id") || !gm_has(claims[i],"history") {
@@ -541,8 +583,6 @@ fn gm_prepare(){
             sources[i]["scope"] = gm_complete_scope(sources[i]["scope"])
         }
     }
-    if first_claim == claims.len() && first_source == sources.len() { return true }
-    if claims.len() - first_claim > 2 || sources.len() - first_source > 4 { gm_boot() return false }
     let next = {schema: 1 claims: claims sources: sources forget: memory_forget}
     if !gm_validate_part(next,true,"sources",first_source,sources.len())
         || !gm_validate_part(next,true,"claims",first_claim,claims.len()) { gm_error = "核心追加记忆字段或作用域无效。" return false }

@@ -36,12 +36,17 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--seconds', type=int, default=7200)
     parser.add_argument('--interval', type=int, default=30)
+    parser.add_argument('--observe-existing-baseline', action='store_true',
+                        help='Read-only existing authorized stable window; never final RC proof')
     args = parser.parse_args()
-    assert args.port in (8486, 8487, 8489) and 60 <= args.seconds <= 7200
+    assert args.port in ((8484,) if args.observe_existing_baseline else (8486, 8487, 8488, 8489)) and 60 <= args.seconds <= 7200
     assert 10 <= args.interval <= 30
     meta = json.loads((args.candidate / 'candidate.json').read_text())
+    if args.observe_existing_baseline:
+        assert meta['version'] == '0.3.25' and meta['profile_kind'] == 'PRIVATE_AUTHORIZED_CLONE'
     assert meta['profile_kind'] in ('LOCAL_MODEL_ONLY_SYNTHETIC', 'PRIVATE_AUTHORIZED_CLONE')
-    private = args.candidate / 'private'; jail = private / 'apps/muse-goals'
+    private = Path(meta.get('runtime_private_path', str(args.candidate / 'private')))
+    jail = private / 'apps/muse-goals'
     assert sha(jail / 'bundle/main.splash') == meta['source_sha256']
     assert sha(Path(meta['host_app_path']) / 'Contents/MacOS/octosense') == meta['host_sha256']
     args.out.mkdir(parents=True, exist_ok=False); args.out.chmod(0o700)
@@ -78,6 +83,10 @@ def main():
         'start_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'samples': [],
         'model_usage_before': usage, 'baseline_counts': counts, 'status': 'RUNNING',
         'external_write_or_send_performed_by_sampler': False}
+    if args.observe_existing_baseline:
+        report['kind'] = 'EXISTING_STABLE_REAL_MAIL_READ_ONLY_SOAK_NOT_FINAL_RC'
+    report['host_request_count'] = 'NOT_OBSERVABLE_FROM_EXISTING_REMOTE_SURFACE'
+    report['calendar_initialization'] = 'Must be verified separately; stored links do not prove system access'
     started = time.monotonic()
     previous = baseline
 

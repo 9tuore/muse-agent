@@ -61,19 +61,22 @@ def main():
             raise RuntimeError(f'{name} failed; original log is preserved')
 
     status = 'FAIL'
+    native_host = None
     try:
         run('git-init', ['git', 'init'])
         run('git-fetch-final', ['git', 'fetch', '--depth=1', git_source, args.commit])
         run('git-checkout-final', ['git', 'checkout', '--detach', 'FETCH_HEAD'])
         actual = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=checkout, env=env, text=True).strip()
         assert actual == args.commit
-        run('tool-versions', ['python3', '-c', 'import subprocess; [subprocess.run(c,check=True) for c in [["rustc","--version"],["cargo","--version"],["python3","--version"],["xcrun","--show-sdk-version"],["clang","--version"]]]'])
+        run('tool-versions', ['python3', '-c', 'import subprocess; [subprocess.run(c,check=True) for c in [["rustc","-vV"],["cargo","--version"],["python3","--version"],["xcrun","--show-sdk-version"],["clang","--version"]]]'])
+        rustc_verbose = subprocess.check_output(['rustc', '-vV'], cwd=checkout, env=env, text=True)
+        native_host = next(line.split(': ', 1)[1] for line in rustc_verbose.splitlines() if line.startswith('host: '))
         run('sdk-bootstrap', ['python3', 'scripts/bootstrap_sdk.py'])
         run('sdk-verify-before', ['python3', 'scripts/bootstrap_sdk.py', '--verify'])
         source_lock_sha = sha(checkout / 'dependencies.lock.json')
         cargo_locks = {name: sha(checkout / 'vendor' / name / 'Cargo.lock') for name in ('octosense', 'app-hub')}
         for name in ('octosense', 'app-hub'):
-            run(f'cargo-fetch-{name}', ['cargo', 'fetch', '--locked'], checkout / 'vendor' / name)
+            run(f'cargo-fetch-{name}', ['cargo', 'fetch', '--locked', '--target', native_host], checkout / 'vendor' / name)
         run('host-build', ['cargo', 'build', '--release', '--locked', '--offline', '-j', '2', '-p', 'octosense', '--bin', 'octosense', '--no-default-features', '--features', 'app-hub'], checkout / 'vendor/octosense')
         manifest = json.loads((checkout / 'official_muse/app/bundle/manifest.json').read_text())
         delivery = checkout / 'build/clean-delivery'; delivery.mkdir()
@@ -96,7 +99,7 @@ def main():
         status = 'CLEAN_BUILD_PASS_LOCAL_EXTENDED_HUB'
     finally:
         check = subprocess.run(['git', 'status', '--porcelain', '--untracked-files=no'], cwd=checkout, env=env, capture_output=True, text=True)
-        result = {'status': status, 'requested_commit': args.commit, 'time_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'steps': records, 'fresh_cargo_home': True, 'fresh_target': True, 'old_vendor_or_targets_used': False, 'publisher_public_keys_arguments': args.publisher_key, 'publisher_identity_scope': 'explicit local-development verification only; no formal publisher continuity claim', 'private_key_or_real_account_used': False, 'tracked_source_changes': check.stdout if check.returncode == 0 else 'UNVERIFIED', 'evidence_path': str(logs), 'disk_free_final_bytes': shutil.disk_usage(root).free}
+        result = {'status': status, 'requested_commit': args.commit, 'time_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'steps': records, 'fresh_cargo_home': True, 'fresh_target': True, 'cargo_fetch_target': native_host, 'old_vendor_or_targets_used': False, 'publisher_public_keys_arguments': args.publisher_key, 'publisher_identity_scope': 'explicit local-development verification only; no formal publisher continuity claim', 'private_key_or_real_account_used': False, 'tracked_source_changes': check.stdout if check.returncode == 0 else 'UNVERIFIED', 'evidence_path': str(logs), 'disk_free_final_bytes': shutil.disk_usage(root).free}
         (logs / 'CLEAN_REPRODUCIBILITY_REPORT.json').write_text(json.dumps(result, indent=2) + '\n')
         (logs / 'CLEAN_REPRODUCIBILITY_REPORT.md').write_text('# Clean reproducibility\n\nStatus: '+status+'\n\nCommit: `'+args.commit+'`\n\nFresh SDK/download/cache/target. No UI or external actions. Local extended Hub only. Individual original logs are preserved beside this report.\n')
     print(json.dumps(result))
