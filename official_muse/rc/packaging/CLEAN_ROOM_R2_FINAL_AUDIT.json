@@ -1,0 +1,187 @@
+{
+  "time": "2026-10-05T02:28:32.204029+08:00",
+  "status": "INTERRUPTED_FOR_LOW_DISK_NO_CLEAN_BUILD_PASS",
+  "initial_requested_and_actual_build_commit": "069dff5b37f0387311d0e8950ff06723b82adb33",
+  "later5991_precompile_rebind_not_performed": true,
+  "reason_precompile_rebind_not_performed": "Host compilation already started before the attempted guard; checkout remained069d",
+  "final_v14_source_package_status": "WAITING_FINAL_FREEZE_NOT_PACKAGED",
+  "actual_runner_status_preserved": "FAIL",
+  "actual_runner_exit": 1,
+  "steps": [
+    {
+      "name": "git-init",
+      "command": [
+        "git",
+        "init"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 0.148662445,
+      "disk_free_before_bytes": 3860934656,
+      "disk_free_after_bytes": 3860852736,
+      "log_sha256": "103f035cf87e586841d9ec00a246a5e48fb548cd92458fd1ab6f0a2c72285c5a"
+    },
+    {
+      "name": "git-fetch-final",
+      "command": [
+        "git",
+        "fetch",
+        "--depth=1",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+        "069dff5b37f0387311d0e8950ff06723b82adb33"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 3.433892369,
+      "disk_free_before_bytes": 3860848640,
+      "disk_free_after_bytes": 3844718592,
+      "log_sha256": "2f99bc2309b5684d33f510f21cd56a95f7e3399bd7e142e0f6b31b21f131ec89"
+    },
+    {
+      "name": "git-checkout-final",
+      "command": [
+        "git",
+        "checkout",
+        "--detach",
+        "FETCH_HEAD"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 1.6687398359999999,
+      "disk_free_before_bytes": 3844718592,
+      "disk_free_after_bytes": 3818213376,
+      "log_sha256": "3ba588880a7580c15ca9bf4e8ae460560fd945897fe5c2c9047705974916f170"
+    },
+    {
+      "name": "tool-versions",
+      "command": [
+        "python3",
+        "-c",
+        "import subprocess; [subprocess.run(c,check=True) for c in [[\"rustc\",\"-vV\"],[\"cargo\",\"--version\"],[\"python3\",\"--version\"],[\"xcrun\",\"--show-sdk-version\"],[\"clang\",\"--version\"]]]"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 1.3534816669999996,
+      "disk_free_before_bytes": 3818213376,
+      "disk_free_after_bytes": 3817472000,
+      "log_sha256": "80df1646b2536ff0364d51ef707b947e494510488adc2b125de5760b9813d4a1"
+    },
+    {
+      "name": "sdk-bootstrap",
+      "command": [
+        "python3",
+        "scripts/bootstrap_sdk.py"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 135.33851021400002,
+      "disk_free_before_bytes": 3814653952,
+      "disk_free_after_bytes": 3330457600,
+      "log_sha256": "9eda4b32aae9de807b07b1d70c8879d2702b882800e33e04582c8e37419ce3ce"
+    },
+    {
+      "name": "sdk-verify-before",
+      "command": [
+        "python3",
+        "scripts/bootstrap_sdk.py",
+        "--verify"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 19.311201196000013,
+      "disk_free_before_bytes": 3330457600,
+      "disk_free_after_bytes": 3441369088,
+      "log_sha256": "2e7084783a0dc3a36b4d5dd8a106e7bf262cebd6c8b3253f09070c2e655008a2"
+    },
+    {
+      "name": "cargo-fetch-octosense",
+      "command": [
+        "cargo",
+        "fetch",
+        "--locked",
+        "--target",
+        "x86_64-apple-darwin"
+      ],
+      "cwd_relative_to_checkout": "vendor/octosense",
+      "exit_code": 0,
+      "seconds": 627.7385356870001,
+      "disk_free_before_bytes": 3441369088,
+      "disk_free_after_bytes": 1699880960,
+      "log_sha256": "eaa6b803d4cf310f2b45805b2d97c170a9453c138a72817ebab6b3bf468f9f34"
+    },
+    {
+      "name": "cargo-fetch-app-hub",
+      "command": [
+        "cargo",
+        "fetch",
+        "--locked",
+        "--target",
+        "x86_64-apple-darwin"
+      ],
+      "cwd_relative_to_checkout": "vendor/app-hub",
+      "exit_code": 0,
+      "seconds": 4.475026269999944,
+      "disk_free_before_bytes": 1700007936,
+      "disk_free_after_bytes": 1687584768,
+      "log_sha256": "3acea8cfe3a42b2533ff035e56ec2577442693681aef600485609a01d05beae5"
+    },
+    {
+      "name": "host-build",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "2",
+        "-p",
+        "octosense",
+        "--bin",
+        "octosense",
+        "--no-default-features",
+        "--features",
+        "app-hub"
+      ],
+      "cwd_relative_to_checkout": "vendor/octosense",
+      "exit_code": -2,
+      "seconds": 445.61347669300005,
+      "disk_free_before_bytes": 1687584768,
+      "disk_free_after_bytes": 338567168,
+      "log_sha256": "6ab6e6cdb42ee6111f6028b884aaaf28761ee6725689ebd930b1ca0dec858d3e"
+    }
+  ],
+  "cargo_fetch_native_target": "x86_64-apple-darwin",
+  "host_build_exit": -2,
+  "host_build_seconds_including_parent_gate": 445.61347669300005,
+  "controlled_stop_reason": "Coordinator explicitly prioritized production writes when Data available below400MiB",
+  "owned_cargo_rustc_and_runner_exited": true,
+  "completed_executables_generated": false,
+  "intel_new_host_card_packages_generated": false,
+  "hub_build_check_for_new_packages_executed": false,
+  "arm_build_or_runtime_tested": false,
+  "canonical_product_bundle_copied": false,
+  "sdk_after_stop_verify": {
+    "status": "SDK_VERIFIED",
+    "files": 12000
+  },
+  "sdk_after_stop_verify_log_sha256": "2e7084783a0dc3a36b4d5dd8a106e7bf262cebd6c8b3253f09070c2e655008a2",
+  "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+  "tracked_source_changes": "",
+  "incomplete_target_removed": true,
+  "target_removal_proof": "CLEAN_ROOM_R2_INCOMPLETE_TARGET_REMOVAL.json",
+  "target_removal_allocated_kib": 148680,
+  "target_removal_net_free_delta_bytes": 145268736,
+  "disk_free_now_bytes": 388505600,
+  "available2gib_reached": false,
+  "additional_bytes_to2gib": 1758978048,
+  "eligible_additional_large_owned_old_target_found": false,
+  "sdk_archives_new_cargo_home_unique_evidence_runtime_apps_tools_retained": true,
+  "existing_host_and_card_sha_and_strict_signature_after_stop": "PASS_938ba58a_52768f57",
+  "source_archive_sdk_cargo_home_profile_or_history_deleted": false,
+  "original_runner_report_path": "/private/tmp/muse-clean-069dff5b-r2-20261005/evidence/CLEAN_REPRODUCIBILITY_REPORT.json",
+  "original_runner_report_sha256": "012e9a835383f5b7db6020ba1333386ca9d0abb5b90aa2ef79031a9ec6ad3773",
+  "original_runner_report_copy": "CLEAN_ROOM_R2_RUNNER_REPORT.json",
+  "privileged_or_real_account_actions_performed": false,
+  "resume_build_allowed_by_current_space": false
+}

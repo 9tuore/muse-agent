@@ -1,0 +1,120 @@
+{
+  "status": "LAUNCHER_NON_GUI_PREFLIGHT_PASS_FINAL_PACKAGE_PAUSED",
+  "observed_at": "2026-10-05T03:07:41.255806+08:00",
+  "app": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app",
+  "launcher_source_sha256": "a4658b24c65bfd99b899a587c84c1ae64b75fd382e87371999d904ba52004152",
+  "launcher_executable_sha256": "96ebc962e9420073141e5c8df7b9950e13d8158a6977993400638db612ad1184",
+  "checks": [
+    {
+      "command": [
+        "/bin/cp",
+        "-cR",
+        "official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Host.app",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app/Contents/Resources/OctoSense Host.app"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/bin/cp",
+        "-c",
+        "official_muse/app/build/ui-memory-20261003/rc5-final-b486-stability-r1/mirror/catalog.json",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app/Contents/Resources/mirror/catalog.json"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/bin/cp",
+        "-c",
+        "official_muse/app/build/ui-memory-20261003/rc5-final-b486-stability-r1/mirror/artifacts/muse-goals-0.3.26-rc5.bundle/manifest.json",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app/Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc5.bundle/manifest.json"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/bin/cp",
+        "-c",
+        "official_muse/app/build/ui-memory-20261003/rc5-final-b486-stability-r1/mirror/artifacts/muse-goals-0.3.26-rc5.bundle.pack.json",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app/Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc5.bundle.pack.json"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/clang",
+        "-fobjc-arc",
+        "-mmacosx-version-min=13.3",
+        "-framework",
+        "AppKit",
+        "official_muse/rc/packaging/portable_launcher.m",
+        "-o",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app/Contents/MacOS/muse-launcher"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "codesign",
+        "--force",
+        "--sign",
+        "-",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app/Contents/MacOS/muse-launcher",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "Muse 0.3.26-rc5 / b48618ac: packaged launch resources present; no window or account opened.",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "lipo",
+        "-archs",
+        "official_muse/rc/packaging/.local-state/portable-launcher-preflight-b486/Muse Launcher Preflight.app/Contents/MacOS/muse-launcher"
+      ],
+      "exit": 0,
+      "stdout": "x86_64",
+      "stderr": ""
+    }
+  ],
+  "nested_old_host_unchanged": true,
+  "full_mirror_included": false,
+  "fixture_not_deliverable": true,
+  "final_host_calendar_delta_included": false,
+  "free_bytes_before": 1222774784,
+  "free_bytes_after": 1214885888,
+  "gui_launched": false,
+  "profiles_or_accounts_opened": false,
+  "final_zip_created": false
+}

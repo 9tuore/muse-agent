@@ -1,0 +1,285 @@
+{
+  "started_at_utc": "2026-10-04T16:25:08.265862+00:00",
+  "source_head": "aacc8d17cc25724bacaebb5260ff13b628655db7",
+  "source_manifest_version_at_start": "0.3.26-rc5",
+  "inputs_before": {
+    "dependencies.lock.json": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "vendor/octosense/Cargo.lock": "ee7f8402951342b4b22afaeca4cf08b2e3a71c7fdf43720326d6f0f91559b9fd",
+    "vendor/app-hub/Cargo.lock": "14cab6d67325786d9d79c06576d20fa64032676754389201a1664129c2712107",
+    "sdk-overlays/makepad/widgets/src/splash_storage.rs": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+    "vendor/makepad/widgets/src/splash_storage.rs": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+    "sdk-overlays/makepad/widgets/src/splash.rs": "7d572f34718b494eeeaa9764264747490025a37c10aa4ba2134159585b519c29",
+    "vendor/makepad/widgets/src/splash.rs": "7d572f34718b494eeeaa9764264747490025a37c10aa4ba2134159585b519c29",
+    "vendor/octosense/apps/ai-providers/host-service/src/complete/mod.rs": "1ccf4531f3ed293cb891685d31cf3e27e64094c75ab311a12cb76fa5d289728f"
+  },
+  "incremental_cache_reused": true,
+  "clean_room": false,
+  "full_chain_acceptance": "NOT_RUN_BY_A4",
+  "jobs": [
+    {
+      "name": "chunk-sdk-verify-before-r2",
+      "command": [
+        "python3",
+        "scripts/bootstrap_sdk.py",
+        "--verify"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+      "target": null,
+      "exit_code": 0,
+      "seconds": 5.466463762,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-sdk-verify-before-r2.log",
+      "log_sha256": "2e7084783a0dc3a36b4d5dd8a106e7bf262cebd6c8b3253f09070c2e655008a2"
+    },
+    {
+      "name": "chunk-cold-unit-tests-r2",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "2",
+        "-p",
+        "makepad-widgets",
+        "--lib",
+        "cold_"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/octosense",
+      "target": "/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/code-cleanup-full-20261004/sdk-rebuild/build/hub-target",
+      "exit_code": 0,
+      "seconds": 249.98767461299997,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-cold-unit-tests-r2.log",
+      "log_sha256": "40d01412e9250bbb5e26e1c7dd6f6cd1e794c5dfec5cda4678ccec8568e2ed6e"
+    },
+    {
+      "name": "chunk-cancel-unit-test-r2",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "2",
+        "-p",
+        "makepad-widgets",
+        "--lib",
+        "splash::style_tests::closing_a_partly_prepared_source_cancels_the_remaining_frames",
+        "--",
+        "--exact"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/octosense",
+      "target": "/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/code-cleanup-full-20261004/sdk-rebuild/build/hub-target",
+      "exit_code": 0,
+      "seconds": 5.112626220999971,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-cancel-unit-test-r2.log",
+      "log_sha256": "061f50d902e328fa577486303ceed17555880acfc3e448e21350a5c235b6955f"
+    },
+    {
+      "name": "chunk-card-release-r2",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "2",
+        "-p",
+        "octosense-card-host",
+        "--bin",
+        "card-host"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/app-hub",
+      "target": "/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/target",
+      "exit_code": 0,
+      "seconds": 237.28113015900004,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-card-release-r2.log",
+      "log_sha256": "c35f16218e70550424737436c9d63b41ae2ead557874e544587eb0a159ce6a39"
+    },
+    {
+      "name": "chunk-card-sign-r2",
+      "command": [
+        "codesign",
+        "--force",
+        "--sign",
+        "-",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Card Host.app"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+      "target": null,
+      "exit_code": 0,
+      "seconds": 0.7043069160000073,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-card-sign-r2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "chunk-card-signature-verify-r2",
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "--verbose=2",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Card Host.app"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+      "target": null,
+      "exit_code": 0,
+      "seconds": 0.27620984399999315,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-card-signature-verify-r2.log",
+      "log_sha256": "c3c4188d9225ab75c91079da7e7b51d388216c3af235afbf332ea1ea50d0f7b4"
+    },
+    {
+      "name": "chunk-card-cli-help-r2",
+      "command": [
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Card Host.app/Contents/MacOS/card-host",
+        "--help"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+      "target": null,
+      "exit_code": 0,
+      "seconds": 0.08072285100001864,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-card-cli-help-r2.log",
+      "log_sha256": "1c5073a00aa4218c25613ae591a67b79b3a22226fea24fff336ac82bf0929d28"
+    },
+    {
+      "name": "chunk-host-release-r2",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--offline",
+        "-j",
+        "2",
+        "-p",
+        "octosense",
+        "--bin",
+        "octosense",
+        "--no-default-features",
+        "--features",
+        "app-hub"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/octosense",
+      "target": "/Users/mima0000/.codex/worktrees/muse-ui-global-memory/Agent APP黑客松/official_muse/app/build/three-hour-20261003-214720/host-sources/target",
+      "exit_code": 0,
+      "seconds": 404.102205754,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-host-release-r2.log",
+      "log_sha256": "d2b160ab6fc85e614d0ba806f06944219726e8cec3d630ea2e9a26f55fbb1136"
+    },
+    {
+      "name": "chunk-host-sign-r2",
+      "command": [
+        "codesign",
+        "--force",
+        "--sign",
+        "-",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Host.app"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+      "target": null,
+      "exit_code": 0,
+      "seconds": 0.8027426519998926,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-host-sign-r2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "chunk-host-signature-verify-r2",
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "--verbose=2",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Host.app"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+      "target": null,
+      "exit_code": 0,
+      "seconds": 0.42962064899995767,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-host-signature-verify-r2.log",
+      "log_sha256": "5745c250447129e29be34094e559a438b3f33006f599807f8d09a0b571b56af2"
+    },
+    {
+      "name": "chunk-sdk-verify-after-r2",
+      "command": [
+        "python3",
+        "scripts/bootstrap_sdk.py",
+        "--verify"
+      ],
+      "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+      "target": null,
+      "exit_code": 0,
+      "seconds": 7.5531274090000124,
+      "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/chunk-sdk-verify-after-r2.log",
+      "log_sha256": "2e7084783a0dc3a36b4d5dd8a106e7bf262cebd6c8b3253f09070c2e655008a2"
+    }
+  ],
+  "packages": {
+    "card": {
+      "app_path": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Card Host.app",
+      "signed_executable_path": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Card Host.app/Contents/MacOS/card-host",
+      "unsigned_binary_sha256": "7c60c88bb6be8d06371416419994326b2677a31c51453f5fa9109acb0282b37e",
+      "signed_executable_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+      "architecture": "x86_64",
+      "resource_roots": [
+        "makepad_widgets"
+      ],
+      "build_plist_sha256": "229d165f9d08ab4c3efa62658e692ccd774d57df21709b6244dc5f9898e056d7",
+      "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+      "storage_source_sha256": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+      "preparation_source_sha256": "7d572f34718b494eeeaa9764264747490025a37c10aa4ba2134159585b519c29",
+      "source_manifest_version_at_start": "0.3.26-rc5",
+      "signature": "ad hoc; strict verification passed; not notarized",
+      "bundle_embedded": false,
+      "gui_started": false,
+      "full_chain_acceptance": "NOT_RUN_BY_A4",
+      "clean_room": false
+    },
+    "host": {
+      "app_path": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Host.app",
+      "signed_executable_path": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Host.app/Contents/MacOS/octosense",
+      "unsigned_binary_sha256": "2d857a3f8220cc5e12c766d4beae3d3ff8a687a13bd5975439d383b8fe9e1504",
+      "signed_executable_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+      "architecture": "x86_64",
+      "resource_roots": [
+        "makepad_widgets",
+        "octosense_shell",
+        "octosense_app_hub_app"
+      ],
+      "build_plist_sha256": "229d165f9d08ab4c3efa62658e692ccd774d57df21709b6244dc5f9898e056d7",
+      "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+      "storage_source_sha256": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+      "preparation_source_sha256": "7d572f34718b494eeeaa9764264747490025a37c10aa4ba2134159585b519c29",
+      "source_manifest_version_at_start": "0.3.26-rc5",
+      "signature": "ad hoc; strict verification passed; not notarized",
+      "bundle_embedded": false,
+      "gui_started": false,
+      "full_chain_acceptance": "NOT_RUN_BY_A4",
+      "clean_room": false
+    }
+  },
+  "preserved_previous_release_binaries": {
+    "octosense": {
+      "path": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/previous-octosense",
+      "sha256": "450829ca9379e851298156e46cc138ec2fbd883236670232301e948a317a4700"
+    },
+    "card-host": {
+      "path": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/chunk-delta-r2/previous-card-host",
+      "sha256": "546b72c8fc36f311f6715645fc1353327e368399db764a912e57922e1ba34578"
+    }
+  },
+  "inputs_current": {
+    "dependencies.lock.json": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "vendor/octosense/Cargo.lock": "ee7f8402951342b4b22afaeca4cf08b2e3a71c7fdf43720326d6f0f91559b9fd",
+    "vendor/app-hub/Cargo.lock": "14cab6d67325786d9d79c06576d20fa64032676754389201a1664129c2712107",
+    "sdk-overlays/makepad/widgets/src/splash_storage.rs": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+    "vendor/makepad/widgets/src/splash_storage.rs": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+    "sdk-overlays/makepad/widgets/src/splash.rs": "7d572f34718b494eeeaa9764264747490025a37c10aa4ba2134159585b519c29",
+    "vendor/makepad/widgets/src/splash.rs": "7d572f34718b494eeeaa9764264747490025a37c10aa4ba2134159585b519c29",
+    "vendor/octosense/apps/ai-providers/host-service/src/complete/mod.rs": "1ccf4531f3ed293cb891685d31cf3e27e64094c75ab311a12cb76fa5d289728f"
+  },
+  "inputs_unchanged": true,
+  "status": "TESTS_AND_INCREMENTAL_PACKAGES_PASS",
+  "finished_at_utc": "2026-10-04T16:40:22.705418+00:00"
+}

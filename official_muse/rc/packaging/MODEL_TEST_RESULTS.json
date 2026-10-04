@@ -1,0 +1,30 @@
+{
+  "status": "MODEL_SUITES_PASS_FULL_PACKAGE_FAIL",
+  "library": {
+    "passed": 30,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_test": "vault::tests::the_keychain_round_trips_under_a_test_service"
+  },
+  "complete": {
+    "passed": 29,
+    "failed": 0
+  },
+  "image": {
+    "passed": 8,
+    "failed": 0
+  },
+  "service": {
+    "passed": 4,
+    "failed": 15
+  },
+  "full_package_exit_code": 101,
+  "observed_failure_examples": [
+    "expected Added DeepSeek...as a fallback; actual Chinese localized string",
+    "English Save as primary / drop a screenshot / cannot choose an image assertions did not match current localized SDK"
+  ],
+  "cause_scope": "Multiple failures are visibly English text assertions against Chinese UI. A4 did not modify provider UI or tests, and did not run a pristine upstream baseline to classify every failure.",
+  "live_model_calls": false,
+  "full_chain_acceptance": "NOT_RUN_BY_A4",
+  "log": "model-tests.log"
+}

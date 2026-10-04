@@ -1,0 +1,21 @@
+{
+  "status": "EXPECTED_REJECTION_PASS",
+  "command": [
+    "python3",
+    "official_muse/rc/packaging/package_warm_portable.py",
+    "--commit",
+    "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
+    "--mirror",
+    "official_muse/app/build/ui-memory-20261003/rc5-final-b486-stability-r1/mirror",
+    "--host",
+    "official_muse/rc/packaging/.local-state/chunk-delta-r2/Muse Chunk RC Host.app",
+    "--host-report",
+    "official_muse/rc/packaging/CHUNK_HOST_PACKAGE_RESULT.json"
+  ],
+  "exit": 1,
+  "reason": "Host SDK does not match the selected final source",
+  "output_directory_created": false,
+  "host_or_product_modified": false,
+  "historical_before_explicit_dual_part_authorization": true,
+  "current_package_binding": "latest source SDK and explicitly selected old runtime SDK are separate; the old Host remains bound only to SDK3f"
+}

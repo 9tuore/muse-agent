@@ -1,0 +1,36 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Muse 0.3.26-rc5 · Intel 双机复现指南</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6fc;color:#20283b;font:16px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}main{max-width:1000px;margin:auto;padding:30px 24px 65px}header{padding:35px;border-radius:24px;background:linear-gradient(125deg,#17213d,#30487f);color:white}h1{font-size:38px;line-height:1.25}h2{font-size:25px}h3{font-size:18px;margin:12px 0 4px}.tag{font-size:12px;letter-spacing:2px;color:#c6d4ff}nav{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}nav a,button{padding:8px 15px;border-radius:10px;background:white;border:1px solid #dde3ef;color:#3b5bdd;text-decoration:none;font:inherit;cursor:pointer}section{background:white;border:1px solid #dde3ef;border-radius:20px;padding:28px;margin:18px 0}.note{border-left:4px solid #d19c37;background:#fff8e7;padding:14px 18px;border-radius:8px}.ok{border-left:4px solid #3b5bdd;background:#eef3ff;padding:14px 18px;border-radius:8px}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:12px;text-align:left;vertical-align:top;border-bottom:1px solid #dde3ef}th{background:#f3f6fc}code{font:13px/1.7 ui-monospace,monospace;overflow-wrap:anywhere;background:#f0f3f8;padding:2px 5px;border-radius:4px}a{color:#3b5bdd}footer{color:#5d687c;font-size:13px}@media(max-width:600px){main{padding:14px}header,section{padding:20px}h1{font-size:30px}th,td{padding:8px}}@media print{body{background:white}main{padding:0}header{background:white;color:black;border:1px solid #aaa}nav{display:none}section{break-inside:avoid}.tag,a{color:black}}
+</style></head><body><main>
+<header><span class="tag">MUSE · INTEL MAC · 0.3.26-RC5 / V15</span><h1>Muse：Intel 复现应用＋最新源码</h1><p>传送整个 ZIP → 解压 → 打开 Muse → 安装应用 → 配置模型。</p><p>运行应用内含完整 Intel 宿主和冻结 Muse 载荷，无需 Rust、Python、Homebrew、Xcode 或 Codex。最新源码单独放在「04-最新源码-92b1df15」。</p></header>
+<section class="note"><h2>先看这项已知限制</h2><p><b>本包状态：DEVELOPMENT_PARTIAL。</b>运行应用使用已验签的旧 SDK 宿主（938ba58a / SDK 3f1bbb4e），存在系统日历读取接口缺陷：<code>truncated</code> 返回数字 <code>0</code>，应用要求布尔值，因此拒绝该结果。<b>完整 Calendar / T18 尚未通过。</b></p><p>最新源码 <b>92b1df15 / SDK da756dde</b> 已包含该桥接修复，但修复尚未编译进入本包宿主。源码与运行程序分别记录修复状态；重编译并重测后才能验证完整日历流程。</p></section>
+<nav><a href="#start">开始运行</a><a href="#model">模型与账号</a><a href="#test">双机测试</a><a href="#trouble">故障处理</a><a href="#scope">验证范围</a><button onclick="window.print()">打印教程</button></nav>
+<section id="start"><h2>1. 开始运行</h2><p>适用两台 <b>Intel Mac</b>。启动器最低要求 <b>macOS 13.3</b>；系统日历完整访问测试建议用 macOS 14 或更新版本。打开“苹果菜单 → 关于本机”核对系统版本，每台预留至少 500 MB 空间。</p>
+<h3>① 拷贝完整 ZIP 并解压</h3><p>通过 AirDrop、U 盘或局域网传送整个 ZIP。双击解压，在解压文件夹里打开本教程，不要在 ZIP 预览中运行应用。</p>
+<h3>② 双击「Muse 0.3.26-rc5.app」</h3><p>可直接从解压目录运行，也可将整个 .app 拖进“应用程序”。内部资源必须保持完整。</p><p>这是本地开发签名包，尚未做 Apple 公证。如果系统阻止打开，先尝试打开，再到“系统设置 → 隐私与安全性”，针对这份应用按提示选择“仍要打开”并确认。</p>
+<h3>③ 在应用中心安装 Muse</h3><p>在 Muse 详情页确认版本为 <b>0.3.26-rc5</b>，点“获取”，阅读能力请求，再点“安装”；按钮可能需要向下滚动。进入“已安装”，点 Muse 的“打开”。签名目录保留历史版本信息，本包包含的可安装载荷为 0.3.26-rc5。</p>
+<h3>④ 配置模型，再发送第一条消息</h3><p>按 <b>F10</b> 打开宿主模型面板；部分 Mac 需要 <b>Fn + F10</b>。配置自己的提供方、模型和密钥，完成测试并保存为首选模型。新建对话，输入“请用一句话说明苹果和香蕉有什么区别”。真正收到模型回答后才算问答成功。</p><p>后续仍从应用中心“已安装”的 Muse 进入；退出使用 OctoSense 菜单或 <b>⌘Q</b>。</p>
+<div class="note"><b>本版没有附带模型权重。</b>界面可以先打开，但默认尚未连接模型；配置前发消息可能报连接失败。本包不会自动启动旧版 Qwen。在线模型需要网络和本人账号。</div></section>
+<section id="model"><h2>2. 各机分别配置模型和账号</h2><p>包内没有开发机的模型密钥、邮箱凭据、私人对话、日历或生产数据库，每台机器首次打开都是新的复现环境。</p><ul><li><b>模型：</b>在宿主设置中配置并验证。两台 Mac 使用相同模型、线路和参数，记录模型名。已有本地模型服务也可按宿主支持的自定义线路填写，本包不安装该服务。</li><li><b>邮箱：</b>本人在宿主重新登录。先用合成资料或本人测试邮箱；真实发送前核对收件人、主题和正文，并由本人确认。</li><li><b>日历：</b>应用能力和 macOS 权限由每台机器分别确认。本旧宿主的读取类型缺陷尚未修复，先记录访问或读取错误；待从92b1源码重编译、重绑验证后，再在专用测试日历测试完整流程。</li></ul><p>在线调用可能使用账号额度；教程和应用载荷本身无需网络读取。</p></section>
+<section id="test"><h2>3. 两台 Mac 做同一组复现</h2><p>打开根目录 <b>01-复现测试记录.txt</b>，分别记录 Mac A / Mac B。使用相同输入和模型，保留真实结果和失败提示。</p><table><thead><tr><th>项目</th><th>操作</th><th>通过条件</th></tr></thead><tbody>
+<tr><td>首次运行</td><td>全新解压、打开、安装</td><td>版本 0.3.26-rc5，页面可操作</td></tr>
+<tr><td>模型问答</td><td>同一模型连续提出两个不同短问题</td><td>有对应回答，记录耗时和模型；窗口出现不算问答成功</td></tr>
+<tr><td>跨对话记忆</td><td>在 A 提供“测试项目代号是蓝鲸17”，在新对话 B 询问该代号</td><td>记录是否召回及可见来源，使用合成资料</td></tr>
+<tr><td>更正与遗忘</td><td>更正代号为“银杏23”，再遗忘该信息</td><td>新对话使用更正值；遗忘后不再从记忆召回旧值</td></tr>
+<tr><td>一次性任务</td><td>创建仅涉及本地测试资料的任务，核对、批准、查看结果</td><td>实际结果对应计划；失败如实保留</td></tr>
+<tr><td>退出恢复</td><td>⌘Q 退出、重开，检查历史与记忆</td><td>状态与退出前一致，记录重复项</td></tr>
+<tr><td>电脑重启</td><td>保存记录，重启 Mac，再打开应用</td><td>安装、历史和记忆仍可读；独立于进程重启记录</td></tr>
+<tr><td>真实邮箱（选测）</td><td>本人授权，在专用测试资料上操作，外部独立核对</td><td>真实结果可读回，清理也需本人确认；完整日历流程暂不验收</td></tr>
+</tbody></table><p><a href="01-复现测试记录.txt">打开双机记录模板</a></p></section>
+<section id="trouble"><h2>4. 遇到问题时</h2><table><thead><tr><th>现象</th><th>处理</th></tr></thead><tbody>
+<tr><td>系统阻止打开</td><td>按“隐私与安全性”的单个应用提示放行，不修改全系统安全设置。</td></tr>
+<tr><td>资源缺失或启动失败</td><td>重新解压完整 ZIP。双击 <b>02-系统检查.command</b>，查看生成的结果。它检查系统和包内文件，不读取账号配置。</td></tr>
+<tr><td>模型连接失败</td><td>在 F10 / Fn+F10 配置并测试首选模型，本版没有预装本地模型服务。</td></tr>
+<tr><td>Muse 不能安装</td><td>核对版本 0.3.26-rc5，保留具体错误；系统检查会验证签名目录与应用载荷。</td></tr>
+<tr><td>提示已运行</td><td>切回 OctoSense，用 ⌘Q 退出再重开。</td></tr>
+<tr><td>日历无法访问</td><td>核对系统和本人授权；权限不足、未创建、读回失败分别记录，不能将结果卡出现计为系统动作成功。</td></tr>
+</tbody></table><p>本版数据和日志目录：</p><p><code>~/Library/Application Support/Muse Reproduction 0.3.26-rc5 b48618ac/</code></p><p>宿主日志在 <code>logs/host.log</code>。数据保存在各机，分享问题只取必要错误片段；使用真实账号后不要整目录外传。</p></section>
+<section id="scope"><h2>5. 这份包已核对到哪里</h2><div class="ok">Muse 应用载荷来源 <b>b48618ac</b>，与92b1源码中的应用载荷逐字节相同；宿主继续绑定旧SDK <b>3f1bbb4e</b>，最新源码绑定新SDK <b>da756dde</b>。运行部分保留原有宿主签名与文件。交付时核对 ZIP 的文件、SHA-256、符号链接和可执行权限。</div><p>这是 <b>开发复现包</b>，整体业务验收为 <b>DEVELOPMENT_PARTIAL</b>。本包复用已构建宿主；严格新目录重建因磁盘容量中断，状态为 <b>BLOCKED_CAPACITY</b>，不能描述为从零构建通过。</p><p>两台接收 Mac 的实际启动、模型、邮箱、日历、电脑重启仍需按上表执行；Apple Silicon 未验证。打包检查与真实外部动作验收分开记录，最终持续运行结果以对应正式报告为准。</p><p><b>版本与校验.json</b>、<b>文件校验清单.json</b> 和 <b>本机验证说明.txt</b> 记录准确范围。<b>03-诊断工具</b> 中 Card Host 供开发诊断使用，日常从 Muse 主应用进入。</p></section>
+<section><h2>6. 文件对应表</h2><table><tbody><tr><td>00-先看这里.html</td><td>双击打开、离线阅读和打印的中文教程</td></tr><tr><td>Muse 0.3.26-rc5.app</td><td>启动器、完整 Intel 宿主、签名目录、冻结 Muse 载荷</td></tr><tr><td>01-复现测试记录.txt</td><td>双机测试模板</td></tr><tr><td>02-系统检查.command</td><td>系统、架构、签名和载荷检查</td></tr><tr><td>03-诊断工具/</td><td>Card Host 与 Hub 校验工具</td></tr><tr><td>04-最新源码-92b1df15/</td><td>92b1提交的全部允许源码、修复后的SDK版本锁、本地差异与测试；运行无需操作这里</td></tr><tr><td>05-打包入口源码/</td><td>启动器、教程和打包脚本源码</td></tr></tbody></table></section>
+<footer>星海队 · Muse 0.3.26-rc5 · 最新源码92b1df15112a1d5edf6336a3d3cfae181b4a99ca · 应用载荷b48618ac · 旧SDK Intel复现交付</footer>
+</main></body></html>

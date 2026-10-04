@@ -1,0 +1,183 @@
+{
+  "status": "INTERRUPTED_BY_COORDINATOR_BEFORE_HEAVY_BUILD",
+  "time": "2026-10-05T01:26:30.537290+08:00",
+  "requested_commit": "74a4bfca6880806e7d6764888fc8583714c742cb",
+  "owner_reported_reason": "V9 product boot64ms failure at owner cold19/30; owner preparing V10 Memory boot-index chunking without SDK/lock change",
+  "actual_runner_status_preserved": "FAIL",
+  "runner_exit_code": 1,
+  "interrupted_step": {
+    "name": "cargo-fetch-octosense",
+    "command": [
+      "cargo",
+      "fetch",
+      "--locked"
+    ],
+    "cwd_relative_to_checkout": "vendor/octosense",
+    "exit_code": -2,
+    "seconds": 776.0376972969999,
+    "disk_free_before_bytes": 4780113920,
+    "disk_free_after_bytes": 4418195456,
+    "log_sha256": "e9e916443a60da773df3d8972808ad59819b67816fa61610bd7c061b9bf633e0"
+  },
+  "successful_steps": [
+    {
+      "name": "git-init",
+      "command": [
+        "git",
+        "init"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 0.065085365,
+      "disk_free_before_bytes": 5826736128,
+      "disk_free_after_bytes": 5826646016,
+      "log_sha256": "2c1df3deb60542075ae96440b700f34a42fff95624f8890454fed01a3dc4227e"
+    },
+    {
+      "name": "git-fetch-final",
+      "command": [
+        "git",
+        "fetch",
+        "--depth=1",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松",
+        "74a4bfca6880806e7d6764888fc8583714c742cb"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 0.7168863919999999,
+      "disk_free_before_bytes": 5826641920,
+      "disk_free_after_bytes": 5817040896,
+      "log_sha256": "81f43393817fa724fbeecbcc67f8aec3694340bb1f01d5ac70d24cf2e990a538"
+    },
+    {
+      "name": "git-checkout-final",
+      "command": [
+        "git",
+        "checkout",
+        "--detach",
+        "FETCH_HEAD"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 0.7203400119999999,
+      "disk_free_before_bytes": 5817040896,
+      "disk_free_after_bytes": 5797109760,
+      "log_sha256": "0e144254ff91e229ae315c80bc7946573d7286c0063642d3b1015b2147908fe0"
+    },
+    {
+      "name": "tool-versions",
+      "command": [
+        "python3",
+        "-c",
+        "import subprocess; [subprocess.run(c,check=True) for c in [[\"rustc\",\"--version\"],[\"cargo\",\"--version\"],[\"python3\",\"--version\"],[\"xcrun\",\"--show-sdk-version\"],[\"clang\",\"--version\"]]]"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 0.7638897330000001,
+      "disk_free_before_bytes": 5797109760,
+      "disk_free_after_bytes": 5796675584,
+      "log_sha256": "c97d513c96decc213366af4a28bb5a2e5e7236f3f8283f26dc20ef574abd9ed4"
+    },
+    {
+      "name": "sdk-bootstrap",
+      "command": [
+        "python3",
+        "scripts/bootstrap_sdk.py"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 81.44317554899999,
+      "disk_free_before_bytes": 5796675584,
+      "disk_free_after_bytes": 4789559296,
+      "log_sha256": "9eda4b32aae9de807b07b1d70c8879d2702b882800e33e04582c8e37419ce3ce"
+    },
+    {
+      "name": "sdk-verify-before",
+      "command": [
+        "python3",
+        "scripts/bootstrap_sdk.py",
+        "--verify"
+      ],
+      "cwd_relative_to_checkout": ".",
+      "exit_code": 0,
+      "seconds": 16.509700723999998,
+      "disk_free_before_bytes": 4789555200,
+      "disk_free_after_bytes": 4780113920,
+      "log_sha256": "2e7084783a0dc3a36b4d5dd8a106e7bf262cebd6c8b3253f09070c2e655008a2"
+    }
+  ],
+  "fresh_official_sdk_restore_pass": true,
+  "sdk_verify_files": 12000,
+  "actual_payload_sha256": "4ce87cc7dc41e2645e7b4914bd6a2d742f9e056e5b2cc414c3ead37efcbf7746",
+  "actual_source_template_sha256": "974a8d2a6da3d915bdb888c4774f1c8944364cbaf5916115fa09d7f324ee1b0c",
+  "actual_sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+  "fresh_archive_records": [
+    {
+      "name": "makepad",
+      "official_commit": "bf318136a375c4d1fb7ee10e13e27336b6d98744",
+      "official_archive_url": "https://codeload.github.com/OctoSense-org/makepad/tar.gz/bf318136a375c4d1fb7ee10e13e27336b6d98744",
+      "fresh_archive_path": "/private/tmp/muse-clean-74a4bfca-r1-20261005/checkout/build/sdk-archives/makepad.tar.gz",
+      "archive_bytes": 130771084,
+      "archive_sha256": "9914883d6689a4aa742312212d212dc37d0810f08a5f63582857c36dcbe33788",
+      "expected_restored_tree_sha256": "de11ee5e9a0509e51039cb9929bb9a217e2a36d63bf0744cbad4a84e1d13ccef",
+      "expected_file_count": 8724
+    },
+    {
+      "name": "octosense",
+      "official_commit": "7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
+      "official_archive_url": "https://codeload.github.com/OctoSense-org/OctoSense/tar.gz/7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
+      "fresh_archive_path": "/private/tmp/muse-clean-74a4bfca-r1-20261005/checkout/build/sdk-archives/octosense.tar.gz",
+      "archive_bytes": 177059256,
+      "archive_sha256": "6c3921709f37073c8843a7ceddf76124fdbe6c554225ad5289d62e5d05e08935",
+      "expected_restored_tree_sha256": "406dee1ec74a6cf9b85cef41700ffe081aabf9bed4f7f67e77b2484afa686780",
+      "expected_file_count": 2309
+    },
+    {
+      "name": "app-hub",
+      "official_commit": "e8601b80ce104db2e48208094714bdcffdce6b5a",
+      "official_archive_url": "https://codeload.github.com/OctoSense-org/OctoSense-App-Hub/tar.gz/e8601b80ce104db2e48208094714bdcffdce6b5a",
+      "fresh_archive_path": "/private/tmp/muse-clean-74a4bfca-r1-20261005/checkout/build/sdk-archives/app-hub.tar.gz",
+      "archive_bytes": 521004,
+      "archive_sha256": "edcaa4c4db048bc6a6ad3543b4a5b2695d8df5832c0861aaab76b613f1e65555",
+      "expected_restored_tree_sha256": "dd0becd97554c0349d58313bba065f17eb0d191c3ae81927890cf269b5af7064",
+      "expected_file_count": 121
+    },
+    {
+      "name": "octoscript",
+      "official_commit": "68f6a9df55692b5d8ef8873a12721e279a3f40d6",
+      "official_archive_url": "https://codeload.github.com/OctoSense-org/Octoscript/tar.gz/68f6a9df55692b5d8ef8873a12721e279a3f40d6",
+      "fresh_archive_path": "/private/tmp/muse-clean-74a4bfca-r1-20261005/checkout/build/sdk-archives/octoscript.tar.gz",
+      "archive_bytes": 1218725,
+      "archive_sha256": "a770ff9f7d2fe82317c379a99e48974510e09af7657a4eb42de2a254a8876cd7",
+      "expected_restored_tree_sha256": "cacc27110a2c3691083b37fbb1f375e39917bb20b2a85c1b02c19b2a708d58f2",
+      "expected_file_count": 278
+    },
+    {
+      "name": "octoscript-makepad",
+      "official_commit": "019e6bf043b484676ff39d6ff5be58a1e94abed8",
+      "official_archive_url": "https://codeload.github.com/OctoSense-org/OctoScript-Makepad/tar.gz/019e6bf043b484676ff39d6ff5be58a1e94abed8",
+      "fresh_archive_path": "/private/tmp/muse-clean-74a4bfca-r1-20261005/checkout/build/sdk-archives/octoscript-makepad.tar.gz",
+      "archive_bytes": 33083980,
+      "archive_sha256": "944e175c76b37aae6fa4902a1df0d86e83bb2fc5ca69df4f9950b5d1231240d6",
+      "expected_restored_tree_sha256": "732341716284e2b5f7ec9cf7d4dd68a93260b339596c51ba05bbfa45cbe8dc22",
+      "expected_file_count": 568
+    }
+  ],
+  "fresh_cargo_home_created": true,
+  "fresh_target_configured_but_not_created": true,
+  "host_card_hub_compilation_started": false,
+  "packages_generated": false,
+  "complete_clean_build_pass": false,
+  "v10_reproducibility_status": "WAITING_FOR_NEW_FINAL_COMMIT_AND_STRICT_NEW_DIRECTORY",
+  "old_vendor_archive_target_reused": false,
+  "tracked_source_changes": "",
+  "original_runner_report_path": "/private/tmp/muse-clean-74a4bfca-r1-20261005/evidence/CLEAN_REPRODUCIBILITY_REPORT.json",
+  "original_runner_report_sha256": "2ac04bbd80784e39e8e06b0c7d9c05abb16e82f3246f64934f14c1f97ab89ef1",
+  "original_report_unchanged_copy": "CLEAN_ROOM_R1_RUNNER_REPORT.json",
+  "launcher_log_sha256": "81354e39c416fd365e7a704d68dbbd80d9bf0ec03ddb6ee8aa37fb0fce2748b2",
+  "all_fresh_downloads_source_environment_and_original_logs_preserved": true,
+  "owned_cargo_and_runner_exited": true,
+  "other_shells_or_tasks_stopped": false,
+  "private_key_or_real_account_used": false,
+  "disk_free_after_stop_bytes": 4394864640
+}
