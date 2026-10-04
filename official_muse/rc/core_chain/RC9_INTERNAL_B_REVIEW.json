@@ -1,0 +1,519 @@
+{
+  "schema": 1,
+  "status": "PARTIAL_INTERNAL_B_EVIDENCE_REVIEW",
+  "audit_time": "2026-10-05T07:03:57.316206+08:00",
+  "method": "A2 independent read-only audit of current repository and existing public/synthetic evidence, not an independent runtime rerun or official score/ranking. No production/private raw/model credentials/competitor data read.",
+  "scope": {
+    "allowed_outputs": [
+      "official_muse/rc/core_chain/RC9_INTERNAL_B_REVIEW.md",
+      "official_muse/rc/core_chain/RC9_INTERNAL_B_REVIEW.json"
+    ],
+    "no_model_gui_or_fixture_rerun": true,
+    "no_product_sdk_git_mutation": true,
+    "no_new_chat_or_subagent": true,
+    "original_allowlists_unchanged": true
+  },
+  "identity": {
+    "branch": "codex/muse-rc-finalization",
+    "observed_head": "862c55e153692647b8699c2c715a0ddf60f1477a",
+    "product_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+    "version": "0.3.26-rc9",
+    "source_readable_sha256": "9d01484cb775329530d00f077fb74cfa8469e61ad3117a21360779c4bda13505",
+    "source_compact_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+    "runtime_host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+    "runtime_sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "source_sdk_lock_sha256": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
+    "documentation_commit": "14639fe0",
+    "last_test_only_commit": "862c55e1",
+    "tracked_worktree_change_not_read_or_modified": "official_muse/rc/overnight/baseline.json"
+  },
+  "total_score": 70,
+  "maximum": 100,
+  "rubric": [
+    {
+      "dimension": "任务实现",
+      "score": 17,
+      "maximum": 25,
+      "criteria": [
+        {
+          "criterion": "一次性Goal计划、批准、执行、独立回读和首次恢复",
+          "score": 8,
+          "maximum": 8,
+          "evidence": [
+            "RC9_LIVE_NODE_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "本地一次性流程已证；不扩为周期目标或外部系统流程"
+        },
+        {
+          "criterion": "来源记忆、新聊天召回、更正、遗忘",
+          "score": 6,
+          "maximum": 7,
+          "evidence": [
+            "RC9_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：真实冲突问询和最终邮件/日历关联记忆未全证"
+        },
+        {
+          "criterion": "实际模型与自然语言问询",
+          "score": 2,
+          "maximum": 4,
+          "evidence": [
+            "official_muse/rc/startup/RC9_D05_TWO_MODEL_SEMANTIC_REVIEW.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 2,
+          "deduction_reason": "扣2：只受影响D05两个模型通过，完整两模型15题未过；应用守卫问询不等于模型原始质量"
+        },
+        {
+          "criterion": "Mail/Calendar同事项外部任务",
+          "score": 1,
+          "maximum": 6,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 5,
+          "deduction_reason": "扣5：仅历史稳定版真实节点支持；rc9同事项创建/原event改期/get/回复到达全链未完成"
+        }
+      ]
+    },
+    {
+      "dimension": "可靠性",
+      "score": 15,
+      "maximum": 20,
+      "criteria": [
+        {
+          "criterion": "持久化、独立回读与首次进程恢复",
+          "score": 5,
+          "maximum": 5,
+          "evidence": [
+            "RC9_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "8SHA和账本相等已证，明确不是电脑重启"
+        },
+        {
+          "criterion": "当前70次启动/重开/进程重启",
+          "score": 4,
+          "maximum": 4,
+          "evidence": [
+            "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "30/20/20磁盘记录齐且每条通过"
+        },
+        {
+          "criterion": "失败拒绝、绑定、防重放与恢复",
+          "score": 4,
+          "maximum": 5,
+          "evidence": [
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：旧fixture按相关函数字节复用；最终真实服务异常/外部修改仍缺"
+        },
+        {
+          "criterion": "长运行",
+          "score": 1,
+          "maximum": 4,
+          "evidence": [
+            "OVERNIGHT_SOAK.md",
+            "official_muse/rc/startup/RC9_STABILITY_INTERRUPTION_SUMMARY.json"
+          ],
+          "deduction": 3,
+          "deduction_reason": "扣3：仅旧V15合成2h支持；rc9 r1 ENOSPC，r2和100重开尚未完成；稳定真Mail5357s绘制FAIL保留"
+        },
+        {
+          "criterion": "性能与容量余量",
+          "score": 1,
+          "maximum": 2,
+          "evidence": [
+            "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：当前普通重开8.4–9.4s，Shell重启最高17.6s；更正66.055ms历史余量风险和低磁盘中断仍在"
+        }
+      ]
+    },
+    {
+      "dimension": "人机协作",
+      "score": 11,
+      "maximum": 15,
+      "criteria": [
+        {
+          "criterion": "计划、确认、结果与解释",
+          "score": 5,
+          "maximum": 6,
+          "evidence": [
+            "RC9_LIVE_NODE_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：真实本地任务已证；外部连续卡片体验未全证"
+        },
+        {
+          "criterion": "权限与用户编辑控制",
+          "score": 3,
+          "maximum": 4,
+          "evidence": [
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：拒绝、过期和手写保护多为历史fixture；最终真实手写/采用/外发流程待"
+        },
+        {
+          "criterion": "导航、输入、标题和响应式界面",
+          "score": 3,
+          "maximum": 5,
+          "evidence": [
+            "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json",
+            "RC_EVIDENCE_INDEX.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 2,
+          "deduction_reason": "扣2：rc9六页和编辑通过；历史412×892被夹到412×818并Dock遮挡FAIL，412×700不替代；不称完整UI_PARITY"
+        }
+      ]
+    },
+    {
+      "dimension": "官方适配",
+      "score": 12,
+      "maximum": 15,
+      "criteria": [
+        {
+          "criterion": "官方运行语言、Shell、Makepad、App Hub入口",
+          "score": 7,
+          "maximum": 7,
+          "evidence": [
+            "RC9_DELTA_BINDING.json",
+            "official_muse/rc/packaging/RC9_1C9_PUBLIC_MAINTENANCE_SYNC.json",
+            "SOURCE_DELIVERY.md"
+          ],
+          "deduction": 0,
+          "deduction_reason": "已证官方运行体系；明确本地扩展范围"
+        },
+        {
+          "criterion": "实际model.complete和官方存储回读",
+          "score": 3,
+          "maximum": 3,
+          "evidence": [
+            "RC9_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/startup/RC9_D05_TWO_MODEL_SEMANTIC_REVIEW.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "真实模型调用与Storage/Readback已证，不由开发Agent代做"
+        },
+        {
+          "criterion": "manifest权限与宿主服务集成",
+          "score": 2,
+          "maximum": 3,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md",
+            "RC_CODE_FREEZE.json"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：运行Host938/SDK3f没有源码SDKda的Calendar布尔桥，系统完整链受阻"
+        },
+        {
+          "criterion": "官方准入与发布认可",
+          "score": 0,
+          "maximum": 2,
+          "evidence": [
+            "official_muse/rc/packaging/RC9_1C9_PUBLIC_MAINTENANCE_SYNC.json",
+            "SOURCE_DELIVERY.md"
+          ],
+          "deduction": 2,
+          "deduction_reason": "扣2：本地开发签名/check/catalog不是官方原版或正式publisher/政策/审核通过"
+        }
+      ]
+    },
+    {
+      "dimension": "复现交付",
+      "score": 7,
+      "maximum": 15,
+      "criteria": [
+        {
+          "criterion": "版本、源码、运行时和证据可追踪",
+          "score": 3,
+          "maximum": 3,
+          "evidence": [
+            "RC9_DELTA_BINDING.json",
+            "RC9_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "SHA及提交绑定明确，源码SDK和旧运行SDK分开"
+        },
+        {
+          "criterion": "生产资料保护和证据保留",
+          "score": 2,
+          "maximum": 2,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md",
+            "SOURCE_DELIVERY.md",
+            "official_muse/rc/startup/RC9_STABILITY_INTERRUPTION_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "原失败保留；不将私有资料纳入交付。本审计未检查生产文件，不宣称全仓无Secret"
+        },
+        {
+          "criterion": "当前可复现交付材料",
+          "score": 2,
+          "maximum": 4,
+          "evidence": [
+            "official_muse/rc/packaging/RC9_1C9_PUBLIC_MAINTENANCE_SYNC.json",
+            "SOURCE_DELIVERY.md"
+          ],
+          "deduction": 2,
+          "deduction_reason": "扣2：rc9静态签名镜像可核对，最终薄导出未固定；桌面独立Intel旧包仍rc5，不是最新版成品"
+        },
+        {
+          "criterion": "clean全构建与新Host",
+          "score": 0,
+          "maximum": 3,
+          "evidence": [
+            "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json"
+          ],
+          "deduction": 3,
+          "deduction_reason": "扣3：干净SDK12000条目恢复成功，但Host构建因容量中止，无新可执行包"
+        },
+        {
+          "criterion": "第二Mac/ARM/电脑重启",
+          "score": 0,
+          "maximum": 3,
+          "evidence": [
+            "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 3,
+          "deduction_reason": "扣3：均未完成，旧机暖运行和Shell进程重启不替代"
+        }
+      ]
+    },
+    {
+      "dimension": "差异化",
+      "score": 8,
+      "maximum": 10,
+      "criteria": [
+        {
+          "criterion": "可追溯记忆和跨聊天更正遗忘",
+          "score": 4,
+          "maximum": 4,
+          "evidence": [
+            "RC9_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "真实当前记忆六步支持产品特性"
+        },
+        {
+          "criterion": "统一任务上下文和同事项版本绑定",
+          "score": 2,
+          "maximum": 3,
+          "evidence": [
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：原事件关联及改期主要fixture，最终外部同事项链待"
+        },
+        {
+          "criterion": "主动提醒、批准与验证的产品组合",
+          "score": 2,
+          "maximum": 3,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md",
+            "RC9_LIVE_NODE_SUMMARY.json"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：本地结果与历史真Mail提醒有证，当前后台真实账号连续体验尚缺。未比较竞争作品，不推断领先"
+        }
+      ]
+    }
+  ],
+  "acceptance": {
+    "original20": "5PASS_14PARTIAL_1BLOCKED_AS_RECORDED",
+    "full_T17": "PARTIAL",
+    "T18": "BLOCKED",
+    "T20": "PARTIAL",
+    "READY": false,
+    "official_rank_claimed": false,
+    "not_counted": [
+      "100 ordinary reopen RUNNING",
+      "rc9 2h r2 RUNNING",
+      "computer reboot",
+      "clean full Host build",
+      "second Mac/ARM",
+      "final Mail/Calendar/reply same-task chain",
+      "full two-model15-case matrix",
+      "official approval/publication"
+    ]
+  },
+  "independent_static_checks": {
+    "manifest_version": "0.3.26-rc9",
+    "readable_and_compact_match_frozen": true,
+    "live_goal_eight_sha_pairs_equal": true,
+    "startup_raw_report_sha256_verified": "6a2605399d70c7bea316117e230d6f5da578d31a43e82aa0ef7a461e30eb8154",
+    "startup_each_record_pass_protected_ledger_editable": {
+      "cold": 30,
+      "reopen": 20,
+      "restart": 20
+    },
+    "startup_summary_currently_untracked": true,
+    "two_public_screenshot_file_sha_matches": true,
+    "screenshots_visually_viewed_by_a2": false,
+    "raw_private_live_reports_read": false,
+    "runtime_binary_sha_rehashed_by_a2_this_audit": false,
+    "tokenizer_rerun": false,
+    "hub_check_rerun": false
+  },
+  "issues": [
+    {
+      "id": "A01",
+      "severity": "DOCUMENT_STALE",
+      "files": [
+        "RC_ACCEPTANCE_MATRIX.md",
+        "COLD_START_PROFILE.md",
+        "RC_CODE_FREEZE.json",
+        "MORNING_CHAMPIONSHIP_REPORT.md",
+        "RC_FINAL_LIVE_REPORT.md",
+        "SOURCE_DELIVERY.md"
+      ],
+      "finding": "以上当前摘要仍写rc9 r2 70启动进行中；独立startup摘要及raw同SHA报告已30/20/20 PASS。",
+      "recommended_action": "Root补充当前70启动结果；T20仍PARTIAL，不计2h/100重开/电脑重启/clean。"
+    },
+    {
+      "id": "A02",
+      "severity": "IDENTITY_LABEL_MISMATCH",
+      "files": [
+        "RC_EVIDENCE_INDEX.json"
+      ],
+      "finding": "product_commit=1c9f3b46但顶层status仍CURRENT_RC8_PARTIAL；索引有rc9节点但没有当前rc9完整70启动行。",
+      "recommended_action": "Root纠正版本标签并加入精确rc9 startup摘要/报告SHA，不改旧rc8行。"
+    },
+    {
+      "id": "A03",
+      "severity": "DOCUMENT_STALE",
+      "files": [
+        "official_muse/rc/packaging/RC9_1C9_PUBLIC_MAINTENANCE_SYNC.json"
+      ],
+      "finding": "06:20静态打包记录的root_rc9_70_startup_2h_memory_goal_both_D05=PENDING_NOT_PASSED聚合字段早于后续实际完成；其中记忆/Goal/D05已证，70也后续完成，2h仍未完成。",
+      "recommended_action": "保留原观察时间/记录，新增分项当前状态，避免聚合pending掩盖已完成或全PASS掩盖未完成。"
+    },
+    {
+      "id": "A04",
+      "severity": "SCOPE_WARNING_NOT_CONTRADICTION",
+      "files": [
+        "RC_ACCEPTANCE_MATRIX.md"
+      ],
+      "finding": "T19 PASS只支撑本人确认的两行等高标题；同一行保留412×892失败。T06/T11/T16部分依据fixture，不能改写为最终真实系统整链PASS。",
+      "recommended_action": "保留窄项PASS及详细范围；UI_PARITY/外部live验收须独立判定。"
+    }
+  ],
+  "evidence": {
+    "RC9_LIVE_NODE_SUMMARY.json": {
+      "sha256": "304c3f09fbcfc5e95711ea18cfa8d9ca56bfbc3db6e10323844210243d335cb7",
+      "last_commit": "fa89b6750c13e271de2b5b374b45afd3774edc86",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "RC9_DELTA_BINDING.json": {
+      "sha256": "0c3c2af66f71abd1fcb43e006c861936fecff5d5a8084b0a6f63f5e5324f9075",
+      "last_commit": "fa89b6750c13e271de2b5b374b45afd3774edc86",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "RC_ACCEPTANCE_MATRIX.md": {
+      "sha256": "1cb4306a9c8d6c6cc36e5c8010824260ada69cb46ae9b435bf96db666dc113a4",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "CHAMPIONSHIP_SCORECARD.md": {
+      "sha256": "a71347e32f5751c828ddac94d0ac3955916c85fd19d44cfad48017188fbae516",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "RC_CODE_FREEZE.json": {
+      "sha256": "fbbc6f9b915946d3edf5eaed2f4e19a4f578a57a14f14e17a0244b25f023670b",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "RC_EVIDENCE_INDEX.json": {
+      "sha256": "46fdadedeb300f99554fd35c70935c31fd3d4a2189a607564b54644c81a10809",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "COLD_START_PROFILE.md": {
+      "sha256": "d38333f2b1ce885af6e33cf23bc8309a44b6d73a601be84ea84ed348dea87238",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "OVERNIGHT_SOAK.md": {
+      "sha256": "ef8025dfa888e5a9a7866d68cd948750a2add79d12e0a24f51852feb4e229406",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "MORNING_CHAMPIONSHIP_REPORT.md": {
+      "sha256": "7d98ea60cf9040aafb2ea5f08a5664e1423130a5c7ca75444a2d9e3c558260ea",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "RC_FINAL_LIVE_REPORT.md": {
+      "sha256": "d6318727288e317c61978718334fa1c52e06b7ae43f439d0a8011839ef1df840",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "SOURCE_DELIVERY.md": {
+      "sha256": "c371ee9e11679c6b783a559070b707bd39a24dcbb396acb04727dba2be746060",
+      "last_commit": "14639fe0d2ed39b20fe3ccd42d3adac94fa61dd9",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "official_muse/rc/startup/RC9_D05_TWO_MODEL_SEMANTIC_REVIEW.json": {
+      "sha256": "11ecc7b1b75d3ce2f4143cced8286bd8347d722a7975a5fd604384108877e33e",
+      "last_commit": "fa89b6750c13e271de2b5b374b45afd3774edc86",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json": {
+      "sha256": "cbc7813c17310e639284a72f3e87fe2571d581b29e12cb6febafae9bbeccd70b",
+      "last_commit": "UNTRACKED_AT_AUDIT",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "official_muse/rc/startup/RC9_STABILITY_INTERRUPTION_SUMMARY.json": {
+      "sha256": "1881e7a42ef5a0175096a57fe58f12b66de5347c0462f969029a9f9ae117c588",
+      "last_commit": "8a60d51a13bdcda1791cd57149823b5f33bbf3ac",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "official_muse/rc/screenshots/RC9_PROVENANCE.json": {
+      "sha256": "8d1fc0f09b5945a383a30fdc44ed28dbe6ad82c8f5ad2267d75434609aad9562",
+      "last_commit": "8a60d51a13bdcda1791cd57149823b5f33bbf3ac",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "official_muse/rc/packaging/RC9_1C9_PUBLIC_MAINTENANCE_SYNC.json": {
+      "sha256": "0c56c6d8ccdc55d1efc7253f6b138cc44cff912f69a7c41855627f9e388a45a4",
+      "last_commit": "34fb31323713f69d22f368f009dbab4459526b12",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json": {
+      "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+      "last_commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+      "scope": "Read-only existing evidence; no test rerun"
+    },
+    "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json": {
+      "sha256": "8b2657b1e490e53c0a07b70ae7f9948ec82e9bbf11899342bc88339fd407db05",
+      "last_commit": "91d21a3fd94f67953d048e1901fd0403b888db65",
+      "scope": "Read-only existing evidence; no test rerun"
+    }
+  },
+  "limitations": [
+    "Scores are an explicit internal engineering rubric, not inferred official criteria or competitive ranking.",
+    "Live Memory/Goal/model semantic results are reviewed from Root public summaries; A2 verified summary identities/hashes and public screenshot hashes, did not replay or inspect private raw reports.",
+    "Existing startup raw synthetic report was independently parsed and SHA checked; no new startup run.",
+    "Historical fixture evidence credited at its scoped original version, no claim all rc9 suites rerun.",
+    "Current synthetic70 and no-backend2h cannot demonstrate live Mail/Calendar reliability."
+  ]
+}

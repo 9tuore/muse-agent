@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "status": "PASS_100_CONTIGUOUS_APP_REOPENS",
+  "version": "0.3.26-rc9",
+  "application_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+  "source_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "raw_local_reference": "official_muse/rc/startup/evidence/rc9-1c9-light-reopen-100-r1/report.json",
+  "report_sha256": "c80e90ff0f2457e3614e1366f7c0cce77b4dc4a7e686c7f4f5e7b688db191823",
+  "counts": {
+    "requested": 100,
+    "passed": 100
+  },
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "all_six_pages_input_focus_state_ledger_checked_each_run": true,
+  "protected_files_sha256": {
+    "chat-sessions.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "chat-sessions.backup.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "12d73915c579b367d9fb67fc3c826fdcf3af6e373adf66f7be5e02762639148f",
+    "goals.backup.json": null,
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "native_pid_unchanged": true,
+  "interactive_seconds": {
+    "min": 8.452086590000022,
+    "median": 8.997269117500025,
+    "max": 9.648508668000034
+  },
+  "capture_errors": [
+    {
+      "index": 1,
+      "error": "HTTP Error 404: Not Found"
+    }
+  ],
+  "after100_native_capture_sha256": "27a2df13a364d36e26c941a201fcfdcf1f0c3785f6c7829e5377838bf9f898a0",
+  "first_capture_not_reconstructed": true,
+  "budget_increased": false,
+  "cold_process_or_computer_restart": false,
+  "actual_backend_or_model": false,
+  "scope": "One actual native Shell process / 100 contiguous Muse close+open cycles. No OS cache reset, real mail service or model call; first capture404 retained, separate final100 capture only retried through verified screenshot helper.",
+  "public_after100_capture": "official_muse/rc/screenshots/rc9-after100-reopen.png",
+  "root_visually_inspected_final_capture": true
+}

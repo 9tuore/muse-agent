@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "status": "PASS_30_COLD_20_REOPEN_20_SHELL_RESTART",
+  "version": "0.3.26-rc9",
+  "application_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+  "source_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "seeded_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "chat-sessions.backup.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "12d73915c579b367d9fb67fc3c826fdcf3af6e373adf66f7be5e02762639148f",
+    "goals.backup.json": null,
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "computer_restart": false,
+  "os_caches_cleared": false,
+  "actual_model_or_mail_backend": false,
+  "budget_increased": false,
+  "report_sha256": "6a2605399d70c7bea316117e230d6f5da578d31a43e82aa0ef7a461e30eb8154",
+  "raw_local_reference": "official_muse/rc/startup/evidence/rc9-1c9-final-70-r2/report.json",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "measurements": {
+    "cold": {
+      "count": 30,
+      "passed": 30,
+      "interactive_seconds_min": 11.223717772000015,
+      "interactive_seconds_median": 12.021109363999997,
+      "interactive_seconds_max": 13.419322902999994,
+      "native_first_capture_sha256": "f92159f61a6e23b48b17c2577be005b0c6de52cbd963bed5bf93aecaa46e88ed",
+      "capture_error_count": 0
+    },
+    "reopen": {
+      "count": 20,
+      "passed": 20,
+      "interactive_seconds_min": 8.408693631999995,
+      "interactive_seconds_median": 8.897128646999988,
+      "interactive_seconds_max": 9.406663037000044,
+      "native_first_capture_sha256": "542843263bf0f7498664cf294d48a0ec3512e2c30464ebc2d735d7e0878ac235",
+      "capture_error_count": 0
+    },
+    "restart": {
+      "count": 20,
+      "passed": 20,
+      "interactive_seconds_min": 11.300284017000081,
+      "interactive_seconds_median": 13.903927537000015,
+      "interactive_seconds_max": 17.609228899000072,
+      "native_first_capture_sha256": "2bbb387b186f0bac4365dd4b2735f78168bec30c8304b10bd187a8ea490347f8",
+      "capture_error_count": 0
+    }
+  },
+  "important_PNG_captures_present": true,
+  "prior_r1_failure": "official_muse/rc/startup/RC9_STABILITY_INTERRUPTION_SUMMARY.json",
+  "boundary": "Actual visible native Shell, nonempty synthetic16sessions/256messages/64claims/65sources and ready64seen. All six pages, editable input, restored focus and protected SHA/ledger checked each run; not computer reboot or actual services."
+}
