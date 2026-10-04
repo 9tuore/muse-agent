@@ -1,3 +1,15 @@
+# 当前App Hub材料 · 0.3.26-rc9 · PARTIAL
+
+产品来源1c9f3b46；可读9d01484c、payload4c970e04，官方token等价91,195。06:20静态记录RC9_1C9_PUBLIC_MAINTENANCE_SYNC.json实际核对Git/mirror/pack六文件、catalog签名和bundle公钥检查通过；该记录的运行测试聚合字段只代表当时，不覆盖后续结果。最终源码导出时会再次核对同一应用与签名镜像。
+
+两张当前rc9真实原生截图及约61秒六页界面短片已保存，身份、实际查看范围与SHA见../screenshots/RC9_PROVENANCE.json、RC9_VIDEO_PROVENANCE.json。短片只展示界面，完整邮件→日历→回复业务视频仍缺。Canonical listing两张图片属于既有支持素材，不能改标签称为最终业务证据。
+
+原20项仍未全部通过；完整新Host未构建、日历布尔桥未进入Host938，正式publisher与真实隐私政策URL未齐。这里只准备草稿，没有正式发布、提交Issue、push或创建成功Tag。最终运行与验收以仓库根目录RC_ACCEPTANCE_MATRIX、RC_CODE_FREEZE和晨间报告为准。
+
+---
+
+## 历史材料观察（按当时版本保留）
+
 # RC App Hub 材料状态
 
 状态：**MATERIALS_PARTIAL**。这份报告不判断总控的 T01–T20。
