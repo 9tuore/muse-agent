@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前开发候选：0.3.26-rc9；验收PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 公开稳定基线0.3.25保留。rc9真实模型跨聊天记忆更正/遗忘、一次性任务首次恢复、两个模型受影响日历追问已验证。70启动/两小时第二轮进行；Calendar桥源码已修但未进入运行Host，完整双模型15题与同候选外部链仍缺。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。不把旧运行包当成最新版。
+**当前开发候选：0.3.26-rc9；验收PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 公开稳定基线0.3.25保留。rc9真实模型跨聊天记忆更正/遗忘、一次性任务首次恢复、两个模型受影响日历追问已验证。70启动及额外100重开通过，两小时第二轮进行；Calendar桥源码已修但未进入运行Host，双模型原20题/2准备/6变体与同候选外部链仍缺。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。不把旧运行包当成最新版。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 

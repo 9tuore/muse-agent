@@ -6,7 +6,7 @@
 2. 对最终新Host确认Calendar完整访问及QQ凭据可用状态。旧稳定Host已有full_access和账号授权，新的dev.makepad.octosense.muserc.local观察到not_determined。不代点系统TCC，不在聊天/日志提供授权码。
 3. 针对唯一合成事件集中列出精确标题、目标日历、时区、创建/原ID改期/清理，取得本轮窄授权；目前最新授权是读取和本人邮箱自发自收，未扩为任意日历修改。
 4. 用同一最终版本做真实两封邮件→授权项目记忆→目标Calendar冲突/最多两个替代→创建/get→关联改期/get→独立回复确认/到达→第一次恢复/跨聊天。现有0.3.25一次自发自收只能作节点支持，不能混用版本。
-5. 双模型同最终完整15题及质量比较；rc9受影响D05已两模型实测通过，rc8八题只作历史支持。M2.7 classunknown不冒充strong。没有新建Runtime、未重新配置或输出Key。
+5. 双模型同最终原20题/2准备/6变体及质量比较；rc9受影响D05已两模型实测通过，rc8八题只作历史支持。M2.7 classunknown不冒充strong。没有新建Runtime、未重新配置或输出Key。
 6. 本人电脑重启、实际412×892窗口可用性、clean/第二Mac与ARM。旧Intel087ZIP保留，尚不是rc9独立运行包。
 7. 正式publisher登记/真实政策URL/实际短视频/独立scan评审与最终摘要确认。原20项及旧门槛全过后，才进入公开main、成功Tag或App Hub提交。
 

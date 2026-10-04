@@ -28,7 +28,7 @@
     "screenshots/01-main.png": "e3a85b8b5a6a20db1beae6e75d30e64b95a550ca45f7576f46c6ac7d4f80073e",
     "assets/icon.svg": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3"
   },
-  "startup70": "RC9_R1_ENOSPC_30_COLD_13_REOPEN_RETAINED; RC9_R2_30_20_20_RUNNING",
+  "startup70": "RC9_R2_PASS_30_COLD_20_REOPEN_20_SHELL_RESTART; RC9_R1_ENOSPC_PRESERVED",
   "final_soak": "RC9_R1_ENOSPC_19_SAMPLES_542.154S; RC9_R2_FULL7200_RUNNING",
   "calendar_fix_in_current_host": false,
   "final_live_chain": "NOT_PASSED",
@@ -55,5 +55,23 @@
   "historical_freeze_git_reference": "637cbe519686d6d28f30b31292b0e8a7f10102c7:RC_CODE_FREEZE.json",
   "prior_rc7_support": "RC7_LIVE_NODE_SUMMARY.json; actual E04 subject FAIL and ENOSPC preserved",
   "prior_V15_support": "COLD_START_PROFILE.md and OVERNIGHT_SOAK.md; historical70 and synthetic7200s PASS, no final rc9 re-labeling",
-  "no_nested_history_duplication": "Current freeze keeps references; full historical versions and failures remain in Git and versioned evidence"
+  "no_nested_history_duplication": "Current freeze keeps references; full historical versions and failures remain in Git and versioned evidence",
+  "additional_reopen100": "RC9_PASS100_CONTIGUOUS_APP_REOPENS; first_capture404_retained_separate_after100_native_capture",
+  "startup70_summary": "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json",
+  "reopen100_summary": "official_muse/rc/startup/RC9_REOPEN_100_SUMMARY.json",
+  "internal_reviews": {
+    "A": {
+      "score": 70,
+      "max": 100,
+      "review": "official_muse/rc/memory_model/RC9_INTERNAL_A_REVIEW.json"
+    },
+    "B": {
+      "score": 70,
+      "max": 100,
+      "review": "official_muse/rc/core_chain/RC9_INTERNAL_B_REVIEW.json"
+    },
+    "not_official_or_rank": true,
+    "cutoff_before100_and2h_completion": true
+  },
+  "frozen_model_scope": "Original20 + setup2 + holdout6 =28 steps,24 model turns per channel. Pending after observed official daily reset; subset15 controller stopped BEFORE any call."
 }

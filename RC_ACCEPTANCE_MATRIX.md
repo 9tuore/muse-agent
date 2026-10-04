@@ -10,7 +10,7 @@
 | T04 | PARTIAL | 来源/项目/归属/账号隔离、墓碑28变体 | 最终指定真实邮件与项目记忆归属 |
 | T05 | PARTIAL | rc9真实M3六步/三模型调用：新聊天召回、更正同ID/revision2、遗忘后空检索；首次任务恢复八SHA相同；metadata91项及64条分页支持 | 真实冲突询问、Mail/Calendar关联记忆；64条更正墙钟66.055ms性能余量风险保留 |
 | T06 | PASS | 窄范围授权、软/硬约束、未批准零写入守卫；24policy/102scheduling支持 | 新日历写入仍须精确授权 |
-| T07 | PARTIAL | 315业务契约/否定取消守卫；rc8真实M3八题全通过、rc9受影响追问通过 | 完整15题与实际通用聊天质量尚未全过，保留服务/语义失败 |
+| T07 | PARTIAL | 315业务契约/否定取消守卫；rc8真实M3八题全通过、rc9受影响追问通过 | 原20题/2准备/6变体与实际通用聊天质量尚未全过，保留服务/语义失败 |
 | T08 | PARTIAL | 最多两替代、只查询目标日历、四天范围102项fixture；rc9两个真实模型缺时段追问通过 | 实际Host截断字段为数字而非布尔；桥源码已修但未进入运行Host，真实替代核验未过 |
 | T09 | PARTIAL | rc9真实本地任务：模型计划/建议、一次批准、保存/独立读回成功 | 同邮件事项的真实系统Calendar创建/get |
 | T10 | PARTIAL | 原事件绑定、版本、同Goal改期和独立get fixture | 第二真实来信关联原event ID并修改、独立get |
@@ -20,10 +20,10 @@
 | T14 | PARTIAL | rc9真实任务结果卡/首次恢复截图；同事项fixture | 外部事项结果卡的完整连续体验 |
 | T15 | PARTIAL | 手写不覆盖、采用选择、原时段/建议时段25fixture/6新进程 | 最终真实自动稿/手写稿/明确采用选择 |
 | T16 | PASS | 独立发信确认、防重复/未知投递守卫；今晚稳定版实际仅发送一次并独立收件读回 | 最终发送到达属于T18，不把稳定版结果改标签 |
-| T17 | PARTIAL | rc8 M3八题PASS/M2.7七PASS一D05 FAIL；修复后rc9 D05两个真实模型PASS，无fallback/预算提高 | 同最终两模型完整15题尚未过；M2.7实际class=unknown，不宣称strong或回答普遍更准确 |
+| T17 | PARTIAL | rc8 M3八题PASS/M2.7七PASS一D05 FAIL；修复后rc9 D05两个真实模型PASS，无fallback/预算提高 | 同最终两模型原20题/2准备/6变体尚未过；M2.7实际class=unknown，不宣称strong或回答普遍更准确 |
 | T18 | BLOCKED | rc9真实模型/记忆/一次任务/Storage/Readback/首次重启通过；稳定版真实Mail支持 | 最终Mail→记忆→Calendar创建/原事件改期/get→回复到达→首次重启/跨聊天未完成；新Host桥集成、身份授权及新的精确日历写入授权待 |
 | T19 | PASS | 本人已确认原生两行省略/54px等高，标题存储不变、无JS/hover | 旧990×539/990×400/1200×700六页/长文本/滚动支持；412×892实际夹为412×818且Dock遮挡，FAIL保留，412×700不替代 |
-| T20 | PARTIAL | rc8完整30冷/20重开/20Shell重启PASS；rc9 r1因ENOSPC中断：磁盘记录30冷/13重开通过；r2同source完整测试进行 | rc9两小时r1仅19样本542.154s后ENOSPC，不PASS；r2完整两小时进行；旧真Mail5357s原生绘制FAIL，电脑重启/clean/新Calendar Host仍缺 |
+| T20 | PARTIAL | rc8完整30冷/20重开/20Shell重启PASS；rc9 r1因ENOSPC中断：磁盘记录30冷/13重开通过；r2同source30/20/20全PASS，另100次连续普通重开全PASS | rc9两小时r1仅19样本542.154s后ENOSPC，不PASS；r2完整两小时进行；旧真Mail5357s原生绘制FAIL，电脑重启/clean/新Calendar Host仍缺 |
 
 ## 关键门槛与证据身份
 

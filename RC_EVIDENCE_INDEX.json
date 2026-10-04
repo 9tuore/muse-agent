@@ -1,6 +1,6 @@
 {
   "product_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
-  "status": "CURRENT_RC8_PARTIAL",
+  "status": "CURRENT_RC9_PARTIAL",
   "raw_records_publication": "local only; no credentials, Mail bodies or production data included in public repository",
   "rows": [
     {
@@ -101,18 +101,26 @@
     {
       "id": "core-public-summary",
       "path": "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
-      "bytes": 6415,
-      "sha256": "0aac6676f9fdaef631430b7c5a7e92110d3b73be8e078c9ea86d72f2af11c864",
+      "bytes": 12254,
+      "sha256": "8b2657b1e490e53c0a07b70ae7f9948ec82e9bbf11899342bc88339fd407db05",
       "observed_status": "SEE_REPORT",
-      "scope": "Core/protocol/20fault variants, clearly fixture"
+      "scope": "Core/protocol/20fault variants, clearly fixture",
+      "previous_index_observation": {
+        "bytes": 6415,
+        "sha256": "0aac6676f9fdaef631430b7c5a7e92110d3b73be8e078c9ea86d72f2af11c864"
+      }
     },
     {
       "id": "memory-public-summary",
       "path": "official_muse/rc/memory_model/PUBLIC_A3_SUMMARY.json",
-      "bytes": 9609,
-      "sha256": "4caebdb15ec129c05de331aa79928ee038dde1208d5748d5af080c1038377989",
+      "bytes": 15272,
+      "sha256": "04112e65e7ba7c92d7a3d1a95b675f94e10464896d3774eee25b53528f7a8a15",
       "observed_status": "PASS_V15_TWO_FUNCTION_EMPTY_TOMBS_DELTA_FIRST_ATTEMPT",
-      "scope": "315contract,28emptytomb,metadata/migration/failedcontrols"
+      "scope": "315contract,28emptytomb,metadata/migration/failedcontrols",
+      "previous_index_observation": {
+        "bytes": 9609,
+        "sha256": "4caebdb15ec129c05de331aa79928ee038dde1208d5748d5af080c1038377989"
+      }
     },
     {
       "id": "startup-failure-index",
@@ -248,8 +256,40 @@
       "sha256": "1881e7a42ef5a0175096a57fe58f12b66de5347c0462f969029a9f9ae117c588",
       "observed_status": "ENOSPC_INTERRUPTED_NOT_PASS",
       "scope": "Original thirty cold/thirteen reopen and19samples542.154s retained; no missing observations reconstructed"
+    },
+    {
+      "id": "rc9-startup70-completed",
+      "path": "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json",
+      "bytes": 3976,
+      "sha256": "cbc7813c17310e639284a72f3e87fe2571d581b29e12cb6febafae9bbeccd70b",
+      "observed_status": "PASS30_20_20",
+      "scope": "Exact9/1c9 native Shell nonempty synthetic; not OS restart"
+    },
+    {
+      "id": "rc9-reopen100-completed",
+      "path": "official_muse/rc/startup/RC9_REOPEN_100_SUMMARY.json",
+      "bytes": 3085,
+      "sha256": "74b36a2156be445361e5a0114a9ed28c41d4e84ed411f6e1ed6076e8d61ac1e0",
+      "observed_status": "PASS100_APP_REOPENS",
+      "scope": "Same process; first capture404 retained, separate final capture viewed"
+    },
+    {
+      "id": "rc9-internal-review-A",
+      "path": "official_muse/rc/memory_model/RC9_INTERNAL_A_REVIEW.json",
+      "bytes": 26063,
+      "sha256": "a8ce49a518a17762f1c01efe85a90bbdd5615644262c9a4f60a1aa8d69e856e7",
+      "observed_status": "INTERNAL70_NOT_OFFICIAL",
+      "scope": "Independent evidence review, not live rerun or ranking"
+    },
+    {
+      "id": "rc9-internal-review-B",
+      "path": "official_muse/rc/core_chain/RC9_INTERNAL_B_REVIEW.json",
+      "bytes": 20850,
+      "sha256": "8d09d2c9f6454ef61d95e1a55af41056d1a14254d177daa7abbec6707a512122",
+      "observed_status": "INTERNAL70_NOT_OFFICIAL",
+      "scope": "Independent evidence review, not live rerun or ranking"
     }
   ],
-  "last_index_utc": "2026-10-04T22:46:01.985627+00:00",
+  "last_index_utc": "2026-10-04T23:23:59.723150+00:00",
   "previous_product_commit": "a80bd019db7581511b3891bcc3892548f767a42d"
 }

@@ -2,7 +2,7 @@
 
 产品1c9f3b46/0.3.26-rc9，compact4c970e04，可读9d01484c，91195 token相同。六步真实M3跨聊天记忆更正/遗忘及一次性任务首次Shell重启八SHA通过；D05两个真实模型准确追问，97calls/89960tokens连续账本未提高预算。rc8 M27 D05 FAIL保留。
 
-rc9首轮70启动/2h因ENOSPC中断，磁盘记录30冷13重开、19样本542.154s保留。清理164份Git字节相同无占用旧分发PNG后，可用41254912→357711872B；真实截图/失败/state/生产不删。第二轮同source70及完整2h进行。5PASS/14PARTIAL/1BLOCKED，最终真系统链仍待，新Calendar源码桥未进入Host。当前报告以MORNING_CHAMPIONSHIP_REPORT为准；旧087运行ZIP不是rc9。只本地提交，未push/tag/发布。
+rc9首轮70启动/2h因ENOSPC中断，磁盘记录30冷13重开、19样本542.154s保留。清理164份Git字节相同无占用旧分发PNG后，可用41254912→357711872B；真实截图/失败/state/生产不删。第二轮同source70及额外100重开通过，完整2h仍进行。5PASS/14PARTIAL/1BLOCKED，最终真系统链仍待，新Calendar源码桥未进入Host。当前报告以MORNING_CHAMPIONSHIP_REPORT为准；旧087运行ZIP不是rc9。只本地提交，未push/tag/发布。
 
 ---
 
