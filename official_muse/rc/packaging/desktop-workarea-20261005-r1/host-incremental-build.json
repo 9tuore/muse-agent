@@ -1,0 +1,27 @@
+{
+  "name": "host-incremental-build",
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "--locked",
+    "--offline",
+    "-j",
+    "2",
+    "-p",
+    "octosense",
+    "--bin",
+    "octosense",
+    "--no-default-features",
+    "--features",
+    "app-hub"
+  ],
+  "cwd": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/octosense",
+  "exit_code": 0,
+  "seconds": 146.431776971,
+  "guard_stop": null,
+  "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/packaging/desktop-workarea-20261005-r1/host-incremental-build.log",
+  "log_sha256": "0d453525bbdb3349d01628fdb9ae29b2203f2e82657db4ded7642bf958bca3a5",
+  "incremental_not_cold_build": true,
+  "free_bytes_after": 18112020480
+}

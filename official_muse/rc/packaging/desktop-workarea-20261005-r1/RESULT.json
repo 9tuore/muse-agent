@@ -1,0 +1,1135 @@
+{
+  "status": "GEOMETRY_FIXTURE_AND_INCREMENTAL_HOST_STRICT_SIGNATURE_PASS_LIVE_UI_PENDING",
+  "source_inputs": {
+    "scope": "only OctoSense StyleSpec reserved_height 0 -> 88, explanatory comments and required geometry tests in desktop.rs",
+    "baseline_desktop_sha256": "342cb9b6057440e06f175834ccd7b5a271ca3f6ac6dfee96b08dcced10a05e81",
+    "patched_desktop_sha256": "0be5f526e2c9a4a7a098d2deff825b83a2644163822c71622ab31d7972e5450f",
+    "source": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/desktop.rs",
+    "patch": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/desktop.rs.patch",
+    "patch_sha256": "ec724ecd4d0e4ef8609407aba9b2ff51421473adac81c0140615ae891be0ac9e",
+    "patch_reverse_check": "PASS",
+    "changed_vendor_files": [
+      "crates/shell/src/desktop.rs"
+    ],
+    "unchanged_vendor_files": 2308,
+    "Macos_and_other_six_style_rows_byte_identical": true,
+    "HostService_model_mail_calendar_and_other_sources_byte_identical": true,
+    "baseline_SDK_lock_sha256": "64ca58c7b1bb6b622657c223910964f8b4c2000577429a253b7cc73cb80598a0",
+    "effective_octosense_tree_sha256": "0f832030637de18258e191effa2e8b1d000df5a6e90a7223d82c3fde52a88e6e",
+    "effective_octosense_files": 2309,
+    "proposed_SDK_lock": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/proposed-dependencies.lock.json",
+    "proposed_SDK_lock_sha256": "78a5eef0b1af8eb82cd28e464d5681e6e3b0685e63719207d1a77e4ffdd706d6",
+    "proposed_lock_not_applied_to_product_or_cache": true,
+    "Root_integration": "copy this desktop.rs to sdk-overlays/octosense/crates/shell/src/desktop.rs and use the proposed lock only after matching the unchanged baseline; Root owns final product pin/commit",
+    "source_control": "independent exact patch; shared Git not modified",
+    "geometry_original": "6 PASS, 2 actual overlap assertion FAIL",
+    "geometry_fixed": "8 PASS; actual source extracted into isolated harness linked with real Makepad types",
+    "full_shell_tests": "BLOCKED: existing shell/launcher.rs test references super::menu at lines165/166; preserved; source not altered",
+    "GUI_live_profile_TCC_model_or_external_actions_by_packager": false,
+    "desktop_rc24_ZIP_untouched": true
+  },
+  "Host": {
+    "path": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/desktop-workarea-20261005-r1/Muse Host.app",
+    "executable": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/desktop-workarea-20261005-r1/Muse Host.app/Contents/MacOS/octosense",
+    "sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+    "architecture": "x86_64"
+  },
+  "build": {
+    "name": "host-incremental-build",
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "--offline",
+      "-j",
+      "2",
+      "-p",
+      "octosense",
+      "--bin",
+      "octosense",
+      "--no-default-features",
+      "--features",
+      "app-hub"
+    ],
+    "cwd": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/octosense",
+    "exit_code": 0,
+    "seconds": 146.431776971,
+    "guard_stop": null,
+    "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/host-incremental-build.log",
+    "log_sha256": "0d453525bbdb3349d01628fdb9ae29b2203f2e82657db4ded7642bf958bca3a5",
+    "incremental_not_cold_build": true,
+    "free_bytes_after": 18112020480
+  },
+  "package": {
+    "app": "build/desktop-workarea-20261005-r1/Muse Host.app",
+    "kind": "host",
+    "unsigned_binary_sha256": "64ae5cf375cef3c5364a0645ada5573a11da5e4fe21126957dcc4391968279dd",
+    "signed_binary_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+    "architecture": "x86_64",
+    "resource_roots": [
+      "makepad_widgets",
+      "octosense_shell",
+      "octosense_app_hub_app"
+    ],
+    "signature": "ad hoc, strict verify passed; no publisher signing key used",
+    "version": "0.3.26-rc25",
+    "ui_or_external_actions_run": false
+  },
+  "signature": {
+    "name": "verify-new-Host",
+    "command": [
+      "/usr/bin/codesign",
+      "--verify",
+      "--deep",
+      "--strict",
+      "--verbose=2",
+      "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/.local-state/desktop-workarea-20261005-r1/Muse Host.app"
+    ],
+    "cwd": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout",
+    "exit_code": 0,
+    "seconds": 2.0097992530000006,
+    "guard_stop": null,
+    "log": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/verify-new-Host.log",
+    "log_sha256": "be897c32b806c02b21e02ba4d6f16ad22f7e0361db4e53d3701899753069f061",
+    "incremental_not_cold_build": true,
+    "free_bytes_after": 17993048064
+  },
+  "resources": {
+    "makepad_widgets": {
+      "files": 72,
+      "file_bytes_identical": true,
+      "internal_entry_symlink": "../Resources/makepad_widgets"
+    },
+    "octosense_shell": {
+      "files": 74,
+      "file_bytes_identical": true,
+      "internal_entry_symlink": "../Resources/octosense_shell"
+    },
+    "octosense_app_hub_app": {
+      "files": 8,
+      "file_bytes_identical": true,
+      "internal_entry_symlink": "../Resources/octosense_app_hub_app"
+    }
+  },
+  "complete_inventory": {
+    "Contents/Info.plist": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1345,
+      "sha256": "021ab6fc08d6724653a10e7674ab3ef07b1de50f8e7f9dd8353d2b8233ad1d45"
+    },
+    "Contents/_CodeSignature/CodeResources": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 51253,
+      "sha256": "5f367caad18f980de07a1926bc1e8b9b36e10930882a7f283b50162b400bdfcd"
+    },
+    "Contents/MacOS/octosense": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 50376240,
+      "sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3"
+    },
+    "Contents/MacOS/octosense_shell": {
+      "kind": "symlink",
+      "mode": 493,
+      "target": "../Resources/octosense_shell"
+    },
+    "Contents/MacOS/makepad_widgets": {
+      "kind": "symlink",
+      "mode": 493,
+      "target": "../Resources/makepad_widgets"
+    },
+    "Contents/MacOS/octosense_app_hub_app": {
+      "kind": "symlink",
+      "mode": 493,
+      "target": "../Resources/octosense_app_hub_app"
+    },
+    "Contents/Resources/octosense_shell/resources/startup.splash": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 813,
+      "sha256": "015a100d4c1b61f94538214726b046bddcdb6adf07ddd7908cd1e1cfc25ac0c7"
+    },
+    "Contents/Resources/octosense_shell/resources/wallpapers/octosense-abyssal-currents-light.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 2363947,
+      "sha256": "2e6493c6c5738e194b129f1569620af6d7ad0a7e3f40aa5966e7bae00d67451b"
+    },
+    "Contents/Resources/octosense_shell/resources/wallpapers/LICENSE.omarchy": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1063,
+      "sha256": "717ba1949502290f8e47688ae2e323acd06c8ca47aec9f7596b15f678c1af4a2"
+    },
+    "Contents/Resources/octosense_shell/resources/wallpapers/README.md": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 3056,
+      "sha256": "310202055343cb288f75fc58afd489b35963c331cd638079fb92dc85e98728b1"
+    },
+    "Contents/Resources/octosense_shell/resources/wallpapers/abyssal-currents-prompt.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1758,
+      "sha256": "ce199a040ae269729b8186ac5365427e3ad18e4970911cf27aa0803807a5d936"
+    },
+    "Contents/Resources/octosense_shell/resources/wallpapers/abyssal-currents-light-prompt.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1282,
+      "sha256": "19f82b1dbc93c44d320f86c31e7d21c9c9cba688e20e79d7a6c7b84ecec8228b"
+    },
+    "Contents/Resources/octosense_shell/resources/wallpapers/tokyo-night.webp": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 653482,
+      "sha256": "b149c3e1c8ce383812e7bc3170c2cf8b160ca583d72d59173cd42efdb79ced2b"
+    },
+    "Contents/Resources/octosense_shell/resources/wallpapers/octosense-abyssal-currents.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 2244284,
+      "sha256": "ac8b9eddf58abb44c001b581530adb16eeb00166a5e71560cc12d9191f6af8f3"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/search.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 333,
+      "sha256": "929845c3262f30ad612c604dbda9c6b5861cd4858078ba10d5d4f50810a72a4b"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/volume-2.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 269,
+      "sha256": "84d02340bbe19e1d8f9851ec92f397e6e22a510707b86cf060c3bdcc49b88568"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/bluetooth-off.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 345,
+      "sha256": "df8902109494fef14a8537402505fc05de98d7d769022b842b9b28b5cea4e08d"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/volume-3.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 352,
+      "sha256": "5fb3283a924b74bd928da076f3e18ea9e010303ff26bbe75e96ac6ef47598a26"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/volume-1.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 186,
+      "sha256": "aa0b3ef99d2205910c7b80079fda5081c5a4d38344ec37c5698b85f025759cd9"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/volume-0.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 228,
+      "sha256": "ede191f3ff65a8ad3ac817ef24dddbba71037a129cec1e530d06903368044d51"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/window-max.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 183,
+      "sha256": "d1db1b8e307a7c4de838b4b19bef962eeb684ff9fb53daf2d65b9b22781f5256"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/chevron-down.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 202,
+      "sha256": "bfd7e271abaa85afd7b3277d30d35f8a2273689ad9b50fe454fb4a2df514ddc0"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/shirt.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 285,
+      "sha256": "a766b0d11fc231b8f189e213c277f97945cfeea8f6d24c2eddf9d3456a2f5019"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/power.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 336,
+      "sha256": "17efa50079ea4bbeebdb28b01b7e04f808e05a6ca39c0e2e04cae7f94adb0b59"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/octopus.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 393,
+      "sha256": "1c810dcf865a5987ac1472a1fe36f6dbe35146af0ed9eacd9ac90562debc0b93"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/chevron-up.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 202,
+      "sha256": "de92b2526165f59e6c014f12f2a94fb7cf910ce77b0ba7266f05254e5b72fc3f"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/keyboard.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 440,
+      "sha256": "b9f17ef1fa98a32d643cb9855f6ce0997d3ba12d535ed7b540c4fff84649d98e"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/dot.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 98,
+      "sha256": "a1648c3741020d07db19446825a0a185070e6618760015518236556ad2afba91"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/lock.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 396,
+      "sha256": "8b869302085d46ee8629727dedfb787df4fed83aeb3870ce93ecadef8ff782fe"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/chevron-right.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 202,
+      "sha256": "4b66af40734af0e0552541051cc5d590038ebfd9fd885eb7e6dfc36332c8db65"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/key-backspace.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 231,
+      "sha256": "1355b9a436d8d777c4ca57c0f80b7a7ca48c5fadabe39fcdc407237c1f1e4885"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/bell.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 384,
+      "sha256": "07e0364bdffad3d6eba0e496dfa5ea983a88cc2c7e586c72ac689b88c61d1604"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/battery.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 385,
+      "sha256": "d71c1b4d187cca4975dd7736a19d343e01247d92ebcb36649413cc7f373e2c62"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/cpu.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 425,
+      "sha256": "fec47cd2a17120ce0a35c8bc9b8fb21e2711b6ce420429d226264c88fff2b9a7"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/record.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 226,
+      "sha256": "3dd939df22f596d9d90e80bae499930c7aba59a777e597f8b8493373642dec1b"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/check.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 208,
+      "sha256": "8a3c8290eb0e867b3c18b0736c28f6223c0e93b7a7832fc859f6f729449ff842"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/bluetooth.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 219,
+      "sha256": "c8bc1e0303a3f5fa050a415d35b0c1823a5d12dd9f60296e8571d01224253f15"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/wifi.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 119,
+      "sha256": "e554db6548a7baf13398441f5b08c70e4d7298b4ca6d54f4f8011877a48f5338"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/close.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 331,
+      "sha256": "005411d29797c3e4fdf8c01c7937a438e0bba88e1b275b59db710923cae0d392"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/mic.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 548,
+      "sha256": "ad5a2039b2ea32d568cfb7d597f78eaa869627b220d76268808f753296b59eb3"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/refresh.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 337,
+      "sha256": "d3c3108a81e5ae336cd45e157933eeae6ba4d3e7d05b20529832f3389d964f1f"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/play.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 232,
+      "sha256": "a7b6a813e4ebc30482e1e751510d92ca888201479a0a46b198aed8ce463678e1"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/window-min.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 167,
+      "sha256": "3e6b062ad5f987ee1cff4989f6feaf34e4593095c87da3fb87cf5cb44d08d48e"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/speaker.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 253,
+      "sha256": "32b68e96a6b5b10e486d80089d89b0b33f268cb13f148310558bc1ce16a122cf"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/wifi-off.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 241,
+      "sha256": "d2497ad9fb30f87acdb492f085052103fe7f709568aa2038a4a314943bc2321e"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/navigation-home.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 235,
+      "sha256": "c383900339e21f158b5060e7ca7dba64183cb1657c1a36c6bedfb34f9eb6185b"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/headphone.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 334,
+      "sha256": "93ae38ddea8d974a93ef729126ae4b690d70437b8b5ee8db06d47b2020e1d7d9"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/mic-off.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 527,
+      "sha256": "b4016ecfc128e81ef5bcb9d22c5844f88c55d9d581cdb573a1cceb0aaf8fbc4f"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/bell-off.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 345,
+      "sha256": "d52d874a854c855c4a980c232523b0fdb3bca4190ca353e5c7915093bc573539"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/calendar.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 675,
+      "sha256": "6f4b924bb1b99621641999b2a7d4913629503c975bcadf5e01e6915ea3d7ad60"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/globe.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 346,
+      "sha256": "1d73b35c564460d9f7b83149a9a9bd35ed70111fb2fa2289148acc49c0faa675"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/menu.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 182,
+      "sha256": "736b73e14080cec019e85a063f832c603c997fb75a61f2fb7ff142e4accea704"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/brightness.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1182,
+      "sha256": "3fb11f06bbdc86bc9602967689fcd07b18c84ba9522e4a373c4062b00f4afbe3"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/window-restore.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 303,
+      "sha256": "de04732fb6f655e260e221a4f7144e2b817015c31d7cda29100b4d94f2ce4fb3"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/key-shift.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 194,
+      "sha256": "93e0d8f92d18fba2d4afb8671bf0dee62597a009fd367718b8be8a33d15a08c7"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/pulse.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 235,
+      "sha256": "2e95cb9698d8d1b65d911f6a7f794da18814e26c65d781962d7674bf9550eb17"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/monitor.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 450,
+      "sha256": "b245a22b70de7314a01b8d0e635971dacae9ee51d8b18adc588b33d4dbe310de"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/photo.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 255,
+      "sha256": "69eb32374f81df3e53e59a89fb99521d22383f7e2f25fc56dc3755c811c1aa35"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/chevron-left.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 203,
+      "sha256": "c177e27990fb888df06c7e341f9c8f1f3aae66636cfddbd51bb06f473187d5f8"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/moon.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 137,
+      "sha256": "c6062445a7be40885503071434464eef8dfac63128442b7db5015460cd6c3459"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/apphub.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 2307,
+      "sha256": "85b1821020486c8598811a2bee7e9a282bc4c9938756c434d608fdcdc58dbe4b"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/macos/news.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1557,
+      "sha256": "6dcce46d380636999e7d9d8721ec98383701162a2380149bc5dd2b42dd72e044"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/macos/maps.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1340,
+      "sha256": "bd4c7edf4ae833bde30e547b1c5391d8ad2006e2f8ef1aa459d9231a3e64002f"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/ios/news.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1279,
+      "sha256": "7af7b985ecba4622f49a3ce428cbf27b72bb05c62591d00b5b0fd2ad49172fb9"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/ios/maps.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1062,
+      "sha256": "f9ad4ea9c656b1cfdfed36f2a86b73532db9e3ecb49fe5c18f945dabf0eacc2f"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/android/news.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1260,
+      "sha256": "9249e98a49d22d06e3c3f31a8bde0a09998a59d0cc21d9c194e90d633e603719"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/android/maps.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1043,
+      "sha256": "b92e88fd18026f0cbc04a46dded9d61b4609705740ade2fb7feb5cb90268f775"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/windows/news.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1277,
+      "sha256": "468eea6ca3538e4666d9fe798117942166eb828995b0e8dd7b83404961e3a478"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/windows/maps.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1060,
+      "sha256": "b746fa10176683b07bd69682b9c8f6fc1f6582336e5948838231e4a623e1de60"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/nextstep/news.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1435,
+      "sha256": "1c3340212fc42bba5d8b17b4db61c898cda99809766e2acaf0a419610fe20038"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/nextstep/maps.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1218,
+      "sha256": "c4a2297dee508293db6d1f703713cd180e8e12a6c15a785188c5d732b7d9ced4"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/omarchy/news.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 378,
+      "sha256": "f8af37ca54b51cf145b0e0c4f74a618cc68f3434e98ab5a2ceb448b32e75cdcd"
+    },
+    "Contents/Resources/octosense_shell/resources/icons/apps/omarchy/maps.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 405,
+      "sha256": "305e66684632f339edf48895b02f0e28be96778c9a903761a02d5ea8e1ae7d89"
+    },
+    "Contents/Resources/octosense_shell/resources/glance/news-digest.card": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1157,
+      "sha256": "2ddab9e655e65c2251b71b032e6c126956e5f2ae41b0e2f2481c663f3723715d"
+    },
+    "Contents/Resources/octosense_shell/resources/themes/mobile-presets.json": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 3630,
+      "sha256": "8f57abbba088f82113ab242151c3756910b3649050176c84e04bd0f65167aecb"
+    },
+    "Contents/Resources/octosense_shell/resources/themes/octosense/widgets.splash": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 330,
+      "sha256": "ebaad2a4eb58d155282cb8d5ef1ec77f3745b9cc2e2ef656c3090c7206921573"
+    },
+    "Contents/Resources/octosense_shell/resources/themes/octosense/theme.splash": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 6126,
+      "sha256": "b7517d4e77a8812bfc986f45ed076699022adcc50c82e1456b5555c33491d54f"
+    },
+    "Contents/Resources/octosense_shell/resources/themes/octosense/widgets-light.splash": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 330,
+      "sha256": "b375f9f54a697165600586a849e7753ee848cb4d37baf41897f7c9e249586595"
+    },
+    "Contents/Resources/octosense_shell/resources/themes/octosense/README.md": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1401,
+      "sha256": "97816d53185b5cd31121d10630b3bda80bf20c30712501f07b8911fcd2c4b32c"
+    },
+    "Contents/Resources/octosense_shell/resources/themes/octosense/theme-light.splash": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 6199,
+      "sha256": "b60da53d69802dc0b3ab0ba9c30d7c306591b8bf9df850096b8b562ed80dd38e"
+    },
+    "Contents/Resources/makepad_widgets/resources/IBMPlexSans-Text.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 181792,
+      "sha256": "8c358c56c56f76a28cecb8ca10734c1c9cafa01a752dc8364b9ef7de412437dc"
+    },
+    "Contents/Resources/makepad_widgets/resources/fa-solid-900.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 426112,
+      "sha256": "d2f0593540b0e33ba6de255a54f272d466e31144806956bea8cfdbf7edffc9bd"
+    },
+    "Contents/Resources/makepad_widgets/resources/Roboto-Medium.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 306536,
+      "sha256": "7984aafeaf437899ce89b251d2875fc5048cb7d290152eac070239cca7ff726c"
+    },
+    "Contents/Resources/makepad_widgets/resources/NotoSans-Regular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 201644,
+      "sha256": "371924e7480d3d01807fdc1bd30442d0a6651e6b5ea546482f5883d613cf0419"
+    },
+    "Contents/Resources/makepad_widgets/resources/Roboto-Light.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 307192,
+      "sha256": "e5c6b2b3cad15fd7dd820970eb859635d75bb2155b1a70f78a0668f8ba6d6eef"
+    },
+    "Contents/Resources/makepad_widgets/resources/Inter-OFL.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 4376,
+      "sha256": "5dd548d31a85f756e01d63e00d7faf1e324103ed3e9102fcbbabf2cc2db6dd39"
+    },
+    "Contents/Resources/makepad_widgets/resources/LXGWWenKaiBold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 18546748,
+      "sha256": "7a356605eb36c92e29cc64090e2856e4675694572a2ae4da84adbadffecae907"
+    },
+    "Contents/Resources/makepad_widgets/resources/Montserrat-Medium.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 374312,
+      "sha256": "ad8d7b340fafe02a9c9bd31ccf1357b3f846dc70574665dde4cec9affad4f212"
+    },
+    "Contents/Resources/makepad_widgets/resources/NewCMMath-Regular.otf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1151568,
+      "sha256": "ad746f5307fed53d8e5d7d201f5054abe73f1f47c51040767d898e3481c6e648"
+    },
+    "Contents/Resources/makepad_widgets/resources/Roboto-Regular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 305608,
+      "sha256": "797e35f7f5d6020a5c6ea13b42ecd668bcfb3bbc4baa0e74773527e5b6cb3174"
+    },
+    "Contents/Resources/makepad_widgets/resources/LXGWWenKaiRegular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 19073964,
+      "sha256": "0819604ad9357afbc6e7cc097328a16ed85143ee0848ffda09fda35a30da6506"
+    },
+    "Contents/Resources/makepad_widgets/resources/LiberationMono-Regular.ttf": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 108168,
+      "sha256": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
+    },
+    "Contents/Resources/makepad_widgets/resources/Serif-Regular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 53580,
+      "sha256": "d0332f52868370fd83ae7fa46470f90c8f2eab2fcf12bc4f88080b340c95a830"
+    },
+    "Contents/Resources/makepad_widgets/resources/Serif-LICENSE.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 310,
+      "sha256": "71be8736b55add147c16e1ba0b0beefec6b38cc33b0227e1ecca65227496b90f"
+    },
+    "Contents/Resources/makepad_widgets/resources/NotoColorEmoji.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 10643852,
+      "sha256": "39ee3c587e10e89669b9ff32703261d10d5f9c4dd5ad147b6b5a1c5200591817"
+    },
+    "Contents/Resources/makepad_widgets/resources/IBMPlexSans-SemiBold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 182176,
+      "sha256": "391bd290357cb19bacccd66dc82f3213e0c66c34025a4dd3e15c49d3db7c585e"
+    },
+    "Contents/Resources/makepad_widgets/resources/Montserrat-SemiBold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 374624,
+      "sha256": "767eb6e017ec460b094b70bfa26aef77b86aacc9924e10ed56a61ceebc151e25"
+    },
+    "Contents/Resources/makepad_widgets/resources/Inter.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 876576,
+      "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031"
+    },
+    "Contents/Resources/makepad_widgets/resources/jetbrains_mono_variable.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 303144,
+      "sha256": "662a196d58f1183bf2d77428b6d5283fe3f45161ab021bea4036bc98e5cac016"
+    },
+    "Contents/Resources/makepad_widgets/resources/RobotoFlex-OFL.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 4394,
+      "sha256": "d6f40215beec57d46b0c7faa13b711f05dca9397727ac0627ced941232aad521"
+    },
+    "Contents/Resources/makepad_widgets/resources/Montserrat-Regular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 374500,
+      "sha256": "6f2b476cdf98cbbb0eefef60b69d1944c7ed59fa8a2fe461ba6d73e176294c93"
+    },
+    "Contents/Resources/makepad_widgets/resources/IBMPlexSans-BoldItalic.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 184656,
+      "sha256": "451f1e35cf09ef4411c9f38e7eb7d4967aef427c52e048dff26cc36393937882"
+    },
+    "Contents/Resources/makepad_widgets/resources/Roboto-Bold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 306940,
+      "sha256": "36f3709dea3e3ce3c6aedc058079e55980825f898f1e901d091c73c40de8bab1"
+    },
+    "Contents/Resources/makepad_widgets/resources/Roboto-Thin.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 307664,
+      "sha256": "52cab88c2fe93c21152b483763745976861be2e3cc093554155f8a3b24de5b97"
+    },
+    "Contents/Resources/makepad_widgets/resources/Serif-Bold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 51336,
+      "sha256": "138ac28d1663b3037e9c5f52371fa5c63d8324f4a38d22cd573e6ea3a3fd0cf8"
+    },
+    "Contents/Resources/makepad_widgets/resources/IBMPlexSans-Italic.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 184020,
+      "sha256": "21effb0b8dabbbd6548db1c581c68c6335f6ffaabd6946a6a73ade24dec050eb"
+    },
+    "Contents/Resources/makepad_widgets/resources/RobotoFlex.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1787292,
+      "sha256": "9b523f7d82593df0107173849ebb8c817471a1df4b4fb2c3cbf40cfd810c8281"
+    },
+    "Contents/Resources/makepad_widgets/resources/Serif-Italic.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 33580,
+      "sha256": "0d85ae7cc30f23790a7f1a58c4a112fdca8aae769b6ba11429af1d98b1b6cb3a"
+    },
+    "Contents/Resources/makepad_widgets/resources/textures/noise-fine.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 183687,
+      "sha256": "339dee70fa5e44bf37684193aa629d6581c77c35d88558fbbceb26dafacd1f42"
+    },
+    "Contents/Resources/makepad_widgets/resources/textures/paper-laid.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 177479,
+      "sha256": "a4abf2d1ae69c83c3e6e0cb7e3516a51e95e564c9ca73e0ed520ca80fe48a275"
+    },
+    "Contents/Resources/makepad_widgets/resources/textures/concrete.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 162761,
+      "sha256": "279206c414acb867c9dad3a31115eff96b22f258830957805d8b9b1d724ceddd"
+    },
+    "Contents/Resources/makepad_widgets/resources/textures/halftone.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 128690,
+      "sha256": "8fb7b5dbc3c9406c1e6d434e91533c07d0d82898a9d45b5d2f5be85c6784a4ea"
+    },
+    "Contents/Resources/makepad_widgets/resources/textures/linen.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 184109,
+      "sha256": "355dd1ae8d24be5a8aa7363bbd75e27cd90bd3326b6aabff2766c2041ad7c498"
+    },
+    "Contents/Resources/makepad_widgets/resources/textures/deco-fan.png": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 143623,
+      "sha256": "8c5481b1934f2072e21975ebf8bc928b36d327b7f0362b2ca007de86a11ddbed"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Medium.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 260236,
+      "sha256": "92b3d3c6e135eb1dc95f88e6ca75bd6113d9eb3261a95ca39f733e3897e53675"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Light.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 259416,
+      "sha256": "9b87925d061b1affb66417717731ad781f7d7678fb089b49f14bd922c2338559"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Bold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 261588,
+      "sha256": "c4c8cb572a5a2c43d78b3701f4b2349684e6ca4d1557e469af6065b1e099c26c"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-SemiBold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 260936,
+      "sha256": "bab583d38d105dac9141b287fb2b7763b6d8b0bae97e745faaccedb40a579c29"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/atro/OFL.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 4400,
+      "sha256": "8b7141c03fa4f8d44e6345d5d4931709290f0f67875e452e95ac1fd3a027802e"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 744936,
+      "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Regular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 263192,
+      "sha256": "81ebc3916b524007b756d91d9df13c7673ec401161f2cad161662d08dcf1cc72"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/inter-OFL.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 4377,
+      "sha256": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-Medium.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 158576,
+      "sha256": "90373e7d838d32468438fc3e152dca0bdb12edcab99ea639f158790b1ba1fd05"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/PlusJakartaSans.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 176288,
+      "sha256": "89b3fb38aa0d275d7a731d0d817a4f1622b316b4d7fbdedcf02ee9099ff68bc8"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/plusjakartasans-OFL.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 4402,
+      "sha256": "995c7199cab65954f545996326755daee7b63cc6b42b06c13da1f9502ab08a99"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Inter.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 876576,
+      "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-Regular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 160316,
+      "sha256": "7e65201e9b79159e2300267cc885e16c8dcef2424cdfa09a29bfb0980a94a7ba"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/poppins-OFL.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 4385,
+      "sha256": "6be04893d770899a015649c7aa3b582f871b272f8747a92b78b17c3e5c8b2573"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-SemiBold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 157312,
+      "sha256": "d3bf1bdaf0550e83da9ac0b1d1d9fe6db086835a83aa28578e609a394b9a0286"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Regular.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 71912,
+      "sha256": "11886d1bb0fcea64c7e1278b019236137ef98578f6fe9f692038e1faa1e3bcac"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Medium.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 71676,
+      "sha256": "2f436049344215f77f1ee8d7eb1118b48a38b0d293c2f51b0d305c86ce046836"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Bold.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 71764,
+      "sha256": "35879eb94bef73bd2fab40f0c3391c26d53844b67e7fd4a7c7ba9ef86fb96968"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-BoldItalic.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 73300,
+      "sha256": "7de9f706cb0471e8f71ec5c03a96583c7bdd2508a4ef54b2b535dee074a7638c"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-MediumItalic.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 73192,
+      "sha256": "2dc42164be51d5a2c098f22b10d284f5f4fb6c0166b0e146f38bb7d046efd617"
+    },
+    "Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Italic.ttf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 73484,
+      "sha256": "362df4a4a18c0fcc1559056424e7b4b5c4ed75c516c60db679116e8c1d30cdeb"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/sploded.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 249,
+      "sha256": "4a16d4017caf3d1f6b290f8c389768419fe3feafa64551abd9542dfce13726c6"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_typography.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1717,
+      "sha256": "6c3e56a42538d6d0e21e1298a27275a7f1441310877efaac2bdfbab46408c09d"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_text_align_left.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1242,
+      "sha256": "d624019d42eff133560f6951c75b9f1c1402c9489699c08494232a9126ecba3a"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_text.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1704,
+      "sha256": "40afe2d6a05fca94f131b07937ee68b28c3d1c7a7e8e21b3302c1c925d5a6c82"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_text_align_right.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1241,
+      "sha256": "155c55c216aa1c284c4974772a972793efd112a2f1cadf112c35bcb1205c9659"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_image.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1381,
+      "sha256": "c72a2174638ad01484a417cbca3c553750c4248e5ea70879ad6dcc4f1c73104d"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_text_align_justify.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1245,
+      "sha256": "b9b36f101a672da9be6361fa1dd4aa84eb0cf5aeb790cbe166645116e6a5014c"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_vector.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1760,
+      "sha256": "a04bd179f828767e3491305c89da2afc1e8e3cda7201e348ce9078387c82b5f9"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/back.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 306,
+      "sha256": "a5afa4a6316b4fe7cf704a825850f9b44b7ca2be94927082b6ade11959cf6135"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_layout.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1579,
+      "sha256": "0b5ac88625a3f3d69e53911b52a2abf9468203fd1c986ca536861afcf9735950"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_folder.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 865,
+      "sha256": "6f04b6990decd30cada6fdb5bdf8cefc4b64cbaa5c88eafe9b5f6eb810c25355"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/close_left_panel.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1848,
+      "sha256": "b5424c732e61392f5b388c2b0f95248632d182433a13b8aa9c02e4473ae33ed7"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_draw.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 791,
+      "sha256": "72f7ab46845b0abfb5a01208edd330578814f16f11fb81ff9a5fb24d6ef1c0fe"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_select.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 851,
+      "sha256": "374b732f376a1cbd3637e7b7b895a576708003787ee4c34a6b6e78855a1d5156"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/open_left_panel.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1892,
+      "sha256": "6709f838e74e285d7831ea16bf8d482e3ed8c677eea6d8ec7530506dbeba972a"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_file.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 792,
+      "sha256": "0df20ec2a62be5e1b6ecddd7f1a7c67f4052523297c671b8fb4ed91234efb19e"
+    },
+    "Contents/Resources/makepad_widgets/resources/icons/icon_widget.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1238,
+      "sha256": "33e7a59d1485ec173618808791a259c02029c12ee700bc869a17a7b6278778bd"
+    },
+    "Contents/Resources/licenses/app-hub/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "Contents/Resources/licenses/octoscript-makepad/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "Contents/Resources/licenses/octosense/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "Contents/Resources/licenses/makepad/LICENSE-APACHE": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "Contents/Resources/licenses/makepad/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1069,
+      "sha256": "3855d73a873244ec424ac5781d5d8fc8e2a789ff9d2f1cb804bec585a64ea88f"
+    },
+    "Contents/Resources/licenses/octoscript/LICENSE-APACHE": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "Contents/Resources/licenses/octoscript/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1069,
+      "sha256": "3855d73a873244ec424ac5781d5d8fc8e2a789ff9d2f1cb804bec585a64ea88f"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/SOURCES.md": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 941,
+      "sha256": "e42ad639e1a77c73cae9c0b0445911e2f9043bdc6c8b8ecf9d7f04ff1338292c"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/coast.jpg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 118342,
+      "sha256": "903c2be7d744f1e38f5bcd039c225227781225598fa81a3146f92a9b8c9de5db"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/mountain.jpg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 173016,
+      "sha256": "e18af06d2902a82ab14d8b2718e4dcc831e2c60e56c877f5fa6cb81c7afd893d"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/icons/search.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 333,
+      "sha256": "929845c3262f30ad612c604dbda9c6b5861cd4858078ba10d5d4f50810a72a4b"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/icons/library.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 197,
+      "sha256": "0aff448cf36eb72288908359e4e3c0f3192614b556845ef8035538bfb730a76a"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/icons/apps.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 286,
+      "sha256": "33a99fdbe40c288b47bc3b5963681f3ca88f652d15297e153ac63e9565b017da"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/icons/today.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 455,
+      "sha256": "eb40ba8cd8116c9789a9af470dd4ef40bca86796bf2a61f2ebfb3499cb3ad121"
+    },
+    "Contents/Resources/octosense_app_hub_app/resources/icons/refresh.svg": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 337,
+      "sha256": "d3c3108a81e5ae336cd45e157933eeae6ba4d3e7d05b20529832f3389d964f1f"
+    }
+  },
+  "geometry_fixture": {
+    "before": "6 PASS / 2 real overlap assertion FAIL",
+    "after": "8 PASS / 0 FAIL",
+    "scope": "isolated actual SDK geometry linked with real Makepad types; full Shell Cargo suite blocked by existing launcher test namespace bug"
+  },
+  "old_Host_preserved_sha256": "3de610b8acceeefd722b58a8cc30dbf658ef2280b00c2e834fa2e6c2f0d23925",
+  "application_version_label_only": "0.3.26-rc25",
+  "baseline_SDK_lock_sha256": "64ca58c7b1bb6b622657c223910964f8b4c2000577429a253b7cc73cb80598a0",
+  "proposed_SDK_lock_sha256": "78a5eef0b1af8eb82cd28e464d5681e6e3b0685e63719207d1a77e4ffdd706d6",
+  "effective_octosense_tree_sha256": "0f832030637de18258e191effa2e8b1d000df5a6e90a7223d82c3fde52a88e6e",
+  "final_product_lock_and_overlay_integration": "PENDING_ROOT_APPLY_PROPOSED_LOCK_AND_SOURCE",
+  "GUI_maximize_restore_Dock_composer_retest": "NOT_EXECUTED_BY_PACKAGER; Root owns same-profile live switch",
+  "ports8493_8484_profile_TCC_or_Secrets_accessed": false,
+  "model_mail_calendar_HostService_source_changes": false,
+  "cold_build": false,
+  "shared_Git_or_product_main_changed": false,
+  "desktop_rc24_ZIP_changed": false,
+  "proposed_SDK_exact_tree_verification": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/proposed-sdk-tree-verification.json",
+  "proposed_SDK_files_match": 12000
+}

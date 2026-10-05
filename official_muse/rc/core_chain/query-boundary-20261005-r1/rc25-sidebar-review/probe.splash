@@ -1,0 +1,64 @@
+// Production delete preview and chat selection; no confirmed deletion or visual proof.
+let sr_checks={}
+let sr_calls=[]
+let sr_ids=[]
+let sr_step=0
+let sr_memory=""
+let sr_source=""
+let sr_goals=""
+fn chain_fixture_request(service,args,cb){sr_calls.push(service) cb({is_ok:false error:"Sidebar fixture forbids every Host service"})}
+fn sr_seed(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot() calendar_boot()
+    chat_sessions=[]
+    let now=time_now()
+    for n in 16 {
+        let id="synthetic-sidebar-"+n
+        sr_ids.push(id)
+        let project="synthetic-project-"+n let owner="synthetic-owner-"+n
+        chat_sessions.push({id:id title:"SYNTHETIC-"+n+"-中文长标题用于测试 ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            created_at:now updated_at:now messages:[{role:"user" text:"仅属于合成对话"+n state:"success" at:now project:project owner:owner}]
+            proposals:[] focus_project:project focus_owner:owner goal_id:""})
+    }
+    chat_selected_id=sr_ids[0] messages=chat_sessions[0].messages
+    gm_set_focus(chat_sessions[0].focus_project,chat_sessions[0].focus_owner)
+    sr_checks.persisted_16=chat_save() && chat_sessions.len()==16 && chat_state_valid(fs.read("chat-sessions.json").parse_json())
+    sr_checks.memory_seed=gm_save("侧栏预览取消不能删除合成全局记忆。","fact","sidebar","retained",chat_selected_id,gm_project,gm_owner,"local")
+    sr_memory=fs.read("memory.json") sr_source=memory_sources.to_json() sr_goals=goals.to_json()
+    start_timeout(0.03,|| sr_case())
+}
+fn sr_case(){
+    let targets=[15,7,0]
+    let target=targets[sr_step]
+    let selected=chat_selected_id
+    let original=messages.to_json()
+    let before=fs.read("chat-sessions.json")
+    let backup=fs.read("chat-sessions.backup.json")
+    chat_request_delete(sr_ids[target])
+    sr_checks["preview_target_"+sr_step]=chat_delete_pending==sr_ids[target] && chat_session_index(chat_delete_pending)==target
+    sr_checks["preview_keeps_selection_"+sr_step]=chat_selected_id==selected && messages.to_json()==original
+    sr_checks["preview_no_persisted_change_"+sr_step]=fs.read("chat-sessions.json")==before && fs.read("chat-sessions.backup.json")==backup
+    // Exact existing cancel on_click body, not a native UI click.
+    chat_delete_pending="" redraw()
+    sr_checks["cancel_keeps_all_"+sr_step]=chat_delete_pending=="" && chat_sessions.len()==16 && fs.read("chat-sessions.json")==before
+        && fs.read("chat-sessions.backup.json")==backup && messages.to_json()==original
+    sr_checks["select_"+sr_step]=chat_select_session(sr_ids[target]) && chat_selected_id==sr_ids[target]
+        && messages.len()==1 && messages[0].text=="仅属于合成对话"+target
+        && gm_project=="synthetic-project-"+target && gm_owner=="synthetic-owner-"+target
+    sr_checks["globals_preserved_"+sr_step]=fs.read("memory.json")==sr_memory && memory_sources.to_json()==sr_source && goals.to_json()==sr_goals
+    sr_step=sr_step+1
+    if sr_step<3 {start_timeout(0.03,|| sr_case()) return}
+    let before_invalid=fs.read("chat-sessions.json")
+    chat_request_delete("synthetic-not-present")
+    sr_checks.invalid_preview_rejected=chat_delete_pending=="" && ui_error!="" && fs.read("chat-sessions.json")==before_invalid
+    let preserved=true
+    for n in 16 {if chat_sessions[n].id!=sr_ids[n] || chat_sessions[n].title!="SYNTHETIC-"+n+"-中文长标题用于测试 ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        || chat_sessions[n].messages.len()!=1 || chat_sessions[n].messages[0].text!="仅属于合成对话"+n {preserved=false}}
+    sr_checks.all_16_titles_and_messages_retained=preserved
+    let saved=fs.read("chat-sessions.json").parse_json()
+    sr_checks.independent_readback=saved.sessions.len()==16 && saved.selected_id==chat_selected_id && chat_state_valid(saved)
+    sr_checks.no_host_call_or_action=sr_calls.len()==0 && actions.len()==0 && runs.len()==0
+    sr_checks.no_confirm_pending=chat_delete_pending==""
+    fs.write("probe.json",sr_checks.to_json())
+}
+start_timeout(0.1,|| sr_seed())

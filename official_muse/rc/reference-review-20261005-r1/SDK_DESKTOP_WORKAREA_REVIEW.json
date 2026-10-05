@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "status": "READ_ONLY_LAYOUT_REVIEW_COMPLETE_NO_IMPLEMENTATION_OR_TEST_RUN",
+  "reviewed_at_utc": "2026-10-05T09:56:10.686539+00:00",
+  "sdk_root": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense",
+  "evidence": [
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/crates/shell/src/desktop.rs",
+      "sha256": "342cb9b6057440e06f175834ccd7b5a271ca3f6ac6dfee96b08dcced10a05e81"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/crates/shell/src/desk.rs",
+      "sha256": "bd3b277a32bee2b4e894b3f3e05b563db3bb871e1b9b7d623546bc612da478fd"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/crates/shell/src/lib.rs",
+      "sha256": "db9c184fd46e3032d0cdd64e9696111e50b98fb71d5cb8ff5c33a55697c428e4"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/crates/shell/src/desktop_layout.rs",
+      "sha256": "6ee0020526980da6ff63510e2aa0ce1d8ee31a74869b682ce38f8afe8cd5cc7c"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/crates/shell/src/snap.rs",
+      "sha256": "c08deda3bb7cc00bd6d1717b0ad9671b9cf4539c71342ba451a105db3ff2ea15"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/crates/shell/Cargo.toml",
+      "sha256": "5eb601a4d5cb4eb653c79ac4b2a7a32f94e73953bb927896aa8530c19b126d3b"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/Cargo.toml",
+      "sha256": "1bc1a38c60bd6e9bbb25a57ece30ed41701de1bd6bff7b20f746dc7f428bf9b4"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/makepad/widgets/src/scroll_bars.rs",
+      "sha256": "35a630fcd3edf5014e869284bb5d835bd6682f707bc436c0f1f079badf3a62be",
+      "role": "Read-only transitive widget dependency for sidebar overlap mechanism"
+    },
+    {
+      "path": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/makepad/widgets/src/scroll_bar.rs",
+      "sha256": "b18ac777461d7e644263b5eb5eee423f1ed8c7079726c2b465e689a968450f6b",
+      "role": "Read-only transitive widget dependency for sidebar overlap mechanism"
+    }
+  ],
+  "finding": {
+    "title": "OctoSense floating Dock is excluded from neither maximal work area nor snapping work area",
+    "certainty": "Source geometry verified; screenshot/live active style not independently inspected.",
+    "source_points": [
+      {
+        "file": "crates/shell/src/desktop.rs",
+        "line": 179,
+        "fact": "DesktopStyle::OctoSense has reserved_height0.0; comments165–166 explicitly describe overlay policy."
+      },
+      {
+        "file": "crates/shell/src/desktop.rs",
+        "line": 927,
+        "fact": "Macos/OctoSense shelf top is screen.height-88; shelf height78 at942, leaving10 bottom margin."
+      },
+      {
+        "file": "crates/shell/src/desk.rs",
+        "line": 1689,
+        "fact": "desk_rect records full rectangle before subtraction."
+      },
+      {
+        "file": "crates/shell/src/desk.rs",
+        "line": 1729,
+        "fact": "Draw layout subtracts StyleTween::reserved_height then gaps_out; passes area to layout.rects."
+      },
+      {
+        "file": "crates/shell/src/lib.rs",
+        "line": 619,
+        "fact": "App::desk_area independently subtracts same reserved height from original desk_rect for interaction geometry."
+      },
+      {
+        "file": "crates/shell/src/desktop_layout.rs",
+        "line": 55,
+        "fact": "Maximized window rect is exactly supplied area; snapped bounds also use area."
+      }
+    ],
+    "geometry": "For matching desk/shelf screen coordinates, maximized outer bottom=H-reserved_height-gaps_out, Dock top=H-88. With reserved0 and gaps_out<88, those rectangles overlap vertically. Reserving88 gives bottom=H-88-gaps_out, preserving an existing gap above Dock.",
+    "distinction": "This is the OctoSense internal shelf, not a verified diagnosis of the macOS system Dock. Active screenshot style must be confirmed by Root; Macos style also has reserved0 but is not automatically in the requested change scope."
+  },
+  "minimal_recommendation": {
+    "primary_file": "crates/shell/src/desktop.rs",
+    "primary_line": 179,
+    "change_proposed": "For the affected DesktopStyle::OctoSense row, reserve88.0 logical pixels, equal to current shelf height78 plus bottom offset10. Update comments and the existing reserved array expectation at301 accordingly.",
+    "why_minimal": "Both render and interaction/snap paths already read StyleTween::reserved_height, so changing the central style value keeps them consistent without duplicate arithmetic or Muse-specific host branches.",
+    "keep_unchanged": [
+      "Dock shelf geometry/rendering",
+      "Window/client input protocol",
+      "Muse composer height or arbitrary bottom spacer",
+      "Permission/confirmation/model paths",
+      "DesktopWindows::fit free-window reachability semantics"
+    ],
+    "scope_impact": "This intentionally changes OctoSense work-area policy for every app in that style, affecting maximize/snap and initial/clamped free-window sizing. Freely positioned windows may still extend behind Dock because fit preserves only a reachable title bar. It is not a promise of full containment for all floating windows.",
+    "if_policy_must_remain_overlay": "If overlay for ordinary windows must be preserved, a maximize/snap-only workarea design is possible but is a larger change requiring the same geometry in both desk draw and desk_area consumers; do not patch only one caller.",
+    "not_a_magic_constant": "88 derives from this frozen shelf implementation; if Dock geometry later changes, keep reservation and geometry coupled. Do not double-subtract reserved height in downstream layout."
+  },
+  "sidebar_observation": {
+    "scope": "Only transitive widget geometry inspected, not current Muse sidebar code or screenshot.",
+    "mechanism": "ScrollBars::begin begins content with layout.with_scroll; draw_scroll_bars later uses the same turtle rect. ScrollBar vertical track draws inside the far-right bar_size strip; default bar_size10.0. A content row's rightmost action can overlap that strip unless it leaves a gutter.",
+    "sources": [
+      {
+        "file": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/makepad/widgets/src/scroll_bars.rs",
+        "line": 335
+      },
+      {
+        "file": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/makepad/widgets/src/scroll_bars.rs",
+        "line": 367
+      },
+      {
+        "file": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/makepad/widgets/src/scroll_bar.rs",
+        "line": 25
+      },
+      {
+        "file": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/makepad/widgets/src/scroll_bar.rs",
+        "line": 1279
+      }
+    ],
+    "minimal_direction": "In Muse's history row/content container, reserve right-side gutter for the actual scrollbar width plus small spacing, keeping delete target before it. Prefer this local layout correction to changing global scrollbar width/behavior. Do not infer the live themed width is exactly10 without checking it.",
+    "test_scope": "Root can reuse current UI verification with a genuinely overflowing history list, narrow/wide sidebar, delete click versus scrollbar drag. This reviewer ran none and does not assert overlap fixed."
+  },
+  "existing_test_entries": [
+    {
+      "file": "crates/shell/src/desktop.rs",
+      "test": "desktop::tests::specs_reproduce_the_literal_arrays_for_every_style",
+      "line": 297,
+      "purpose": "Existing style table/reserved-height/tween assertions; OctoSense reserved expected value needs deliberate update if policy changes."
+    },
+    {
+      "file": "crates/shell/src/desktop.rs",
+      "test": "desktop::tests::shelf_geometry_reads_the_table",
+      "line": 435,
+      "purpose": "Existing shelf placement remains unchanged; Dock must stay at H-88 with height78."
+    },
+    {
+      "file": "crates/shell/src/desktop_layout.rs",
+      "test": "desktop_layout::tests::maximize_and_minimize_keep_restore_rect_and_stack",
+      "line": 77,
+      "purpose": "Maximize uses supplied work area and preserves restore rect; extend assertion with Dock-safe area."
+    },
+    {
+      "file": "crates/shell/src/desktop_layout.rs",
+      "test": "desktop_layout::tests::snapping_keeps_restore_size_and_tracks_a_resized_workarea",
+      "line": 104,
+      "purpose": "Snap follows resized work area without destroying restore geometry."
+    },
+    {
+      "file": "crates/shell/src/desktop_layout.rs",
+      "test": "desktop_layout::tests::shrinking_the_workarea_keeps_windows_reachable",
+      "line": 94,
+      "purpose": "Existing free-window reachability remains intentional; do not silently replace it with full containment."
+    },
+    {
+      "file": "crates/shell/src/snap.rs",
+      "test": "snap::tests::edges_and_corners_use_the_workarea",
+      "line": 284,
+      "purpose": "Hit/snap calculation uses same reduced area."
+    }
+  ],
+  "proposed_commands_not_executed": [
+    "cargo test -p octosense-shell --lib desktop::tests::",
+    "cargo test -p octosense-shell --lib desktop_layout::tests::",
+    "cargo test -p octosense-shell --lib snap::tests::"
+  ],
+  "command_basis": "Package octosense-shell verified in crates/shell/Cargo.toml and root workspace membership; commands shown for SDK root. Build environment/dependencies were not tested.",
+  "recommended_narrow_addition": "At existing desktop style/layout test seam, assert maximized and bottom-snap outer bottom <= Dock top with selected OctoSense style, both settled and during relevant style transition; keep restore rect. Existing tests mostly verify supplied area or old constants, not the cross-layer non-overlap invariant.",
+  "limits": [
+    "No SDK/app/Host edits, no builds/tests, no model/semantic rerun, no GUI/screenshots or running-port interaction (8493/8484 untouched).",
+    "No user data, account/profile, or secret reads. Only this independent owned report pair written.",
+    "Root remains the sole implementation owner; source analysis supports the proposed geometry correction but does not constitute visual acceptance."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "scope": "only OctoSense StyleSpec reserved_height 0 -> 88, explanatory comments and required geometry tests in desktop.rs",
+  "baseline_desktop_sha256": "342cb9b6057440e06f175834ccd7b5a271ca3f6ac6dfee96b08dcced10a05e81",
+  "patched_desktop_sha256": "0be5f526e2c9a4a7a098d2deff825b83a2644163822c71622ab31d7972e5450f",
+  "source": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/desktop.rs",
+  "patch": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/desktop.rs.patch",
+  "patch_sha256": "ec724ecd4d0e4ef8609407aba9b2ff51421473adac81c0140615ae891be0ac9e",
+  "patch_reverse_check": "PASS",
+  "changed_vendor_files": [
+    "crates/shell/src/desktop.rs"
+  ],
+  "unchanged_vendor_files": 2308,
+  "Macos_and_other_six_style_rows_byte_identical": true,
+  "HostService_model_mail_calendar_and_other_sources_byte_identical": true,
+  "baseline_SDK_lock_sha256": "64ca58c7b1bb6b622657c223910964f8b4c2000577429a253b7cc73cb80598a0",
+  "effective_octosense_tree_sha256": "0f832030637de18258e191effa2e8b1d000df5a6e90a7223d82c3fde52a88e6e",
+  "effective_octosense_files": 2309,
+  "proposed_SDK_lock": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/desktop-workarea-20261005-r1/proposed-dependencies.lock.json",
+  "proposed_SDK_lock_sha256": "78a5eef0b1af8eb82cd28e464d5681e6e3b0685e63719207d1a77e4ffdd706d6",
+  "proposed_lock_not_applied_to_product_or_cache": true,
+  "Root_integration": "copy this desktop.rs to sdk-overlays/octosense/crates/shell/src/desktop.rs and use the proposed lock only after matching the unchanged baseline; Root owns final product pin/commit",
+  "source_control": "independent exact patch; shared Git not modified",
+  "geometry_original": "6 PASS, 2 actual overlap assertion FAIL",
+  "geometry_fixed": "8 PASS; actual source extracted into isolated harness linked with real Makepad types",
+  "full_shell_tests": "BLOCKED: existing shell/launcher.rs test references super::menu at lines165/166; preserved; source not altered",
+  "GUI_live_profile_TCC_model_or_external_actions_by_packager": false,
+  "desktop_rc24_ZIP_untouched": true
+}

@@ -1,0 +1,89 @@
+{
+  "review": "RC25 connection probe versus semantic completion and fallback",
+  "scope": "STATIC_CODE_REVIEW_ONLY",
+  "source_root": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/OctoSense/apps/ai-providers/host-service",
+  "source_sha256": {
+    "src/probe.rs": "1ecf41ee40d80209306de4dfb5be643420612520a7c4602e4c4a9df5394aa0c7",
+    "src/lib.rs": "2ae3c89d0146ec9b87c569d70fa951c5ba2330065c9de240e44b2d7c2dd37fb7",
+    "src/complete/mod.rs": "1ccf4531f3ed293cb891685d31cf3e27e64094c75ab311a12cb76fa5d289728f",
+    "src/complete/wire.rs": "d47db1ed0d66ae74633a7702eb5cb60997eca95c489ffe4de822f0b84573106a",
+    "tests/complete.rs": "2ab83b78f19e5ae1a21a927e58efe729e946742bdfbcbe2480d57ed24227bbad"
+  },
+  "root_reported_observation": {
+    "independently_reproduced": false,
+    "direct_llm_test": "GPT-4o connected 845ms",
+    "ordinary_chat": "success, attempts=2, estimated=true",
+    "primary_after_test": "restored M3"
+  },
+  "conclusion": "HTTP probe success does not establish semantic backend identity. Metadata is compatible with fallback or same-candidate format repair; T17 remains unverified.",
+  "boundaries": [
+    {
+      "id": "B1",
+      "fact": "llm.test selects the specified provider directly; probe accepts any 2xx without parsing answer text or usage.",
+      "refs": [
+        "src/lib.rs:1167-1175",
+        "src/probe.rs:143-168",
+        "src/probe.rs:184-187"
+      ]
+    },
+    {
+      "id": "B2",
+      "fact": "model.complete sorts candidates by requested catalog class before preserving profile order within each rank. UI primary alone does not establish first attempted candidate.",
+      "refs": [
+        "src/complete/mod.rs:433-443",
+        "src/complete/mod.rs:752-762"
+      ]
+    },
+    {
+      "id": "B3",
+      "fact": "HTTP envelope parse/no-text failures are send errors, allowing fallback before any format repair except timeout. Content JSON/schema failures are accept errors with at most one same-candidate repair when usage is fully known.",
+      "refs": [
+        "src/complete/wire.rs:114-160",
+        "src/complete/mod.rs:669-708",
+        "src/complete/mod.rs:721-741"
+      ]
+    },
+    {
+      "id": "B4",
+      "fact": "attempts=2 and estimated=true can arise either from posted failure then fallback success, or known-usage invalid content then a valid repair response with missing usage. No provider identity is returned.",
+      "refs": [
+        "src/complete/mod.rs:358-402",
+        "src/complete/mod.rs:638-741"
+      ]
+    }
+  ],
+  "next_verification": [
+    {
+      "step": 1,
+      "type": "READ_ONLY_EXISTING_EVIDENCE",
+      "proposal": "Root may extract only existing MODEL_FORMAT_ERROR and MODEL_RETRY fixed-marker lines for a known isolated request window. A correctly attributed pair supports same-candidate repair; absent lines are inconclusive if logging/correlation completeness is unknown. Do not collect bodies, headers, routes, profile, keys, or full logs."
+    },
+    {
+      "step": 2,
+      "type": "PROPOSED_OFFLINE_FIXTURES_NOT_RUN",
+      "proposal": "Reuse verified tests/complete.rs Fake, Fixed, Rig and Options.providers/transport injection with synthetic candidates and no real network/profile. Compare malformed 2xx envelope -> candidate B success against valid envelope/invalid content with full usage -> same candidate A repair success without usage. Both should yield attempts=2, estimated=true; fake captured candidate/model sequence discriminates paths. Add a 2xx malformed-envelope probe-versus-parser check and retain requested-class ordering check."
+    },
+    {
+      "step": 3,
+      "type": "IDENTITY_LIMIT",
+      "proposal": "Offline fixtures establish control flow only. Existing app-facing metadata cannot prove actual GPT identity. Keep T17 unverified unless an already-authorized host-internal evidence source can tie the accepted request to the target provider. Do not remove backups, alter production config, add an invented pinned-provider API, or expand Host routing architecture."
+    }
+  ],
+  "existing_test_references": [
+    "tests/complete.rs:197 a_valid_reply_passes_with_class_usage_and_budget_and_nothing_about_the_provider",
+    "tests/complete.rs:262 invalid_json_then_a_good_reply_passes_on_the_retry",
+    "tests/complete.rs:448 a_failing_provider_falls_back_in_the_persons_order_and_classes_come_first",
+    "tests/complete.rs:564 boundary_initial_timeout_does_not_fall_back",
+    "tests/complete.rs:614 boundary_missing_output_usage_blocks_format_retry"
+  ],
+  "validation": {
+    "tests": "NOT_RUN",
+    "model_calls": 0,
+    "gui_actions": 0,
+    "production_config_writes": 0,
+    "source_edits": 0,
+    "git_actions": 0,
+    "secret_or_profile_reads": 0,
+    "outputs": "Only this independent report pair"
+  }
+}
