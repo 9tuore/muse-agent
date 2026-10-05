@@ -1,0 +1,33 @@
+// Synthetic records; real retrieval, scope filters and bounded context.
+let priority_checks = {}
+fn priority_seed(index){
+    let value = "安排时间资料"
+    for n in 100 { value = value + " 合成记录" }
+    if index < 7 {
+        priority_checks["seed_" + index] = gm_save(value,"source","synthetic-goal","source-"+index,"synthetic-chat","合成项目","个人","local")
+        start_timeout(0.05,|| priority_seed(index+1)) return
+    }
+    priority_checks.preference_saved = gm_save("安排时间偏好：下午，半小时。","preference","合成项目","安排偏好","synthetic-chat","合成项目","个人","local")
+    start_timeout(0.05,|| priority_foreign())
+}
+fn priority_foreign(){
+    priority_checks.other_owner_saved = gm_save("安排时间偏好：老师项目私人限制。","preference","合成项目","安排偏好","synthetic-chat","合成项目","老师","local")
+    start_timeout(0.05,|| priority_query())
+}
+fn priority_query(){
+    let legacy = gm_context("安排时间偏好","synthetic-chat","synthetic-goal")
+    let ranked = gm_context_ranked("安排时间偏好","synthetic-chat","synthetic-goal",true)
+    let ordinary = gm_context_ranked("安排时间偏好","synthetic-chat","synthetic-goal",false)
+    priority_checks.original_pressure_reproduced = legacy.text.search("下午，半小时") < 0 && legacy.truncated
+    priority_checks.preference_included = ranked.text.search("下午，半小时") >= 0
+    priority_checks.other_owner_excluded = ranked.text.search("老师项目私人限制") < 0
+    priority_checks.context_still_bounded = ranked.hits.len() <= 6 && ranked.bytes <= 2200 && ranked.truncated
+    priority_checks.ordinary_order_unchanged = ordinary.text == legacy.text && ordinary.hits.to_json() == legacy.hits.to_json()
+    priority_checks.no_conflict_fabricated = !ranked.requires_resolution
+    fs.write("probe.json",priority_checks.to_json())
+}
+fn priority_boot(){
+    fixture_seed() gm_boot() gm_set_focus("合成项目","个人")
+    start_timeout(0.05,|| priority_seed(0))
+}
+start_timeout(0.1,|| priority_boot())
