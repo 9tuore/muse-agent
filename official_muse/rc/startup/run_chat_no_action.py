@@ -239,6 +239,15 @@ def main():
 
     last_request = 0
     save()
+    def focus_click_once(key):
+        x, y, width, height = r.find(key)['r']
+        assert width > 2 and height >= 24
+        try:
+            r.request('/click', x=int(x+width/2), y=int(y+height/2), wait=1)
+        except Exception as error:
+            report.setdefault('focus_remote_errors', []).append({
+                'control': key, 'error': repr(error), 'no_replay': True})
+            save()
     try:
         for case in selected:
             select_flow(case['flow'])
@@ -248,11 +257,11 @@ def main():
                         wanted['project'], wanted['owner']):
                     if not any(w.get('ty') == 'Button' and w.get('t') == '使用这个项目'
                                for w in r.widgets()):
-                        r.click('切换')
+                        focus_click_once('切换')
                     r.wait_for('使用这个项目')
                     r.set_text('session_focus_project', wanted['project'])
                     r.set_text('session_focus_owner', wanted['owner'])
-                    r.click('使用这个项目')
+                    focus_click_once('使用这个项目')
                 assert current()['focus_project'] == wanted['project']
                 assert current()['focus_owner'] == wanted['owner']
             if case.get('memory_operation'):
