@@ -43,7 +43,9 @@
 
 ## 实机与旧证据的边界
 
-最终rc49-r2右侧计划卡真实Shell流程由Root另行验收，Root正在安装；截至本次提交尚未引用该新运行记录，不能仅凭r1的10项fixture宣布r2实机通过。r2局部捕获回调修正没有在本次追加fixture。此前rc48普通任务真实模型、存储/读回/结果记忆及同候选Shell重启，仍保持rc48身份，见 [FINAL_BOUNDARY_RC48.md](FINAL_BOUNDARY_RC48.md)，不升级为rc49重跑。未改动路径的既有rc48证据可为风险判断提供依据，但不因此换上rc49标签。
+已只读核对 Root 提交的 [RC49_LIVE_PLAN_CARD.json](../RC49_LIVE_PLAN_CARD.json)：最终rc49-r2产品提交 `e0eb5d82bdfbcfa0a4375171ec6086e07c2ac166`，可读2bad514d、运行载荷15ea7e6d及Host1d7与最终Gate身份一致。真实Shell中Goal `1791222912-516469458` 的“确认执行这个计划”卡被点击一次，Run completed；同Goal活动记录包含批准、storage write、readback和memory saved。独立读取结果有两项，SHA256 `7b4b49b5a392ddab5a2d040137c4c29df7e4847b9e99dda208b62faddd3fa58b`，composer_preserved=true、errors=[]；该右卡执行与输入保持路径已有实机证据。本次只更新文档，没有重新执行或追加fixture。
+
+同记录的真实模型候选响应 is_ok=true、known_usage=true、estimated=false、attempts=1，1204 input /410 output tokens；模型回执goal_id为空，仍属建Goal前候选，不写成批准后再次调用模型。actions=[]且scope明确没有新Mail/Calendar写入，**这不是最新rc49从头邮件—日历全链**。旧rc48重启、普通任务及跨聊天证据只作未改路径支持，保持原版本身份，见 [FINAL_BOUNDARY_RC48.md](FINAL_BOUNDARY_RC48.md) 及Root对应旧记录，不换成rc49重跑标签。
 
 rc37/41/42/45外部邮件、EventKit及本人收件为跨版本历史链。rc46/47的54项fixture、rc48的10项启动恢复夹具和rc49的10项计划卡夹具分开记录，不汇总冒充同最终全链。
 
