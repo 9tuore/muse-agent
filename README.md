@@ -12,9 +12,9 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 此前已补收件声明恢复、64条记忆保存与更正、日历短回调与同事项改期绑定、缺RFC时明确选原事项，以及执行回执误冲突修复。真实同事项已完成系统创建、电脑日历外部修改、原ID改期、确认邮件到达、结果和记忆、Shell恢复；节点跨rc28/29/34/35，不冒充同最终整链通过。完整Shell默认558项单测与空target Host重建通过；第二GPT单通道实测provider失败，原二十项完整门槛仍未全过。历史入口：[rc35报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
-![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
+![Muse rc51 实录封面](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-cover.png)
 
-*0.3.13真实可见card-host中的合成邮箱截图，仅展示交互；不冒充当前版本真实邮件验收。*
+[rc51 中文配音实录（96 秒）](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-demo.zh-CN.mp4) · [字幕](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51.zh-CN.srt) · [画面与音轨核验](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/QA.json)。本轮真实内部任务与跨聊天召回；连续画面和前后截图分开标注，账号与历史邮件已遮挡。整体仍 PARTIAL，视频不冒充本轮新邮件/日历整链。
 
 ## 2. 官方源码与依赖
 
