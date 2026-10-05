@@ -1,0 +1,24 @@
+{
+  "status": "SCOPED_LAUNCHER_PASS",
+  "invocations": 1,
+  "timeout_seconds": 40,
+  "timeout_reproduced": false,
+  "ready_json_observed": true,
+  "hub_ready_elapsed_seconds": 1.771,
+  "actual_owned_pid": 16688,
+  "cleanup": {
+    "pid": 16688,
+    "executable_verified": true,
+    "path_verification": "lsof UTF-8 byte escapes matched expected executable",
+    "observer_error": "Initial literal Unicode lsof comparison rejected an escaped path; no stop occurred before verified recovery",
+    "pid_exited": true,
+    "port_released": true
+  },
+  "launcher_unchanged": true,
+  "protected_state_after_equal": true,
+  "installed_source_after_equal": true,
+  "model_ledger_exists_after": false,
+  "observer_exit_code": 1,
+  "child_returncode_not_persisted": true,
+  "scope": "Launcher ready + actual status/snapshot/log observed on initially empty owned port; no live prior-Shell shutdown or Muse UI cold verification. Original r3 7/10 and timeouts remain unchanged and unlocalized."
+}
