@@ -27,3 +27,7 @@ RC10_LIVE_NODE_SUMMARY、RC10_MEMORY_CORRECTION_UI_SUMMARY、RC10_STARTUP_70_SUM
 ## Delivery
 
 公开源码使用S→manifestF及逐文件集合/SHA/模式核验；实际导出身份由外层记录说明，纯源码不含Host/启动器/模型。64MiB源码reserve、600MiB Hostgate保持；ENOSPC失败、无占用重复分发清理和编译中间副本精确重建补丁见RC10_FINAL_RESOURCE_RECOVERY_SUMMARY。原未提交baseline.json不收进commit/export。
+
+## Actual frozen export
+
+实际桌面交付已完成：Muse-0.3.26-rc10-源码与验收-2026-10-05。导出F=019dc303da964424e042402893008a387a675467，库存S=b6de15dfd90a07e978a07f2c4506b10d262000de；S→F只改SOURCE_MANIFEST，产品A仍6fd5b54b。1003份源码/共1006文件、70966332逻辑字节，导出器及Root独立全集合/长度/SHA/模式读回PASS；1000份native clone与3份Git blob写入，不含Host/启动器/模型/私有数据。外层00-先看这里.html、版本与交付边界.json和文件校验清单.json给出实际身份及使用边界。新ZIP未生成，现有空间不足保持容量门禁；旧087运行ZIP仍rc5。详见official_muse/rc/packaging/RC10_SOURCE_EXPORT_SUMMARY.json。冻结F中的报告是导出前摘要，当前这份记录是导出后的附加结果，不改写F或桌面核验内容。

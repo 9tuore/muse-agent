@@ -37,4 +37,6 @@ rc9 Memory UI两个单独保存导致新值被旧输入撤回，已保留磁盘/
 
 本轮结束采样时间为2026-10-05 10:32:17北京时间，最终结果由Root逐样本核对。两小时内Host请求总数不可观察，不把模型/动作零计数当成零网络请求。磁盘ENOSPC拒绝的报告/Git写入和恢复记录已保留；只处理无占用重复分发文件与有精确反向还原补丁的编译中间副本，未降低64MiB源码或600MiB Host门槛。
 
+实际桌面交付已完成：Muse-0.3.26-rc10-源码与验收-2026-10-05。导出F=019dc303da964424e042402893008a387a675467，库存S=b6de15dfd90a07e978a07f2c4506b10d262000de；S→F只改SOURCE_MANIFEST，产品A仍6fd5b54b。1003份源码/共1006文件、70966332逻辑字节，导出器及Root独立全集合/长度/SHA/模式读回PASS；1000份native clone与3份Git blob写入，不含Host/启动器/模型/私有数据。外层00-先看这里.html、版本与交付边界.json和文件校验清单.json给出实际身份及使用边界。新ZIP未生成，现有空间不足保持容量门禁；旧087运行ZIP仍rc5。详见official_muse/rc/packaging/RC10_SOURCE_EXPORT_SUMMARY.json。冻结F中的报告是导出前摘要，当前这份记录是导出后的附加结果，不改写F或桌面核验内容。
+
 详细入口：[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)、[真实节点](RC_FINAL_LIVE_REPORT.md)、[冷启动](COLD_START_PROFILE.md)、[持续运行](OVERNIGHT_SOAK.md)、[冻结身份](RC_CODE_FREEZE.json)、[人工与环境队列](MORNING_HUMAN_QUEUE.md)、[评分](CHAMPIONSHIP_SCORECARD.md)、[交付](SOURCE_DELIVERY.md)。本轮只本地小步提交，未push、移动旧Tag、创建成功Tag或正式提交App Hub。

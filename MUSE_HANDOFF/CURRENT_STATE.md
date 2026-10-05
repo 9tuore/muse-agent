@@ -8,6 +8,8 @@
 
 下一优先级：取得足够容量完成新Calendar桥Host/clean；固定唯一最终profile并通过官方登录/权限界面，随后准备带精确范围的真实事件确认，完成同候选邮件→记忆→Calendar原事件改期/独立读回→回复到达→首次恢复/跨聊天。夜间不重复申请；发信授权有效但不提取Secret/代点TCC/任意改日历。稳定应用、生产、未提交baseline保护；未push、改旧Tag或正式提交Hub。详见MORNING_CHAMPIONSHIP_REPORT、RC_ACCEPTANCE_MATRIX、RC_EVIDENCE_INDEX。
 
+实际桌面交付已完成：Muse-0.3.26-rc10-源码与验收-2026-10-05。导出F=019dc303da964424e042402893008a387a675467，库存S=b6de15dfd90a07e978a07f2c4506b10d262000de；S→F只改SOURCE_MANIFEST，产品A仍6fd5b54b。1003份源码/共1006文件、70966332逻辑字节，导出器及Root独立全集合/长度/SHA/模式读回PASS；1000份native clone与3份Git blob写入，不含Host/启动器/模型/私有数据。外层00-先看这里.html、版本与交付边界.json和文件校验清单.json给出实际身份及使用边界。新ZIP未生成，现有空间不足保持容量门禁；旧087运行ZIP仍rc5。详见official_muse/rc/packaging/RC10_SOURCE_EXPORT_SUMMARY.json。冻结F中的报告是导出前摘要，当前这份记录是导出后的附加结果，不改写F或桌面核验内容。
+
 ---
 
 ## 2026-10-05 09:05 · rc10真实节点与双模型完成；稳定性长测进行
