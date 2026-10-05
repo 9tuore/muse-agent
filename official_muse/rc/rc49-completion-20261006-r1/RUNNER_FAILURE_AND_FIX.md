@@ -1,0 +1,9 @@
+# 启动驱动故障与最小修复
+
+rc51同一源码的初轮矩阵前两次实内容冷启动成功。cold03的launcher子进程40秒超时，原原因未确定。cold04保留的trace明确/quit HTTP404使launcher在新launch前退出；后续ConnectionRefused同样在/quit处退出。不能把后八条及五条重开报成八次独立产品编译失败。旧矩阵不覆盖、不改为通过。
+
+launch_candidate.py仅容忍quit返回404或端口已连接拒绝，随后socket独立确认真正关端口；仍有进程监听就拒绝新launch。未要求restart而首轮端口占用时立即拒绝，避免误绑定旧进程。原10秒关闭等待、40秒矩阵子进程等待、AppHub等待、Host脚本预算及全部实内容/输入/页面/数据/错误门槛不提高。回归使用同rc51/同合成资料的新目录cold-rc51-r2，实际5/10冷、0/5重开；cold05在quit处RemoteDisconnected，cold06/08为launcher40秒超时，其余有旧进程未退出/404。完整失败保留。A4进一步最小补RemoteDisconnected容忍，quit单独5秒（官方Cmd::Quit等待4秒）；仍须socket真正关闭，Host和40秒时限未增。修复提交6ba4af24，下一轮需独立记录，不覆盖r2。
+
+Root mount-active-experiment-r1是另一条明确无效观察：首次launch复用了先前PID2591，日志源码仍为旧242555，不能作为新ed4874源码失败或成功。新r2先证实端口空闲，实际PID6204、compact ed4874，实内容/输入/六页、16对话256消息64记忆及protected/ledger保持通过。
+
+Root附件fixture rc51-r1相对Host路径导致Popen未执行，r2虽实际启动却止于isolate admitted/jailed，无编译、probe或动作结果；保留log，不标该路径通过。本轮没有为此改Host或预算。rc50该函数fixture4PASS可按逐字等价作受限支持；不能替代51 UI点击可达与外部链。

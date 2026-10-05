@@ -1,0 +1,46 @@
+{
+  "mount-experiment-r1": {
+    "actual_source_expected": "242555fa991701795b18f3fbbacf7eac7491a8ecb5ceee344d3007981423cbf3",
+    "cold_pass": 0,
+    "rows": [
+      {
+        "pass": false,
+        "error": "['[E] splash:140430872570368:5372:28 - script time budget exceeded (.sources/makepad/platform/script/src/vm.rs:1046)', '[E] splash:140430872570368:214:19 - script time budget exceeded (.sources/makepad/platform/script/src/vm.rs:1046)']",
+        "pid": null,
+        "startup_log": [
+          "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464256 chunks=115 total_ms=165.821 max_chunk_ms=22.771",
+          "[E] splash:140430872570368:5372:28 - script time budget exceeded (.sources/makepad/platform/script/src/vm.rs:1046)",
+          "[E] splash:140430872570368:214:19 - script time budget exceeded (.sources/makepad/platform/script/src/vm.rs:1046)"
+        ]
+      }
+    ]
+  },
+  "mount-active-experiment-r1": {
+    "actual_source_expected": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+    "cold_pass": 0,
+    "rows": [
+      {
+        "pass": false,
+        "error": "visible widget missing after scroll: 记忆",
+        "pid": null,
+        "startup_log": null
+      }
+    ],
+    "validity": "INVALID_STALE_PROCESS: first launch reused prior PID2591/old source; not evidence for new source."
+  },
+  "mount-active-experiment-r2": {
+    "actual_source_expected": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+    "cold_pass": 1,
+    "rows": [
+      {
+        "pass": true,
+        "error": null,
+        "pid": 6204,
+        "startup_log": [
+          "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 377 ms · phase=Actions detail=0 · samples=2 · ticks=2/expected=2 · top frames: 1x Actions: makepad_script::tokenizer::ScriptTokenizer::tokenize+0x89 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::tab::script_mod+0x2f7 (octosense) ← makepad_widgets::widgets_mod+0x71f (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) ← makepad_widgets::splash::SplashRef::set_text+0x6b (octosense) | 1x widget-draw: tiny_malloc_should_clear+0x6c (libsystem_malloc.dylib) ← szone_malloc_should_clear+0x41 (libsystem_malloc.dylib) ← <alloc::vec::Vec::<octosense_shell::clients::AppDef> as alloc::vec::spec_from_iter_nested::SpecFromIterNested::<octosense_shell::clients::AppDef, core::iter::adapters::filter_map::FilterMap::<alloc::vec::into_iter::IntoIter::<octosense_appstore::system::SystemApp>, octosense_shell::apps::system_card_apps::{closure:#1}>>>::from_iter+0x139 (octosense) ← octosense_shell::apps::system_card_apps+0x1ff (octosense) ← octosense_shell::octosense::style::AppIconDraw::draw+0x92 (octosense) ← octosense_shell::desktop::DesktopShelf::button+0x798 (octosense) ← <octosense_shell::desktop::DesktopShelf as makepad_widgets::widget::Widget>::draw_walk+0x1a40 (octosense) ← makepad_widgets::widget::WidgetRef::draw_walk+0xfc (octosense)",
+          "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=113.848 max_chunk_ms=15.762"
+        ]
+      }
+    ]
+  }
+}
