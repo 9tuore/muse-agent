@@ -1,0 +1,98 @@
+{
+  "candidate": "0.3.26-rc49 / e0eb5d82",
+  "t19_status": "PARTIAL",
+  "test_kind": "FIXTURE_VISIBLE_CARD_HOST",
+  "source_sha256": "2bad514d69d777fabb9ad2daf2b0aa2862555c2db5c146b22bc635b3b1e70484",
+  "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "port": 8517,
+  "live_8493_touched": false,
+  "source_ui_changed": false,
+  "cases": [
+    {
+      "case": "visible-1400x760-r4",
+      "requested_size": "1400x760",
+      "actual_size": [
+        1400,
+        760
+      ],
+      "checks_status": "PASS",
+      "fully_visible_initial_titles": 4,
+      "history_rect": [
+        12,
+        113,
+        216,
+        345
+      ],
+      "failures": []
+    },
+    {
+      "case": "visible-990x539-r1",
+      "requested_size": "990x539",
+      "actual_size": [
+        990,
+        539
+      ],
+      "checks_status": "PASS",
+      "fully_visible_initial_titles": 2,
+      "history_rect": [
+        12,
+        113,
+        194,
+        188
+      ],
+      "failures": []
+    },
+    {
+      "case": "visible-990x380-r1",
+      "requested_size": "990x380",
+      "actual_size": [
+        990,
+        380
+      ],
+      "checks_status": "PARTIAL",
+      "fully_visible_initial_titles": 0,
+      "history_rect": [
+        12,
+        113,
+        194,
+        40
+      ],
+      "failures": [
+        {
+          "check": "sidebar_endpoints",
+          "error": "('No fully visible delete button', [12, 113, 194, 40])"
+        }
+      ]
+    },
+    {
+      "case": "visible-412x892-r2",
+      "requested_size": "412x892",
+      "actual_size": [
+        412,
+        809
+      ],
+      "checks_status": "PASS",
+      "fully_visible_initial_titles": 5,
+      "history_rect": [
+        12,
+        113,
+        152,
+        394
+      ],
+      "failures": []
+    }
+  ],
+  "confirmed_issue": "At actual 990x380 history_list is 40 points high; initial title/delete controls are absent; no full 54-point history row fits.",
+  "request_412x892_achieved": false,
+  "external_actions": false,
+  "model_calls": 0,
+  "system_calendar_writes": 0,
+  "mail_sends": 0,
+  "manual_visual_review": [
+    "990x539 expanded: two-line ellipsis and separate delete targets",
+    "990x380 expanded: history titles absent",
+    "412x809 expanded: titles ellipsized; input narrow but reachable",
+    "1400x760 oldest: short title one line, long title two lines"
+  ],
+  "prior_harness_failures_preserved": true
+}

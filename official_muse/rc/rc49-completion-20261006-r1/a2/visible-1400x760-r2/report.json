@@ -1,0 +1,58 @@
+{
+  "kind": "FIXTURE_VISIBLE_CARD_HOST",
+  "requested_size": "1400x760",
+  "source_sha256": "2bad514d69d777fabb9ad2daf2b0aa2862555c2db5c146b22bc635b3b1e70484",
+  "host_sha256": "011c81a13d64c70ee6677249119d17ecc4413e3f72bce46c635d6746215548d4",
+  "external_actions": false,
+  "checks": {
+    "expanded_controls": {
+      "goal_input": [
+        266,
+        695,
+        727,
+        32
+      ],
+      "send_button": [
+        998,
+        695,
+        56,
+        36
+      ]
+    }
+  },
+  "failures": [
+    {
+      "check": "sidebar_endpoints",
+      "error": "('Expected 54 row + 4 spacing', [58, 58, 58, 116])"
+    },
+    {
+      "check": "collapse_and_long_text",
+      "error": "Long text scroll did not change pixels"
+    }
+  ],
+  "actual_window": {
+    "i": 0,
+    "t": "Card host [remote]",
+    "sz": [
+      1400,
+      760
+    ],
+    "px": [
+      2800,
+      1520
+    ],
+    "dpi": 2,
+    "pos": [
+      40,
+      62
+    ]
+  },
+  "png_pixels": [
+    2800,
+    1520
+  ],
+  "intercepted_services": [
+    "mail.accounts"
+  ],
+  "status": "PARTIAL"
+}
