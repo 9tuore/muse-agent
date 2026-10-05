@@ -1,5 +1,41 @@
 # Portable packaging state — 2026-10-06
 
+## Current rc48 artifact, held for Root's rc49 approval-card fix
+
+Desktop ZIP: `Muse-0.3.26-rc48-Intel精简运行与源码-89bfd399-2026-10-06.zip`.
+Actual size **496,332,297 bytes**, SHA256
+`ce5bd4aba86426bc5bf98818c22258be337e5264c67875fdd45cd45a04a1d789`.
+Product is frozen **89bfd399**; the complete public source is Root's explicit
+**8d9599fd** snapshot (1568 files, 88,571,469 logical bytes). The Gate, Host,
+Hub and model identities match. Only the guide's outer app signature changed.
+
+`rc48-first-model-live-r1/`: fresh profile, real App Hub installation, six SHA
+matches, two actual `model.complete` calls, 1188 tokens in the real ledger,
+official model UI, reopen/history preservation and custom-provider byte
+preservation PASS. Basic answer quality remains **0/2**, no tuning changed.
+This is a local candidate test; the final ZIP itself was checked independently
+for complete member content, modes, links, two extraction methods, strict
+codesign, launcher and signed Hub identities. Both receiver Macs remain untested.
+
+`rc48-final-source-r1/DELIVERY.json` is authoritative; earlier rc48 hashes are
+preserved as history. The ZIP includes the latest Root public report and safe
+frozen RC48 JSON, the local-model error report and three current screenshots.
+The tutorial links the independently supplied video. Video attachment is still
+pending; it is never added to the hard-limited ZIP.
+
+Old Desktop rc45 binaries/ZIP and the duplicate isolated test app were removed
+after no-open-file checks; all source, notes and raw evidence remain. The final
+cleanup measured about 6.1 GB free. Production profiles and all model state
+records are preserved. Source and success/failure history have not been cut.
+
+Root subsequently found the Chat plan-card approval regression and requested
+holding this rc48 artifact while making the minimal rc49 fix. Do not present
+rc48 as the final full-chain release or rebuild it for later media-only changes.
+Wait for the explicit rc49 product/source/Gate freeze before the next packaging
+pass. Model weights and automatic configuration stay unchanged.
+
+The section below records the earlier model-feasibility phase.
+
 Status: **PARTIAL**. First configuration and the real Host model path work; this
 small model is not a strong model and did not answer the two Muse accuracy checks
 correctly. No new final Desktop archive has been produced in this round.

@@ -5,6 +5,7 @@ Uses only a new test directory and Makepad port 8492. No credentials, external
 actions, host rebuild, model proxy, or fabricated response are involved.
 """
 import hashlib
+import argparse
 import importlib.util
 import json
 import os
@@ -46,6 +47,26 @@ def process_exists(pid):
 
 
 def main():
+    global APP, STATE, EVIDENCE
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--app', type=Path, default=APP)
+    parser.add_argument('--state', type=Path, default=STATE)
+    parser.add_argument('--evidence', type=Path, default=EVIDENCE)
+    parser.add_argument('--version', default='0.3.26-rc45')
+    parser.add_argument('--commit', default='d306d3c04284413a5891592c26a30a93d2c0866e')
+    parser.add_argument('--private-screenshots', action='store_true')
+    args = parser.parse_args()
+    APP, STATE, EVIDENCE = args.app.resolve(), args.state.resolve(), args.evidence.resolve()
+    EVIDENCE.relative_to(Path(__file__).resolve().parent)
+    EVIDENCE.mkdir(parents=True, exist_ok=True)
+    images = EVIDENCE / '.local-state/screenshots' if args.private_screenshots else EVIDENCE
+    images.mkdir(parents=True, exist_ok=True)
+    image_records = {}
+    def shot(name):
+        path = images / name
+        r.shot(path)
+        image_records[name] = dict(path=str(path.relative_to(EVIDENCE)), bytes=path.stat().st_size,
+                                   sha256=hashlib.sha256(path.read_bytes()).hexdigest())
     if STATE.exists():
         raise RuntimeError('requires a fresh empty profile; prior evidence is preserved')
     with socket.socket() as probe:
@@ -53,8 +74,8 @@ def main():
     env = {k: os.environ[k] for k in ('HOME', 'PATH', 'USER', 'TMPDIR', 'LANG') if k in os.environ}
     env.update(MUSE_REPRO_STATE=str(STATE), MUSE_REPRO_REMOTE='8492')
     r = remote.Remote(8492)
-    result = dict(status='FAIL', carrier_version='0.3.26-rc45', carrier_commit='d306d3c04284413a5891592c26a30a93d2c0866e',
-                  scope='first-model feasibility on prior frozen product; not new final archive',
+    result = dict(status='FAIL', carrier_version=args.version, carrier_commit=args.commit,
+                  scope='isolated candidate model verification; not final delivery archive',
                   port=8492, profile_initially_absent=True, fixture=False,
                   real_host_model_complete=False, quality='basic offline fallback; not strong',
                   model='Qwen3-0.6B-Q4_K_S-pure-offline', external_actions_performed=False,
@@ -87,7 +108,7 @@ def main():
             result['first_configuration'] = dict(primary=primary, enabled=profile['enabled'],
                 timestamps_present=all(k in profile for k in ('created_at', 'updated_at')),
                 empty_credentials=True, profile_mode='0600', loopback_only=True)
-            r.shot(EVIDENCE / 'first-model-apphub.png')
+            shot('first-model-apphub.png')
             r.click('action')
             r.click_scroll('confirm', 'list', attempts=20)
             r.click('library')
@@ -97,7 +118,8 @@ def main():
                 time.sleep(.2)
             else:
                 raise RuntimeError('App Hub install did not reach Open')
-            manifest = APP / 'Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc45.bundle'
+            manifest = APP / ('Contents/Resources/mirror/artifacts/muse-goals-' + args.version + '.bundle')
+            assert json.loads((manifest / 'manifest.json').read_text())['version'] == args.version
             installed = STATE / 'apps/muse-goals/bundle'
             identities = {}
             for source in manifest.rglob('*'):
@@ -135,7 +157,7 @@ def main():
                 result['calls'].append(call)
                 result['real_host_model_complete'] = True
                 dump('model-call-%d.json' % index, call)
-                r.shot(EVIDENCE / ('first-model-reply-%d.png' % index))
+                shot('first-model-reply-%d.png' % index)
                 assert trace['is_ok'] and trace['known_usage'], trace
                 assert answer['state'] == 'success', answer
                 call['answer_correct'] = expected in answer['text']
@@ -150,7 +172,7 @@ def main():
             result['error'] = str(error)
             try:
                 dump('first-model-failure.snap.json', r.widgets())
-                r.shot(EVIDENCE / 'first-model-failure.png')
+                shot('first-model-failure.png')
             except Exception:
                 pass
             raise
@@ -160,6 +182,7 @@ def main():
                 child.wait(timeout=25)
             result['launcher_exit_code'] = child.returncode if child else None
             result['own_model_stopped'] = not process_exists(pid) if pid else None
+            result['screenshots'] = image_records
             dump('FIRST_MODEL_LIVE.json', result)
             print(json.dumps(result, ensure_ascii=False), flush=True)
 

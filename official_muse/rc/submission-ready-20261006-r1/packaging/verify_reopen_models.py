@@ -5,6 +5,7 @@ Reuses only the synthetic first-model test state on port 8492. A second fresh
 state holds a credential-free fixture provider. No real accounts are accessed.
 """
 import importlib.util
+import argparse
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,7 @@ import time
 
 sys.dont_write_bytecode = True
 E = Path(__file__).resolve().parent
+PRIVATE_SCREENSHOTS = False
 spec = importlib.util.spec_from_file_location('first_model', E / 'verify_first_model.py')
 t = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(t)
@@ -43,7 +45,9 @@ def run_settings(state, model_id):
         finally:
             # Snapshot while the actual settings UI is alive, without entering a key.
             try:
-                remote.shot(E / ('models-' + state.name + '.png'))
+                images = E / '.local-state/screenshots' if PRIVATE_SCREENSHOTS else E
+                images.mkdir(parents=True, exist_ok=True)
+                remote.shot(images / ('models-' + state.name + '.png'))
             except Exception:
                 pass
             if child.poll() is None:
@@ -52,6 +56,18 @@ def run_settings(state, model_id):
 
 
 def main():
+    global E, PRIVATE_SCREENSHOTS
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--app', type=Path, default=t.APP)
+    parser.add_argument('--state', type=Path, default=t.STATE)
+    parser.add_argument('--evidence', type=Path, default=E)
+    parser.add_argument('--private-screenshots', action='store_true')
+    args = parser.parse_args()
+    E = args.evidence.resolve()
+    E.relative_to(Path(__file__).resolve().parent)
+    E.mkdir(parents=True, exist_ok=True)
+    t.APP, t.STATE, t.EVIDENCE = args.app.resolve(), args.state.resolve(), E
+    PRIVATE_SCREENSHOTS = args.private_screenshots
     result = dict(status='FAIL', port=8492, external_actions=False)
     try:
         path = t.STATE / 'home/octos-home/.octos/profiles/_main.json'

@@ -2,28 +2,28 @@
 
 ## Task
 
-Intel首次模型配置与打包；基线9b83f98c，rc45/d306d3c0承载测试。
+Intel运行与完整公开源码包；codex/muse-rc-finalization，产品89bfd399/rc48，源码8d9599fd。
 
 ## Result
 
-PARTIAL。自动配置、真实model.complete两次调用通过；回答0/2。
+PARTIAL。桌面ZIP 496332297 bytes，SHA ce5bd4ab…1d789；因Root发现右侧计划卡批准回归，保留rc48并等待rc49。
 
 ## Changed
 
-portable_launcher.m、package_lean_portable.py及本目录：本地模型、官方设置入口、退出清理、教程、许可、视频附件与500MB门禁。
+本项打包/验证脚本、教程及公开证据；自动本地模型参数未再调整。旧rc45运行包和重复测试App已清理，源码/历史证据保留，约6.1GB空闲。
 
 ## Tests
 
-2026-10-06：空profile两次live调用，ledger 1188 tokens；误答“晴朗”“7”。设置、重开及配置保留PASS。实际容量ZIP 471005179 bytes，全源码/报告与新增成员回读PASS；临时ZIP已清。原生编译/严格验签/资源检查、Python语法PASS。直连正确；思考未改善误答。
+2026-10-06：同rc48承载空profile实装/六SHA、两次model.complete、设置重开PASS；答案0/2，ledger1188 tokens。最终ZIP内容/模式/链接/两种解压/签名/启动器/Hub检查PASS。详见rc48-first-model-live-r1及rc48-final-source-r1/DELIVERY.json。
 
 ## Commit
 
-仅本项本地提交；未push。
+本项本地提交；未push/Tag/发布。
 
 ## Remaining
 
-rc46实录发现意图路由失败，等Root的rc47冻结/Gate/视频后打包。视频单独交付；接收机未测。
+等Root显式提供rc49产品/源码/Gate冻结后再打包。实际视频尚未提供，单独放在ZIP外；两接收机未测。
 
 ## Important Boundaries
 
-模型为基础fallback，非强模型。自定义配置测试为fixture，模型调用为本机live。未改产品/Host/SDK/资料，仅8492，无外部动作，非20/20。
+小模型为基础fallback；自定义配置测试是fixture，模型调用是本机live。未改产品/Host/SDK/用户资料，仅自有8492，无外部动作，非20/20或同最终整链。

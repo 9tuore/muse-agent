@@ -198,6 +198,7 @@ def main():
     p.add_argument('--evidence', required=True, type=Path)
     p.add_argument('--model-root', type=Path, default=MODEL_EVIDENCE / '.local-state/local-model')
     p.add_argument('--external-video', type=Path, help='Approved public MP4, copied beside the ZIP and linked in the tutorial')
+    p.add_argument('--destination', type=Path, default=Path.home() / 'Desktop', help='Delivery directory; private staging for pre-freeze verification')
     p.add_argument('--date', default='2026-10-05')
     args = p.parse_args()
     video = None
@@ -287,7 +288,9 @@ def main():
             raise RuntimeError('credential/database source path: ' + name)
         allowlist[name] = dict(git_blob=oid, bytes=int(length), mode=int(mode[-3:], 8))
     title = 'Muse-%s-Intel精简运行与源码-%s-%s' % (args.version, commit[:8], args.date)
-    stage = Path.home() / 'Desktop' / title
+    destination = args.destination.resolve()
+    destination.mkdir(parents=True, exist_ok=True)
+    stage = destination / title
     archive = stage.with_name(title + '.zip')
     if stage.exists() or archive.exists():
         raise RuntimeError('new delivery path already exists; never overwrite')
