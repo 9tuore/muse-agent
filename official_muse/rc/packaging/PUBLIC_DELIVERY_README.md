@@ -2,7 +2,9 @@
 
 本清单是交总控审阅的最小维护材料集合。它不是可直接运行的 Intel 应用包，也不表示最终 RC 或 App Hub 已发布。
 
-当前新方案见`THIN_SOURCE_DELIVERY_PLAN.md`：`package_thin_source.py`按application manifest版本导出签名mirror和冻结公开源码，不含Host、启动器或模型。离线教程为`thin_source_tutorial.html`。待交付签名应用为0.3.26-rc9 / `1c9f3b46e7aac0ee17be385de64c97564651152f`，最终sourceHEAD与SOURCE_MANIFEST仍待总控固定，不生成归档。rc9的15变体53/53fixture支持不代替真实Memory/Goal、两模型D05、70启动或2小时验收；rc8成功与失败均仅作历史支持。旧087桌面运行包保留，新Host/CalendarT18、接收双Mac/OS/重启和正式Hub尚缺，PARTIAL不变；完整运行包600MiB门禁保持。
+当前新方案见`THIN_SOURCE_DELIVERY_PLAN.md`：`package_thin_source.py`按application manifest版本导出签名mirror和冻结公开源码，不含Host、启动器或模型。离线教程为`thin_source_tutorial.html`。待交付签名应用为 **0.3.26-rc10** / `6fd5b54beeba7cc9892916c3de7f01106ab8a158`，mirror为`official_muse/app/build/ui-memory-20261003/rc10-memory-ui-r1/mirror`。可读源码SHA256为`a19622e0977b3f988531a1d7db743bc9ef4cd6973fa75bbcdc5dec07d6823cc5`，compact SHA256为`7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0`；六文件/Git/mirror/pack及公钥签名静态核对已通过。最终sourceHEAD与SOURCE_MANIFEST仍待总控固定，未生成新归档。
+
+Root真实UI复现rc9更正回退后，rc10更正保留新值、重复保存无写入、首次Shell重启10SHA与ledger保持的限定摘要已PASS；新70启动、2小时和full28仍运行，不标全门槛通过。rc9及更早成功/失败均仅作历史支持，不能覆盖rc9后来的真实双保存失败或计为rc10通过。旧087运行包保护，新Host/CalendarT18、接收双Mac/OS/电脑重启、严格clean和正式Hub仍欠，PARTIAL不变；完整运行包600MiB门禁保持。
 
 `PUBLIC_MAINTENANCE_ALLOWLIST.json` 逐个列出允许复制的文件、长度和 SHA256。仅复制 `files` 中的精确路径；不递归复制整个 packaging 目录。文件修改后先重新核对清单，不套用旧 SHA。
 

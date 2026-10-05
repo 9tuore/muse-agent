@@ -1,10 +1,20 @@
-# A4 当前交接 · 2026-10-05
+# A4 当前交接 · 2026-10-05 · rc10
 
-## 最新待交付身份 · rc9
+## 最新待交付身份 · rc10
 
-签名应用0.3.26-rc9 / 1c9f3b46e7aac0ee17be385de64c97564651152f，mirror为rc9-final-startup-r1/mirror。六文件/Git/mirror/pack和Hub目录、公钥签名静态PASS。最终SourceHEAD/SOURCE_MANIFEST待Root，不导出；薄包不是独立runtime，旧087保持。Host938仍b486/SDK3f，未含Calendar92b1。
+签名应用 **0.3.26-rc10** / `6fd5b54beeba7cc9892916c3de7f01106ab8a158`；mirror为`official_muse/app/build/ui-memory-20261003/rc10-memory-ui-r1/mirror`。A4实际核对六文件在application Git、当前source Git、mirror、pack中逐bytes一致，catalog sequence46/40 entries与bundle公钥检查exit0。可读源码SHA256 `a19622e0977b3f988531a1d7db743bc9ef4cd6973fa75bbcdc5dec07d6823cc5`，compact SHA256 `7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0`均与实际Git一致。91,244 token一致是Root报告，A4未运行tokenizer。
 
-Root/A2报告时间询问顺序15变体53/53隔离fixture通过。rc9新70启动、2小时、真实MemoryGoal和两模型D05重测未完成，不标PASS。rc8 70启动/M3八题8PASS/M2.7七PASS+D05FAIL/E04两模型保留字段成功仅为历史a80支持；unknown不等于strong或完整T17。新Host/CalendarT18、第二Mac/OS/电脑重启、正式Hub/严格clean仍欠，PARTIAL。A4无GUI/模型/编译/Git。以下历史保留原时点，不能改标签作新版本验收。
+Root已在真实UI两个单独保存点击复现rc9 Memory更正回退，并以rc10最小修补。[RC10_MEMORY_CORRECTION_UI_SUMMARY.json](../startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json)已读到PASS：更正保留新值、第二次保存不写Memory/Activity、首次Shell重启10SHA与ledger不变；它不是电脑重启、模型/邮箱/系统Calendar测试。此前App Hub未打开的harness失败及rc9真实更正回退失败均保留。
+
+新rc10的70启动、7200秒观察及full28仍由Root运行，未标完成。历史rc9/rc8结果只支持对应候选。接收两台Intel Mac/macOS/电脑重启、新Host/Calendar T18、严格clean、正式Hub仍有缺项，整体PARTIAL。最终Source S/F及SOURCE_MANIFEST由Root固定；本轮不导出、不编译、不做GUI/model或Git写操作。
+
+薄包无Host、启动器或模型，不能独立运行。旧087桌面包及sha保护；旧入口仍rc5。Host938仍来自b486/SDK3f，未含源码SDKda的Calendar92b1修复。完整运行包600MiB门禁不变。
+
+## rc9历史支持及新增失败
+
+rc9 / 1c9f3b46的时间询问15变体53/53 fixture、第二轮70启动、额外100次应用重开、D05两模型以及当时Memory/Goal入口支持保留；这些局部支持未覆盖随后真实UI双保存的Memory更正回退失败，不计rc10验收。M2.7 class仍unknown，不当作strong或完整T17。06:20原37项及原交接可在Git提交`34fb31323713f69d22f368f009dbab4459526b12`逐bytes恢复；旧冻结记录保持原SHA。07:25的A4_CURRENT_WRAPPER.md也仅作rc9历史入口，未纳入本37项。
+
+以下为更早阶段历史交接，不改原时点结果。
 
 ## rc8前次身份（历史）
 
