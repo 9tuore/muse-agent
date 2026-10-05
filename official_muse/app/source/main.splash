@@ -6885,7 +6885,7 @@ fn chat_mail_followup_message(message){
         || message.split("@")[1].search(".") < 1 { return message }
     for separator in [",",";","；","，"," ","\n","\t","<",">"] { if message.search(separator) >= 0 { return message } }
     let prior = messages[messages.len()-2]
-    if prior.role != "assistant" || !chat_entry_valid(prior) || !chat_reply_is_context(prior)
+    if prior.role != "assistant" || prior.state != "waiting_user" || !chat_entry_valid(prior) || !chat_reply_is_context(prior)
         || prior.clarification_action != "mail_compose" || prior["clarification_need"] != "recipient"
         || !chat_history_scope_current(prior) || !chat_reply_context_valid(prior)
         || gm_retired_text(prior.clarification_input,"local") { return message }
@@ -8522,7 +8522,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc12" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc13" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}

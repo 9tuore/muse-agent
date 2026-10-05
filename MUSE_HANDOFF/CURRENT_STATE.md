@@ -1,3 +1,11 @@
+## 2026-10-05 12:16 · rc13澄清话题边界保护
+
+rc12实际M3两步起草→补纯地址已通过：waiting_user/recipient元数据持久化，原主题与意图生成candidate，无外部动作。A2实际Card发现普通成功回复后再纯地址时helper读取不存在的clarification_action，完整失败保留；rc13仅加prior.state!=waiting_user早退与版本，其他业务不改。官方91525tokens相等、Hub check PASS；新相关fixture/restore进行中，不提前宣称修复全验收。
+
+固定profile已有一条UI保存的合成项目安排偏好（personal/local，真实DSL与来源）；初始owner控件在折叠下方导致输入未达，无保存发生，实际滚动后只保存一次。真实Mail基线258封完整。新SDKda Host仍release构建，尚未系统写入。稳定、生产、未提交baseline保持，未push/Tag/发布。
+
+---
+
 ## 2026-10-05 12:10 · rc12收件人补充修复，真实验证待
 
 同固定profile rc11/M3实际8个新变式：Host输出全部成功，独立语义与grounding各8/8PASS；ledger8calls/8089tokens，V01 Host attempts=2与两次click404保留。40结构fixture检查通过，前三轮探针错误保留；不重标旧28或T17，用户目前仅MiniMax。
