@@ -7,11 +7,14 @@ An optional local observation relay forwards to the existing free model.
 import argparse
 import hashlib
 import json
+import socket
 from pathlib import Path
 import subprocess
 import sys
 import time
+from http.client import RemoteDisconnected
 from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'official_muse/phase2/tests'))
@@ -52,16 +55,31 @@ def main():
         profile.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')
         profile.chmod(0o600)
     r = Remote(a.port)
+    def port_open():
+        with socket.socket() as probe:
+            probe.settimeout(.3)
+            return probe.connect_ex(('127.0.0.1',a.port)) == 0
     if a.restart:
-        r.request('/quit')
+        try:
+            urlopen(r.base+'/quit', timeout=5).read()
+        except HTTPError as error:
+            # A delivered remote action can return 404 while awaiting a frame.
+            # It is safe to proceed only after independently observing shutdown.
+            if error.code != 404: raise
+        except URLError as error:
+            # A previous failed test may already have shut this port down.
+            if not isinstance(error.reason,ConnectionRefusedError): raise
+        except RemoteDisconnected:
+            # Quit may close its connection before replying; still require
+            # independent port shutdown below before launching a new process.
+            pass
         for _ in range(100):
-            try:
-                urlopen(r.base+'/s', timeout=.3).read()
-                time.sleep(.1)
-            except OSError:
-                break
+            if not port_open(): break
+            time.sleep(.1)
         else:
             raise RuntimeError('Previous candidate Shell is still running')
+    elif port_open():
+        raise RuntimeError('Remote port is occupied; use explicit restart for this candidate')
     cmd = ['open', '-n']
     values = {'OCTOSENSE_HOME': private / 'home', 'OCTOSENSE_APP_DATA': private / 'apps',
               'OCTOS_APP_CORE_DIR': core, 'OCTOSENSE_HUB': candidate / 'mirror',

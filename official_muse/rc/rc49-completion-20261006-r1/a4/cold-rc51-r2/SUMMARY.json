@@ -1,0 +1,91 @@
+{
+  "result": "FAIL",
+  "cold_pass": 5,
+  "reopen_pass": 0,
+  "requested_counts": {
+    "cold": 10,
+    "reopen": 5,
+    "restart": 0
+  },
+  "completed_cold_pids": [
+    18572,
+    19342,
+    19987,
+    20843,
+    22487
+  ],
+  "source_sha256": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "protected_state_after_equal": true,
+  "installed_source_after_equal": true,
+  "model_ledger_exists_after": false,
+  "port8492_free_after": true,
+  "launcher_pre_sha256": "307318c0f20943daef2ab4c311a1ff1bce877133f01adaf3c5f48aca8cb33384",
+  "launcher_post_sha256": "49cef8baa1177c05cbb864e6bdd5d72e27fc77e2d805ed1a39c8c72de043dd49",
+  "launcher_change_only_unused_urlopen_import_removed": true,
+  "failures": [
+    {
+      "kind": "cold",
+      "index": 5,
+      "error": "",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "kind": "cold",
+      "index": 6,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "cold",
+      "index": 8,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "cold",
+      "index": 9,
+      "error": "",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "cold",
+      "index": 10,
+      "error": "",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "reopen",
+      "index": 1,
+      "error": "HTTP Error 404: Not Found",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "reopen",
+      "index": 2,
+      "error": "HTTP Error 404: Not Found",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "reopen",
+      "index": 3,
+      "error": "HTTP Error 404: Not Found",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "reopen",
+      "index": 4,
+      "error": "HTTP Error 404: Not Found",
+      "capture_error": "Remote end closed connection without response"
+    },
+    {
+      "kind": "reopen",
+      "index": 5,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    }
+  ],
+  "report_sha256": "16ee492e704e7e62a13777c27996a1ee288a25db2a7610bc9ec48e3dc59ad9a5",
+  "audit_sha256": "0d53afcb495b87ae1bb063e101086a36e382e0f84429b9d005ba912303338bbb",
+  "scope": "Five completed product cold cases passed. Cold05 quit RemoteDisconnected before open; 06/08 40-second launcher timeouts not localized; 09/10 previous Shell did not release port. Reopens failed before UI checks. Missing logs/snapshots cannot prove absence of E."
+}

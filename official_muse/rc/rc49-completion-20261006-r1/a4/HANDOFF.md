@@ -6,15 +6,15 @@ A4 rc49模型诊断、rc50/51独立矩阵；自有8492。
 
 ## Result
 
-PARTIAL。模型各0/2。50矩阵8/10+5/5 FAIL。51r1仅2有效cold；03超时、04–10 quit异常级联未open，5重开未发生。原2/10+0/5失败不改PASS。
+PARTIAL。模型各0/2；50冷8/10+重开5/5 FAIL。51r1仅2有效cold，r2仅5cold；quit异常/40s超时/端口未关闭分别保存，非10产品编译失败。
 
 ## Changed
 
-仅a4/脚本与证据；主矩阵只读，Host/权重/主入口/预算/ZIP未改。Root launcher最小修正已核对，非A4编写。
+仅a4证据及Root移交的launcher单文件：在RootTCP/404修正上补RemoteDisconnected与quit5s；整体40s、Host/产品源/预算/ZIP未改。
 
 ## Tests
 
-50 compact15ba9ea0、51 ed4874d1、Host1d7。最终合成SHA不变/无ledger；51已知PID10200/10839均退出、8492空。RC50_MATRIX_REPORT、RC51_R1_REPORT与两目录原始证据。
+50 15ba9ea0、51 ed4874d1、Host1d7。r2最终资料SHA不变/无ledger/8492空；无模型等外部写入。RC50_MATRIX_REPORT及RC51_R1/R2_REPORT与原始目录，所有失败保留。
 
 ## Commit
 
@@ -22,8 +22,8 @@ PARTIAL。模型各0/2。50矩阵8/10+5/5 FAIL。51r1仅2有效cold；03超时�
 
 ## Remaining
 
-同51/seed鲜目录r2，验证Root退出协议修正；不增加40秒时限/预算。模型长请求仍不可靠，无额外调参。
+同51/seed鲜r3验证launcher04a23e0c；不升预算或40s时限。模型仍0/2，不追加调参。
 
 ## Important Boundaries
 
-不调用模型/发送邮件/写日历、无OS或两Mac验收。51缺失capture不证明无E；旧r1未达到10真实进程，非10产品编译失败。49 ZIP保留，补清旧包39a1a080。
+矩阵不证明模型语义、OS或两Mac通过；缺capture不证明无E。r1/r2不覆盖，49 ZIP保留。Root8493/Host/模型/唯一失败保留；清理39a1a080。
