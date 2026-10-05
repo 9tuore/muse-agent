@@ -2272,8 +2272,19 @@ ui.page_content.render()
 fn memory_correct(){
 if memory_selected_id==""{return}
 let value=ui.memory_correction.text().trim()
+let i=core_memory_index(memory_selected_id,memory_scope)
+if i>=0&&gm_entry_access(memory[i])&&memory[i].document.payload.value==value{
+memory_correction_value=value
+notice="记忆内容未变化。"
+redraw()
+return
+}
 if!gm_correct(memory_selected_id,value,memory_scope,chat_selected_id){ui_error=gm_error}
-else{notice="记忆更正已保存，来源记录已更新。" core_record_event("memory corrected","用户更正来源记忆。","","","",memory_scope)}
+else{
+memory_correction_value=value
+notice="记忆更正已保存，来源记录已更新。"
+core_record_event("memory corrected","用户更正来源记忆。","","","",memory_scope)
+}
 redraw()
 }
 
@@ -8490,7 +8501,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc9" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc10" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
