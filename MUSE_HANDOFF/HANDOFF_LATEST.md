@@ -2,28 +2,24 @@
 
 ## Task
 
-Muse夜间RC收口；codex/muse-rc-finalization，保留稳定0.3.25/生产资料/未提交工作。
+Muse 夜间 RC 收口；codex/muse-rc-finalization。
 
 ## Result
 
-PARTIAL：5PASS/14PARTIAL/1BLOCKED，当前产品0.3.26-rc9/1c9f3b46。
+PARTIAL；rc10 / 6fd5b54b 最小 Memory UI 修复已实现，真实更正/重复保存/首次Shell重启PASS；其余新候选回归进行中。
 
 ## Changed
 
-用户时段检查提前；rc8未指定邮件字段保留；报告原子保存；按Git逐SHA清理已结束候选的重复分发资源。可读/compact91195 token相同，不改第二Runtime或预算。
+成功更正后同步输入框；相同已授权内容不重复存储。原 rc9 两次单点击撤回新值已实际复现并保留，无模型或外部动作。
 
 ## Tests
 
-rc9实际记忆六步/三M3调用、更正/遗忘跨聊天、一次性任务两M3调用/一次批准/独立读回/首次重启八SHA相同；两个实际模型D05正确追问。旧失败保留。rc9首轮70/2h因ENOSPC中断，容量恢复后第二轮70及额外100次普通重开通过，2h仍进行。
-
-## Commit
-
-产品1c9f3b46；测试3c8eb68b、b1d9f0d8、8a60d51a、fa89b675；材料34fb3132。本地提交，未push。
+官方 token 91244 一致；429 其他命名函数块及现有模型/邮件/日历/Goal 执行路径字节不变。rc10连续保存未回退且无重复写入、第一次Shell重启10文件SHA/ledger保持PASS；rc10新70、2h和双模型28题运行中。rc9历史启动/重开/持续运行证据分开保留。
 
 ## Remaining
 
-新Calendar桥完整Host、最终真Mail/Calendar全链、双模型原20题/2准备/6变体、电脑重启/跨Mac/ARM、正式材料。源码薄交付待最后库存固定。
+rc10 真实 UI 重复保存、跨会话与重启、更正/遗忘及一次性任务；双模型原题语义；最终 Host/Calendar/邮件全链、电脑重启与跨Mac、正式材料。
 
-## Important Boundaries
+## Boundaries
 
-稳定版真实自发自收/Calendar只读不拼rc9全链。运行SDK3f不含源码SDKda桥修复；不代点TCC、不代替真实收件确认、不公开私人资料。无新日历写入授权。
+旧安装及生产数据、未提交 baseline.json 保护；只本地提交，无 push/发布/新成功Tag；本人 self-mail 授权有效，不代点系统权限。
