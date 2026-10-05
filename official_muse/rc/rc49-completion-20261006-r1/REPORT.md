@@ -28,6 +28,7 @@
 | rc51 界面 | 宽 1400×760、普通 990×539、矮 990×380、窄实际 412×813 的输入、历史首尾、删除预览取消、长文滚动、折叠、结果及入口检查通过。宽为 readable fixture，后三个为等价 compact fixture；不是同字节原封外部全链。旧矮窗启动失败仍保留。 |
 | rc51 Root 实际启动 | 隔离满历史 fixture 的六页/输入检查通过；真实已授权资料目录首次 launcher 40.017 秒超时，之后实际 App Hub 打开 Muse 成功。该超时根因未定，不与 fixture 通过混为一例。 |
 | 冷启动矩阵 | rc50 8/10 冷、5/5 重开；rc51 r1/r2 失败完整保留。最后 r3 冷 7/10、重开 5/5，矩阵 FAIL：两次 40 秒启动器超时、一次旧端口未关闭；失败没有足够日志，不臆断具体启动阶段。 |
+| 启动阶段定位 | 启动器仅增加脱敏 stderr 阶段，不改 stdout 就绪 JSON 或时限。只调用一次，实际 hub_ready 1.771 秒并有 /s、/snap、/log；未打开 Muse，未测既有 Shell 关停。采集器中文路径转义守卫失败保留，后来核对退出自有 PID。没有复现旧超时，不能据此升级冷启动矩阵。 |
 | rc51 真实内部任务 | 同一 Goal 显式两个计划版本，各批准一次、各产生一条 completed Run、两条资料结果和读回。v1 的模型调用发生在 Chat 生成候选；显式 v2 更新后实际 Goal 模型建议 42 字，再批准保存。模型不是在批准后调用，不标该严格顺序通过。v1 完成时未提交输入保持。 |
 | rc51 同候选 Shell 重启 | 正常重启启动器 exit0；7 个受保护文件逐字节保持，8 条提醒投影不变，9 Goal/13 Run/17 Action 不变，模型 ledger 不变，零自动重放、零 [E]。这是 Shell 进程重启，非电脑重启。 |
 | rc51 另一已有聊天 | 同项目与归属的另一条已有聊天，真实 M3 正确召回两条说明及两个结果路径，引用包含两条新结果记忆。16 条聊天已满，本轮没有删历史腾出新空聊天；不称新空聊天测试。资料摘录标记“未核事实”，保存动作仍是 verified_result。 |
@@ -54,6 +55,7 @@
 
 - [rc50 修复范围](SCOPE_RC50.md)、[rc51 修复范围](SCOPE_RC51.md)、[受影响函数审计](a3/rc51/SOURCE_IMPACT.json)
 - [rc51 UI 四尺寸](a2/rc51/FINAL_REPORT.md)、[rc50 矩阵](a4/RC50_MATRIX_REPORT.md)、[rc51 最终矩阵](a4/RC51_R3_REPORT.md)、[rc51 r2 失败分类](a4/RC51_R2_REPORT.md)
+- [一次启动阶段定位](a4/rc51-stage-r1/REPORT.md)：App Hub 实際就绪与采集器失败分开记录，不是 Muse 冷启动全检查。
 - [真实目标日历只读](REAL_TARGET_CALENDAR_QUERY.json)、[rc50 恢复](RC50_REAL_RESTART.json)、[本地 Gate 身份](compliance-rc51/GATE_IDENTITY.json)
 - [官方原版 rc51 实际检查](compliance-rc51/UPSTREAM_HUB_CHECK_RC51_PROVENANCE.json)与[完整拒绝输出](compliance-rc51/UPSTREAM_HUB_CHECK_RC51.txt)
 - [rc51 实机内部任务](RC51_LIVE_REGRESSION.json)、[同候选恢复](RC51_REAL_RESTART.json)、[跨聊天召回](RC51_CROSS_CHAT.json)、[真实启动超时](RC51_LIVE_LAUNCH.json)
