@@ -1118,17 +1118,17 @@ revised.external_change=false revised.latest_observation_error="" revised.reply_
 calendar_links[li]=revised
 if!calendar_save(){calendar_pending=false calendar_error="系统事件已核验，但关联详情未保存。" redraw()return}
 }
-if phase==3&& !core_remember_result(goal_id,run_id,goal.result_path,account_scope,
-"source:calendar:"+run_id,"calendar:"+payload.calendar_id+":"+event.id,[artifact.source_id]){
+if(phase==3||phase==4)&& !core_remember_result_part(goal_id,run_id,goal.result_path,account_scope,
+"source:calendar:"+run_id,"calendar:"+payload.calendar_id+":"+event.id,[artifact.source_id],phase-3){
 calendar_pending=false calendar_error="系统事件已完成，但来源记忆未保存："+core_error redraw()return
 }
-if phase==4&& !schedule_supersede_result(goal_id,"memory:result:"+run_id,account_scope){
+if phase==5&& !schedule_supersede_result(goal_id,"memory:result:"+run_id,account_scope){
 calendar_pending=false calendar_error="日历已读回，但最新事实整理未保存。" redraw()return
 }
-if phase==5&& !core_record_event("memory saved","系统事件事实关联邮件来源及独立读回产物。",goal_id,run_id,request_id,account_scope){
+if phase==6&& !core_record_event("memory saved","系统事件事实关联邮件来源及独立读回产物。",goal_id,run_id,request_id,account_scope){
 calendar_pending=false calendar_error="结果活动未保存："+core_error redraw()return
 }
-if phase<6{start_timeout(0.05,||calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,phase+1))return}
+if phase<7{start_timeout(0.05,||calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,phase+1))return}
 if task!=nil&&task.id==goal_id{result=artifact}
 let alert_i=mail_watch_alert_index(account_scope+":"+calendar_links[li].message_id)
 if alert_i>=0{
@@ -4365,8 +4365,9 @@ if goal_id==""||run_id==""{return true}
 let gi=core_goal_index(goal_id)
 let ri=core_run_index(run_id)
 let li=calendar_link_index(goal_id)
-if gi<0||ri<0||li<0||goals[gi].status!="running"
-||runs[ri].status!="running"||runs[ri].goal_id!=goal_id
+if gi<0||ri<0||li<0||(goals[gi].status!="running"&&goals[gi].status!="completed")
+||(runs[ri].status!="running"&&runs[ri].status!="completed")||runs[ri].goal_id!=goal_id
+||runs[ri].plan_revision!=goals[gi].version
 ||calendar_links[li].event_id!=mail_draft.link_event_id{
 mail_error="邮件已由本人核对，但关联 执行记录 需人工对账。"
 return false
@@ -4383,24 +4384,49 @@ title:candidate.title start:candidate.start end:candidate.end time_zone:candidat
 location:candidate.location mail_account:mail_draft.account mail_to:mail_draft.to
 mail_subject:mail_draft.subject mail_status:"verified_by_user" verified_at:time_now()
 model_summary:"" count:0 items:[]}
-let serialized=artifact.to_json()
-if fs.mkdir("results")!=nil||storage_write(goals[gi].result_path,serialized)!=nil
-||storage_read(goals[gi].result_path)!=serialized{
-mail_error="邮件已核验，但关联结果写入/回读失败；不会重新发送。"
-return false
-}
-if!core_finish_run(goal_id,run_id,"completed",goals[gi].result_path){
-mail_error="邮件已核验，但 执行记录 完成状态未保存："+core_error
-return false
-}
-if!core_remember_result(goal_id,run_id,goals[gi].result_path,mail_draft.account,
-"source:mail-result:"+run_id,"mail-send:"+mail_draft.account+":"+mail_draft.request_id,
-[calendar_links[li].source_id,"source:calendar:"+calendar_links[li].run_id]){
-mail_error="邮件已核验，但来源记忆未保存："+core_error return false
-}
-if task!=nil&&task.id==goal_id{result=artifact}
-core_record_event("readback","邮件收件端核验声明与日历事件 ID 已保存并回读。",goal_id,run_id,mail_draft.request_id,mail_draft.account)
+let requested_id=mail_draft.request_id
+mail_verifying=true
+start_timeout(0.05,||mail_finish_linked_step(goal_id,run_id,requested_id,artifact,0))
 return true
+}
+fn mail_finish_linked_step(goal_id,run_id,request_id,artifact,phase){
+let gi=core_goal_index(goal_id)let ri=core_run_index(run_id)let li=calendar_link_index(goal_id)
+let ai=core_action_index(request_id)
+if gi<0||ri<0||li<0||ai<0||mail_draft.status!="verified"
+||mail_draft.request_id!=request_id||mail_draft.link_goal_id!=goal_id||mail_draft.link_run_id!=run_id
+||actions[ai].status!="verified"||actions[ai].goal_id!=goal_id||actions[ai].run_id!=run_id
+||runs[ri].goal_id!=goal_id||runs[ri].plan_revision!=goals[gi].version
+||(runs[ri].status!="running"&&runs[ri].status!="completed")
+||calendar_links[li].status!="verified"||calendar_links[li].event_id!=artifact.event_id
+||calendar_links[li].calendar_id!=artifact.calendar_id||calendar_links[li].candidate.start!=artifact.start
+||calendar_links[li].candidate.end!=artifact.end||mail_draft.account!=artifact.mail_account
+||mail_draft.to!=artifact.mail_to||mail_draft.subject!=artifact.mail_subject{
+mail_verifying=false mail_error="核验后的结果绑定已变化，请对账；不会重新发送。" mail_redraw()return
+}
+let path=goals[gi].result_path
+if phase==0{
+let serialized=artifact.to_json()
+if fs.mkdir("results")!=nil||storage_write(path,serialized)!=nil||storage_read(path)!=serialized{
+mail_verifying=false mail_error="邮件已核验，但关联结果写入/回读失败；不会重新发送。" mail_redraw()return
+}
+}
+if phase==1&& !core_finish_run(goal_id,run_id,"completed",path){
+mail_verifying=false mail_error="邮件已核验，但执行记录未保存："+core_error mail_redraw()return
+}
+if(phase==2||phase==3)&& !core_remember_result_part(goal_id,run_id,path,artifact.mail_account,
+"source:mail-result:"+run_id,"mail-send:"+artifact.mail_account+":"+request_id,
+[calendar_links[li].source_id,"source:calendar:"+calendar_links[li].run_id],phase-2){
+mail_verifying=false mail_error="邮件已核验，但来源记忆未保存："+core_error mail_redraw()return
+}
+if phase==4&& !schedule_supersede_result(goal_id,"memory:result:"+run_id,artifact.mail_account){
+mail_verifying=false mail_error="已核验结果的最新事实未保存，请对账。" mail_redraw()return
+}
+if phase==5&& !core_record_event("readback","邮件收件端核验声明与日历事件 ID 已保存并回读。",goal_id,run_id,request_id,artifact.mail_account){
+mail_verifying=false mail_error=core_error mail_redraw()return
+}
+if phase<6{start_timeout(0.05,||mail_finish_linked_step(goal_id,run_id,request_id,artifact,phase+1))return}
+if task!=nil&&task.id==goal_id{result=artifact}
+mail_verifying=false mail_notice="日程与确认邮件结果已核对并保存。" mail_redraw()
 }
 
 fn mail_cancel_preview(){
@@ -5235,6 +5261,10 @@ return core_commit_memory(next_claims,memory_sources,memory_forget)
 
 
 fn core_remember_result(goal_id,run_id,path,account_scope,source_id,locator,prior_sources){
+return core_remember_result_part(goal_id,run_id,path,account_scope,source_id,locator,prior_sources,0)
+&&core_remember_result_part(goal_id,run_id,path,account_scope,source_id,locator,prior_sources,1)
+}
+fn core_remember_result_part(goal_id,run_id,path,account_scope,source_id,locator,prior_sources,phase){
 let memory_id="memory:result:"+run_id
 if core_memory_index(memory_id,account_scope)>=0{return true}
 if!fs.exists(path){core_error="记忆来源产物不存在。" return false}
@@ -5255,7 +5285,10 @@ value=value+"\n系统日历事件 · "+artifact.event_id
 let source={source_id:source_id kind:"runtime_receipt" locator:locator
 content_sha256:fs.sha256(text)observed_at:now updated_at:now support_excerpt:core_excerpt(value)}
 source["scope"]=task_memory_scope(goal_id,account_scope)
-if!core_add_source(source){return false}
+if phase==0{return core_add_source(source)}
+let si=core_source_index(source_id,account_scope)
+if si<0||memory_sources[si].content_sha256!=source.content_sha256
+|| !gm_same_scope(memory_sources[si]["scope"],source["scope"]){core_error="结果来源已变化，未保存记忆。" return false}
 let source_ids=[]
 for id in prior_sources{source_ids.push(id)}
 source_ids.push(source_id)
@@ -9016,7 +9049,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc41" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc42" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
