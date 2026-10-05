@@ -12,6 +12,8 @@ rc9只把既有用户时段完整性检查移到模型payload校验之前；其�
 
 随后173份rc5–rc8分发副本核对为稳定Git提交d8a2989的同一公开主图，逐文件字节、SHA256、长度及占用重新检查后移除。该次可用空间实测增加40,439,808字节，逻辑42,581,528字节单独记录；运行中的用户窗口、当前rc9资源、原始截图、失败证据与旧完整ZIP未动。公开恢复依据见official_muse/rc/startup/RESOURCE_RECOVERY_PUBLIC_SUMMARY.json。
 
+rc10追加完整分发盘点105树，17个整树逐文件/模式/Git或保留签名镜像一致且无活动进程占用后移除，251文件逻辑477128600字节；可用空间观察变化-610304，不能宣称回收455MiB。另18个已结束测试安装bundle中的公开listing PNG逐Git/SHA/长度/无占用核对后移除，实际+6201344字节。所有原生实际截图、raw失败、profile/存储/ledger/生产保留；旧分发重用前按记录恢复。完整Host600MiB仍未达到，不降门槛。见RC10_DISTRIBUTION_RECOVERY_SUMMARY与RC10_INSTALLED_RESOURCE_RECOVERY_SUMMARY。
+
 一次成功历史snapshot的无损归档尝试ENOSPC，未删除任何原始文件，失败archive与记录留本机。完整Host600MiB门禁保持，当前运行SDK3f不含源码SDKda的Calendar布尔桥。以下为历史修复依据和模块所有权，未换成rc9全部重跑。
 
 ---
