@@ -6,7 +6,7 @@ rc45基线9b83f98c，codex/muse-rc-finalization；收口、<500MB内置模型交
 
 ## Result
 
-PARTIAL。产品e0eb5d82/rc49；真实模型候选→批准→保存/读回→记忆→Shell恢复→另一聊天召回已观察。原20项及最终外部全链等未全过。
+PARTIAL。产品e0eb5d82/rc49；rc49真实模型候选→右卡批准一次→保存/读回→记忆，未发送手写内容保持；Shell恢复与另一聊天召回是前一rc48支持证据，保留原版本身份。原20项及最终外部全链等未全过。
 
 ## Changed
 
