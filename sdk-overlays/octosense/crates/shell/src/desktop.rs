@@ -12,7 +12,7 @@ pub struct StyleSpec {
     /// Tiling desk: Omarchy's ring and gaps; no floating chrome.
     pub tiling: bool,
     /// What the desk reserves at the bottom of the work area for the shelf;
-    /// a floating shelf (the macOS dock) reserves nothing.
+    /// a floating shelf (the macOS dock) may reserve nothing.
     pub reserved_height: f64,
     pub title_height: f64,
     /// Child inset from the tile rect: Omarchy's ring, the retro bevel frame,
@@ -162,8 +162,8 @@ pub static SPECS: [StyleSpec; 8] = [
         dark_chrome: false,
         glass_chrome: false,
     },
-    // OctoSense floats like macOS: its dock overlays the desk rather than
-    // reserving a strip, and the title bar and menu share macOS's placement.
+    // OctoSense floats like macOS, but keeps maximized and snapped windows
+    // above its dock. The title bar and menu share macOS's placement.
     // Fallback grounds match the light and dark bundled wallpapers.
     // The row owns the window geometry (rounding, frame_inset, shadow); the
     // sheet's material block owns the kit's surfaces (cards, the shelf pill,
@@ -176,7 +176,7 @@ pub static SPECS: [StyleSpec; 8] = [
     StyleSpec {
         style: DesktopStyle::OctoSense,
         tiling: false,
-        reserved_height: 0.0, title_height: 32.0,
+        reserved_height: 88.0, title_height: 32.0,
         frame_inset: 2.0, rounding: 12.0, chrome_radius: 10.0,
         frame_width: 1.0, caption_width: 30.0, shelf_radius: 24.0, resize_bar: 0.0, shadow: 0.44,
         glass_shelf: true, composes: true, caption_mac: true, bevel_classic: false, bevel_next: false,
@@ -282,6 +282,68 @@ impl StyleTween {
 mod tests {
     use super::*;
     #[test]
+    fn dock_styles_keep_maximized_and_snapped_windows_above_shelf() {
+        use crate::{desktop_layout::DesktopWindows, layout::LRect, snap::Zone};
+        let zones = [Zone::Maximize, Zone::Left, Zone::Right, Zone::Top, Zone::Bottom,
+            Zone::TopLeft, Zone::TopRight, Zone::BottomLeft, Zone::BottomRight,
+            Zone::LeftWide, Zone::RightNarrow, Zone::LeftThird, Zone::MiddleThird, Zone::RightThird];
+        for style in [DesktopStyle::OctoSense] {
+            let mut t = StyleTween::default();
+            t.select(style);
+            t.step(1.0);
+            for (width, height) in [(800.0, 500.0), (1400.0, 860.0), (1920.0, 1080.0)] {
+                let screen = rect(37.0, 55.0, width, height);
+                for gap in [0.0, crate::desk::GAPS_OUT] {
+                    let area = LRect::new(screen.pos.x + gap, screen.pos.y + gap,
+                        width - gap * 2.0, height - gap * 2.0 - t.reserved_height());
+                    let mut windows = DesktopWindows::default();
+                    windows.enabled = true;
+                    windows.ensure(1, area);
+                    let restore = windows.get(1).unwrap().rect;
+                    for app_count in [0, 6, 25] {
+                        let dock = shelf_geometry(screen, &t, app_count);
+                        windows.get_mut(1).unwrap().maximized = true;
+                        let maximized = windows.rects(&[1], area)[0].1;
+                        assert!(maximized.y + maximized.h <= dock.pos.y + 1e-9,
+                            "{style:?}: maximized {maximized:?} overlaps dock {dock:?}");
+                        windows.get_mut(1).unwrap().maximized = false;
+                        for zone in zones {
+                            windows.get_mut(1).unwrap().snap = Some(zone);
+                            let snapped = windows.rects(&[1], area)[0].1;
+                            assert!(snapped.y + snapped.h <= dock.pos.y + 1e-9,
+                                "{style:?} {zone:?}: snapped {snapped:?} overlaps dock {dock:?}");
+                        }
+                        assert_eq!(windows.get(1).unwrap().rect, restore);
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn dock_workarea_tracks_bottom_shelves_during_style_transitions() {
+        use crate::{desktop_layout::DesktopWindows, layout::LRect};
+        let screen = rect(37.0, 55.0, 1400.0, 860.0);
+        for (from, to) in [(DesktopStyle::OctoSense, DesktopStyle::Windows),
+            (DesktopStyle::Windows, DesktopStyle::OctoSense)] {
+            for dt in [0.0, 0.1, 0.3, 1.0] {
+                let mut t = StyleTween::default();
+                t.select(from);
+                t.step(1.0);
+                t.select(to);
+                t.step(dt);
+                let area = LRect::new(screen.pos.x, screen.pos.y, screen.size.x,
+                    screen.size.y - t.reserved_height());
+                let mut windows = DesktopWindows::default();
+                windows.ensure(1, area);
+                windows.get_mut(1).unwrap().maximized = true;
+                let maximized = windows.rects(&[1], area)[0].1;
+                let dock = shelf_geometry(screen, &t, 6);
+                assert!(maximized.y + maximized.h <= dock.pos.y + 1e-9,
+                    "{from:?} to {to:?} at {dt}: {maximized:?} overlaps {dock:?}");
+            }
+        }
+    }
+    #[test]
     fn interrupted_switch_starts_from_the_visible_mix_and_lands_exactly() {
         let mut t = StyleTween::default();
         t.select(DesktopStyle::Macos);
@@ -295,10 +357,9 @@ mod tests {
     }
     #[test]
     fn specs_reproduce_the_literal_arrays_for_every_style() {
-        // The arrays these replace, verbatim from the pre-refactor code, padded
-        // with the zeros the phone rows must hold for a tween into them to land,
-        // then the OctoSense row appended after the table existed.
-        let reserved = [0.0, 0.0, 54.0, 34.0, 0.0, 0.0, 0.0, 0.0];
+        // Original style rows keep the pre-refactor geometry and phone zeros;
+        // OctoSense now reserves the strip up to its dock's top edge.
+        let reserved = [0.0, 0.0, 54.0, 34.0, 0.0, 0.0, 0.0, 88.0];
         let title = [0.0, 32.0, 34.0, 20.0, 22.0, 0.0, 0.0, 32.0];
         let inset = [2.0, 0.0, 0.0, 3.0, 1.0, 0.0, 0.0, 2.0]; // BORDER_SIZE = 2.0
         let rounding = [0.0, 14.0, 8.0, 0.0, 0.0, 0.0, 0.0, 12.0];
