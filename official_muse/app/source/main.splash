@@ -7319,9 +7319,9 @@ fn chat_apply_proposal(id){
     } else if card.action == "goal_plan" {
         if payload.objective.trim() == "" || payload.source.trim() == "" { ui_error = "目标或资料还不明确，请补充后建立计划。" redraw() return }
         if gm_project == "" || gm_owner == "" { ui_error = "请先选择本次任务的项目与归属。" chat_focus_open = true redraw() return }
-        let prior_goal = chat_sessions[si].goal_id
-        ui.goal_input.set_text(payload.objective) ui.source_input.set_text(payload.source) make_plan()
-        if chat_sessions[si].goal_id == prior_goal { return }
+        ui.goal_input.set_text(payload.objective) ui.source_input.set_text(payload.source)
+        let created_goal = make_plan()
+        if created_goal == nil { return }
     }
     chat_sessions[si].proposals[pi].state = "opened"
     chat_save() redraw()
@@ -7869,13 +7869,22 @@ fn make_plan(){
     result = nil
     model_pending = false
     ui_error = ""
-    chat_bind_goal(id)
-    notice = "计划已生成。核对目标和能力范围后再批准。"
-    start_timeout(0.05, || {
-        core_record_event("Goal created", goal, id, "", "", "")
+    let session_id = chat_selected_id
+    start_timeout(0.05,|| goal_open_saved_plan(id,session_id))
+    return id
+}
+
+fn goal_open_saved_plan(id,session_id){
+    let gi = core_goal_index(id)
+    if chat_selected_id != session_id || gi < 0 || goals[gi].status != "planned"
+        || goals[gi].project_id != gm_project || goals[gi].owner_id != gm_owner { return }
+    if !chat_bind_goal(id) { redraw() return }
+    start_timeout(0.05,|| {
+        if chat_selected_id != session_id || selected_id != id { return }
+        notice = "计划已生成。核对目标和能力范围后再批准。"
+        set_page("Goal Detail")
+        start_timeout(0.05,|| core_record_event("Goal created",goals[core_goal_index(id)].goal,id,"","",""))
     })
-    set_page("Goal Detail")
-    redraw()
 }
 
 fn ask_model(){
@@ -8002,10 +8011,11 @@ fn finish_result(goal_id,run_id,revision){
     if mkdir_error != nil { fail_run(goal_id,run_id,"无法创建结果目录。") return }
     let write_error = storage_write(spec.steps[0].args.path,serialized)
     if write_error != nil { fail_run(goal_id,run_id,"写入结果失败。") return }
-    core_record_event("storage write",spec.steps[0].args.path,goal_id,run_id,"","")
+    let written_path = spec.steps[0].args.path
+    start_timeout(0.02,|| core_record_event("storage write",written_path,goal_id,run_id,"",""))
     let readback = storage_read(spec.verification[0].target_ref)
     if readback != serialized { fail_run(goal_id,run_id,"结果回读不一致，尚未报告完成。") return }
-    core_record_event("readback","结果内容与写入内容一致。",goal_id,run_id,"","")
+    start_timeout(0.03,|| core_record_event("readback","结果内容与写入内容一致。",goal_id,run_id,"",""))
     let path = spec.steps[0].args.path
     start_timeout(0.05, || finalize_result(goal_id,run_id,revision,path,readback,false))
 }
@@ -8027,8 +8037,8 @@ fn approve(){
     let request_id = "goal-" + floor(time_now()) + "-" + random_u32()
     let run_id = core_start_run(approved_id,approved_revision,request_id)
     if run_id == nil { notice = "批准未保存：" + core_error ui_error = notice redraw() return }
-    core_record_event("Plan approved","已绑定当前 目标Spec 与结果路径。",approved_id,run_id,request_id,"")
     start_timeout(0.05, || finish_result(approved_id,run_id,approved_revision))
+    start_timeout(0.02,|| core_record_event("Plan approved","已绑定当前目标Spec与结果路径。",approved_id,run_id,request_id,""))
     redraw()
 }
 
@@ -8553,7 +8563,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc17" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc18" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
