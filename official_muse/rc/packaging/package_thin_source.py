@@ -97,6 +97,54 @@ def prepare(args):
     return version, artifact, mirror, mirror_paths, rows, tutorial, name, budget, source_tar
 
 
+def frozen_metadata(args, version):
+    freeze_data = git(args.commit, 'RC_CODE_FREEZE.json')
+    freeze = json.loads(freeze_data)
+    assert freeze['version'] == version, 'RC_CODE_FREEZE version mismatch'
+    assert freeze['product_commit'] == args.application_commit, 'RC_CODE_FREEZE product mismatch'
+    for field, path in [
+        ('payload_sha256', 'official_muse/app/bundle/main.splash'),
+        ('readable_sha256', 'official_muse/app/source/main.splash'),
+    ]:
+        assert freeze[field] == digest(git(args.commit, path)), 'RC_CODE_FREEZE source mismatch: ' + field
+        assert freeze[field] == digest(git(args.application_commit, path)), 'RC_CODE_FREEZE application mismatch: ' + field
+    source_sdk = digest(git(args.commit, 'dependencies.lock.json'))
+    assert freeze['source_sdk_lock_sha256'] == source_sdk, 'RC_CODE_FREEZE source SDK mismatch'
+    history_index = 'RC_EVIDENCE_INDEX.json'
+    git(args.commit, history_index)  # The referenced index must exist in the frozen source.
+    return {
+        'version': version, 'status': 'PARTIAL_MATERIALS_ONLY_NOT_STANDALONE',
+        'source_export_commit': args.commit, 'application_commit': args.application_commit,
+        'readable_source_sha256': freeze['readable_sha256'],
+        'payload_sha256': freeze['payload_sha256'],
+        'source_sdk_lock_sha256': source_sdk,
+        'bundle_manifest_sha256': digest(git(args.application_commit, 'official_muse/app/bundle/manifest.json')),
+        'code_freeze_reference': '02-最新源码/RC_CODE_FREEZE.json',
+        'code_freeze_sha256': digest(freeze_data),
+        'current_validation': {
+            'freeze_status': freeze['status'],
+            'startup70': freeze['startup70'], 'reopen100': freeze['reopen100'],
+            'final_soak': freeze['final_soak'], 'frozen_model_scope': freeze['frozen_model_scope'],
+        },
+        # The freeze records Calendar scope, not an independent T18 PASS verdict.
+        'calendar_full_chain_T18': {
+            'calendar_read_status': freeze['calendar_read_status'],
+            'calendar_fix_in_current_host': freeze['calendar_fix_in_current_host'],
+            'final_live_chain': freeze['final_live_chain'],
+        },
+        'historical_failure_index': '02-最新源码/' + history_index,
+        'host_included': False, 'launcher_included': False, 'models_included': False,
+        'old_087_zip_sha256': '127a3ffe0a5343165f659978ec450cecaeeea201467687724e56ec66e521cf17',
+        'required_old_intel_host_sha256': '938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d',
+        'old_host_runtime_sdk_commit': 'b48618acef0ff291ad3dc23b09946b0b15fa4f2f',
+        'old_host_sdk_lock_sha256': '3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e',
+        'calendar_bridge_fix_in_old_host': False,
+        'receiver_launcher': 'NOT_INCLUDED_NOT_VERIFIED',
+        'receiver_two_mac_validation': 'NOT_RUN', 'clean_build': 'BLOCKED_CAPACITY',
+        'formal_publication': 'NOT_PUBLISHED', 'a4_gui_or_model_calls': 'NOT_RUN',
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--commit', required=True, help='Coordinator-declared frozen source export commit')
@@ -105,6 +153,7 @@ def main():
     parser.add_argument('--check-only', action='store_true', help='Validate public inputs without creating a ZIP')
     args = parser.parse_args()
     version, artifact, mirror, mirror_paths, rows, tutorial, name, budget, source_tar = prepare(args)
+    metadata = frozen_metadata(args, version)
     if args.check_only:
         print(json.dumps({'status': 'STATIC_INPUTS_PASS_NO_EXPORT', 'version': version,
                           'source_commit': args.commit, 'application_commit': args.application_commit,
@@ -116,37 +165,6 @@ def main():
     archive = output / (name + '.zip')
     pending = output / (name + '.incomplete.zip')
     assert not archive.exists() and not pending.exists(), 'Preserve earlier outputs'
-    metadata = {'version': version, 'status': 'PARTIAL_MATERIALS_ONLY_NOT_STANDALONE',
-                'source_export_commit': args.commit, 'application_commit': args.application_commit,
-                'source_sdk_lock_sha256': digest(git(args.commit, 'dependencies.lock.json')),
-                'bundle_manifest_sha256': digest(git(args.application_commit, 'official_muse/app/bundle/manifest.json')),
-                'host_included': False, 'launcher_included': False, 'models_included': False,
-                'old_087_zip_sha256': '127a3ffe0a5343165f659978ec450cecaeeea201467687724e56ec66e521cf17',
-                'required_old_intel_host_sha256': '938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d',
-                'old_host_runtime_sdk_commit': 'b48618acef0ff291ad3dc23b09946b0b15fa4f2f',
-                'old_host_sdk_lock_sha256': '3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e',
-                'calendar_bridge_fix_in_old_host': False,
-                'receiver_launcher': 'NOT_INCLUDED_NOT_VERIFIED',
-                'current_application_runtime_validation': 'SEE_MATCHING_ROOT_REPORTS_A4_DID_NOT_RUN_GUI',
-                'historical_rc6_b9cf_startup': {'application_commit': 'b9cf26b8dc0a9bdb51e493cb6a420636a1291e73',
-                                               'status': 'COLD2_FAIL_PREPARATION_124MS'},
-                'historical_rc7_mail_subject_failure': {'application_commit': '28c5073f9c4304787143f218f8f378500cfd1a57',
-                                                       'case': 'E04', 'status': 'COORDINATOR_REPORTED_ACTUAL_MODEL_FAIL'},
-                'rc8_subject_preservation_fixture': {'application_commit': 'a80bd019db7581511b3891bcc3892548f767a42d',
-                                                    'cases': 86, 'status': 'COORDINATOR_REPORTED_FIXTURE_PASS_HISTORICAL_ONLY'},
-                'historical_rc8_live_support': {'application_commit': 'a80bd019db7581511b3891bcc3892548f767a42d',
-                                               'status': 'COORDINATOR_REPORTED_70_STARTUPS_M3_8_PASS_M27_7_PASS_D05_FAIL_E04_BOTH_PASS_NOT_RC9_OR_FULL_T17'},
-                'historical_rc9_time_question_order_fixture': {'application_commit': '1c9f3b46e7aac0ee17be385de64c97564651152f',
-                                                   'status': 'COORDINATOR_REPORTED_15_VARIANTS_53_PASS_HISTORICAL_NOT_RC10'},
-                'rc10_memory_correction_ui_support': {'application_commit': '6fd5b54beeba7cc9892916c3de7f01106ab8a158',
-                                                       'readable_source_sha256': 'a19622e0977b3f988531a1d7db743bc9ef4cd6973fa75bbcdc5dec07d6823cc5',
-                                                       'payload_sha256': '7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0',
-                                                       'summary': 'official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json',
-                                                       'status': 'ROOT_SUMMARY_PASS_CORRECTION_REPEAT_SAVE_FIRST_SHELL_RESTART_ONLY'},
-                'rc10_70_startups_2h_full28': 'RUNNING_NOT_COMPLETE_AT_MATERIAL_SYNC',
-                'calendar_full_chain_T18': 'NOT_PASSED',
-                'receiver_two_mac_validation': 'NOT_RUN', 'clean_build': 'BLOCKED_CAPACITY',
-                'formal_publication': 'NOT_PUBLISHED', 'a4_gui_or_model_calls': 'NOT_RUN'}
     expected = {}
     with zipfile.ZipFile(pending, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
         def add(rel, data, mode=0o644):
