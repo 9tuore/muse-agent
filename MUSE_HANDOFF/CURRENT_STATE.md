@@ -1,3 +1,11 @@
+## 2026-10-05 12:45 · rc15发送忙碌反馈与新Host实机
+
+新Host7eebe833/SDKda已独立二进制/锁/严格验签核对、复制持久路径后再核对，固定profile8493运行rc14。日历status严格schema已可读，permission=not_determined；本人请求等待120秒返回timed_out，系统决定仍待。邮箱元数据识别成功，但服务持续显示“检查中·等待宿主”；源测试稿两次明确零dispatch后点击均未生成request/attempt/actions，未发信，FAIL保留。rc15只为新邮件确认按钮增加与既有守卫一致的disabled和等待/不可写原因，不改变发送函数或宿主；91611官方tokens等价、Hub check PASS，实机渲染待。
+
+rc14冲突采用10组186项actual Card/两次独立恢复/明确forget隐私PASS，原rc13丢内容6FAIL保留。真实UI首次续填遇瞬时memory_body未出现在snapshot，已存失败，按磁盘确认第一条仅保存一次后续填第二条；真实冲突询问0模型调用、采用旧项保留另一原文/来源/历史/无新增墓碑PASS。真实M3随后只答20分钟并引用已选claim，累计17calls16057tokens。所有资料仅合成profile；稳定/生产/baseline/旧证据保护，不push/Tag/发布。最终真实系统链与第二strong、OS重启等缺项仍不升级PASS。
+
+---
+
 ## 2026-10-05 12:31 · rc14冲突采用保留来源
 
 rc13真实MemoryUI保存两条不同碰面时长，检索正确询问冲突且模型调用0；点击“保留旧内容”后，另一条被gm_forget清空/墓碑化，FAIL保留。rc14只把gm_resolve改为gm_prepare+resolved_by+既有commit，并记真实选择事件，保留冲突原文/来源；明确遗忘原函数不改。官方91536tokens相等，Hub check PASS；新Card/恢复/隐私变体待实际结果，不提前标通过。

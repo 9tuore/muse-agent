@@ -1,5 +1,5 @@
-# Muse 接手 · 2026-10-05 12:31
+# Muse 接手 · 2026-10-05 12:45
 
-分支codex/muse-rc-finalization；当前应用0.3.26-rc14，只修gm_resolve保留冲突来源（普通明确遗忘不变），readable2bc158c9/payload3a185042，91536官方tokens相等、Hub check PASS。源修复fixture待；此前rc13实际冲突采用错误遗忘的FAIL完整保留。rc13 Mail澄清13组262检查/5次恢复通过；真实地址topic guard无trap/无候选，但M3仍答活动名称，语义FAIL。跨新聊天个人项目真实偏好召回/有效refs，老师隔离未知/refs空，累计16calls15223tokens。
+当前rc15 source7a77ef74/payload881e5c6b，91611token等价、Hub check PASS；只给新邮件确认按钮增加busy/不可写disabled与原因，发送守卫不变，真实渲染待。rc14 gm_resolve保留冲突来源actualCard10组186项/两恢复/显式forget隐私及真实UI采用后M3正确引用均PASS，原失败保留；累计17calls16057tokens，第二strong仅MiniMax缺项。
 
-唯一live morning-final-live-r2/private，8493当前rc13/Host938，用户官方邮箱已登录、258完整baseline；源邮件合成稿未发。A4新SDKda Host由冻结F019dc303独立release构建，待就绪再切同profile。Root唯一main/SDK/GUI/Git写入者，A2新morning-memory-resolve-r1测fixture，A3独立语义，A4独立构建。窗口11:44:10–13:44:10BJT。真实链/新Host权限/精确合成日历本人确认/OS重启仍待，不拼旧节点。稳定0.3.25、旧独立安装、生产、未提交baseline、所有失败保护。未push/Tag/发布；第二strong用户目前只有MiniMax。
+Root唯一主文件/SDK/GUI/Git写入者。真实8493新Host7eebe833，SDKda由独立freshF019dc303构建（初始网络FAIL+GitCLI恢复保留），持久路径official_muse/rc/packaging/.local-state/morning-clean-current-r1/Muse Host.app，profile morning-final-live-r2/private不变。系统Calendar not_determined，访问请求120秒timeout待本人系统决定；邮箱服务busy等Host，测试源邮件仍waiting_user、request/attempt空、actions0，两点击均没有发送，已提本人检查系统/Keychain弹窗。精确测试MUSE-R2-MORNING-20261005-R1，源稿已准备；日历拟工作15:00–15:30→16:00–16:30/10月5日，但须实际查询和本人窄授权才写。截止13:44:10BJT；当前仍PARTIAL，不拼历史/强行放权/重复未知发送。稳定0.3.25/旧安装/生产/未提交baseline/失败保持，无push/Tag/发布。
