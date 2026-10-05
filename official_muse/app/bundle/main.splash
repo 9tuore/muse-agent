@@ -6847,7 +6847,7 @@ return ambiguous
 fn chat_calendar_input_clear(message){
 if chat_calendar_input_ambiguous(message){return false}
 let date_known=chat_calendar_date_known(message)
-let range_known=regex("到|至|—|小时|分钟|[0-9]:[0-9].*[-~]","").test(message)
+let range_known=regex("到|至|—|小时|分钟|[0-9]:[0-9].*[-~–]","").test(message)
 return date_known&&range_known
 }
 fn chat_candidate_input_error(action,payload,message,editing){
