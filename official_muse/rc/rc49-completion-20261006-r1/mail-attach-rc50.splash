@@ -1,0 +1,87 @@
+// Production mail -> candidate -> approval -> CRUD/get, entirely synthetic transport.
+let chain_calls = []
+let chain_models = []
+let chain_event = nil
+let chain_conflict = false
+let chain_write_count = 0
+let chain_goal = ""
+let chain_wait = 0
+let chain_result = {}
+let chain_preview = ""
+fn chain_fixture_request(service,args,cb){
+    chain_calls.push({service: service args: args})
+    if service == "mail.accounts" { cb({is_ok: true data: [{id: "synthetic-account" address: "self@example.invalid"}]}) return }
+    if service == "model.complete" { chain_models.push(cb) return }
+    if service == "calendar.status" {
+        cb({is_ok: true data: {permission: "full_access" calendars: [{id: "fixture-calendar" writable: true}]}}) return
+    }
+    if service == "calendar.list" {
+        let events = []
+        if chain_conflict { events.push({id: "conflict" version: "conflict-v1" calendar_id: "fixture-calendar"
+            title: "外部合成冲突" start: args.start end: args.end time_zone: "Asia/Shanghai" location: "合成"}) }
+        if chain_event != nil && calendar_iso_utc(chain_event.start) < calendar_iso_utc(args.end)
+            && calendar_iso_utc(chain_event.end) > calendar_iso_utc(args.start) { events.push(chain_event) }
+        cb({is_ok: true data: {events: events truncated: false}}) return
+    }
+    if service == "calendar.get" {
+        cb({is_ok: true data: {found: chain_event != nil event: chain_event}}) return
+    }
+    if service == "calendar.create" {
+        chain_write_count = chain_write_count + 1
+        chain_event = {id: "fixture-chain-event" calendar_id: args.calendar_id version: "fixture-v1"
+            title: args.title start: args.start end: args.end time_zone: args.time_zone location: args.location}
+        cb({is_ok: true data: {event_id: chain_event.id version: chain_event.version}}) return
+    }
+    if service == "calendar.update" {
+        chain_write_count = chain_write_count + 1
+        chain_event = args.changes.to_json().parse_json()
+        chain_event += {id: args.event_id calendar_id: args.calendar_id version: "fixture-v2"}
+        cb({is_ok: true data: {event_id: chain_event.id version: chain_event.version}}) return
+    }
+    if service == "calendar.delete" {
+        chain_write_count = chain_write_count + 1 chain_event = nil
+        cb({is_ok: true data: {deleted: true}}) return
+    }
+    cb({is_ok: false error: "Synthetic chain forbids other services"})
+}
+fn chain_count(service){
+    let count = 0 for call in chain_calls { if call.service == service { count = count + 1 } }
+    return count
+}
+fn probe(){
+    fixture_seed()
+    start_timeout(0.03,|| chain_setup())
+}
+fn chain_setup(){
+    chat_boot() gm_boot() calendar_boot() gm_set_focus("合成验收","个人")
+    notification_enabled = false
+    mail_accounts = [{id: "synthetic-account" address: "self@example.invalid"}]
+    mail_account = mail_accounts[0]
+    gm_set_accounts(["synthetic-account"])
+    // Explicit mail scope is user input; current Chat focus no longer assigns mail ownership.
+    mail_scope_project = "合成验收" mail_scope_owner = "个人"
+    mail_selected = {id: "fixture-meeting" sender: "合成邀请人" address: "sender@example.invalid"
+        subject: "MUSE-R2-OVERNIGHT 日程邀请" body: "2026-10-08 15:00至16:00，Asia/Shanghai，合成会议室。"}
+    start_timeout(0.03,|| chain_link_mail())
+}
+fn chain_link_mail(){
+    mail_link_calendar()
+    start_timeout(0.03,|| chain_assert_source())
+}
+fn chain_assert_source(){
+    if (mail_calendar_link_pending || chain_models.len()==0) && chain_wait < 100 { chain_wait = chain_wait+1 start_timeout(0.03,|| chain_assert_source()) return }
+    chain_goal = selected_id
+    let li = calendar_link_index(chain_goal)
+    chain_result.mail_source_bound = goals.len() == 1 && li >= 0 && chain_models.len() == 1
+        && goals[0].mail_source.message_id == "fixture-meeting" && calendar_links[li].source_id == goals[0].mail_source.source_id
+    if !chain_result.mail_source_bound { chain_result.diagnostic={goals:goals.len() links:calendar_links.len() models:chain_models.len() core_storage:core_storage_ready core_memory:core_memory_ready calendar_ready:calendar_ready error:mail_error calendar_error:calendar_error pending:mail_calendar_link_pending}
+ fs.write("probe.json",chain_result.to_json()) return }
+    let audit = 0
+    for event in activity { if event.kind == "Goal created" && event.goal_id == chain_goal { audit = audit+1 } }
+    chain_result.goal_audit_once = audit == 1
+    chain_result.no_calendar_or_mail_write = chain_write_count == 0 && chain_count("mail.send")==0
+    chain_result.source_claim_saved = core_memory_index(calendar_links[li].source_claim_id,"synthetic-account")>=0
+    fs.write("probe.json",chain_result.to_json())
+}
+
+start_timeout(0.1,|| probe())

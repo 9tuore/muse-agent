@@ -2782,10 +2782,13 @@ fn mail_calendar_attach(context,source,doc,excerpt,body,phase){
                 calendar_id: "" run_id: "" event_id: "" version: "" status: "candidate" last_error: "" updated_at: time_now()
                 rfc_message_id: context["rfc_message_id"]})
             if !calendar_save() { mail_calendar_link_pending = false mail_error = calendar_error mail_redraw() return }
-            core_record_event("Goal created","从已授权邮件建立日程候选，来源为账号/消息 ID。",context.goal_id,"","",context.account_id)
         }
     }
-    if phase < 4 { start_timeout(0.05,|| mail_calendar_attach(context,source,doc,excerpt,body,phase+1)) return }
+    // Persisting links and audit history each needs its own unchanged VM slice.
+    if phase == 4 {
+        core_record_event("Goal created","从已授权邮件建立日程候选，来源为账号/消息 ID。",context.goal_id,"","",context.account_id)
+    }
+    if phase < 5 { start_timeout(0.05,|| mail_calendar_attach(context,source,doc,excerpt,body,phase+1)) return }
     mail_calendar_link_pending = false
     calendar_selected_goal = context.goal_id
     calendar_notice = "邮件事实和来源已关联同一任务；请核对日程候选。"
@@ -6760,7 +6763,8 @@ fn chat_boot_data(){
         let id = "chat:" + floor(now) + "-" + random_u32()
         let title = "新对话"
         if imported.len() > 0 { title = "原对话 · " + stamp(now) }
-        chat_sessions = [{id: id title: title created_at: now updated_at: now messages: imported}]
+        chat_sessions = [{id: id title: title created_at: now updated_at: now messages: imported
+            proposals: [] focus_project: "" focus_owner: "" goal_id: ""}]
         chat_selected_id = id
         messages = imported
         chat_ready = true
@@ -8723,7 +8727,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                 }
             }
         }}
-        shortcuts := ScrollYView{width: Fill height: "clamp(205px, 40cqh, 280px)" flow: Down spacing: 3 on_render: || {
+        shortcuts := ScrollYView{width: Fill height: "clamp(80px, 22cqh, 205px)" flow: Down spacing: 3 on_render: || {
             Nav{text: "对话" on_click: || set_page("Chat")}
             Nav{text: "邮箱" on_click: || set_page("Mail")}
             Nav{text: "日历" on_click: || set_page("Calendar")}

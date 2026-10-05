@@ -1,0 +1,36 @@
+{
+  "status": "PARTIAL",
+  "version": "0.3.26-rc50",
+  "readable_sha256": "0e705f33c36c77e32c335c1489a7ebe047a2e6476a473a4678cbffb767ca480f",
+  "compact_sha256": "15ba9ea00f55079a1243ca1dfab9b266b23e434855b69bd49cd13fb9d524d471",
+  "first_chat_before": {
+    "passed": 3,
+    "failed": [
+      "first_write_complete"
+    ],
+    "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+    "source_sha256": "8b93aad274a6a43599890158e91fa3cc0a159d0a7196dff8890239d768f45b98"
+  },
+  "first_chat_after": {
+    "passed": 4,
+    "failed": [],
+    "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+    "source_sha256": "441841dd176d7bf5c32fa995fadf3af73a0d6ce70b72a0f23a642331b2636e83"
+  },
+  "mail_attachment": {
+    "mail_source_bound": true,
+    "goal_audit_once": true,
+    "no_calendar_or_mail_write": true,
+    "source_claim_saved": true,
+    "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+    "source_sha256": "15ba9ea00f55079a1243ca1dfab9b266b23e434855b69bd49cd13fb9d524d471",
+    "passed": 4,
+    "failed": [],
+    "suite_sha256": "b1a97b165e07c44cc4f2890f2b1731848312048be29ae6b2888e4cb67022ccab",
+    "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+    "real_model": false,
+    "real_mail": false,
+    "real_calendar": false
+  },
+  "reuse_note": "First-chat instrumented prefix SHA differs from full payload; only the byte-identical chat_boot_data change is covered. UI and external execution are not replaced by this fixture."
+}
