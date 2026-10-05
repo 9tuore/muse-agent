@@ -97,13 +97,17 @@ def inventory(root):
 def write_zip(stage, destination, expected):
     prefix = stage.name + '/'
     with zipfile.ZipFile(destination, 'x', compression=zipfile.ZIP_DEFLATED,
-                         compresslevel=6, allowZip64=True) as z:
+                         compresslevel=9, allowZip64=True, strict_timestamps=False) as z:
         root = zipfile.ZipInfo(prefix)
         root.create_system = 3
         root.external_attr = (stat.S_IFDIR | 0o755) << 16 | 0x10
         z.writestr(root, b'')
         for rel, item in sorted(expected.items()):
             name = prefix + rel + ('/' if item['kind'] == 'dir' else '')
+            if item['kind'] == 'file':
+                z.write(stage / rel, name, compress_type=zipfile.ZIP_DEFLATED,
+                        compresslevel=9)
+                continue
             zi = zipfile.ZipInfo(name)
             zi.create_system = 3
             kind = {'dir': stat.S_IFDIR, 'file': stat.S_IFREG, 'symlink': stat.S_IFLNK}[item['kind']]
@@ -113,10 +117,6 @@ def write_zip(stage, destination, expected):
                 z.writestr(zi, b'')
             elif item['kind'] == 'symlink':
                 z.writestr(zi, os.fsencode(item['target']))
-            else:
-                zi.compress_type = zipfile.ZIP_DEFLATED
-                with (stage / rel).open('rb') as source, z.open(zi, 'w') as output:
-                    shutil.copyfileobj(source, output, 1024 * 1024)
     if destination.stat().st_size >= MAX_ZIP_BYTES:
         raise RuntimeError('ZIP exceeds strict 500,000,000-byte limit')
 
@@ -161,7 +161,76 @@ def verify_and_extract_zip(archive, stage_name, expected, extract_dir):
         raise RuntimeError('extracted inventory differs from packaged tree')
 
 
-def tutorial(version, commit, app_name, source_name, external_video=None):
+def write_solid_source(source, archive, allowlist):
+    expected = inventory(source)
+    files = {r: i for r, i in expected.items() if i['kind'] == 'file'}
+    if set(files) != set(allowlist) or any(i['kind'] == 'symlink' for i in expected.values()):
+        raise RuntimeError('solid source differs from frozen file allowlist')
+    for rel, item in files.items():
+        if any(item[k] != allowlist[rel][k] for k in ('mode', 'bytes', 'sha256')):
+            raise RuntimeError('solid source identity mismatch: ' + rel)
+    expected = {'': dict(kind='dir', mode=stat.S_IMODE(source.stat().st_mode)), **expected}
+    with tarfile.open(archive, 'x:xz', preset=6, format=tarfile.PAX_FORMAT) as tar:
+        for rel, item in sorted(expected.items()):
+            member = tarfile.TarInfo(source.name + ('/' + rel if rel else ''))
+            member.mode = item['mode']
+            if item['kind'] == 'dir':
+                member.type = tarfile.DIRTYPE
+                tar.addfile(member)
+            else:
+                member.size = item['bytes']
+                with (source / rel).open('rb') as f:
+                    tar.addfile(member, f)
+    return expected
+
+
+def verify_and_extract_solid_source(archive, source_name, allowlist, expected, extract_dir):
+    if (extract_dir / source_name).exists():
+        raise RuntimeError('never overwrite expanded source')
+    prefix = source_name + '/'
+    seen = set()
+    with tarfile.open(archive, 'r:xz') as tar:
+        for member in tar:
+            name = member.name.rstrip('/')
+            rel = '' if name == source_name else name.removeprefix(prefix)
+            if name != source_name and not name.startswith(prefix):
+                raise RuntimeError('source tar prefix mismatch')
+            if rel not in expected or rel in seen:
+                raise RuntimeError('source tar allowlist mismatch: ' + name)
+            path = extract_dir / safe_relative(name)
+            item = expected[rel]
+            if member.mode != item['mode']:
+                raise RuntimeError('source tar mode mismatch: ' + name)
+            if item['kind'] == 'dir' and member.isdir():
+                path.mkdir(parents=True, exist_ok=True)
+                path.chmod(member.mode)
+            elif item['kind'] == 'file' and member.isfile():
+                if rel not in allowlist or member.size != allowlist[rel]['bytes']:
+                    raise RuntimeError('source tar file mismatch: ' + name)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with tar.extractfile(member) as src, path.open('xb') as dst:
+                    shutil.copyfileobj(src, dst, 1024 * 1024)
+                path.chmod(member.mode)
+                if sha(path) != allowlist[rel]['sha256'] or item['sha256'] != allowlist[rel]['sha256']:
+                    raise RuntimeError('source tar SHA mismatch: ' + name)
+            else:
+                raise RuntimeError('unsupported source tar entry: ' + name)
+            seen.add(rel)
+    if seen != set(expected) or inventory(extract_dir / source_name) != {r: i for r, i in expected.items() if r}:
+        raise RuntimeError('expanded source inventory mismatch')
+
+
+def tutorial(version, commit, app_name, source_name, external_video=None, solid_source=False):
+    source_block = ''
+    if solid_source:
+        source_block = ('<h2>展开完整公开源码</h2><p>ZIP 双击解压后，应用可以直接运行，'
+            '不需要先展开源码，也无需额外安装 Python、Rust、Git 或解压工具。'
+            '查看或开发源码时，在 Finder 双击 <strong>%s.tar.xz</strong>，'
+            '展开后得到 <strong>%s</strong> 文件夹，再打开其中 README.md。'
+            '如果 Finder 没有自动展开，可在此文件夹的 Terminal 使用 macOS 自带命令 '
+            '<code>/usr/bin/tar -xJf &quot;%s.tar.xz&quot;</code>。'
+            '桌面原交付文件夹已经保留展开源码；ZIP 只保存同一份完整源码压缩档，不重复占空间。'
+            '源码逐文件身份和可执行权限在公开源码允许清单.json 中。</p>') % tuple(html.escape(source_name) for _ in range(3))
     video_block = ''
     if external_video:
         video_block = ('<h2>本轮实录视频</h2><p>视频与 ZIP 分开交付，以保持 ZIP 严格小于 500,000,000 字节。'
@@ -176,6 +245,7 @@ def tutorial(version, commit, app_name, source_name, external_video=None):
 <nav class="links"><a href="%(app_url)s">查看应用</a><a href="02-运行环境检查.command">运行环境检查</a><a href="03-双机测试记录.html">双机测试记录</a><a href="%(source_url)s/README.md">公开源码 README</a><a href="包身份与验收.json">包身份与验收</a></nav>
 <p>浏览器可能将应用或 .command 链接作为下载处理；这种情况下回到解压后的 Finder 文件夹，双击对应文件即可。教程本身不联网。</p>
 %(video_block)s
+%(source_block)s
 <h2>1. 检查电脑并打开应用</h2><ol><li>苹果菜单 → 关于本机：芯片为 Intel，macOS 至少为 14。两台电脑各自解压一份，运行与数据彼此独立。</li><li>可先双击「02-运行环境检查.command」，它只检查文件、版本与签名，不配置账号、不打开宿主。</li><li>在 Finder 双击「%(app)s」。若系统提示开发者无法验证，使用 macOS 的右键 → 打开，或在「系统设置 → 隐私与安全性」按系统提示允许本次打开。本包为本地 ad hoc 签名开发候选，未公证。</li><li>启动器打开 OctoSense App Hub。在 Muse 一行点击「获取」，阅读权限页，向下滚动到底部点击「安装」。切到「已安装」，点击 Muse 的「打开」。首次加载后稍等几秒，确认对话输入框已出现。包中当前运行版本为 <strong>%(version)s</strong>；运行制品只保留这一版。</li></ol>
 <h2>2. 直接测试离线对话，按需更换模型</h2><p>内置 Qwen3-0.6B Q4_K_S（纯四位量化） 是基础离线模型，由官方 Apache 2.0 权重经 llama.cpp 重新量化得到，能力和精度有限。适合基础对话、格式与离线运行检查；不是强模型，不能据此保证复杂推理、工具规划或全部闭环成功。运行器为 Intel CPU 版，首次加载请等候数秒。模型仅监听本机回环地址，启动器退出时关闭自己的模型进程。</p>
 <p>本机 rc45 承载测试中，自动配置与两次真实模型调用成功，但天空颜色和 7+5 两个问题均误答；直接连接同一模型时这两个基础问题回答正确。内置模型与 Muse 的请求上下文组合仍有准确性限制。实际任务复现请在官方模型设置中换用可靠服务，按真实回答逐项记录结果。</p>
@@ -187,7 +257,8 @@ def tutorial(version, commit, app_name, source_name, external_video=None):
 <h2>5. 退出、重开与定位问题</h2><p>在 OctoSense 中按 ⌘Q 正常退出。再打开复现应用会继续使用这台电脑的独立数据。数据目录：<code>~/Library/Application Support/Muse Reproduction %(version)s %(short)s/</code>；启动日志：该目录的 <code>logs/host.log</code>，离线模型日志为 <code>logs/model.log</code>。这份包不包含旧机器的生产配置。模型启动失败时保留错误提示和日志；无需手工安装运行器。反馈失败时记录系统版本、版本号、步骤与可见提示；日志中若包含本人配置，先去掉私密信息。</p>
 <h2>包内内容与版本依据</h2><table><tr><th>内容</th><th>说明</th></tr><tr><td>运行应用</td><td>一个实际 Muse Host、当前签名 catalog、当前 bundle 与 pack、原生启动器，以及基础离线模型和必需的 llama.cpp 库</td></tr><tr><td>公开源码</td><td>冻结提交 <code>%(commit)s</code> 的完整公开 Git 文件，包括已有失败证据、SDK 引导和 overlay；不含 .git、未跟踪目录或私人资料。源码里的旧版说明和验收结果保留为历史记录。</td></tr><tr><td>模型来源和许可</td><td>包内「离线模型来源与许可.json」记录权重来源、量化方法和 SHA256；Apache 2.0 与 MIT 完整许可随运行资源提供。</td></tr><tr><td>历史目录</td><td>签名 catalog 的历史元数据保持原样以维持签名，仅打包当前运行制品。源码中的历史证据也保留。</td></tr><tr><td>不含</td><td>账号、密钥、生产资料、私有 Mail/Calendar 数据、编译缓存</td></tr></table>
 <p>本机打包检查与接收电脑的实际复现结果请分别记录。启动器资源检查及解压验签通过不等于聊天、投递邮件或日历 CRUD 通过。</p></main></html>''' % dict(version=html.escape(version), commit=commit, short=commit[:8],
-        app=html.escape(app_name), app_url=quote(app_name), source_url=quote(source_name), video_block=video_block)
+        app=html.escape(app_name), app_url=quote(app_name), source_url=quote(source_name), video_block=video_block,
+        source_block=source_block)
 
 
 def main():
@@ -200,6 +271,7 @@ def main():
     p.add_argument('--external-video', type=Path, help='Approved public MP4, copied beside the ZIP and linked in the tutorial')
     p.add_argument('--destination', type=Path, default=Path.home() / 'Desktop', help='Delivery directory; private staging for pre-freeze verification')
     p.add_argument('--date', default='2026-10-05')
+    p.add_argument('--solid-source', action='store_true', help='Store all frozen public source in one tar.xz inside ZIP; retain expanded desktop source')
     args = p.parse_args()
     video = None
     if args.external_video:
@@ -324,6 +396,9 @@ def main():
     del archived
     dump(stage / '公开源码允许清单.json', dict(commit=commit, count=len(allowlist),
          logical_bytes=sum(i['bytes'] for i in allowlist.values()), files=allowlist))
+    solid_expected = None
+    if args.solid_source:
+        solid_expected = write_solid_source(source, stage / (source_name + '.tar.xz'), allowlist)
 
     app_name = 'Muse ' + args.version + '.app'
     app = stage / app_name
@@ -341,7 +416,8 @@ def main():
     if inventory(resources / 'local-model') != model_inventory:
         raise RuntimeError('packaged model runtime differs from verified inputs')
     dump(stage / '离线模型来源与许可.json', model_plan)
-    guide = tutorial(args.version, commit, app_name, source_name, video['name'] if video else None)
+    guide = tutorial(args.version, commit, app_name, source_name, video['name'] if video else None,
+                     solid_source=args.solid_source)
     (stage / '01-先看这里-双击教程.html').write_text(guide)
     (resources / 'tutorial.html').write_text(guide)
     launcher_source = (ROOT / 'official_muse/rc/packaging/portable_launcher.m').read_text()
@@ -403,6 +479,7 @@ exec './%s/Contents/MacOS/muse-launcher' --models
         model_first_configuration='automatic in recipient isolated profile; existing custom providers preserved',
         model_input_sha256=model_plan['files']['Qwen3-0.6B-Q4_K_S-pure.gguf']['sha256'],
         credentials_or_profiles_included=False, source_file_count=len(allowlist),
+        source_archive_format='tar.xz' if args.solid_source else 'expanded ZIP files',
         signed_catalog_preserved=True, signed_catalog_entries=len(catalog_data['entries']),
         runtime_artifact_versions=[args.version], recipient_machine_tested=False,
         native_gui_smoke='not performed by archive builder; see external delivery evidence for separate smoke',
@@ -418,10 +495,22 @@ exec './%s/Contents/MacOS/muse-launcher' --models
     run([contents / 'MacOS/muse-launcher', '--check'], evidence / 'staged-launcher-check.txt')
     expected = inventory(stage)
     dump(evidence / 'package-inventory.json', expected)
-    write_zip(stage, archive, expected)
+    zip_expected = expected
+    if args.solid_source:
+        zip_expected = {r: i for r, i in expected.items() if r != source_name and not r.startswith(source_name + '/')}
+    dump(evidence / 'zip-inventory.json', zip_expected)
+    write_zip(stage, archive, zip_expected)
     extracted = local / '解压验证' / title
     extracted.mkdir(parents=True)
-    verify_and_extract_zip(archive, title, expected, extracted)
+    verify_and_extract_zip(archive, title, zip_expected, extracted)
+    if args.solid_source:
+        extracted_allowlist = json.loads((extracted / '公开源码允许清单.json').read_text())['files']
+        if extracted_allowlist != allowlist:
+            raise RuntimeError('extracted frozen source allowlist mismatch')
+        verify_and_extract_solid_source(extracted / (source_name + '.tar.xz'), source_name,
+                                       extracted_allowlist, solid_expected, extracted)
+        if inventory(extracted) != expected:
+            raise RuntimeError('full inventory differs after solid source restoration')
     extracted_app = extracted / app_name
     run(['/usr/bin/codesign', '--verify', '--deep', '--strict', extracted_app], evidence / 'extracted-codesign.txt')
     run([extracted_app / 'Contents/MacOS/muse-launcher', '--check'], evidence / 'extracted-launcher-check.txt')

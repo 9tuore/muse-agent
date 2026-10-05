@@ -1,0 +1,66 @@
+{
+  "kind": "SYNTHETIC_ARCHIVE_ONLY",
+  "python": "3.9",
+  "real_delivery_built": false,
+  "native_app_model_or_external_calls": 0,
+  "cases": [
+    {
+      "mode": "normal",
+      "status": "PASS",
+      "source_file_count": 4,
+      "ZIP_bytes": 7491,
+      "ZIP_sha256": "199ca4466f56d39cb9958590807daea2d8a02d5ca2c375ff58ae04075c6aaa77",
+      "CRC": "PASS",
+      "allowlist_SHA_modes_symlinks": "PASS",
+      "source_tar_reconstruction": "NOT_APPLICABLE",
+      "independent_macos_system_tar": "NOT_APPLICABLE",
+      "pre_1980_timestamp_clamped": true,
+      "all_regular_files_public_write_compresslevel_9": true,
+      "expanded_stage_preserved": true
+    },
+    {
+      "mode": "solid",
+      "status": "PASS",
+      "source_file_count": 4,
+      "ZIP_bytes": 6288,
+      "ZIP_sha256": "53a84bd0ce01b90063a6ae38763891d0b2e5a0f622eb9d3089b314bb7b1fbaa4",
+      "CRC": "PASS",
+      "allowlist_SHA_modes_symlinks": "PASS",
+      "source_tar_reconstruction": "PASS",
+      "independent_macos_system_tar": "PASS",
+      "pre_1980_timestamp_clamped": true,
+      "all_regular_files_public_write_compresslevel_9": true,
+      "expanded_stage_preserved": true
+    }
+  ],
+  "expected_rejections": [
+    {
+      "case": "ZIP SHA mismatch",
+      "status": "PASS_REJECTED",
+      "error_type": "RuntimeError"
+    },
+    {
+      "case": "ZIP mode mismatch",
+      "status": "PASS_REJECTED",
+      "error_type": "RuntimeError"
+    },
+    {
+      "case": "source allowlist missing file",
+      "status": "PASS_REJECTED",
+      "error_type": "RuntimeError"
+    },
+    {
+      "case": "tar traversal",
+      "status": "PASS_REJECTED",
+      "error_type": "RuntimeError"
+    },
+    {
+      "case": "tar symlink",
+      "status": "PASS_REJECTED",
+      "error_type": "RuntimeError"
+    }
+  ],
+  "status": "PASS_SYNTHETIC_ONLY",
+  "packer_sha256": "d036a8ba27be57d0bc253ea58aa0d1b01c6480dab8c00f5952b6a880bcc803b2",
+  "run_id": "synthetic-1791227987797178000"
+}
