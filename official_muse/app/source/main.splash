@@ -1057,6 +1057,24 @@ fn calendar_store_receipt(request_id,goal_id,run_id,service,payload,event_id,ver
     return calendar_save()
 }
 
+// Excludes lifecycle fields that our commits advance; includes the original
+// ownership and source evidence, which must not change while results settle.
+fn calendar_write_binding(goal_id){
+    let gi = core_goal_index(goal_id) let li = calendar_link_index(goal_id)
+    if gi < 0 || li < 0 { return "" }
+    let link = calendar_links[li]
+    let si = core_source_index(link.source_id,link.account_id)
+    let mi = core_memory_index(link.source_claim_id,link.account_id)
+    if si < 0 || mi < 0 || !gm_entry_access(memory[mi]) { return "" }
+    return {project: goals[gi]["project_id"] owner: goals[gi]["owner_id"] version: goals[gi].version
+        mail_source: goals[gi]["mail_source"] account: link.account_id message: link.message_id
+        source_id: link.source_id claim_id: link.source_claim_id
+        source_digest: memory_sources[si].content_sha256 source_updated: memory_sources[si].updated_at
+        claim_revision: memory[mi].document.revision claim_scope: memory[mi].document["scope"]
+        claim_deleted: memory[mi].document.payload.deleted claim_until: memory[mi].document.payload.valid_until
+        resolved_by: memory[mi]["resolved_by"]}.to_json()
+}
+
 fn calendar_finish_link(goal_id,run_id,request_id,payload,event){
     let li = calendar_link_index(goal_id) let gi = core_goal_index(goal_id)
     if li < 0 || gi < 0 { calendar_error = "已读回系统事件，但关联任务不存在；请对账。" redraw() return }
@@ -1075,7 +1093,11 @@ fn calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,ph
         || runs[ri].goal_id != goal_id || runs[ri].request_id != request_id
         || runs[ri].plan_revision != goals[gi].version
         || (runs[ri].status != "running" && runs[ri].status != "completed")
-        || calendar_links[li].source_id != artifact.source_id || !gm_account_allowed(calendar_links[li].account_id) {
+        || calendar_links[li].source_id != artifact.source_id || !gm_account_allowed(calendar_links[li].account_id)
+        || calendar_links[li].run_id != run_id || calendar_links[li].event_id != event.id
+        || calendar_links[li].calendar_id != payload.calendar_id
+        || calendar_links[li]["write_binding"] == nil || calendar_links[li].write_binding == ""
+        || calendar_write_binding(goal_id) != calendar_links[li].write_binding {
         calendar_pending = false calendar_error = "结果绑定已变化；不重做系统操作，请对账。" redraw() return
     }
     let goal = goals[gi] let account_scope = calendar_links[li].account_id
@@ -1122,6 +1144,9 @@ fn calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,ph
 }
 
 fn calendar_readback_written(request_id,goal_id,run_id,service,payload,event_id,expected_version){
+    let action_i = core_action_index(request_id)
+    if action_i < 0 { calendar_pending = false calendar_error = "读回动作不存在，请对账。" redraw() return }
+    let action_payload = actions[action_i].payload_json
     host.request("calendar.get",{calendar_id: payload.calendar_id event_id: event_id},fn(r){
         calendar_pending = false
         if !r.is_ok || r.data == nil || r.data.found != true || r.data.event == nil {
@@ -1137,11 +1162,14 @@ fn calendar_readback_written(request_id,goal_id,run_id,service,payload,event_id,
             return
         }
         calendar_pending = true
-        start_timeout(0.05,|| calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,0))
+        start_timeout(0.05,|| calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,action_payload,0))
     })
 }
 
 fn calendar_readback_deleted(request_id,payload,event_id){
+    let action_i = core_action_index(request_id)
+    if action_i < 0 { calendar_pending = false calendar_error = "读回动作不存在，请对账。" redraw() return }
+    let action_payload = actions[action_i].payload_json
     host.request("calendar.get",{calendar_id: payload.calendar_id event_id: event_id},fn(r){
         calendar_pending = false
         if !r.is_ok || r.data == nil {
@@ -1155,17 +1183,17 @@ fn calendar_readback_deleted(request_id,payload,event_id){
             return
         }
         calendar_pending = true
-        start_timeout(0.05,|| calendar_readback_step(request_id,"","","calendar.delete",payload,event_id,nil,0))
+        start_timeout(0.05,|| calendar_readback_step(request_id,"","","calendar.delete",payload,event_id,nil,action_payload,0))
     })
 }
 
-fn calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,phase){
+fn calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,action_payload,phase){
     let ai = core_action_index(request_id)
     let expected_status = "verified"
     if phase == 0 { expected_status = "accepted" }
     if ai < 0 || actions[ai].service != service || actions[ai].status != expected_status
         || actions[ai].target_scope != payload.calendar_id || actions[ai].goal_id != goal_id
-        || actions[ai].run_id != run_id { calendar_pending = false calendar_error = "读回记录绑定已变化；请对账。" redraw() return }
+        || actions[ai].run_id != run_id || actions[ai].payload_json != action_payload { calendar_pending = false calendar_error = "读回记录绑定已变化；请对账。" redraw() return }
     let version = ""
     if event != nil { version = event.version }
     if phase == 0 && !core_finish_action(request_id,"verified") { calendar_pending = false calendar_error = core_error redraw() return }
@@ -1175,7 +1203,7 @@ fn calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,eve
     if phase == 2 && !core_record_event("calendar readback","系统日历独立读回匹配：" + event_id,goal_id,run_id,request_id,payload.calendar_id) {
         calendar_pending = false calendar_error = core_error redraw() return
     }
-    if phase < 3 { start_timeout(0.05,|| calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,phase+1)) return }
+    if phase < 3 { start_timeout(0.05,|| calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,action_payload,phase+1)) return }
     calendar_selected_event = event
     if event != nil { for i in calendar_events.len() { if calendar_events[i].id == event.id { calendar_events[i] = event } } }
     if goal_id != "" { calendar_finish_link(goal_id,run_id,request_id,payload,event) return }
@@ -1627,6 +1655,8 @@ fn calendar_execute_step(context,payload,phase){
     if phase == 4 && linked {
         let revised = calendar_links[li].to_json().parse_json()
         revised.status = "in_flight" revised.run_id = run_id revised.updated_at = time_now()
+        revised.write_binding = calendar_write_binding(goal_id)
+        if revised.write_binding == "" { calendar_pending = false calendar_error = "来源证据已变化，未调用宿主。" redraw() return }
         calendar_links[li] = revised
         if !calendar_save() { calendar_pending = false calendar_error = "关联状态未保存，未调用宿主；请对账。" redraw() return }
         context.execution_binding = schedule_slot_context(goal_id)
@@ -1686,6 +1716,13 @@ fn calendar_accept_step(request_id,goal_id,run_id,service,payload,data,original,
         revised.status = "accepted" revised.event_id = data.event_id revised.version = data.version
         calendar_links[li] = revised
         if !calendar_save() { calendar_pending = false calendar_error = "回执未保存，请对账。" redraw() return }
+    }
+    if phase >= 2 && goal_id != "" {
+        let li = calendar_link_index(goal_id)
+        if li < 0 || calendar_links[li].run_id != run_id || calendar_links[li]["write_binding"] == nil
+            || calendar_links[li].write_binding == "" || calendar_write_binding(goal_id) != calendar_links[li].write_binding {
+            calendar_pending = false calendar_error = "系统已受理，来源归属已变化；请对账，不重做操作。" redraw() return
+        }
     }
     if phase == 2 && !core_record_event("calendar write","宿主已受理 " + service + "；正在独立 get。",goal_id,run_id,request_id,payload.calendar_id) {
         calendar_pending = false calendar_error = core_error redraw() return
