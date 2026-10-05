@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "version": "0.3.26-rc10",
+  "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+  "source_sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "status": "PASS_MODEL_GOAL_STORAGE_READBACK_FIRST_SHELL_RESTART",
+  "report_reference": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc10-final-goal-r1/goal-restart-evidence/report.json",
+    "sha256": "4bf632b80d8c027fd7e1b140ea3e1a61eddb7df453711986c7c0bbecac793bea"
+  },
+  "observed_order": "model proposal, plan, explicit model advice, one user-authorized local approval, storage, readback, first Shell process restart",
+  "approval_clicks": 1,
+  "model_ledger_before_goal": {
+    "calls": 67,
+    "tokens": 57590
+  },
+  "model_ledger_after_goal_and_first_restart": {
+    "calls": 69,
+    "tokens": 59921
+  },
+  "model_call_delta": 2,
+  "ledger_token_delta_not_bill": 2331,
+  "protected_file_count_including_ledger": 8,
+  "first_restart_equal": true,
+  "unique_goal_and_run_retained": true,
+  "no_model_or_action_replay": true,
+  "external_mail_or_calendar_writes": false,
+  "computer_restart": false,
+  "single_click_errors_retained": [
+    {
+      "control": "send_button",
+      "error": "<HTTPError 404: 'Not Found'>",
+      "no_repeat": true
+    }
+  ],
+  "native_screenshot": {
+    "path": "official_muse/rc/screenshots/rc10-goal-after-first-restart.png",
+    "sha256": "800a6588fd58ddb96811ba248c9688155ec676436a6ca614ea00c7d1b082ebd5"
+  },
+  "memory_ui_summary": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+  "cross_chat_memory_and_model_review": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+  "release_status": "PARTIAL; not external full-chain PASS"
+}

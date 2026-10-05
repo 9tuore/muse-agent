@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "version": "0.3.26-rc10",
+  "application_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+  "source_sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "raw_report_sha256": "df8adb7409350b069a3c3bcf9619536937d7ceab2331699dc797732e24afa66f",
+  "counts": {
+    "cold": 30,
+    "reopen": 20,
+    "restart": 20
+  },
+  "interactive_seconds": {
+    "cold": {
+      "median": 14.72870623899999,
+      "max": 18.881699742000002
+    },
+    "reopen": {
+      "median": 9.240689262999979,
+      "max": 10.088647519999995
+    },
+    "restart": {
+      "median": 12.588640781499976,
+      "max": 14.660818662999986
+    }
+  },
+  "capture_error_count": 0,
+  "seed_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "compute_budgets_increased": false,
+  "meaningful_six_pages_and_input_edit": true,
+  "storage_and_model_ledger_equal": true,
+  "computer_restart": false,
+  "real_mail_or_calendar_backend": false,
+  "scope": "New Shell process cold / ordinary app reopen / Shell process replacements; OS cache clearing and OS reboot not tested; CPU contention/ui-hang informational logs retained"
+}

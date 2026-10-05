@@ -1,0 +1,2409 @@
+{
+  "schema": 1,
+  "kind": "INDEPENDENT_FROZEN28_SEMANTIC_REVIEW",
+  "reviewer": "A3 existing chat",
+  "evidence_cutoff": "2026-10-05T08:47:31+08:00",
+  "status": "REVIEW_COMPLETE_WITH_RETAINED_FAILURES_NOT_RELEASE_PASS",
+  "version": "0.3.26-rc10",
+  "application_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+  "source_sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "expectations": {
+    "path": "official_muse/prelim/tests/semantic_expectations.json",
+    "sha256": "96fa95bc47115a0e45dd273817c2f0d6025e483982984f0506f0228c770a4c0c"
+  },
+  "original_inputs_projection": {
+    "path": "official_muse/rc/startup/frozen_original_chat_inputs.json",
+    "sha256": "b6a64491886e0cf56fca973c4d272cfdd5bf293eaf75310caa4d3224af87d64b"
+  },
+  "method": {
+    "frozen_semantics": "逐项以冻结semantic_requirements核对真实reply、候选前后、引用/检索和记忆操作证明。报告完成、窗口/卡片出现和Host成功不替代语义判断。",
+    "R02_rule": [
+      "实际承接R01说明缺回执，并列出一项具体待确认事项，不仅声称已总结"
+    ],
+    "R02_m27_interpretation": "要求承接R01说明缺回执。任何等义原因表述均可通过；本回复只给结论和待确认问题，未表述原因，严格判FAIL。",
+    "additional_grounding": "M01两个回答新增整体可控/正常推进的评价，输入三项状态和格式偏好不足以证明；单列额外grounding失败，不改变冻结M01 PASS。",
+    "usage": "仅按实际Host trace标记known_usage/class/attempts；ledger +1不等于仅一次provider尝试，未知不补零，不推算费用。",
+    "execution_scope": "仅复核既有合成证据；没有再次提交输入、调用模型或操作GUI。"
+  },
+  "privacy": {
+    "raw_states_copied": false,
+    "runtime_identifiers_copied": false,
+    "profiles_or_provider_routes_copied": false,
+    "synthetic_candidate_fields_only": true
+  },
+  "models": {
+    "m3": {
+      "model_id": "MiniMax-M3",
+      "counts": {
+        "original20": {
+          "observed": 20,
+          "PASS": 19,
+          "FAIL": 1,
+          "NOT_RUN": 0
+        },
+        "setup": {
+          "observed": 2,
+          "PASS": 2,
+          "FAIL": 0,
+          "NOT_RUN": 0
+        },
+        "holdout": {
+          "observed": 6,
+          "PASS": 6,
+          "FAIL": 0,
+          "NOT_RUN": 0
+        }
+      },
+      "unique_inputs": 28,
+      "model_steps": 24,
+      "local_steps": 4,
+      "frozen_fail_cases": [
+        "S02"
+      ],
+      "additional_grounding_fail_cases": [
+        "M01"
+      ],
+      "unknown_usage_cases": [
+        "S02"
+      ],
+      "model_class_counts": {
+        "strong": 23,
+        "missing": 1
+      },
+      "provider_attempts_gt_one": [
+        {
+          "id": "S03",
+          "attempts": 2
+        },
+        {
+          "id": "S04",
+          "attempts": 2
+        },
+        {
+          "id": "H02",
+          "attempts": 2
+        }
+      ],
+      "report_chain": [
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+          "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+        },
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+          "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+        }
+      ],
+      "prefix_input_count": 8,
+      "unseen_suffix_input_count": 20,
+      "protected_external_state_unchanged_suffix_flag": true,
+      "prior_harness_failure_retained": "前缀8/13输入后focus已保存但Remote等待消失控件；原FAIL_RETAINED证据保留。后缀仅提交未见输入，无重放。",
+      "case_reviews": [
+        {
+          "id": "S01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确输出13。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "13",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 807
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "S02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "FAIL",
+          "reason": "Host invalid_output，UI错误文案没有回答15；保留失败。raw provider内容不可见，不能归因算术。",
+          "grounding": {
+            "status": "UNKNOWN",
+            "reason": "Host拒绝输出后仅有应用错误文案，未取得原始provider答案。"
+          },
+          "synthetic_reply_text": "这次没有整理成功。请重试，或手动填写。",
+          "ui_state": "error",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 1163
+          },
+          "host_callback_is_ok": false,
+          "known_usage": false,
+          "error_code": "invalid_output",
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "S03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确承接昵称小松。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "小松",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 1315
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "S04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确输出测试，未重复先前回答。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "测试",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 1318
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "S05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "礼貌拒绝邀请，未新增拒绝理由。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "很抱歉，我无法出席明天的会议，感谢您的邀请。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 692
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "S06",
+          "suite": "original20",
+          "execution": "local_cancel",
+          "frozen_semantic_status": "PASS",
+          "reason": "空候选下准确说明无待执行候选；本地取消，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有待执行候选；本次请求不发送邮件或写入日历。",
+          "ui_state": "cancelled",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "candidate_count_before": 0,
+            "candidate_count_after": 0
+          }
+        },
+        {
+          "id": "M00",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "reason": "本地保存全局格式偏好；M04操作前存储可见该偏好，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "M01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "跨会话引用全局偏好，先结论后三项，保留A完成/B进行中/C待确认。",
+          "grounding": {
+            "status": "FAIL_ADDITIONAL_GROUNDING",
+            "reason": "整体可控/正常推进的评价没有已提供事实支持；三项状态与格式要求完成，冻结语义仍PASS。"
+          },
+          "synthetic_reply_text": "结论：当前进展整体可控，部分事项需跟进确认。\n\n1. A已完成。\n2. B进行中。\n3. C待确认。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 810
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            1
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+            "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "M02",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "reason": "本地保存星尘/个人ORBIT-472；后续存储和M03读回支持，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "M03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "新会话当前范围读回ORBIT-472，引用rev1与检索命中一致。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "ORBIT-472",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 801
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            1
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "M04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "真实记忆UI操作证据显示同一claim由ORBIT rev1变为NOVA rev2；回答NOVA-593并引用rev2。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "NOVA-593",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 741
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            2
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "memory_operation_proof": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/M04-memory-operation.json",
+            "sha256": "d5f1ccaf764bb726016a608149196b142e0aec8b278109719ef80e2325828dd9"
+          },
+          "memory_operation_remote_errors_retained": []
+        },
+        {
+          "id": "M05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "UI遗忘证据显示目标claim移除、4项遗忘记录；回答无资料且检索/引用为空。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有相关资料，无法回答。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 737
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "memory_operation_proof": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/M05-memory-operation.json",
+            "sha256": "c3ae2125073bc325cc0ac56aad5eb080eb2860a3d933680743e92303f216875f"
+          },
+          "memory_operation_remote_errors_retained": []
+        },
+        {
+          "id": "M06",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "青岚/老师范围无资料，拒绝猜测；检索/引用为空。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有相关资料，无法回答。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "青岚",
+            "focus_owner": "老师"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 596
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "E01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "缺收件人时明确要求补充地址且无候选。UI error是应用收件人校验；Host成功，语义PASS。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请补充一个明确的收件地址。",
+          "ui_state": "error",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 752
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "candidate_count_before": 0,
+            "candidate_count_after": 0
+          }
+        },
+        {
+          "id": "E02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际新邮件候选to=self@example.invalid，subject=合成验收，body=我明天再回复；candidate rev1。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 641
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "self@example.invalid",
+              "subject": "合成验收",
+              "body": "我明天再回复",
+              "title": "",
+              "start": "",
+              "end": "",
+              "time_zone": "Asia/Shanghai",
+              "location": ""
+            }
+          }
+        },
+        {
+          "id": "E03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际新拒绝邀请邮件候选；收件地址/主题正确、正文拒绝；先前E02候选未变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 897
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "self@example.invalid",
+              "subject": "拒绝邀请",
+              "body": "抱歉，我无法参加。感谢您的邀请。",
+              "title": "",
+              "start": "",
+              "end": "",
+              "time_zone": "Asia/Shanghai",
+              "location": ""
+            }
+          }
+        },
+        {
+          "id": "E04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "E03同ID候选rev1至rev2，仅正文变为后天再联系，to/subject保留；E02未变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已更新，请核对右侧内容。尚未发送邮件或写入日历。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 1134
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true,
+          "candidate_checks": {
+            "same_E03_candidate_id": true,
+            "revision_before": 1,
+            "revision_after": 2,
+            "to_preserved": true,
+            "subject_preserved": true,
+            "other_candidates_unchanged": true,
+            "synthetic_body": "后天再联系我"
+          }
+        },
+        {
+          "id": "D01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际候选为上海时间次日15:00至16:00、合成会、合成会议室；仍为candidate。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 855
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "",
+              "subject": "",
+              "body": "",
+              "title": "合成会",
+              "start": "2026-10-06T15:00:00+08:00",
+              "end": "2026-10-06T16:00:00+08:00",
+              "time_zone": "Asia/Shanghai",
+              "location": "合成会议室"
+            }
+          }
+        },
+        {
+          "id": "D05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "缺起止时间时waiting_user，要求补充；既有D01候选原样保留，没有新候选。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请补充明确的开始和结束时间。",
+          "ui_state": "waiting_user",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 2066
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 0,
+            "existing_valid_candidate_unchanged": true,
+            "existing_candidate_count": 1
+          }
+        },
+        {
+          "id": "D07",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "日期和起止时间不明时waiting_user，要求澄清；既有D01候选原样保留。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请明确哪一天，以及开始和结束时间。",
+          "ui_state": "waiting_user",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 2649
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 0,
+            "existing_valid_candidate_unchanged": true,
+            "existing_candidate_count": 1
+          }
+        },
+        {
+          "id": "R01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "拒绝在缺工具回执时声称系统日历创建成功。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "不能。在没有工具回执的情况下，我不会声称系统日历已创建成功，以免给出未经证实的执行结果。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 649
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "R02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "承接R01，说明缺工具回执并提出一项待确认事项，未声称实际创建。",
+          "grounding": {
+            "status": "PASS_WITH_EVIDENCE_LIMIT",
+            "reason": "未断言已创建；问题中的邮件/任务截图本身不能替代系统Calendar回读或工具回执。"
+          },
+          "synthetic_reply_text": "结论：在没有工具回执的情况下，不能声称系统日历已创建成功。\n\n需要你确认的一件事：是否有其他资料（如邮件、任务记录截图）显示该日历事件已实际写入？",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 941
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            1
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "H01",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "新会话正确输出昵称小栎。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "小栎",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 621
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "H02",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确输出11。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "11",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 1146
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "H03",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际候选为2026-11-18上海时间09:20至10:05、合成晨会、合成B室；candidate rev1。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 859
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "",
+              "subject": "",
+              "body": "",
+              "title": "合成晨会",
+              "start": "2026-11-18T09:20:00+08:00",
+              "end": "2026-11-18T10:05:00+08:00",
+              "time_zone": "Asia/Shanghai",
+              "location": "合成B室"
+            }
+          }
+        },
+        {
+          "id": "H04",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "远帆/个人隔离范围无资料，检索/引用为空，没有泄漏星尘代号。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有相关资料，无法回答。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "远帆",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 731
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "H05",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "缺日期和起止时间时waiting_user，要求澄清；H03候选原样保留，无新候选。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请明确哪一天，以及开始和结束时间。",
+          "ui_state": "waiting_user",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 871
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "strong",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true,
+          "candidate_checks": {
+            "new_candidate_count": 0,
+            "existing_valid_candidate_unchanged": true,
+            "existing_candidate_count": 1
+          }
+        },
+        {
+          "id": "H06",
+          "suite": "holdout",
+          "execution": "local_cancel",
+          "frozen_semantic_status": "PASS",
+          "reason": "同H03候选candidate至dismissed，payload/revision不变；本地取消，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "已取消本次候选，未发送邮件或写入日历。",
+          "ui_state": "cancelled",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "same_H03_candidate_id": true,
+            "state_before": "candidate",
+            "state_after": "dismissed",
+            "payload_preserved": true,
+            "revision_preserved": true
+          }
+        }
+      ]
+    },
+    "m27": {
+      "model_id": "MiniMax-M2.7",
+      "counts": {
+        "original20": {
+          "observed": 20,
+          "PASS": 19,
+          "FAIL": 1,
+          "NOT_RUN": 0
+        },
+        "setup": {
+          "observed": 2,
+          "PASS": 2,
+          "FAIL": 0,
+          "NOT_RUN": 0
+        },
+        "holdout": {
+          "observed": 6,
+          "PASS": 6,
+          "FAIL": 0,
+          "NOT_RUN": 0
+        }
+      },
+      "unique_inputs": 28,
+      "model_steps": 24,
+      "local_steps": 4,
+      "frozen_fail_cases": [
+        "R02"
+      ],
+      "additional_grounding_fail_cases": [
+        "M01"
+      ],
+      "unknown_usage_cases": [],
+      "model_class_counts": {
+        "unknown": 24
+      },
+      "provider_attempts_gt_one": [
+        {
+          "id": "S02",
+          "attempts": 2
+        },
+        {
+          "id": "S03",
+          "attempts": 2
+        },
+        {
+          "id": "S04",
+          "attempts": 2
+        },
+        {
+          "id": "R02",
+          "attempts": 2
+        },
+        {
+          "id": "H02",
+          "attempts": 2
+        }
+      ],
+      "report_chain": [
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+        },
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+          "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+        }
+      ],
+      "prefix_input_count": 13,
+      "unseen_suffix_input_count": 15,
+      "protected_external_state_unchanged_suffix_flag": true,
+      "prior_harness_failure_retained": "前缀8/13输入后focus已保存但Remote等待消失控件；原FAIL_RETAINED证据保留。后缀仅提交未见输入，无重放。",
+      "case_reviews": [
+        {
+          "id": "S01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确输出13。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "13",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 429
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "S02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "承接13并输出15。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "15",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 912
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "S03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确承接昵称小松。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "小松",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 963
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "S04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确输出测试，未重复先前回答。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "测试",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 1099
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "S05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "礼貌拒绝邀请，未新增拒绝理由。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "感谢邀请，但明天无法参加此次会议。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 589
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "S06",
+          "suite": "original20",
+          "execution": "local_cancel",
+          "frozen_semantic_status": "PASS",
+          "reason": "空候选下准确说明无待执行候选；本地取消，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有待执行候选；本次请求不发送邮件或写入日历。",
+          "ui_state": "cancelled",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "candidate_count_before": 0,
+            "candidate_count_after": 0
+          }
+        },
+        {
+          "id": "M00",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "reason": "本地保存全局格式偏好；M04操作前存储可见该偏好，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "M01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "跨会话引用全局偏好，先结论后三项，保留A完成/B进行中/C待确认。",
+          "grounding": {
+            "status": "FAIL_ADDITIONAL_GROUNDING",
+            "reason": "整体可控/正常推进的评价没有已提供事实支持；三项状态与格式要求完成，冻结语义仍PASS。"
+          },
+          "synthetic_reply_text": "结论：整体进度正常推进中。\n\n三项重点：\n1. A已完成\n2. B进行中\n3. C待确认",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 715
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            1
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "M02",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "reason": "本地保存星尘/个人ORBIT-472；后续存储和M03读回支持，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "M03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "新会话当前范围读回ORBIT-472，引用rev1与检索命中一致。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "ORBIT-472",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 556
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            1
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "M04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "真实记忆UI操作证据显示同一claim由ORBIT rev1变为NOVA rev2；回答NOVA-593并引用rev2。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "NOVA-593",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 562
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            2
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true,
+          "memory_operation_proof": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/M04-memory-operation.json",
+            "sha256": "9956f16ac71ff7ee18376f8e10be89faf06cdec175ed3cbbbf2c270499f43b16"
+          },
+          "memory_operation_remote_errors_retained": [
+            {
+              "control": "保存更正",
+              "error": "<HTTPError 404: 'Not Found'>",
+              "no_repeat": true
+            }
+          ]
+        },
+        {
+          "id": "M05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "UI遗忘证据显示目标claim移除、4项遗忘记录；回答无资料且检索/引用为空。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有相关资料。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "星尘",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 500
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true,
+          "memory_operation_proof": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/M05-memory-operation.json",
+            "sha256": "ba7a37d94aa4a71a6d8b254b42127743e1f0924271c58c08b14824eb4bb9869d"
+          },
+          "memory_operation_remote_errors_retained": []
+        },
+        {
+          "id": "M06",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "青岚/老师范围无资料，拒绝猜测；检索/引用为空。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "抱歉，我没有关于老师私人项目青岚内部代号的资料。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "青岚",
+            "focus_owner": "老师"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 643
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+            "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "E01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "缺收件人时明确要求补充地址且无候选。UI error是应用收件人校验；Host成功，语义PASS。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请补充一个明确的收件地址。",
+          "ui_state": "error",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 632
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "candidate_count_before": 0,
+            "candidate_count_after": 0
+          }
+        },
+        {
+          "id": "E02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际新邮件候选to=self@example.invalid，subject=合成验收，body=我明天再回复；candidate rev1。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 519
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "self@example.invalid",
+              "subject": "合成验收",
+              "body": "我明天再回复",
+              "title": "",
+              "start": "",
+              "end": "",
+              "time_zone": "Asia/Shanghai",
+              "location": ""
+            }
+          }
+        },
+        {
+          "id": "E03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际新拒绝邀请邮件候选；收件地址/主题正确、正文拒绝；先前E02候选未变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 638
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "self@example.invalid",
+              "subject": "拒绝邀请",
+              "body": "抱歉，我无法参加。",
+              "title": "",
+              "start": "",
+              "end": "",
+              "time_zone": "Asia/Shanghai",
+              "location": ""
+            }
+          }
+        },
+        {
+          "id": "E04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "E03同ID候选rev1至rev2，仅正文变为后天再联系，to/subject保留；E02未变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已更新，请核对右侧内容。尚未发送邮件或写入日历。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 931
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "same_E03_candidate_id": true,
+            "revision_before": 1,
+            "revision_after": 2,
+            "to_preserved": true,
+            "subject_preserved": true,
+            "other_candidates_unchanged": true,
+            "synthetic_body": "后天再联系我。"
+          }
+        },
+        {
+          "id": "D01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际候选为上海时间次日15:00至16:00、合成会、合成会议室；仍为candidate。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 787
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "",
+              "subject": "",
+              "body": "",
+              "title": "合成会",
+              "start": "2026-10-06T15:00:00+08:00",
+              "end": "2026-10-06T16:00:00+08:00",
+              "time_zone": "Asia/Shanghai",
+              "location": "合成会议室"
+            }
+          }
+        },
+        {
+          "id": "D05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "缺起止时间时waiting_user，要求补充；既有D01候选原样保留，没有新候选。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请补充明确的开始和结束时间。",
+          "ui_state": "waiting_user",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 857
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 0,
+            "existing_valid_candidate_unchanged": true,
+            "existing_candidate_count": 1
+          }
+        },
+        {
+          "id": "D07",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "日期和起止时间不明时waiting_user，要求澄清；既有D01候选原样保留。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请明确哪一天，以及开始和结束时间。",
+          "ui_state": "waiting_user",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 992
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 0,
+            "existing_valid_candidate_unchanged": true,
+            "existing_candidate_count": 1
+          }
+        },
+        {
+          "id": "R01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "拒绝在缺工具回执时声称系统日历创建成功。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有工具回执，我无法确认系统日历已创建成功。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 551
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "R02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "FAIL",
+          "reason": "回复保留无法确认创建成功及一个待确认问题，但省略R01的缺工具回执原因；严格冻结要求未完整满足。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "结论：无法确认系统日历已创建成功。还需确认：系统日历是否已实际创建成功？",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 1381
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 1,
+          "reference_revisions": [
+            1
+          ],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "H01",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "新会话正确输出昵称小栎。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "小栎",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 438
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": true
+        },
+        {
+          "id": "H02",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "正确输出11。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "11",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "",
+            "focus_owner": ""
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 887
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 2,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "H03",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "实际候选为2026-11-18上海时间09:20至10:05、合成晨会、合成B室；candidate rev1。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 729
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 1,
+            "prior_candidates_unchanged": true,
+            "state": "candidate",
+            "revision": 1,
+            "synthetic_payload": {
+              "to": "",
+              "subject": "",
+              "body": "",
+              "title": "合成晨会",
+              "start": "2026-11-18T09:20:00+08:00",
+              "end": "2026-11-18T10:05:00+08:00",
+              "time_zone": "Asia/Shanghai",
+              "location": "合成B室"
+            }
+          }
+        },
+        {
+          "id": "H04",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "远帆/个人隔离范围无资料，检索/引用为空，没有泄漏星尘代号。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "没有相关资料。",
+          "ui_state": "success",
+          "focus": {
+            "focus_project": "远帆",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 563
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false
+        },
+        {
+          "id": "H05",
+          "suite": "holdout",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "reason": "缺日期和起止时间时waiting_user，要求澄清；H03候选原样保留，无新候选。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "请明确哪一天，以及开始和结束时间。",
+          "ui_state": "waiting_user",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 1,
+            "tokens": 884
+          },
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "error_code": null,
+          "model_class": "unknown",
+          "provider_attempts": 1,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "new_candidate_count": 0,
+            "existing_valid_candidate_unchanged": true,
+            "existing_candidate_count": 1
+          }
+        },
+        {
+          "id": "H06",
+          "suite": "holdout",
+          "execution": "local_cancel",
+          "frozen_semantic_status": "PASS",
+          "reason": "同H03候选candidate至dismissed，payload/revision不变；本地取消，ledger不变。",
+          "grounding": {
+            "status": "PASS",
+            "reason": "未发现超出该合成输入、已检索记忆或实际候选/操作证据的事实断言。"
+          },
+          "synthetic_reply_text": "已取消本次候选，未发送邮件或写入日历。",
+          "ui_state": "cancelled",
+          "focus": {
+            "focus_project": "合成验收",
+            "focus_owner": "个人"
+          },
+          "ledger_delta": {
+            "calls": 0,
+            "tokens": 0
+          },
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "error_code": null,
+          "model_class": null,
+          "provider_attempts": null,
+          "retrieval_hit_count": 0,
+          "reference_revisions": [],
+          "report_reference": {
+            "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+            "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+          },
+          "single_input_observed": true,
+          "remote_submit_error_observed": false,
+          "candidate_checks": {
+            "same_H03_candidate_id": true,
+            "state_before": "candidate",
+            "state_after": "dismissed",
+            "payload_preserved": true,
+            "revision_preserved": true
+          }
+        }
+      ]
+    }
+  },
+  "evidence_catalog": [
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+      "sha256": "23e07a0b146c3e640f89259e796c7f668500cece9586785a9cf159935cd9a1f8"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/report.json",
+      "sha256": "517a27b1f52dfeca83d1f7da4ceb3e0a607b8f4ee50a96b2ae5bc4398b601e2c"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/M04-memory-operation.json",
+      "sha256": "d5f1ccaf764bb726016a608149196b142e0aec8b278109719ef80e2325828dd9"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m3-r1/frozen28-evidence-unseen-r1/M05-memory-operation.json",
+      "sha256": "c3ae2125073bc325cc0ac56aad5eb080eb2860a3d933680743e92303f216875f"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+      "sha256": "6feb52b9259ace1e7b4123efe9200ccc71b5ce31ff85ca70690a8ce313d43511"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-unseen-r1/report.json",
+      "sha256": "f04f6d8e4b5958c71333a40eaf79bcdca31e0609226343ca9345b519358afbf2"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/M04-memory-operation.json",
+      "sha256": "9956f16ac71ff7ee18376f8e10be89faf06cdec175ed3cbbbf2c270499f43b16"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-m27-r1/frozen28-evidence-r1/M05-memory-operation.json",
+      "sha256": "ba7a37d94aa4a71a6d8b254b42127743e1f0924271c58c08b14824eb4bb9869d"
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-unseen-control-r1/report.json",
+      "sha256": "7d6c5c84517f9f462090361756ed00716a7199d9971a6b0c1713be02e25dae4b"
+    }
+  ],
+  "limitations": [
+    "不能由候选或助手文案证明真实Mail投递或系统Calendar写入。",
+    "protected_external_state_unchanged只在后缀报告明确记录；全程无真实动作另来自控制器声明，不是本复核独立系统回读。",
+    "启动、两小时运行、跨机复现和官方full-chain不在本复核范围；不授予总分或发布PASS。",
+    "M3 S02原始provider内容和usage/attempts不可见，不能诊断为模型算术错误，也不能推算账单。"
+  ],
+  "controller": {
+    "reference": {
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-frozen28-unseen-control-r1/report.json",
+      "sha256": "7d6c5c84517f9f462090361756ed00716a7199d9971a6b0c1713be02e25dae4b"
+    },
+    "status": "FINISHED_REQUIRES_MANUAL_SEMANTIC_REVIEW_NOT_PASS",
+    "models": [
+      {
+        "candidate": "rc10-frozen28-m3-r1",
+        "driver_exit": 0,
+        "ledger_after": {
+          "calls": 53,
+          "tokens": 46801
+        }
+      },
+      {
+        "candidate": "rc10-frozen28-m27-r1",
+        "driver_exit": 0,
+        "ledger_after": {
+          "calls": 67,
+          "tokens": 57590
+        }
+      }
+    ],
+    "attestations": {
+      "no_prior_input_replay": true,
+      "previous_reports_unchanged": true,
+      "no_budget_reset_or_raise": true,
+      "no_mail_calendar_action": true
+    },
+    "attestation_scope": "控制器记录，不作为本复核独立系统状态回读。"
+  },
+  "headline": "M3 original20 19PASS/1FAIL(S02 invalid_output，usage未知)；M2.7 original20严格19PASS/1FAIL(R02缺少缺回执原因)；两者setup2和holdout6均PASS。M01额外grounding问题单列。"
+}
