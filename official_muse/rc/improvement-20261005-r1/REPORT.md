@@ -59,6 +59,7 @@ QQ 登录只输入邮箱地址与**授权码**，展示获取授权码说明，�
 - 官方 tokenizer：readable/compact **93,296 tokens 逐项相等**。
 - 本地 stamp/sign/check PASS；scan 生成7题，未运行独立 Reviewer；本地 catalog sequence56 签名验证 PASS。不是正式 publisher/上架。
 - 真实 Mail/模型/日历窗口截图放在忽略的私人测试目录；公开证据只含合成内容或哈希。复现包不包含账号、凭据、私人邮件和运行数据库。
+- 桌面 `Muse-0.3.26-rc24-Intel双机复现包-2026-10-05.zip` 已生成，752,799,640字节，310项内容哈希/链接/执行权限读回通过。Root核对解压文件夹载荷与实际安装rc24一致。适用于Intel/macOS14+，两台接收机仍未实际验收；详见 `DESKTOP_DELIVERY_RC24.json`。
 
 关键索引：
 
