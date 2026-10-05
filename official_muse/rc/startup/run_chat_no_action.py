@@ -45,10 +45,13 @@ def main():
     ap.add_argument('--resume-report', type=Path,
                     help='Resume only the unobserved suffix; preserve the original failed report')
     ap.add_argument('--continue-on-model-error', action='store_true',
-                    help='Record a bound Host error as FAIL and observe later cases without replay')
+                    help='Retain bound application/Host errors and observe later cases without replay')
+    ap.add_argument('--request-gap-seconds', type=float, default=32,
+                    help='Sequential pacing, at least11s; only use11 with observed6/minute budget')
     ap.add_argument('--no-case-screenshots', action='store_true',
                     help='Retain disk-backed semantics/trace; take final native page shots separately')
     a = ap.parse_args()
+    assert a.request_gap_seconds >= 11
     candidate = a.candidate.resolve(strict=True)
     assert not a.out.exists(), 'Retain old failures; use a fresh output'
     a.out.mkdir(parents=True, mode=0o700)
@@ -93,7 +96,7 @@ def main():
     else:
         assert len(a.case_ids) == len(set(a.case_ids))
         selected = [cases[key] for key in a.case_ids]
-        assert all(c['execution'] == 'model' and not c.get('memory_operation')
+        assert all(c['execution'] in ['model', 'local_cancel'] and not c.get('memory_operation')
                    for c in selected), 'No memory mutation in this subset'
     previous = None
     prior_rows = []
@@ -151,7 +154,8 @@ def main():
               'prior_report': {'path': str(previous_path.relative_to(candidate)),
                                'sha256': sha(previous_path)} if previous else None,
               'continue_on_model_error': a.continue_on_model_error,
-              'retained_model_errors': []}
+              'request_gap_seconds': a.request_gap_seconds,
+              'retained_model_errors': [], 'retained_application_errors': []}
     def save():
         pending = a.out / 'report.json.pending'
         pending.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
@@ -262,7 +266,7 @@ def main():
                     memory_operation(case)
             is_model = case['execution'] == 'model'
             if is_model:
-                gap = 32 - (time.monotonic() - last_request)
+                gap = a.request_gap_seconds - (time.monotonic() - last_request)
                 if gap > 0:
                     time.sleep(gap)
             origin = current()
@@ -334,8 +338,11 @@ def main():
             if is_model:
                 if terminal[-1]['state'] == 'error' and a.continue_on_model_error:
                     assert row['actual_host_trace'] is not None, 'Bound failure trace missing'
-                    assert row['actual_host_trace']['is_ok'] is False
-                    report['retained_model_errors'].append(case['id'])
+                    if row['actual_host_trace']['is_ok']:
+                        assert row['actual_host_trace']['known_usage'] is True
+                        report['retained_application_errors'].append(case['id'])
+                    else:
+                        report['retained_model_errors'].append(case['id'])
                     save()
                     continue
                 assert terminal[-1]['state'] in ['success', 'waiting_user'], 'Retain actual error response'
@@ -351,7 +358,8 @@ def main():
         report['original20_transport_complete'] = (a.full_frozen_corpus and
             sum(row['suite'] == 'original20' for row in all_rows) == 20)
         report['status'] = ('OBSERVED_WITH_RETAINED_PRIOR_FAILURES_REQUIRES_MANUAL_REVIEW'
-            if report['retained_model_errors'] or (previous and previous['status'] == 'FAIL_RETAINED')
+            if report['retained_model_errors'] or report['retained_application_errors']
+                or (previous and previous['status'] == 'FAIL_RETAINED')
             else 'OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW')
     except Exception:
         report['status'] = 'FAIL_RETAINED'
