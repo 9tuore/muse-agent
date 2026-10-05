@@ -55,7 +55,7 @@
 
 - [rc50 修复范围](SCOPE_RC50.md)、[rc51 修复范围](SCOPE_RC51.md)、[受影响函数审计](a3/rc51/SOURCE_IMPACT.json)
 - [rc51 UI 四尺寸](a2/rc51/FINAL_REPORT.md)、[rc50 矩阵](a4/RC50_MATRIX_REPORT.md)、[rc51 最终矩阵](a4/RC51_R3_REPORT.md)、[rc51 r2 失败分类](a4/RC51_R2_REPORT.md)
-- [一次启动阶段定位](a4/rc51-stage-r1/REPORT.md)：App Hub 实際就绪与采集器失败分开记录，不是 Muse 冷启动全检查。
+- [一次启动阶段定位](a4/rc51-stage-r1/REPORT.md)：App Hub 实际就绪与采集器失败分开记录，不是 Muse 冷启动全检查。
 - [真实目标日历只读](REAL_TARGET_CALENDAR_QUERY.json)、[rc50 恢复](RC50_REAL_RESTART.json)、[本地 Gate 身份](compliance-rc51/GATE_IDENTITY.json)
 - [官方原版 rc51 实际检查](compliance-rc51/UPSTREAM_HUB_CHECK_RC51_PROVENANCE.json)与[完整拒绝输出](compliance-rc51/UPSTREAM_HUB_CHECK_RC51.txt)
 - [rc51 实机内部任务](RC51_LIVE_REGRESSION.json)、[同候选恢复](RC51_REAL_RESTART.json)、[跨聊天召回](RC51_CROSS_CHAT.json)、[真实启动超时](RC51_LIVE_LAUNCH.json)
@@ -65,4 +65,6 @@
 
 实机 rc51 内部回归及最终 r3 矩阵已完成。新版[96 秒中文配音视频](media/rc51-public/Muse-rc51-demo.zh-CN.mp4)、字幕及封面已制作；真实时间轴保留 22 秒连续段和一次 2.18 秒采集间隙。全部 37 张准备画面及 13 张成片关键帧核对，完整解码、音轨与字幕时段通过；未做听感审听。视频 2,439,624 字节，SHA256 `5cecf600c6d4a18b0217a0f08f97b76648598a559b1b69cb80b0003375361f21`。Root 独立确认摘要与两个关键画面，实际产物见[媒体交付记录](media/rc51-public/DELIVERY.json)。
 
-冻结源码与桌面包继续收口，实际结果按 DELIVERY.json 更新。既有 rc49 媒体和小于 500MB 的包保留原身份，不改名冒充 rc51。正常 GitHub 同步已授权；不 force、不动旧 Tag、不正式提交 App Hub。
+冻结源码为 `a4cf4d9e6cd3ff1067e2821a29d4e5be48d2ad39`，完整 2,180 个文件。首次 rc51 ZIP 实际 527,708,351 字节，大小门槛失败；独立完整还原、SHA/模式/链接、签名、原生启动器及扩展 Hub 检查通过。原包和失败证据保留，见[首次大包报告](../packaging/rc51-solid-final-r1/FINAL_REPORT.md)。
+
+整体 XZ 展开包正在核对：保留完整冻结源码和相同应用/模型字节，仅排除已经展开源码的重复压缩副本；外层 ZIP 不再重复压缩 XZ。首次展开使用 macOS 自带 tar，并在启动前核对 SHA、应用签名和原生启动器。不能由压缩中的部分大小推断最终小于 500MB。实际结果按 DELIVERY.json 更新。既有 rc49 媒体与旧包保留原身份。正常 GitHub 同步已授权；不 force、不动旧 Tag、不正式提交 App Hub。

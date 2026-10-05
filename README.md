@@ -65,4 +65,4 @@ cd ../..
 
 仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。真实账号录屏原件仅本地保留，公开媒体须去除账号信息。桌面候选包内置有许可证和摘要的免费 Qwen3-0.6B 及 Intel CPU runner，首次启动经官方 Host 模型配置调用；严格格式的同题测试仍为 0/2 正确，不称强模型，也不把自动配置成功当作语义通过。可在官方设置配置较强模型。`--solid-source` 打包完整冻结源码及历史证据为 tar.xz，桌面文件夹保留展开源码；源码文件集合、内容和权限独立核对，不靠删证据减小体积。
 
-[隐私说明](docs/PRIVACY_POLICY.md)已发布到HTTPS，支持入口为[Issues](https://github.com/9tuore/muse-agent/issues)。正式 publisher 登记及独立 packet 审核仍缺；原版 Hub 拒绝本地 `calendar` capability，扩展 Gate PASS不等于上游准入。保留唯一失败证据、旧Git历史和公开Tag，不创建成功Tag。桌面ZIP严格<500,000,000字节，中文配音实录视频单独附件，实际大小及身份见本轮 `DELIVERY.json`；未测两接收Mac。
+[隐私说明](docs/PRIVACY_POLICY.md)已发布到HTTPS，支持入口为[Issues](https://github.com/9tuore/muse-agent/issues)。正式 publisher 登记及独立 packet 审核仍缺；原版 Hub 拒绝本地 `calendar` capability，扩展 Gate PASS不等于上游准入。保留唯一失败证据、旧Git历史和公开Tag，不创建成功Tag。桌面ZIP要求严格小于500,000,000字节；rc51首次完整包实际527,708,351字节，大小门槛失败，完整还原与签名检查通过。正在核对整体XZ展开包，完整冻结源码、内置权重及应用保持，实际最终大小及身份以本轮 `DELIVERY.json` 为准。中文配音实录另附，完整源码内也保留媒体；未测两接收Mac。
