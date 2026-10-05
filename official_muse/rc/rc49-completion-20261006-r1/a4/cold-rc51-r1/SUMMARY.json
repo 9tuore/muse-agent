@@ -1,0 +1,119 @@
+{
+  "version": "0.3.26-rc51",
+  "source_sha256": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "matrix_result": "FAIL",
+  "product_ui_acceptance": "PARTIAL_ONLY_TWO_COMPLETED_COLD_CASES",
+  "requested_attempts": {
+    "cold": 10,
+    "reopen": 5,
+    "restart": 0
+  },
+  "cold_pass": 2,
+  "reopen_pass": 0,
+  "valid_completed_cold_pids": [
+    10200,
+    10839
+  ],
+  "known_pid_processes_after": "",
+  "port8492_free_after": true,
+  "protected_state_after_equal": true,
+  "installed_source_after_equal": true,
+  "model_ledger_exists_after": false,
+  "failures": [
+    {
+      "mode": "cold",
+      "index": 3,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "capture_error": "HTTP Error 404: Not Found",
+      "launcher_quit_failure": false
+    },
+    {
+      "mode": "cold",
+      "index": 4,
+      "error": "",
+      "capture_error": "HTTP Error 404: Not Found",
+      "launcher_quit_failure": true
+    },
+    {
+      "mode": "cold",
+      "index": 5,
+      "error": "",
+      "capture_error": "HTTP Error 404: Not Found",
+      "launcher_quit_failure": true
+    },
+    {
+      "mode": "cold",
+      "index": 6,
+      "error": "",
+      "capture_error": "Remote end closed connection without response",
+      "launcher_quit_failure": true
+    },
+    {
+      "mode": "cold",
+      "index": 7,
+      "error": "",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": true
+    },
+    {
+      "mode": "cold",
+      "index": 8,
+      "error": "",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": true
+    },
+    {
+      "mode": "cold",
+      "index": 9,
+      "error": "",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": true
+    },
+    {
+      "mode": "cold",
+      "index": 10,
+      "error": "",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": true
+    },
+    {
+      "mode": "reopen",
+      "index": 1,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": false
+    },
+    {
+      "mode": "reopen",
+      "index": 2,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": false
+    },
+    {
+      "mode": "reopen",
+      "index": 3,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": false
+    },
+    {
+      "mode": "reopen",
+      "index": 4,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": false
+    },
+    {
+      "mode": "reopen",
+      "index": 5,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "capture_error": "<urlopen error [Errno 61] Connection refused>",
+      "launcher_quit_failure": false
+    }
+  ],
+  "report_sha256": "765e0f3b6896342e151cc26c2926fea0167ec1b346b09e3bc8b4e4f12ed74597",
+  "audit_sha256": "1cfefe7703944064fe7517ea291afa0f5dd66aae2f25e68c433f4ced1bff725e",
+  "scope": "Attempted full prescribed matrix. First two actual cold cases passed. Third launcher timeout; later launcher failures before UI, no ten real process cold acceptance. Missing snapshots/logs are failures, not proof of no E. No model submissions or OS restart."
+}

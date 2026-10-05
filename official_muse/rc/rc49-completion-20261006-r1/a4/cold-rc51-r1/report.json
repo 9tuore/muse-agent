@@ -1,0 +1,272 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.26-rc51",
+  "code_commit": "f1fbbafda564268ea3e3b3b9c6fe386a32b8de0f",
+  "source_sha256": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "wall_budget_ms": 64,
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "chat-sessions.backup.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "12d73915c579b367d9fb67fc3c826fdcf3af6e373adf66f7be5e02762639148f",
+    "goals.backup.json": null,
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "cold": [
+    {
+      "index": 1,
+      "pass": true,
+      "first_content_seconds": 16.600081636,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 17.206185497,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=114.181 max_chunk_ms=28.281"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 20.800092054999997,
+      "pid": 10200
+    },
+    {
+      "index": 2,
+      "pass": true,
+      "first_content_seconds": 23.661126555,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 24.253303433000003,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 357 ms · phase=Actions detail=0 · samples=1 · ticks=1/expected=2 · top frames: 1x Actions: makepad_script::tokenizer::ScriptTokenizer::tokenize+0xaf (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::map::view::script_mod+0x86e (octosense) ← makepad_widgets::widgets_mod+0x7ef (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) ← makepad_widgets::splash::SplashRef::set_text+0x6b (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=104.913 max_chunk_ms=12.517"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 27.797665821,
+      "pid": 10839,
+      "raw_snapshot_sha256": "272a0307e15ee17c178b360a330e55ad2f922ca33a5ec5c7065837bd446379dd"
+    },
+    {
+      "index": 3,
+      "pass": false,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "seconds": 40.021399293,
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "index": 4,
+      "pass": false,
+      "error": "",
+      "seconds": 4.510593842000006,
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "index": 5,
+      "pass": false,
+      "error": "",
+      "seconds": 4.4377676769999965,
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "index": 6,
+      "pass": false,
+      "error": "",
+      "seconds": 4.464751448000001,
+      "capture_error": "Remote end closed connection without response"
+    },
+    {
+      "index": 7,
+      "pass": false,
+      "error": "",
+      "seconds": 0.7506801619999948,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "index": 8,
+      "pass": false,
+      "error": "",
+      "seconds": 0.5205868630000055,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "index": 9,
+      "pass": false,
+      "error": "",
+      "seconds": 0.5365730700000029,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "index": 10,
+      "pass": false,
+      "error": "",
+      "seconds": 0.6955149260000013,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    }
+  ],
+  "reopen": [
+    {
+      "index": 1,
+      "pass": false,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "seconds": 0.008221126999998773,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "index": 2,
+      "pass": false,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "seconds": 0.00558987099999797,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "index": 3,
+      "pass": false,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "seconds": 0.00913204700000847,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "index": 4,
+      "pass": false,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "seconds": 0.004811150999998404,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    },
+    {
+      "index": 5,
+      "pass": false,
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "seconds": 0.014673594999990769,
+      "capture_error": "<urlopen error [Errno 61] Connection refused>"
+    }
+  ],
+  "restart": [],
+  "requested_counts": {
+    "cold": 10,
+    "reopen": 5,
+    "restart": 0
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "cold_pass": 2,
+  "reopen_pass": 0,
+  "restart_pass": 0
+}
