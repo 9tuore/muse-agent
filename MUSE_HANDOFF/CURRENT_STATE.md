@@ -1,4 +1,18 @@
-## 2026-10-05 晚间 rc35 缺项收口（当前）
+## 2026-10-05 晚间：停止公开最新版，rc36本地续测（当前）
+
+用户最新要求“继续跑，把GitHub撤到上一版，不公布最新版”；中途“动错版本”的指正已由本人撤销。远端9tuore/muse-agent/main以精确force-with-lease从bce33551恢复到本轮同步前39e2b20d（rc27），GitHub API及ls-remote独立读回一致。本地最新提交、数据和失败证据保留；自动push授权停止，旧Tag不动。主分支回退不承诺清除已公开对象URL或缓存。
+
+rc35在同资料Shell正常重启后，用原失败的同一纯文字问题实测：model.complete strong/attempts1/known_usage成功，正确区分计划意图和执行证明；ledger46→47、807 tokens，goals/actions字节未变。旧FAIL_BEFORE_MODEL未复现一次，原因仍未查明，不宣布根因修复。
+
+日历真实“工作”月范围刷新成功。数字日期定位失败查明为Remote.find('6')先匹配id=6、text=日的星期Label；按日期Button实际位置点击后表单正常打开。未写入/修改/删除任何系统事件。
+
+当前本地rc36，产品522ad495，readable f9b3a4d5 /payload827ba8d7、96668官方token相等。只移动表单返回按钮到固定页面标题，滚到表单底部仍可见、可点击，返回后表单与返回按钮隐藏；goals/actions及model ledger保持。真实AppHub安装六SHA匹配、七状态文件与ledger不变。Host1d7、能力/预算/存储/网络未变。本地Gate PASS为扩展演练，Gate元数据Git基线仍bce33551（检查在产品提交前）；源码身份以SHA及本地产品commit核对，非正式提交。
+
+PARTIAL：原二十项未全过、同最终完整外链、第二strong、两真实替代、真账号2h及OS/双Mac等原门槛未补齐。Muse删除导航未验；旧源邮件/日历整链不重标rc36。当前8493 rc36已返回Chat。入口official_muse/rc/remaining-20261005-r2/local-continuation-rc35-r1/REPORT.md。保护dirty baseline、稳定0.3.25、旧独立安装与生产资料。以下为历史记录。
+
+---
+
+## 2026-10-05 晚间 rc35 缺项收口（历史）
 
 当前产品0f8e027d /0.3.26-rc35，可读de37933e、实装800b11dc，96651官方token相等。Host1d7不变；源码SDKf487与Host构建锁78a5仅两处test-only差异。真实AppHub67安装六SHA保持、同目录Shell正常重启八文件/ledger不变、零重发。稳定0.3.25/独立旧安装/生产/旧Tag和dirty baseline保护。
 

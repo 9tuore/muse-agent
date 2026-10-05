@@ -8,7 +8,9 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前源码候选：0.3.26-rc35；验收 PARTIAL。** 已补收件声明恢复、64条记忆保存与更正、日历短回调与同事项改期绑定、缺RFC时明确选原事项，以及执行回执误冲突修复。真实同事项已完成系统创建、电脑日历外部修改、原ID改期、确认邮件到达、结果和记忆、Shell恢复；节点跨rc28/29/34/35，不冒充同最终整链通过。完整Shell默认558项单测与空target Host重建通过；第二GPT单通道实测provider失败，原二十项完整门槛仍未全过。最新入口：[本轮报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
+**当前本地源码候选：0.3.26-rc36；验收 PARTIAL。GitHub main 暂停在 rc27 / 39e2b20d。** 按本人最新要求撤回本轮公开同步，后续改动只在本机开发、验证和提交；旧Tag不动。rc36仅将日历表单返回按钮移到固定标题区，真实App Hub安装与表单滚动/返回已验证。见[本地续测报告](official_muse/rc/remaining-20261005-r2/local-continuation-rc35-r1/REPORT.md)。
+
+此前已补收件声明恢复、64条记忆保存与更正、日历短回调与同事项改期绑定、缺RFC时明确选原事项，以及执行回执误冲突修复。真实同事项已完成系统创建、电脑日历外部修改、原ID改期、确认邮件到达、结果和记忆、Shell恢复；节点跨rc28/29/34/35，不冒充同最终整链通过。完整Shell默认558项单测与空target Host重建通过；第二GPT单通道实测provider失败，原二十项完整门槛仍未全过。历史入口：[rc35报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
@@ -20,7 +22,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc35 compact payload、manifest、listing和资源；payload 800b11dc 对应当前候选，listing截图仍为有身份记录的V12支持材料 |
+| `official_muse/app/bundle/` | 0.3.26-rc36 compact payload、manifest、listing和资源；payload 827ba8d7 对应本地候选，listing截图仍为有身份记录的V12支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
@@ -61,4 +63,4 @@ cd ../..
 - [来源和交付边界](SOURCE_DELIVERY.md)与[SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)
 - [问题反馈](https://github.com/9tuore/muse-agent/issues)
 
-仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。当前四张原生截图使用隔离合成资料，并记录source/Host身份。保留唯一失败证据、旧Git历史和公开Tag。正式隐私政策地址与publisher材料尚待核实，未正式提交App Hub。按用户最新要求同步候选源码和真实验收记录；未通过项保持PARTIAL，不创建成功Tag或正式上架。
+仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。当前四张原生公开截图使用隔离合成资料，并记录source/Host身份；续测的真实账号截图只保留在本机。保留唯一失败证据、旧Git历史和公开Tag。正式隐私政策地址与publisher材料尚待核实，未正式提交App Hub。GitHub main 已恢复到本轮同步前版本；新版源码和续测记录仅本地提交，未通过项保持PARTIAL，不创建成功Tag或正式上架。
