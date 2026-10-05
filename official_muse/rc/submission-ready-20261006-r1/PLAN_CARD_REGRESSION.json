@@ -1,0 +1,53 @@
+{
+  "before": {
+    "plan_ready": true,
+    "stale_version_rejected": true,
+    "other_chat_binding_rejected": true,
+    "executed_once": false,
+    "composer_preserved": false,
+    "source_editor_preserved": false,
+    "stays_chat": false,
+    "actual_readback": false,
+    "duplicate_rejected": false,
+    "no_external_actions": true,
+    "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+    "source_sha256": "179fd6b6fc8e54c55fe7627af2eb1ed117d8ce34bdbbc93cd491456404b0d46d",
+    "passed": 4,
+    "failed": [
+      "executed_once",
+      "composer_preserved",
+      "source_editor_preserved",
+      "stays_chat",
+      "actual_readback",
+      "duplicate_rejected"
+    ],
+    "suite_sha256": "bdb0a23cbe6a51cbb46d6543b0e79918ed01fe6a48274763d2babfc2ee6a894b",
+    "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+    "real_model": false,
+    "real_mail": false,
+    "real_calendar": false
+  },
+  "after": {
+    "plan_ready": true,
+    "stale_version_rejected": true,
+    "other_chat_binding_rejected": true,
+    "executed_once": true,
+    "composer_preserved": true,
+    "source_editor_preserved": true,
+    "stays_chat": true,
+    "actual_readback": true,
+    "duplicate_rejected": true,
+    "no_external_actions": true,
+    "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+    "source_sha256": "43ef05e424649bc663ec4c15e4b47906cbe54a35643a3228ff8bc137370d27a4",
+    "passed": 10,
+    "failed": [],
+    "suite_sha256": "bdb0a23cbe6a51cbb46d6543b0e79918ed01fe6a48274763d2babfc2ee6a894b",
+    "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+    "real_model": false,
+    "real_mail": false,
+    "real_calendar": false
+  },
+  "scope": "production approval/jailed storage/readback with synthetic input; no model/mail/calendar external call",
+  "note": "first before-r1 launch used relative Host path and failed before execution; directory retained; real before-r2 had six failing conditions"
+}

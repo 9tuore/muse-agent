@@ -1,0 +1,45 @@
+// Actual production approval/storage/readback with synthetic local input; no external service.
+let plan_card_checks = {}
+let plan_card_wait = 0
+let plan_card_id = ""
+fn plan_card_ready(){
+    if (gm_boot_pending || !chat_ready) && plan_card_wait < 180 { plan_card_wait=plan_card_wait+1 start_timeout(0.03,|| plan_card_ready()) return }
+    notification_enabled=false
+    gm_project="a2-project" gm_owner="a2-owner"
+    ui.goal_input.set_text("合成右卡一次性任务") ui.source_input.set_text("合成资料一；合成资料二")
+    plan_card_id=make_plan()
+    start_timeout(0.3,|| plan_card_confirm())
+}
+fn plan_card_confirm(){
+    page="Chat"
+    ui.goal_input.set_text("保留我尚未发送的手写内容") ui.source_input.set_text("保留来源编辑内容")
+    plan_card_checks.plan_ready = task != nil && task.id==plan_card_id && task.status=="planned" && chat_shows_goal()
+    let saved=fs.read("goals.json")
+    approve_plan_card(plan_card_id,2)
+    plan_card_checks.stale_version_rejected=fs.read("goals.json")==saved && runs.len()==0
+    chat_sessions[0].goal_id="other-goal"
+    approve_plan_card(plan_card_id,1)
+    plan_card_checks.other_chat_binding_rejected=fs.read("goals.json")==saved && runs.len()==0
+    chat_sessions[0].goal_id=plan_card_id
+    ui_error=""
+    approve_plan_card(plan_card_id,1)
+    start_timeout(0.4,|| plan_card_done())
+}
+fn plan_card_done(){
+    plan_card_checks.executed_once=task.status=="completed" && runs.len()==1 && runs[0].status=="completed"
+    plan_card_checks.composer_preserved=ui.goal_input.text()=="保留我尚未发送的手写内容"
+    plan_card_checks.source_editor_preserved=ui.source_input.text()=="保留来源编辑内容"
+    plan_card_checks.stays_chat=page=="Chat"
+    let artifact=nil
+    if fs.exists(task.result_path) { artifact=fs.read(task.result_path).parse_json() }
+    plan_card_checks.actual_readback=artifact!=nil && artifact.task_id==plan_card_id && artifact.count==2
+    let saved=fs.read("goals.json")
+    approve_plan_card(plan_card_id,1)
+    plan_card_checks.duplicate_rejected=fs.read("goals.json")==saved && runs.len()==1
+    plan_card_checks.no_external_actions=actions.len()==0
+    fs.write("probe.json",plan_card_checks.to_json())
+}
+fn plan_card_chat(){ chat_boot_data() start_timeout(0.03,|| plan_card_ready()) }
+fn plan_card_memory(){ core_boot_memory() gm_boot() start_timeout(0.03,|| plan_card_chat()) }
+fn plan_card_probe(){ core_boot_goals() core_boot_activity() start_timeout(0.03,|| plan_card_memory()) }
+start_timeout(0.1,|| plan_card_probe())

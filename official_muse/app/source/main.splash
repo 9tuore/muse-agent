@@ -3832,9 +3832,10 @@ fn right_back(){
 
 fn approve_plan_card(id,revision){
     let i = core_goal_index(id)
-    if i < 0 || goals[i].version != revision || goals[i].status != "planned" { ui_error = "计划已变化，请重新查看。" redraw() return }
+    if i < 0 || task == nil || task.id != id || !chat_shows_goal()
+        || goals[i].version != revision || goals[i].status != "planned" { ui_error = "计划已变化，请重新查看。" redraw() return }
     let draft = ui.goal_input.text() let source = ui.source_input.text()
-    select_goal(id)
+    ui.goal_input.set_text(task.goal) ui.source_input.set_text(task.source)
     approve()
     ui.goal_input.set_text(draft) ui.source_input.set_text(source)
     set_page("Chat")
