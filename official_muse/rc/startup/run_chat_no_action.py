@@ -96,19 +96,34 @@ def main():
         assert all(c['execution'] == 'model' and not c.get('memory_operation')
                    for c in selected), 'No memory mutation in this subset'
     previous = None
+    prior_rows = []
+    prior_paths = []
     if a.resume_report:
         assert a.full_frozen_corpus, 'Resume uses the fixed original corpus order'
         previous_path = a.resume_report.resolve(strict=True)
         assert previous_path.is_relative_to(candidate)
         previous = read(previous_path)
-        for key in ['version', 'source_sha256', 'host_sha256']:
-            assert previous[key] == meta[key]
-        assert previous['model_metadata'] == safe_model
-        seen = [row['id'] for row in previous['cases']]
+        chain_path = previous_path
+        while True:
+            assert chain_path.is_relative_to(candidate) and chain_path not in prior_paths
+            prior_paths.append(chain_path)
+            segment = read(chain_path)
+            for key in ['version', 'source_sha256', 'host_sha256']:
+                assert segment[key] == meta[key]
+            assert segment['model_metadata'] == safe_model
+            assert segment['expectations_sha256'] == sha(corpus)
+            assert segment['original_inputs_fixture_sha256'] == sha(original_path)
+            assert not segment.get('pending_input'), 'Do not replay an uncertain pending input'
+            prior_rows = segment['cases'] + prior_rows
+            parent = segment.get('prior_report')
+            if not parent:
+                break
+            chain_path = (candidate / parent['path']).resolve(strict=True)
+            assert sha(chain_path) == parent['sha256']
+        seen = [row['id'] for row in prior_rows]
         assert seen == [c['id'] for c in selected[:len(seen)]]
         assert all(row['input'] == case['input'] for row, case in
-                   zip(previous['cases'], selected))
-        assert not previous.get('pending_input'), 'Do not replay an uncertain pending input'
+                   zip(prior_rows, selected))
         selected = selected[len(seen):]
         assert selected, 'All fixed inputs have already been observed'
     protected = {n: sha(jail / n) for n in [
@@ -173,20 +188,46 @@ def main():
         navigate(r, '记忆')
         r.set_text('memory_search', op['search'])
         top('page_content')
-        r.click_scroll('更正 / 遗忘', 'page_content')
+        action_errors = []
+        def click_once(key):
+            for _ in range(16):
+                try:
+                    widget = r.find(key)
+                    x, y, width, height = widget['r']
+                    if width >= 2 and height >= 24:
+                        break
+                except AssertionError:
+                    pass
+                x, y, width, height = r.find('page_content')['r']
+                r.scroll(int(x+width-4), int(y+height/2), 80)
+            else:
+                raise AssertionError('Memory control not reachable: '+key)
+            try:
+                r.request('/click', x=int(x+width/2), y=int(y+height/2), wait=1)
+            except Exception as error:
+                action_errors.append({'control': key, 'error': repr(error), 'no_repeat': True})
+        def selected_matches():
+            return any(w.get('i') == 'memory_correction' and op['search'] in w.get('val', '')
+                       for w in r.widgets())
+        if not selected_matches():
+            click_once('更正 / 遗忘')
+        r.wait_for('memory_correction')
+        assert selected_matches(), 'Memory selection does not match the requested record'
         top('page_content')
         if op['kind'] == 'forget':
-            r.click('遗忘…')
-            r.click_scroll('确认遗忘这条记忆', 'page_content')
+            click_once('遗忘…')
+            r.wait_for('确认遗忘这条记忆')
+            click_once('确认遗忘这条记忆')
         else:
             assert op['kind'] == 'correct'
             type_multiline(r, 'memory_correction', op['replacement'])
-            r.click('保存更正')
+            click_once('保存更正')
         after = read(jail / 'memory.json')
         assert before != after, 'Actual memory UI did not persist the change'
         proof = a.out / (case['id']+'-memory-operation.json')
         proof.write_text(json.dumps({'via': 'REAL_MEMORY_UI', 'operation': op,
-                                    'before': before, 'after': after},
+                                    'before': before, 'after': after,
+                                    'single_click_errors': action_errors},
                                    ensure_ascii=False, indent=2)+'\n')
         report['memory_operations'][case['id']] = {'path': proof.name, 'sha256': sha(proof)}
         save()
@@ -213,7 +254,8 @@ def main():
             if case.get('memory_operation'):
                 if previous and case['id'] in previous['memory_operations']:
                     op = previous['memory_operations'][case['id']]
-                    proof = previous_path.parent / op['path']
+                    proof = next(path.parent / op['path'] for path in prior_paths
+                                 if sha(path.parent / op['path']) == op['sha256'])
                     assert sha(proof) == op['sha256']
                     assert read(jail / 'memory.json') == read(proof)['after']
                 else:
@@ -305,7 +347,7 @@ def main():
                 assert terminal[-1]['state'] in ['success', 'waiting_user', 'cancelled']
         assert all(sha(jail / n) == h for n, h in protected.items())
         report['protected_external_state_unchanged'] = True
-        all_rows = (previous['cases'] if previous else []) + report['cases']
+        all_rows = prior_rows + report['cases']
         report['original20_transport_complete'] = (a.full_frozen_corpus and
             sum(row['suite'] == 'original20' for row in all_rows) == 20)
         report['status'] = ('OBSERVED_WITH_RETAINED_MODEL_ERRORS_REQUIRES_MANUAL_REVIEW'
