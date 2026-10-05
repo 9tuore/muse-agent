@@ -1,0 +1,92 @@
+{
+  "status": "PREPARATION_PASS_FINAL_VIDEO_NOT_CREATED",
+  "date": "2026-10-06",
+  "scope": "media only; no main Shell/8493/other windows; no model or paid TTS",
+  "voice": {
+    "system": "macOS say",
+    "name": "Tingting",
+    "locale": "zh_CN",
+    "rate": 180,
+    "offline": true,
+    "test_duration_seconds": 6.919592,
+    "draft_pcm_duration_seconds": 154.85735416666665,
+    "draft_aac_duration_seconds": 154.9,
+    "draft_aac_bytes": 2577156,
+    "peak_dbfs": -1.4,
+    "mean_dbfs": -15.7,
+    "auditory_listen_check": "NOT_PERFORMED; generated/decoded/duration and levels checked"
+  },
+  "encoder": {
+    "version": "ffmpeg 7.1",
+    "source": {
+      "package": "imageio-ffmpeg",
+      "version": "0.6.0",
+      "wheel_url": "https://files.pythonhosted.org/packages/da/58/87ef68ac83f4c7690961bce288fd8e382bc5f1513860fc7f90a9c1c1c6bf/imageio_ffmpeg-0.6.0-py3-none-macosx_10_9_intel.macosx_10_9_x86_64.whl",
+      "wheel_sha256": "9d2baaf867088508d4a3458e61eeb30e945c4ad8016025545f66c4b5aaef0a61",
+      "wheel_bytes": 24932969,
+      "binary_sha256": "4a4a968b98859588e98500ae25973d80a5ca5eed0724222b9f76360dcb72a001",
+      "binary_bytes": 75991688,
+      "install_scope": "this media .local-state only; not global; no binary in git"
+    },
+    "libraries_verified": [
+      "libx264",
+      "AAC native",
+      "libass subtitles",
+      "PingFang SC system font",
+      "drawbox",
+      "loudnorm"
+    ],
+    "global_install": false,
+    "binary_distribution": false
+  },
+  "fallback": {
+    "AVFoundation": "available: existing project encoder source and local SDK/compiler verified",
+    "clang": "/Library/Developer/CommandLineTools/usr/bin/clang",
+    "screencapture": "binary exists; no capture/permission prompt invoked"
+  },
+  "calibration": {
+    "not_product_footage": true,
+    "video_sha256": "58ee86f818a664064530f6ec8fcf6f35595f2824cd9ce5886a4952795f36b25c",
+    "bytes": 123920,
+    "full_decode": "PASS",
+    "subtitle_pixels_viewed": true,
+    "purpose": "plain color expressly labeled encoding check; never to be used as operation evidence"
+  },
+  "verification": {
+    "narrate_pipeline": "EXECUTED_PASS",
+    "srt_cues": 21,
+    "final_encode_pipeline": "NOT_EXECUTED_WITH_REAL_FOOTAGE",
+    "compiler_or_product_tests": "NOT_RUN_NOT_REQUIRED",
+    "first_voice_attempt": "say output=/dev/null failed -241; retained as failed probe, actual AIFF file succeeded"
+  },
+  "estimates": {
+    "render": "1600x900, 30 output fps; preserve original capture cadence metadata",
+    "duration_seconds": [
+      120,
+      180
+    ],
+    "expected_mp4_megabytes": [
+      40,
+      95
+    ],
+    "near_155_seconds_at_2_5Mbps_plus_audio_megabytes": 51,
+    "raw_evidence": "depends on actual recording length/cadence; not included in encode estimate"
+  },
+  "remaining": [
+    "final candidate source/Host identity",
+    "Root supplied real continuous-operation capture with timestamps and source SHA",
+    "at least one action and checkable result plus actual failure/empty state",
+    "pixel/audio/factual QA of final edit",
+    "two real key screenshots"
+  ],
+  "rules_source": "https://github.com/gosimfoundation/hackathon-agenticapp26/blob/main/docs/competition-schedule.md",
+  "cover": {
+    "path": "MUSE_COVER.png",
+    "sha256": "e5cdbdd7147b72158a16b36468e4151e48e7f8e8477bb1d88471c3f49dec4665",
+    "bytes": 1297560,
+    "source": "Root supplied imagegen promotional cover",
+    "pixels_viewed": true,
+    "use": "promotional cover only; not real UI or action evidence",
+    "in_this_text_commit": false
+  }
+}
