@@ -1058,58 +1058,65 @@ fn calendar_store_receipt(request_id,goal_id,run_id,service,payload,event_id,ver
 }
 
 fn calendar_finish_link(goal_id,run_id,request_id,payload,event){
-    let li = calendar_link_index(goal_id)
-    let gi = core_goal_index(goal_id)
-    if li < 0 || gi < 0 { calendar_error = "已读回系统事件，但关联 目标 不存在；需人工对账。" redraw() return }
-    let goal = goals[gi]
+    let li = calendar_link_index(goal_id) let gi = core_goal_index(goal_id)
+    if li < 0 || gi < 0 { calendar_error = "已读回系统事件，但关联任务不存在；请对账。" redraw() return }
     let artifact = {schema: 1 task_id: goal_id run_id: run_id request_id: request_id
         calendar_id: payload.calendar_id event_id: event.id version: event.version
         title: event.title start: event.start end: event.end time_zone: event.time_zone
         location: event.location verified_at: time_now() source_id: calendar_links[li].source_id}
-    let serialized = artifact.to_json()
-    if fs.mkdir("results") != nil || storage_write(goal.result_path,serialized) != nil
-        || storage_read(goal.result_path) != serialized {
-        calendar_error = "系统事件已核验，但 目标 结果写入/回读失败；禁止重复创建。"
-        redraw()
-        return
+    calendar_pending = true
+    start_timeout(0.05,|| calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,0))
+}
+
+fn calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,phase){
+    let li = calendar_link_index(goal_id) let gi = core_goal_index(goal_id)
+    let ri = core_run_index(run_id) let ai = core_action_index(request_id)
+    if li < 0 || gi < 0 || ri < 0 || ai < 0 || actions[ai].status != "verified"
+        || runs[ri].goal_id != goal_id || runs[ri].request_id != request_id
+        || runs[ri].plan_revision != goals[gi].version
+        || (runs[ri].status != "running" && runs[ri].status != "completed")
+        || calendar_links[li].source_id != artifact.source_id || !gm_account_allowed(calendar_links[li].account_id) {
+        calendar_pending = false calendar_error = "结果绑定已变化；不重做系统操作，请对账。" redraw() return
     }
-    if !core_finish_run(goal_id,run_id,"completed",goal.result_path) {
-        calendar_error = "系统事件已核验，但 执行记录 状态未保存：" + core_error
-        redraw()
-        return
+    let goal = goals[gi] let account_scope = calendar_links[li].account_id
+    if phase == 0 {
+        let serialized = artifact.to_json()
+        if fs.mkdir("results") != nil || storage_write(goal.result_path,serialized) != nil
+            || storage_read(goal.result_path) != serialized { calendar_pending = false calendar_error = "系统事件已核验，但结果未保存；禁止重复创建。" redraw() return }
     }
-    let revised = calendar_links[li].to_json().parse_json()
-    revised.status = "verified"
-    revised.event_id = event.id
-    revised.version = event.version
-    revised.run_id = run_id
-    revised.calendar_id = payload.calendar_id
-    revised.updated_at = time_now()
-    revised.original_event = event
-    revised.latest_event = event revised.latest_observed_at = time_now()
-    revised.external_change = false revised.latest_observation_error = ""
-    revised.reply_pending = true
-    calendar_links[li] = revised
-    if !calendar_save() { calendar_error = "系统事件已核验，但关联详情未保存：" + calendar_error redraw() return }
-    let account_scope = calendar_links[li].account_id
-    if !core_remember_result(goal_id,run_id,goal.result_path,account_scope,
-        "source:calendar:" + run_id,"calendar:" + payload.calendar_id + ":" + event.id,[calendar_links[li].source_id]) {
-        calendar_error = "系统事件已完成，但来源记忆未保存：" + core_error redraw() return
+    if phase == 1 && !core_finish_run(goal_id,run_id,"completed",goal.result_path) {
+        calendar_pending = false calendar_error = "执行记录未保存：" + core_error redraw() return
     }
-    if !schedule_supersede_result(goal_id,"memory:result:" + run_id,account_scope) {
-        calendar_error = "日历已读回，但最新事实整理尚未保存；请核对记忆。" redraw() return
+    if phase == 2 {
+        let revised = calendar_links[li].to_json().parse_json()
+        revised.status = "verified" revised.event_id = event.id revised.version = event.version
+        revised.run_id = run_id revised.calendar_id = payload.calendar_id revised.updated_at = time_now()
+        revised.original_event = event revised.latest_event = event revised.latest_observed_at = time_now()
+        revised.external_change = false revised.latest_observation_error = "" revised.reply_pending = true
+        calendar_links[li] = revised
+        if !calendar_save() { calendar_pending = false calendar_error = "系统事件已核验，但关联详情未保存。" redraw() return }
     }
-    core_record_event("memory saved","系统事件事实关联邮件来源及独立读回产物。",goal_id,run_id,request_id,account_scope)
+    if phase == 3 && !core_remember_result(goal_id,run_id,goal.result_path,account_scope,
+        "source:calendar:" + run_id,"calendar:" + payload.calendar_id + ":" + event.id,[artifact.source_id]) {
+        calendar_pending = false calendar_error = "系统事件已完成，但来源记忆未保存：" + core_error redraw() return
+    }
+    if phase == 4 && !schedule_supersede_result(goal_id,"memory:result:" + run_id,account_scope) {
+        calendar_pending = false calendar_error = "日历已读回，但最新事实整理未保存。" redraw() return
+    }
+    if phase == 5 && !core_record_event("memory saved","系统事件事实关联邮件来源及独立读回产物。",goal_id,run_id,request_id,account_scope) {
+        calendar_pending = false calendar_error = "结果活动未保存：" + core_error redraw() return
+    }
+    if phase < 6 { start_timeout(0.05,|| calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,phase+1)) return }
     if task != nil && task.id == goal_id { result = artifact }
-    calendar_notice = "约定已安排并核对，结果与来源已保存。"
-    if revised["operation"] == "update" { calendar_notice = "原约定已改期并核对，其他字段保持不变。" }
-    calendar_error = ""
-    let alert_i = mail_watch_alert_index(calendar_links[li].account_id + ":" + calendar_links[li].message_id)
+    let alert_i = mail_watch_alert_index(account_scope + ":" + calendar_links[li].message_id)
     if alert_i >= 0 {
         mail_watch.alerts[alert_i].goal_id = goal_id
         mail_watch.alerts[alert_i].calendar_result = {event_id: event.id version: event.version start: event.start end: event.end}
-        mail_watch_save()
+        if !mail_watch_save() { calendar_pending = false calendar_error = "日程已核验，来信卡保存失败。" redraw() return }
     }
+    calendar_pending = false calendar_error = ""
+    calendar_notice = "约定已安排并核对，结果与来源已保存。"
+    if calendar_links[li]["operation"] == "update" { calendar_notice = "原约定已改期并核对。" }
     redraw()
     start_timeout(0.1,|| schedule_auto_reply(goal_id,event))
 }
@@ -1129,23 +1136,8 @@ fn calendar_readback_written(request_id,goal_id,run_id,service,payload,event_id,
             redraw()
             return
         }
-        if !core_finish_action(request_id,"verified") {
-            calendar_error = "系统读回匹配，但动作核验状态未保存：" + core_error
-            redraw()
-            return
-        }
-        if !calendar_store_receipt(request_id,goal_id,run_id,service,payload,event_id,event.version,"verified") {
-            calendar_error = "系统读回匹配，但收据未保存：" + calendar_error
-            redraw()
-            return
-        }
-        calendar_selected_event = event
-        for i in calendar_events.len() {
-            if calendar_events[i].id == event.id { calendar_events[i] = event }
-        }
-        core_record_event("calendar readback","系统日历事件独立读回匹配确认字段：" + event_id,goal_id,run_id,request_id,payload.calendar_id)
-        if goal_id != "" { calendar_finish_link(goal_id,run_id,request_id,payload,event) }
-        else { calendar_notice = "系统日历事件已独立读回并按字段核验。" calendar_error = "" redraw() }
+        calendar_pending = true
+        start_timeout(0.05,|| calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,0))
     })
 }
 
@@ -1162,22 +1154,35 @@ fn calendar_readback_deleted(request_id,payload,event_id){
             redraw()
             return
         }
-        if !core_finish_action(request_id,"verified") {
-            calendar_error = "系统已确认不存在，但动作状态未保存：" + core_error
-            redraw()
-            return
-        }
-        if !calendar_store_receipt(request_id,"","","calendar.delete",payload,event_id,"","verified") {
-            calendar_error = "删除已读回，但收据保存失败：" + calendar_error
-            redraw()
-            return
-        }
-        calendar_selected_event = nil
-        core_record_event("calendar readback","系统日历删除后 get 明确返回 found=false：" + event_id,"","",request_id,payload.calendar_id)
-        calendar_notice = "系统事件已删除，独立 get 返回不存在。"
-        calendar_error = ""
-        redraw()
+        calendar_pending = true
+        start_timeout(0.05,|| calendar_readback_step(request_id,"","","calendar.delete",payload,event_id,nil,0))
     })
+}
+
+fn calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,phase){
+    let ai = core_action_index(request_id)
+    let expected_status = "verified"
+    if phase == 0 { expected_status = "accepted" }
+    if ai < 0 || actions[ai].service != service || actions[ai].status != expected_status
+        || actions[ai].target_scope != payload.calendar_id || actions[ai].goal_id != goal_id
+        || actions[ai].run_id != run_id { calendar_pending = false calendar_error = "读回记录绑定已变化；请对账。" redraw() return }
+    let version = ""
+    if event != nil { version = event.version }
+    if phase == 0 && !core_finish_action(request_id,"verified") { calendar_pending = false calendar_error = core_error redraw() return }
+    if phase == 1 && !calendar_store_receipt(request_id,goal_id,run_id,service,payload,event_id,version,"verified") {
+        calendar_pending = false calendar_error = "系统读回匹配，但收据未保存。" redraw() return
+    }
+    if phase == 2 && !core_record_event("calendar readback","系统日历独立读回匹配：" + event_id,goal_id,run_id,request_id,payload.calendar_id) {
+        calendar_pending = false calendar_error = core_error redraw() return
+    }
+    if phase < 3 { start_timeout(0.05,|| calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,phase+1)) return }
+    calendar_selected_event = event
+    if event != nil { for i in calendar_events.len() { if calendar_events[i].id == event.id { calendar_events[i] = event } } }
+    if goal_id != "" { calendar_finish_link(goal_id,run_id,request_id,payload,event) return }
+    calendar_pending = false calendar_error = ""
+    calendar_notice = "系统日历事件已独立读回核验。"
+    if service == "calendar.delete" { calendar_notice = "系统事件已删除，独立 get 返回不存在。" }
+    redraw()
 }
 
 fn calendar_action_payload(request_id){
@@ -1217,6 +1222,45 @@ fn calendar_prior_attempt(operation,payload){
         }
     }
     return false
+}
+
+fn calendar_unstarted_run(goal_id){
+    let gi = core_goal_index(goal_id) let li = calendar_link_index(goal_id)
+    if gi < 0 || li < 0 || goals[gi].status != "running" || calendar_links[li].status != "waiting_user" { return "" }
+    for run in runs {
+        if run.goal_id == goal_id && run.plan_revision == goals[gi].version && run.status == "running"
+            && core_action_index(run.request_id) < 0 { return run.id }
+    }
+    return ""
+}
+
+fn calendar_recover_unstarted(goal_id){
+    let run_id = calendar_unstarted_run(goal_id)
+    if run_id == "" || calendar_pending { return }
+    calendar_pending = true
+    start_timeout(0.05,|| {
+        if calendar_unstarted_run(goal_id) != run_id { calendar_pending = false redraw() return }
+        if !core_finish_run(goal_id,run_id,"failed","") { calendar_pending = false calendar_error = core_error redraw() return }
+        start_timeout(0.05,|| {
+            let gi = core_goal_index(goal_id) let ri = core_run_index(run_id)
+            if gi < 0 || ri < 0 || goals[gi].status != "failed" || runs[ri].status != "failed"
+                || core_action_index(runs[ri].request_id) >= 0 { calendar_pending = false redraw() return }
+            let next = goals[gi].to_json().parse_json()
+            next.version = next.version + 1 next.status = "planned" next.phase = "calendar"
+            next.result_path = "results/calendar-" + next.id + "-v" + next.version + ".json"
+            next.goal_spec = calendar_goal_spec(next.id,next.version,next.goal,next.result_path)
+            let li = calendar_link_index(goal_id)
+            if li >= 0 && calendar_links[li]["operation"] == "update" {
+                next.goal_spec.steps[0].id = "update-calendar-event"
+                next.goal_spec.steps[0].capability = "calendar.update"
+                next.goal_spec.permissions.capabilities = ["calendar.update"]
+            }
+            if !core_replan_goal(goal_id,next) { calendar_pending = false calendar_error = core_error redraw() return }
+            calendar_pending = false calendar_preview = "" calendar_checked = ""
+            calendar_notice = "未开始的安排已恢复，请重新核对；系统日历未写入。"
+            redraw()
+        })
+    })
 }
 
 fn calendar_prepare_update_goal(goal_id){
@@ -1332,6 +1376,7 @@ fn calendar_preview_action(){
 }
 
 fn calendar_confirm_action(){
+    if calendar_pending { return }
     if !chat_reply_context_valid({memory_refs: calendar_context_refs}.to_json().parse_json()) { calendar_error = "相关记忆已变化，旧确认失效。" calendar_preview = "" redraw() return }
     if calendar_preview == "" || calendar_pending || time_now() - calendar_preview_at > 300
         || !calendar_enabled() || calendar_permission != "full_access" {
@@ -1516,62 +1561,92 @@ fn calendar_refresh_preconditions(context,payload){
     })
 }
 
+// Each durable commit gets its own VM turn. The captured approval remains
+// bound to the exact card and source; only our own persisted state advances it.
+fn calendar_execution_current(context,payload){
+    if context["execution_run"] == nil { return calendar_approval_current(context) }
+    if !chat_reply_context_valid(context) || calendar_preview != context.preview
+        || calendar_request_id != context.request_id || calendar_operation != context.operation
+        || calendar_selected_goal != context.goal_id || calendar_candidate_revision != context.candidate_revision
+        || calendar_approval_revision != context.approval_revision || time_now() - calendar_preview_at > 300
+        || calendar_preview_binding != context.source_binding
+        || schedule_slot_context(context.goal_id) != context.execution_binding { return false }
+    let current = calendar_action_payload(context.request_id)
+    if current == nil || current.to_json() != payload.to_json() { return false }
+    let gi = core_goal_index(context.goal_id) let ri = core_run_index(context.execution_run)
+    if gi < 0 || ri < 0 || goals[gi].version != context.goal_revision || goals[gi].status != "running"
+        || goals[gi].archived || runs[ri].goal_id != context.goal_id || runs[ri].status != "running"
+        || runs[ri].request_id != context.request_id || runs[ri].plan_revision != context.goal_revision { return false }
+    let li = calendar_link_index(context.goal_id)
+    return li >= 0 && (calendar_links[li].status == "waiting_user"
+        || (calendar_links[li].status == "in_flight" && calendar_links[li].run_id == context.execution_run))
+}
+
 fn calendar_execute_approved(context,payload){
     if !calendar_approval_current(context) { calendar_stale_approval(context,"执行前批准已失效。",false) return }
-    let operation = context.operation
-    let goal_id = ""
-    let run_id = ""
-    let revision = 0
-    let li = calendar_link_index(calendar_selected_goal)
-    if (operation == "create" || operation == "update") && li >= 0 {
-        goal_id = calendar_links[li].goal_id
+    start_timeout(0.05,|| calendar_execute_step(context,payload,0))
+}
+
+fn calendar_execute_step(context,payload,phase){
+    if !calendar_execution_current(context,payload) { calendar_stale_approval(context,"保存期间批准绑定已变化，未调用宿主。",false) return }
+    let goal_id = "" let run_id = "" let revision = 0
+    let li = calendar_link_index(context.goal_id)
+    let linked = (context.operation == "create" || context.operation == "update") && li >= 0
+    if linked {
+        goal_id = context.goal_id revision = context.goal_revision
+        if context["execution_run"] != nil { run_id = context.execution_run }
+    }
+    if phase == 0 && linked {
         let gi = core_goal_index(goal_id)
-        if gi < 0 || goals[gi].status != "planned" || calendar_links[li].status != "waiting_user"
-            || calendar_links[li].candidate.to_json() != calendar_draft_payload().to_json() {
-            calendar_pending = false
-            calendar_error = "关联 目标 或候选已变化，旧批准失效。"
-            calendar_preview = ""
-            redraw()
-            return
+        if gi < 0 || calendar_links[li].candidate.to_json() != calendar_draft_payload().to_json() {
+            calendar_stale_approval(context,"关联任务或候选已变化。",false) return
         }
-        revision = goals[gi].version
-        let revised_goal = goals[gi].to_json().parse_json()
-        revised_goal.goal_spec.steps[0].args = payload
-        revised_goal.goal_spec.permissions.resource_refs = [payload.calendar_id]
-        revised_goal.updated_at = time_now()
-        if !core_upsert_goal(revised_goal) { calendar_pending = false calendar_error = "计划绑定未保存：" + core_error redraw() return }
-        run_id = core_start_run(goal_id,revision,calendar_request_id)
-        if run_id == nil { calendar_pending = false calendar_error = "用户批准未保存：" + core_error redraw() return }
-        core_record_event("Plan approved","日历创建确认绑定精确字段、日历 ID、请求 ID 与计划版本。",goal_id,run_id,calendar_request_id,payload.calendar_id)
-    }
-    let service = "calendar." + operation
-    if !core_begin_action(goal_id,run_id,revision,service,payload.calendar_id,calendar_request_id,calendar_preview) {
-        if run_id != "" { core_finish_run(goal_id,run_id,"failed","") }
-        calendar_error = "外部动作未保存，未调用宿主：" + core_error
-        calendar_pending = false
-        redraw()
-        return
-    }
-    if li >= 0 && goal_id != "" {
-        let revised = calendar_links[li].to_json().parse_json()
-        revised.status = "in_flight"
-        revised.run_id = run_id
+        let revised = goals[gi].to_json().parse_json()
+        revised.goal_spec.steps[0].args = payload
+        revised.goal_spec.permissions.resource_refs = [payload.calendar_id]
         revised.updated_at = time_now()
-        calendar_links[li] = revised
-        if !calendar_save() {
-            core_finish_action(calendar_request_id,"failed")
-            core_finish_run(goal_id,run_id,"failed","")
-            calendar_error = "关联状态未保存，未调用宿主。"
-            calendar_pending = false
-            redraw()
-            return
+        if !core_upsert_goal(revised) { calendar_pending = false calendar_error = "计划绑定未保存：" + core_error redraw() return }
+    }
+    if phase == 1 && linked {
+        run_id = core_start_run(goal_id,revision,context.request_id)
+        if run_id == nil { calendar_pending = false calendar_error = "确认记录未保存：" + core_error redraw() return }
+        context.execution_run = run_id
+        context.execution_binding = schedule_slot_context(goal_id)
+    }
+    if phase == 2 && linked {
+        if !core_record_event("Plan approved","日历确认绑定精确字段、日历 ID、请求 ID 与计划版本。",goal_id,run_id,context.request_id,payload.calendar_id) {
+            calendar_pending = false calendar_error = "确认活动未保存；未调用宿主。" redraw() return
         }
     }
-    let request_id = calendar_request_id
+    let service = "calendar." + context.operation
+    if phase == 3 {
+        if !core_begin_action(goal_id,run_id,revision,service,payload.calendar_id,context.request_id,context.preview) {
+            calendar_pending = false calendar_error = "外部动作未保存，未调用宿主：" + core_error redraw() return
+        }
+    }
+    if phase == 4 && linked {
+        let revised = calendar_links[li].to_json().parse_json()
+        revised.status = "in_flight" revised.run_id = run_id revised.updated_at = time_now()
+        calendar_links[li] = revised
+        if !calendar_save() { calendar_pending = false calendar_error = "关联状态未保存，未调用宿主；请对账。" redraw() return }
+        context.execution_binding = schedule_slot_context(goal_id)
+    }
+    if phase < 5 { start_timeout(0.05,|| calendar_execute_step(context,payload,phase+1)) return }
+    let ai = core_action_index(context.request_id)
+    if ai < 0 || actions[ai].status != "in_flight" || actions[ai].service != service
+        || actions[ai].payload_json != context.preview { calendar_pending = false calendar_error = "动作登记已变化；未调用宿主。" redraw() return }
+    calendar_dispatch_approved(context,payload,goal_id,run_id)
+}
+
+fn calendar_dispatch_approved(context,payload,goal_id,run_id){
+    let operation = context.operation let service = "calendar." + operation
+    let request_id = context.request_id
     calendar_preview = ""
     calendar_pending = true
-    calendar_notice = "精确操作已交给宿主；等待真实服务与独立读回。"
+    calendar_notice = "正在安排，完成后核对系统日历。"
     redraw()
+    let original = nil
+    if operation == "update" { original = calendar_selected_event.to_json().parse_json() }
     host.request(service,payload,fn(r){
         if !r.is_ok || r.data == nil {
             calendar_pending = false
@@ -1584,46 +1659,52 @@ fn calendar_execute_approved(context,payload){
             redraw()
             return
         }
-        if operation == "delete" {
-            if r.data.deleted != true { calendar_pending = false calendar_error = "宿主未确认删除；待人工核对。" redraw() return }
-            if !core_finish_action(request_id,"accepted") { calendar_pending = false calendar_error = core_error redraw() return }
-            calendar_readback_deleted(request_id,payload,payload.event_id)
-            return
+        if operation == "delete" && r.data.deleted != true {
+            calendar_pending = false calendar_error = "宿主未确认删除；待人工核对。" redraw() return
         }
-        if r.data.event_id == nil || r.data.version == nil {
+        if operation != "delete" && (r.data.event_id == nil || r.data.version == nil) {
             calendar_pending = false
             core_finish_action(request_id,"unknown")
-            let linked_i = calendar_link_index(goal_id)
-            if linked_i >= 0 { calendar_links[linked_i].status = "unknown" calendar_save() }
-            calendar_error = "宿主未返回事件 ID/版本，需人工对账。"
-            redraw()
-            return
+            calendar_error = "宿主未返回事件 ID/版本，需人工对账。" redraw() return
         }
-        if !core_finish_action(request_id,"accepted") { calendar_pending = false calendar_error = core_error redraw() return }
-        if goal_id != "" {
-            let linked_i = calendar_link_index(goal_id)
-            if linked_i >= 0 {
-                let revised = calendar_links[linked_i].to_json().parse_json()
-                revised.status = "accepted"
-                revised.event_id = r.data.event_id
-                revised.version = r.data.version
-                calendar_links[linked_i] = revised
-                calendar_save()
-            }
-        }
-        core_record_event("calendar write","宿主已受理日历 " + operation + "，事件 ID " + r.data.event_id + "；正在独立 get。",goal_id,run_id,request_id,payload.calendar_id)
-        let expected = payload
-        if operation == "update" {
-            expected = calendar_selected_event.to_json().parse_json()
-            expected.start = payload.changes.start
-            expected.end = payload.changes.end
-            if payload.changes["title"] != nil { expected.title = payload.changes.title }
-            if payload.changes["location"] != nil { expected.location = payload.changes.location }
-            if payload.changes["time_zone"] != nil { expected.time_zone = payload.changes.time_zone }
-            expected.calendar_id = payload.calendar_id
-        }
-        calendar_readback_written(request_id,goal_id,run_id,service,expected,r.data.event_id,r.data.version)
+        start_timeout(0.05,|| calendar_accept_step(request_id,goal_id,run_id,service,payload,r.data,original,0))
     })
+}
+
+fn calendar_accept_step(request_id,goal_id,run_id,service,payload,data,original,phase){
+    let ai = core_action_index(request_id)
+    let status = "accepted"
+    if phase == 0 { status = "in_flight" }
+    if ai < 0 || actions[ai].status != status || actions[ai].service != service
+        || actions[ai].payload_json != payload.to_json() || actions[ai].goal_id != goal_id
+        || actions[ai].run_id != run_id { calendar_pending = false calendar_error = "宿主回执绑定已变化；不重复操作，请对账。" redraw() return }
+    if phase == 0 && !core_finish_action(request_id,"accepted") { calendar_pending = false calendar_error = core_error redraw() return }
+    if phase == 1 && goal_id != "" {
+        let li = calendar_link_index(goal_id)
+        if li < 0 || calendar_links[li].run_id != run_id { calendar_pending = false calendar_error = "关联回执已变化。" redraw() return }
+        let revised = calendar_links[li].to_json().parse_json()
+        revised.status = "accepted" revised.event_id = data.event_id revised.version = data.version
+        calendar_links[li] = revised
+        if !calendar_save() { calendar_pending = false calendar_error = "回执未保存，请对账。" redraw() return }
+    }
+    if phase == 2 && !core_record_event("calendar write","宿主已受理 " + service + "；正在独立 get。",goal_id,run_id,request_id,payload.calendar_id) {
+        calendar_pending = false calendar_error = core_error redraw() return
+    }
+    if phase < 3 { start_timeout(0.05,|| calendar_accept_step(request_id,goal_id,run_id,service,payload,data,original,phase+1)) return }
+    if service == "calendar.delete" { calendar_readback_deleted(request_id,payload,payload.event_id) return }
+    let expected = payload
+    if service == "calendar.update" {
+        if original == nil || original.id != payload.event_id || original.version != payload.expected_version {
+            calendar_pending = false calendar_error = "原事件快照已变化，请对账。" redraw() return
+        }
+        expected = original
+        expected.start = payload.changes.start expected.end = payload.changes.end
+        if payload.changes["title"] != nil { expected.title = payload.changes.title }
+        if payload.changes["location"] != nil { expected.location = payload.changes.location }
+        if payload.changes["time_zone"] != nil { expected.time_zone = payload.changes.time_zone }
+        expected.calendar_id = payload.calendar_id
+    }
+    calendar_readback_written(request_id,goal_id,run_id,service,expected,data.event_id,data.version)
 }
 
 // Scheduling shares the existing Goal, memory, action journal and Host services.
@@ -8705,7 +8786,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc28" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc29" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
@@ -8898,6 +8979,9 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                             if calendar_links[li]["history"] != nil { for prior in calendar_links[li].history {
                                 Label{width: Fill text: "上次约定 · " + calendar_display_time(prior.candidate.start) + " — " + calendar_display_time(prior.candidate.end) draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
                             } }
+                            }
+                            if calendar_unstarted_run(calendar_links[li].goal_id) != "" {
+                                Secondary{text: "恢复未开始的安排" on_click: || calendar_recover_unstarted(calendar_links[li].goal_id)}
                             }
                             Secondary{text: "查看关联 目标" on_click: || select_goal(calendar_links[li].goal_id)}
                             if calendar_links[li].status == "verified" { Secondary{text: "为本 目标 起草后续确认邮件" on_click: || mail_compose_from_calendar(calendar_links[li].goal_id)} }
