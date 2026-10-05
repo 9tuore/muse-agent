@@ -4359,6 +4359,7 @@ start_timeout(0.05,||mail_keep_unknown_step(requested_id,1))
 }
 
 fn mail_finish_linked_result(){
+if mail_verifying{return false}
 let goal_id=mail_draft.link_goal_id
 let run_id=mail_draft.link_run_id
 if goal_id==""||run_id==""{return true}
@@ -4385,6 +4386,17 @@ location:candidate.location mail_account:mail_draft.account mail_to:mail_draft.t
 mail_subject:mail_draft.subject mail_status:"verified_by_user" verified_at:time_now()
 model_summary:"" count:0 items:[]}
 let requested_id=mail_draft.request_id
+if fs.exists(goals[gi].result_path){
+let stored=storage_read(goals[gi].result_path).parse_json()
+if stored==nil||stored.task_id!=goal_id||stored.run_id!=run_id
+||stored.request_id!=requested_id||stored.event_id!=artifact.event_id
+||stored.calendar_id!=artifact.calendar_id||stored.start!=artifact.start||stored.end!=artifact.end
+||stored.mail_account!=artifact.mail_account||stored.mail_to!=artifact.mail_to
+||stored.mail_subject!=artifact.mail_subject||stored.mail_status!="verified_by_user"{
+mail_error="已有结果与本次核验不一致，保留原文件并等待对账。" return false
+}
+artifact=stored
+}
 mail_verifying=true
 start_timeout(0.05,||mail_finish_linked_step(goal_id,run_id,requested_id,artifact,0))
 return true
@@ -4406,7 +4418,11 @@ mail_verifying=false mail_error="核验后的结果绑定已变化，请对账�
 let path=goals[gi].result_path
 if phase==0{
 let serialized=artifact.to_json()
-if fs.mkdir("results")!=nil||storage_write(path,serialized)!=nil||storage_read(path)!=serialized{
+if fs.mkdir("results")!=nil{mail_verifying=false mail_error="结果目录不可写。" mail_redraw()return}
+if fs.exists(path){
+let stored=storage_read(path).parse_json()
+if stored==nil||stored.to_json()!=serialized{mail_verifying=false mail_error="已存回执内容变化，保留原文件并等待对账。" mail_redraw()return}
+}else if storage_write(path,serialized)!=nil||storage_read(path)!=serialized{
 mail_verifying=false mail_error="邮件已核验，但关联结果写入/回读失败；不会重新发送。" mail_redraw()return
 }
 }
@@ -4495,6 +4511,7 @@ let core_memory_ready=false
 let core_activity_ready=false
 let core_last_goals=""
 let core_last_memory=""
+let core_validated_memory_bytes={}
 let core_last_activity=""
 
 
@@ -5088,8 +5105,9 @@ fn core_preserve_memory_file(name){
 if!fs.exists(name){return true}
 let raw=storage_read(name)
 
-if core_last_memory!=""&&raw==core_last_memory{return true}
-if core_memory_valid(raw.parse_json()){return true}
+if(core_last_memory!=""&&raw==core_last_memory)
+||core_validated_memory_bytes[name]==raw{return true}
+if core_memory_valid(raw.parse_json()){core_validated_memory_bytes[name]=raw return true}
 let digest=storage_file_hash(name)
 if!storage_hash_valid(digest){
 core_memory_ready=false core_error="损坏记忆原文件摘要不可验证，已停止恢复和写入。" return false
@@ -5121,6 +5139,7 @@ core_error="记忆回退快照保存失败。"
 core_restore_memory()
 return false
 }
+core_validated_memory_bytes["memory.backup.json"]=core_last_memory
 }
 let error=storage_write("memory.json",serialized)
 if error!=nil||storage_read("memory.json")!=serialized{
@@ -5135,6 +5154,7 @@ memory=committed.claims
 memory_sources=committed.sources
 memory_forget=committed.forget
 core_last_memory=serialized
+core_validated_memory_bytes["memory.json"]=serialized
 core_error=""
 return true
 }
@@ -5285,6 +5305,11 @@ value=value+"\n系统日历事件 · "+artifact.event_id
 let source={source_id:source_id kind:"runtime_receipt" locator:locator
 content_sha256:fs.sha256(text)observed_at:now updated_at:now support_excerpt:core_excerpt(value)}
 source["scope"]=task_memory_scope(goal_id,account_scope)
+let prior=core_source_index(source_id,account_scope)
+
+if prior>=0&&memory_sources[prior].content_sha256!=source.content_sha256{
+source_id=source_id+":"+source.content_sha256 source.source_id=source_id
+}
 if phase==0{return core_add_source(source)}
 let si=core_source_index(source_id,account_scope)
 if si<0||memory_sources[si].content_sha256!=source.content_sha256
@@ -9049,7 +9074,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc42" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc44" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
