@@ -8016,6 +8016,7 @@ fn redraw(){
     ui.result_rail.set_visible(right_open && !right_page_mode)
     ui.collapsed_result_rail.set_visible(!right_open && !right_page_mode)
     ui.page_header.set_visible(page != "Chat")
+    ui.calendar_back_button.set_visible(page == "Calendar" && calendar_form_open)
     ui.history_list.render()
     ui.shortcuts.render()
     ui.chat_delete_prompt.render()
@@ -8590,6 +8591,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
         page_header := View{width: Fill height: Fit flow: Down spacing: 3
             View{width: Fill height: Fit flow: Right spacing: 5
                 page_title := Label{width: Fill text: "对话" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 21}}
+                calendar_back_button := Secondary{visible: false text: "返回日历" on_click: || { calendar_form_open = false redraw() }}
                 Secondary{text: "结果" width: 60 on_click: || right_as_page()}
             }
         }
@@ -8928,7 +8930,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc35" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc36" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
@@ -9214,7 +9216,6 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                 }
             }}
             calendar_fields := View{visible: false width: Fill height: Fit flow: Down spacing: 7
-                Secondary{text: "收起日程编辑" on_click: || { calendar_form_open = false redraw() }}
                 if calendar_candidate_date != "" {
                     Label{width: Fill text: "所选日期 · " + calendar_candidate_date + "（Asia/Shanghai）· 请填写明确开始和结束时间" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
                 }
