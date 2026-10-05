@@ -28,8 +28,8 @@ pub fn identity(account: &Value) -> String {
 }
 
 pub fn defaults() -> Value {
-    json!({"address":"","username":"","host":"pop.gmail.com","port":"995","security":"tls","recent":true,
-        "smtp_host":"smtp.gmail.com","smtp_port":"465","smtp_security":"tls","password":"","sync_enabled":false})
+    json!({"address":"","username":"","protocol":"imap","host":"imap.qq.com","port":"993","security":"tls","recent":true,
+        "smtp_host":"smtp.qq.com","smtp_port":"465","smtp_security":"tls","password":"","sync_enabled":false})
 }
 
 #[cfg(test)]
@@ -57,12 +57,21 @@ mod tests {
         account["security"] = json!("plain");
         assert!(validate(&account).is_err());
     }
+    #[test]
+    fn missing_authorization_code_uses_the_login_field_label() {
+        let mut account = defaults();
+        account["address"] = json!("reader@qq.com");
+        account["username"] = json!("reader@qq.com");
+        let error = validate(&account).unwrap_err();
+        assert!(error.contains("授权码"));
+        assert!(!error.contains("密码"));
+    }
 }
 pub fn validate(account: &Value) -> Result<(), String> {
     for key in ["address", "username", "host", "smtp_host", "password"] {
         let value = text(account, key);
         if value.is_empty() || value.contains(['\r', '\n', '\0']) {
-            let field = match key { "address" => "邮箱地址", "username" => "登录用户名", "host" => "收件服务器地址", "smtp_host" => "发件服务器地址", "password" => "密码", _ => "账号字段" };
+            let field = match key { "address" => "邮箱地址", "username" => "登录用户名", "host" => "收件服务器地址", "smtp_host" => "发件服务器地址", "password" => "授权码", _ => "账号字段" };
             return Err(format!("请填写有效的{field}。"));
         }
     }
@@ -187,7 +196,7 @@ impl Wire {
         let line = self.line()?;
         if !line.starts_with(b"+OK") {
             return Err(
-                "邮箱服务器拒绝请求，请检查账号设置和应用专用密码。".into(),
+                "邮箱服务器拒绝请求，请检查账号设置和授权码。".into(),
             );
         }
         Ok(line)
@@ -220,7 +229,7 @@ impl Wire {
                 .unwrap_or(0);
             if !expected.contains(&code) {
                 return Err(
-                    "发件服务器拒绝请求，请检查服务器设置和应用专用密码。"
+                    "发件服务器拒绝请求，请检查服务器设置和授权码。"
                         .into(),
                 );
             }

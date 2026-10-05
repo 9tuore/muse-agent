@@ -404,9 +404,9 @@ fn account_from_form(form: &Value) -> Result<Value, String> {
     let mut account = network::defaults();
     let imap = text(form, "protocol") != "pop3";
     account["protocol"] = json!(if imap { "imap" } else { "pop3" });
-    if imap {
-        account["host"] = json!("imap.gmail.com");
-        account["port"] = json!("993");
+    if !imap {
+        account["host"] = json!("pop.qq.com");
+        account["port"] = json!("995");
     }
     for key in ["address", "password", "host", "port", "security", "smtp_host", "smtp_port", "smtp_security"] {
         if let Some(value) = form[key].as_str().filter(|v| !v.trim().is_empty()) {
@@ -708,14 +708,14 @@ fn choose(p){
     ui.imap_off.set_visible(p != "imap")
     ui.pop_on.set_visible(p == "pop3")
     ui.pop_off.set_visible(p != "pop3")
-    // Swap Gmail's servers for each other; anything typed stays.
+    // Swap QQ's default servers; other servers stay as typed.
     let h = ui.pop_host.text()
     if p == "imap" {
         ui.incoming.set_text("收件服务器（IMAP，TLS）")
-        if h == "pop.gmail.com" || h == "" { ui.pop_host.set_text("imap.gmail.com") ui.pop_port.set_text("993") }
+        if h == "pop.qq.com" || h == "" { ui.pop_host.set_text("imap.qq.com") ui.pop_port.set_text("993") }
     } else {
         ui.incoming.set_text("收件服务器（POP3，TLS）")
-        if h == "imap.gmail.com" || h == "" { ui.pop_host.set_text("pop.gmail.com") ui.pop_port.set_text("995") }
+        if h == "imap.qq.com" || h == "" { ui.pop_host.set_text("pop.qq.com") ui.pop_port.set_text("995") }
     }
 }
 fn submit(){
@@ -724,7 +724,12 @@ fn submit(){
         address: ui.address.text().trim() password: ui.password.text() protocol: protocol
         host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
         smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
-    }, fn(r){ if r.is_ok { ui.status.set_text("登录成功") } else { ui.status.set_text(r.error) } })
+    }, fn(r){
+        if r.is_ok { ui.status.set_text("登录成功") }
+        else if r.error == "Mail server rejected the sign-in. Check the address and app password." {
+            ui.status.set_text("邮箱服务器拒绝登录，请检查邮箱地址和授权码。")
+        } else { ui.status.set_text(r.error) }
+    })
 }
 fn cancel(){ host.request("mail.sheet.cancel", {}, fn(r){}) }
 let Field = TextInput{width: Fill height: 40
@@ -755,12 +760,16 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
                 draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff text_style +: {font_size: 15}}}
         }
         Label{width: Fill text: "OctoSense · 添加邮箱账号" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
-        Label{width: Fill text: "密码由 OctoSense 安全保管，Muse 只能访问获授权的邮件。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+        Label{width: Fill text: "授权码由 OctoSense 安全保管，Muse 只能访问获授权的邮件。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
         status := Label{width: Fill text: "" draw_text.color: #xff3b30 draw_text.text_style.font_size: 12}
         Caption{text: "邮箱地址"}
-        address := Field{empty_text: "例如 name@example.com"}
-        Caption{text: "密码或授权码"}
-        password := Field{empty_text: "请输入密码或授权码" is_password: true}
+        address := Field{empty_text: "例如 123456789@qq.com"}
+        Caption{text: "授权码"}
+        password := Field{empty_text: "请输入授权码" is_password: true}
+        Label{width: Fill text: "QQ 授权码：mail.qq.com → 设置 → 账户" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+        Label{width: Fill text: "开启 IMAP/SMTP，按页面完成验证后生成授权码。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+        Label{width: Fill text: "已开启服务：管理服务 → 生成授权码。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+        Label{width: Fill text: "选择 POP3 时需开启 POP3/SMTP 服务。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
         RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
             imap_on := Chosen{text: "IMAP：所有文件夹"}
             imap_off := Choice{visible: false text: "IMAP：所有文件夹" on_click: || choose("imap")}
@@ -768,11 +777,11 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
             pop_off := Choice{text: "POP3：仅收件箱" on_click: || choose("pop3")}
         }
         View{width: Fill height: Fit flow: Right spacing: 8
-            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "收件服务器（IMAP，TLS）"} pop_host := Field{text: "imap.gmail.com"}}
+            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "收件服务器（IMAP，TLS）"} pop_host := Field{text: "imap.qq.com"}}
             View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} pop_port := Field{text: "993"}}
         }
         View{width: Fill height: Fit flow: Right spacing: 8
-            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "发件服务器（SMTP，TLS）"} smtp_host := Field{text: "smtp.gmail.com"}}
+            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "发件服务器（SMTP，TLS）"} smtp_host := Field{text: "smtp.qq.com"}}
             View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} smtp_port := Field{text: "465"}}
         }
     }
@@ -798,6 +807,67 @@ mod tests {
             assert_eq!(account["username"], "reader@example.com");
             assert_eq!(account["password"], " fixture-only-value ");
             assert_eq!(account["protocol"], protocol);
+        }
+    }
+
+    #[test]
+    fn qq_signin_defaults_follow_the_selected_protocol() {
+        for (protocol, host, port) in [("imap", "imap.qq.com", "993"), ("pop3", "pop.qq.com", "995")] {
+            let account = account_from_form(&json!({
+                "address": "  reader@qq.com  ", "password": " fixture-only-value ",
+                "protocol": protocol,
+            })).unwrap();
+            assert_eq!(account["protocol"], protocol);
+            assert_eq!(account["host"], host);
+            assert_eq!(account["port"], port);
+            assert_eq!(account["security"], "tls");
+            assert_eq!(account["smtp_host"], "smtp.qq.com");
+            assert_eq!(account["smtp_port"], "465");
+            assert_eq!(account["smtp_security"], "tls");
+            assert_eq!(account["address"], "reader@qq.com");
+            assert_eq!(account["username"], "reader@qq.com");
+            assert_eq!(account["password"], " fixture-only-value ");
+        }
+        let account = account_from_form(&json!({"address": "reader@qq.com", "password": "fixture-only-value"})).unwrap();
+        let defaults = network::defaults();
+        for key in ["protocol", "host", "port", "security", "smtp_host", "smtp_port", "smtp_security"] {
+            assert_eq!(account[key], defaults[key], "default form differs at {key}");
+        }
+    }
+
+    #[test]
+    fn non_qq_custom_server_settings_are_preserved_for_both_protocols() {
+        for protocol in ["imap", "pop3"] {
+            let form = json!({
+                "address": "  reader@example.invalid  ", "password": " fixture-only-value ",
+                "protocol": protocol, "host": " custom.example.invalid ", "port": " 143 ",
+                "security": " starttls ", "smtp_host": " outbound.example.invalid ",
+                "smtp_port": 587, "smtp_security": " starttls ",
+            });
+            let account = account_from_form(&form).unwrap();
+            for (key, expected) in [("host", "custom.example.invalid"), ("port", "143"),
+                ("security", "starttls"), ("smtp_host", "outbound.example.invalid"),
+                ("smtp_port", "587"), ("smtp_security", "starttls")] {
+                assert_eq!(account[key], expected);
+            }
+            assert_eq!(account["username"], "reader@example.invalid");
+            assert_eq!(account["password"], " fixture-only-value ");
+        }
+    }
+
+    #[test]
+    fn signin_sheet_explains_qq_authorization_without_password_labels() {
+        let sheet = signin_sheet();
+        assert!(!sheet.contains("密码"));
+        assert!(!sheet.contains("gmail.com"));
+        assert!(sheet.contains("授权码"));
+        for step in ["mail.qq.com → 设置 → 账户", "开启 IMAP/SMTP", "按页面完成验证后生成授权码",
+            "已开启服务：管理服务 → 生成授权码", "POP3/SMTP"] {
+            assert!(sheet.contains(step), "missing QQ help step {step}");
+        }
+        let defaults = network::defaults();
+        for key in ["host", "port", "smtp_host", "smtp_port"] {
+            assert!(sheet.contains(&format!("Field{{text: \"{}\"}}", text(&defaults, key))));
         }
     }
 
