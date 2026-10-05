@@ -7,9 +7,9 @@
 | 昨晚开始 | 2026-10-04 23:23:21基线记录：0.3.26-rc3，长期任务入口已去除，冷启动/模型/Calendar还有失败；稳定0.3.25、旧安装及生产保护 |
 | 现在 | rc10 / 产品6fd5b54b，可读a19622e0、compact7cdfc751，91244官方token等价 |
 | 内部排名目标 | 原全部门槛、同候选真业务链和两套严格评分；不把目标当名次或结果 |
-| A score / B score | 旧rc9独立内部审阅70 / 70（历史截点）；rc10最终评分待全部现有观察结束，不预加分，不代表官方评分 |
+| A score / B score | rc10两位既有真实聊天最终独立证据审阅 A74 / B73；内部评估，不是官方评分或排名。旧rc9 A70/B70仅历史截点 |
 | T18 | BLOCKED：最终profile同步凭据缺失、当前Host未集成Calendar桥；同最终外部整链未完成 |
-| Stability | rc10新30冷/20重开/20Shell重启PASS；额外100重开PASS，7200秒合成驻留尚进行。未提高预算、清库或删失败 |
+| Stability | rc10新30冷/20重开/20Shell重启PASS；额外100重开PASS，完整7200.220574秒/241样本合成驻留PASS。未提高预算、清库或删失败 |
 | Model / Memory | 两实际模型各28唯一输入，原20各19PASS/1FAIL、setup2/holdout6全PASS；更正/遗忘/跨聊天隔离真实核对通过，额外无依据评价保留 |
 | Source | 官方Splash/Makepad入口，最小Memory UI修复及存储/记忆/来信/Activity模块责任明确；主入口540777字节/430函数regex，未称已彻底拆分或无死代码 |
 | Hub | 同rc10六文件/Git/mirror/pack、catalog签名和本地扩展Gate通过；七题scan packet已生成但无独立reviewer；正式身份/政策/业务视频待 |
@@ -31,8 +31,10 @@ rc9 Memory UI两个单独保存导致新值被旧输入撤回，已保留磁盘/
 
 ## 文件、截图与下一节点
 
-当前真实rc10两次Memory保存及Goal首重启截图均为隔离合成资料，Root已查看；rc9约61秒六页采样界面短片保留历史身份，不代替rc10外部业务视频。失败日志和私人证据只留本机；源码导出排除账号、凭据、私人邮件/库、缓存和权重。
+四张当前真实rc10截图（两次Memory保存、Goal首重启、100重开后）均为隔离合成资料，Root已查看；rc9约61秒六页采样界面短片保留历史身份，不代替rc10外部业务视频。失败日志和私人证据只留本机；源码导出排除账号、凭据、私人邮件/库、缓存和权重。
 
-最终源码薄包待现有测试完成后固定S→manifestF；不含独立Host/启动器/模型。桌面旧087 Intel运行ZIP是rc5，未换标签为最新版。清理仅已结束可恢复分发副本，实际回收与APFS逻辑大小分开；完整Host600MiB门槛不降低。
+最终公开源码按S→manifestF冻结，导出结果由外层版本与交付边界/核验记录绑定F；冻结报告本身不冒充导出已完成。纯源码不含独立Host/启动器/模型。桌面旧087 Intel运行ZIP是rc5，未换标签为最新版。清理仅已结束可恢复分发副本，实际回收与APFS逻辑大小分开；完整Host600MiB门槛不降低。
+
+本轮结束采样时间为2026-10-05 10:32:17北京时间，最终结果由Root逐样本核对。两小时内Host请求总数不可观察，不把模型/动作零计数当成零网络请求。磁盘ENOSPC拒绝的报告/Git写入和恢复记录已保留；只处理无占用重复分发文件与有精确反向还原补丁的编译中间副本，未降低64MiB源码或600MiB Host门槛。
 
 详细入口：[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)、[真实节点](RC_FINAL_LIVE_REPORT.md)、[冷启动](COLD_START_PROFILE.md)、[持续运行](OVERNIGHT_SOAK.md)、[冻结身份](RC_CODE_FREEZE.json)、[人工与环境队列](MORNING_HUMAN_QUEUE.md)、[评分](CHAMPIONSHIP_SCORECARD.md)、[交付](SOURCE_DELIVERY.md)。本轮只本地小步提交，未push、移动旧Tag、创建成功Tag或正式提交App Hub。

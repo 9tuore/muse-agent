@@ -1,6 +1,6 @@
-# rc10 独立内部 B 审阅准备
+# rc10 独立内部 B 最终证据审阅
 
-审阅时间：2026-10-05T09:59:07.144762+08:00（北京时间）。**PARTIAL，暂计71/100**；当前7200秒soak仍RUNNING，未加分，最终冻结后按精确新增证据只更新一次相关分项。
+审阅时间：2026-10-05T09:59:07.144762+08:00（北京时间）。**PARTIAL，最终内部B73/100**。当前fresh7200合成soak已完成；仅长运行1/4→3/4，真实后端/OS重启/成品导出仍未过。
 
 ## 身份和方法
 
@@ -12,17 +12,17 @@ A2现有真实Codex聊天，按本次协调要求标明gpt-6.1-sol证据审阅�
 
 ## B分项与逐点依据
 
-| 维度 | 暂计 | 上限 |
+| 维度 | 最终内部评分 | 上限 |
 |---|---:|---:|
 | 任务实现 | 18 | 25 |
-| 可靠性 | 15 | 20 |
+| 可靠性 | 17 | 20 |
 | 人机协作 | 11 | 15 |
 | 官方适配 | 12 | 15 |
 | 复现交付 | 7 | 15 |
 | 差异化 | 8 | 10 |
-| **合计** | **71** | **100** |
+| **合计** | **73** | **100** |
 
-沿用rc9子权重。仅“实际模型与自然语言问询”由2/4增至3/4：完整28输入观察已完成，但服务/语义与额外grounding失败仍在。100重开强化已满4分的启动子项，不重复抬分；folder工具14fixture不等于成品导出。
+沿用rc9子权重。此前模型完整观察子项2/4→3/4；最终仅长运行1/4→3/4，真实后台服务长测仍扣1。100重开只强化已满4分的启动子项；Gate补齐直接证据但官方分不变。folder工具14fixture不等于正式成品导出。
 
 ### 任务实现
 
@@ -36,7 +36,7 @@ A2现有真实Codex聊天，按本次协调要求标明gpt-6.1-sol证据审阅�
 - **持久化、独立回读与首次进程恢复：5/5，扣0。** rc10一次Goal首次Shell恢复8SHA及Memory双保存后恢复已证；不等于电脑重启。 证据：`RC10_LIVE_NODE_SUMMARY.json`、`official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json`、`official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json`。
 - **当前70启动及额外100普通重开：4/4，扣0。** 30冷/20重开/20Shell重启与额外100普通重开均完成；同一子项上限4分，不因追加次数超过上限。 证据：`official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json`、`official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json`。
 - **失败拒绝、绑定、防重放与恢复：4/5，扣1。** 扣1：旧20故障/stale callback保护按未改函数字节复用；当前候选取消/缺时段拒绝有真实模型流程支持，最终服务异常/外部修改仍缺。 证据：`official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json`、`RC_ACCEPTANCE_MATRIX.md`。
-- **长运行：1/4，扣3。** 扣3：当前rc10完整7200秒仍RUNNING，暂只给旧rc9/V15合成驻留支持1分；真实账号长测及稳定Mail5357秒绘制FAIL仍未解决。 证据：`OVERNIGHT_SOAK.md`。
+- **长运行：3/4，扣1。** 当前6fd/7cdf/Host938独立fresh7200.220573930001秒/241样本合成驻留通过，逐样本数量不变/错误0/无内容变更或重复改写/模型与动作0；扣1因实际Mail/Calendar后端长测缺失，稳定真Mail5357秒绘制FAIL保留。公开摘要：official_muse/rc/startup/RC10_SOAK_7200_SUMMARY.json（提交edd9501c，SHA a64d44df29c95d26011db02dda8321617694cd3c13c9cf606fe92e353ba4003b）；原报告SHA ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f。
 - **性能与容量余量：1/2，扣1。** 扣1：rc10普通重开中位9.389s/最高10.210s、冷启动最高18.882s；64条更正66.055ms历史余量及磁盘中断风险保留，空间合并不是Host重新编译。 证据：`official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json`、`RC_ACCEPTANCE_MATRIX.md`。
 
 ### 人机协作
@@ -77,7 +77,7 @@ A2现有真实Codex聊天，按本次协调要求标明gpt-6.1-sol证据审阅�
 ## Root文档与缺证据
 
 - **C01 STALE_SCORECARD_SCOPE**：CHAMPIONSHIP_SCORECARD.md标题rc9，却段落写当前候选/当前内部A/B并称原28尚待；MORNING报告已经明确rc9是历史截点、rc10已完成28观察。 建议：Root最终冻结后将旧70显式标历史，引用本轮审阅；保留原FAIL，不以新观察把旧证据换版本。
-- **C02 TRACEABILITY_GAP_NOT_FAILURE_PROOF**：MORNING报告声称当前rc10六文件/Git/mirror/pack、catalog与本地Gate通过；当前55行索引未有对应rc10 gate/scan直接行。A2没有重跑或读取私有gate目录，不能独立证成这项检查。 建议：Root加入已存在的确切check/catalog/scan摘要路径/SHA和版本；没有独立reviewer仍须记录。
+- **C02 已解决（不加分）**：直接公共摘要 official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json（提交bb635716，SHA 2bbed7cb1f7292c0a01b52fc6d2453da15fe2fffbc03438386b157556f0ea9fd）已核对；六文件Git/Bundle/Mirror/pack全等，本地开发扩展check/catalogPASS、scan7问题，无独立reviewer或正式publisher/政策/发布接纳。
 - **C03 EXPECTED_UNFINISHED_GATE**：folder工具14fixture真实范围明确；正式F/桌面导出仍NOT_YET_PERFORMED，不能把工具测试PASS写成交付已完成。 建议：测试冻结后Root执行正式导出并固定S/F与manifest；本轮准备评分不给成品/clean/跨机分。
 - **C04 SCOPE_GUARD**：模型original20是冻结聊天输入组，不等于产品T01–T20矩阵。56唯一输入含8本地setup/cancel步骤，不能写56次模型业务调用。M01冻结PASS与额外grounding失败并存。 建议：保留两层语义结论与known_usage/attempts未知；不改原20期待、不称模型全部通过。
 
@@ -85,7 +85,7 @@ A2现有真实Codex聊天，按本次协调要求标明gpt-6.1-sol证据审阅�
 
 原产品20项仍5PASS/14PARTIAL/1BLOCKED。T17不全过，T18仍BLOCKED，T20仍PARTIAL。隔离Mail凭据缺失，没有真实同步/发送；旧授权Host0fd只读Calendar被schema拒绝，没有创建/改期/get链。旧稳定版自发自收/历史系统读取不改标rc10全链。
 
-待完成：rc10独立完整7200秒合成驻留、正式F/桌面导出、final Host Calendar桥与身份授权、精确系统事件写入授权、最终Mail/Calendar/回复同事项全链、电脑重启、clean构建、第二Mac/ARM及正式publisher/政策/业务视频/独立审核。合成驻留即使通过也不替代真实账号长测。
+当前rc10独立7200秒合成驻留已完成。仍待：正式F/桌面导出、final Host Calendar桥与身份授权、精确系统事件写入授权、最终Mail/Calendar/回复同事项全链、电脑重启、clean构建、第二Mac/ARM及正式publisher/政策/业务视频/独立审核。合成驻留即使通过也不替代真实账号长测。
 
 本次未宣称官方评分、95分、第一名、READY、完整UI_PARITY或完整官方准入。旧失败保留；本审阅不改主矩阵/scorecard/清单。
 
@@ -94,4 +94,12 @@ A2现有真实Codex聊天，按本次协调要求标明gpt-6.1-sol证据审阅�
 1. `official_muse/rc/core_chain/RC10_INTERNAL_B_REVIEW.md`
 2. `official_muse/rc/core_chain/RC10_INTERNAL_B_REVIEW.json`
 
-各子项commit/file/test/SHA、静态核对与扣分见JSON证据registry。等待Root精确新增7200摘要后，仅一次更新相关分项，其他未完成门槛不预加分。
+各子项commit/file/test/SHA、静态核对与扣分见JSON证据registry。已依据精确完成的7200报告作唯一一次最终分项更新；本次是此前磁盘错误后的落盘恢复，不重新评分或增加其他分项。
+
+## 最终cutoff与落盘恢复
+
+最后实际采样cutoff：2026-10-05 10:32:17.353118北京时间；实际运行7200.220573930001秒/241样本。原报告SHA ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f，公开摘要SHA a64d44df29c95d26011db02dda8321617694cd3c13c9cf606fe92e353ba4003b。A2于前次完成只读逐样本核对，未独立重新运行；本次仅核对公共摘要SHA并恢复落盘。CPU最大19.9%，RSS峰值329524KiB。Host请求数仍NOT_OBSERVABLE，不把账本0说成所有Host请求0。Root正常quit8489/端口关闭是控制器记录，A2没有代做或独立端口复查。
+
+最终B：18/25+17/20+11/15+12/15+7/15+8/10=73/100。原产品20仍5PASS/14PARTIAL/1BLOCKED、T18BLOCKED、T20PARTIAL；正式F/桌面导出未做，不加完成交付分。无95锚点、假排名、READY或完整UI_PARITY。
+
+前次原子副本创建被ENOSPC拒绝，原两份71准备版完整保留；失败工具/聊天记录仍在，没有清文件、降600MiB门禁或虚报保存。落盘恢复时间：2026-10-05T10:45:20.105736+08:00。仅原子替换这两份评审文件，不改Root主报告/Git。

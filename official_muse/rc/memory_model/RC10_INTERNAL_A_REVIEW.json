@@ -4,14 +4,14 @@
   "reviewer": "A3 existing real chat",
   "reviewer_model": "gpt-6-astra",
   "reviewer_model_basis": "Root指定的既有真实聊天身份；本轮未读取或独立验证应用运行模型配置。",
-  "observed_at_utc": "2026-10-05T01:58:43.491974+00:00",
-  "status": "PARTIAL_PRE_SOAK_COMPLETION_REVIEW",
-  "score": 73,
+  "observed_at_utc": "2026-10-05T02:40:45.590184+00:00",
+  "status": "PARTIAL_FINAL_INCREMENT_COMPLETED_NOT_RELEASE_PASS",
+  "score": 74,
   "max_score": 100,
   "official_score": false,
   "official_rank_claimed": false,
   "target_score_used": false,
-  "method": "沿用RC9内部A的六维度及全部子项权重；按当前证据逐项判定。Root提供维度，本聊天的内部子项判断不是官方评委量表。不以旧70或目标95为起点加减。报告准备完成，待Root提供完整soak结果后只更新对应新增证据一次。",
+  "method": "沿用RC9内部A的六维度及全部子项权重；按当前证据逐项判定。Root提供维度，本聊天的内部子项判断不是官方评委量表。不以旧70或目标95为起点加减。本次按Root提供的最终soak及Gate证据完成一次增量；未重复原产品测试。",
   "identity": {
     "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
     "version": "0.3.26-rc10",
@@ -82,14 +82,28 @@
   },
   "soak_cutoff": {
     "path": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
-    "snapshot_sha256": "7ff2a607fcd020915be0f1f75639d38f44e189e1755530a2fd1a12d795e9b351",
-    "status": "RUNNING",
+    "sha256": "ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f",
+    "status": "PASS_SYNTHETIC_ONLY",
+    "actual_seconds": 7200.220573930001,
     "requested_seconds": 7200,
+    "samples": 241,
     "start_utc": "2026-10-05T00:32:17.539792+00:00",
-    "samples_seen": 173,
-    "completion_credit": 0,
+    "last_sample_utc": "2026-10-05T02:32:17.353118+00:00",
+    "completion_credit_added": 1,
     "host_request_count": "NOT_OBSERVABLE_FROM_EXISTING_REMOTE_SURFACE",
-    "snapshot_mutable": true
+    "cpu_max_percent": 19.9,
+    "cpu_mean_percent": 3.2659751037344398,
+    "rss_min_kib": 153504,
+    "rss_max_kib": 329524,
+    "all_records_unchanged": true,
+    "runtime_errors": 0,
+    "model_calls": 0,
+    "model_tokens": 0,
+    "actions": 0,
+    "content_changes": [],
+    "unchanged_content_rewrites": [],
+    "scope": "当前产品/Host938的visible Shell与synthetic unconnected account；无真实Mail/Calendar后端，不是OS重启。Host请求数不可观察。",
+    "shutdown": "Root报告正常/quit8489并确认端口关闭；本轮未独立操作或核查端口。"
   },
   "dimensions": [
     {
@@ -233,7 +247,7 @@
     {
       "name": "可靠运行",
       "max": 20,
-      "score": 14,
+      "score": 15,
       "items": [
         {
           "label": "当前启动与重开矩阵",
@@ -322,11 +336,12 @@
         {
           "label": "长运行与跨环境",
           "max": 4,
-          "score": 1,
+          "score": 2,
           "evidence": [
             "E06",
             "E13",
-            "E10"
+            "E10",
+            "E18"
           ],
           "evidence_receipts": [
             {
@@ -352,9 +367,18 @@
               "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
               "test": "历史五SDK固定还原/12000验证与三项纯Calendar测试；clean最终中止、无新可执行物。贡献草稿可审阅。",
               "scope": "DRAFT/NOT_SUBMITTED；非官方准入/上游合并/当前复现。"
+            },
+            {
+              "id": "E18",
+              "commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+              "commit_role": "product_identity_only_raw_soak_commit_unconfirmed",
+              "file": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
+              "sha256": "ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f",
+              "test": "既有fresh rc10 soak实际7200.220573930001秒、241样本；本轮逐样本只读断言记录相等、runtime errors0、content_changes/unchanged rewrites空、model calls/tokens0、actions0。",
+              "scope": "当前产品/Host938的visible Shell与synthetic unconnected account；无真实Mail/Calendar后端，不是OS重启。Host请求数不可观察。"
             }
           ],
-          "deduction": "扣3：只给完成100次持续重开的耐受观察1分；当前完整7200秒仍RUNNING，不给长驻完成分；真实后端长测、clean/OS重启/第二Mac/ARM仍缺。"
+          "deduction": "扣2：100次持续普通重开与当前完整7200秒合成驻留分别提供耐受/长驻证据，合计2分；真实后端长测及clean/OS重启/第二Mac/ARM仍缺，旧真Mail5357秒绘制FAIL未被合成soak关闭。"
         },
         {
           "label": "失败可观察与保护",
@@ -636,7 +660,8 @@
           "score": 0,
           "evidence": [
             "E10",
-            "E12"
+            "E12",
+            "E19"
           ],
           "evidence_receipts": [
             {
@@ -654,6 +679,15 @@
               "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
               "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
               "scope": "三处入口文字滞后单列，不修改主报告。"
+            },
+            {
+              "id": "E19",
+              "commit": "bb635716",
+              "commit_basis": "Root报告，本轮未Git验证",
+              "file": "official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json",
+              "sha256": "2bbed7cb1f7292c0a01b52fc6d2453da15fe2fffbc03438386b157556f0ea9fd",
+              "test": "直接公共摘要及四个raw record大小/SHA核对；check.txt PASSED、verify.txt catalog46/40、scan.txt七题且no reviewer；六文件Git/bundle/mirror/pack一致为摘要记录。",
+              "scope": "LOCAL_EXTENDED_DEV_PUBLISHER_ONLY；无正式publisher/policy/submission/stock接纳或独立reviewer通过。没有重新执行Gate。"
             }
           ],
           "deduction": "扣3：贡献仍DRAFT/NOT_SUBMITTED，本地扩展没有上游合并、官方原版准入或正式reviewer通过的证据。"
@@ -794,7 +828,8 @@
             "E04",
             "E05",
             "E06",
-            "E12"
+            "E12",
+            "E19"
           ],
           "evidence_receipts": [
             {
@@ -852,6 +887,15 @@
               "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
               "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
               "scope": "三处入口文字滞后单列，不修改主报告。"
+            },
+            {
+              "id": "E19",
+              "commit": "bb635716",
+              "commit_basis": "Root报告，本轮未Git验证",
+              "file": "official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json",
+              "sha256": "2bbed7cb1f7292c0a01b52fc6d2453da15fe2fffbc03438386b157556f0ea9fd",
+              "test": "直接公共摘要及四个raw record大小/SHA核对；check.txt PASSED、verify.txt catalog46/40、scan.txt七题且no reviewer；六文件Git/bundle/mirror/pack一致为摘要记录。",
+              "scope": "LOCAL_EXTENDED_DEV_PUBLISHER_ONLY；无正式publisher/policy/submission/stock接纳或独立reviewer通过。没有重新执行Gate。"
             }
           ],
           "deduction": "不扣：当前源、六文件bundle、四条模型原报告、启动/重开/首恢复和55行索引SHA可核对；身份未拼接。"
@@ -974,7 +1018,7 @@
               "scope": "1725字节fixture；实际F/桌面导出NOT_YET_PERFORMED，不能计复现成功。"
             }
           ],
-          "deduction": "扣2：当前55行索引完整匹配、源身份与工具边界明确；实际F/桌面导出、完整clean/第二Mac/ARM/OS重启未做，三处当前入口文字滞后。资源合并约210MB观测不作为复现成功。"
+          "deduction": "扣2：既有55行索引完整匹配和本轮Gate直接摘要支持当前身份；CURRENT_STATE的100完成与SOURCE_DELIVERY四PNG文字已修正。实际F/桌面导出、完整clean/第二Mac/ARM/OS重启未做；Scorecard及最终soak主报告整合待Root，文档修正不等于复现完成。"
         },
         {
           "label": "真实披露覆盖边界",
@@ -1386,6 +1430,52 @@
       "support_files": [],
       "test": "当前UI在次级Host0fd真实只读仍严格schema拒绝，零mutation。",
       "scope": "不是Host938集成修复/权限/写入通过。"
+    },
+    {
+      "id": "E18",
+      "file": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
+      "sha256": "ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f",
+      "bytes": 156115,
+      "last_file_commit": null,
+      "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+      "commit_status": "Root报告公共soak摘要与提交因ENOSPC尚未成功；本轮禁止Git，未查提交状态。",
+      "test": "既有fresh rc10 soak实际7200.220573930001秒、241样本；本轮逐样本只读断言记录相等、runtime errors0、content_changes/unchanged rewrites空、model calls/tokens0、actions0。",
+      "scope": "当前产品/Host938的visible Shell与synthetic unconnected account；无真实Mail/Calendar后端，不是OS重启。Host请求数不可观察。",
+      "observed_at_utc": "2026-10-05T02:40:45.590184+00:00",
+      "support_files": []
+    },
+    {
+      "id": "E19",
+      "file": "official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json",
+      "sha256": "2bbed7cb1f7292c0a01b52fc6d2453da15fe2fffbc03438386b157556f0ea9fd",
+      "bytes": 2493,
+      "last_file_commit": "bb635716",
+      "commit_basis": "Root提供的提交前缀，本增量不执行Git核验。",
+      "test": "直接公共摘要及四个raw record大小/SHA核对；check.txt PASSED、verify.txt catalog46/40、scan.txt七题且no reviewer；六文件Git/bundle/mirror/pack一致为摘要记录。",
+      "scope": "LOCAL_EXTENDED_DEV_PUBLISHER_ONLY；无正式publisher/policy/submission/stock接纳或独立reviewer通过。没有重新执行Gate。",
+      "observed_at_utc": "2026-10-05T02:40:45.590184+00:00",
+      "support_files": [
+        {
+          "file": "official_muse/app/build/ui-memory-20261003/rc10-memory-ui-r1/check.txt",
+          "sha256": "cb3e8003440241587565fb2e3e203ef927ca096e824f352ff42ba705b9d1664f",
+          "bytes": 154
+        },
+        {
+          "file": "official_muse/app/build/ui-memory-20261003/rc10-memory-ui-r1/verify.txt",
+          "sha256": "9f8febca428df74b649e6da1523a780decbfa453e7e700615ac8acbcc8d9c309",
+          "bytes": 41
+        },
+        {
+          "file": "official_muse/app/build/ui-memory-20261003/rc10-memory-ui-r1/scan.txt",
+          "sha256": "8051c5c2c4f587f4f885411bc5ec979b4a8599d286c56a3bed821bf469cf024a",
+          "bytes": 238
+        },
+        {
+          "file": "official_muse/app/build/ui-memory-20261003/rc10-memory-ui-r1/review-packet.json",
+          "sha256": "095600c9e4bc0afe505f21aafc8136f5e881ad6f137f0b2c2eb5becaf43afb3e",
+          "bytes": 452870
+        }
+      ]
     }
   ],
   "independent_checks": {
@@ -1447,7 +1537,10 @@
       "PARTIAL": 14,
       "BLOCKED": 1
     },
-    "vault_and_calendar_source_hashes_match": true
+    "vault_and_calendar_source_hashes_match": true,
+    "final_soak_241_samples": true,
+    "hub_summary_and_four_raw_hashes": true,
+    "current_state_100_and_delivery_four_png_resolved": true
   },
   "findings": [
     {
@@ -1460,7 +1553,8 @@
         19
       ],
       "issue": "页面rc9标题和RC9审阅引用是历史身份，但正文仍称当前内部A/B且写原28步骤两模型尚待；作为rc10晨间报告的评分入口容易误读。",
-      "action": "Root把旧70/70段明确标为rc9历史截点；rc10审阅另列，保留原结果，不把完整观察写为尚待。"
+      "action": "Root把旧70/70段明确标为rc9历史截点；rc10审阅另列，保留原结果，不把完整观察写为尚待。",
+      "status": "OPEN_ROOT_FINAL_SCORECARD_INTEGRATION_PENDING"
     },
     {
       "priority": 3,
@@ -1470,7 +1564,13 @@
       ],
       "related_file": "MUSE_HANDOFF/README.md",
       "issue": "最新接手段仍把额外100普通重开与7200秒都写为运行中；当前RC10_REOPEN_100_SUMMARY及原报告已100/100 PASS。",
-      "action": "Root只同步最新入口的100完成状态；7200秒仍按本截点RUNNING。"
+      "action": "Root只同步最新入口的100完成状态；7200秒仍按本截点RUNNING。",
+      "status": "RESOLVED_CURRENT_STATE_100_REOPEN_TEXT",
+      "resolution": {
+        "root_reported_commit": "c1cd6a71",
+        "read_verified": true,
+        "scope": "当前文件第5行已改100全部PASS；related README历史说明未在本增量核验。"
+      }
     },
     {
       "priority": 3,
@@ -1479,7 +1579,13 @@
         9
       ],
       "issue": "写当前三张rc10截图；RC10_NATIVE_PROVENANCE已列四张且四个文件SHA匹配。",
-      "action": "Root同步为四张，保留合成资料及非外部业务视频的限制。"
+      "action": "Root同步为四张，保留合成资料及非外部业务视频的限制。",
+      "status": "RESOLVED_FOUR_PNG_TEXT",
+      "resolution": {
+        "root_reported_commit": "c1cd6a71",
+        "read_verified": true,
+        "scope": "当前文件第9行已写四张rc10截图；未因此宣称实际导出完成。"
+      }
     }
   ],
   "deduplication": [
@@ -1489,7 +1595,7 @@
     "一次Goal有2模型调用、1批准、2本地结果、1首次Shell重启；八个相等SHA不是八次重启。",
     "Memory双保存首次Shell恢复10文件是独立窄UI回归；不和Goal八文件混成18次重启。",
     "70由30+20+20组成；另100是同Shell PID内普通重开，启动功能与长运行子项只分别奖励启动正确性及重复操作耐受，不扩大运行环境。",
-    "正在运行的rc10新soak不给完成分，旧rc9/V15已完成时长不累加至本候选；旧真实Mail5357秒FAIL保留。",
+    "当前rc10 fresh7200.220574秒/241样本只计一次合成长驻完成；旧rc9/V15时长不累加，旧真实Mail5357秒FAIL保留。",
     "32相同分发文件和210481152字节为分别观测差额；不是新Host构建或新系统能力。",
     "导出器10+4为两批微型fixture及当前脚本窄复核，不是实际F导出、14次完整复现或接收Mac运行。",
     "跨维度引用同一原件只证明不同属性，不增加实际测试次数；fixture、真实节点和官方full-chain始终分开。"
@@ -1498,11 +1604,75 @@
     "同最终候选/身份Mail→Memory→Calendar create/get→原ID改期/get→回复到达→首次恢复/跨聊天完整业务链。",
     "当前profile通过官方登录获得同步凭据；新Calendar桥编入Host、对应权限和精确动作授权。",
     "M3 S02 invalid_output/未知usage、M27 R02缺因及两个M01无依据评价尚未有已授权修复后的新验收。",
-    "rc10完整7200秒合成驻留仍RUNNING；真实Mail后端长运行未完成，历史5357秒绘制FAIL未关闭。",
+    "rc10合成7200秒已经完成；真实Mail后端长运行仍未完成，历史5357秒绘制FAIL未关闭。",
     "完整clean构建/安装、OS重启、第二Mac/ARM；当前Frozen F及桌面交付尚未实际导出。",
     "当前外部业务视频、正式publisher/政策、独立scan reviewer、stockHub准入与上游贡献接纳。"
   ],
-  "followup_policy": "Root提供soak完成原件精确SHA和范围后，仅复核新证据并对这两份A审阅做一次短增量更新；不重复既有测试，不自动抬分，不修改共享主报告。",
-  "headline": "当前截点内部A73/100，原20项仍5PASS14PARTIAL1BLOCKED。soak未完成不给完成分；不代表官方评分、排名、READY或发布通过。"
+  "followup_policy": "本次最终新增证据增量已完成；后续由Root整合Scorecard/公共soak摘要和主报告。本轮不再等待或重复测试。",
+  "headline": "最终证据截点内部A74/100；原20项仍5PASS14PARTIAL1BLOCKED。新增1分仅来自当前完整合成soak；T18、真实后端/跨机/完整交付等门槛仍未过，不代表官方评分或排名。",
+  "initial_observed_at_utc": "2026-10-05T01:58:43.491974+00:00",
+  "initial_soak_cutoff": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
+    "snapshot_sha256": "7ff2a607fcd020915be0f1f75639d38f44e189e1755530a2fd1a12d795e9b351",
+    "status": "RUNNING",
+    "requested_seconds": 7200,
+    "start_utc": "2026-10-05T00:32:17.539792+00:00",
+    "samples_seen": 173,
+    "completion_credit": 0,
+    "host_request_count": "NOT_OBSERVABLE_FROM_EXISTING_REMOTE_SURFACE",
+    "snapshot_mutable": true
+  },
+  "final_increment": {
+    "cutoff_utc": "2026-10-05T02:40:45.590184+00:00",
+    "prior_score": 73,
+    "score": 74,
+    "delta": 1,
+    "prior_dimensions": [
+      {
+        "name": "任务完成",
+        "score": 17,
+        "max": 25
+      },
+      {
+        "name": "可靠运行",
+        "score": 14,
+        "max": 20
+      },
+      {
+        "name": "人机协作",
+        "score": 13,
+        "max": 15
+      },
+      {
+        "name": "项目反哺",
+        "score": 10,
+        "max": 15
+      },
+      {
+        "name": "ROM/系统突破",
+        "score": 7,
+        "max": 10
+      },
+      {
+        "name": "效果证据",
+        "score": 12,
+        "max": 15
+      }
+    ],
+    "previous_review_json_sha256": "6ea2b8ce4a9d74da50cc8e33ee14514742c39df635a0d2ee37d0803d87252105",
+    "previous_review_md_sha256": "5e22e7e723e18bf80df500f2f7dbc3b6abe78169461742c1f593696665aeb051",
+    "only_score_change": {
+      "dimension": "可靠运行",
+      "item": "长运行与跨环境",
+      "before": 1,
+      "after": 2,
+      "max": 4,
+      "reason": "当前候选完整合成soak已结束并经241样本证据核对；其余未过门槛仍扣分。"
+    },
+    "gate_extra_score": 0,
+    "documentation_extra_score": 0,
+    "delivery_extra_score": 0,
+    "scope": "仅新增证据增量，不重复既有测试，不执行Git/GUI/模型/构建/系统动作；原26子项权重保持。",
+    "metadata_note": "initial audit_head和E01–E17哈希保留原09:58截点，不声称仍为最终HEAD/全部文件当前值。"
+  }
 }
-

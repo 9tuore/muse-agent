@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "PARTIAL_PREPARED_PENDING_FINAL_SOAK_EVIDENCE",
+  "status": "PARTIAL_FINAL_EVIDENCE_REVIEW",
   "reviewer": {
     "identity": "A2 existing real Codex chat; gpt-6.1-sol",
     "role": "Independent evidence review, not independent runtime retest",
@@ -18,10 +18,10 @@
     "source_sdk_lock": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
     "secondary_authorized_diagnostic_host": "0fd9936126acad3a5c61ac1e7a477ba2c9393d740572ec517472f52da9181047"
   },
-  "score": 71,
+  "score": 73,
   "maximum": 100,
   "previous_rc9_internal_score": 70,
-  "score_change": "Only actual two-model complete-input coverage subitem 2/4 ->3/4; retained original failures/grounding mean no full score. No running soak credit.",
+  "score_change": "Only final long-runtime subitem1/4->3/4 (+2) for completed current rc10 synthetic7200, already decided in prior review; no new score expansion.",
   "rubric": [
     {
       "dimension": "任务实现",
@@ -79,7 +79,7 @@
     },
     {
       "dimension": "可靠性",
-      "score": 15,
+      "score": 17,
       "maximum": 20,
       "criteria": [
         {
@@ -118,13 +118,14 @@
         },
         {
           "criterion": "长运行",
-          "score": 1,
+          "score": 3,
           "maximum": 4,
           "evidence": [
-            "OVERNIGHT_SOAK.md"
+            "OVERNIGHT_SOAK.md",
+            "official_muse/rc/startup/RC10_SOAK_7200_SUMMARY.json"
           ],
-          "deduction": 3,
-          "deduction_reason": "扣3：当前rc10完整7200秒仍RUNNING，暂只给旧rc9/V15合成驻留支持1分；真实账号长测及稳定Mail5357秒绘制FAIL仍未解决。"
+          "deduction": 1,
+          "deduction_reason": "扣1：当前rc10 fresh7200.220573930001秒/241样本合成无后端驻留已通过；实际Mail/Calendar后端长测仍缺，稳定真Mail5357秒绘制FAIL保留。"
         },
         {
           "criterion": "性能与容量余量",
@@ -194,7 +195,8 @@
           "evidence": [
             "RC10_DELTA_BINDING.json",
             "MORNING_CHAMPIONSHIP_REPORT.md",
-            "SOURCE_DELIVERY.md"
+            "SOURCE_DELIVERY.md",
+            "official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json"
           ],
           "deduction": 0,
           "deduction_reason": "实际官方Splash/Makepad/Shell运行和App Hub入口已证；本地扩展不冒充上游原版。"
@@ -228,7 +230,8 @@
           "maximum": 2,
           "evidence": [
             "MORNING_CHAMPIONSHIP_REPORT.md",
-            "SOURCE_DELIVERY.md"
+            "SOURCE_DELIVERY.md",
+            "official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json"
           ],
           "deduction": 2,
           "deduction_reason": "扣2：本地开发Gate/签名及七题scan packet不等于独立reviewer、正式publisher/政策或官方正式准入。"
@@ -446,6 +449,16 @@
       "sha256": "96fa95bc47115a0e45dd273817c2f0d6025e483982984f0506f0228c770a4c0c",
       "last_commit": "33b322ea6fc34fd5920937ad1e6440c89a453b9e",
       "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/startup/RC10_SOAK_7200_SUMMARY.json": {
+      "sha256": "a64d44df29c95d26011db02dda8321617694cd3c13c9cf606fe92e353ba4003b",
+      "last_commit": "edd9501c (Root committed public summary)",
+      "scope": "Current6fd/7cdf/Host938 synthetic visible Shell7200.220573930001s/241; prior A2 raw SHA/sample read-only verification, no retest."
+    },
+    "official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json": {
+      "sha256": "2bbed7cb1f7292c0a01b52fc6d2453da15fe2fffbc03438386b157556f0ea9fd",
+      "last_commit": "bb635716",
+      "scope": "Direct existing public canonical check/catalog/scan summary SHA checked; local extended developer check only, independent reviewer NOT_RUN."
     }
   },
   "independent_static_checks": {
@@ -470,7 +483,11 @@
     "folder14_fixture_result_sha_verified": true,
     "screenshots_viewed": false,
     "host_or_hub_binary_rehashed": false,
-    "gui_model_tests_or_build_run": false
+    "gui_model_tests_or_build_run": false,
+    "final_soak_raw_sha_verified_in_prior_completed_review": "ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f",
+    "final_soak_241_samples_all_expected_checks_verified_in_prior_review": true,
+    "final_soak_public_summary_sha_verified": "a64d44df29c95d26011db02dda8321617694cd3c13c9cf606fe92e353ba4003b",
+    "gate_public_summary_sha_verified": "2bbed7cb1f7292c0a01b52fc6d2453da15fe2fffbc03438386b157556f0ea9fd"
   },
   "model_semantics": {
     "m3": {
@@ -493,8 +510,8 @@
     "original_product20": "5PASS_14PARTIAL_1BLOCKED",
     "T17": "PARTIAL",
     "T18": "BLOCKED",
-    "T20": "PARTIAL",
-    "rc10_soak7200": "RUNNING_NOT_CREDITED",
+    "T20": "PARTIAL_OS_REBOOT_CLEAN_CROSS_MAC_ARM_REAL_BACKEND_LONG_RUN_MISSING",
+    "rc10_soak7200": "PASS_SYNTHETIC_UNCONNECTED_ACCOUNT_VISIBLE_SHELL_ONLY",
     "desktop_final_export": "NOT_PERFORMED",
     "computer_restart_clean_cross_mac_arm": "NOT_PASSED",
     "official_approval": "NOT_PROVEN"
@@ -511,13 +528,16 @@
       "id": "C01",
       "kind": "STALE_SCORECARD_SCOPE",
       "finding": "CHAMPIONSHIP_SCORECARD.md标题rc9，却段落写当前候选/当前内部A/B并称原28尚待；MORNING报告已经明确rc9是历史截点、rc10已完成28观察。",
-      "action": "Root最终冻结后将旧70显式标历史，引用本轮审阅；保留原FAIL，不以新观察把旧证据换版本。"
+      "action": "Root最终冻结后将旧70显式标历史，引用本轮审阅；保留原FAIL，不以新观察把旧证据换版本。",
+      "disposition": "Root owns final scorecard integration; old rc9 score is historical cutoff."
     },
     {
       "id": "C02",
       "kind": "TRACEABILITY_GAP_NOT_FAILURE_PROOF",
       "finding": "MORNING报告声称当前rc10六文件/Git/mirror/pack、catalog与本地Gate通过；当前55行索引未有对应rc10 gate/scan直接行。A2没有重跑或读取私有gate目录，不能独立证成这项检查。",
-      "action": "Root加入已存在的确切check/catalog/scan摘要路径/SHA和版本；没有独立reviewer仍须记录。"
+      "action": "Root加入已存在的确切check/catalog/scan摘要路径/SHA和版本；没有独立reviewer仍须记录。",
+      "resolved": true,
+      "resolution": "bb635716 public direct Gate summary SHA2bbed7cb verified: six Git/Bundle/Mirror/pack files equal, check/catalogPASS, scan7 packet with no independent reviewer; traceability gap resolved, official score unchanged."
     },
     {
       "id": "C03",
@@ -544,10 +564,11 @@
     "official_score_or_rank_claimed": false
   },
   "planned_single_update": {
-    "updates_performed": 0,
-    "trigger": "Root supplies precise completed rc10 7200 summary, same product/source/runtime and preserved failure scope",
-    "allowed_change": "One update to long-runtime related subitem and evidence binding after independent read-only review; no precommit points, no assumed PASS, no extrapolation to live Mail/Calendar/T18.",
-    "current_long_runtime_score": 1,
+    "updates_performed": 1,
+    "completed_review_at": "2026-10-05T10:38:04+08:00",
+    "saved_at": "2026-10-05T10:45:20.105736+08:00",
+    "update": "Restore already-completed final judgment only: long-runtime1/4->3/4, Gate traceability and SHA evidence binding. No expanded score or retest.",
+    "current_long_runtime_score": 3,
     "current_long_runtime_maximum": 4
   },
   "limits": [
@@ -555,5 +576,35 @@
     "Only nonprivate synthetic startup/reopen raw reports and tiny folder fixture results were parsed/SHA checked.",
     "Static module scope/access review does not prove current-owner focus restriction; gm_entry_access retains existing global memory access semantics.",
     "Scores are transparent internal engineering estimates under inherited subweights, not official judging/ranking."
-  ]
+  ],
+  "final_evidence_review_time": "2026-10-05T10:38:04+08:00 (clock read in completed prior review)",
+  "final_save_time": "2026-10-05T10:45:20.105736+08:00",
+  "final_soak": {
+    "raw_path": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
+    "raw_sha256": "ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f",
+    "public_summary": "official_muse/rc/startup/RC10_SOAK_7200_SUMMARY.json",
+    "public_summary_sha256": "a64d44df29c95d26011db02dda8321617694cd3c13c9cf606fe92e353ba4003b",
+    "actual_seconds": 7200.220573930001,
+    "samples": 241,
+    "start_bjt": "2026-10-05T08:32:17.539792+08:00",
+    "last_sample_cutoff_bjt": "2026-10-05T10:32:17.353118+08:00",
+    "record_counts_unchanged": true,
+    "runtime_errors": 0,
+    "content_changes_and_unchanged_rewrites_empty": true,
+    "model_calls_and_tokens": 0,
+    "actions": 0,
+    "cpu_max_percent": 19.9,
+    "rss_peak_kib": 329524,
+    "host_request_count": "NOT_OBSERVABLE_FROM_EXISTING_REMOTE_SURFACE",
+    "scope": "Synthetic unconnected account/visible Shell only, not real Mail/Calendar backend, OS reboot, clean or final T18.",
+    "Root_quit8489_and_port_closed": "Public summary/controller reported; not A2 independently operated or port tested."
+  },
+  "final_evidence_cutoff": "Last actual sample2026-10-05T10:32:17.353118+08:00; completed actual duration7200.220573930001s, rawSHAddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f",
+  "save_recovery": {
+    "prior_failure": "ENOSPC during first atomic JSON temporary creation; no replacement occurred, both original71 files retained; pending path never created.",
+    "prior_json_sha256": "ce563ad82448758df63fc0191282ddabb565127fd8edf96b89c04691e6d2ca15",
+    "prior_md_sha256": "869cc922a548b5e19d25d6f79ead162e518cee0ef0770fa2f2d0595b4ace9a3e",
+    "failure_record_preserved": "Prior real-chat tool/error and final message retained; not rewritten or erased.",
+    "recovery_authorization": "Root requested only atomic saving of existing final B73 judgment after space recovered; no cleanup/build/gate lowering."
+  }
 }

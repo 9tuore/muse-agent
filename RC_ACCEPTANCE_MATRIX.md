@@ -23,7 +23,7 @@
 | T17 | PARTIAL | 同rc10两个实际模型各28唯一输入完整观察；冻结原20各19PASS/1FAIL，setup2/holdout6全PASS，无fallback/预算提高 | 原失败保留；M2.7 runtime classunknown不称strong；服务成功不等于语义全部通过 |
 | T18 | BLOCKED | rc10真实模型/记忆/一次性任务/存储/读回/首次Shell恢复通过；稳定真实Mail与当前旧授权Host只读定位支持 | 最终profile凭据、新Calendar桥Host/权限/精确事件写入授权；同候选Mail→Memory→create/原ID改期/get→回复到达→首次恢复/跨聊天未完成 |
 | T19 | PASS | 本人确认原生最多两行省略、54px等高、完整标题存储保持；未改渲染路径，宽/矮/长文本支持 | 412×892实际夹为412×818且Dock遮挡FAIL保留；412×700不是替代 |
-| T20 | PARTIAL | rc10新30完整Shell进程启动/20重开/20Shell重启均PASS，非空16聊天256消息64记忆65来源、六页/输入/焦点/存储与ledger保持 | 同rc10额外100重开全部PASS，2h合成驻留进行；OS重启/clean/新Calendar Host/真实账号长测仍缺 |
+| T20 | PARTIAL | rc10新30完整Shell进程启动/20重开/20Shell重启均PASS，非空16聊天256消息64记忆65来源、六页/输入/焦点/存储与ledger保持 | 同rc10额外100重开全部PASS，同rc10完整7200.220574秒/241样本合成驻留PASS；OS重启/clean/新Calendar Host/真实账号长测仍缺 |
 
 ## 证据身份与复用
 

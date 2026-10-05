@@ -1,3 +1,45 @@
+# rc10 独立内部 A 最终证据增量
+
+**最终内部 A：74/100，PARTIAL。** 原二十项仍5 PASS / 14 PARTIAL / 1 BLOCKED，T18未通过。评阅归属为Root指定的gpt-6-astra既有真实聊天A3；本轮未独立校验运行模型配置。这是既有证据审阅，未独立执行产品测试，不是官方评分或排名。
+
+最终审阅截点：2026-10-05T02:40:45.590184+00:00。产品仍为6fd5b54beeba7cc9892916c3de7f01106ab8a158 / rc10，payload7cdfc751、Host938身份保持。初次审阅的HEAD642aa35b及E01–E17哈希属于09:58历史截点；本增量未执行Git，不把它们称为当前最终HEAD或全部文件最新值。
+
+| 维度 | 最终得分 |
+|---|---:|
+| 任务完成 | 17/25 |
+| 可靠运行 | 15/20 |
+| 人机协作 | 13/15 |
+| 项目反哺 | 10/15 |
+| ROM/系统突破 | 7/10 |
+| 效果证据 | 12/15 |
+| **合计** | **74/100** |
+
+唯一分数变化：可靠运行14→15，其中“长运行与跨环境”1/4→2/4，所有26个子项上限保持。已完成的100普通重开提供重复操作耐受证据，本次完整合成soak再支持1分。真实后端长测及clean/OS重启/第二Mac/ARM仍缺，另外2分继续扣除。Hub摘要和文档修正不额外加分，源码导出未执行，不给交付完成分。
+
+**E18 · 最终 fresh soak。**
+
+- 原件：official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json
+- SHA256：ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f；156115 bytes。产品commit为6fd5b54beeba7cc9892916c3de7f01106ab8a158；Root报告公共soak摘要/提交因ENOSPC尚未成功，本轮没有Git核验。
+- PASS，实际7200.220573930001秒、241样本；开始00:32:17.539792 UTC，最后样本02:32:17.353118 UTC（北京时间10:32:17）。
+- 本轮逐样本只读核对：记录完全一致，runtime errors0，content_changes和unchanged_content_rewrites均空，模型calls/tokens0，actions0。CPU峰值19.9%、均值3.265975%；RSS153504–329524 KiB。
+- 仅synthetic unconnected account与visible Shell，无真实Mail/Calendar后端，不是OS reboot。Host请求数仍NOT_OBSERVABLE，不能写成零。
+- Root报告已正常/quit8489并确认端口关闭；本轮未独立操作或核查端口。旧真Mail5357秒绘制FAIL未被合成结果关闭。
+
+**E19 · Hub直接公共摘要。**
+
+- 文件：official_muse/rc/packaging/RC10_HUB_GATE_SCAN_SUMMARY.json
+- SHA256：2bbed7cb1f7292c0a01b52fc6d2453da15fe2fffbc03438386b157556f0ea9fd；2493 bytes。提交bb635716由Root提供，本轮未Git核验。
+- 四个raw records大小/SHA已核对；check.txt PASSED，verify.txt catalog sequence46/40entries；scan.txt七题且无reviewer。六文件Git/bundle/mirror/pack一致为摘要记录，本轮没有重新执行Gate或全副本比较。
+- 仅本地开发扩展身份，无独立reviewer、正式publisher/policy/submission或官方原版接纳。准入子项仍0/3，身份核对子项原已3/3，不再加分。
+
+两处文字问题已读回确认修正：CURRENT_STATE第5行的100重开已全部PASS，SOURCE_DELIVERY第9行已写四张rc10截图；Root提供修正commit c1cd6a71，本轮未Git核验。Scorecard最终整合由Root完成。入口soak仍RUNNING的旧文字随Root公共摘要后续同步，本增量以E18原件为准，不把磁盘写入失败描述为已提交。
+
+未过项保持：T18同候选真实Mail→Memory→Calendar创建/get→原ID改期/get→回复到达；最终profile凭据、新Calendar桥Host与对应授权；M3 S02 invalid_output/未知usage、M27 R02缺因、两个M01无依据评价；真实后端长测、完整clean/安装、OS重启/第二Mac/ARM、实际Frozen F/桌面导出、正式业务视频和上游准入。
+
+以下保留09:58初次审阅明细作为历史截点。涉及73分、RUNNING、三处文档待修等历史文字由本段和配套JSON的final_increment覆盖；其他子项证据与扣分不变。原MD SHA 5e22e7e723e18bf80df500f2f7dbc3b6abe78169461742c1f593696665aeb051；原JSON SHA 6ea2b8ce4a9d74da50cc8e33ee14514742c39df635a0d2ee37d0803d87252105。
+
+---
+
 # rc10 独立内部 A 证据审阅
 
 **当前截点：73/100，PARTIAL。** 原二十项仍为5 PASS / 14 PARTIAL / 1 BLOCKED；当前7200秒soak尚未完成，不预加完成分。

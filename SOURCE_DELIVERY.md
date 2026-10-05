@@ -2,11 +2,11 @@
 
 产品A=6fd5b54beeba7cc9892916c3de7f01106ab8a158；可读a19622e0 / compact7cdfc751，官方91244token等价。原20项5PASS/14PARTIAL/1BLOCKED。真实Memory双保存/无重复写入、跨聊天更正/遗忘/隔离、一次性任务2模型调用/一次批准/存储/独立读回/首次Shell重启通过。双模型完整28输入原20各19PASS/1FAIL，setup2和holdout6均PASS；服务/语义/grounding失败保留。
 
-同rc10新70启动全部通过，额外100普通重开全部通过，完整7200秒合成驻留仍在完成；不等于电脑重启或真实Mail后端。最终profile同步凭据缺失，已授权旧Host真实只读Calendar仍schema拒绝，同候选外部整链未过。源码SDKda/布尔桥修复和Host938/运行SDK3f分开，官方上游未接受本地扩展。
+同rc10新70启动全部通过，额外100普通重开全部通过，完整7200.220574秒/241样本合成驻留PASS；不等于电脑重启或真实Mail后端。最终profile同步凭据缺失，已授权旧Host真实只读Calendar仍schema拒绝，同候选外部整链未过。源码SDKda/布尔桥修复和Host938/运行SDK3f分开，官方上游未接受本地扩展。
 
-最终只从明确Git普通文件库存及同产品签名mirror导出，不遍历工作区、不收未提交原件、私有profile、账号/凭据、私人邮件/库、原始实测、vendor/target或权重。SOURCE_MANIFEST的库存parent S与最终导出F分开，manifest不包含自身哈希；目前清单仍旧，测试结束前不当最终导出。
+最终只从明确Git普通文件库存及同产品签名mirror导出，不遍历工作区、不收未提交原件、私有profile、账号/凭据、私人邮件/库、原始实测、vendor/target或权重。SOURCE_MANIFEST的库存parent S与最终导出F分开，manifest不包含自身哈希。F只能比S多这一份清单提交；实际文件夹导出需要按F逐文件集合/SHA/模式完整读回，外层版本与交付边界及核验记录给出实际F和结果，不能由本说明推断导出成功。
 
-最新薄源码/签名镜像不含可独立运行Host、启动器和模型。桌面087 Intel运行ZIP仍为rc5/0876314b，旧入口不改称rc10；第二Mac/ARM、clean Host和新Calendar桥运行未过。当前四张rc10实际截图为合成资料；rc9采样界面视频保留历史身份。
+纯源码文件夹只含冻结公开Git源码、测试、文档、SDK锁及overlay，不含签名镜像或可独立运行Host、启动器和模型；使用同设备native clonefile且禁止回退复制/硬链接，64MiB reserve保持。薄源码/签名镜像是另一种交付，仍需独立容量门禁和实际导出验证。桌面087 Intel运行ZIP仍为rc5/0876314b，旧入口不改称rc10；第二Mac/ARM、clean Host和新Calendar桥运行未过。当前四张rc10实际截图为合成资料；rc9采样界面视频保留历史身份。
 
 未push、改旧Tag、创建成功Tag或正式申请App Hub。原20项及关键门槛全部通过才进入成功发布流程。历史交付和唯一失败证据按原身份保留。
 

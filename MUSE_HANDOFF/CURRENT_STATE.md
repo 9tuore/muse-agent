@@ -1,3 +1,15 @@
+## 2026-10-05 10:46 · rc10当前观察收口（PARTIAL）
+
+产品6fd5b54b/0.3.26-rc10未回退。真实Memory双保存/零重复写/首Shell恢复、本地一次性Goal两次model.complete/一次批准/Storage/Readback/首次恢复、新70启动和额外100普通重开均PASS。新合成7200.220574秒/241样本完整PASS，非真实邮箱/Calendar/OS重启。两模型各28唯一输入完成，原模型20题各19PASS/1FAIL，setup2/holdout6PASS；M3invalid_output、M27缺回执原因、两模型M01无依据评价均保留。独立内部A74/B73，不代表官方评分/排名。
+
+原T01–T20仍5PASS/14PARTIAL/1BLOCKED；T18最终真业务链未过。稳定0.3.25今晚真实自发自收/提醒/独立正文读回通过，当前rc10profile同步缺登录凭据，已授权旧Host只读Calendarschema拒绝；源SDK布尔桥尚未编入Host938。不能把旧版本节点或合成2h拼成整链。
+
+磁盘ENOSPC造成报告/Git原子写入拒绝，已保留失败。只清理无占用可恢复分发副本和从未改签名原件可逐字节重建的编译中间副本，不碰数据/依赖/原日志；64MiB源码reserve及600MiB Hostgate不降低。最后阶段按S→manifestF封存公开Git，实际导出以外层核验记录为准。旧087运行ZIP仍rc5，纯源码不是可双击运行环境。
+
+下一优先级：取得足够容量完成新Calendar桥Host/clean；固定唯一最终profile并通过官方登录/权限界面，随后准备带精确范围的真实事件确认，完成同候选邮件→记忆→Calendar原事件改期/独立读回→回复到达→首次恢复/跨聊天。夜间不重复申请；发信授权有效但不提取Secret/代点TCC/任意改日历。稳定应用、生产、未提交baseline保护；未push、改旧Tag或正式提交Hub。详见MORNING_CHAMPIONSHIP_REPORT、RC_ACCEPTANCE_MATRIX、RC_EVIDENCE_INDEX。
+
+---
+
 ## 2026-10-05 09:05 · rc10真实节点与双模型完成；稳定性长测进行
 
 产品6fd5b54b / 0.3.26-rc10，readable a19622e0 / payload7cdfc751，91244官方token等价。真实Memory UI连续两次单保存不回退且零重复写入；首次Shell重启10文件与ledger相同。两个模型各28唯一输入已完整观察并由已有真实聊天独立语义复核：original20各19PASS/1FAIL、setup2和holdout6各全PASS。M3 S02 invalid_output及未知usage、M2.7 R02漏缺回执原因、两模型M01无依据评价均保留，不用终端完成代替语义PASS。更正同claim rev1→rev2、遗忘后空检索、跨聊天项目/归属隔离已从实际UI和存储证据核对。

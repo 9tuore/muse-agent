@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前开发候选：0.3.26-rc10；验收PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 公开稳定基线0.3.25保留。rc10修复真实Memory更正后旧值回退，连续保存/零重复写入与首次Shell恢复通过。两个实际模型各28唯一输入完整观察，original20各19PASS/1FAIL，setup2/holdout6均PASS；失败及额外无依据评价保留。真实一次性任务2模型调用、一次批准、存储/读回/首重启及70启动通过；额外100重开通过，完整2h仍进行。独立邮箱profile缓存不继承Keychain凭据，Calendar桥源码未进入运行Host，同候选外部链未过。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
+**当前开发候选：0.3.26-rc10；验收PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 公开稳定基线0.3.25保留。rc10修复真实Memory更正后旧值回退，连续保存/零重复写入与首次Shell恢复通过。两个实际模型各28唯一输入完整观察，original20各19PASS/1FAIL，setup2/holdout6均PASS；失败及额外无依据评价保留。真实一次性任务2模型调用、一次批准、存储/读回/首重启及70启动通过；额外100重开通过，同rc10完整7200.220574秒/241样本合成驻留通过（不是真实后端）。独立邮箱profile缓存不继承Keychain凭据，Calendar桥源码未进入运行Host，同候选外部链未过。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
