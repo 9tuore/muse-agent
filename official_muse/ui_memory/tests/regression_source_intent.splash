@@ -1,0 +1,17 @@
+// Classification uses the requested operation. Marked source remains intact for the model.
+fn probe(){
+    let checks = {}
+    checks.goal_calendar_source = chat_model_config("请为一次性任务整理两条资料并准备计划。目标：整理发布说明。资料：日历改期必须关联原事件；邮件发送前单独确认。").action == "goal_plan"
+    checks.goal_mail_source = chat_model_config("整理任务计划，资料:发邮件、回邮件和起草均须确认。").action == "goal_plan"
+    checks.goal_original_source = chat_model_config("请整理资料并准备计划。原文：日历准备新增安排。").action == "goal_plan"
+    checks.summary_source_not_command = chat_model_config("请概括这段文字。原文:新增日历安排，发邮件回复。").action == ""
+    checks.explanation_remains_chat = chat_model_config("为什么邮件发出后还需要核对？资料：请安排日程。").action == ""
+    checks.explicit_calendar_preserved = chat_model_config("请准备日历安排。资料：2026年10月7日15点到16点。").action == "calendar_candidate"
+    checks.explicit_mail_preserved = chat_model_config("请起草邮件。原文：请新增日程安排。").action == "mail_compose"
+    checks.unmarked_goal_preserved = chat_model_config("项目ORBIT，整理资料，资料为第一条与第二条。").action == "goal_plan"
+    checks.unmarked_calendar_preserved = chat_model_config("请准备日历安排，明天下午15点到16点。").action == "calendar_candidate"
+    checks.unmarked_mail_preserved = chat_model_config("请起草邮件回复同事。").action == "mail_compose"
+    checks.periodic_remains_rejected = chat_model_config("每周重复任务整理并准备计划。资料：普通备注。").action != "goal_plan"
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| probe())
