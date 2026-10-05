@@ -6,7 +6,7 @@ media独占；基线9b83f98c，Root将提供最终候选与真实操作素材。
 
 ## Result
 
-PARTIAL。离线制作工具就绪；中文草案配音2:34.90与21句实测字幕已生成，Root封面已收到并查看；真实成片与两张关键截图待素材。
+PARTIAL。离线制作工具就绪；rc46草案配音2:49.30与18句实测字幕已生成，Root封面已收到并查看；真实成片与两张关键截图待素材。
 
 ## Changed
 
@@ -19,6 +19,10 @@ Tingting真实AIFF与完整草案生成、AAC解码/音量测量、中文字幕�
 ## Commit
 
 本地精确commit --only媒体文本；无push。
+
+## Latest scope
+
+按Root的rc46可拍范围修订旁白。历史段明确跨版本；不重发旧邮件、不虚构最新候选邮件改期全链。草案状态DRAFT_REQUIRES_RC46_FINAL_FOOTAGE；恢复及执行台词须以最终素材逐句核对。旧草案音频保留。
 
 ## Remaining
 

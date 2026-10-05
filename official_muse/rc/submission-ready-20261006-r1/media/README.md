@@ -4,13 +4,15 @@
 
 ## 已验证与预估
 
-macOS Tingting普通话、本机say输出AIFF成功；21句草案自动配音及按实际句长的SRT已生成，AAC实际2分34.90秒、约2.6MB。音频全量解码/音量测量通过，尚未人工听审。中文PingFang字幕像素已查看；6.92秒纯色“编码校验画面·非产品演示”H.264/AAC样片全解码通过，绝不充当产品操作录像。
+macOS Tingting普通话、本机say输出AIFF成功；18句rc46草案自动配音及按实际句长的SRT已生成，AAC实际2分49.30秒、约2.8MB。音频全量解码/音量测量通过，尚未人工听审。中文PingFang字幕像素已查看；6.92秒纯色“编码校验画面·非产品演示”H.264/AAC样片全解码通过，绝不充当产品操作录像。
 
 PATH/内置bin无ffmpeg，于本目录.local-state提取PyPI imageio-ffmpeg0.6.0 Intel wheel内的ffmpeg7.1，下载24.9MB并核验SHA；实际二进制76.0MB。本地单独使用，不全局安装，也不随Git或交付包分发该二进制。工具来源/哈希/错误记录见TOOLCHAIN_AND_PREP_REPORT.json。AVFoundation与已有项目真实帧编码器可作本机fallback。
 
 预计1600×900、输出30fps、H.264 CRF20且maxrate4M、AAC128k，2–3分钟约40–95MB；155秒/2.5Mbps约51MB。是预计而非成品大小。原连续证据另计，不录用户整桌面。
 
 官方初赛材料要求2–3分钟、两张关键截图、至少一次操作及可核对结果、失败或空状态：[官方赛程](https://github.com/gosimfoundation/hackathon-agenticapp26/blob/main/docs/competition-schedule.md)。Root合规聊天决定本轮材料适用阶段；当前新版本演示不标作10/4初赛冻结版本。
+
+最新旁白按rc46可拍范围调整：应用中心进入、邮件来源与提醒、明确标跨版本的历史、一次性任务计划/批准/模型/存储/读回、Memory及来源DSL、日历只读或空状态、恢复与限制。旧邮件日历链不重复发送，不串成最新候选完整新执行。新音频位于`outputs/narration-draft-rc46-r1/`；旧草案音频保留。所有台词仍为待实录核对的草案。
 
 ## Root交付素材
 
