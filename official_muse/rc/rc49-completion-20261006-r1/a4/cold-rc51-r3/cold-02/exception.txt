@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/startup/run_shell_matrix.py", line 121, in main
+    proc=subprocess.run(command,text=True,capture_output=True,timeout=40);(d/'launch.txt').write_text(proc.stdout+proc.stderr);assert proc.returncode==0
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 507, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 1134, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 1980, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 1178, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds

@@ -6,15 +6,15 @@ A4 rc49模型诊断、rc50/51独立矩阵；自有8492。
 
 ## Result
 
-PARTIAL。模型各0/2；50冷8/10+重开5/5 FAIL。51r1仅2有效cold，r2仅5cold；quit异常/40s超时/端口未关闭分别保存，非10产品编译失败。
+PARTIAL。模型各0/2。50矩阵8/10+5/5；51r1 2/10+0/5、r2 5/10+0/5、最终r3 7/10+5/5，整体均FAIL。r3两40s超时未定位、一旧端口未关，非产品编译失败证明。
 
 ## Changed
 
-仅a4证据及Root移交的launcher单文件：在RootTCP/404修正上补RemoteDisconnected与quit5s；整体40s、Host/产品源/预算/ZIP未改。
+仅a4证据及Root移交launcher（6ba4af24/SHA04a23e0c）；wrapper最终退出改TCP确认，全部case门槛不变。Host/产品源/预算/40s/ZIP未改。
 
 ## Tests
 
-50 15ba9ea0、51 ed4874d1、Host1d7。r2最终资料SHA不变/无ledger/8492空；无模型等外部写入。RC50_MATRIX_REPORT及RC51_R1/R2_REPORT与原始目录，所有失败保留。
+最终51 ed4874d1/Host1d7，7已证实不同cold PID，5重开同41984；所有资料SHA不变/无ledger。已记录PID均退出、8492空。RC51_R3_REPORT及cold-rc51-r3/；原失败均保留。
 
 ## Commit
 
@@ -22,8 +22,8 @@ PARTIAL。模型各0/2；50冷8/10+重开5/5 FAIL。51r1仅2有效cold，r2仅5c
 
 ## Remaining
 
-同51/seed鲜r3验证launcher04a23e0c；不升预算或40s时限。模型仍0/2，不追加调参。
+停止本轮native测试；Root继续原任务。需定位启动超时/关停；模型0/2、两Mac和外部整链仍未通过，不升预算/时限或追加调参。
 
 ## Important Boundaries
 
-矩阵不证明模型语义、OS或两Mac通过；缺capture不证明无E。r1/r2不覆盖，49 ZIP保留。Root8493/Host/模型/唯一失败保留；清理39a1a080。
+缺capture不证明无E；7个有效cold不冒充10个。49 ZIP/Root8493/Host/模型/唯一失败保留；旧包清理39a1a080，逻辑1.29GB。

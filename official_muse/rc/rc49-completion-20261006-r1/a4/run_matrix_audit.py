@@ -4,9 +4,13 @@ import argparse
 import hashlib
 import json
 import re
+import socket
 import subprocess
 import sys
 import time
+from http.client import RemoteDisconnected
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -76,12 +80,22 @@ def main():
         pid = json.loads(remote.request('/s'))['pid']
         # This process was launched by the exact matrix candidate on our fixed port.
         assert pid in owned_pids, 'Refusing to quit an unrecorded process'
-        remote.request('/quit')
+        try:
+            urlopen(remote.base + '/quit', timeout=5).read()
+        except HTTPError as error:
+            if error.code != 404:
+                raise
+        except URLError as error:
+            if not isinstance(error.reason, ConnectionRefusedError):
+                raise
+        except RemoteDisconnected:
+            pass
         deadline = time.monotonic() + 15
         while time.monotonic() < deadline:
-            try:
-                remote.request('/s')
-            except Exception:
+            with socket.socket() as probe:
+                probe.settimeout(.3)
+                port_open = probe.connect_ex(('127.0.0.1', args.port)) == 0
+            if not port_open:
                 audit['cleanup'] = {'pid': pid, 'remote_port_released': True}
                 break
             time.sleep(.1)

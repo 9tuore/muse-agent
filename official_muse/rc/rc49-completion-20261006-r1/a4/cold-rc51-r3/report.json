@@ -1,0 +1,733 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.26-rc51",
+  "code_commit": "f1fbbafda564268ea3e3b3b9c6fe386a32b8de0f",
+  "source_sha256": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "wall_budget_ms": 64,
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "chat-sessions.backup.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "12d73915c579b367d9fb67fc3c826fdcf3af6e373adf66f7be5e02762639148f",
+    "goals.backup.json": null,
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "cold": [
+    {
+      "index": 1,
+      "pass": true,
+      "first_content_seconds": 18.811237728,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 19.522970161,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 547 ms · phase=Actions detail=0 · samples=4 · ticks=4/expected=5 · top frames: 1x Actions: hashbrown::raw::RawTable::<(makepad_script::value::ScriptValue, makepad_script::object::ScriptMapValue)>::reserve_rehash::<hashbrown::map::make_hasher::<makepad_script::value::ScriptValue, makepad_script::object::ScriptMapValue, makepad_script::value_map::ValueHasherBuilder>::{closure:#0}>+0x14e (octosense) ← hashbrown::map::HashMap::<makepad_script::value::ScriptValue, makepad_script::object::ScriptMapValue, makepad_script::value_map::ValueHasherBuilder>::insert+0x17a (octosense) ← makepad_script::value_map::ValueMap::<makepad_script::value::ScriptValue, makepad_script::object::ScriptMapValue>::insert+0x2b (octosense) ← makepad_script::object::ScriptObjectData::merge_map_from_other_no_overwrite+0x24a (octosense) ← makepad_script::heap::ScriptHeap::merge_object+0xa2a (octosense) ← makepad_script::vm::ScriptVm::handle_me_splat+0x4d4 (octosense) ← makepad_script::vm::ScriptVm::run_core+0x2551 (octosense) ← makepad_script::vm::ScriptVm::run_root+0x22d (octosense) | 1x Actions: makepad_script::tokenizer::ScriptTokenizer::emit_separator+0x1dc (octosense) ← makepad_script::tokenizer::ScriptTokenizer::tokenize+0x27c4 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::fab_controls::script_mod+0x861 (octosense) ← makepad_widgets::widgets_mod+0x697 (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) | 1x Actions: makepad_script::heap::ScriptHeap::def_scope_value+0x51 (octosense) ← makepad_script::vm::ScriptVm::handle_use+0x436 (octosense) ← makepad_script::vm::ScriptVm::run_core+0x2f9e (octosense) ← makepad_script::vm::ScriptVm::run_root+0x22d (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x386 (octosense) ← makepad_widgets::markdown::script_mod+0x361 (octosense) ← makepad_widgets::widgets_mod+0x7b7 (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) | 1x Actions: free_small+0x136 (libsystem_malloc.dylib) ← szone_realloc+0x37c (libsystem_malloc.dylib) ← _malloc_zone_realloc+0x68 (libsystem_malloc.dylib) ← _realloc+0x13b (libsystem_malloc.dylib) ← alloc::raw_vec::RawVecInner::finish_grow+0x61 (octosense) ← alloc::raw_vec::RawVec::<makepad_script::value::ScriptValue>::grow_one+0x3f (octosense) ← makepad_script::parser::ScriptParser::push_code+0x25 (octosense) ← makepad_script::parser::ScriptParser::parse_step+0x8b91 (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=139.298 max_chunk_ms=28.981"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 23.414011885,
+      "pid": 35256
+    },
+    {
+      "index": 2,
+      "pass": false,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "seconds": 40.01397208799999,
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "index": 3,
+      "pass": false,
+      "error": "",
+      "seconds": 15.192882658000002,
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "index": 4,
+      "pass": true,
+      "first_content_seconds": 22.830934099000004,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 23.50809499200001,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=72.149 max_chunk_ms=4.499"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 26.610994767000008,
+      "pid": 37022,
+      "raw_snapshot_sha256": "b84f9570480ef89831e0b5f37780d6365056fd0db981ae366f60cf2eece27a0f"
+    },
+    {
+      "index": 5,
+      "pass": true,
+      "first_content_seconds": 46.541713993,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 47.524146637,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=121.133 max_chunk_ms=10.411"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 51.03660817900001,
+      "pid": 37504,
+      "raw_snapshot_sha256": "70cafdeafee700138dae10079f378ea0da4baef858468fbbad10214951444feb"
+    },
+    {
+      "index": 6,
+      "pass": true,
+      "first_content_seconds": 34.711307663000014,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 35.40422139400002,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=54.420 max_chunk_ms=1.851"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 38.24401056799999,
+      "pid": 38404,
+      "raw_snapshot_sha256": "6cbe1f3b0b4427acc12ebb09667cd887493eae5e4290e27b97233ff24a0294ff"
+    },
+    {
+      "index": 7,
+      "pass": true,
+      "first_content_seconds": 38.656969516000004,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 39.50180210799999,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=46.666 max_chunk_ms=1.756"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 43.46407882099999,
+      "pid": 39116,
+      "raw_snapshot_sha256": "5bcd9fd6e896704b53543e26c2b2a9c851410c3176b34a149f718232ea0438f3"
+    },
+    {
+      "index": 8,
+      "pass": true,
+      "first_content_seconds": 49.37132866800002,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 50.136592337999986,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=69.744 max_chunk_ms=3.098"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 53.272347956000004,
+      "pid": 40013,
+      "raw_snapshot_sha256": "4e78e4bb6e86d6e90b00d582037e60e22c92573d32d2f6c9e3dbe952312aae9c"
+    },
+    {
+      "index": 9,
+      "pass": false,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "seconds": 40.017609005,
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "index": 10,
+      "pass": true,
+      "first_content_seconds": 22.733407350999983,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 23.45008865799997,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 588 ms · phase=widget-draw detail=0 · samples=5 · ticks=5/expected=5 · top frames: 1x widget-draw: u64::_fmt+0x20 (octosense) ← makepad_widgets::widgets_mod+0x84f (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) ← makepad_widgets::widget::WidgetRef::set_text+0x2b (octosense) ← <octosense_shell::run_view::MpRunView as makepad_widgets::widget::Widget>::draw_walk+0x838 (octosense) ← makepad_widgets::widget::WidgetRef::draw_walk+0xfc (octosense) | 1x widget-draw: read+0xa (libsystem_kernel.dylib) ← <std::fs::File as std::io::Read>::read_to_end+0xc5 (octosense) ← makepad_platform::script::res::load_file_direct+0xaa (octosense) ← makepad_platform::cx::Cx::load_script_resource_impl+0x18d (octosense) ← makepad_platform::cx::Cx::load_script_resource+0xf2 (octosense) ← makepad_draw::shader::draw_svg::DrawSvg::load_svg+0x99 (octosense) ← makepad_draw::shader::draw_svg::DrawSvg::draw_walk+0x36 (octosense) ← <makepad_widgets::button::Button as makepad_widgets::widget::Widget>::draw_walk+0x8c (octosense) | 1x Draw: makepad_script::heap::ScriptHeap::mark+0x9a3 (octosense) ← makepad_widgets::widget_async::pump_widget_async_hook+0xab0 (octosense) ← makepad_script_std::task::handle_script_tasks+0x617 (octosense) ← makepad_platform::cx::Cx::call_event_handler+0xc38 (octosense) ← makepad_platform::cx::Cx::call_draw_event+0xc7 (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x3bce (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x357f (octosense) ← makepad_platform::cx::Cx::event_loop::{closure:#0}+0x89 (octosense) | 1x present: _platform_memmove$VARIANT$Haswell+0x29 (libsystem_platform.dylib) ← makepad_platform::texture::CxTexture::update_vec_texture+0xbb9 (octosense) ← makepad_platform::cx::Cx::encode_vec_texture_uploads+0x243 (octosense) ← makepad_platform::cx::Cx::draw_pass+0x2167 (octosense) ← makepad_platform::cx::Cx::handle_repaint+0x9c6 (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x3d09 (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x357f (octosense) ← makepad_platform::cx::Cx::event_loop::{closure:#0}+0x89 (octosense)",
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 408 ms · phase=Actions detail=0 · samples=3 · ticks=3/expected=3 · top frames: 1x Actions: makepad_script::tokenizer::ScriptTokenizer::emit_color+0xd0 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← octoscript_widgets::design::script_mod+0x46b (octosense) ← <octosense_appstore::cardapp::CardModule as makepad_app_module::AppModule>::register+0x11 (octosense) ← <octosense_app_hub_app::card_host::CardModule as makepad_app_module::AppModule>::register+0x63 (octosense) ← _RINvNtCsfV1fogaGtha_18makepad_script_std2vm7with_vmNCNCNvMs0_NtCs20QgPeiaqct_15octosense_shell11module_hostNtBX_10ModuleHost6create00NtCs7CzefefTTkF_18makepad_app_module13InstancePartsEBZ_+0x108 (octosense) ← _RINvXs2_NtCsfHdtRvWNvi1_15makepad_widgets12widget_asyncNtNtCsbjwPLTgOt8d_16makepad_platform2cx2CxNtB6_13CxSplashVmExt25with_script_vm_id_trustedNtCs7CzefefTTkF_18makepad_app_module13InstancePartsNCNCNvMs0_NtCs20QgPeiaqct_15octosense_shell11module_hostNtB3h_10ModuleHost6create00EB3j_+0x34e (octosense) ← octosense_shell::module_host::ModuleHost::create+0xa8e (octosense) | 1x Actions: makepad_script::parser::ScriptParser::parse_step+0x9d6f (octosense) ← makepad_script::parser::ScriptParser::parse+0x135 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x2d1 (octosense) ← makepad_widgets::tweaker::script_mod+0x477 (octosense) ← makepad_widgets::widgets_mod+0x61f (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) | 1x NextFrame: makepad_script::heap::ScriptHeap::mark+0x9a3 (octosense) ← makepad_widgets::widget_async::pump_widget_async_hook+0xab0 (octosense) ← makepad_script_std::task::handle_script_tasks+0x617 (octosense) ← makepad_platform::cx::Cx::call_event_handler+0xc38 (octosense) ← makepad_platform::cx::Cx::call_next_frame_event+0x10f (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x3b82 (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x357f (octosense) ← makepad_platform::cx::Cx::event_loop::{closure:#0}+0x89 (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=62.604 max_chunk_ms=3.670"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 26.48087683,
+      "pid": 41984,
+      "raw_snapshot_sha256": "a639a516e3d9ba93ddc38de8ae61bd4270fc76043ba637364e98a5799579af91"
+    }
+  ],
+  "reopen": [
+    {
+      "index": 1,
+      "pass": true,
+      "first_content_seconds": 15.18182983600002,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 15.967719335000027,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=47.656 max_chunk_ms=1.866"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 19.737305348999996,
+      "pid": 41984
+    },
+    {
+      "index": 2,
+      "pass": true,
+      "first_content_seconds": 15.137892373999989,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 15.875178478999999,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=48.091 max_chunk_ms=1.378"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 18.879377281000018,
+      "pid": 41984,
+      "raw_snapshot_sha256": "71e2e5c0a93540a073f8b6fbeeddb73f1434f628abbc39a75774af42be777ac4"
+    },
+    {
+      "index": 3,
+      "pass": true,
+      "first_content_seconds": 15.59826332700004,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 16.347283483000012,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=47.325 max_chunk_ms=1.517"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 21.05718011800002,
+      "pid": 41984,
+      "raw_snapshot_sha256": "97c13188b88455c7fe6c5b9bad6b4faad033b969b815e5e85cb112e12e74c0b3"
+    },
+    {
+      "index": 4,
+      "pass": true,
+      "first_content_seconds": 14.958597775000044,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 15.790260551000017,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=54.172 max_chunk_ms=3.286"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 18.896022927000047,
+      "pid": 41984,
+      "raw_snapshot_sha256": "1a83c358c9abda5349822eb26f67cacec3c0b5f0e2f165c331af6d78c8194103"
+    },
+    {
+      "index": 5,
+      "pass": true,
+      "first_content_seconds": 14.93257232000002,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 15.71379221799998,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=464404 chunks=115 total_ms=48.269 max_chunk_ms=1.916"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 18.85122088899999,
+      "pid": 41984,
+      "raw_snapshot_sha256": "6f8145a9d407fc29462d952e9ddccb8f6fbd293cdeac6f8db013db4dfb3bda26"
+    }
+  ],
+  "restart": [],
+  "requested_counts": {
+    "cold": 10,
+    "reopen": 5,
+    "restart": 0
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "cold_pass": 7,
+  "reopen_pass": 5,
+  "restart_pass": 0
+}
