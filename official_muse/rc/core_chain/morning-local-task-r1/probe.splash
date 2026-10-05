@@ -1,0 +1,129 @@
+let lt_case="__CASE__"
+let cc_phase="first"
+let lt_checks={}
+let lt_calls=[]
+let lt_goal=""
+let lt_session=""
+let lt_wait=0
+let lt_baseline=nil
+fn chain_fixture_request(service,args,cb){
+    lt_calls.push(service)
+    if service=="mail.accounts" {cb({is_ok:true data:[]}) return}
+    cb({is_ok:false error:"Local task fixture forbids external services"})
+}
+fn lt_finish(){
+    lt_checks.no_model_or_external_action=lt_calls.len()==0 && actions.len()==0
+    fs.write("probe.json",lt_checks.to_json())
+}
+fn lt_create(){
+    let si=chat_session_index(chat_selected_id)
+    lt_session=chat_selected_id
+    ui.goal_input.set_text("整理合成资料") ui.source_input.set_text("合成第一条；合成第二条")
+    if lt_case=="card" {
+        let payload={to:"" subject:"" body:"" title:"" start:"" end:"" time_zone:"Asia/Shanghai" location:""
+            objective:"整理合成资料" source:"合成第一条；合成第二条"}
+        let card={id:"synthetic-local-plan" session_id:chat_selected_id account_id:"" action:"goal_plan"
+            payload:payload state:"candidate" revision:1 memory_refs:[] project:gm_project owner:gm_owner}
+        chat_sessions[si].proposals=[card]
+        lt_checks.card_seed=chat_save()
+        chat_apply_proposal(card.id)
+        lt_goal=goals[0].id
+        lt_checks.card_opened_after_saved=goals.len()==1 && chat_sessions[si].proposals[0].state=="opened"
+            && fs.read("chat-sessions.json").parse_json().sessions[si].proposals[0].state=="opened"
+        let raw=fs.read("goals.json")
+        chat_apply_proposal(card.id)
+        lt_checks.card_duplicate_no_goal=goals.len()==1 && fs.read("goals.json")==raw
+    } else {lt_goal=make_plan()}
+    lt_checks.returned_goal_id=lt_goal!=nil && lt_goal!="" && core_goal_index(lt_goal)>=0
+    lt_checks.plan_durable=goals.len()==1 && goals[0].status=="planned" && fs.read("goals.json").parse_json().goals[0].id==lt_goal
+    lt_checks.no_run_before_approval=runs.len()==0
+    if lt_case=="switch_early" {start_timeout(0.01,|| lt_switch()) return}
+    if lt_case=="switch_late" {start_timeout(0.075,|| lt_switch()) return}
+    start_timeout(0.25,|| lt_open_check())
+}
+fn lt_switch(){
+    chat_new_session()
+    start_timeout(0.4,|| lt_switch_check())
+}
+fn lt_switch_check(){
+    let old_i=chat_session_index(lt_session) let new_i=chat_session_index(chat_selected_id)
+    lt_checks.new_session_distinct=old_i>=0 && new_i>=0 && chat_selected_id!=lt_session
+    lt_checks.new_session_not_bound=chat_sessions[new_i].goal_id=="" && !chat_shows_goal()
+    lt_checks.no_old_page_open=page=="Chat"
+    lt_checks.goal_retained_unexecuted=goals.len()==1 && goals[0].id==lt_goal && goals[0].status=="planned" && runs.len()==0
+    if lt_case=="switch_early" {lt_checks.old_session_not_bound=chat_sessions[old_i].goal_id==""}
+    if lt_case=="switch_late" {lt_checks.old_session_binding_retained=chat_sessions[old_i].goal_id==lt_goal}
+    lt_finish()
+}
+fn lt_open_check(){
+    if page!="Goal Detail" && lt_wait<40 {lt_wait=lt_wait+1 start_timeout(0.05,|| lt_open_check()) return}
+    let si=chat_session_index(lt_session)
+    lt_checks.goal_page_open=page=="Goal Detail" && task!=nil && task.id==lt_goal
+    lt_checks.session_bound=chat_sessions[si].goal_id==lt_goal && chat_shows_goal()
+    lt_checks.bound_persisted=fs.read("chat-sessions.json").parse_json().sessions[si].goal_id==lt_goal
+    lt_checks.plan_valid=plan_error(task)==nil
+    start_timeout(0.03,|| lt_approve())
+}
+fn lt_approve(){
+    approve()
+    lt_checks.approval_one_running=runs.len()==1 && runs[0].goal_id==lt_goal && runs[0].status=="running"
+        && runs[0].plan_revision==1 && goals[0].status=="running"
+    approve()
+    lt_checks.duplicate_approval_no_run=runs.len()==1
+    lt_wait=0 start_timeout(0.3,|| lt_result_check())
+}
+fn lt_result_check(){
+    if goals[0].status=="running" && lt_wait<40 {lt_wait=lt_wait+1 start_timeout(0.05,|| lt_result_check()) return}
+    lt_checks.completed=goals[0].status=="completed" && runs.len()==1 && runs[0].status=="completed"
+    let path=goals[0].result_path
+    let raw=fs.read(path) let artifact=raw.parse_json()
+    lt_checks.result_readback=artifact.task_id==lt_goal && artifact.count==2 && artifact.items[0].text=="合成第一条"
+        && artifact.items[1].text=="合成第二条" && result!=nil && result.task_id==lt_goal
+    let found_source=false let found_claim=false
+    for source in memory_sources {if source.source_id=="source:result:"+runs[0].id && source.content_sha256==fs.sha256(raw) {found_source=true}}
+    for entry in memory {if entry.document.payload.subject_id==lt_goal && entry.document.payload.predicate=="verified_result" {found_claim=true}}
+    lt_checks.verified_memory=found_source && found_claim
+    let approved=false let written=false let checked=false
+    for event in activity {
+        if event.goal_id==lt_goal && event.run_id==runs[0].id {
+            if event.kind=="Plan approved" {approved=true}
+            if event.kind=="storage write" {written=true}
+            if event.kind=="readback" {checked=true}
+        }
+    }
+    lt_checks.audits_actual=approved && written && checked
+    let before=fs.read("goals.json") let before_result=fs.read(path)
+    approve()
+    lt_checks.completed_approval_no_repeat=runs.len()==1 && fs.read("goals.json")==before && fs.read(path)==before_result
+    lt_baseline={goal_id:lt_goal session_id:lt_session result_path:path result_bytes:raw result_sha256:fs.sha256(raw)
+        goals_bytes:fs.read("goals.json") chat_bytes:fs.read("chat-sessions.json") memory_bytes:fs.read("memory.json") activity_bytes:fs.read("activity.json")}
+    fs.write("local-task-baseline.json",lt_baseline.to_json())
+    lt_finish()
+}
+fn lt_restore(){
+    lt_baseline=fs.read("local-task-baseline.json").parse_json()
+    chat_restore_goal_view()
+    lt_checks.restore_goal=goals.len()==1 && goals[0].id==lt_baseline.goal_id && goals[0].status=="completed"
+    lt_checks.restore_one_run=runs.len()==1 && runs[0].status=="completed" && runs[0].goal_id==lt_baseline.goal_id
+    lt_checks.restore_binding=chat_selected_id==lt_baseline.session_id && chat_shows_goal()
+    lt_checks.restore_result=result!=nil && result.task_id==lt_baseline.goal_id
+        && fs.read(lt_baseline.result_path)==lt_baseline.result_bytes && fs.sha256_file(lt_baseline.result_path)==lt_baseline.result_sha256
+    lt_checks.restore_all_primary_bytes=fs.read("goals.json")==lt_baseline.goals_bytes && fs.read("chat-sessions.json")==lt_baseline.chat_bytes
+        && fs.read("memory.json")==lt_baseline.memory_bytes && fs.read("activity.json")==lt_baseline.activity_bytes
+    let before=fs.read("goals.json")
+    approve()
+    lt_checks.restore_duplicate_blocked=runs.len()==1 && fs.read("goals.json")==before && fs.read(lt_baseline.result_path)==lt_baseline.result_bytes
+    lt_finish()
+}
+fn lt_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot()
+    lt_checks.boot_ready=core_storage_ready && core_memory_ready && gm_ready && chat_ready
+    if cc_phase=="restart" {lt_restore() return}
+    gm_set_focus("synthetic-project","synthetic-owner")
+    let si=chat_session_index(chat_selected_id)
+    chat_sessions[si].focus_project=gm_project chat_sessions[si].focus_owner=gm_owner
+    chat_save()
+    start_timeout(0.03,|| lt_create())
+}
+start_timeout(0.1,|| lt_probe())

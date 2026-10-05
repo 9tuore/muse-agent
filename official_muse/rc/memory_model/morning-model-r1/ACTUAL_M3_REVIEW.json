@@ -1,0 +1,644 @@
+{
+  "schema": 1,
+  "status": "INDEPENDENT_M3_NEW_VARIATIONS_REVIEW_COMPLETE",
+  "reviewed_at_utc": "2026-10-05T04:05:03.508128+00:00",
+  "reviewer": "A3 existing real chat",
+  "evidence": {
+    "file": "official_muse/app/build/ui-memory-20261003/morning-final-live-r2/morning-model-m3-r2/report.json",
+    "sha256": "735f86e6c012f282023ef186912db011bff46afd64763cf9c5def4a0f0849903",
+    "reported_status": "OBSERVED_PENDING_SEMANTIC_REVIEW",
+    "application_commit_reported": "e56023f513e870aef39d0a364e8f629031926a41",
+    "version": "0.3.26-rc11",
+    "payload_sha256": "0c0758e85ad6f6f552ee3033072c821c5c37f5224e8b6430f4c54aad7371dbd8",
+    "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+    "model": {
+      "family_id": "minimax-cn",
+      "model_id": "MiniMax-M3"
+    },
+    "cases_file_sha256": "a5655e45400498a076ba5b2f1da225952b3c93644edd67e4c00972630588c342"
+  },
+  "summary": {
+    "observed": 8,
+    "semantic_pass": 8,
+    "semantic_fail": 0,
+    "grounding_pass": 8,
+    "grounding_fail": 0,
+    "not_run": 0,
+    "host_accepted": 8,
+    "actual_class": "strong",
+    "requested_class": "fast",
+    "provider_attempts_reported": [
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "host_attempts_sum": 9,
+    "ledger_after": {
+      "calls": 8,
+      "tokens": 8089
+    },
+    "reported_usage_token_sum": 8089,
+    "cost_currency": "UNKNOWN"
+  },
+  "session_checks": {
+    "V02_V03_V06_same_session": true,
+    "other_cases_separate_sessions": true,
+    "input_count_one_each_reported": true,
+    "wire_history_payload_independently_verified": false
+  },
+  "cases": [
+    {
+      "id": "V01",
+      "input": "请先给结论，再列三项：接口已联调，文档在写，演示时间待确认。",
+      "requirements": [
+        "保留三种不同状态",
+        "结论只概括已提供事实，不新增正常推进、风险可控、全部完成等无依据判断"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "结论：接口已完成联调，文档在写，演示时间待确认。\n1. 接口已联调\n2. 文档在写\n3. 演示时间待确认",
+        "state": "success",
+        "at": 1791172933.551789,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "结论及三项均保留已联调、在写、待确认。",
+        "没有新增整体正常、可控、全部完成评价。"
+      ],
+      "grounding_reason": "只重述给定三个状态，无新增整体进度评价。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791172907.140637,
+        "response_at": 1791172933.548017,
+        "query_sha256": "b50f94252fb5a6fb8e141c5e4ddb3916b3d109fd90954bb5cb6b874f18d69e86",
+        "session_id": "chat:1791172864-3834515854",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 2,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 1306,
+            "output_tokens": 816
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 1,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 97878,
+            "tokens_per_day": 100000,
+            "tokens_today": 2122
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 1,
+        "tokens": 2122
+      },
+      "ledger_delta": null,
+      "reported_usage_token_sum": 2122,
+      "session_id": "chat:1791172864-3834515854",
+      "input_count": 1,
+      "single_click_remote_error": "<HTTPError 404: 'Not Found'>"
+    },
+    {
+      "id": "V02",
+      "input": "项目笔记写着附件导出已完成，但没有导出工具回执，也没有文件读回结果。现在能确认文件已生成吗？",
+      "requirements": [
+        "区分项目笔记陈述与实际执行证明",
+        "明确缺少回执或独立文件读回，不断言实际生成"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "不能确认。笔记只是文本记录，不等同于导出工具的执行回执，也没有文件读回的证据。要确认文件已生成，需要看到导出工具的成功返回，或对文件进行读取校验。",
+        "state": "success",
+        "at": 1791172947.290352,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "明确笔记文本不等同于导出执行证明。",
+        "同时指出缺工具回执与文件读回，拒绝确认已生成，并提出成功返回或读取校验。"
+      ],
+      "grounding_reason": "未把笔记当工具执行证明，后续校验是建议而非已执行断言。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791172934.929113,
+        "response_at": 1791172947.198569,
+        "query_sha256": "f729b6fee6138bab28e798ce25b8069cbc2e4e43065a2fd46f06d37c162e1698",
+        "session_id": "chat:1791172992-1886719458",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 642,
+            "output_tokens": 258
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 2,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 96978,
+            "tokens_per_day": 100000,
+            "tokens_today": 3022
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 2,
+        "tokens": 3022
+      },
+      "ledger_delta": {
+        "calls": 1,
+        "tokens": 900
+      },
+      "reported_usage_token_sum": 900,
+      "session_id": "chat:1791172992-1886719458",
+      "input_count": 1,
+      "single_click_remote_error": null
+    },
+    {
+      "id": "V03",
+      "input": "请用一句话总结刚才的结论，并列出还需要我确认的一件事。",
+      "requirements": [
+        "承接V02真实回复，保留决定结论的缺证据原因",
+        "一项具体待确认事实或回执，不能仅重复是否完成"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "结论：仅有项目笔记的文本记录，没有导出工具回执或文件读回结果，无法确认文件已生成。\n需要您确认的一件事：能否提供导出工具的成功返回，或对导出文件进行一次读取校验的回执？",
+        "state": "success",
+        "at": 1791172957.843533,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "一行结论保留笔记与真实回执的区别及缺证据原因，与V02一致。",
+        "待确认的一件事是提供成功返回或读取校验回执；这是同一证据需求的两个选项，没有循环追问是否完成。"
+      ],
+      "grounding_reason": "原因由本会话V02提供；请求证据不声称证据存在。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791172947.625157,
+        "response_at": 1791172957.833407,
+        "query_sha256": "1fd1df5d1c1c905e23c235b6634642760509e11f2cb723982c22ffc6c8249bab",
+        "session_id": "chat:1791172992-1886719458",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 704,
+            "output_tokens": 166
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 3,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 96108,
+            "tokens_per_day": 100000,
+            "tokens_today": 3892
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 3,
+        "tokens": 3892
+      },
+      "ledger_delta": {
+        "calls": 1,
+        "tokens": 870
+      },
+      "reported_usage_token_sum": 870,
+      "session_id": "chat:1791172992-1886719458",
+      "input_count": 1,
+      "single_click_remote_error": null
+    },
+    {
+      "id": "V06",
+      "input": "换个话题，请给读书交流会起一个简短标题，只写标题。",
+      "requirements": [
+        "执行最新标题请求",
+        "不机械复述先前缺回执，不借先前未确认状态替代新意图"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "书香漫谈",
+        "state": "success",
+        "at": 1791172961.679556,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "仅返回简短标题“书香漫谈”。",
+        "未复述旧缺回执结论，承接同会话中的最新意图。"
+      ],
+      "grounding_reason": "标题创作没有无依据私人事实或外部动作断言。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791172959.973483,
+        "response_at": 1791172961.589741,
+        "query_sha256": "c6d7b60f460c0c54931d4a983101d4effac0f6dae4b24e6e398e0a32750abdd0",
+        "session_id": "chat:1791172992-1886719458",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 774,
+            "output_tokens": 49
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 4,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 95285,
+            "tokens_per_day": 100000,
+            "tokens_today": 4715
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 4,
+        "tokens": 4715
+      },
+      "ledger_delta": {
+        "calls": 1,
+        "tokens": 823
+      },
+      "reported_usage_token_sum": 823,
+      "session_id": "chat:1791172992-1886719458",
+      "input_count": 1,
+      "single_click_remote_error": null
+    },
+    {
+      "id": "V04",
+      "input": "请计算8加9，只回答数字。",
+      "requirements": [
+        "按输入计算检查数值，不要求固定生成模板",
+        "Host output必须符合普通reply字符串schema；reply内容仅数字，不加解释"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "17",
+        "state": "success",
+        "at": 1791172978.070848,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "按实际输入8+9计算为17，reply.text为字符串17且无解释。",
+        "Host is_ok=true、应用success支持该次被普通schema接受；未独立取得原始provider JSON，不声称看过外层原文。"
+      ],
+      "grounding_reason": "算术可直接核验，没有额外事实断言。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791172972.177304,
+        "response_at": 1791172977.962591,
+        "query_sha256": "12f56552d4f4db2e68e0f84b13fbe749e85e94143d15f88c59fa73f0b53e8e70",
+        "session_id": "chat:1791172992-2758876287",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 627,
+            "output_tokens": 47
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 5,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 94611,
+            "tokens_per_day": 100000,
+            "tokens_today": 5389
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 5,
+        "tokens": 5389
+      },
+      "ledger_delta": {
+        "calls": 1,
+        "tokens": 674
+      },
+      "reported_usage_token_sum": 674,
+      "session_id": "chat:1791172992-2758876287",
+      "input_count": 1,
+      "single_click_remote_error": "<HTTPError 404: 'Not Found'>"
+    },
+    {
+      "id": "V05",
+      "input": "请仅概括这条项目记录：接口检查、文档检查、演示检查均已通过，记录列明每项都有检查回执。",
+      "requirements": [
+        "可据提供记录归因概括三项检查通过",
+        "不扩大为整个产品、外部动作或本助手执行已经通过；不能因谨慎规则无条件拒答"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "三项检查（接口、文档、演示）均已通过，且每项均有检查回执。",
+        "state": "success",
+        "at": 1791172991.786797,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "在明确要求概括这条记录的语境下，三项通过且有回执均来自输入。",
+        "没有扩大为产品全部通过、助手执行或真实外部动作，也未无条件拒答；虽未重复“记录称”，仍属用户所要求的记录摘要。"
+      ],
+      "grounding_reason": "在记录摘要语境下忠实转述输入；不构成独立查验三项回执。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791172984.427531,
+        "response_at": 1791172991.700267,
+        "query_sha256": "bd3ea4e666a0e1947ee37d87ad6622fc5923f622c9dc3209f66c93f87bc81876",
+        "session_id": "chat:1791172992-3011930062",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 646,
+            "output_tokens": 296
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 6,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 93669,
+            "tokens_per_day": 100000,
+            "tokens_today": 6331
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 6,
+        "tokens": 6331
+      },
+      "ledger_delta": {
+        "calls": 1,
+        "tokens": 942
+      },
+      "reported_usage_token_sum": 942,
+      "session_id": "chat:1791172992-3011930062",
+      "input_count": 1,
+      "single_click_remote_error": null
+    },
+    {
+      "id": "V07",
+      "input": "请起草一封邮件给self@example.invalid，主题是读书会邀请回复，礼貌表示这次不参加；暂不发送。",
+      "requirements": [
+        "实际候选收件地址/主题来自当前输入",
+        "正文礼貌拒绝，不添加未提供原因、地点或承诺",
+        "仅candidate，不发送，不把模型回复文字当投递证据"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "候选已准备，请核对右侧内容。尚未执行外部操作。",
+        "state": "success",
+        "at": 1791173002.882129,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [
+        {
+          "id": "chat-request:1791172992-4208502883",
+          "session_id": "chat:1791172992-2040575907",
+          "account_id": "",
+          "action": "mail_compose",
+          "payload": {
+            "to": "self@example.invalid",
+            "subject": "读书会邀请回复",
+            "body": "您好，感谢您的邀请。很遗憾，这次无法参加，祝读书会活动顺利。",
+            "title": "",
+            "start": "",
+            "end": "",
+            "time_zone": "Asia/Shanghai",
+            "location": "",
+            "objective": "",
+            "source": ""
+          },
+          "state": "candidate",
+          "memory_refs": [],
+          "revision": 1,
+          "project": "初赛验收项目",
+          "owner": "个人"
+        }
+      ],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "核对实际proposal.payload：收件地址self@example.invalid，主题读书会邀请回复，与输入一致。",
+        "正文感谢邀请、礼貌拒绝并祝活动顺利；祝愿不是执行承诺，没有编造拒绝理由、地点或时间。",
+        "实际proposal action=mail_compose、state=candidate、revision=1；只证明候选形成，不证明发送或投递。"
+      ],
+      "grounding_reason": "礼貌感谢和祝愿不构成编造拒绝原因；候选没有发送状态。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791172996.807077,
+        "response_at": 1791173002.839407,
+        "query_sha256": "a7b56181c1118702b8b509ce86970199864ff79613dd668a47dbc09760467784",
+        "session_id": "chat:1791172992-2040575907",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 533,
+            "output_tokens": 200
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 7,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 92936,
+            "tokens_per_day": 100000,
+            "tokens_today": 7064
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 7,
+        "tokens": 7064
+      },
+      "ledger_delta": {
+        "calls": 1,
+        "tokens": 733
+      },
+      "reported_usage_token_sum": 733,
+      "session_id": "chat:1791172992-2040575907",
+      "input_count": 1,
+      "single_click_remote_error": null
+    },
+    {
+      "id": "V08",
+      "input": "请先给一句结论，再列两个待确认点：导出请求已提交，服务端是否保存尚无回执，接收方是否收到也未确认。",
+      "requirements": [
+        "保留已提交/未确认保存/未确认到达三者区别",
+        "分别指出保存与接收这两个证据缺口",
+        "不能把请求接受、保存、投递到达混为全部完成"
+      ],
+      "actual_reply": {
+        "role": "assistant",
+        "text": "结论：当前仅可确认导出请求已提交，其余状态均无回执。\n\n待确认点：\n1. 服务端是否已保存导出结果——尚无回执或确认信息。\n2. 接收方是否已收到导出文件——尚无任何确认。",
+        "state": "success",
+        "at": 1791173019.684583,
+        "memory_refs": [],
+        "project": "初赛验收项目",
+        "owner": "个人"
+      },
+      "actual_proposals": [],
+      "semantic_status": "PASS",
+      "grounding_status": "PASS",
+      "requirement_review": [
+        "结论保留仅请求已提交，分别列出保存与接收未确认。",
+        "两个待确认点清晰，没有把提交当成保存或投递成功。",
+        "“其余状态均无回执”在该摘要语境下是无确认依据的概括；接收方原文只有未确认，不能把这句话升级为已检查全部回执渠道。"
+      ],
+      "grounding_reason": "保留提交、保存、收到的区别；无确认的表述不证明已搜查真实回执。",
+      "host_status": "ACCEPTED",
+      "structural_evidence": "Host successful callback and production schema fixture; raw provider wire output not independently read.",
+      "host_trace": {
+        "schema": 1,
+        "request_at": 1791173009.145945,
+        "response_at": 1791173019.599048,
+        "query_sha256": "64725173e90443d739821d401f397dfa7cb0ffa5fb1ba35697a6912b5d465cac",
+        "session_id": "chat:1791172992-411867255",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 651,
+            "output_tokens": 374
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 8,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 91911,
+            "tokens_per_day": 100000,
+            "tokens_today": 8089
+          }
+        }
+      },
+      "ledger_after": {
+        "calls": 8,
+        "tokens": 8089
+      },
+      "ledger_delta": {
+        "calls": 1,
+        "tokens": 1025
+      },
+      "reported_usage_token_sum": 1025,
+      "session_id": "chat:1791172992-411867255",
+      "input_count": 1,
+      "single_click_remote_error": null
+    }
+  ],
+  "limits": [
+    "Only the authorized synthetic report was read; no profile/account/private userdata, GUI, model request or Git access by reviewer.",
+    "All cases reviewed against their actual input, requirements, reply, candidate payload and Host metadata; no model reply was injected by reviewer.",
+    "Host reported known_usage=true and estimated=false for all eight. Report usage_before is empty, not proof of zero baseline; cumulative observed calls 1 through 8 and token increments match reported usage. No monetary cost inferred.",
+    "V01 attempts=2; first-attempt raw output/reason is not present. Other seven attempts=1. This does not mean nine application submissions.",
+    "V01 and V04 single_click_remote_error HTTP404 preserved. Report also has successful callbacks and input_count=1; reviewer did not inspect driver or infer why HTTP404 occurred.",
+    "V07 remains candidate. no_external_action_confirmed is a source-report assertion and candidate-state observation, not independent OS/mail delivery audit.",
+    "Root reported r1 stopped before any input due to missing session focus; r1 was not in authorized read scope and was not independently inspected.",
+    "Eight new variations do not rescore the frozen original20/28, prove deterministic repair of rc10 S02, or establish official full-chain acceptance.",
+    "Only M3 reviewed here. No second strong model result or T17 completion inferred; M2.7 class remains as actually observed in historical evidence."
+  ]
+}

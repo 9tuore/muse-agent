@@ -1,0 +1,39 @@
+{
+  "status": "FIXTURE_PASS_NO_REAL_UI_MAIL_MODEL_CALENDAR_CLAIM",
+  "finished_at": "2026-10-05T13:14:11+08:00",
+  "rc17_source_sha256": "4d6897472953daa50aa4e41e3092c45d08fff9044ccbc43d7a67c34263e4dc9f",
+  "rc17_compact_sha256": "30ae1a7a5581fa716d6eb5c43bccbeb8377cc2c56418bbd323153b6051a064ff",
+  "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "cases": 9,
+  "passed_checks": 248,
+  "second_process_restores": 3,
+  "rc15_baseline": "FAIL: same source ID different scope/position; original reports retained",
+  "rc16_empty_and_recovery": {
+    "cases": 2,
+    "checks": 86,
+    "status": "FIXTURE_PASS"
+  },
+  "rc16_6_claims_6_sources_2_forget": {
+    "cases": 1,
+    "checks": 52,
+    "status": "FIXTURE_PASS",
+    "reproduced_live_budget_failure": false
+  },
+  "rc17_guards": "Account revocation, changed chat session, changed Goal revision before phase1 and after source write stop further memory/link/model continuation",
+  "real_model": false,
+  "real_mail": false,
+  "real_calendar": false,
+  "gui_parity": false,
+  "host_budget_modified": false,
+  "production_data_read": false,
+  "main_source_modified": false,
+  "git_operation": false,
+  "summary_sha256": "d17afa453a6f06c482b46d270c66a42d370818732478c890e25ec840cadd2112",
+  "preserved_attempts": [
+    "rc16-r1 (probe reserved argument compile error)",
+    "rc16-r2/r3 (JSON text order assertion)",
+    "rc15-baseline-r1 (fixture missing calendar file read after real collision)",
+    "rc16-populated-r1 (4 tombstones generated; exact-2 setup corrected)",
+    "rc17-r1 (fixed-time readiness assertion and populated case matching late substring)"
+  ]
+}

@@ -1,0 +1,190 @@
+let ms_case="__CASE__"
+let cc_phase="first"
+let ms_checks={}
+let ms_calls=[]
+let ms_models=[]
+let ms_goal=""
+let ms_user_source="source:mail:synthetic-account:synthetic-message-1"
+let ms_event={id:"synthetic-event" calendar_id:"synthetic-calendar" version:"synthetic-v1" recurring:false
+    title:"合成约定" start:"2026-12-15T15:00:00+08:00" end:"2026-12-15T16:00:00+08:00" time_zone:"Asia/Shanghai" location:"合成地点"}
+let ms_before=nil
+let ms_seed_count=0
+let ms_seed_index=0
+let ms_wait_count=0
+fn chain_fixture_request(service,args,cb){
+    ms_calls.push(service)
+    if service=="mail.accounts" {cb({is_ok:true data:[{id:"synthetic-account" address:"self@example.invalid"}]}) return}
+    if service=="model.complete" {ms_models.push(cb) return}
+    if service=="calendar.get" {cb({is_ok:true data:{found:true event:ms_event}}) return}
+    cb({is_ok:false error:"Synthetic fixture forbids external actions"})
+}
+fn ms_scope_valid(mem_scope){
+    return mem_scope.project_id=="synthetic-project" && mem_scope.owner_id=="synthetic-owner" && mem_scope.account=="synthetic-account"
+}
+fn ms_finish(){
+    let forbidden=false for call in ms_calls {if call!="mail.accounts" && call!="model.complete" && call!="calendar.get" {forbidden=true}}
+    ms_checks.no_external_actions=!forbidden && actions.len()==0 && runs.len()==0
+    ms_checks.memory_readback=fs.read("memory.json")==core_last_memory
+    ms_checks.goal_readback=fs.read("goals.json").parse_json().goals.len()==goals.len() && fs.read("goals.json").parse_json().goals[0].id==goals[0].id && fs.read("goals.json").parse_json().goals[0].version==goals[0].version && fs.read("goals.json").parse_json().goals[0].mail_source.source_id==goals[0].mail_source.source_id
+    ms_checks.calendar_readback=false
+    if fs.exists("calendar-state.json") {ms_checks.calendar_readback=fs.read("calendar-state.json").parse_json().links.len()==calendar_links.len()}
+    fs.write("probe.json",ms_checks.to_json())
+}
+fn ms_remember(){
+    memory_remember_mail()
+    let si=core_source_index(ms_user_source,"synthetic-account")
+    let mi=core_memory_index("memory:mail:synthetic-account:synthetic-message-1","synthetic-account")
+    ms_checks.user_memory_saved=si>=0 && mi>=0
+    if si>=0 && mi>=0 {
+        ms_checks.user_source_scope=ms_scope_valid(memory_sources[si]["scope"])
+        ms_checks.user_claim_scope=ms_scope_valid(memory[mi].document["scope"])
+    }
+    start_timeout(0.03,|| ms_link())
+}
+fn ms_link(){
+    fs.write("before-mail-link.json",{claims:memory.len() sources:memory_sources.len() forget:memory_forget.len()}.to_json())
+    if ms_seed_count==5 {ms_checks.populated_6_6_2=memory.len()==6 && memory_sources.len()==6 && memory_forget.len()==2}
+    mail_link_calendar()
+    if ms_case.search("_early")>=0 {start_timeout(0.01,|| ms_guard_change()) return}
+    if ms_case.search("_late")>=0 {start_timeout(0.075,|| ms_guard_change()) return}
+    start_timeout(0.35,|| ms_link_check())}
+fn ms_link_check(){
+    if mail_calendar_link_pending && ms_wait_count<40 {ms_wait_count=ms_wait_count+1 start_timeout(0.05,|| ms_link_check()) return}
+    ms_checks.one_goal_one_link=goals.len()==1 && calendar_links.len()==1
+    ms_checks.task_model_bound=ms_models.len()==1
+    ms_checks.source_error=core_error ms_checks.mail_error=mail_error
+    ms_checks.no_source_collision=mail_error=="" && core_error=="" && memory_sources.len()==2+ms_seed_count && memory.len()==2+ms_seed_count
+    if calendar_links.len()!=1 || goals.len()!=1 {ms_finish() return}
+    ms_goal=goals[0].id
+    let expected="source:goalmail:"+ms_goal+":synthetic-account:synthetic-message-1"
+    let si=core_source_index(expected,"synthetic-account")
+    let mi=core_memory_index(calendar_links[0].source_claim_id,"synthetic-account")
+    ms_checks.goal_source_namespace=goals[0].mail_source.source_id==expected && calendar_links[0].source_id==expected && expected!=ms_user_source
+    ms_checks.task_source_claim_scope=si>=0 && mi>=0 && ms_scope_valid(memory_sources[si]["scope"])
+        && ms_scope_valid(memory[mi].document["scope"]) && memory[mi].document.payload.source_ids[0]==expected
+    ms_checks.goal_scope=goals[0].project_id=="synthetic-project" && goals[0].owner_id=="synthetic-owner"
+    ms_checks.chat_focus_unchanged=gm_project=="synthetic-chat-project" && gm_owner=="synthetic-chat-owner"
+    ms_before={goals:goals.to_json() memory:memory.to_json() sources:memory_sources.to_json() links:calendar_links.to_json() models:ms_models.len()}
+    start_timeout(0.03,|| ms_repeat())
+}
+fn ms_repeat(){
+    memory_remember_mail() mail_link_calendar()
+    ms_checks.repeat_no_new_goal=goals.len()==1 && calendar_links.len()==1
+    ms_checks.repeat_no_new_source=memory.to_json()==ms_before.memory && memory_sources.to_json()==ms_before.sources
+    ms_checks.repeat_no_model=ms_models.len()==ms_before.models
+    if ms_case=="recover" {start_timeout(0.03,|| ms_recover_seed()) return}
+    start_timeout(0.03,|| ms_replan_seed())
+}
+fn ms_recover_seed(){
+    let prior=goals[0].to_json().parse_json()
+    prior.mail_source.source_id=ms_user_source
+    ms_checks.legacy_goal_seed=core_upsert_goal(prior)
+    calendar_links=[] ms_checks.missing_link_seed=calendar_save()
+    ms_before=goals[0].to_json().parse_json()
+    start_timeout(0.03,|| ms_recover())
+}
+fn ms_recover(){ms_wait_count=0 mail_link_calendar() start_timeout(0.35,|| ms_recover_check())}
+fn ms_recover_check(){
+    if mail_calendar_link_pending && ms_wait_count<40 {ms_wait_count=ms_wait_count+1 start_timeout(0.05,|| ms_recover_check()) return}
+    let expected=ms_before.to_json().parse_json()
+    expected.mail_source.source_id="source:goalmail:"+ms_goal+":synthetic-account:synthetic-message-1"
+    ms_checks.recovered_only_source_field=goals.len()==1 && goals[0].to_json()==expected.to_json()
+    ms_checks.recovered_link=calendar_links.len()==1 && calendar_links[0].source_id==goals[0].mail_source.source_id
+    ms_checks.recovered_no_new_memory=memory.len()==2+ms_seed_count && memory_sources.len()==2+ms_seed_count
+    ms_checks.recovered_user_source_preserved=core_source_index(ms_user_source,"synthetic-account")>=0
+    fs.write("mail-source-baseline.json",{goal_id:ms_goal goals:goals.to_json() memory:memory.to_json() sources:memory_sources.to_json() links:calendar_links.to_json()}.to_json())
+    ms_finish()
+}
+fn ms_replan_seed(){
+    calendar_links[0].status="verified" calendar_links[0].event_id=ms_event.id
+    calendar_links[0].calendar_id=ms_event.calendar_id calendar_links[0].version=ms_event.version
+    calendar_links[0].original_event=ms_event.to_json().parse_json()
+    ms_checks.verified_link_seed=calendar_save()
+    mail_selected={id:"synthetic-message-2" sender:"合成发送人" address:"sender@example.invalid" subject:"合成改期"
+        body:"事项ID："+ms_goal+"；请改到2026年12月16日15点至16点。" date:"2026-10-05T04:00:00Z"
+        message_id:"<synthetic-2@example.invalid>" in_reply_to:"<synthetic-1@example.invalid>"}
+    start_timeout(0.03,|| ms_replan())
+}
+fn ms_replan(){schedule_replan_original(ms_goal,"synthetic-account",mail_selected) start_timeout(0.03,|| ms_replan_check())}
+fn ms_replan_check(){
+    let expected="source:goalmail:"+ms_goal+":synthetic-account:synthetic-message-2"
+    ms_checks.replan_same_goal=goals.len()==1 && goals[0].id==ms_goal && goals[0].version==2 && calendar_links.len()==1
+    ms_checks.replan_source_consistent=calendar_links[0].source_id==expected && goals[0].mail_source.source_id==expected
+        && goals[0].mail_source.message_id=="synthetic-message-2" && calendar_links[0].message_id=="synthetic-message-2"
+    let si=core_source_index(expected,"synthetic-account")
+    let mi=core_memory_index(calendar_links[0].source_claim_id,"synthetic-account")
+    ms_checks.replan_source_claim_scope=si>=0 && mi>=0 && ms_scope_valid(memory_sources[si]["scope"])
+        && ms_scope_valid(memory[mi].document["scope"]) && memory[mi].document.payload.source_ids[0]==expected
+    ms_checks.replan_original_event_preserved=calendar_links[0].event_id==ms_event.id && calendar_links[0].operation=="update"
+        && calendar_links[0].original_event.to_json()==ms_event.to_json()
+    ms_checks.replan_history=calendar_links[0].history.len()==1 && calendar_links[0].history[0].message_id=="synthetic-message-1"
+        && calendar_links[0].history[0].source_id=="source:goalmail:"+ms_goal+":synthetic-account:synthetic-message-1"
+    ms_checks.replan_old_sources_preserved=memory_sources.len()==3+ms_seed_count && memory.len()==3+ms_seed_count && core_source_index(ms_user_source,"synthetic-account")>=0
+    ms_checks.replan_model_bound=ms_models.len()==2
+    fs.write("mail-source-baseline.json",{goal_id:ms_goal goals:goals.to_json() memory:memory.to_json() sources:memory_sources.to_json() links:calendar_links.to_json()}.to_json())
+    ms_finish()
+}
+fn ms_restore(){
+    let base=fs.read("mail-source-baseline.json").parse_json()
+    ms_goal=base.goal_id
+    let prior_goals=base.goals.parse_json() let prior_links=base.links.parse_json()
+    ms_checks.restored_goal=goals.len()==prior_goals.len() && goals[0].id==prior_goals[0].id && goals[0].version==prior_goals[0].version
+    ms_checks.restored_sources=memory_sources.to_json()==base.sources
+    ms_checks.restored_memory=memory.to_json()==base.memory
+    ms_checks.restored_links=calendar_links.len()==prior_links.len() && calendar_links[0].goal_id==prior_links[0].goal_id && calendar_links[0].source_id==prior_links[0].source_id && calendar_links[0].status==prior_links[0].status
+    ms_checks.loaded_goals=goals.to_json().parse_json() ms_checks.loaded_links=calendar_links.to_json().parse_json()
+    ms_checks.restored_one_goal=goals.len()==1 && goals[0].id==ms_goal && calendar_links.len()==1
+    ms_checks.restored_link_goal_source=calendar_links[0].source_id==goals[0].mail_source.source_id
+    ms_checks.restore_no_model_replay=ms_models.len()==0
+    let scopes=true for source in memory_sources {if !ms_scope_valid(source["scope"]) {scopes=false}}
+    for entry in memory {if !ms_scope_valid(entry.document["scope"]) {scopes=false}}
+    ms_checks.restored_all_scopes=scopes
+    ms_finish()
+}
+fn ms_probe(){
+    let before_goal="" let before_calendar=""
+    if fs.exists("goals.json") {before_goal=fs.read("goals.json")}
+    if fs.exists("calendar-state.json") {before_calendar=fs.read("calendar-state.json")}
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot() calendar_boot()
+    if cc_phase=="restart" {ms_checks.restore_primary_bytes_unchanged=fs.read("goals.json")==before_goal && fs.read("calendar-state.json")==before_calendar}
+    gm_set_accounts(["synthetic-account"])
+    gm_set_focus("synthetic-chat-project","synthetic-chat-owner")
+    ms_checks.boot_ready=core_storage_ready && core_memory_ready && gm_ready && calendar_ready
+    if cc_phase=="restart" {ms_restore() return}
+    mail_account={id:"synthetic-account" address:"self@example.invalid"}
+    mail_scope_project="synthetic-project" mail_scope_owner="synthetic-owner"
+    mail_selected={id:"synthetic-message-1" sender:"合成发送人" address:"sender@example.invalid" subject:"合成日程邀请"
+        body:"2026年12月15日15点至16点在合成地点开会。" date:"2026-10-05T03:00:00Z" message_id:"<synthetic-1@example.invalid>"}
+    if ms_case!="flow" && ms_case!="recover" {ms_seed_count=5 start_timeout(0.03,|| ms_seed_next()) return}
+    start_timeout(0.03,|| ms_remember())
+}
+fn ms_seed_next(){
+    if ms_seed_index>=5 {start_timeout(0.03,|| ms_seed_forget_a()) return}
+    ms_checks["seed:"+ms_seed_index]=gm_save("合成独立资料"+ms_seed_index,"fact","synthetic-seed:"+ms_seed_index,"synthetic-independent","synthetic-seed","synthetic-project","synthetic-owner","synthetic-account")
+    ms_seed_index=ms_seed_index+1
+    start_timeout(0.03,|| ms_seed_next())
+}
+fn ms_seed_forget_a(){ms_checks.seed_forget_a=gm_forget(memory[0].document.id,"synthetic-account") start_timeout(0.03,|| ms_seed_forget_b())}
+fn ms_seed_forget_b(){ms_checks.seed_forget_b=memory_forget.len()==2 start_timeout(0.03,|| ms_remember())}
+fn ms_guard_change(){
+    ms_before={memory_bytes:fs.read("memory.json") claims:memory.len() sources:memory_sources.len() forget:memory_forget.len()}
+    ms_checks.guard_stage_source_count=memory_sources.len()==6
+    if ms_case.search("_late")>=0 {ms_checks.guard_stage_source_count=memory_sources.len()==7}
+    if ms_case.search("revoke")>=0 {gm_set_accounts([])}
+    if ms_case.search("session")>=0 {chat_selected_id="synthetic-other-session"}
+    if ms_case.search("revision")>=0 {
+        let changed=goals[0].to_json().parse_json() changed.version=changed.version+1
+        ms_checks.revision_change_saved=core_upsert_goal(changed)
+    }
+    start_timeout(0.35,|| ms_guard_check())
+}
+fn ms_guard_check(){
+    ms_checks.guard_no_continuing_write=fs.read("memory.json")==ms_before.memory_bytes && memory.len()==ms_before.claims
+        && memory_sources.len()==ms_before.sources && memory_forget.len()==ms_before.forget
+    ms_checks.guard_no_link_model=calendar_links.len()==0 && ms_models.len()==0
+    ms_checks.guard_error_explained=mail_error.search("变化")>=0 && !mail_calendar_link_pending
+    ms_checks.guard_goal_retained=goals.len()==1 && goals[0].status=="planned"
+    ms_checks.guard_no_actions=actions.len()==0 && runs.len()==0
+    fs.write("probe.json",ms_checks.to_json())
+}
+start_timeout(0.1,|| ms_probe())

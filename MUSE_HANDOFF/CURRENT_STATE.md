@@ -1,3 +1,7 @@
+## 2026-10-05 上午 rc18 最终实测收口
+
+真实普通任务正常全链、首次Shell重启11SHA/零重放、另一空聊天相关全局记忆M3召回全部PASS。新SDKda Host已编译/验签/切入相同profile并有Calendar完整访问；真实源信单次发送、自动来信卡、来源关联及目标冲突查询通过。日历policy扩查询范围仍FAIL；同最终外部写入/改期/回复全链、第二strong、OS/接收机仍缺，原20保守5PASS/14PARTIAL/1BLOCKED。详见RC_MORNING_FINAL_REPORT.md。本轮只本地提交，无push/成功Tag/Hub正式提交。生产、稳定、失败证据和dirty baseline保护。
+
 ## 2026-10-05 上午 rc18 普通任务预算修复
 
 rc17来源关联+真实M3候选+Work冲突查询已通过；普通任务初始UI绑定/批准日志触发预算失败，原证据保留，安全回读后结果及记忆成功。首次新Host Shell重启11文件SHA和模型ledger完全不变，零动作重放/零预算错误。rc18把普通计划的Chat关联、页面更新和审计日志拆成短回调，保持批准与结果核验。本地signed Gate PASS；最终真实日历写入、当前源邮件本人收件核对待答，原20未全通过，不push。

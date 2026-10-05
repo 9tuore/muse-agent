@@ -1,0 +1,1674 @@
+{
+  "status": "DEVELOPMENT_PARTIAL_INTEL_DRAFT_ZIP_VERIFIED_NOT_READY",
+  "stage": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/morning-runtime-rc18-r1/Muse-0.3.26-rc18-Intel开发验收草稿",
+  "archive": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/morning-runtime-rc18-r1/Muse-0.3.26-rc18-Intel开发验收草稿.zip",
+  "archive_bytes": 133945576,
+  "archive_sha256": "b2687bff2af88cc4ff8e660ad506f1caa04982301406dfdf7813806fe78003dc",
+  "exact_zip_entries": 268,
+  "zip_bytes_sha_modes_links_match": true,
+  "canonical_rc18_A": "b8545265e50b846493c436999b9b0066d10ed7af",
+  "Host_runtime_F": "019dc303da964424e042402893008a387a675467",
+  "SDK_lock": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
+  "Host_SHA": "7eebe8331982d327646da25d1154d878a153fa56b7030143b34f07c149dcbbec",
+  "Card_SHA": "30ed0c9355f047e298415c983bf5846ca798633f5875c6492ef724632fdacb15",
+  "Hub_SHA": "24db5e559582c44936e3023b2bd6e276f9390531d94f77682d45760db9a6b64d",
+  "catalog_SHA": "379e58f96a0a70d5a376845c8c8e553057c2856927daac4ac58cba7bee0bf02e",
+  "pack_SHA": "0464f9b2eb313f989ff7738558329dd75ec487a0b2627f20296dd513749cd75c",
+  "copied_public_inputs_verified": true,
+  "html_static_links_pass": true,
+  "HTML_visual_QA": "NOT_EXECUTED",
+  "checks": [
+    {
+      "name": "launcher_non_GUI_check",
+      "command": [
+        "/bin/bash",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/morning-runtime-rc18-r1/Muse-0.3.26-rc18-Intel开发验收草稿/01-启动Muse.command",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "catalog sequence 51 verified, 45 entries\nmuse-goals 0.3.26-rc18 — PASSED\n  grants: capabilities {\"calendar\", \"glance\", \"mail\", \"model\", \"storage\"}, hosts {}, storage 16777216 bytes, agent none\n包内文件、宿主签名、公开目录和 rc18 载荷检查通过；GUI、模型与业务动作需接收机另测。\n",
+      "stderr": ""
+    },
+    {
+      "name": "relocation_non_GUI_check",
+      "command": [
+        "/bin/bash",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/morning-runtime-rc18-r1/Moved 中文 空格 rc18/01-启动Muse.command",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "catalog sequence 51 verified, 45 entries\nmuse-goals 0.3.26-rc18 — PASSED\n  grants: capabilities {\"calendar\", \"glance\", \"mail\", \"model\", \"storage\"}, hosts {}, storage 16777216 bytes, agent none\n包内文件、宿主签名、公开目录和 rc18 载荷检查通过；GUI、模型与业务动作需接收机另测。\n",
+      "stderr": ""
+    },
+    {
+      "name": "ditto_archive",
+      "command": [
+        "/usr/bin/ditto",
+        "--norsrc",
+        "--noextattr",
+        "--noacl",
+        "-c",
+        "-k",
+        "--keepParent",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/morning-runtime-rc18-r1/Muse-0.3.26-rc18-Intel开发验收草稿",
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/packaging/morning-runtime-rc18-r1/Muse-0.3.26-rc18-Intel开发验收草稿.zip"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "all_output_only_owned_directory": true,
+  "GUI_model_profile_external_actions_run": false,
+  "no_new_signing_or_private_key_read": true,
+  "no_sender_profiles_accounts_model_config_DB_weights": true,
+  "receiving_Intel_Macs_ARM_final_business_chain": "NOT_CERTIFIED_BY_A4",
+  "frozen_profile_runtime_start_mode": "recipient empty HOME/core; --check exits before creating data",
+  "free_bytes_after": 5631840256,
+  "inventory": {
+    "03-双机复现记录.txt": {
+      "kind": "file",
+      "bytes": 767,
+      "sha256": "ee150a1782d5f50d44dcaa49336897f3d9acee0547ef5c73050c7972c88e1650",
+      "mode": 420
+    },
+    "05-版本与校验.json": {
+      "kind": "file",
+      "bytes": 2888,
+      "sha256": "6f06a84aea2b6894207303387a7959d6cc1187c8e44fbe80ac44d92c917a49b5",
+      "mode": 420
+    },
+    "00-先看这里.html": {
+      "kind": "file",
+      "bytes": 5786,
+      "sha256": "e0674c904628fcd3ae7e4f4e7343adcaf808180aff299448fbaa64f6d06a54e5",
+      "mode": 420
+    },
+    "02-系统检查.command": {
+      "kind": "file",
+      "bytes": 1413,
+      "sha256": "cd46a2d80a045e6579de0a438f7e905a082ba32cd9d9ab2ce332a96a7b73988f",
+      "mode": 493
+    },
+    "01-启动Muse.command": {
+      "kind": "file",
+      "bytes": 1553,
+      "sha256": "1820eebe1102202c822c5475a880ff9d60380e817b27364d3beae5e6d084840c",
+      "mode": 493
+    },
+    "SHA256SUMS": {
+      "kind": "file",
+      "bytes": 42436,
+      "sha256": "c47932022fdf770822a1b62833b023b371d49bd86b5a2d8bc9957068353a753e",
+      "mode": 420
+    },
+    "文件校验清单.json": {
+      "kind": "file",
+      "bytes": 68478,
+      "sha256": "11733b9b11a1d66b556c4c94bf7ea090bfecf2b8c41ac4839a5e56a87da945d3",
+      "mode": 420
+    },
+    "06-准入证据/review-packet.json": {
+      "kind": "file",
+      "bytes": 457723,
+      "sha256": "db3fa803898d036def544420e724e837544c3ee46c3073f4309a34766991546f",
+      "mode": 420
+    },
+    "06-准入证据/GATES.json": {
+      "kind": "file",
+      "bytes": 1461,
+      "sha256": "552f06157fc594673564d9fa99daf19061812973873c1877f0a429b664e0f306",
+      "mode": 420
+    },
+    "04-运行文件/hub": {
+      "kind": "file",
+      "bytes": 5442296,
+      "sha256": "24db5e559582c44936e3023b2bd6e276f9390531d94f77682d45760db9a6b64d",
+      "mode": 493
+    },
+    "04-运行文件/Muse Host.app/Contents/Info.plist": {
+      "kind": "file",
+      "bytes": 1345,
+      "sha256": "021ab6fc08d6724653a10e7674ab3ef07b1de50f8e7f9dd8353d2b8233ad1d45",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/_CodeSignature/CodeResources": {
+      "kind": "file",
+      "bytes": 51253,
+      "sha256": "5f367caad18f980de07a1926bc1e8b9b36e10930882a7f283b50162b400bdfcd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/MacOS/octosense": {
+      "kind": "file",
+      "bytes": 50376240,
+      "sha256": "7eebe8331982d327646da25d1154d878a153fa56b7030143b34f07c149dcbbec",
+      "mode": 493
+    },
+    "04-运行文件/Muse Host.app/Contents/MacOS/octosense_shell": {
+      "kind": "symlink",
+      "target": "../Resources/octosense_shell",
+      "mode": 493
+    },
+    "04-运行文件/Muse Host.app/Contents/MacOS/makepad_widgets": {
+      "kind": "symlink",
+      "target": "../Resources/makepad_widgets",
+      "mode": 493
+    },
+    "04-运行文件/Muse Host.app/Contents/MacOS/octosense_app_hub_app": {
+      "kind": "symlink",
+      "target": "../Resources/octosense_app_hub_app",
+      "mode": 493
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/startup.splash": {
+      "kind": "file",
+      "bytes": 813,
+      "sha256": "015a100d4c1b61f94538214726b046bddcdb6adf07ddd7908cd1e1cfc25ac0c7",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/wallpapers/octosense-abyssal-currents-light.png": {
+      "kind": "file",
+      "bytes": 2363947,
+      "sha256": "2e6493c6c5738e194b129f1569620af6d7ad0a7e3f40aa5966e7bae00d67451b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/wallpapers/LICENSE.omarchy": {
+      "kind": "file",
+      "bytes": 1063,
+      "sha256": "717ba1949502290f8e47688ae2e323acd06c8ca47aec9f7596b15f678c1af4a2",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/wallpapers/README.md": {
+      "kind": "file",
+      "bytes": 3056,
+      "sha256": "310202055343cb288f75fc58afd489b35963c331cd638079fb92dc85e98728b1",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/wallpapers/abyssal-currents-prompt.txt": {
+      "kind": "file",
+      "bytes": 1758,
+      "sha256": "ce199a040ae269729b8186ac5365427e3ad18e4970911cf27aa0803807a5d936",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/wallpapers/abyssal-currents-light-prompt.txt": {
+      "kind": "file",
+      "bytes": 1282,
+      "sha256": "19f82b1dbc93c44d320f86c31e7d21c9c9cba688e20e79d7a6c7b84ecec8228b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/wallpapers/tokyo-night.webp": {
+      "kind": "file",
+      "bytes": 653482,
+      "sha256": "b149c3e1c8ce383812e7bc3170c2cf8b160ca583d72d59173cd42efdb79ced2b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/wallpapers/octosense-abyssal-currents.png": {
+      "kind": "file",
+      "bytes": 2244284,
+      "sha256": "ac8b9eddf58abb44c001b581530adb16eeb00166a5e71560cc12d9191f6af8f3",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/search.svg": {
+      "kind": "file",
+      "bytes": 333,
+      "sha256": "929845c3262f30ad612c604dbda9c6b5861cd4858078ba10d5d4f50810a72a4b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/volume-2.svg": {
+      "kind": "file",
+      "bytes": 269,
+      "sha256": "84d02340bbe19e1d8f9851ec92f397e6e22a510707b86cf060c3bdcc49b88568",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/bluetooth-off.svg": {
+      "kind": "file",
+      "bytes": 345,
+      "sha256": "df8902109494fef14a8537402505fc05de98d7d769022b842b9b28b5cea4e08d",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/volume-3.svg": {
+      "kind": "file",
+      "bytes": 352,
+      "sha256": "5fb3283a924b74bd928da076f3e18ea9e010303ff26bbe75e96ac6ef47598a26",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/volume-1.svg": {
+      "kind": "file",
+      "bytes": 186,
+      "sha256": "aa0b3ef99d2205910c7b80079fda5081c5a4d38344ec37c5698b85f025759cd9",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/volume-0.svg": {
+      "kind": "file",
+      "bytes": 228,
+      "sha256": "ede191f3ff65a8ad3ac817ef24dddbba71037a129cec1e530d06903368044d51",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/window-max.svg": {
+      "kind": "file",
+      "bytes": 183,
+      "sha256": "d1db1b8e307a7c4de838b4b19bef962eeb684ff9fb53daf2d65b9b22781f5256",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/chevron-down.svg": {
+      "kind": "file",
+      "bytes": 202,
+      "sha256": "bfd7e271abaa85afd7b3277d30d35f8a2273689ad9b50fe454fb4a2df514ddc0",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/shirt.svg": {
+      "kind": "file",
+      "bytes": 285,
+      "sha256": "a766b0d11fc231b8f189e213c277f97945cfeea8f6d24c2eddf9d3456a2f5019",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/power.svg": {
+      "kind": "file",
+      "bytes": 336,
+      "sha256": "17efa50079ea4bbeebdb28b01b7e04f808e05a6ca39c0e2e04cae7f94adb0b59",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/octopus.svg": {
+      "kind": "file",
+      "bytes": 393,
+      "sha256": "1c810dcf865a5987ac1472a1fe36f6dbe35146af0ed9eacd9ac90562debc0b93",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/chevron-up.svg": {
+      "kind": "file",
+      "bytes": 202,
+      "sha256": "de92b2526165f59e6c014f12f2a94fb7cf910ce77b0ba7266f05254e5b72fc3f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/keyboard.svg": {
+      "kind": "file",
+      "bytes": 440,
+      "sha256": "b9f17ef1fa98a32d643cb9855f6ce0997d3ba12d535ed7b540c4fff84649d98e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/dot.svg": {
+      "kind": "file",
+      "bytes": 98,
+      "sha256": "a1648c3741020d07db19446825a0a185070e6618760015518236556ad2afba91",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/lock.svg": {
+      "kind": "file",
+      "bytes": 396,
+      "sha256": "8b869302085d46ee8629727dedfb787df4fed83aeb3870ce93ecadef8ff782fe",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/chevron-right.svg": {
+      "kind": "file",
+      "bytes": 202,
+      "sha256": "4b66af40734af0e0552541051cc5d590038ebfd9fd885eb7e6dfc36332c8db65",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/key-backspace.svg": {
+      "kind": "file",
+      "bytes": 231,
+      "sha256": "1355b9a436d8d777c4ca57c0f80b7a7ca48c5fadabe39fcdc407237c1f1e4885",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/bell.svg": {
+      "kind": "file",
+      "bytes": 384,
+      "sha256": "07e0364bdffad3d6eba0e496dfa5ea983a88cc2c7e586c72ac689b88c61d1604",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/battery.svg": {
+      "kind": "file",
+      "bytes": 385,
+      "sha256": "d71c1b4d187cca4975dd7736a19d343e01247d92ebcb36649413cc7f373e2c62",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/cpu.svg": {
+      "kind": "file",
+      "bytes": 425,
+      "sha256": "fec47cd2a17120ce0a35c8bc9b8fb21e2711b6ce420429d226264c88fff2b9a7",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/record.svg": {
+      "kind": "file",
+      "bytes": 226,
+      "sha256": "3dd939df22f596d9d90e80bae499930c7aba59a777e597f8b8493373642dec1b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/check.svg": {
+      "kind": "file",
+      "bytes": 208,
+      "sha256": "8a3c8290eb0e867b3c18b0736c28f6223c0e93b7a7832fc859f6f729449ff842",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/bluetooth.svg": {
+      "kind": "file",
+      "bytes": 219,
+      "sha256": "c8bc1e0303a3f5fa050a415d35b0c1823a5d12dd9f60296e8571d01224253f15",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/wifi.svg": {
+      "kind": "file",
+      "bytes": 119,
+      "sha256": "e554db6548a7baf13398441f5b08c70e4d7298b4ca6d54f4f8011877a48f5338",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/close.svg": {
+      "kind": "file",
+      "bytes": 331,
+      "sha256": "005411d29797c3e4fdf8c01c7937a438e0bba88e1b275b59db710923cae0d392",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/mic.svg": {
+      "kind": "file",
+      "bytes": 548,
+      "sha256": "ad5a2039b2ea32d568cfb7d597f78eaa869627b220d76268808f753296b59eb3",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/refresh.svg": {
+      "kind": "file",
+      "bytes": 337,
+      "sha256": "d3c3108a81e5ae336cd45e157933eeae6ba4d3e7d05b20529832f3389d964f1f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/play.svg": {
+      "kind": "file",
+      "bytes": 232,
+      "sha256": "a7b6a813e4ebc30482e1e751510d92ca888201479a0a46b198aed8ce463678e1",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/window-min.svg": {
+      "kind": "file",
+      "bytes": 167,
+      "sha256": "3e6b062ad5f987ee1cff4989f6feaf34e4593095c87da3fb87cf5cb44d08d48e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/speaker.svg": {
+      "kind": "file",
+      "bytes": 253,
+      "sha256": "32b68e96a6b5b10e486d80089d89b0b33f268cb13f148310558bc1ce16a122cf",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/wifi-off.svg": {
+      "kind": "file",
+      "bytes": 241,
+      "sha256": "d2497ad9fb30f87acdb492f085052103fe7f709568aa2038a4a314943bc2321e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/navigation-home.svg": {
+      "kind": "file",
+      "bytes": 235,
+      "sha256": "c383900339e21f158b5060e7ca7dba64183cb1657c1a36c6bedfb34f9eb6185b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/headphone.svg": {
+      "kind": "file",
+      "bytes": 334,
+      "sha256": "93ae38ddea8d974a93ef729126ae4b690d70437b8b5ee8db06d47b2020e1d7d9",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/mic-off.svg": {
+      "kind": "file",
+      "bytes": 527,
+      "sha256": "b4016ecfc128e81ef5bcb9d22c5844f88c55d9d581cdb573a1cceb0aaf8fbc4f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/bell-off.svg": {
+      "kind": "file",
+      "bytes": 345,
+      "sha256": "d52d874a854c855c4a980c232523b0fdb3bca4190ca353e5c7915093bc573539",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/calendar.svg": {
+      "kind": "file",
+      "bytes": 675,
+      "sha256": "6f4b924bb1b99621641999b2a7d4913629503c975bcadf5e01e6915ea3d7ad60",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/globe.svg": {
+      "kind": "file",
+      "bytes": 346,
+      "sha256": "1d73b35c564460d9f7b83149a9a9bd35ed70111fb2fa2289148acc49c0faa675",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/menu.svg": {
+      "kind": "file",
+      "bytes": 182,
+      "sha256": "736b73e14080cec019e85a063f832c603c997fb75a61f2fb7ff142e4accea704",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/brightness.svg": {
+      "kind": "file",
+      "bytes": 1182,
+      "sha256": "3fb11f06bbdc86bc9602967689fcd07b18c84ba9522e4a373c4062b00f4afbe3",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/window-restore.svg": {
+      "kind": "file",
+      "bytes": 303,
+      "sha256": "de04732fb6f655e260e221a4f7144e2b817015c31d7cda29100b4d94f2ce4fb3",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/key-shift.svg": {
+      "kind": "file",
+      "bytes": 194,
+      "sha256": "93e0d8f92d18fba2d4afb8671bf0dee62597a009fd367718b8be8a33d15a08c7",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/pulse.svg": {
+      "kind": "file",
+      "bytes": 235,
+      "sha256": "2e95cb9698d8d1b65d911f6a7f794da18814e26c65d781962d7674bf9550eb17",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/monitor.svg": {
+      "kind": "file",
+      "bytes": 450,
+      "sha256": "b245a22b70de7314a01b8d0e635971dacae9ee51d8b18adc588b33d4dbe310de",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/photo.svg": {
+      "kind": "file",
+      "bytes": 255,
+      "sha256": "69eb32374f81df3e53e59a89fb99521d22383f7e2f25fc56dc3755c811c1aa35",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/chevron-left.svg": {
+      "kind": "file",
+      "bytes": 203,
+      "sha256": "c177e27990fb888df06c7e341f9c8f1f3aae66636cfddbd51bb06f473187d5f8",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/moon.svg": {
+      "kind": "file",
+      "bytes": 137,
+      "sha256": "c6062445a7be40885503071434464eef8dfac63128442b7db5015460cd6c3459",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/apphub.svg": {
+      "kind": "file",
+      "bytes": 2307,
+      "sha256": "85b1821020486c8598811a2bee7e9a282bc4c9938756c434d608fdcdc58dbe4b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/macos/news.svg": {
+      "kind": "file",
+      "bytes": 1557,
+      "sha256": "6dcce46d380636999e7d9d8721ec98383701162a2380149bc5dd2b42dd72e044",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/macos/maps.svg": {
+      "kind": "file",
+      "bytes": 1340,
+      "sha256": "bd4c7edf4ae833bde30e547b1c5391d8ad2006e2f8ef1aa459d9231a3e64002f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/ios/news.svg": {
+      "kind": "file",
+      "bytes": 1279,
+      "sha256": "7af7b985ecba4622f49a3ce428cbf27b72bb05c62591d00b5b0fd2ad49172fb9",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/ios/maps.svg": {
+      "kind": "file",
+      "bytes": 1062,
+      "sha256": "f9ad4ea9c656b1cfdfed36f2a86b73532db9e3ecb49fe5c18f945dabf0eacc2f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/android/news.svg": {
+      "kind": "file",
+      "bytes": 1260,
+      "sha256": "9249e98a49d22d06e3c3f31a8bde0a09998a59d0cc21d9c194e90d633e603719",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/android/maps.svg": {
+      "kind": "file",
+      "bytes": 1043,
+      "sha256": "b92e88fd18026f0cbc04a46dded9d61b4609705740ade2fb7feb5cb90268f775",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/windows/news.svg": {
+      "kind": "file",
+      "bytes": 1277,
+      "sha256": "468eea6ca3538e4666d9fe798117942166eb828995b0e8dd7b83404961e3a478",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/windows/maps.svg": {
+      "kind": "file",
+      "bytes": 1060,
+      "sha256": "b746fa10176683b07bd69682b9c8f6fc1f6582336e5948838231e4a623e1de60",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/nextstep/news.svg": {
+      "kind": "file",
+      "bytes": 1435,
+      "sha256": "1c3340212fc42bba5d8b17b4db61c898cda99809766e2acaf0a419610fe20038",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/nextstep/maps.svg": {
+      "kind": "file",
+      "bytes": 1218,
+      "sha256": "c4a2297dee508293db6d1f703713cd180e8e12a6c15a785188c5d732b7d9ced4",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/omarchy/news.svg": {
+      "kind": "file",
+      "bytes": 378,
+      "sha256": "f8af37ca54b51cf145b0e0c4f74a618cc68f3434e98ab5a2ceb448b32e75cdcd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/icons/apps/omarchy/maps.svg": {
+      "kind": "file",
+      "bytes": 405,
+      "sha256": "305e66684632f339edf48895b02f0e28be96778c9a903761a02d5ea8e1ae7d89",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/glance/news-digest.card": {
+      "kind": "file",
+      "bytes": 1157,
+      "sha256": "2ddab9e655e65c2251b71b032e6c126956e5f2ae41b0e2f2481c663f3723715d",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/themes/mobile-presets.json": {
+      "kind": "file",
+      "bytes": 3630,
+      "sha256": "8f57abbba088f82113ab242151c3756910b3649050176c84e04bd0f65167aecb",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/themes/octosense/widgets.splash": {
+      "kind": "file",
+      "bytes": 330,
+      "sha256": "ebaad2a4eb58d155282cb8d5ef1ec77f3745b9cc2e2ef656c3090c7206921573",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/themes/octosense/theme.splash": {
+      "kind": "file",
+      "bytes": 6126,
+      "sha256": "b7517d4e77a8812bfc986f45ed076699022adcc50c82e1456b5555c33491d54f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/themes/octosense/widgets-light.splash": {
+      "kind": "file",
+      "bytes": 330,
+      "sha256": "b375f9f54a697165600586a849e7753ee848cb4d37baf41897f7c9e249586595",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/themes/octosense/README.md": {
+      "kind": "file",
+      "bytes": 1401,
+      "sha256": "97816d53185b5cd31121d10630b3bda80bf20c30712501f07b8911fcd2c4b32c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_shell/resources/themes/octosense/theme-light.splash": {
+      "kind": "file",
+      "bytes": 6199,
+      "sha256": "b60da53d69802dc0b3ab0ba9c30d7c306591b8bf9df850096b8b562ed80dd38e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-Text.ttf": {
+      "kind": "file",
+      "bytes": 181792,
+      "sha256": "8c358c56c56f76a28cecb8ca10734c1c9cafa01a752dc8364b9ef7de412437dc",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/fa-solid-900.ttf": {
+      "kind": "file",
+      "bytes": 426112,
+      "sha256": "d2f0593540b0e33ba6de255a54f272d466e31144806956bea8cfdbf7edffc9bd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Medium.ttf": {
+      "kind": "file",
+      "bytes": 306536,
+      "sha256": "7984aafeaf437899ce89b251d2875fc5048cb7d290152eac070239cca7ff726c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/NotoSans-Regular.ttf": {
+      "kind": "file",
+      "bytes": 201644,
+      "sha256": "371924e7480d3d01807fdc1bd30442d0a6651e6b5ea546482f5883d613cf0419",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Light.ttf": {
+      "kind": "file",
+      "bytes": 307192,
+      "sha256": "e5c6b2b3cad15fd7dd820970eb859635d75bb2155b1a70f78a0668f8ba6d6eef",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Inter-OFL.txt": {
+      "kind": "file",
+      "bytes": 4376,
+      "sha256": "5dd548d31a85f756e01d63e00d7faf1e324103ed3e9102fcbbabf2cc2db6dd39",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/LXGWWenKaiBold.ttf": {
+      "kind": "file",
+      "bytes": 18546748,
+      "sha256": "7a356605eb36c92e29cc64090e2856e4675694572a2ae4da84adbadffecae907",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Montserrat-Medium.ttf": {
+      "kind": "file",
+      "bytes": 374312,
+      "sha256": "ad8d7b340fafe02a9c9bd31ccf1357b3f846dc70574665dde4cec9affad4f212",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/NewCMMath-Regular.otf": {
+      "kind": "file",
+      "bytes": 1151568,
+      "sha256": "ad746f5307fed53d8e5d7d201f5054abe73f1f47c51040767d898e3481c6e648",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Regular.ttf": {
+      "kind": "file",
+      "bytes": 305608,
+      "sha256": "797e35f7f5d6020a5c6ea13b42ecd668bcfb3bbc4baa0e74773527e5b6cb3174",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/LXGWWenKaiRegular.ttf": {
+      "kind": "file",
+      "bytes": 19073964,
+      "sha256": "0819604ad9357afbc6e7cc097328a16ed85143ee0848ffda09fda35a30da6506",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/LiberationMono-Regular.ttf": {
+      "kind": "file",
+      "bytes": 108168,
+      "sha256": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+      "mode": 493
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Serif-Regular.ttf": {
+      "kind": "file",
+      "bytes": 53580,
+      "sha256": "d0332f52868370fd83ae7fa46470f90c8f2eab2fcf12bc4f88080b340c95a830",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Serif-LICENSE.txt": {
+      "kind": "file",
+      "bytes": 310,
+      "sha256": "71be8736b55add147c16e1ba0b0beefec6b38cc33b0227e1ecca65227496b90f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/NotoColorEmoji.ttf": {
+      "kind": "file",
+      "bytes": 10643852,
+      "sha256": "39ee3c587e10e89669b9ff32703261d10d5f9c4dd5ad147b6b5a1c5200591817",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 182176,
+      "sha256": "391bd290357cb19bacccd66dc82f3213e0c66c34025a4dd3e15c49d3db7c585e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Montserrat-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 374624,
+      "sha256": "767eb6e017ec460b094b70bfa26aef77b86aacc9924e10ed56a61ceebc151e25",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Inter.ttf": {
+      "kind": "file",
+      "bytes": 876576,
+      "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/jetbrains_mono_variable.ttf": {
+      "kind": "file",
+      "bytes": 303144,
+      "sha256": "662a196d58f1183bf2d77428b6d5283fe3f45161ab021bea4036bc98e5cac016",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/RobotoFlex-OFL.txt": {
+      "kind": "file",
+      "bytes": 4394,
+      "sha256": "d6f40215beec57d46b0c7faa13b711f05dca9397727ac0627ced941232aad521",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Montserrat-Regular.ttf": {
+      "kind": "file",
+      "bytes": 374500,
+      "sha256": "6f2b476cdf98cbbb0eefef60b69d1944c7ed59fa8a2fe461ba6d73e176294c93",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-BoldItalic.ttf": {
+      "kind": "file",
+      "bytes": 184656,
+      "sha256": "451f1e35cf09ef4411c9f38e7eb7d4967aef427c52e048dff26cc36393937882",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Bold.ttf": {
+      "kind": "file",
+      "bytes": 306940,
+      "sha256": "36f3709dea3e3ce3c6aedc058079e55980825f898f1e901d091c73c40de8bab1",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Thin.ttf": {
+      "kind": "file",
+      "bytes": 307664,
+      "sha256": "52cab88c2fe93c21152b483763745976861be2e3cc093554155f8a3b24de5b97",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Serif-Bold.ttf": {
+      "kind": "file",
+      "bytes": 51336,
+      "sha256": "138ac28d1663b3037e9c5f52371fa5c63d8324f4a38d22cd573e6ea3a3fd0cf8",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-Italic.ttf": {
+      "kind": "file",
+      "bytes": 184020,
+      "sha256": "21effb0b8dabbbd6548db1c581c68c6335f6ffaabd6946a6a73ade24dec050eb",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/RobotoFlex.ttf": {
+      "kind": "file",
+      "bytes": 1787292,
+      "sha256": "9b523f7d82593df0107173849ebb8c817471a1df4b4fb2c3cbf40cfd810c8281",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/Serif-Italic.ttf": {
+      "kind": "file",
+      "bytes": 33580,
+      "sha256": "0d85ae7cc30f23790a7f1a58c4a112fdca8aae769b6ba11429af1d98b1b6cb3a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/textures/noise-fine.png": {
+      "kind": "file",
+      "bytes": 183687,
+      "sha256": "339dee70fa5e44bf37684193aa629d6581c77c35d88558fbbceb26dafacd1f42",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/textures/paper-laid.png": {
+      "kind": "file",
+      "bytes": 177479,
+      "sha256": "a4abf2d1ae69c83c3e6e0cb7e3516a51e95e564c9ca73e0ed520ca80fe48a275",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/textures/concrete.png": {
+      "kind": "file",
+      "bytes": 162761,
+      "sha256": "279206c414acb867c9dad3a31115eff96b22f258830957805d8b9b1d724ceddd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/textures/halftone.png": {
+      "kind": "file",
+      "bytes": 128690,
+      "sha256": "8fb7b5dbc3c9406c1e6d434e91533c07d0d82898a9d45b5d2f5be85c6784a4ea",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/textures/linen.png": {
+      "kind": "file",
+      "bytes": 184109,
+      "sha256": "355dd1ae8d24be5a8aa7363bbd75e27cd90bd3326b6aabff2766c2041ad7c498",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/textures/deco-fan.png": {
+      "kind": "file",
+      "bytes": 143623,
+      "sha256": "8c5481b1934f2072e21975ebf8bc928b36d327b7f0362b2ca007de86a11ddbed",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Medium.ttf": {
+      "kind": "file",
+      "bytes": 260236,
+      "sha256": "92b3d3c6e135eb1dc95f88e6ca75bd6113d9eb3261a95ca39f733e3897e53675",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Light.ttf": {
+      "kind": "file",
+      "bytes": 259416,
+      "sha256": "9b87925d061b1affb66417717731ad781f7d7678fb089b49f14bd922c2338559",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Bold.ttf": {
+      "kind": "file",
+      "bytes": 261588,
+      "sha256": "c4c8cb572a5a2c43d78b3701f4b2349684e6ca4d1557e469af6065b1e099c26c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 260936,
+      "sha256": "bab583d38d105dac9141b287fb2b7763b6d8b0bae97e745faaccedb40a579c29",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/OFL.txt": {
+      "kind": "file",
+      "bytes": 4400,
+      "sha256": "8b7141c03fa4f8d44e6345d5d4931709290f0f67875e452e95ac1fd3a027802e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat.ttf": {
+      "kind": "file",
+      "bytes": 744936,
+      "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Regular.ttf": {
+      "kind": "file",
+      "bytes": 263192,
+      "sha256": "81ebc3916b524007b756d91d9df13c7673ec401161f2cad161662d08dcf1cc72",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/inter-OFL.txt": {
+      "kind": "file",
+      "bytes": 4377,
+      "sha256": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-Medium.ttf": {
+      "kind": "file",
+      "bytes": 158576,
+      "sha256": "90373e7d838d32468438fc3e152dca0bdb12edcab99ea639f158790b1ba1fd05",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/PlusJakartaSans.ttf": {
+      "kind": "file",
+      "bytes": 176288,
+      "sha256": "89b3fb38aa0d275d7a731d0d817a4f1622b316b4d7fbdedcf02ee9099ff68bc8",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/plusjakartasans-OFL.txt": {
+      "kind": "file",
+      "bytes": 4402,
+      "sha256": "995c7199cab65954f545996326755daee7b63cc6b42b06c13da1f9502ab08a99",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Inter.ttf": {
+      "kind": "file",
+      "bytes": 876576,
+      "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-Regular.ttf": {
+      "kind": "file",
+      "bytes": 160316,
+      "sha256": "7e65201e9b79159e2300267cc885e16c8dcef2424cdfa09a29bfb0980a94a7ba",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/poppins-OFL.txt": {
+      "kind": "file",
+      "bytes": 4385,
+      "sha256": "6be04893d770899a015649c7aa3b582f871b272f8747a92b78b17c3e5c8b2573",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 157312,
+      "sha256": "d3bf1bdaf0550e83da9ac0b1d1d9fe6db086835a83aa28578e609a394b9a0286",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Regular.ttf": {
+      "kind": "file",
+      "bytes": 71912,
+      "sha256": "11886d1bb0fcea64c7e1278b019236137ef98578f6fe9f692038e1faa1e3bcac",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Medium.ttf": {
+      "kind": "file",
+      "bytes": 71676,
+      "sha256": "2f436049344215f77f1ee8d7eb1118b48a38b0d293c2f51b0d305c86ce046836",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Bold.ttf": {
+      "kind": "file",
+      "bytes": 71764,
+      "sha256": "35879eb94bef73bd2fab40f0c3391c26d53844b67e7fd4a7c7ba9ef86fb96968",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-BoldItalic.ttf": {
+      "kind": "file",
+      "bytes": 73300,
+      "sha256": "7de9f706cb0471e8f71ec5c03a96583c7bdd2508a4ef54b2b535dee074a7638c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-MediumItalic.ttf": {
+      "kind": "file",
+      "bytes": 73192,
+      "sha256": "2dc42164be51d5a2c098f22b10d284f5f4fb6c0166b0e146f38bb7d046efd617",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Italic.ttf": {
+      "kind": "file",
+      "bytes": 73484,
+      "sha256": "362df4a4a18c0fcc1559056424e7b4b5c4ed75c516c60db679116e8c1d30cdeb",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/sploded.svg": {
+      "kind": "file",
+      "bytes": 249,
+      "sha256": "4a16d4017caf3d1f6b290f8c389768419fe3feafa64551abd9542dfce13726c6",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_typography.svg": {
+      "kind": "file",
+      "bytes": 1717,
+      "sha256": "6c3e56a42538d6d0e21e1298a27275a7f1441310877efaac2bdfbab46408c09d",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text_align_left.svg": {
+      "kind": "file",
+      "bytes": 1242,
+      "sha256": "d624019d42eff133560f6951c75b9f1c1402c9489699c08494232a9126ecba3a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text.svg": {
+      "kind": "file",
+      "bytes": 1704,
+      "sha256": "40afe2d6a05fca94f131b07937ee68b28c3d1c7a7e8e21b3302c1c925d5a6c82",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text_align_right.svg": {
+      "kind": "file",
+      "bytes": 1241,
+      "sha256": "155c55c216aa1c284c4974772a972793efd112a2f1cadf112c35bcb1205c9659",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_image.svg": {
+      "kind": "file",
+      "bytes": 1381,
+      "sha256": "c72a2174638ad01484a417cbca3c553750c4248e5ea70879ad6dcc4f1c73104d",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text_align_justify.svg": {
+      "kind": "file",
+      "bytes": 1245,
+      "sha256": "b9b36f101a672da9be6361fa1dd4aa84eb0cf5aeb790cbe166645116e6a5014c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_vector.svg": {
+      "kind": "file",
+      "bytes": 1760,
+      "sha256": "a04bd179f828767e3491305c89da2afc1e8e3cda7201e348ce9078387c82b5f9",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/back.svg": {
+      "kind": "file",
+      "bytes": 306,
+      "sha256": "a5afa4a6316b4fe7cf704a825850f9b44b7ca2be94927082b6ade11959cf6135",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_layout.svg": {
+      "kind": "file",
+      "bytes": 1579,
+      "sha256": "0b5ac88625a3f3d69e53911b52a2abf9468203fd1c986ca536861afcf9735950",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_folder.svg": {
+      "kind": "file",
+      "bytes": 865,
+      "sha256": "6f04b6990decd30cada6fdb5bdf8cefc4b64cbaa5c88eafe9b5f6eb810c25355",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/close_left_panel.svg": {
+      "kind": "file",
+      "bytes": 1848,
+      "sha256": "b5424c732e61392f5b388c2b0f95248632d182433a13b8aa9c02e4473ae33ed7",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_draw.svg": {
+      "kind": "file",
+      "bytes": 791,
+      "sha256": "72f7ab46845b0abfb5a01208edd330578814f16f11fb81ff9a5fb24d6ef1c0fe",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_select.svg": {
+      "kind": "file",
+      "bytes": 851,
+      "sha256": "374b732f376a1cbd3637e7b7b895a576708003787ee4c34a6b6e78855a1d5156",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/open_left_panel.svg": {
+      "kind": "file",
+      "bytes": 1892,
+      "sha256": "6709f838e74e285d7831ea16bf8d482e3ed8c677eea6d8ec7530506dbeba972a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_file.svg": {
+      "kind": "file",
+      "bytes": 792,
+      "sha256": "0df20ec2a62be5e1b6ecddd7f1a7c67f4052523297c671b8fb4ed91234efb19e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_widget.svg": {
+      "kind": "file",
+      "bytes": 1238,
+      "sha256": "33e7a59d1485ec173618808791a259c02029c12ee700bc869a17a7b6278778bd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/licenses/app-hub/LICENSE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/licenses/octoscript-makepad/LICENSE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/licenses/octosense/LICENSE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/licenses/makepad/LICENSE-APACHE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/licenses/makepad/LICENSE": {
+      "kind": "file",
+      "bytes": 1069,
+      "sha256": "3855d73a873244ec424ac5781d5d8fc8e2a789ff9d2f1cb804bec585a64ea88f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/licenses/octoscript/LICENSE-APACHE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/licenses/octoscript/LICENSE": {
+      "kind": "file",
+      "bytes": 1069,
+      "sha256": "3855d73a873244ec424ac5781d5d8fc8e2a789ff9d2f1cb804bec585a64ea88f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/SOURCES.md": {
+      "kind": "file",
+      "bytes": 941,
+      "sha256": "e42ad639e1a77c73cae9c0b0445911e2f9043bdc6c8b8ecf9d7f04ff1338292c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/coast.jpg": {
+      "kind": "file",
+      "bytes": 118342,
+      "sha256": "903c2be7d744f1e38f5bcd039c225227781225598fa81a3146f92a9b8c9de5db",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/mountain.jpg": {
+      "kind": "file",
+      "bytes": 173016,
+      "sha256": "e18af06d2902a82ab14d8b2718e4dcc831e2c60e56c877f5fa6cb81c7afd893d",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/icons/search.svg": {
+      "kind": "file",
+      "bytes": 333,
+      "sha256": "929845c3262f30ad612c604dbda9c6b5861cd4858078ba10d5d4f50810a72a4b",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/icons/library.svg": {
+      "kind": "file",
+      "bytes": 197,
+      "sha256": "0aff448cf36eb72288908359e4e3c0f3192614b556845ef8035538bfb730a76a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/icons/apps.svg": {
+      "kind": "file",
+      "bytes": 286,
+      "sha256": "33a99fdbe40c288b47bc3b5963681f3ca88f652d15297e153ac63e9565b017da",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/icons/today.svg": {
+      "kind": "file",
+      "bytes": 455,
+      "sha256": "eb40ba8cd8116c9789a9af470dd4ef40bca86796bf2a61f2ebfb3499cb3ad121",
+      "mode": 420
+    },
+    "04-运行文件/Muse Host.app/Contents/Resources/octosense_app_hub_app/resources/icons/refresh.svg": {
+      "kind": "file",
+      "bytes": 337,
+      "sha256": "d3c3108a81e5ae336cd45e157933eeae6ba4d3e7d05b20529832f3389d964f1f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Info.plist": {
+      "kind": "file",
+      "bytes": 1207,
+      "sha256": "213647ce6470288996828161eac3b7eef15aad4eaed6aa8ae048db3941ef7ee4",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/_CodeSignature/CodeResources": {
+      "kind": "file",
+      "bytes": 26311,
+      "sha256": "7be1df5ba6ffd5223238b00c0a162289729b00016107bc54b88b0649bc19468a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/MacOS/card-host": {
+      "kind": "file",
+      "bytes": 27112240,
+      "sha256": "30ed0c9355f047e298415c983bf5846ca798633f5875c6492ef724632fdacb15",
+      "mode": 493
+    },
+    "04-运行文件/Muse Card Host.app/Contents/MacOS/makepad_widgets": {
+      "kind": "symlink",
+      "target": "../Resources/makepad_widgets",
+      "mode": 493
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-Text.ttf": {
+      "kind": "file",
+      "bytes": 181792,
+      "sha256": "8c358c56c56f76a28cecb8ca10734c1c9cafa01a752dc8364b9ef7de412437dc",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/fa-solid-900.ttf": {
+      "kind": "file",
+      "bytes": 426112,
+      "sha256": "d2f0593540b0e33ba6de255a54f272d466e31144806956bea8cfdbf7edffc9bd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Medium.ttf": {
+      "kind": "file",
+      "bytes": 306536,
+      "sha256": "7984aafeaf437899ce89b251d2875fc5048cb7d290152eac070239cca7ff726c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/NotoSans-Regular.ttf": {
+      "kind": "file",
+      "bytes": 201644,
+      "sha256": "371924e7480d3d01807fdc1bd30442d0a6651e6b5ea546482f5883d613cf0419",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Light.ttf": {
+      "kind": "file",
+      "bytes": 307192,
+      "sha256": "e5c6b2b3cad15fd7dd820970eb859635d75bb2155b1a70f78a0668f8ba6d6eef",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Inter-OFL.txt": {
+      "kind": "file",
+      "bytes": 4376,
+      "sha256": "5dd548d31a85f756e01d63e00d7faf1e324103ed3e9102fcbbabf2cc2db6dd39",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/LXGWWenKaiBold.ttf": {
+      "kind": "file",
+      "bytes": 18546748,
+      "sha256": "7a356605eb36c92e29cc64090e2856e4675694572a2ae4da84adbadffecae907",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Montserrat-Medium.ttf": {
+      "kind": "file",
+      "bytes": 374312,
+      "sha256": "ad8d7b340fafe02a9c9bd31ccf1357b3f846dc70574665dde4cec9affad4f212",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/NewCMMath-Regular.otf": {
+      "kind": "file",
+      "bytes": 1151568,
+      "sha256": "ad746f5307fed53d8e5d7d201f5054abe73f1f47c51040767d898e3481c6e648",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Regular.ttf": {
+      "kind": "file",
+      "bytes": 305608,
+      "sha256": "797e35f7f5d6020a5c6ea13b42ecd668bcfb3bbc4baa0e74773527e5b6cb3174",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/LXGWWenKaiRegular.ttf": {
+      "kind": "file",
+      "bytes": 19073964,
+      "sha256": "0819604ad9357afbc6e7cc097328a16ed85143ee0848ffda09fda35a30da6506",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/LiberationMono-Regular.ttf": {
+      "kind": "file",
+      "bytes": 108168,
+      "sha256": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+      "mode": 493
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Serif-Regular.ttf": {
+      "kind": "file",
+      "bytes": 53580,
+      "sha256": "d0332f52868370fd83ae7fa46470f90c8f2eab2fcf12bc4f88080b340c95a830",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Serif-LICENSE.txt": {
+      "kind": "file",
+      "bytes": 310,
+      "sha256": "71be8736b55add147c16e1ba0b0beefec6b38cc33b0227e1ecca65227496b90f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/NotoColorEmoji.ttf": {
+      "kind": "file",
+      "bytes": 10643852,
+      "sha256": "39ee3c587e10e89669b9ff32703261d10d5f9c4dd5ad147b6b5a1c5200591817",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 182176,
+      "sha256": "391bd290357cb19bacccd66dc82f3213e0c66c34025a4dd3e15c49d3db7c585e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Montserrat-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 374624,
+      "sha256": "767eb6e017ec460b094b70bfa26aef77b86aacc9924e10ed56a61ceebc151e25",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Inter.ttf": {
+      "kind": "file",
+      "bytes": 876576,
+      "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/jetbrains_mono_variable.ttf": {
+      "kind": "file",
+      "bytes": 303144,
+      "sha256": "662a196d58f1183bf2d77428b6d5283fe3f45161ab021bea4036bc98e5cac016",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/RobotoFlex-OFL.txt": {
+      "kind": "file",
+      "bytes": 4394,
+      "sha256": "d6f40215beec57d46b0c7faa13b711f05dca9397727ac0627ced941232aad521",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Montserrat-Regular.ttf": {
+      "kind": "file",
+      "bytes": 374500,
+      "sha256": "6f2b476cdf98cbbb0eefef60b69d1944c7ed59fa8a2fe461ba6d73e176294c93",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-BoldItalic.ttf": {
+      "kind": "file",
+      "bytes": 184656,
+      "sha256": "451f1e35cf09ef4411c9f38e7eb7d4967aef427c52e048dff26cc36393937882",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Bold.ttf": {
+      "kind": "file",
+      "bytes": 306940,
+      "sha256": "36f3709dea3e3ce3c6aedc058079e55980825f898f1e901d091c73c40de8bab1",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Roboto-Thin.ttf": {
+      "kind": "file",
+      "bytes": 307664,
+      "sha256": "52cab88c2fe93c21152b483763745976861be2e3cc093554155f8a3b24de5b97",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Serif-Bold.ttf": {
+      "kind": "file",
+      "bytes": 51336,
+      "sha256": "138ac28d1663b3037e9c5f52371fa5c63d8324f4a38d22cd573e6ea3a3fd0cf8",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/IBMPlexSans-Italic.ttf": {
+      "kind": "file",
+      "bytes": 184020,
+      "sha256": "21effb0b8dabbbd6548db1c581c68c6335f6ffaabd6946a6a73ade24dec050eb",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/RobotoFlex.ttf": {
+      "kind": "file",
+      "bytes": 1787292,
+      "sha256": "9b523f7d82593df0107173849ebb8c817471a1df4b4fb2c3cbf40cfd810c8281",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/Serif-Italic.ttf": {
+      "kind": "file",
+      "bytes": 33580,
+      "sha256": "0d85ae7cc30f23790a7f1a58c4a112fdca8aae769b6ba11429af1d98b1b6cb3a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/textures/noise-fine.png": {
+      "kind": "file",
+      "bytes": 183687,
+      "sha256": "339dee70fa5e44bf37684193aa629d6581c77c35d88558fbbceb26dafacd1f42",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/textures/paper-laid.png": {
+      "kind": "file",
+      "bytes": 177479,
+      "sha256": "a4abf2d1ae69c83c3e6e0cb7e3516a51e95e564c9ca73e0ed520ca80fe48a275",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/textures/concrete.png": {
+      "kind": "file",
+      "bytes": 162761,
+      "sha256": "279206c414acb867c9dad3a31115eff96b22f258830957805d8b9b1d724ceddd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/textures/halftone.png": {
+      "kind": "file",
+      "bytes": 128690,
+      "sha256": "8fb7b5dbc3c9406c1e6d434e91533c07d0d82898a9d45b5d2f5be85c6784a4ea",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/textures/linen.png": {
+      "kind": "file",
+      "bytes": 184109,
+      "sha256": "355dd1ae8d24be5a8aa7363bbd75e27cd90bd3326b6aabff2766c2041ad7c498",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/textures/deco-fan.png": {
+      "kind": "file",
+      "bytes": 143623,
+      "sha256": "8c5481b1934f2072e21975ebf8bc928b36d327b7f0362b2ca007de86a11ddbed",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Medium.ttf": {
+      "kind": "file",
+      "bytes": 260236,
+      "sha256": "92b3d3c6e135eb1dc95f88e6ca75bd6113d9eb3261a95ca39f733e3897e53675",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Light.ttf": {
+      "kind": "file",
+      "bytes": 259416,
+      "sha256": "9b87925d061b1affb66417717731ad781f7d7678fb089b49f14bd922c2338559",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Bold.ttf": {
+      "kind": "file",
+      "bytes": 261588,
+      "sha256": "c4c8cb572a5a2c43d78b3701f4b2349684e6ca4d1557e469af6065b1e099c26c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 260936,
+      "sha256": "bab583d38d105dac9141b287fb2b7763b6d8b0bae97e745faaccedb40a579c29",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/OFL.txt": {
+      "kind": "file",
+      "bytes": 4400,
+      "sha256": "8b7141c03fa4f8d44e6345d5d4931709290f0f67875e452e95ac1fd3a027802e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat.ttf": {
+      "kind": "file",
+      "bytes": 744936,
+      "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/atro/Montserrat-Regular.ttf": {
+      "kind": "file",
+      "bytes": 263192,
+      "sha256": "81ebc3916b524007b756d91d9df13c7673ec401161f2cad161662d08dcf1cc72",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/inter-OFL.txt": {
+      "kind": "file",
+      "bytes": 4377,
+      "sha256": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-Medium.ttf": {
+      "kind": "file",
+      "bytes": 158576,
+      "sha256": "90373e7d838d32468438fc3e152dca0bdb12edcab99ea639f158790b1ba1fd05",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/PlusJakartaSans.ttf": {
+      "kind": "file",
+      "bytes": 176288,
+      "sha256": "89b3fb38aa0d275d7a731d0d817a4f1622b316b4d7fbdedcf02ee9099ff68bc8",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/plusjakartasans-OFL.txt": {
+      "kind": "file",
+      "bytes": 4402,
+      "sha256": "995c7199cab65954f545996326755daee7b63cc6b42b06c13da1f9502ab08a99",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Inter.ttf": {
+      "kind": "file",
+      "bytes": 876576,
+      "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-Regular.ttf": {
+      "kind": "file",
+      "bytes": 160316,
+      "sha256": "7e65201e9b79159e2300267cc885e16c8dcef2424cdfa09a29bfb0980a94a7ba",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/poppins-OFL.txt": {
+      "kind": "file",
+      "bytes": 4385,
+      "sha256": "6be04893d770899a015649c7aa3b582f871b272f8747a92b78b17c3e5c8b2573",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/taskplan/Poppins-SemiBold.ttf": {
+      "kind": "file",
+      "bytes": 157312,
+      "sha256": "d3bf1bdaf0550e83da9ac0b1d1d9fe6db086835a83aa28578e609a394b9a0286",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Regular.ttf": {
+      "kind": "file",
+      "bytes": 71912,
+      "sha256": "11886d1bb0fcea64c7e1278b019236137ef98578f6fe9f692038e1faa1e3bcac",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Medium.ttf": {
+      "kind": "file",
+      "bytes": 71676,
+      "sha256": "2f436049344215f77f1ee8d7eb1118b48a38b0d293c2f51b0d305c86ce046836",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Bold.ttf": {
+      "kind": "file",
+      "bytes": 71764,
+      "sha256": "35879eb94bef73bd2fab40f0c3391c26d53844b67e7fd4a7c7ba9ef86fb96968",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-BoldItalic.ttf": {
+      "kind": "file",
+      "bytes": 73300,
+      "sha256": "7de9f706cb0471e8f71ec5c03a96583c7bdd2508a4ef54b2b535dee074a7638c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-MediumItalic.ttf": {
+      "kind": "file",
+      "bytes": 73192,
+      "sha256": "2dc42164be51d5a2c098f22b10d284f5f4fb6c0166b0e146f38bb7d046efd617",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/theme-kits/camo/DMSans-Italic.ttf": {
+      "kind": "file",
+      "bytes": 73484,
+      "sha256": "362df4a4a18c0fcc1559056424e7b4b5c4ed75c516c60db679116e8c1d30cdeb",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/sploded.svg": {
+      "kind": "file",
+      "bytes": 249,
+      "sha256": "4a16d4017caf3d1f6b290f8c389768419fe3feafa64551abd9542dfce13726c6",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_typography.svg": {
+      "kind": "file",
+      "bytes": 1717,
+      "sha256": "6c3e56a42538d6d0e21e1298a27275a7f1441310877efaac2bdfbab46408c09d",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text_align_left.svg": {
+      "kind": "file",
+      "bytes": 1242,
+      "sha256": "d624019d42eff133560f6951c75b9f1c1402c9489699c08494232a9126ecba3a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text.svg": {
+      "kind": "file",
+      "bytes": 1704,
+      "sha256": "40afe2d6a05fca94f131b07937ee68b28c3d1c7a7e8e21b3302c1c925d5a6c82",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text_align_right.svg": {
+      "kind": "file",
+      "bytes": 1241,
+      "sha256": "155c55c216aa1c284c4974772a972793efd112a2f1cadf112c35bcb1205c9659",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_image.svg": {
+      "kind": "file",
+      "bytes": 1381,
+      "sha256": "c72a2174638ad01484a417cbca3c553750c4248e5ea70879ad6dcc4f1c73104d",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_text_align_justify.svg": {
+      "kind": "file",
+      "bytes": 1245,
+      "sha256": "b9b36f101a672da9be6361fa1dd4aa84eb0cf5aeb790cbe166645116e6a5014c",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_vector.svg": {
+      "kind": "file",
+      "bytes": 1760,
+      "sha256": "a04bd179f828767e3491305c89da2afc1e8e3cda7201e348ce9078387c82b5f9",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/back.svg": {
+      "kind": "file",
+      "bytes": 306,
+      "sha256": "a5afa4a6316b4fe7cf704a825850f9b44b7ca2be94927082b6ade11959cf6135",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_layout.svg": {
+      "kind": "file",
+      "bytes": 1579,
+      "sha256": "0b5ac88625a3f3d69e53911b52a2abf9468203fd1c986ca536861afcf9735950",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_folder.svg": {
+      "kind": "file",
+      "bytes": 865,
+      "sha256": "6f04b6990decd30cada6fdb5bdf8cefc4b64cbaa5c88eafe9b5f6eb810c25355",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/close_left_panel.svg": {
+      "kind": "file",
+      "bytes": 1848,
+      "sha256": "b5424c732e61392f5b388c2b0f95248632d182433a13b8aa9c02e4473ae33ed7",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_draw.svg": {
+      "kind": "file",
+      "bytes": 791,
+      "sha256": "72f7ab46845b0abfb5a01208edd330578814f16f11fb81ff9a5fb24d6ef1c0fe",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_select.svg": {
+      "kind": "file",
+      "bytes": 851,
+      "sha256": "374b732f376a1cbd3637e7b7b895a576708003787ee4c34a6b6e78855a1d5156",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/open_left_panel.svg": {
+      "kind": "file",
+      "bytes": 1892,
+      "sha256": "6709f838e74e285d7831ea16bf8d482e3ed8c677eea6d8ec7530506dbeba972a",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_file.svg": {
+      "kind": "file",
+      "bytes": 792,
+      "sha256": "0df20ec2a62be5e1b6ecddd7f1a7c67f4052523297c671b8fb4ed91234efb19e",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/makepad_widgets/resources/icons/icon_widget.svg": {
+      "kind": "file",
+      "bytes": 1238,
+      "sha256": "33e7a59d1485ec173618808791a259c02029c12ee700bc869a17a7b6278778bd",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/licenses/app-hub/LICENSE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/licenses/octoscript-makepad/LICENSE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/licenses/octosense/LICENSE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/licenses/makepad/LICENSE-APACHE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/licenses/makepad/LICENSE": {
+      "kind": "file",
+      "bytes": 1069,
+      "sha256": "3855d73a873244ec424ac5781d5d8fc8e2a789ff9d2f1cb804bec585a64ea88f",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/licenses/octoscript/LICENSE-APACHE": {
+      "kind": "file",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "mode": 420
+    },
+    "04-运行文件/Muse Card Host.app/Contents/Resources/licenses/octoscript/LICENSE": {
+      "kind": "file",
+      "bytes": 1069,
+      "sha256": "3855d73a873244ec424ac5781d5d8fc8e2a789ff9d2f1cb804bec585a64ea88f",
+      "mode": 420
+    },
+    "04-运行文件/mirror/catalog.json": {
+      "kind": "file",
+      "bytes": 122761,
+      "sha256": "379e58f96a0a70d5a376845c8c8e553057c2856927daac4ac58cba7bee0bf02e",
+      "mode": 420
+    },
+    "04-运行文件/mirror/artifacts/muse-goals-0.3.26-rc18.bundle.pack.json": {
+      "kind": "file",
+      "bytes": 8828212,
+      "sha256": "0464f9b2eb313f989ff7738558329dd75ec487a0b2627f20296dd513749cd75c",
+      "mode": 420
+    },
+    "04-运行文件/mirror/artifacts/muse-goals-0.3.26-rc18.bundle/listing.json": {
+      "kind": "file",
+      "bytes": 1589,
+      "sha256": "e957714ff80157b84857807e2db18b709fe0385fee0aa3ceeb0b0fb7a5105816",
+      "mode": 420
+    },
+    "04-运行文件/mirror/artifacts/muse-goals-0.3.26-rc18.bundle/main.splash": {
+      "kind": "file",
+      "bytes": 434476,
+      "sha256": "3d908cdca777c938f2543474964099c637caecf08dc98947b2190b70862742b8",
+      "mode": 420
+    },
+    "04-运行文件/mirror/artifacts/muse-goals-0.3.26-rc18.bundle/manifest.json": {
+      "kind": "file",
+      "bytes": 674,
+      "sha256": "26c586ab2337527b2e7f10e689672651f86999e5e804ca498a4f6908eb7c80dc",
+      "mode": 420
+    },
+    "04-运行文件/mirror/artifacts/muse-goals-0.3.26-rc18.bundle/screenshots/02-global-memory.png": {
+      "kind": "file",
+      "bytes": 2682284,
+      "sha256": "336b144406e24b93addb920b9e305ef9ce4970bc1ee1713de39e7b82204256ef",
+      "mode": 420
+    },
+    "04-运行文件/mirror/artifacts/muse-goals-0.3.26-rc18.bundle/screenshots/01-main.png": {
+      "kind": "file",
+      "bytes": 3501676,
+      "sha256": "e3a85b8b5a6a20db1beae6e75d30e64b95a550ca45f7576f46c6ac7d4f80073e",
+      "mode": 420
+    },
+    "04-运行文件/mirror/artifacts/muse-goals-0.3.26-rc18.bundle/assets/icon.svg": {
+      "kind": "file",
+      "bytes": 329,
+      "sha256": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3",
+      "mode": 420
+    }
+  }
+}

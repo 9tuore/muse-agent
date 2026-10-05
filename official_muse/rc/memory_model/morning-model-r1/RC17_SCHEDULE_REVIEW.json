@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "status": "PARTIAL_CANDIDATE_PASS_POLICY_SCOPE_FAIL",
+  "reviewed_at_utc": "2026-10-05T05:16:36.250771+00:00",
+  "evidence": {
+    "file": "official_muse/rc/memory_model/morning-model-r1/RC17_REAL_SCHEDULE_CANDIDATE.json",
+    "sha256": "02979bf094b61d0a3f20d60bf3765f5d40284b8f34721e3030d74e90aaf4469a",
+    "version": "0.3.26-rc17",
+    "reported_source_sha256": "30ae1a7a5581fa716d6eb5c43bccbeb8377cc2c56418bbd323153b6051a064ff",
+    "read_scope": "This single synthetic report only; no other sources, private mail, profile, credentials, runtime logs or code read."
+  },
+  "candidate_review": {
+    "status": "PASS_CONTENT",
+    "checks": [
+      {
+        "field": "start/end",
+        "status": "PASS",
+        "reason": "与合成邮件明确的2026-10-05 15:00至15:30一致，时长30分钟。"
+      },
+      {
+        "field": "time_zone",
+        "status": "PASS",
+        "reason": "Asia/Shanghai及+08:00与邮件和偏好一致。"
+      },
+      {
+        "field": "location",
+        "status": "PASS",
+        "reason": "Muse synthetic acceptance与来源逐字一致。"
+      },
+      {
+        "field": "title",
+        "status": "PASS",
+        "reason": "由来源项目名与验收ID构成，没有新增事实。"
+      },
+      {
+        "field": "calendar_id",
+        "status": "SUPPORTED_BY_REPORT_NOT_INDEPENDENTLY_RESOLVED",
+        "reason": "报告称选定Work日历且给出calendar_id；本轮未读取系统日历映射，不能独立确认该ID即工作日历。"
+      }
+    ]
+  },
+  "policy_review": {
+    "status": "FAIL_SEARCH_SCOPE_EXPANSION",
+    "severity": "MATERIAL_LATENT_SCHEDULING_CONSTRAINT",
+    "observed_search_start": "2026-10-05T00:00:00+08:00",
+    "observed_search_end": "2026-10-08T23:59:59+08:00",
+    "observed_hard_windows": [
+      {
+        "end": "2026-10-08T23:59:59+08:00",
+        "start": "2026-10-05T00:00:00+08:00"
+      }
+    ],
+    "observed_preferred_windows": [
+      {
+        "end": "2026-10-05T17:00:00+08:00",
+        "start": "2026-10-05T15:00:00+08:00"
+      },
+      {
+        "end": "2026-10-06T17:00:00+08:00",
+        "start": "2026-10-06T15:00:00+08:00"
+      },
+      {
+        "end": "2026-10-07T17:00:00+08:00",
+        "start": "2026-10-07T15:00:00+08:00"
+      },
+      {
+        "end": "2026-10-08T17:00:00+08:00",
+        "start": "2026-10-08T15:00:00+08:00"
+      }
+    ],
+    "observations": [
+      "合成邮件只明确请求10月5日15:00至15:30；偏好规定下午15至17点/30分钟，没有授权额外日期。",
+      "policy将search扩为10月5日00:00至10月8日23:59:59，并把整个范围作为hard_windows，preferred_windows同样新增10月6日至8日。",
+      "reason以原日期当天及后三天和未明确禁止为依据，没有体现Root指出的已有更窄范围取交集要求。未禁止额外日期不等于已授权扩大已有约束。"
+    ],
+    "requirement_basis": {
+      "root_supplied_rule": "Prompt requires intersection with an existing narrower range.",
+      "independently_visible": "Source body has one explicit requested date/time; generated policy spans that date plus three days.",
+      "not_in_this_report": "Full original model task prompt, prior search_start/search_end and complete wire request are absent. Exact prior bound and low-level cause cannot be independently reconstructed."
+    },
+    "verdict": "按Root提供的取交集要求及本报告可见的日期扩展，policy应记真实语义/约束缺陷；当前candidate正确不抵消policy失败。缺少原始窄范围不影响保留该失败，但必须保留其规则来源及因果核验限制。",
+    "impact": "本候选在原始指定时段且报告称无冲突，因此未观察到实际排到额外日期；若后续冲突搜索消费该policy，10月6日至8日可能被误作可选日期。此为潜在行为影响，不声称已发生越界写入。",
+    "expected_behavior": "存在更窄既有范围时，search边界应与默认范围取交集，hard_windows和preferred_windows均裁剪到该有效边界；交集为空应请求澄清，不能静默扩大。具体精确边界需原始约束，不能凭本摘要重建。没有获准改期时保留邮件指定时段。"
+  },
+  "runtime_and_authorization": {
+    "actual_conflict_query_reported": "selected Work calendar, candidate interval, no conflict",
+    "conflict_status": "REPORTED_NO_CONFLICT_FOR_CANDIDATE_INTERVAL_ONLY",
+    "independent_calendar_query_by_reviewer": false,
+    "question": "",
+    "user_exact_write_confirmation": "pending",
+    "write_status": "NOT_CONFIRMED_PENDING_USER",
+    "full_chain": "NOT_PASS",
+    "note": "空question和候选无冲突均不是用户精确写入确认；本报告不足以证明系统创建/回读/邮件发送。"
+  },
+  "memory_grounding": {
+    "memory_ref_count_reported": 2,
+    "project_preference_included_reported": true,
+    "status": "REFERENCE_SUMMARY_ONLY",
+    "note": "报告未给出完整refs/source内容，仅可确认其声明，不能独立核验两条引用有效性。"
+  },
+  "model_meta": {
+    "class": "strong",
+    "requested": "fast",
+    "attempts": 1,
+    "usage": {
+      "estimated": false,
+      "input_tokens": 1572,
+      "output_tokens": 3337
+    },
+    "budget": {
+      "calls_per_day": 100,
+      "calls_today": 18,
+      "per_minute": 6,
+      "resets_at": 1791244800,
+      "tokens_left": 79034,
+      "tokens_per_day": 100000,
+      "tokens_today": 20966
+    }
+  },
+  "usage_review": {
+    "reported_input_tokens": 1572,
+    "reported_output_tokens": 3337,
+    "reported_total_for_completion": 4909,
+    "reported_attempts": 1,
+    "reported_class": "strong",
+    "reported_requested": "fast",
+    "cumulative_budget_calls_today": 18,
+    "cumulative_budget_tokens_today": 20966,
+    "ledger_delta_independently_verified": false,
+    "currency_cost": "UNKNOWN",
+    "note": "报告没有独立before/after账本，不据累计值推算该次账本增量。"
+  },
+  "public_summary": {
+    "version": "0.3.26-rc17",
+    "evidence_sha256": "02979bf094b61d0a3f20d60bf3765f5d40284b8f34721e3030d74e90aaf4469a",
+    "candidate_content": "PASS",
+    "policy_search_scope": "FAIL",
+    "actual_wrong_date_write_observed": false,
+    "system_write_confirmation": "PENDING",
+    "full_chain": "NOT_PASS",
+    "original_narrow_bound_independently_available": false
+  },
+  "preservation": "Other reports, including rc11 eight cases, unchanged. No model, GUI, Git, system write, shared matrix or product edits."
+}

@@ -1,0 +1,470 @@
+{
+  "status": "FIXTURE_PASS_REAL_CHAIN_NOT_ASSERTED",
+  "cases": 13,
+  "checks": 262,
+  "product_version": "0.3.26-rc13",
+  "source_sha256": "53c8c0d9a0ebf2c1ec979b9e6c1a11100e6f190af94b978fe23486cb55ebe6ae",
+  "compact_sha256": "754962b96f60fe2022f6f40923e478e2aa4d72f5e6a5304bc29d4bdc8007dc90",
+  "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "second_process_restores": 5,
+  "source_rc12_to_rc13_only_waiting_guard_and_version": true,
+  "rc12_initial_preserved": {
+    "status": "FAIL",
+    "cases": {
+      "flow": "FAIL",
+      "waiting_restore": "FAIL",
+      "scope": "PASS",
+      "refs": "PASS",
+      "forgot": "PASS",
+      "invalid_address": "ERROR",
+      "topic": "ERROR",
+      "bounds": "PASS",
+      "metadata": "PASS",
+      "cancel": "PASS",
+      "calendar_flow": "PASS",
+      "calendar_malformed_meta": "PASS"
+    },
+    "real_product_failure": "topic: ordinary success preceding bare address -> direct absent clarification_action access",
+    "fixture_failure": "original_context wrongly expected bare address instead of source-verified adapter data-context suffix",
+    "timing_failure": "invalid_address 11 checks within one callback hit default script time budget; no budget raised"
+  },
+  "rc12_fixture_corrected_partial": {
+    "status": "FIXTURE_PASS",
+    "cases": [
+      "flow",
+      "waiting_restore",
+      "invalid_address"
+    ]
+  },
+  "constraints": {
+    "no_product_sdk_git_edit": true,
+    "no_gui_model_mail_calendar_action": true,
+    "only_synthetic_transport": true,
+    "default_runtime_budget_unchanged": true,
+    "old_calendar_malformed_standard_unchanged": true,
+    "no_pass_relabel_from_rc12": true
+  },
+  "summary_sha256": "283b968ab68799c80f23cb2b3c4f2ef253f84449e2ab5cf3d2820238831b7789",
+  "evidence_index": [
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/bounds/first/report.json",
+      "sha256": "17f40f1aa4cc01d10fa170072be6bb37f4ecf229557a4dab4e2039869a97ea58",
+      "bytes": 801
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/bounds/first/runtime.log",
+      "sha256": "5c3714cce3e9cbb22e10b42b975df8bb8250d2f5ae04b2e64d667da38483bce0",
+      "bytes": 3496
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_flow/first/report.json",
+      "sha256": "f81c38942572dae9d0919de08379f9ab2fa935f1a9952a374ea1d7782bc4d2ff",
+      "bytes": 868
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_flow/first/runtime.log",
+      "sha256": "6b23294c5960f9b3d2bf277e3c0f456a67bfed892356e86dc2dd2992f9dfc690",
+      "bytes": 5367
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_flow/restart-report.json",
+      "sha256": "254d103afaa978a502525279bf69ada752a76c06233642356844e0d744af4026",
+      "bytes": 253
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_flow/restart-runtime.log",
+      "sha256": "50cdef9a8cdeef867704e2bc6e3fb47217c2c52ca8b2b6a13a9b1807c140156f",
+      "bytes": 4957
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_malformed_meta/first/report.json",
+      "sha256": "74599aa2fd39fede8605aab1c018f74d81688b57e534aff261960699d22ec198",
+      "bytes": 1062
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_malformed_meta/first/runtime.log",
+      "sha256": "a83f43ab2fbed5681a59ae88d8243df4f422c89254ef098446711430080d0e6c",
+      "bytes": 5005
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_malformed_meta/restart-report.json",
+      "sha256": "47427723e2621c003037805702cc635e448e12ddffedded0595216a9d030cbf9",
+      "bytes": 199
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/calendar_malformed_meta/restart-runtime.log",
+      "sha256": "dda559ee5ed2144a509c72f242946bcc49edbd3f03f347c635beadbf4c0943eb",
+      "bytes": 4908
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/cancel/first/report.json",
+      "sha256": "f0a4c82a9a75778d527dbfd926b0205a4866e17c031edf84bffa835f95314f6f",
+      "bytes": 821
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/cancel/first/runtime.log",
+      "sha256": "d9613c08139fc51f062c6d71ec9b23229c915c56742ae70bffbb6f17e981cae6",
+      "bytes": 6211
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/compact-binding.json",
+      "sha256": "789d788a6b9308b9be587d98f7c9048cc7ae0d5d6857429667e3488f6b5e1fab",
+      "bytes": 361
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/flow/first/report.json",
+      "sha256": "af802ea191f924eb82d6706bb34b082d376433a9fce7880d2d4a2ab17e690631",
+      "bytes": 930
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/flow/first/runtime.log",
+      "sha256": "0b29443faaa13db56b69cff016509648b28675928a4dc35ec50d53ed8f845aee",
+      "bytes": 4361
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/flow/restart-report.json",
+      "sha256": "70b8a1fdaef9b58f3c9f8adc02dce2fead2a7f17f71344716724de0ed848fdd1",
+      "bytes": 235
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/flow/restart-runtime.log",
+      "sha256": "080a14ec0f0ff5afca28dd0c20ecc686f6d46e5d2a9bd2bb8c304a741f592e2e",
+      "bytes": 3494
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/forgot/first/report.json",
+      "sha256": "7c15f54e0c4a29f1c640fa47893971a0a87455c90cf4a4d5248c5186c324a790",
+      "bytes": 879
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/forgot/first/runtime.log",
+      "sha256": "d61882a88208d8caf8a181d0118966a750cd98030d67b4bb966b321d30f808e3",
+      "bytes": 4265
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/invalid_address/first/runtime.log",
+      "sha256": "7146db65aa03fb62c590ceb1abf6dff6902f4b7af8e9800ea719eaae7d199413",
+      "bytes": 4966
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/metadata/first/report.json",
+      "sha256": "9f1abec951fe5bef32f4de6400a273d4f6e3f81dd9cf0e0e9d1fb77d1c710c62",
+      "bytes": 1072
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/metadata/first/runtime.log",
+      "sha256": "a78a9aecf9cc169ffc3cb9ccbc5218ec78f6c4eeea41beab3818da5270b113e5",
+      "bytes": 3765
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/metadata/restart-report.json",
+      "sha256": "548ddf6ba7db78a47d8ac20f2c47569be5cf5a8883e21a87dea1daa7bb5832a1",
+      "bytes": 198
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/metadata/restart-runtime.log",
+      "sha256": "354778da260fab993dedb1040ab0c6a4930bdd63f7f7120e03304c8a30a6ac98",
+      "bytes": 3502
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/refs/first/report.json",
+      "sha256": "d562fc2fc82c81c7ccaa5b14850842310125765605d064d2762d3d3ef76e56a7",
+      "bytes": 928
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/refs/first/runtime.log",
+      "sha256": "532dd9adee37d9c0b970fc2e1647e8322c43a0dabeb1a118f71388cc61ab69a5",
+      "bytes": 4986
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/scope/first/report.json",
+      "sha256": "ba1619320f946937ad51be55f9135834330f2b7931aff64f6b84767d669b91ea",
+      "bytes": 884
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/scope/first/runtime.log",
+      "sha256": "d0e6474422beccbbec1504118fd69ff73cd6992dfb913c3ebc13f642b1671ba6",
+      "bytes": 6056
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/summary.json",
+      "sha256": "aa1bfc9dd11ae045f2f7a536dd8b36f6959cd9d2d0ed68201ff75c0d4f4c260d",
+      "bytes": 5782
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/topic/first/runtime.log",
+      "sha256": "9d280d23eaf5ce8855e459a1d8817e51819ff791625c740d73e04af428fba230",
+      "bytes": 4284
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/waiting_restore/first/report.json",
+      "sha256": "2d916b38830b7c803ed79bddf6da5d1cce2359c6aefc01fca6aa0dbe780e2eb3",
+      "bytes": 725
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/waiting_restore/first/runtime.log",
+      "sha256": "bf1d0754fda02c212d7f383a556f4a29bb0902c016b6f3409fd95315d3ddd2e3",
+      "bytes": 5480
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/waiting_restore/restart-report.json",
+      "sha256": "11f496456dd4d8cbf6e9623411a1463bafd2784b7ed23c64b7174a293531f2a7",
+      "bytes": 438
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r1/waiting_restore/restart-runtime.log",
+      "sha256": "9f193099f0cdc4b7feb74c81f8c9b73022a61d0a4ddbf6486d9c08c37edb5fc2",
+      "bytes": 5419
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/compact-binding.json",
+      "sha256": "789d788a6b9308b9be587d98f7c9048cc7ae0d5d6857429667e3488f6b5e1fab",
+      "bytes": 361
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/flow/first/report.json",
+      "sha256": "a8ee99356c9aa3d5290763e5440c36e1fcb758b53b3fa2a8ed0676221bdda8a0",
+      "bytes": 2710
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/flow/first/runtime.log",
+      "sha256": "a8f8aadb1c04dbccd8d8de09f884bd18aa354d057d57eb7b3bb747d3ea64b6bf",
+      "bytes": 3493
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/flow/restart-report.json",
+      "sha256": "70b8a1fdaef9b58f3c9f8adc02dce2fead2a7f17f71344716724de0ed848fdd1",
+      "bytes": 235
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/flow/restart-runtime.log",
+      "sha256": "473a8d6728e460bbdf8c3b2c271f9404546a4d3488e3efc3eeb8c7c1114dc533",
+      "bytes": 3496
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/invalid_address/first/report.json",
+      "sha256": "2e097215a1902e9619aba6aef2f733971403d9cacfd795a0cfc44f73ecf343cf",
+      "bytes": 1319
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/invalid_address/first/runtime.log",
+      "sha256": "e16fff1f8faed02a6033a4845c4e16b92e88c87a3f0fbff6a46bbf5e12ec9f04",
+      "bytes": 4379
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/summary.json",
+      "sha256": "fca0c35f10543bcb2201a79bf1a6f5c9bdb27328dd97e89d2713301b1e4c66f3",
+      "bytes": 4746
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/waiting_restore/first/report.json",
+      "sha256": "1684de404a085bd8b718f12cb17cfad1a64cae37356801a17bb0e227449bb47c",
+      "bytes": 725
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/waiting_restore/first/runtime.log",
+      "sha256": "7af656e73320d37b9f8b1fa5467507da7299d160baf86d6c6dd0b2fd6b1d5590",
+      "bytes": 4950
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/waiting_restore/restart-report.json",
+      "sha256": "d50d080e1e9044d84975a35eb69a01473ff8737c326b0347639bed38e33e24c1",
+      "bytes": 2218
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-r2/waiting_restore/restart-runtime.log",
+      "sha256": "70420aa90ff854e727a090397b3db49c708082bd3aedeeb4bd96468d08542533",
+      "bytes": 4482
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/bounds/first/report.json",
+      "sha256": "920808dbfeeb1bdabbb0e95f6e9ec323e8450244befd5753f113fbf6d2edd07b",
+      "bytes": 801
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/bounds/first/runtime.log",
+      "sha256": "ac1f446c2b78dd094e89be8433b9ed26785ed92ccb1bdc451e5765b2b6a83435",
+      "bytes": 3205
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_flow/first/report.json",
+      "sha256": "298c8dc0b59e114fb746b9c54347c9f96db7d4fe220e896231996a2670bdf22f",
+      "bytes": 868
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_flow/first/runtime.log",
+      "sha256": "eb46c8d5dbd81a6caa4219d07aee67cd2658f9c91a5c8c8c5fadbfda978d4acd",
+      "bytes": 4106
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_flow/restart-report.json",
+      "sha256": "254d103afaa978a502525279bf69ada752a76c06233642356844e0d744af4026",
+      "bytes": 253
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_flow/restart-runtime.log",
+      "sha256": "4484a29977dae809905be8d1792865677930d9469297805b9002df445731bc6c",
+      "bytes": 4025
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_malformed_meta/first/report.json",
+      "sha256": "eeeee0a28ea2447fc1285427092eecfc5ae2f33174329bdf189e637eb73945d7",
+      "bytes": 1062
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_malformed_meta/first/runtime.log",
+      "sha256": "dbf6ab295589b4a66c4d29dda1102c0b917b26625124f4307a062ebe5ac232bc",
+      "bytes": 3239
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_malformed_meta/restart-report.json",
+      "sha256": "47427723e2621c003037805702cc635e448e12ddffedded0595216a9d030cbf9",
+      "bytes": 199
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/calendar_malformed_meta/restart-runtime.log",
+      "sha256": "8bce90831876b61ffa12249dab1c2a16867cd480a138ba0b9e2a2417604059ac",
+      "bytes": 4002
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/cancel/first/report.json",
+      "sha256": "2d3edbf951ab40e6741e38c3e9909cdbcad778d759eb1ff53b8486dce2920aa8",
+      "bytes": 821
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/cancel/first/runtime.log",
+      "sha256": "d9dcd8bd10cc2af2df06890f47683dc6ff2dc2f22d1a4071e3a3d580740da226",
+      "bytes": 4090
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/compact-binding.json",
+      "sha256": "f2cb71dfecca2af4c17ce4c588f17d52958c510b6d328b1eaeda7003e43ae5b3",
+      "bytes": 361
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/flow/first/report.json",
+      "sha256": "4a8ec66e94860ff10176fe1eaa0573df01cc36f758963e56912990dfd1ec7a22",
+      "bytes": 2710
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/flow/first/runtime.log",
+      "sha256": "10a07bfc9c69bd80125d73cf2c7ddd4bc6e0e3aa464a064a8821e36836630587",
+      "bytes": 3767
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/flow/restart-report.json",
+      "sha256": "70b8a1fdaef9b58f3c9f8adc02dce2fead2a7f17f71344716724de0ed848fdd1",
+      "bytes": 235
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/flow/restart-runtime.log",
+      "sha256": "facebd3295c29d4ce5d3d0651ddacef3e5e47716d716c0c2a3544e12afe5d5b4",
+      "bytes": 3504
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/forgot/first/report.json",
+      "sha256": "a0d545269772d80f30829cccb0de83af985383645100217e6eca55e94a1e2b52",
+      "bytes": 879
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/forgot/first/runtime.log",
+      "sha256": "84bcab96270a28c29ebef3a8cc531358c999effb9d7c05f0c5729aa234c245df",
+      "bytes": 4076
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/invalid_address/first/report.json",
+      "sha256": "e604c24de86ade9b1018f6c6385a2112a9e3b8001677136dd11565013dddda43",
+      "bytes": 1319
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/invalid_address/first/runtime.log",
+      "sha256": "792b61ee12958685f68a8fd174104c715b8b2db7d0d8524e1f7ff0e347231a00",
+      "bytes": 3488
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/metadata/first/report.json",
+      "sha256": "ec9cb20d8ba1631b90bf5bd49c092b0a928c11ff69259e5f026bd745590c5457",
+      "bytes": 1072
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/metadata/first/runtime.log",
+      "sha256": "777f1462960a0e0b25cc810e411b51f8ce33c526406d86f4e736607ac2cd52f0",
+      "bytes": 3474
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/metadata/restart-report.json",
+      "sha256": "548ddf6ba7db78a47d8ac20f2c47569be5cf5a8883e21a87dea1daa7bb5832a1",
+      "bytes": 198
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/metadata/restart-runtime.log",
+      "sha256": "2b126e81ecad7dad77e24d50df62466e4f83bc67f7dffa7820483683b10d99eb",
+      "bytes": 3476
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/plain_metadata_guard/first/report.json",
+      "sha256": "21f678b0ff541abffc7c9d4dc41ddb604cba47a0c2b0238093af2d3be789172c",
+      "bytes": 890
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/plain_metadata_guard/first/runtime.log",
+      "sha256": "9364c26593d688c11c14e3e2afe6f66dc7de79c643ba0f95e8280ae4461d24c7",
+      "bytes": 4128
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/refs/first/report.json",
+      "sha256": "3e443dea1a9f83ea12d5ff4ec8acf7fcbe74e933625fbb14e270f9f32b89d422",
+      "bytes": 928
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/refs/first/runtime.log",
+      "sha256": "a7eaedc2a15f43fed7cd555589051b8e1dfeef322e6e79981af538c2f0bc966d",
+      "bytes": 3466
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/scope/first/report.json",
+      "sha256": "74e976ccfe1e724340f9021f3ea469f8a101262cb1f2bc32c091bda5e1a8f540",
+      "bytes": 884
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/scope/first/runtime.log",
+      "sha256": "7bb53538d4f9389dee81e950d0504a3dfe29de860361d3c577a39e2c77b5307c",
+      "bytes": 3472
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/summary.json",
+      "sha256": "283b968ab68799c80f23cb2b3c4f2ef253f84449e2ab5cf3d2820238831b7789",
+      "bytes": 8479
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/topic/first/report.json",
+      "sha256": "6b625367d8972b6eb71af4337641f17657019dac87a76894cf65e1c6c8104a85",
+      "bytes": 1121
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/topic/first/runtime.log",
+      "sha256": "59ae43da01ab81eddb84b6a2add6aad1cc6136179187f4a9de38ea6724265e20",
+      "bytes": 3469
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/waiting_restore/first/report.json",
+      "sha256": "fb8702686e7df821ae4cce6106262b247498e8ec811b54b1492cd5a352112fc1",
+      "bytes": 725
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/waiting_restore/first/runtime.log",
+      "sha256": "28c2212ce854c059b1782c581d80ad207fc86dfb2ea6be0fba7efbd336d1eae3",
+      "bytes": 3524
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/waiting_restore/restart-report.json",
+      "sha256": "1a7815e26325d7378761c3b212c4ee885570d02b82fccb5a132435c98a2605db",
+      "bytes": 2218
+    },
+    {
+      "path": "official_muse/rc/core_chain/morning-mail-clarification-r1/evidence-rc13-r1/waiting_restore/restart-runtime.log",
+      "sha256": "205f6b8f64f81a3a6060d83084eda90e86e2673bd47e8494b1fa49e4a7ea6705",
+      "bytes": 4331
+    }
+  ]
+}
