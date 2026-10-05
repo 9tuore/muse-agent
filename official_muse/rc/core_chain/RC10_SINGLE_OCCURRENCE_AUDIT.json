@@ -1,0 +1,674 @@
+{
+  "schema": 1,
+  "status": "STATIC_AUDIT_FIVE_RUNTIME_UNUSED_BUT_CONTRACT_OR_TEST_REFERENCED_KEEP_RC10",
+  "recorded_at": "2026-10-05T09:14:35.724639+08:00",
+  "application_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+  "observed_head": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+  "version": "0.3.26-rc10",
+  "readable_sha256": "a19622e0977b3f988531a1d7db743bc9ef4cd6973fa75bbcdc5dec07d6823cc5",
+  "compact_sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+  "named_top_level_fn_count_regex_only": 430,
+  "scope": "Existing A2 real chat, bounded read-only current product/authoritative modules/registered generator and tracked test/contract reference search; no GUI/model/test rerun, product/module/SDK/Git/production write, new chat or subagent. Only this JSON added. No final score/full PASS claim.",
+  "module_embedding_checks": {
+    "UI_PAGE_ADAPTERS": {
+      "module": "official_muse/ui_page_adapters.splash",
+      "sha256": "9791d132170c7ada20e36ab69988ea60fc86aef681b11f3ba5ad525cbd4507fa",
+      "embedded_block_exact_trimmed_match": true,
+      "generator": "official_muse/ui_memory/sync_modules.py:17",
+      "generator_not_run": true
+    },
+    "GLOBAL_MEMORY": {
+      "module": "official_muse/global_memory.splash",
+      "sha256": "aa974e7bbb4375697156d5d305986167abe6025d86ed63f9c37e0ac910ed9f3c",
+      "embedded_block_exact_trimmed_match": true,
+      "generator": "official_muse/ui_memory/sync_modules.py:17",
+      "generator_not_run": true
+    }
+  },
+  "functions": [
+    {
+      "function": "page_calendar_readiness",
+      "product_definition": {
+        "file": "official_muse/app/source/main.splash",
+        "line": 402
+      },
+      "product_whole_word_occurrences": 1,
+      "product_explicit_calls_observed": 0,
+      "runtime_status": "NO_CURRENT_PRODUCT_REFERENCE_OBSERVED_BEYOND_DEFINITION_STATIC_ONLY_NOT_AST_OR_DYNAMIC_PROOF",
+      "generation_owner": "official_muse/ui_page_adapters.splash -> UI_PAGE_ADAPTERS marker via sync_modules.py",
+      "contract": [
+        "official_muse/UI_PAGE_CONTRACT.md:44"
+      ],
+      "tracked_call_evidence": [
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 124,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('calendar-off', 'page_calendar_readiness(false,\"full_access\",\"synthetic\")', False),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 125,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('calendar-write-only', 'page_calendar_readiness(true,\"write_only\",\"synthetic\")', False),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 126,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('calendar-full-no-target', 'page_calendar_readiness(true,\"full_access\",\"\")', False),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 127,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('calendar-full', 'page_calendar_readiness(true,\"full_access\",\"synthetic\")', True),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 128,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('calendar-undetermined', 'page_calendar_readiness(true,\"not_determined\",\"\")', False),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 129,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('calendar-denied', 'page_calendar_readiness(true,\"denied\",\"\")', False),"
+        }
+      ],
+      "tracked_call_lines": 6,
+      "tracked_call_files": 1,
+      "other_references": [
+        {
+          "file": "official_muse/UI_PAGE_CONTRACT.md",
+          "line": 44,
+          "kind": "documentation_or_reference",
+          "snippet": "`page_calendar_readiness(enabled, permission, calendar_id)` 返回 `{ready, label}`：enabled=false→“日历未启用”；write_only→“仅写入权限，无法查询”；full_access 无真实日历→“请选择系统日历”；full_access 有目标→“可查询系统日历”；not_determined→“等待系统授权”；denied/restricted→“系统日历访问受限”；其他→“日历暂不可用”。ready 仅表示具备发起读取的前提，不代表已查过、空闲、可写、动作成功。写入仍依赖目标 writable 及原确认链。"
+        },
+        {
+          "file": "official_muse/ui_page_adapters.splash",
+          "line": 236,
+          "kind": "module_definition",
+          "snippet": "fn page_calendar_readiness(enabled,permission,calendar_id){"
+        }
+      ],
+      "deletion_risk": "Deleting only generated copy is restored by module sync. Deleting authoritative module function breaks tracked standalone module probe and documented {ready,label} contract. Tests use readiness semantics, not actual backend success.",
+      "recommendation": "KEEP_IN_FROZEN_RC10; no deletion solely from single-occurrence scan. Future cleanup, if separately requested, must preserve/move documented and fixture APIs in the authoritative module/test harness, retain failure tests, regenerate/compact with new identity and run relevant regressions. Do not splice archival implementation."
+    },
+    {
+      "function": "page_mail_readiness",
+      "product_definition": {
+        "file": "official_muse/app/source/main.splash",
+        "line": 414
+      },
+      "product_whole_word_occurrences": 1,
+      "product_explicit_calls_observed": 0,
+      "runtime_status": "NO_CURRENT_PRODUCT_REFERENCE_OBSERVED_BEYOND_DEFINITION_STATIC_ONLY_NOT_AST_OR_DYNAMIC_PROOF",
+      "generation_owner": "official_muse/ui_page_adapters.splash -> UI_PAGE_ADAPTERS marker via sync_modules.py",
+      "contract": [
+        "official_muse/UI_PAGE_CONTRACT.md:46"
+      ],
+      "tracked_call_evidence": [
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 130,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('mail-off', 'page_mail_readiness(false,\"synthetic\",true)', False),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 131,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('mail-no-account', 'page_mail_readiness(true,\"\",true)', False),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 132,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('mail-pending', 'page_mail_readiness(true,\"synthetic\",false)', False),"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/page_calendar_probe.py",
+          "line": 133,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "('mail-connected', 'page_mail_readiness(true,\"synthetic\",true)', True),"
+        }
+      ],
+      "tracked_call_lines": 4,
+      "tracked_call_files": 1,
+      "other_references": [
+        {
+          "file": "official_muse/UI_PAGE_CONTRACT.md",
+          "line": 46,
+          "kind": "documentation_or_reference",
+          "snippet": "`page_mail_readiness(enabled, account_id, connection_verified)` 返回 `{ready, label}`：未启用/无账号/未实际验证连接均 false，文案分别“邮箱未启用”/“请连接邮箱”/“连接待验证”；只有 enabled + 账号 + 真实同步通过才 true/“邮箱已连接”。不推断SMTP投递或收件人收到。"
+        },
+        {
+          "file": "official_muse/ui_page_adapters.splash",
+          "line": 248,
+          "kind": "module_definition",
+          "snippet": "fn page_mail_readiness(enabled,account_id,connection_verified){"
+        }
+      ],
+      "deletion_risk": "Deleting only generated copy is restored by module sync. Deleting authoritative module function breaks tracked standalone module probe and documented {ready,label} contract. Tests use readiness semantics, not actual backend success.",
+      "recommendation": "KEEP_IN_FROZEN_RC10; no deletion solely from single-occurrence scan. Future cleanup, if separately requested, must preserve/move documented and fixture APIs in the authoritative module/test harness, retain failure tests, regenerate/compact with new identity and run relevant regressions. Do not splice archival implementation."
+    },
+    {
+      "function": "gm_forgotten_text",
+      "product_definition": {
+        "file": "official_muse/app/source/main.splash",
+        "line": 5401
+      },
+      "product_whole_word_occurrences": 1,
+      "product_explicit_calls_observed": 0,
+      "runtime_status": "NO_CURRENT_PRODUCT_REFERENCE_OBSERVED_BEYOND_DEFINITION_STATIC_ONLY_NOT_AST_OR_DYNAMIC_PROOF",
+      "generation_owner": "official_muse/global_memory.splash -> GLOBAL_MEMORY marker via sync_modules.py",
+      "contract": [],
+      "tracked_call_evidence": [
+        {
+          "file": "official_muse/prelim/tests/memory_regression_lifecycle_forgotten.splash",
+          "line": 13,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let old = gm_forgotten_text(\"记住：夜航镜像甲版\",\"local\")"
+        },
+        {
+          "file": "official_muse/prelim/tests/memory_regression_lifecycle_forgotten.splash",
+          "line": 14,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let current = gm_forgotten_text(\"记住：夜航镜像甲修订\",\"local\")"
+        },
+        {
+          "file": "official_muse/prelim/tests/memory_regression_restart.splash",
+          "line": 10,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "r.forgotten_hidden = ctx.hits.len() == 0 && gm_forgotten_text(\"记住：星舟项目使用蓝色推进器\",\"local\")"
+        },
+        {
+          "file": "official_muse/prelim/tests/memory_regression_suite.splash",
+          "line": 51,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let result_M05_old_new_hash = gm_forgotten_text(\"星舟项目使用银色推进器\",\"local\") && gm_forgotten_text(\"星舟项目使用蓝色推进器\",\"local\")"
+        },
+        {
+          "file": "official_muse/prelim/tests/memory_regression_suite.splash",
+          "line": 53,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let result_M05_chat_prefix = gm_forgotten_text(\"记住：星舟项目使用蓝色推进器\",\"local\") && gm_forgotten_text(\"记住: 星舟项目使用银色推进器\",\"local\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/memory_lifecycle_forgotten.splash",
+          "line": 12,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let old = gm_forgotten_text(\"记住：夜航镜像甲版\",\"local\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/memory_lifecycle_forgotten.splash",
+          "line": 13,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let current = gm_forgotten_text(\"记住：夜航镜像甲修订\",\"local\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/memory_restart.splash",
+          "line": 10,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "r.forgotten_hidden = ctx.hits.len() == 0 && gm_forgotten_text(\"记住：星舟项目使用蓝色推进器\",\"local\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/memory_suite.splash",
+          "line": 41,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let result_M05_old_new_hash = gm_forgotten_text(\"星舟项目使用银色推进器\",\"local\") && gm_forgotten_text(\"星舟项目使用蓝色推进器\",\"local\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/memory_suite.splash",
+          "line": 43,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let result_M05_chat_prefix = gm_forgotten_text(\"记住：星舟项目使用蓝色推进器\",\"local\") && gm_forgotten_text(\"记住: 星舟项目使用银色推进器\",\"local\")"
+        }
+      ],
+      "tracked_call_lines": 10,
+      "tracked_call_files": 6,
+      "other_references": [
+        {
+          "file": "official_muse/global_memory.splash",
+          "line": 532,
+          "kind": "module_definition",
+          "snippet": "fn gm_forgotten_text(value,account){ return gm_forgotten_at(value,account,gm_project,gm_owner) }"
+        },
+        {
+          "file": "official_muse/rc/memory_model/RC5V14_SHARED_FUNCTION_REUSE_PROOF.json",
+          "line": 886,
+          "kind": "documentation_or_reference",
+          "snippet": "\"function\": \"gm_forgotten_text\","
+        }
+      ],
+      "deletion_risk": "Thin current-focus wrapper around gm_forgotten_at. Tracked memory suite/restart/lifecycle tests invoke it to verify forgetting corrected/original/prefixed values; removing without preserving test API breaks safety coverage and sync restores generated-only removal.",
+      "recommendation": "KEEP_IN_FROZEN_RC10; no deletion solely from single-occurrence scan. Future cleanup, if separately requested, must preserve/move documented and fixture APIs in the authoritative module/test harness, retain failure tests, regenerate/compact with new identity and run relevant regressions. Do not splice archival implementation."
+    },
+    {
+      "function": "chat_boot",
+      "product_definition": {
+        "file": "official_muse/app/source/main.splash",
+        "line": 6224
+      },
+      "product_whole_word_occurrences": 1,
+      "product_explicit_calls_observed": 0,
+      "runtime_status": "NO_CURRENT_PRODUCT_REFERENCE_OBSERVED_BEYOND_DEFINITION_STATIC_ONLY_NOT_AST_OR_DYNAMIC_PROOF",
+      "generation_owner": "official_muse/app/source/main.splash (outside sync_modules registered markers)",
+      "contract": [],
+      "tracked_call_evidence": [
+        {
+          "file": "official_muse/prelim/tests/calendar_policy.splash",
+          "line": 9,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot() gm_set_focus(\"合成安排项目\",\"本人\") gm_set_accounts([\"synthetic-account\"])"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_calendar_precision.splash",
+          "line": 3,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_management.splash",
+          "line": 10,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_management.splash",
+          "line": 56,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let restarted = chat_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_management.splash",
+          "line": 76,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let no_calls = fixture_calls.len() chat_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_mutation.splash",
+          "line": 3,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_mutation_debug.splash",
+          "line": 3,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_status_routing.splash",
+          "line": 3,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/chat_variants.splash",
+          "line": 6,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot() gm_set_accounts([\"fixture-account\"])"
+        },
+        {
+          "file": "official_muse/prelim/tests/mail_connect_reminders.splash",
+          "line": 15,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/mail_stability.splash",
+          "line": 42,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() chat_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/memory_integration_confirm.splash",
+          "line": 4,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "qr.boot = gm_boot() qr.chat_boot = chat_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/memory_integration_flow.splash",
+          "line": 13,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fr.boot = gm_boot() fr.chat_boot = chat_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/memory_integration_preferences.splash",
+          "line": 4,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "pr.boot = gm_boot() pr.chat_boot = chat_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/model_usage_trace.splash",
+          "line": 12,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/three_hour_mail.splash",
+          "line": 79,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/three_hour_mail.splash",
+          "line": 316,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/prelim/tests/three_hour_scheduling.splash",
+          "line": 514,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot() gm_set_focus(\"合成安排项目\",\"本人\") gm_set_accounts([\"synthetic-account\"])"
+        },
+        {
+          "file": "official_muse/prelim/tests/three_hour_scheduling.splash",
+          "line": 643,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot() gm_set_focus(\"批准绑定复现\",\"本人\") gm_set_accounts([\"synthetic-account\"])"
+        },
+        {
+          "file": "official_muse/prelim/tests/three_hour_scheduling.splash",
+          "line": 819,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/calendar_clarification.splash",
+          "line": 189,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let booted=chat_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/calendar_time_order_delta.splash",
+          "line": 96,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/date_question_delta.splash",
+          "line": 88,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/goal_card_consumption.splash",
+          "line": 9,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() chat_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/mail_header_delta.splash",
+          "line": 83,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/run_fault_matrix.py",
+          "line": 102,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/run_fault_matrix.py",
+          "line": 145,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/run_fault_matrix.py",
+          "line": 163,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot() calendar_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/run_t18.py",
+          "line": 22,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot() core_boot_activity() core_boot_memory() gm_boot() core_boot_goals() calendar_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/run_t18.py",
+          "line": 43,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot() core_boot_activity() core_boot_memory() gm_boot() core_boot_goals() calendar_boot()"
+        },
+        {
+          "file": "official_muse/rc/core_chain/t18_chain.splash",
+          "line": 58,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot() gm_boot() gm_set_focus(\"合成验收\",\"个人\")"
+        },
+        {
+          "file": "official_muse/rc/core_chain/t18_proposal_restart.splash",
+          "line": 58,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot() gm_boot() gm_set_focus(\"合成验收\",\"个人\")"
+        },
+        {
+          "file": "official_muse/rc/memory_model/contract_app_cases.splash",
+          "line": 21,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot()"
+        },
+        {
+          "file": "official_muse/round2/tests/chat_context.splash",
+          "line": 10,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot()"
+        },
+        {
+          "file": "official_muse/round2/tests/chat_context.splash",
+          "line": 23,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_chat.splash",
+          "line": 66,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let restarted = chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_chat.splash",
+          "line": 80,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_chat.splash",
+          "line": 118,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_chat_goal.splash",
+          "line": 3,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot() gm_set_focus(\"合成验收\",\"个人\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_chat_goal.splash",
+          "line": 32,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() chat_boot() chat_restore_goal_view() set_page(\"Chat\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_derived.splash",
+          "line": 105,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot() gm_set_focus(\"合成验收\",\"个人\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_mail_calendar.splash",
+          "line": 55,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot() gm_boot() gm_set_focus(\"合成验收\",\"个人\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_mail_monitor.splash",
+          "line": 40,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "core_boot_goals() core_boot_memory() core_boot_activity() chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_preflight.splash",
+          "line": 75,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_proposal.splash",
+          "line": 46,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let legacy_boot = wrote_legacy && chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_proposal.splash",
+          "line": 52,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let restored_live = fs.write(\"chat-sessions.json\",live) == nil && chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_proposal.splash",
+          "line": 61,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_proposal.splash",
+          "line": 89,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_boot()"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_task_focus.splash",
+          "line": 48,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "fixture_seed() chat_boot() gm_boot() gm_set_focus(\"合成验收\",\"个人\")"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_task_focus.splash",
+          "line": 124,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "chat_save() chat_boot()"
+        }
+      ],
+      "tracked_call_lines": 50,
+      "tracked_call_files": 34,
+      "other_references": [
+        {
+          "file": "official_muse/FINAL_ACCEPTANCE.md",
+          "line": 178,
+          "kind": "documentation_or_reference",
+          "snippet": "| R01/R02/R03 | NOT_TESTED_FINAL | 最终真实本地模型、多Goal批准→保存→独立读回→进程重启；chat_boot 单函数恢复不能冒充整 Shell 重启 |"
+        },
+        {
+          "file": "official_muse/rc/memory_model/RC5V14_SHARED_FUNCTION_REUSE_PROOF.json",
+          "line": 52,
+          "kind": "documentation_or_reference",
+          "snippet": "\"function\": \"chat_boot\","
+        },
+        {
+          "file": "official_muse/round2/audits/C04.md",
+          "line": 64,
+          "kind": "documentation_or_reference",
+          "snippet": "离线核对其 26 项请求均为 `model.complete`、原生 messages≤7；失败合成输入仅出现在正在发起失败的第 9/23 个请求，其他请求与 `resumed_context` 均不含 `SYNTHETIC-FAILED-PAIR`；所有显式 Memory 检索为空。报告 `session_isolated`、`session_switch_restored`、`restart_restored` 为 true，但沿用 `tests/chat_context.splash` 在同次 probe 内调用 `chat_boot()` 的机制，属于 fixture reload，**不补足整个 Shell 重启后的真实模型回忆**。resumed_context 只保存 messages，未保存该次完整 task/retrieval。fixture 重复序列及累计请求的计数局限不影响独立 live wire 的 14 轮证据。"
+        },
+        {
+          "file": "official_muse/round2/audits/C04.md",
+          "line": 139,
+          "kind": "documentation_or_reference",
+          "snippet": "- Fixture `session_switch_restored=true` 与 `restart_restored=true` 来自 `messages.to_json()` 比较；源码在同一次 probe 内调用 `chat_boot()` 重新读存储。这支持 fixture 状态 reload，不是实际关闭/重启整个 Shell。`resumed_context` 只保存最后请求的 messages，未保存该请求完整 task/retrieval。"
+        }
+      ],
+      "deletion_risk": "Synchronous test/reload wrapper around chat_boot_data and gm_set_focus, widely used by tracked core/restart/proposal/Calendar tests and Python-injected probes. Product uses boot_load -> chat_boot_begin async path; fixture reload is not whole Shell restart. Removing wrapper disables retained tests, not merely runtime dead code.",
+      "recommendation": "KEEP_IN_FROZEN_RC10; no deletion solely from single-occurrence scan. Future cleanup, if separately requested, must preserve/move documented and fixture APIs in the authoritative module/test harness, retain failure tests, regenerate/compact with new identity and run relevant regressions. Do not splice archival implementation."
+    },
+    {
+      "function": "chat_earlier_context",
+      "product_definition": {
+        "file": "official_muse/app/source/main.splash",
+        "line": 6483
+      },
+      "product_whole_word_occurrences": 1,
+      "product_explicit_calls_observed": 0,
+      "runtime_status": "NO_CURRENT_PRODUCT_REFERENCE_OBSERVED_BEYOND_DEFINITION_STATIC_ONLY_NOT_AST_OR_DYNAMIC_PROOF",
+      "generation_owner": "official_muse/app/source/main.splash (outside sync_modules registered markers)",
+      "contract": [],
+      "tracked_call_evidence": [
+        {
+          "file": "official_muse/prelim/tests/memory_integration_history.splash",
+          "line": 32,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "hr.legacy_earlier_function_scope_closed = chat_earlier_context(6).search(\"K7\") < 0"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_derived.splash",
+          "line": 33,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "checks.excluded = checks.excluded && chat_earlier_context(4).search(question) < 0"
+        },
+        {
+          "file": "official_muse/ui_memory/tests/regression_preflight.splash",
+          "line": 55,
+          "kind": "tracked_test_direct_or_generated_script_call",
+          "snippet": "let earlier = chat_earlier_context(4)"
+        }
+      ],
+      "tracked_call_lines": 3,
+      "tracked_call_files": 3,
+      "other_references": [
+        {
+          "file": "official_muse/rc/memory_model/RC5V14_SHARED_FUNCTION_REUSE_PROOF.json",
+          "line": 172,
+          "kind": "documentation_or_reference",
+          "snippet": "\"function\": \"chat_earlier_context\","
+        },
+        {
+          "file": "official_muse/round2/audits/C04.md",
+          "line": 109,
+          "kind": "documentation_or_reference",
+          "snippet": "2. `chat_earlier_context(first_recent)` 检索较早的成功 pair 中用户原话，保留 `message_index`、`at`、`text`，按时间顺序放入 task；提示明确“后来的更正优先”“保留用户限制”。该源码片段与冻结 bundle 内函数逐字相同。原聊天未被覆盖，也没有生成模型 summary。"
+        },
+        {
+          "file": "official_muse/round2/chat_retrieval.splash",
+          "line": 2,
+          "kind": "module_definition",
+          "snippet": "fn chat_earlier_context(first_recent){"
+        }
+      ],
+      "deletion_risk": "Current scope/retired-memory/ref-guarded legacy bounded-history helper is directly tested by preflight/derived and integration-history safety assertions. Real model path uses chat_model_history(...).earlier; round2/chat_retrieval.splash is a different historical implementation, not a registered sync source, so importing it to restore the symbol could lose current guards.",
+      "recommendation": "KEEP_IN_FROZEN_RC10; no deletion solely from single-occurrence scan. Future cleanup, if separately requested, must preserve/move documented and fixture APIs in the authoritative module/test harness, retain failure tests, regenerate/compact with new identity and run relevant regressions. Do not splice archival implementation."
+    }
+  ],
+  "current_alternative_runtime_paths": [
+    {
+      "purpose": "Product Chat restore",
+      "source": "official_muse/app/source/main.splash:7654",
+      "observed_call": "boot_load(step==0) calls chat_boot_begin; bounded async callbacks continue recovery"
+    },
+    {
+      "purpose": "Product model recent and earlier history",
+      "source": "official_muse/app/source/main.splash:7095",
+      "observed_call": "chat_model_history(chat_sessions[i].messages), returns turns and earlier with scope/retired/ref guards"
+    },
+    {
+      "purpose": "Production retired/forgotten filtering",
+      "source": "official_muse/app/source/main.splash:5372",
+      "observed_call": "gm_retired_text -> gm_retired_at -> gm_forgotten_at; helper target also called by other runtime function"
+    }
+  ],
+  "limits": [
+    "Static identifier references and verified source definitions; no full parser/symbol resolution or proof no external/dynamic consumer exists.",
+    "Tracked probes are dependencies, not newly executed PASS evidence; raw historical snapshots/build/production paths were excluded.",
+    "Memory dual-save/Goal/70/full28 results only supplied by controller; audit does not independently rerun/re-score them.",
+    "100 reopens/2h still RUNNING and not credited; original failures and tests not deleted."
+  ],
+  "only_output": "official_muse/rc/core_chain/RC10_SINGLE_OCCURRENCE_AUDIT.json"
+}
