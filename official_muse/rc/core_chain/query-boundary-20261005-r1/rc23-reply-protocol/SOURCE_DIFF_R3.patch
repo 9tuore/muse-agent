@@ -1,0 +1,14 @@
+--- rc23-first/readable
+
++++ rc23-r2/readable
+
+@@ -6884,7 +6884,7 @@
+
+         && (message.search("发") >= 0 || message.search("回") >= 0 || message.search("起草") >= 0) { action = "mail_compose" }
+     if !knowledge && (message.search("日历") >= 0 || message.search("日程") >= 0 || message.search("安排") >= 0)
+         && (message.search("创建") >= 0 || message.search("新增") >= 0 || message.search("安排") >= 0 || message.search("添加") >= 0 || message.search("准备") >= 0) { action = "calendar_candidate" }
+-    if !knowledge && (message.search("任务") >= 0 || message.search("目标") >= 0 || message.search("整理") >= 0)
++    if action == "" && !knowledge && (message.search("任务") >= 0 || message.search("目标") >= 0 || message.search("整理") >= 0)
+         && (message.search("计划") >= 0 || message.search("整理") >= 0) && !chat_periodic_request(message) { action = "goal_plan" }
+     let active = chat_active_candidate(chat_selected_id)
+     if active != nil && chat_edit_request(message) { action = active.action }

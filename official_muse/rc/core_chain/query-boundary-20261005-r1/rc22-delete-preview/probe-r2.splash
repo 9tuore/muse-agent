@@ -1,0 +1,46 @@
+// Real production helper/preview; no confirmation, no real Calendar services.
+let dp_case="__CASE__"
+let dp_calls=[]
+fn chain_fixture_request(service,args,cb){dp_calls.push(service) cb({is_ok:false error:"Synthetic preview forbids every Host service"})}
+fn dp_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot() calendar_boot()
+    calendar_permission="full_access"
+    calendar_ready=true
+    calendar_operation="delete"
+    calendar_selected_goal=""
+    calendar_selected_event={id:"synthetic-selected-event" calendar_id:"synthetic-calendar" version:"synthetic-v1"
+        title:"MUSE-IMPROVE-20261005-1525" start:"2030-06-12T15:00:00+08:00" end:"2030-06-12T15:30:00+08:00"}
+    let id="MUSE-IMPROVE-20261005-1525"
+    let expected=dp_case=="allowed"
+    if dp_case=="wrong_id" {id="MUSE-IMPROVE-20261005-9999"}
+    if dp_case=="title_mismatch" {calendar_selected_event.title="MUSE-IMPROVE-20261005-9999"}
+    if dp_case=="non_test" {id="ordinary-user-event" calendar_selected_event.title=id}
+    if dp_case=="nil_selected" {calendar_selected_event=nil}
+    if dp_case=="prefix_only" {id="MUSE-IMPROVE-"}
+    if dp_case=="truncated_id" {id="MUSE-IMPROVE-20261005-15"}
+    if dp_case=="legacy_phase2" {id="MUSE-PHASE2-20261005-1525" calendar_selected_event.title=id expected=true}
+    if dp_case=="legacy_test" {id="MUSE-CALENDAR-TEST-20261005-1525" calendar_selected_event.title=id expected=true}
+    if dp_case=="legacy_final" {id="MUSE-CALENDAR-FINAL-20261005-1525" calendar_selected_event.title=id expected=true}
+    if dp_case=="legacy_r2" {id="MUSE-R2-20261005-1525" calendar_selected_event.title=id expected=true}
+    if dp_case=="space_boundary" {calendar_selected_event.title="合成事项 "+id+" 后缀" expected=true}
+    if dp_case=="newline_boundary" {calendar_selected_event.title="合成事项\n"+id+"\n后缀" expected=true}
+    if dp_case=="regex_dot" {id="MUSE-IMPROVE-20261005-.*"}
+    if dp_case=="regex_alternative" {id="MUSE-IMPROVE-20261005-1525|ordinary"}
+    ui.calendar_delete_id.set_text(id)
+    calendar_preview="" calendar_error=""
+    let ready=core_storage_ready && calendar_ready
+    let helper=calendar_delete_id_matches(calendar_selected_event,id)
+    calendar_preview_action()
+    let passed=calendar_preview!=""
+    let payload=calendar_preview.parse_json()
+    let binding=true
+    if passed {binding=payload!=nil && payload.calendar_id=="synthetic-calendar" && payload.event_id=="synthetic-selected-event"
+        && payload.expected_version=="synthetic-v1" && payload.request_id==calendar_request_id}
+    let checks={setup_ready:ready helper_state:helper==expected expected_preview_state:passed==expected
+        error_state:((expected && calendar_error=="") || (!expected && calendar_error!=""))
+        selected_event_bound:binding no_host_call:dp_calls.len()==0 no_action_record:actions.len()==0 && runs.len()==0
+        observed_preview:""+passed observed_error:calendar_error}
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| dp_probe())
