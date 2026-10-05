@@ -199,11 +199,15 @@ def main():
             select_flow(case['flow'])
             if case.get('focus'):
                 wanted = case['focus']
-                if not any(w.get('i') == 'session_focus_project' for w in r.widgets()):
-                    r.click('切换')
-                r.set_text('session_focus_project', wanted['project'])
-                r.set_text('session_focus_owner', wanted['owner'])
-                r.click('使用这个项目')
+                if (current()['focus_project'], current()['focus_owner']) != (
+                        wanted['project'], wanted['owner']):
+                    if not any(w.get('ty') == 'Button' and w.get('t') == '使用这个项目'
+                               for w in r.widgets()):
+                        r.click('切换')
+                    r.wait_for('使用这个项目')
+                    r.set_text('session_focus_project', wanted['project'])
+                    r.set_text('session_focus_owner', wanted['owner'])
+                    r.click('使用这个项目')
                 assert current()['focus_project'] == wanted['project']
                 assert current()['focus_owner'] == wanted['owner']
             if case.get('memory_operation'):
