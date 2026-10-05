@@ -40,6 +40,7 @@ let model_pending = false
 let chat_pending = false
 let goal_mode = false
 let page = "Chat"
+let goal_view_request = 0
 let messages = []
 let chat_sessions = []
 let chat_selected_id = ""
@@ -1206,6 +1207,13 @@ fn calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,eve
     if phase < 3 { start_timeout(0.05,|| calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,action_payload,phase+1)) return }
     calendar_selected_event = event
     if event != nil { for i in calendar_events.len() { if calendar_events[i].id == event.id { calendar_events[i] = event } } }
+    if service == "calendar.delete" {
+        let remaining = []
+        for listed in calendar_events {
+            if listed.id != event_id || listed.calendar_id != payload.calendar_id { remaining.push(listed) }
+        }
+        calendar_events = remaining
+    }
     if goal_id != "" { calendar_finish_link(goal_id,run_id,request_id,payload,event) return }
     calendar_pending = false calendar_error = ""
     calendar_notice = "系统日历事件已独立读回核验。"
@@ -8590,16 +8598,30 @@ fn retry_task(){
 
 fn select_goal(id){
     if !core_select_goal(id) { ui_error = core_error redraw() return }
-    chat_bind_goal(id)
+    goal_view_request = goal_view_request + 1
+    let request = goal_view_request
+    let revision = task.version
+    let session_id = chat_selected_id
+    let origin_page = page
     result = nil
-    if task != nil && fs.exists(task.result_path) {
+    // Selecting the durable Goal and saving a dense chat history have separate budgets.
+    start_timeout(0.05,|| select_goal_view(id,revision,session_id,origin_page,request,0))
+}
+
+fn select_goal_view(id,revision,session_id,origin_page,request,phase){
+    if request != goal_view_request || task == nil || task.id != id || task.version != revision
+        || chat_selected_id != session_id || page != origin_page { return }
+    if phase == 0 {
+        if !chat_bind_goal(id) { redraw() return }
+        start_timeout(0.05,|| select_goal_view(id,revision,session_id,origin_page,request,1))
+        return
+    }
+    if fs.exists(task.result_path) {
         let stored = storage_read(task.result_path).parse_json()
         if stored != nil && stored.task_id == task.id { result = stored }
     }
-    if task != nil {
-        ui.goal_input.set_text(task.goal)
-        ui.source_input.set_text(task.source)
-    }
+    ui.goal_input.set_text(task.goal)
+    ui.source_input.set_text(task.source)
     set_page("Goal Detail")
 }
 

@@ -1,0 +1,145 @@
+// Synthetic profile, actual production receipt functions and jailed storage.
+let cc_phase="first"
+let a2_case="__CASE__"
+let a2_checks={}
+let a2_calls=[]
+let a2_wait=0
+let a2_before={}
+let a2_send_callback=nil
+let a2_send_wait=0
+let a2_receipt_wait=0
+fn chain_fixture_request(service,args,cb){
+    a2_calls.push(service)
+    if a2_case.search("send_")==0 && service=="mail.send" {a2_send_callback=cb return}
+    cb({is_ok:false error:"A2 receipt fixture forbids every external service"})
+}
+fn a2_finish(){
+    a2_checks.no_model_or_external_request=a2_calls.len()==0
+    if a2_case.search("send_")==0 {a2_checks.no_model_or_external_request=a2_calls.len()==1 && a2_calls[0]=="mail.send"}
+    a2_checks.chat_preserved=fs.read("chat-sessions.json")==a2_before.chat
+    a2_checks.memory_preserved=fs.read("memory.json")==a2_before.memory
+    if a2_case.search("linked63")==0 {a2_checks.memory_preserved=memory.len()==64}
+    a2_checks.observation={case:a2_case action_status:actions[0].status draft_status:mail_draft.status
+        memory_count:memory.len() source_count:memory_sources.len() mail_error:mail_error core_error:core_error}
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_assert(){
+    let disk=fs.read("goals.json").parse_json()
+    let draft=fs.read("mail-draft.json").parse_json()
+    if a2_case=="wrong_id" || a2_case=="stale_request" {
+        a2_checks.rejected_without_action=disk.actions[0].status=="accepted" && disk.actions.len()==1
+        a2_checks.draft_not_verified=draft.status=="accepted"
+        a2_checks.no_receipt_event=activity.len()==8
+        a2_finish() return
+    }
+    a2_checks.action_verified=disk.actions[0].status=="verified" && disk.actions.len()==__ACTION_COUNT__ && actions[0].status=="verified"
+    a2_checks.draft_verified=draft.status=="verified" && mail_draft.status=="verified" && draft.verified_id=="MUSE-R2-A2-RECEIPT"
+    a2_checks.same_request=draft.request_id=="a2-mail-request" && disk.actions[0].id=="a2-mail-request"
+    a2_checks.user_statement_not_delivery_proof=activity[8].kind=="MAIL_DELIVERY_USER_CONFIRMED"
+        && activity[8].detail.search("非宿主自动投递证明")>=0
+    if a2_case.search("linked")==0 {
+        let artifact=fs.read("results/a2-linked.json").parse_json()
+        a2_checks.linked_goal_run_completed=goals[0].status=="completed" && runs[0].status=="completed"
+            && disk.goals[0].status=="completed" && disk.runs[0].status=="completed"
+        a2_checks.artifact_independent_readback=artifact.task_id=="a2-goal" && artifact.run_id=="a2-run"
+            && artifact.event_id=="a2-event" && artifact.mail_status=="verified_by_user"
+        a2_checks.result_memory=core_memory_index("memory:result:a2-run","synthetic-account")>=0
+        a2_checks.linked_no_error=mail_error==""
+    }
+    a2_before.activity=fs.read("activity.json")
+    a2_before.goals=fs.read("goals.json")
+    a2_before.draft=fs.read("mail-draft.json")
+    mail_verify_received()
+    start_timeout(0.3,|| a2_duplicate_assert())
+}
+fn a2_duplicate_assert(){
+    a2_checks.duplicate_click_no_write=fs.read("goals.json")==a2_before.goals
+        && fs.read("mail-draft.json")==a2_before.draft && fs.read("activity.json")==a2_before.activity
+    fs.write("receipt-baseline.json",{goals:fs.read("goals.json") draft:fs.read("mail-draft.json")
+        memory:fs.read("memory.json") chat:fs.read("chat-sessions.json") activity:fs.read("activity.json")}.to_json())
+    a2_finish()
+}
+fn a2_click(){
+    fs.write("receipt-progress.json",{phase:"click" case:a2_case memory:memory.len() sessions:chat_sessions.len()}.to_json())
+    if a2_case=="stale_memory64" {actions[0].status="accepted"}
+    if a2_case.search("send_")==0 {
+        mail_account={id:"synthetic-account" address:"self@example.invalid"}
+        ui.mail_to.set_text(mail_draft.to) ui.mail_subject.set_text(mail_draft.subject) ui.mail_body.set_text(mail_draft.body)
+        mail_send_confirmed()
+        start_timeout(0.2,|| a2_send_reply()) return
+    }
+    ui.mail_test_id.set_text("MUSE-R2-A2-RECEIPT")
+    if a2_case=="wrong_id" {ui.mail_test_id.set_text("MUSE-R2-WRONG")}
+    mail_verify_received()
+    // Immediately repeat while the first asynchronous verification is pending.
+    mail_verify_received()
+    if a2_case=="stale_request" {mail_draft.request_id="a2-replacement-request"}
+    start_timeout(0.9,|| a2_assert())
+}
+fn a2_send_reply(){
+    if a2_send_callback==nil && a2_send_wait<80 {a2_send_wait=a2_send_wait+1 start_timeout(0.05,|| a2_send_reply()) return}
+    fs.write("receipt-progress.json",{phase:"send_callback" case:a2_case calls:a2_calls.len()}.to_json())
+    a2_checks.before_callback_sending=mail_sending && mail_draft.status=="sending" && a2_calls.len()==1 && a2_send_callback!=nil
+    if a2_send_callback==nil {a2_checks.send_callback_available=false a2_finish() return}
+    let data={accepted:true}
+    if a2_case=="send_unknown_dense" {a2_send_callback({is_ok:false error:"Synthetic SMTP disconnect"})}
+    else {a2_send_callback({is_ok:true data:data})}
+    start_timeout(0.3,|| a2_send_assert())
+}
+fn a2_send_assert(){
+    let state=fs.read("goals.json").parse_json()
+    let draft=fs.read("mail-draft.json").parse_json()
+    let expected="accepted"
+    if a2_case=="send_unknown_dense" {expected="unknown"}
+    if (draft.status!=expected || state.actions[127].status!=expected || mail_sending) && a2_receipt_wait<80 {
+        a2_receipt_wait=a2_receipt_wait+1 start_timeout(0.05,|| a2_send_assert()) return
+    }
+    a2_checks.send_state_saved=draft.status==expected && mail_draft.status==expected
+        && state.actions.len()==128 && state.actions[127].status==expected
+    a2_checks.send_same_request=state.actions[127].id==draft.request_id && draft.request_id!=""
+    a2_checks.no_claimed_delivery=draft.verified_at==0 && draft.verified_id=="" && state.actions[127].status!="verified"
+    a2_before.goals=fs.read("goals.json") a2_before.draft=fs.read("mail-draft.json")
+    mail_send_confirmed()
+    a2_checks.send_duplicate_no_replay=a2_calls.len()==1 && fs.read("goals.json")==a2_before.goals
+        && fs.read("mail-draft.json")==a2_before.draft
+    a2_finish()
+}
+fn a2_restore_assert(){
+    let base=fs.read("receipt-baseline.json").parse_json()
+    a2_checks.restored_goal_bytes=fs.read("goals.json")==base.goals
+    a2_checks.restored_draft_bytes=fs.read("mail-draft.json")==base.draft && mail_draft.status=="verified"
+    a2_checks.restored_memory_bytes=fs.read("memory.json")==base.memory
+    a2_checks.restored_chat_bytes=fs.read("chat-sessions.json")==base.chat && chat_sessions.len()==16
+    a2_checks.restored_activity_bytes=fs.read("activity.json")==base.activity
+    a2_checks.restored_action=actions.len()==__ACTION_COUNT__ && actions[0].status=="verified"
+    a2_before.chat=base.chat a2_before.memory=base.memory
+    a2_finish()
+}
+fn a2_wait_ready(){
+    if gm_boot_pending {a2_wait=a2_wait+1 if a2_wait<180 {start_timeout(0.03,|| a2_wait_ready()) return}}
+    let expected_memory=__MEMORY_COUNT__
+    if cc_phase=="restart" && a2_case.search("linked63")==0 {expected_memory=64}
+    a2_checks.validated_memory=gm_ready && gm_enabled && core_memory_ready
+        && memory.len()==expected_memory
+    a2_checks.validated_chat=chat_ready && chat_sessions.len()==16 && messages.len()==2
+    a2_checks.validated_draft=mail_draft_valid(mail_draft)
+    a2_before.chat=fs.read("chat-sessions.json") a2_before.memory=fs.read("memory.json")
+    if !a2_checks.validated_memory || !a2_checks.validated_chat || !a2_checks.validated_draft {a2_finish() return}
+    if cc_phase=="restart" {start_timeout(0.03,|| a2_restore_assert()) return}
+    start_timeout(0.03,|| a2_click())
+}
+fn a2_load_mail(){
+    calendar_boot()
+    mail_draft_last_state=fs.read("mail-draft.json")
+    mail_draft=mail_draft_last_state.parse_json()
+    chat_boot_data()
+    start_timeout(0.03,|| a2_wait_ready())
+}
+fn a2_memory_boot(){core_boot_memory() gm_boot() start_timeout(0.03,|| a2_load_mail())}
+fn a2_probe(){
+    notification_enabled=false
+    gm_set_accounts(["synthetic-account"])
+    core_boot_goals() core_boot_activity()
+    start_timeout(0.03,|| a2_memory_boot())
+}
+start_timeout(0.1,|| a2_probe())

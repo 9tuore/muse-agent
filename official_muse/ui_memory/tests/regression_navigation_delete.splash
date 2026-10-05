@@ -1,0 +1,62 @@
+// No external writes: production functions and jailed storage, synthetic transport only.
+let nav_checks = {}
+let nav_wait = 0
+let nav_calls = []
+let nav_found = false
+let nav_before = ""
+fn chain_fixture_request(service,args,callback){
+    nav_calls.push(service)
+    if service == "calendar.get" { callback({is_ok:true data:{found:nav_found}}) return }
+    callback({is_ok:false error:"Synthetic test forbids external services"})
+}
+fn nav_ready(){
+    if gm_boot_pending && nav_wait < 180 { nav_wait = nav_wait + 1 start_timeout(0.03,|| nav_ready()) return }
+    nav_checks.synthetic_profile_ready = gm_ready && core_storage_ready && chat_ready
+        && goals.len() == 32 && runs.len() == 128 && actions.len() == 128 && chat_sessions.len() == 16
+    page = "Calendar"
+    select_goal("a2-goal")
+    start_timeout(0.3,|| nav_selected())
+}
+fn nav_selected(){
+    nav_checks.dense_navigation = page == "Goal Detail" && task.id == "a2-goal"
+        && chat_sessions[0].goal_id == "a2-goal" && ui.goal_input.text() == "合成事项 a2-goal"
+    nav_checks.durable_binding = fs.read("chat-sessions.json").parse_json().sessions[0].goal_id == "a2-goal"
+    nav_before = fs.read("chat-sessions.json")
+    let request = goal_view_request
+    select_goal_view("a2-goal",1,chat_selected_id,"Goal Detail",request-1,0)
+    nav_checks.stale_request_ignored = fs.read("chat-sessions.json") == nav_before
+    select_goal_view("a2-goal",2,chat_selected_id,"Goal Detail",request,0)
+    nav_checks.stale_revision_ignored = fs.read("chat-sessions.json") == nav_before
+    select_goal_view("a2-goal",1,"a2-chat-1","Goal Detail",request,0)
+    nav_checks.other_chat_ignored = fs.read("chat-sessions.json") == nav_before
+    select_goal_view("a2-goal",1,chat_selected_id,"Chat",request,0)
+    nav_checks.other_page_ignored = fs.read("chat-sessions.json") == nav_before
+    select_goal_view("a2-historical-goal-1",1,chat_selected_id,"Goal Detail",request,0)
+    nav_checks.other_goal_ignored = fs.read("chat-sessions.json") == nav_before
+    start_timeout(0.03,|| nav_delete_begin())
+}
+fn nav_delete_begin(){
+    calendar_events = [{id:"a2-event" calendar_id:"a2-calendar"} {id:"a2-event" calendar_id:"other-calendar"}
+        {id:"untouched" calendar_id:"a2-calendar"}]
+    nav_before = calendar_events.to_json()
+    nav_found = true
+    calendar_readback_deleted("a2-mail-request",{calendar_id:"a2-calendar" event_id:"a2-event"},"a2-event")
+    nav_checks.found_event_not_pruned = calendar_events.to_json() == nav_before && actions[0].status == "accepted"
+    nav_found = false
+    calendar_readback_deleted("a2-mail-request",{calendar_id:"a2-calendar" event_id:"a2-event"},"a2-event")
+    start_timeout(0.5,|| nav_delete_done())
+}
+fn nav_delete_done(){
+    if calendar_pending && nav_wait < 220 { nav_wait = nav_wait + 1 start_timeout(0.05,|| nav_delete_done()) return }
+    nav_checks.delete_verified = actions[0].status == "verified" && !calendar_pending && calendar_error == ""
+    nav_checks.deleted_event_removed = calendar_events.len() == 2
+    nav_checks.other_calendar_preserved = calendar_events[0].id == "a2-event" && calendar_events[0].calendar_id == "other-calendar"
+    nav_checks.other_event_preserved = calendar_events[1].id == "untouched"
+    nav_checks.receipt_saved = calendar_receipts.len() == 1 && calendar_receipts[0].status == "verified"
+    nav_checks.only_independent_reads = nav_calls.to_json() == ["calendar.get","calendar.get"].to_json()
+    fs.write("probe.json",nav_checks.to_json())
+}
+fn nav_memory(){ core_boot_memory() gm_boot() start_timeout(0.03,|| nav_chat()) }
+fn nav_chat(){ calendar_boot() chat_boot_data() start_timeout(0.03,|| nav_ready()) }
+fn nav_probe(){ notification_enabled=false gm_set_accounts(["synthetic-account"]) core_boot_goals() core_boot_activity() start_timeout(0.03,|| nav_memory()) }
+start_timeout(0.1,|| nav_probe())
