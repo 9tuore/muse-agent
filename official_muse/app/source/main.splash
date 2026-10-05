@@ -2113,7 +2113,7 @@ fn schedule_replan_original(goal_id,account,message){
         // All earlier messages remain as ordered history of this same matter.
         let next = goals[gi].to_json().parse_json()
         if message.body.len() > 3500 { calendar_error = "改期邮件过长，请先确认相关片段。" redraw() return }
-        let source_id = "source:mail:" + account + ":" + message.id
+        let source_id = "source:goalmail:" + goal_id + ":" + account + ":" + message.id
         let memory_id = "memory:goalmail:" + goal_id + ":" + message.id
         let observed = core_utc_iso(time_now())
         let source = {source_id: source_id kind: "runtime_receipt" locator: "mail:" + account + ":" + message.id
@@ -2133,7 +2133,7 @@ fn schedule_replan_original(goal_id,account,message){
         next.status = "planned"
         next.phase = "calendar"
         next.source = message.body
-        next.mail_source = {account_id: account message_id: message.id source_id: "source:mail:" + account + ":" + message.id
+        next.mail_source = {account_id: account message_id: message.id source_id: source_id
             observed_at: core_utc_iso(time_now()) message_time: message["date"]}
         next.goal_spec = calendar_goal_spec(goal_id,next.version,next.goal,next.result_path)
         next.goal_spec.steps[0].id = "update-calendar-event"
@@ -2338,10 +2338,12 @@ fn memory_remember_goal(){
 }
 
 fn memory_remember_mail(){
-    if gm_project == "" || gm_owner == "" { mail_error = "请先选择邮件所属项目与归属。" mail_redraw() return }
+    if mail_scope_project == "" || mail_scope_owner == "" { mail_error = "请先选择邮件所属项目与归属。" mail_redraw() return }
     if mail_account == nil || mail_selected == nil { return }
     if mail_selected.body.len() > 65536 { mail_error = "邮件正文超过来源摘要的 64 KiB 上限，未保存来源。" mail_redraw() return }
     let account_id = mail_account.id
+    let mail_memory_scope = gm_complete_scope(core_memory_scope(account_id))
+    mail_memory_scope.project_id = mail_scope_project mail_memory_scope.owner_id = mail_scope_owner
     let message_id = mail_selected.id
     let excerpt = mail_selected.subject
     if excerpt == "" || excerpt.len() > 500 { mail_error = "来源摘录过长或为空，未保存记忆。" mail_redraw() return }
@@ -2354,14 +2356,14 @@ fn memory_remember_mail(){
     let source = {source_id: source_id kind: "runtime_receipt"
         locator: "mail:" + account_id + ":" + message_id
         content_sha256: fs.sha256(mail_selected.body) observed_at: now updated_at: now support_excerpt: excerpt}
-    source["scope"] = gm_complete_scope(core_memory_scope(account_id))
+    source["scope"] = mail_memory_scope.to_json().parse_json()
     if !core_add_source(source) { mail_error = "来源未保存：" + core_error mail_redraw() return }
     let doc = {schema_version: "muse.dsl/1" kind: "memory" id: memory_id revision: 1
         created_at: now updated_at: now origin: {type: "local_runtime" ref: "mail-host"}
         payload: {subject_id: "mail:" + account_id + ":" + message_id predicate: "message_content"
             value: value epistemic_type: "external_claim" source_ids: [source_id]
             observed_at: now valid_from: nil valid_until: nil relations: [] deleted: false}}
-    doc["scope"] = gm_complete_scope(core_memory_scope(account_id))
+    doc["scope"] = mail_memory_scope.to_json().parse_json()
     if !core_add_claim(doc) { mail_error = "记忆未保存：" + core_error mail_redraw() return }
     core_record_event("memory saved","已授权邮件内容作为外部声明保存，并附账号/消息来源。","","","",account_id)
     mail_notice = "来源记忆已保存，见记忆页当前邮箱作用域。"
@@ -2422,7 +2424,7 @@ fn mail_link_calendar(){
         }
     }
     let now = core_utc_iso(time_now())
-    let source_id = "source:mail:" + account_id + ":" + message_id
+    let source_id = "source:goalmail:" + id + ":" + account_id + ":" + message_id
     let body = mail_selected.body
     if body == "" || body.len() > 3500 { body = excerpt }
     let path = "results/calendar-" + id + ".json"
@@ -2443,7 +2445,12 @@ fn mail_link_calendar(){
         mail_redraw()
         return
     }
-    if recovered_goal { core_select_goal(id) }
+    if recovered_goal {
+        let recovered = goals[core_goal_index(id)].to_json().parse_json()
+        recovered.mail_source.source_id = source_id
+        if !core_upsert_goal(recovered) { mail_error = core_error mail_redraw() return }
+        core_select_goal(id)
+    }
     let source = {source_id: source_id kind: "runtime_receipt"
         locator: "mail:" + account_id + ":" + message_id content_sha256: fs.sha256(mail_selected.body)
         observed_at: now updated_at: now support_excerpt: excerpt}
@@ -8523,7 +8530,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc15" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc16" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}

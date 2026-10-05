@@ -1,3 +1,7 @@
+## 2026-10-05 上午 rc16 最小修复
+
+rc15 新宿主完整日历授权与邮箱连接已实测；合成测试信单次 SMTP 受理、自动提醒卡及正文独立读回通过。先保存邮件来源再建立日历任务暴露 source ID 作用域碰撞，失败保留。rc16 分开任务来源 namespace，邮箱保存来源使用邮件明确项目/归属；恢复未执行计划时只修来源绑定，不删历史。签名本地 hub check PASS；同一最终候选真实链仍待验证，整体 PARTIAL，无 push。
+
 ## 2026-10-05 12:45 · rc15发送忙碌反馈与新Host实机
 
 新Host7eebe833/SDKda已独立二进制/锁/严格验签核对、复制持久路径后再核对，固定profile8493运行rc14。日历status严格schema已可读，permission=not_determined；本人请求等待120秒返回timed_out，系统决定仍待。邮箱元数据识别成功，但服务持续显示“检查中·等待宿主”；源测试稿两次明确零dispatch后点击均未生成request/attempt/actions，未发信，FAIL保留。rc15只为新邮件确认按钮增加与既有守卫一致的disabled和等待/不可写原因，不改变发送函数或宿主；91611官方tokens等价、Hub check PASS，实机渲染待。
