@@ -67,4 +67,8 @@
 
 冻结源码为 `a4cf4d9e6cd3ff1067e2821a29d4e5be48d2ad39`，完整 2,180 个文件。首次 rc51 ZIP 实际 527,708,351 字节，大小门槛失败；独立完整还原、SHA/模式/链接、签名、原生启动器及扩展 Hub 检查通过。原包和失败证据保留，见[首次大包报告](../packaging/rc51-solid-final-r1/FINAL_REPORT.md)。
 
-整体 XZ 展开包正在核对：保留完整冻结源码和相同应用/模型字节，仅排除已经展开源码的重复压缩副本；外层 ZIP 不再重复压缩 XZ。首次展开使用 macOS 自带 tar，并在启动前核对 SHA、应用签名和原生启动器。不能由压缩中的部分大小推断最终小于 500MB。实际结果按 DELIVERY.json 更新。既有 rc49 媒体与旧包保留原身份。正常 GitHub 同步已授权；不 force、不动旧 Tag、不正式提交 App Hub。
+整体 XZ 最终展开包 **492,361,442 字节（492.36MB）**，比严格500,000,000字节门槛少7,638,558字节。ZIP SHA256：`e7a80d006443352932784e3f5b56304dec66106c71f59ff1764a24905d8a6c65`。完整归档保留2,180源码文件、同应用/模型字节和原支持资料，仅排除已展开源码的重复tar.xz；未删除失败证据。实际整体压缩605.37秒，tar成员核对54.79秒，独立还原与检查82.91秒，总计765.2秒。
+
+macOS自带tar通过真实 `--check-only` 展开；完整payload及源码SHA、权限、符号链接、严格签名、原生启动器和本地扩展Hub verify/check/scan通过。测试终端的非致命locale警告原样保留。Root独立ZIP全部CRC、SHA、source/F清单和命令0755核对一致。没有为包装测试打开GUI或调用模型/邮箱/日历；Intel/macOS14+及两接收Mac未测的边界保持。见[完整分发检查](../packaging/rc51-solid-envelope-r2/RESULT.json)与[Root容器核对](DELIVERY_ROOT_VERIFICATION.json)。验证后仅删除已授权、可重建的独立还原副本释放空间，完整归档、桌面展开原stage、旧包和报告保留。
+
+桌面提供完整展开包ZIP/文件夹、96秒实录、封面和字幕；解压ZIP后运行 `00-展开并启动.command`，首次展开再进入原应用，无需Python、Rust、Git或额外解压软件。源码冻结F与后续分发工具/报告提交分开记录。实际身份见[DELIVERY.json](DELIVERY.json)。普通GitHub同步已完成至46a65ef6并独立读回，最终记录另行普通同步；不force、不动旧Tag、不正式提交App Hub。

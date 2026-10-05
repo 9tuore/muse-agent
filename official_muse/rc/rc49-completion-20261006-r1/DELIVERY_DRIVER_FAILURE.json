@@ -1,0 +1,13 @@
+{
+  "phase": "Root desktop receipt generation",
+  "initial_stdin_driver": "FAIL: Non-UTF-8 source error before execution",
+  "initial_driver_performed_mutations": false,
+  "fix": "Save UTF-8 script to a local file and execute that observed file",
+  "fixed_driver_exit_code": 0,
+  "fixed_driver_observed_result": "Delivery identities checked; desktop status, report, and instructions written. No GUI or external action.",
+  "product_or_packaging_test_failure": false,
+  "earlier_scan_driver_failure": "Git quoted Unicode filenames were passed literally to git show; corrected using NUL-separated git diff paths",
+  "scan_fix_observed": "512 paths; 433 text files scanned; no high-confidence key pattern or private-path flags at d27c3d52",
+  "followup_check_failure": "Read PUBLIC_DELIVERY_SCAN.json before its running producer completed; no mutation; awaited actual completion",
+  "final_scan_observed": "528 paths / 449 text / 79 binary; no high-confidence key or private-path flags; baseline SHA unchanged"
+}

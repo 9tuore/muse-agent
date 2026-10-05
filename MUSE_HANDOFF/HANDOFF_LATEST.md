@@ -10,7 +10,7 @@ PARTIAL。rc50补对话字段、来源保存分段、矮窗历史；rc51单次�
 
 ## Changed
 
-main.splash、首次保存/关联fixture、启动退出器、solid源码压缩；公开报告保留失败与版本身份。
+main.splash、首次保存/关联fixture、启动退出器、完整XZ展开分发；公开报告保留失败与版本身份。
 
 ## Tests
 
@@ -18,7 +18,7 @@ main.splash、首次保存/关联fixture、启动退出器、solid源码压缩�
 
 ## Commit
 
-产品6b46c3c8；启动器6ba4af24；打包f3362cb5。最终冻结、桌面包及普通同步另存DELIVERY.json。
+产品6b46c3c8；冻结F/a4cf4d9e；打包d27c3d52。普通push46a65ef6已独立读回，最终记录继续同步；身份见DELIVERY.json。
 
 ## Remaining
 
@@ -26,4 +26,4 @@ main.splash、首次保存/关联fixture、启动退出器、solid源码压缩�
 
 ## Important Boundaries
 
-扩展Hub演练PASS≠原版Calendar准入/上架。源码tar.xz全内容/权限独立读回；旧安装/生产/Tag/dirty baseline保护。未标20/20。
+完整包492361442bytes、2180源码及内置模型保持，真实tar还原/签名/启动器/Hub与Root ZIP CRC/SHA通过，未开GUI。首527MB失败包保留。扩展Hub PASS≠原版Calendar准入。旧安装/生产/Tag/dirty baseline保护，未标20/20。
