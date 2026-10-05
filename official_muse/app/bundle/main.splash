@@ -1865,7 +1865,7 @@ if alert["analysis"]!=nil&&alert.analysis.kind=="reschedule"{
 if original==""{mail_reply_error="还不能确定原约定，请提供准确事项ID；不会新建替代事件。" mail_watch_refresh()return}
 let li=calendar_link_index(original)
 if li<0||calendar_links[li].status!="verified"{mail_reply_error="前一封改期尚未处理完成，请依次处理。" mail_watch_refresh()return}
-schedule_replan_original(original,alert.account_id,alert.source_message)
+schedule_replan_original(original,alert.account_id,alert.source_message,nil)
 return
 }
 mail_account=account mail_selected=alert.source_message
@@ -2290,62 +2290,109 @@ schedule_slots=[]
 calendar_check_conflicts()
 }
 
-fn schedule_replan_original(goal_id,account,message){
+fn schedule_replan_original(goal_id,account,message,confirmation){
 if calendar_pending{return}
 let li=calendar_link_index(goal_id)
 let gi=core_goal_index(goal_id)
 if li<0||gi<0||calendar_links[li].status!="verified"||calendar_links[li].account_id!=account{return}
 let link=calendar_links[li].to_json().parse_json()
-let expected_goal_revision=goals[gi].version
+let context={goal_id:goal_id account:account message:message.to_json().parse_json()
+confirmation:confirmation link:link goal_binding:goals[gi].to_json()link_binding:calendar_links[li].to_json()
+source_binding:"" claim_binding:""}
 calendar_pending=true
 host.request("calendar.get",{calendar_id:link.calendar_id event_id:link.event_id},fn(r){
-calendar_pending=false
-let current_li=calendar_link_index(goal_id)
-let current_gi=core_goal_index(goal_id)
-let incoming_i=mail_watch_alert_index(account+":"+message.id)
-if!gm_account_allowed(account)||current_li<0||current_gi<0
-||goals[current_gi].version!=expected_goal_revision||calendar_links[current_li].status!="verified"
-||calendar_links[current_li].version!=link.version||calendar_links[current_li].event_id!=link.event_id
-||(incoming_i>=0&&mail_watch.alerts[incoming_i].status=="dismissed"){
-calendar_error="原事项、授权或来信决定已经变化，旧改期读取未采用。" redraw()return
-}
+if!schedule_replan_current(context){calendar_pending=false calendar_error="原事项、授权或选中的邮件已变化，请重新选择原约定。" redraw()return}
 if!r.is_ok||r.data==nil||r.data.found!=true||r.data.event==nil{
-calendar_error="原事件不存在或无法读取；请核对原事项，不会新建替代事件。" redraw()return
+calendar_pending=false calendar_error="原事件不存在或无法读取；请核对原事项，不会新建替代事件。" redraw()return
 }
 let event=r.data.event
 if event.id!=link.event_id||event.calendar_id!=link.calendar_id||event["recurring"]!=false{
-calendar_error="原事件归属或循环状态无法核实，本轮不改循环事件。" redraw()return
+calendar_pending=false calendar_error="原事件归属或循环状态无法核实，本轮不改循环事件。" redraw()return
 }
-
-let next=goals[gi].to_json().parse_json()
-if message.body.len()>3500{calendar_error="改期邮件过长，请先确认相关片段。" redraw()return}
+if message.body.len()>3500{calendar_pending=false calendar_error="改期邮件过长，请先确认相关片段。" redraw()return}
 let source_id="source:goalmail:"+goal_id+":"+account+":"+message.id
 let memory_id="memory:goalmail:"+goal_id+":"+message.id
 let observed=core_utc_iso(time_now())
 let source={source_id:source_id kind:"runtime_receipt" locator:"mail:"+account+":"+message.id
 content_sha256:fs.sha256(message.body)observed_at:observed updated_at:observed support_excerpt:core_excerpt(message.body)}
 source["scope"]=task_memory_scope(goal_id,account)
-if!core_add_source(source){calendar_error=core_error redraw()return}
 let doc={schema_version:"muse.dsl/1" kind:"memory" id:memory_id revision:1
 created_at:observed updated_at:observed origin:{type:"local_runtime" ref:"mail-host"}
 payload:{subject_id:goal_id predicate:"calendar_source_message:"+message.id value:message.body
 epistemic_type:"external_claim" source_ids:[source_id]observed_at:observed
 valid_from:nil valid_until:nil relations:[]deleted:false}}
 doc["scope"]=task_memory_scope(goal_id,account)
-if!core_add_claim(doc){calendar_error=core_error redraw()return}
-if next.status=="running"||next.archived{return}
+context.source=source context.document=doc context.event=event
+start_timeout(0.05,||schedule_replan_step(context,0))
+})
+}
+
+fn schedule_replan_current(context){
+let gi=core_goal_index(context.goal_id)let li=calendar_link_index(context.goal_id)
+let incoming_i=mail_watch_alert_index(context.account+":"+context.message.id)
+if!gm_account_allowed(context.account)||gi<0||li<0||goals[gi].archived
+||goals[gi].to_json()!=context.goal_binding||calendar_links[li].to_json()!=context.link_binding
+||(incoming_i>=0&&mail_watch.alerts[incoming_i].status=="dismissed"){return false}
+let confirmation=context.confirmation
+if confirmation!=nil&&(mail_account==nil||mail_account.id!=confirmation.account
+||mail_selected==nil||mail_selected.id!=confirmation.message
+||mail_scope_project!=confirmation.project||mail_scope_owner!=confirmation.owner){return false}
+if context.source_binding!=""{
+let si=core_source_index(context.source.source_id,context.account)
+if si<0||memory_sources[si].to_json()!=context.source_binding{return false}
+}
+if context.claim_binding!=""{
+let mi=core_memory_index(context.document.id,context.account)
+if mi<0||memory[mi].to_json()!=context.claim_binding|| !gm_entry_access(memory[mi]){return false}
+}
+return true
+}
+
+
+fn schedule_replan_step(context,phase){
+if!schedule_replan_current(context){calendar_pending=false calendar_error="原事项、来源或选中的邮件已变化，请重新选择；没有修改系统日历。" redraw()return}
+let goal_id=context.goal_id let account=context.account let message=context.message
+let gi=core_goal_index(goal_id)let li=calendar_link_index(goal_id)
+if phase==0{
+if!core_add_source(context.source){calendar_pending=false calendar_error=core_error redraw()return}
+context.source_binding=memory_sources[core_source_index(context.source.source_id,account)].to_json()
+}
+if phase==1{
+let mi=core_memory_index(context.document.id,account)
+if mi<0{
+if!core_add_claim(context.document){calendar_pending=false calendar_error=core_error redraw()return}
+mi=core_memory_index(context.document.id,account)
+}else{
+let existing=memory[mi].document
+if!gm_entry_access(memory[mi])||existing.revision!=1
+|| !gm_same_scope(existing["scope"],context.document["scope"])
+||existing.payload.subject_id!=goal_id||existing.payload.predicate!=context.document.payload.predicate
+||existing.payload.value!=message.body||existing.payload.epistemic_type!="external_claim"
+||existing.payload.deleted||existing.payload.source_ids.to_json()!=[context.source.source_id].to_json()
+||existing.payload.relations.len()!=0{
+calendar_pending=false calendar_error="原邮件来源记忆已变化或遗忘，未复用旧内容。" redraw()return
+}
+}
+context.claim_binding=memory[mi].to_json()
+}
+if phase==2{
+let next=goals[gi].to_json().parse_json()
 next.version=next.version+1
 next.result_path="results/calendar-"+goal_id+"-v"+next.version+".json"
 next.status="planned"
 next.phase="calendar"
 next.source=message.body
-next.mail_source={account_id:account message_id:message.id source_id:source_id
+next.mail_source={account_id:account message_id:message.id source_id:context.source.source_id
 observed_at:core_utc_iso(time_now())message_time:message["date"]}
 next.goal_spec=calendar_goal_spec(goal_id,next.version,next.goal,next.result_path)
 next.goal_spec.steps[0].id="update-calendar-event"
 next.goal_spec.steps[0].capability="calendar.update"
 next.goal_spec.permissions.capabilities=["calendar.update"]
-if!core_replan_goal(goal_id,next){calendar_error=core_error redraw()return}
+if!core_replan_goal(goal_id,next){calendar_pending=false calendar_error=core_error redraw()return}
+context.goal_binding=goals[gi].to_json()
+}
+if phase==3{
+let link=context.link.to_json().parse_json()let event=context.event
 let history=link["history"]
 if history==nil{history=[]}
 history.push({message_id:link.message_id rfc_message_id:link["rfc_message_id"]source_id:link.source_id event_id:link.event_id version:link.version
@@ -2354,8 +2401,8 @@ link.history=history
 link.message_id=message.id
 link.rfc_message_id=message["message_id"]
 link.soft_exception=nil
-link.source_id=next.mail_source.source_id
-link.source_claim_id=memory_id
+link.source_id=context.source.source_id
+link.source_claim_id=context.document.id
 link.original_event=event
 link.status="candidate"
 link.operation="update"
@@ -2363,15 +2410,20 @@ link.candidate={title:event.title start:event.start end:event.end time_zone:even
 link.version=event.version
 link.active_generation=nil
 calendar_links[li]=link
-if!calendar_save(){redraw()return}
+if!calendar_save(){calendar_pending=false redraw()return}
+context.link_binding=calendar_links[li].to_json()
+}
+if phase==4{
 calendar_selected_goal=goal_id
-calendar_selected_event=event
+calendar_selected_event=context.event
 calendar_operation="update"
 calendar_select_link(goal_id)
+}
+if phase<5{start_timeout(0.05,||schedule_replan_step(context,phase+1))return}
+calendar_pending=false
 calendar_model_candidate(goal_id,account,message.id,message.subject,message.body)
 calendar_notice="已找到原约定；改期只改变日期和时间，仍需单独确认。"
 redraw()
-})
 }
 
 
@@ -2589,7 +2641,7 @@ let incoming_i=mail_watch_alert_index(mail_account.id+":"+mail_selected.id)
 let reschedule=incoming_i>=0&&mail_watch.alerts[incoming_i]["analysis"]!=nil&&mail_watch.alerts[incoming_i].analysis.kind=="reschedule"
 if reschedule{
 if original_id==""{mail_error="请先确认原约定，改期不会创建替代事件。" mail_redraw()return}
-schedule_replan_original(original_id,mail_account.id,mail_selected)
+schedule_replan_original(original_id,mail_account.id,mail_selected,nil)
 return
 }
 if original_id!=""{calendar_select_link(original_id)return}
@@ -2676,6 +2728,21 @@ project_id:project owner_id:owner focus_project:gm_project focus_owner:gm_owner
 rfc_message_id:mail_selected["message_id"]}
 mail_calendar_link_pending=true
 start_timeout(0.05,||mail_calendar_attach(context,source,doc,excerpt,body,1))
+}
+
+
+fn mail_replan_confirmed(goal_id,message_id){
+if mail_account==nil||mail_selected==nil||mail_selected.id!=message_id
+||mail_pending||mail_calendar_link_pending||calendar_pending{return}
+let li=calendar_link_index(goal_id)let gi=core_goal_index(goal_id)
+if li<0||gi<0||calendar_links[li].status!="verified"
+||calendar_links[li].account_id!=mail_account.id|| !gm_account_allowed(mail_account.id)
+||goals[gi].archived||goals[gi]["project_id"]!=mail_scope_project
+||goals[gi]["owner_id"]!=mail_scope_owner||mail_scope_project==""||mail_scope_owner==""{
+mail_error="原约定或邮件归属已变化，请重新选择；没有修改日历。" mail_redraw()return
+}
+schedule_replan_original(goal_id,mail_account.id,mail_selected,
+{account:mail_account.id message:message_id project:mail_scope_project owner:mail_scope_owner})
 }
 
 let mail_calendar_link_pending=false
@@ -8722,11 +8789,24 @@ Label{width:Fill text:"主题 · "+mail_selected.subject draw_text.color:ink dra
 Label{width:Fill text:"时间 · "+mail_selected.date draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
 Label{width:Fill text:mail_selected.body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"这封邮件的事项归属" draw_text.color:muted}
-mail_project:=TextInput{width:Fill height:34 text:mail_scope_project empty_text:"项目" on_change: ||{mail_scope_project=ui.mail_project.text()}}
-mail_owner:=TextInput{width:Fill height:34 text:mail_scope_owner empty_text:"归属" on_change: ||{mail_scope_owner=ui.mail_owner.text()}}
+mail_project:=TextInput{width:Fill height:34 text:mail_scope_project empty_text:"项目" on_change: ||{mail_scope_project=ui.mail_project.text();ui.mail_original_choices.render()}}
+mail_owner:=TextInput{width:Fill height:34 text:mail_scope_owner empty_text:"归属" on_change: ||{mail_scope_owner=ui.mail_owner.text();ui.mail_original_choices.render()}}
+mail_original_choices:=View{width:Fill height:Fit flow:Down spacing:6 on_render: ||{
+let selected_message_id=mail_selected.id
 if schedule_match_original(mail_account.id,mail_selected)!=""{
-Secondary{text:"继续原约定并准备改期" on_click: ||schedule_replan_original(schedule_match_original(mail_account.id,mail_selected),mail_account.id,mail_selected)}
+Secondary{text:"继续原约定并准备改期" on_click: ||schedule_replan_original(schedule_match_original(mail_account.id,mail_selected),mail_account.id,mail_selected,nil)}
+}else if mail_scope_project!=""&&mail_scope_owner!=""{
+for link in calendar_links{
+let gi=core_goal_index(link.goal_id)
+if gi>=0&&link.status=="verified"&&link.account_id==mail_account.id
+&& !goals[gi].archived&&goals[gi]["project_id"]==mail_scope_project
+&&goals[gi]["owner_id"]==mail_scope_owner{
+Secondary{text:"为「"+goals[gi].goal+"」准备改期"
+on_click: ||mail_replan_confirmed(link.goal_id,selected_message_id)}
 }
+}
+}
+}}
 if technical_open{Label{width:Fill text:"保留邮件来源；回复通过宿主发信服务发送，未提供线程头。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
 Secondary{text:"保存这封邮件的来源记忆" on_click: ||memory_remember_mail()}
 Secondary{text:"从此邮件安排日程" on_click: ||mail_link_calendar()}
@@ -8823,7 +8903,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc29" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc32" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
