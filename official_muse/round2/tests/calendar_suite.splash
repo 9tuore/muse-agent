@@ -1,3 +1,15 @@
+let calendar_test_checks = {}
+let calendar_test_waits = 0
+// Existing fixture transport counts a mutation dispatch without answering it.
+// Wait for dispatch or a real rejection; do not invent a successful Host reply.
+fn calendar_test_wait(next){
+    if fixture_writes > 0 || !calendar_pending { calendar_test_waits = 0 start_timeout(0.05,next) return }
+    calendar_test_waits = calendar_test_waits + 1
+    if calendar_test_waits >= 100 {
+        fs.write("probe.json",{async_confirmation_finished: false activity: activity}.to_json()) return
+    }
+    start_timeout(0.05,|| calendar_test_wait(next))
+}
 fn prepare(){
     calendar_pending = false
     calendar_selected_goal = ""
@@ -10,6 +22,10 @@ fn prepare(){
     fixture_calls = []
     fixture_calendar_writable = true
     actions = []
+    // Each run uses tomorrow in the same +08:00 timezone as the form.
+    let tomorrow = page_date_parts(page_time_floor((time_now()+28800)/86400)+1).date
+    ui.calendar_start.set_text(tomorrow+"T15:00:00+08:00")
+    ui.calendar_end.set_text(tomorrow+"T16:00:00+08:00")
     calendar_check_conflicts()
     calendar_preview_action()
 }
@@ -17,50 +33,72 @@ fn probe(){
     fixture_seed()
     prepare()
     calendar_confirm_action()
-    let unchanged = fixture_writes == 1 && fixture_calls[1].service == "calendar.status"
-        && fixture_calls[2].service == "calendar.list"
+    calendar_test_wait(|| calendar_test_unchanged())
+}
+fn calendar_test_unchanged(){
+    calendar_test_checks.unchanged = fixture_writes == 1 && fixture_calls.len() > 2
+        && fixture_calls[1].service == "calendar.status" && fixture_calls[2].service == "calendar.list"
     calendar_confirm_action()
-    let duplicate = fixture_writes == 1
+    calendar_test_checks.duplicate = fixture_writes == 1
     prepare()
-    fixture_events = [{id: "external" version: "v1" title: "external"}]
+    fixture_events = [{id: "external" version: "v1" calendar_id: "fixture-calendar" title: "external"}]
     calendar_confirm_action()
-    let added = fixture_writes == 0 && calendar_preview == "" && calendar_conflicts.len() == 1
+    calendar_test_wait(|| calendar_test_added())
+}
+fn calendar_test_added(){
+    calendar_test_checks.added_conflict = fixture_writes == 0 && calendar_preview == "" && calendar_conflicts.len() == 1
     fixture_events = []
     calendar_check_conflicts()
     calendar_preview_action()
     calendar_confirm_action()
-    let removed = fixture_writes == 1
+    calendar_test_wait(|| calendar_test_removed())
+}
+fn calendar_test_removed(){
+    calendar_test_checks.removed_conflict_new_approval = fixture_writes == 1
     prepare()
     ui.calendar_title.set_text("changed")
     calendar_edit()
     calendar_confirm_action()
-    let edited = fixture_writes == 0
+    calendar_test_wait(|| calendar_test_edited())
+}
+fn calendar_test_edited(){
+    calendar_test_checks.edited_invalidates = fixture_writes == 0
     prepare()
     fixture_calendar_writable = false
     calendar_confirm_action()
-    let permission = fixture_writes == 0 && calendar_preview == ""
+    calendar_test_wait(|| calendar_test_permission())
+}
+fn calendar_test_permission(){
+    calendar_test_checks.writable_revoked = fixture_writes == 0 && calendar_preview == ""
     prepare()
     calendar_preview = ""
     calendar_boot()
     calendar_confirm_action()
-    let restart = fixture_writes == 0
+    calendar_test_wait(|| calendar_test_restart())
+}
+fn calendar_test_restart(){
+    calendar_test_checks.restart_preview_invalid = fixture_writes == 0
     prepare()
     calendar_selected_event = {id: "fixture-event" calendar_id: "fixture-calendar" version: "fixture-v1" title: "MUSE-R2-SYNTHETIC"}
     calendar_operation = "update"
     calendar_check_conflicts()
     calendar_preview_action()
     calendar_confirm_action()
-    let update_stale = fixture_writes == 0 && calendar_preview == ""
+    calendar_test_wait(|| calendar_test_update())
+}
+fn calendar_test_update(){
+    calendar_test_checks.update_version_changed = fixture_writes == 0 && calendar_preview == ""
     prepare()
     calendar_selected_event = {id: "fixture-event" calendar_id: "fixture-calendar" version: "fixture-v1" title: "MUSE-R2-SYNTHETIC"}
     calendar_operation = "delete"
     ui.calendar_delete_id.set_text("MUSE-R2-SYNTHETIC")
     calendar_preview_action()
     calendar_confirm_action()
-    let delete_stale = fixture_writes == 0 && calendar_preview == ""
-    fs.write("probe.json",{unchanged: unchanged duplicate: duplicate added_conflict: added
-        removed_conflict_new_approval: removed edited_invalidates: edited writable_revoked: permission
-        restart_preview_invalid: restart update_version_changed: update_stale delete_version_changed: delete_stale
-        activity: activity}.to_json())
+    calendar_test_wait(|| calendar_test_delete())
+}
+fn calendar_test_delete(){
+    calendar_test_checks.delete_version_changed = fixture_writes == 0 && calendar_preview == ""
+    calendar_test_checks.activity = activity
+    fs.write("probe.json",calendar_test_checks.to_json())
 }
 start_timeout(0.1, || probe())

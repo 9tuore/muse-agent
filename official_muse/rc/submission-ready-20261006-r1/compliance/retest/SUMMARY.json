@@ -1,0 +1,229 @@
+{
+  "status": "NARROW_FIXTURE_RETEST_PASS",
+  "completed_at": "2026-10-06T01:22:02.564569+08:00",
+  "product_versions": [
+    "0.3.26-rc46",
+    "0.3.26-rc47"
+  ],
+  "checks_per_version": 27,
+  "total_fixed_checks": 54,
+  "runs": [
+    {
+      "run": "rc46-old-proposal",
+      "suite": "chat_proposal",
+      "summary": {
+        "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "created_at": "2026-10-06T01:17:45+0800",
+        "suites": {
+          "chat_proposal": {
+            "status": "ERROR",
+            "error": "No probe report; inspect runtime.log"
+          }
+        },
+        "instrumented_source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "compact_equivalence": null,
+        "boundary": "FIXTURE only; candidate may be intermediate until controller freezes it."
+      },
+      "files": {
+        "runtime.log": {
+          "path": "rc46-old-proposal-runtime.log",
+          "sha256": "3c7488d5cf89f36d8d8cd5850e4627680a85176eb46e55182e31b51502d7787a"
+        },
+        "summary": "rc46-old-proposal-summary.json"
+      }
+    },
+    {
+      "run": "rc46-old-calendar",
+      "suite": "calendar_suite",
+      "summary": {
+        "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "created_at": "2026-10-06T01:17:21+0800",
+        "suites": {
+          "calendar_suite": {
+            "passed": 5,
+            "failed": [
+              "unchanged",
+              "duplicate",
+              "added_conflict",
+              "removed_conflict_new_approval"
+            ],
+            "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+            "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6"
+          }
+        },
+        "instrumented_source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "compact_equivalence": null,
+        "boundary": "FIXTURE only; candidate may be intermediate until controller freezes it."
+      },
+      "files": {
+        "runtime.log": {
+          "path": "rc46-old-calendar-runtime.log",
+          "sha256": "ef9090891c2a028287e4917c6c5219d122867c1827d6f1c54a69ddbe1687cf4c"
+        },
+        "report.json": {
+          "path": "rc46-old-calendar-report.json",
+          "sha256": "435f0186c355b864974188ccfa1812e505a5e29798496b50e386fcb1c85aece4"
+        },
+        "summary": "rc46-old-calendar-summary.json"
+      }
+    },
+    {
+      "run": "rc46-fixed-proposal-r1",
+      "suite": "chat_proposal",
+      "summary": {
+        "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "created_at": "2026-10-06T01:19:40+0800",
+        "suites": {
+          "chat_proposal": {
+            "status": "ERROR",
+            "error": "Probe report is not an object; inspect preserved probe.json and runtime.log"
+          }
+        },
+        "instrumented_source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "compact_equivalence": null,
+        "boundary": "FIXTURE only; candidate may be intermediate until controller freezes it."
+      },
+      "files": {
+        "runtime.log": {
+          "path": "rc46-fixed-proposal-r1-runtime.log",
+          "sha256": "d74ed7d1474c09c2bed3531789e457a64f3631c84f0a7697ae85cbe95d0828e0"
+        },
+        "summary": "rc46-fixed-proposal-r1-summary.json"
+      }
+    },
+    {
+      "run": "rc46-fixed-proposal-r2",
+      "suite": "chat_proposal",
+      "summary": {
+        "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "created_at": "2026-10-06T01:20:16+0800",
+        "suites": {
+          "chat_proposal": {
+            "passed": 18,
+            "failed": [],
+            "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+            "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6"
+          }
+        },
+        "instrumented_source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "compact_equivalence": null,
+        "boundary": "FIXTURE only; candidate may be intermediate until controller freezes it."
+      },
+      "files": {
+        "runtime.log": {
+          "path": "rc46-fixed-proposal-r2-runtime.log",
+          "sha256": "a5096b215fd47762ca830c1b9b459857dfa603b43355370b65077efb178ef6e7"
+        },
+        "report.json": {
+          "path": "rc46-fixed-proposal-r2-report.json",
+          "sha256": "dd9fe23b9cd412ba155c7e7d25827ccd2dff4b00aa376aa073bc563f40b1776e"
+        },
+        "summary": "rc46-fixed-proposal-r2-summary.json"
+      }
+    },
+    {
+      "run": "rc46-fixed-calendar-r1",
+      "suite": "calendar_suite",
+      "summary": {
+        "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "created_at": "2026-10-06T01:19:42+0800",
+        "suites": {
+          "calendar_suite": {
+            "passed": 9,
+            "failed": [],
+            "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+            "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6"
+          }
+        },
+        "instrumented_source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+        "compact_equivalence": null,
+        "boundary": "FIXTURE only; candidate may be intermediate until controller freezes it."
+      },
+      "files": {
+        "runtime.log": {
+          "path": "rc46-fixed-calendar-r1-runtime.log",
+          "sha256": "b102f4ffd7149aabfbc1b289d1d7401cc6135e2d7d633001a67ec4b5816b4e56"
+        },
+        "report.json": {
+          "path": "rc46-fixed-calendar-r1-report.json",
+          "sha256": "9bad3e0704c48fcf7156cdbdae1ffc834abfd28910c2a6ca99a2a29b78b6dccb"
+        },
+        "summary": "rc46-fixed-calendar-r1-summary.json"
+      }
+    },
+    {
+      "run": "rc47-fixed-proposal-r1",
+      "suite": "chat_proposal",
+      "summary": {
+        "source_sha256": "b3ab93278647cd51377cc1b02eab8b2f6f5c7e0d0c3aa6f4a8293e683900780d",
+        "created_at": "2026-10-06T01:20:58+0800",
+        "suites": {
+          "chat_proposal": {
+            "passed": 18,
+            "failed": [],
+            "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+            "source_sha256": "b3ab93278647cd51377cc1b02eab8b2f6f5c7e0d0c3aa6f4a8293e683900780d"
+          }
+        },
+        "instrumented_source_sha256": "b3ab93278647cd51377cc1b02eab8b2f6f5c7e0d0c3aa6f4a8293e683900780d",
+        "compact_equivalence": null,
+        "boundary": "FIXTURE only; candidate may be intermediate until controller freezes it."
+      },
+      "files": {
+        "runtime.log": {
+          "path": "rc47-fixed-proposal-r1-runtime.log",
+          "sha256": "26412f741669b0b89c974c3bb5d3b790c7618f73c11750bad65a7c7f4f336784"
+        },
+        "report.json": {
+          "path": "rc47-fixed-proposal-r1-report.json",
+          "sha256": "b70bb576ed44fb4d4703010779cb874ef498b9d89cb37751f689cd75e1b7343c"
+        },
+        "summary": "rc47-fixed-proposal-r1-summary.json"
+      }
+    },
+    {
+      "run": "rc47-fixed-calendar-r1",
+      "suite": "calendar_suite",
+      "summary": {
+        "source_sha256": "b3ab93278647cd51377cc1b02eab8b2f6f5c7e0d0c3aa6f4a8293e683900780d",
+        "created_at": "2026-10-06T01:21:01+0800",
+        "suites": {
+          "calendar_suite": {
+            "passed": 9,
+            "failed": [],
+            "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+            "source_sha256": "b3ab93278647cd51377cc1b02eab8b2f6f5c7e0d0c3aa6f4a8293e683900780d"
+          }
+        },
+        "instrumented_source_sha256": "b3ab93278647cd51377cc1b02eab8b2f6f5c7e0d0c3aa6f4a8293e683900780d",
+        "compact_equivalence": null,
+        "boundary": "FIXTURE only; candidate may be intermediate until controller freezes it."
+      },
+      "files": {
+        "runtime.log": {
+          "path": "rc47-fixed-calendar-r1-runtime.log",
+          "sha256": "85118a51453c493db840b438ee1ab66c3bd8170dc200fdda7efa6f4bff58a1f1"
+        },
+        "report.json": {
+          "path": "rc47-fixed-calendar-r1-report.json",
+          "sha256": "3aa0fabe3d8ff8430af37dce418d5c6283353572e1393268aab4112f9c2156e7"
+        },
+        "summary": "rc47-fixed-calendar-r1-summary.json"
+      }
+    }
+  ],
+  "ports_after": {
+    "8513": "FREE",
+    "8514": "FREE"
+  },
+  "suite_source_sha256": {
+    "official_muse/ui_memory/tests/regression_proposal.splash": "5882865b877d32ecfa0574599f8b7139e002a9a0ca9a5cca51d67cf9f26ba09c",
+    "official_muse/round2/tests/calendar_suite.splash": "968f44438f3d9f94e5b9544f4841f643ac2d57c605a82d9d0807e237d067d2c1"
+  },
+  "product_source_modified_by_this_task": false,
+  "host_budgets_modified": false,
+  "synthetic_transport_unmodified": true,
+  "real_model_call": false,
+  "real_mail_or_eventkit": false,
+  "visual_or_full_chain_acceptance": false
+}

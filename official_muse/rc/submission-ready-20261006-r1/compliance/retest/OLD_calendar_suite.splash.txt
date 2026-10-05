@@ -1,0 +1,66 @@
+fn prepare(){
+    calendar_pending = false
+    calendar_selected_goal = ""
+    calendar_operation = "create"
+    calendar_selected_event = nil
+    calendar_preview = ""
+    calendar_checked = ""
+    fixture_events = []
+    fixture_writes = 0
+    fixture_calls = []
+    fixture_calendar_writable = true
+    actions = []
+    calendar_check_conflicts()
+    calendar_preview_action()
+}
+fn probe(){
+    fixture_seed()
+    prepare()
+    calendar_confirm_action()
+    let unchanged = fixture_writes == 1 && fixture_calls[1].service == "calendar.status"
+        && fixture_calls[2].service == "calendar.list"
+    calendar_confirm_action()
+    let duplicate = fixture_writes == 1
+    prepare()
+    fixture_events = [{id: "external" version: "v1" title: "external"}]
+    calendar_confirm_action()
+    let added = fixture_writes == 0 && calendar_preview == "" && calendar_conflicts.len() == 1
+    fixture_events = []
+    calendar_check_conflicts()
+    calendar_preview_action()
+    calendar_confirm_action()
+    let removed = fixture_writes == 1
+    prepare()
+    ui.calendar_title.set_text("changed")
+    calendar_edit()
+    calendar_confirm_action()
+    let edited = fixture_writes == 0
+    prepare()
+    fixture_calendar_writable = false
+    calendar_confirm_action()
+    let permission = fixture_writes == 0 && calendar_preview == ""
+    prepare()
+    calendar_preview = ""
+    calendar_boot()
+    calendar_confirm_action()
+    let restart = fixture_writes == 0
+    prepare()
+    calendar_selected_event = {id: "fixture-event" calendar_id: "fixture-calendar" version: "fixture-v1" title: "MUSE-R2-SYNTHETIC"}
+    calendar_operation = "update"
+    calendar_check_conflicts()
+    calendar_preview_action()
+    calendar_confirm_action()
+    let update_stale = fixture_writes == 0 && calendar_preview == ""
+    prepare()
+    calendar_selected_event = {id: "fixture-event" calendar_id: "fixture-calendar" version: "fixture-v1" title: "MUSE-R2-SYNTHETIC"}
+    calendar_operation = "delete"
+    ui.calendar_delete_id.set_text("MUSE-R2-SYNTHETIC")
+    calendar_preview_action()
+    calendar_confirm_action()
+    let delete_stale = fixture_writes == 0 && calendar_preview == ""
+    fs.write("probe.json",{unchanged: unchanged duplicate: duplicate added_conflict: added
+        removed_conflict_new_approval: removed edited_invalidates: edited writable_revoked: permission
+        restart_preview_invalid: restart update_version_changed: update_stale delete_version_changed: delete_stale
+        activity: activity}.to_json())
+}
+start_timeout(0.1, || probe())

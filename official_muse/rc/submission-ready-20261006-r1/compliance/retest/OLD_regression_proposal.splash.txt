@@ -56,92 +56,55 @@ fn proposal_storage_checks(){
         legacy_validation_read_only: before == legacy.to_json() legacy_boot_additive_no_dispatch: legacy_restored
         original_candidate_store_restored: restored_live && chat_state_valid(fs.read("chat-sessions.json").parse_json())}
 }
-// Model dispatch is split into bounded production callbacks. Wait for the
-// actual queued request before capturing it; a timer alone is not success.
-let proposal_a = ""
-let proposal_b = ""
-let proposal_callback_a = nil
-let proposal_card_id = ""
-let proposal_start = ""
-let proposal_end = ""
-let proposal_checks = {}
-let proposal_waits = 0
-fn proposal_queue_wait(count,next){
-    if fixture_queue.len() >= count { proposal_waits = 0 next() return }
-    proposal_waits = proposal_waits + 1
-    if proposal_waits >= 100 {
-        fs.write("probe.json",{async_dispatch_ready: false expected_queue: count actual_queue: fixture_queue.len()}.to_json())
-        return
-    }
-    start_timeout(0.05,|| proposal_queue_wait(count,next))
-}
 fn probe(){
     fixture_seed()
     chat_boot()
     gm_boot()
-    let tomorrow = page_date_parts(page_time_floor((time_now()+28800)/86400)+1).date
-    proposal_start = tomorrow + "T15:00:00+08:00"
-    proposal_end = tomorrow + "T16:00:00+08:00"
-    proposal_a = chat_selected_id
+    let a = chat_selected_id
     ui.goal_input.set_text("请准备明天15点到16点的合成日程候选，先不要写系统日历。")
     send_chat()
-    proposal_queue_wait(1,|| proposal_begin_b())
-}
-fn proposal_begin_b(){
-    proposal_callback_a = fixture_queue[0]
+    let callback_a = fixture_queue[0]
     chat_new_session()
-    proposal_b = chat_selected_id
+    let b = chat_selected_id
     ui.goal_input.set_text("请起草一封合成邮件，先不要发送。")
     send_chat()
-    proposal_queue_wait(2,|| proposal_deliver_a())
-}
-fn proposal_deliver_a(){
-    proposal_callback_a({is_ok: true data: {output: {title: "ORBIT合成讨论" start: proposal_start end: proposal_end
-        time_zone: "Asia/Shanghai" location: "合成会议室"}}})
-    start_timeout(0.05,|| proposal_check_a())
-}
-fn proposal_check_a(){
-    let a = proposal_a let b = proposal_b
-    let ai = chat_session_index(a) let bi = chat_session_index(b)
+    let callback_b = fixture_queue[1]
+    callback_a({is_ok: true data: {output: {title: "ORBIT合成讨论" start: "2026-10-04T15:00:00+08:00" end: "2026-10-04T16:00:00+08:00"
+            time_zone: "Asia/Shanghai" location: "合成会议室"}}})
+    let ai = chat_session_index(a)
+    let bi = chat_session_index(b)
     let bound = chat_sessions[ai].proposals.len() == 1 && chat_sessions[bi].proposals.len() == 0
         && chat_sessions[ai].proposals[0].session_id == a && messages.len() == 1
-    if !bound {
-        fs.write("probe.json",{candidate_bound_to_original: false session_a_proposals: chat_sessions[ai].proposals.len()
-            session_b_proposals: chat_sessions[bi].proposals.len() current_messages: messages}.to_json())
-        return
-    }
-    proposal_card_id = chat_sessions[ai].proposals[0].id
-    proposal_checks.candidate_bound_to_original = bound
-    proposal_checks.candidate_does_not_execute = fixture_writes == 0 && actions.len() == 0 && goals.len() == 0 && page == "Chat"
-    chat_apply_proposal(proposal_card_id)
-    proposal_checks.other_session_cannot_open = chat_sessions[ai].proposals[0].state == "candidate" && fixture_writes == 0
+    let card_id = chat_sessions[ai].proposals[0].id
+    let no_auto = fixture_writes == 0 && actions.len() == 0 && goals.len() == 0 && page == "Chat"
+    chat_apply_proposal(card_id)
+    let wrong_session = chat_sessions[ai].proposals[0].state == "candidate" && fixture_writes == 0
     chat_stop()
     let memory_before = memory.to_json()
-    let callback_b = fixture_queue[1]
     callback_b({is_ok: true data: {output: {to: "sender@example.invalid" subject: "不得采用" body: "不得写入"}}})
-    proposal_checks.cancelled_candidate_no_card_or_memory = chat_sessions[bi].proposals.len() == 0 && memory.to_json() == memory_before && fixture_writes == 0
+    let cancelled = chat_sessions[bi].proposals.len() == 0 && memory.to_json() == memory_before && fixture_writes == 0
     let saved = fs.read("chat-sessions.json").parse_json()
-    proposal_checks.independent_candidate_readback = saved.sessions[ai].proposals[0].id == proposal_card_id && saved.sessions[ai].proposals[0].state == "candidate"
+    let persisted = saved.sessions[ai].proposals[0].id == card_id && saved.sessions[ai].proposals[0].state == "candidate"
     let before_boot = fixture_calls.len()
     chat_boot()
-    proposal_checks.candidate_boot_no_external_action = fixture_calls.len() == before_boot && chat_sessions[ai].proposals[0].state == "candidate"
+    let reboot = fixture_calls.len() == before_boot && chat_sessions[ai].proposals[0].state == "candidate"
         && fixture_writes == 0 && actions.len() == 0
     chat_select_session(a)
-    chat_apply_proposal(proposal_card_id)
-    proposal_checks.open_only_populates_unapproved_form = calendar_form_open && ui.calendar_title.text() == "ORBIT合成讨论"
-        && ui.calendar_start.text() == proposal_start && calendar_preview == ""
+    chat_apply_proposal(card_id)
+    let form_only = calendar_form_open && ui.calendar_title.text() == "ORBIT合成讨论"
+        && ui.calendar_start.text() == "2026-10-04T15:00:00+08:00" && calendar_preview == ""
         && fixture_writes == 0 && actions.len() == 0 && chat_sessions[ai].proposals[0].state == "opened"
     let calls_after_open = fixture_calls.len()
-    chat_apply_proposal(proposal_card_id)
-    proposal_checks.duplicate_open_ignored = fixture_calls.len() == calls_after_open && fixture_writes == 0
-    proposal_checks.unrelated_intent_rejected = !chat_add_proposal(a,"synthetic-unrelated","","2加3是多少？",
+    chat_apply_proposal(card_id)
+    let duplicate = fixture_calls.len() == calls_after_open && fixture_writes == 0
+    let neutral_rejected = !chat_add_proposal(a,"synthetic-unrelated","","2加3是多少？",
         {intent: "mail_compose" proposal: {to: "sender@example.invalid" body: "不应产生动作候选"}})
     let checks = proposal_storage_checks()
-    for key in ["candidate_bound_to_original","candidate_does_not_execute","other_session_cannot_open",
-        "cancelled_candidate_no_card_or_memory","independent_candidate_readback","candidate_boot_no_external_action",
-        "open_only_populates_unapproved_form","duplicate_open_ignored","unrelated_intent_rejected"] {
-        checks[key] = proposal_checks[key]
-    }
+    checks += {candidate_bound_to_original: bound candidate_does_not_execute: no_auto
+        other_session_cannot_open: wrong_session cancelled_candidate_no_card_or_memory: cancelled
+        independent_candidate_readback: persisted candidate_boot_no_external_action: reboot
+        open_only_populates_unapproved_form: form_only duplicate_open_ignored: duplicate
+        unrelated_intent_rejected: neutral_rejected}
     fs.write("probe.json",checks.to_json())
 }
 start_timeout(0.1, || probe())

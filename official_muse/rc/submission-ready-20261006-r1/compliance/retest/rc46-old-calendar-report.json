@@ -1,0 +1,54 @@
+{
+  "unchanged": false,
+  "duplicate": false,
+  "added_conflict": false,
+  "removed_conflict_new_approval": false,
+  "edited_invalidates": true,
+  "writable_revoked": true,
+  "restart_preview_invalid": true,
+  "update_version_changed": true,
+  "delete_version_changed": true,
+  "activity": [
+    {
+      "kind": "PRECONDITION_REFRESH",
+      "detail": "批准后重新读取动态前提；尚未执行系统写入。",
+      "at": 1791220641.182029,
+      "goal_id": "",
+      "run_id": "",
+      "request_id": "calendar-1791220608-3071387008",
+      "account_scope": "fixture-calendar"
+    },
+    {
+      "kind": "STALE_APPROVAL",
+      "detail": "目标系统事件已变化或无法读回，请重新读取版本。",
+      "at": 1791220641.182985,
+      "goal_id": "",
+      "run_id": "",
+      "request_id": "calendar-1791220608-3071387008",
+      "account_scope": "fixture-calendar"
+    },
+    {
+      "kind": "EXTERNAL_STATE_CHANGED",
+      "detail": "目标系统事件已变化或无法读回，请重新读取版本。",
+      "at": 1791220641.183957,
+      "goal_id": "",
+      "run_id": "",
+      "request_id": "calendar-1791220608-3071387008",
+      "account_scope": "fixture-calendar"
+    }
+  ],
+  "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+  "source_sha256": "be0bb977a752e22d5115bbacae8d75231843cf750f2d86b5628ff8dd52ab35a6",
+  "passed": 5,
+  "failed": [
+    "unchanged",
+    "duplicate",
+    "added_conflict",
+    "removed_conflict_new_approval"
+  ],
+  "suite_sha256": "b101c998f4abb744822f45b5a977cbd0fb18cf09e87e62f8df6d1958252eb0c3",
+  "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "real_model": false,
+  "real_mail": false,
+  "real_calendar": false
+}
