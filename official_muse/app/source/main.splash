@@ -6837,7 +6837,7 @@ fn chat_boot_check_header(boot_error){
 fn chat_boot_check(session_index,entry_start,boot_error){
     let session = chat_boot_saved.sessions[session_index]
     if entry_start == 0 && !chat_session_valid(session) { chat_boot_reject(boot_error) return }
-    let end = min(entry_start + 8,session.messages.len())
+    let end = min(entry_start + 2,session.messages.len())
     for offset in end-entry_start {
         let i = entry_start + offset
         if !chat_entry_valid(session.messages[i]) { chat_boot_reject(boot_error) return }
