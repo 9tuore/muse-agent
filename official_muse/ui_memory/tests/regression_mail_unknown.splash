@@ -1,0 +1,47 @@
+// Synthetic transport only; actual production guard/archive and jailed storage.
+let unknown_checks = {}
+let unknown_payload = ""
+let unknown_original = ""
+fn chain_fixture_request(service,args,cb){ unknown_checks.no_external_request = false }
+fn unknown_finish(){
+    unknown_checks.original_action_pending = actions.len() == 1 && actions[0].status == "unknown"
+    unknown_checks.original_draft_preserved = fs.read("mail-draft-archive.json").parse_json().drafts[0].draft.to_json() == unknown_original
+    unknown_checks.new_draft_unsubmitted = mail_draft.status == "DRAFT" && mail_draft.request_id == ""
+    unknown_checks.pending_payload_guard = mail_payload_pending(unknown_payload)
+    ui.mail_to.set_text("self@example.invalid")
+    ui.mail_subject.set_text("MUSE-R2-UNKNOWN 合成测试")
+    ui.mail_body.set_text("相同合成内容")
+    mail_preview()
+    unknown_checks.same_payload_rejected = mail_draft.status == "DRAFT" && mail_draft.preview == ""
+    ui.mail_body.set_text("另一份不同的合成内容")
+    mail_preview()
+    unknown_checks.different_payload_reviewable = mail_draft.status == "waiting_user" && mail_draft.request_id == ""
+    fs.write("probe.json",unknown_checks.to_json())
+}
+fn unknown_archive_wait(){
+    if mail_draft.status != "DRAFT" { start_timeout(0.05,|| unknown_archive_wait()) return }
+    unknown_finish()
+}
+fn unknown_seed(){
+    core_boot_goals() core_boot_activity()
+    mail_account = {id: "synthetic-account" address: "self@example.invalid"}
+    unknown_payload = {account: mail_account.id to: "self@example.invalid"
+        subject: "MUSE-R2-UNKNOWN 合成测试" body: "相同合成内容"}.to_json()
+    mail_draft = {account: mail_account.id to: "self@example.invalid"
+        subject: "MUSE-R2-UNKNOWN 合成测试" body: "相同合成内容" status: "unknown"
+        preview: unknown_payload attempt: unknown_payload request_id: "synthetic-unknown-request"
+        accepted_at: 0 verified_at: 0 verified_id: "" link_goal_id: "" link_event_id: "" link_run_id: "" incoming_key: ""}
+    unknown_checks.no_external_request = true
+    unknown_checks.action_saved = core_begin_action("","",0,"mail.send",mail_account.id,mail_draft.request_id,unknown_payload)
+    start_timeout(0.05,|| unknown_save())
+}
+fn unknown_save(){
+    unknown_checks.draft_saved = mail_save()
+    unknown_original = mail_draft.to_json()
+    start_timeout(0.05,|| unknown_archive())
+}
+fn unknown_archive(){
+    mail_keep_unknown()
+    start_timeout(0.4,|| unknown_archive_wait())
+}
+start_timeout(0.1,|| unknown_seed())

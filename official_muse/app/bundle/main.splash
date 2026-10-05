@@ -4181,7 +4181,7 @@ if mail_draft.subject.len()>180||mail_draft.body.len()>4000{mail_error="主题�
 let snapshot={account:mail_account.id to:mail_draft.to subject:mail_draft.subject body:mail_draft.body}
 mail_attach_reply_headers(snapshot)
 let payload=snapshot.to_json()
-if mail_draft.attempt==payload{mail_error="相同内容已有发送尝试；请先在收件端核对，不会再次发送。" mail_redraw()return}
+if mail_draft.attempt==payload||mail_payload_pending(payload){mail_error="相同内容已有发送尝试；请先在收件端核对，不会再次发送。" mail_redraw()return}
 mail_draft.preview=payload
 mail_draft.status="waiting_user"
 if!mail_save(){mail_redraw()return}
@@ -4199,6 +4199,14 @@ mail_save()
 mail_redraw()
 }
 
+fn mail_payload_pending(payload){
+for action in actions{
+if action.service=="mail.send"&&action.payload_json==payload
+&&(action.status=="in_flight"||action.status=="unknown"||action.status=="accepted"){return true}
+}
+return false
+}
+
 fn mail_send_confirmed(){
 if!chat_reply_context_valid(mail_draft){mail_error="相关记忆已变化，旧发送确认失效。" mail_draft.preview="" mail_redraw()return}
 if!mail_draft_writable||mail_pending||mail_model_pending{return}
@@ -4207,7 +4215,7 @@ let snapshot={account:mail_account.id to:ui.mail_to.text().trim()
 subject:ui.mail_subject.text().trim()body:ui.mail_body.text().trim()}
 mail_attach_reply_headers(snapshot)
 let payload=snapshot.to_json()
-if payload!=mail_draft.preview||payload==mail_draft.attempt{
+if payload!=mail_draft.preview||payload==mail_draft.attempt||mail_payload_pending(payload){
 mail_error="草稿或账号已变化，请重新预览。" mail_draft.status="DRAFT" mail_draft.preview="" mail_save()mail_redraw()return
 }
 mail_draft.status="sending"
@@ -4215,8 +4223,9 @@ mail_draft.attempt=payload
 mail_draft.request_id="mail-"+floor(time_now())+"-"+random_u32()
 if!mail_save(){mail_abort_before_host("发送前草稿状态未保存，未调用宿主。")return}
 let goal_id=mail_draft.link_goal_id
-let run_id=""
 let revision=0
+let next_goal=nil
+let replan=false
 if goal_id!=""{
 let li=calendar_link_index(goal_id)
 let gi=core_goal_index(goal_id)
@@ -4227,16 +4236,15 @@ return
 }
 if goals[gi].status=="planned"&&is_mail_phase(goals[gi]){
 revision=goals[gi].version
-let pending_goal=goals[gi].to_json().parse_json()
-pending_goal.goal_spec=mail_goal_spec(goal_id,revision,pending_goal.goal,pending_goal.result_path,payload)
-if!core_upsert_goal(pending_goal){mail_abort_before_host("后续发信计划未保存："+core_error)return}
+next_goal=goals[gi].to_json().parse_json()
+next_goal.goal_spec=mail_goal_spec(goal_id,revision,next_goal.goal,next_goal.result_path,payload)
 }else{
 if goals[gi].status!="completed"&& !(goals[gi].status=="failed"&&is_mail_phase(goals[gi])){
 mail_abort_before_host("关联 目标 仍有待对账 执行记录，旧发信批准失效。")
 return
 }
 revision=goals[gi].version+1
-let next_goal=goals[gi].to_json().parse_json()
+next_goal=goals[gi].to_json().parse_json()
 next_goal.version=revision
 next_goal.status="planned"
 next_goal.phase="mail"
@@ -4244,45 +4252,110 @@ next_goal.approved_at=0
 next_goal.updated_at=time_now()
 next_goal.result_path="results/mail-"+goal_id+"-v"+revision+".json"
 next_goal.goal_spec=mail_goal_spec(goal_id,revision,next_goal.goal,next_goal.result_path,payload)
-if!core_replan_goal(goal_id,next_goal){mail_abort_before_host("后续发信计划未保存："+core_error)return}
+replan=true
 }
-run_id=core_start_run(goal_id,revision,mail_draft.request_id)
-if run_id==nil{
-mail_abort_before_host("后续发信批准未保存："+core_error)
-return
 }
-mail_draft.link_run_id=run_id
-if!mail_save(){core_finish_run(goal_id,run_id,"failed","")mail_abort_before_host("关联 执行记录 未写入草稿，未调用宿主。")return}
-core_record_event("Plan approved","后续邮件的发送账号、收件人、主题、正文与请求 ID 已单独确认。",goal_id,run_id,mail_draft.request_id,mail_account.id)
-}
-if!core_begin_action(goal_id,run_id,revision,"mail.send",mail_account.id,mail_draft.request_id,payload){
-if run_id!=""{core_finish_run(goal_id,run_id,"failed","")}
-mail_abort_before_host("发送动作未保存，未调用宿主："+core_error)
-return
-}
-core_record_event("MAIL_SEND_CONFIRMED","本人单独确认精确邮件内容。",goal_id,run_id,mail_draft.request_id,snapshot.account)
 mail_sending=true
-mail_notice="已提交宿主发送请求；等待服务受理结果。"
-mail_redraw()
-let requested_id=mail_draft.request_id
-host.request("mail.send",snapshot,fn(r){
-mail_sending=false
-if mail_draft.request_id!=requested_id{return}
-if r.is_ok&&r.data!=nil&&r.data.accepted==true{
-mail_draft.status="accepted"
-mail_draft.accepted_at=time_now()
-mail_notice="邮箱服务已受理；收件端投递尚未核验。"
-if!core_finish_action(requested_id,"accepted"){mail_error="受理状态未保存："+core_error}
-core_record_event("MAIL_ACCEPTED","新邮件已获宿主 SMTP 服务受理；收件端未核验。",goal_id,run_id,requested_id,snapshot.account)
-}else{
-mail_draft.status="unknown"
-mail_error="发送结果未知，请人工核对收件端；不会自动重发。"
-core_finish_action(requested_id,"unknown")
-core_record_event("error","邮件发送结果未知，禁止自动重发。",goal_id,run_id,requested_id,snapshot.account)
+let context={request_id:mail_draft.request_id snapshot:snapshot payload:payload
+goal_id:goal_id run_id:"" revision:revision next_goal:next_goal replan:replan}
+start_timeout(0.05,||mail_send_step(context,0))
 }
-mail_save()
-mail_redraw()
+
+
+
+fn mail_send_step(context,phase){
+if mail_draft.request_id!=context.request_id||mail_draft.status!="sending"
+||mail_draft.attempt!=context.payload||mail_draft.preview!=context.payload
+||mail_account==nil||mail_account.id!=context.snapshot.account
+|| !chat_reply_context_valid(mail_draft){mail_sending=false return}
+let goal_id=context.goal_id let requested_id=context.request_id
+if phase==0&&goal_id!=""{
+let saved=false
+if context.replan{saved=core_replan_goal(goal_id,context.next_goal)}
+else{saved=core_upsert_goal(context.next_goal)}
+if!saved{mail_sending=false mail_abort_before_host("后续发信计划未保存："+core_error)return}
+}
+if phase==1&&goal_id!=""{
+context.run_id=core_start_run(goal_id,context.revision,requested_id)
+if context.run_id==nil{mail_sending=false mail_abort_before_host("后续发信批准未保存："+core_error)return}
+mail_draft.link_run_id=context.run_id
+}
+if phase==2&&goal_id!=""{
+if!mail_save(){mail_sending=false return}
+}
+if phase==3&&goal_id!=""{
+if!core_record_event("Plan approved","后续邮件的发送账号、收件人、主题、正文与请求 ID 已单独确认。",goal_id,context.run_id,requested_id,context.snapshot.account){mail_sending=false return}
+}
+if phase==4{
+if!core_begin_action(goal_id,context.run_id,context.revision,"mail.send",context.snapshot.account,requested_id,context.payload){
+mail_sending=false mail_error="发送动作未保存，未调用宿主："+core_error
+start_timeout(0.05,||mail_redraw())return
+}
+}
+if phase==5{
+if!core_record_event("MAIL_SEND_CONFIRMED","本人单独确认精确邮件内容。",goal_id,context.run_id,requested_id,context.snapshot.account){mail_sending=false return}
+}
+if phase<6{start_timeout(0.05,||mail_send_step(context,phase+1))return}
+let action_i=core_action_index(requested_id)
+if action_i<0||actions[action_i].status!="in_flight"
+||actions[action_i].payload_json!=context.payload{mail_sending=false return}
+mail_notice="正在发送这封邮件。"
+host.request("mail.send",context.snapshot,fn(r){
+if mail_draft.request_id!=requested_id||mail_draft.status!="sending"{return}
+context.accepted=r.is_ok&&r.data!=nil&&r.data.accepted==true
+start_timeout(0.05,||mail_send_receipt_step(context,0))
 })
+start_timeout(0.05,||mail_redraw())
+}
+
+fn mail_send_receipt_step(context,phase){
+if mail_draft.request_id!=context.request_id{return}
+if phase==0{
+mail_draft.status="unknown"
+if context.accepted{mail_draft.status="accepted" mail_draft.accepted_at=time_now()}
+if!mail_save(){mail_sending=false return}
+}
+if phase==1{
+if!core_finish_action(context.request_id,mail_draft.status){
+mail_sending=false mail_error="邮件回执尚未完整保存，请核对；不会重复发送。"
+start_timeout(0.05,||mail_redraw())return
+}
+}
+if phase==2{
+let kind="error" let detail="邮件发送结果未知，禁止自动重发。"
+if context.accepted{kind="MAIL_ACCEPTED" detail="新邮件已获宿主 SMTP 服务受理；收件端未核验。"}
+core_record_event(kind,detail,context.goal_id,context.run_id,context.request_id,context.snapshot.account)
+}
+if phase<3{start_timeout(0.05,||mail_send_receipt_step(context,phase+1))return}
+mail_sending=false
+if context.accepted{mail_notice="邮箱服务已受理；收件端投递尚未核验。"}
+else{mail_error="发送结果未知，请人工核对收件端；不会自动重发。"}
+mail_redraw()
+}
+
+
+
+fn mail_keep_unknown(){
+if mail_draft.status!="unknown"||mail_sending|| !mail_draft_writable{return}
+let requested_id=mail_draft.request_id
+if!mail_watch_archive_current(){mail_redraw()return}
+start_timeout(0.05,||mail_keep_unknown_step(requested_id,0))
+}
+
+fn mail_keep_unknown_step(requested_id,phase){
+if mail_draft.request_id!=requested_id||mail_draft.status!="unknown"{return}
+if phase==0{
+let ai=core_action_index(requested_id)
+if ai<0{mail_error="原动作记录不可读，请先核对；原邮件仍保留。" mail_redraw()return}
+if actions[ai].status=="in_flight"&& !core_finish_action(requested_id,"unknown"){mail_redraw()return}
+}
+if phase==1{
+mail_draft.status="failed"
+mail_new_draft()
+mail_notice="原尝试已保留为待核对，不会重发相同内容。"
+return
+}
+start_timeout(0.05,||mail_keep_unknown_step(requested_id,1))
 }
 
 fn mail_finish_linked_result(){
@@ -8930,7 +9003,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc36" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc37" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
@@ -9017,6 +9090,7 @@ if mail_draft.link_goal_id!=""{Label{width:Fill text:"关联 目标 · "+mail_dr
 if mail_draft.status=="accepted"{Label{width:Fill text:"宿主 SMTP 服务已受理；收件端尚未独立核验。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
 if mail_draft.status=="verified"{Label{width:Fill text:"已记录本人独立收件端核验声明。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
 if mail_draft.status=="unknown"{Label{width:Fill text:"上次发送结果未知，不会自动重发。请人工核对收件端。" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:12}}
+if mail_draft.status=="unknown"{Secondary{text:"保留待核对记录，另写不同的邮件" on_click: ||mail_keep_unknown()}}
 if mail_draft.status=="accepted"{
 Label{width:Fill text:"仅在你确实从独立收件端找到这封测试邮件后，输入邮件中的测试 ID 并记录核验。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
 Secondary{text:"我已在收件端核对测试 ID" enabled: !mail_verifying on_click: ||mail_verify_received()}
