@@ -1,6 +1,41 @@
 # Portable packaging state — 2026-10-06
 
-## Current rc48 artifact, held for Root's rc49 approval-card fix
+## Current frozen rc49 Desktop delivery
+
+ZIP: `Muse-0.3.26-rc49-Intel精简运行与源码-7e2d233b-2026-10-06.zip`.
+Actual **497,158,213 bytes** (<500,000,000); SHA256
+`315d670cc0d2f321e360309bb19194fab5fde3e2f1845f2fbd757d2100e24f6a`.
+Full public source **7e2d233b** (1642 files / 92,050,519 logical bytes),
+product **e0eb5d82**, version **0.3.26-rc49**, final Gate **rc49-r2**.
+Readable **2bad514d** / compact **15ea7e6d**; Host, Hub and model inputs unchanged.
+Six bundle files match frozen Git, final Gate and pack. Complete member hashes,
+modes, links, custom and macOS ditto extraction inventories, strict signatures,
+launcher resource check and Hub checks PASS. ZIP GUI/model calls were not rerun.
+
+Root's frozen public RC49 report records actual same-product right-card single
+approval, completed local storage/readback and unsent composer preservation.
+Those safe files are copied from the exact frozen source to outer `07-...`.
+Prior rc45/48 small-model evidence is retained under `05-rc48模型与配置验证`,
+explicitly **not rc49 model retesting**. Two real rc48 calls succeeded but
+answer accuracy was **0/2**; unchanged basic fallback, not a strong model.
+Overall **PARTIAL**; two receiver Macs and original final full-chain remain untested.
+Package requires Intel/macOS14+. No credentials or production profiles exported.
+
+The final tutorial accurately distinguishes current real privacy/support links
+from historical placeholder catalog entries. `DOC_CORRECTION.json` records the
+text-only build override; frozen public source and runtime bytes were retained.
+Source and all prior success/failure evidence were not cut.
+
+`rc49-desktop-final-r1/DELIVERY.json` is authoritative. Video MP4 remains a pending
+independent Root attachment, outside the ZIP. Do not rebuild this frozen ZIP for
+later media or delivery-record commits. Old rc48 Desktop app/ZIP were removed
+only after validating rc49 and checking no open files; source and evidence moved
+to `.local-state/previous-rc48-public-material`. Cleanup measured about **6.0 GB**
+free. The prior rc45 baseline sources/evidence and all user data remain.
+
+---
+
+## Historical rc48 artifact, replaced by rc49
 
 Desktop ZIP: `Muse-0.3.26-rc48-Intel精简运行与源码-89bfd399-2026-10-06.zip`.
 Actual size **496,332,297 bytes**, SHA256

@@ -2,28 +2,28 @@
 
 ## Task
 
-Intel运行与完整公开源码包；codex/muse-rc-finalization，产品89bfd399/rc48，源码8d9599fd。
+Intel复现包与旧版清理；codex/muse-rc-finalization，产品e0eb5d82/rc49，完整源码7e2d233b。
 
 ## Result
 
-PARTIAL。桌面ZIP 496332297 bytes，SHA ce5bd4ab…1d789；因Root发现右侧计划卡批准回归，保留rc48并等待rc49。
+PARTIAL。桌面ZIP497158213 bytes，SHA315d670c…e24f6a；包已冻结，视频另交，不为末尾文档重包。
 
 ## Changed
 
-本项打包/验证脚本、教程及公开证据；自动本地模型参数未再调整。旧rc45运行包和重复测试App已清理，源码/历史证据保留，约6.1GB空闲。
+分发/验证脚本、中文教程、许可和公开证据。只携带rc49运行制品，完整1642源码文件与旧失败保留。旧rc45/48运行副本清理，约6.0GB空闲。
 
 ## Tests
 
-2026-10-06：同rc48承载空profile实装/六SHA、两次model.complete、设置重开PASS；答案0/2，ledger1188 tokens。最终ZIP内容/模式/链接/两种解压/签名/启动器/Hub检查PASS。详见rc48-first-model-live-r1及rc48-final-source-r1/DELIVERY.json。
+2026-10-06：六SHA/Git/Gate/pack、完整成员与权限/链接、两种解压、签名、启动器/Hub PASS。Root同产品实机右卡单次批准/storage/readback/手写保留PASS，包自身未重跑GUI。内置模型复用rc45/48实测：调用通过、答案0/2；明确非49重测。证据rc49-desktop-final-r1/DELIVERY.json。
 
 ## Commit
 
-本项本地提交；未push/Tag/发布。
+分发代码89991aa9及1f6ea91c已纳入7e2d233b；交付记录仅本地提交，未由本聊天push。
 
 ## Remaining
 
-等Root显式提供rc49产品/源码/Gate冻结后再打包。实际视频尚未提供，单独放在ZIP外；两接收机未测。
+独立MP4等待Root实际文件；两接收Mac系统版本待核对、现场运行未测。最终外部整链与原完整门槛仍未通过。
 
 ## Important Boundaries
 
-小模型为基础fallback；自定义配置测试是fixture，模型调用是本机live。未改产品/Host/SDK/用户资料，仅自有8492，无外部动作，非20/20或同最终整链。
+Intel/macOS14+，基础模型非strong。未改产品/Host/SDK/生产资料；fixture、本机live和包检查分开，非20/20。
