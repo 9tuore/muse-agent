@@ -8889,9 +8889,9 @@ Label{width:Fill text:"主题 · "+mail_selected.subject draw_text.color:ink dra
 Label{width:Fill text:"时间 · "+mail_selected.date draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
 Label{width:Fill text:mail_selected.body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"这封邮件的事项归属" draw_text.color:muted}
-mail_project:=TextInput{width:Fill height:34 text:mail_scope_project empty_text:"项目" on_change: ||{mail_scope_project=ui.mail_project.text();ui.page_content.render()}}
-mail_owner:=TextInput{width:Fill height:34 text:mail_scope_owner empty_text:"归属" on_change: ||{mail_scope_owner=ui.mail_owner.text();ui.page_content.render()}}
-View{width:Fill height:Fit flow:Down spacing:6
+mail_project:=TextInput{width:Fill height:34 text:mail_scope_project empty_text:"项目" on_change: ||{mail_scope_project=ui.mail_project.text();ui.mail_original_choices.render()}}
+mail_owner:=TextInput{width:Fill height:34 text:mail_scope_owner empty_text:"归属" on_change: ||{mail_scope_owner=ui.mail_owner.text();ui.mail_original_choices.render()}}
+mail_original_choices:=View{width:Fill height:Fit flow:Down spacing:6 on_render: ||{
 let selected_message_id=mail_selected.id
 if schedule_match_original(mail_account.id,mail_selected)!=""{
 Secondary{text:"继续原约定并准备改期" on_click: ||schedule_replan_original(schedule_match_original(mail_account.id,mail_selected),mail_account.id,mail_selected,nil)}
@@ -8906,6 +8906,9 @@ on_click: ||mail_replan_confirmed(link.goal_id,selected_message_id)}
 }
 }
 }
+}}
+if schedule_match_original(mail_account.id,mail_selected)!=""{
+Secondary{text:"继续原约定并准备改期" on_click: ||schedule_replan_original(schedule_match_original(mail_account.id,mail_selected),mail_account.id,mail_selected,nil)}
 }
 if technical_open{Label{width:Fill text:"保留邮件来源；回复通过宿主发信服务发送，未提供线程头。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
 Secondary{text:"保存这封邮件的来源记忆" on_click: ||memory_remember_mail()}
@@ -9003,7 +9006,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc38" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc40" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
