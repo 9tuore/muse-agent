@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前源码与实装候选：0.3.26-rc49 / e0eb5d82；验收 PARTIAL。** 用户已授权恢复 GitHub 普通同步。本轮修复关联任务导航、精确删除缓存、引用资料误判任务类型、聊天恢复批次及右卡直接确认时手写内容丢失；真实官方模型候选、批准、保存/独立读回、记忆、Shell恢复和另一聊天召回通过。正式App Hub未提交，原二十项仍未全过。详见[当前收口报告](official_muse/rc/submission-ready-20261006-r1/REPORT.md)。
+**当前源码候选：0.3.26-rc51 / 6b46c3c8；验收 PARTIAL。** 用户已授权 GitHub 普通同步。rc50 补全首次对话持久记录、拆分邮件来源保存与审计，并调整矮窗历史区域；rc51 将首次界面挂载与资料恢复分开，仅刷新可见页面。四种尺寸的受影响 UI 检查通过，原冷启动和模型失败仍保留。当前实机、冻结源码、压缩包及回归结论以[本轮收口报告](official_muse/rc/rc49-completion-20261006-r1/REPORT.md)为准；不把不同版本的邮件、日历节点拼成同最终整链。正式 App Hub 未提交，原二十项仍未全过。
 
 此前已补收件声明恢复、64条记忆保存与更正、日历短回调与同事项改期绑定、缺RFC时明确选原事项，以及执行回执误冲突修复。真实同事项已完成系统创建、电脑日历外部修改、原ID改期、确认邮件到达、结果和记忆、Shell恢复；节点跨rc28/29/34/35，不冒充同最终整链通过。完整Shell默认558项单测与空target Host重建通过；第二GPT单通道实测provider失败，原二十项完整门槛仍未全过。历史入口：[rc35报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
@@ -22,7 +22,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc49 compact payload、manifest、listing和资源；payload 15ea7e6d 对应当前候选，listing截图仍为有身份记录的V12支持材料 |
+| `official_muse/app/bundle/` | 0.3.26-rc51 compact payload、manifest、listing 和资源；payload ed4874d1，listing 截图仍为有身份记录的 V12 支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
@@ -63,6 +63,6 @@ cd ../..
 - [来源和交付边界](SOURCE_DELIVERY.md)与[SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)
 - [问题反馈](https://github.com/9tuore/muse-agent/issues)
 
-仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。真实账号录屏原件仅本地保留，公开媒体须去除账号信息。本轮桌面候选包可内置有许可证和摘要的免费 Qwen3-0.6B 及 Intel CPU runner，首次启动经官方 Host 模型配置调用；0.6B 在复杂请求中仍有误答，不称强模型，也不把自动配置成功当作语义通过。完整语义可通过官方设置切换较强模型。
+仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。真实账号录屏原件仅本地保留，公开媒体须去除账号信息。桌面候选包内置有许可证和摘要的免费 Qwen3-0.6B 及 Intel CPU runner，首次启动经官方 Host 模型配置调用；严格格式的同题测试仍为 0/2 正确，不称强模型，也不把自动配置成功当作语义通过。可在官方设置配置较强模型。`--solid-source` 打包完整冻结源码及历史证据为 tar.xz，桌面文件夹保留展开源码；源码文件集合、内容和权限独立核对，不靠删证据减小体积。
 
 [隐私说明](docs/PRIVACY_POLICY.md)已发布到HTTPS，支持入口为[Issues](https://github.com/9tuore/muse-agent/issues)。正式 publisher 登记及独立 packet 审核仍缺；原版 Hub 拒绝本地 `calendar` capability，扩展 Gate PASS不等于上游准入。保留唯一失败证据、旧Git历史和公开Tag，不创建成功Tag。桌面ZIP严格<500,000,000字节，中文配音实录视频单独附件，实际大小及身份见本轮 `DELIVERY.json`；未测两接收Mac。

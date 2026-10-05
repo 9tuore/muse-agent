@@ -1,4 +1,20 @@
-# rc49 当前增量
+# rc51 当前增量
+
+**总体 PARTIAL；原二十项未全部通过。** 当前产品 `6b46c3c8`，readable `5c182b67` / compact `ed4874d1`，官方 98,560 tokens 等价，Host `1d7d1674` 不变。rc50 首次对话持久记录与关联保存分段，rc51 一次挂载/可见页面刷新及四尺寸受影响 UI 已验证；最终冷启动矩阵和实机回归按[本轮报告](official_muse/rc/rc49-completion-20261006-r1/REPORT.md)分别记录，旧失败不覆盖。
+
+原文及逐项映射：[原二十项](official_muse/rc/rc49-completion-20261006-r1/a3/SOURCE_ORIGINAL20.md)、[03:11 只读审计快照](official_muse/rc/rc49-completion-20261006-r1/a3/rc51/REMAINING20.json)。快照不代替后续最终结果，也不把局部成功改为 20/20。
+
+最终 rc51 冷启动 7/10、应用重开 5/5，完整矩阵 FAIL；Root 真实资料首次启动器也超时，失败保留。同候选内部任务的模型建议、两个显式计划批准、结果读回、Shell 重启无重放和另一已有聊天召回已补证；模型调用在批准前，未测新空聊天，不代替 T18 外部整链。见 [实机记录](official_muse/rc/rc49-completion-20261006-r1/RC51_LIVE_REGRESSION.json)、[恢复](official_muse/rc/rc49-completion-20261006-r1/RC51_REAL_RESTART.json)、[跨聊天](official_muse/rc/rc49-completion-20261006-r1/RC51_CROSS_CHAT.json)。
+
+- T08 原条件为“至多两个，少则不凑”；rc50 只查明确目标半小时且无冲突的一条时段符合条件。以下历史“必须两个”缺口不再作为当前额外要求。
+- T19 原生两行等高方案已有本人确认；原条件不要求每个矮窗同时显示四条完整历史。rc51 宽窗可读 fixture 与后三窗 compact fixture 分别记载，窄窗实际 412×813。
+- T17 第二 GPT 无 fallback 单次实际请求返回 HTTP200 text/html 而非模型 JSON/SSE，仍 BLOCKED。自定义地址本身不构成失败原因；内置 0.6B 真实同题 0/2，不能作为强模型替代。
+- T09/T10/T15/T18 同一最终候选的真实创建、原事件改期、读回后起草及独立发送、重启/新对话整链仍未完成。新日历候选未获窄范围批准，没有写入；源信 IMAP 已同步不代替本人收件声明。
+- T20 本地扩展 check/scan/catalog PASS 与官方原版 Calendar 准入、正式 publisher/独立评审分开。OS/接收 Mac 未测；不创建成功 Tag，不正式申请 App Hub。
+
+---
+
+# rc49 增量（历史）
 
 产品e0eb5d82，Gate49-r2；原20完整门槛继续PARTIAL。右侧直接确认回归before6FAIL、最终生产函数10PASS；实机16聊天启动、model.complete实际1204/410tokens候选、右卡确认一次、2条资料Storage/readback/completed/来源记忆、手写composer保留通过。6bundle/23安装前文件SHA保持。rc48恢复/跨聊天/内置小模型验证按原身份支持，未重贴49。原版Hub最终r2 exit1 onlycalendar，本地扩展PASS≠准入。
 

@@ -1,0 +1,52 @@
+{
+  "status": "PASS_SCOPED_REAL_INTERNAL_TASK",
+  "version": "0.3.26-rc51",
+  "payload_sha256": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+  "goal_id": "1791229312-218133575",
+  "goal_status": "completed",
+  "explicit_plan_revisions": [
+    1,
+    2
+  ],
+  "results": [
+    {
+      "revision": 1,
+      "path": "results/result-1791229312-218133575.json",
+      "sha256": "f0d5bb97348bc3b5e1b034c923e45fa4ca5628cdc058ea119bd94cdc94da5906",
+      "count": 2,
+      "model_summary_chars": 0,
+      "run_status": "completed"
+    },
+    {
+      "revision": 2,
+      "path": "results/result-1791229312-218133575-v2.json",
+      "sha256": "b1c3ab9fb61a4113df4c6a22a6c3cbd47357c5ce5a61219ab0676e00e13440d4",
+      "count": 2,
+      "model_summary_chars": 42,
+      "run_status": "completed"
+    }
+  ],
+  "model": "configured MiniMax-M3 through official model.complete",
+  "model_order": [
+    "v1 Chat candidate model call",
+    "v1 explicit approval then app storage/readback",
+    "explicit v2 replan",
+    "v2 Goal-bound model advice",
+    "v2 explicit approval then app storage/readback"
+  ],
+  "model_called_after_approval": false,
+  "approval_clicks_per_explicit_revision": 1,
+  "goal_bound_model_summary_chars": 42,
+  "verified_result_memory_claims": 2,
+  "memory_total_claims": 25,
+  "memory_total_sources": 27,
+  "handwritten_input_preserved_after_v1": true,
+  "input_check_scope": "Observed in earlier v1 completion UI check, before switching chat/restart; not a restart persistence claim",
+  "runtime_errors": [],
+  "final_model_ledger": {
+    "calls": 58,
+    "tokens": 97542
+  },
+  "external_mail_or_calendar_writes": false,
+  "same_final_external_chain_pass": false
+}

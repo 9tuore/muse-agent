@@ -1,4 +1,20 @@
-## 2026-10-06：rc49 右卡回归修复（当前）
+## 2026-10-06：rc51 界面挂载与交付收口（当前）
+
+分支 codex/muse-rc-finalization，产品6b46c3c8/0.3.26-rc51，readable5c182b67、compact ed4874d1、官方98560 tokens等价，Host1d7未变。rc50首次对话补全字段、来源关联存储与活动分段和矮窗历史区域；rc51控件单次挂载，普通刷新只构建可见内容，保留输入与滚动。19处关键批准/来源/取消/执行守卫不变，见a3/rc51/SOURCE_IMPACT.json。
+
+宽1400×760、普通990×539、矮990×380、窄实际412×813的受影响UI通过。宽是readable fixture，后三窗是token等价compact fixture，载荷注入身份分别留存；原短窗启动失败保留。rc50冷8/10、重开5/5；rc51 r1/r2失败保留，最终r3冷7/10重开5/5，完整矩阵FAIL。真实资料Root首次launcher也40.017秒超时，后续打开成功，不定位为已证明的编译失败；未增Host或40秒时限。
+
+Root同rc51真实M3聊天候选→v1批准/保存/读回，显式更新v2→Goal模型建议42字→批准/保存/读回；模型在批准前，不冒充严格的批准后model链。两版本各Run一次，未提交输入v1完成时保持，25claims/27sources。Shell正常重启7文件/8提醒/9Goal/13Run/17Action/ledger保持、零[E]/重放。另一已有Chat正确召回两说明及两结果来源；不是新空Chat，未清历史。最终ledger58calls/97542tokens；不再无意义模型复测。
+
+本地扩展Gate51-r2六文件与bundle byte-equal，check/scan/catalog PASS≠上游Calendar准入。最新实机、冻结源码、桌面包与GitHub同步身份按official_muse/rc/rc49-completion-20261006-r1/REPORT.md和DELIVERY.json；不能据窗口/签名标20项通过。
+
+源测试邮件rc49仅单次受理/真实IMAP同步，来源Goal在rc50真实M3给出准确10月8日15:00–15:30候选；目标工作日历同范围0冲突、一条时段符合至多2。新事件待本人批准，零系统写入；本人收件声明未代填。GPT真实单通道返回HTML非API，仍BLOCKED；0.6B严格同题0/2，不能冒充强模型。T18同最终外部整链/OS/接收Mac及正式发布材料缺项保留，用户已睡不再请求。
+
+ZIP等级9与完整源码tar.xz两模式小测和5拒绝负例通过，最终大包须真实核对<500MB。桌面保留展开源码；旧49视频/封面不冒充51。本轮普通push已有授权，不force/动Tag/正式Hub；生产、旧独立安装、稳定0.3.25和dirty baseline保护。
+
+---
+
+## 2026-10-06：rc49 右卡回归修复（历史）
 
 当前e0eb5d82/rc49，最终Gate49-r2，readable2bad514d/compact15ea7e6d，98469官方tokens相等；Host1d7不变。发现异步导航使右卡批准读空composer并覆盖手写稿，实际before6FAIL保留；修后当前绑定Goal/revision守卫、临时原计划inputs调用既有approve后还原、按钮冻结渲染id/rev，10fixture真实本地写入/readback全部PASS。
 

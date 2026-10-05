@@ -1,0 +1,10 @@
+{
+  "stage": "safe summary extraction after cross-chat",
+  "errors": [
+    "AssertionError: visible widget missing: chat_input",
+    "TypeError: result items are objects, not strings"
+  ],
+  "cause": "summary driver assumed widget id and item shape before checking definitions",
+  "app_mutation": false,
+  "resolution": "Source/snapshot verified goal_input, result items verified number/text. No new UI operation or repeated model call; original v1 input check kept scoped."
+}
