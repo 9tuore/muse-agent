@@ -1,0 +1,102 @@
+{
+  "version": "0.3.26-rc48",
+  "product_commit": "89bfd399",
+  "source_sha256": "fcf9408f8e153129dff9614c91b0fdde69f214f0740cc88189095ba64157fb0f",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "goal_id": "1791221504-3719825078",
+  "goal_state": "completed",
+  "run_ids": [
+    "run:1791221504-1223225220"
+  ],
+  "result_path": "results/result-1791221504-3719825078.json",
+  "result_sha256": "5e32cc0163e82f8f7e86279735989c6e5bb278bc3bfe7e2a4e425dc8858942b5",
+  "count": 2,
+  "items": [
+    "日历改期必须关联原事件",
+    "邮件发送前单独确认"
+  ],
+  "model_ledger_snapshot": {
+    "calls": 52,
+    "tokens": 80326
+  },
+  "native_ui_result_verified": true,
+  "errors": [],
+  "scope": "current candidate live ordinary task; no new Mail/Calendar writes; historical external chain is cross-version",
+  "model_response": {
+    "schema": 1,
+    "request_at": 1791221428.086079,
+    "response_at": 1791221438.972335,
+    "query_sha256": "e963a2b4dfd3f4056cd68cc94c2c157437e4c7cd89ac830913e09683b7f13fc4",
+    "session_id": "chat:1791220224-2968899986",
+    "goal_id": "",
+    "current": true,
+    "is_ok": true,
+    "known_usage": true,
+    "meta": {
+      "class": "strong",
+      "requested": "fast",
+      "attempts": 1,
+      "usage": {
+        "estimated": false,
+        "input_tokens": 1178,
+        "output_tokens": 879
+      },
+      "budget": {
+        "calls_per_day": 100,
+        "calls_today": 52,
+        "per_minute": 6,
+        "resets_at": 1791244800,
+        "tokens_left": 19674,
+        "tokens_per_day": 100000,
+        "tokens_today": 80326
+      }
+    }
+  },
+  "activity": [
+    {
+      "kind": "Goal created",
+      "detail": "整理 Muse 发布说明",
+      "at": 1791221505.598395,
+      "goal_id": "1791221504-3719825078",
+      "run_id": "",
+      "request_id": "",
+      "account_scope": ""
+    },
+    {
+      "kind": "Plan approved",
+      "detail": "已绑定当前目标Spec与结果路径。",
+      "at": 1791221531.451417,
+      "goal_id": "1791221504-3719825078",
+      "run_id": "run:1791221504-1223225220",
+      "request_id": "goal-1791221504-3110543939",
+      "account_scope": ""
+    },
+    {
+      "kind": "storage write",
+      "detail": "results/result-1791221504-3719825078.json",
+      "at": 1791221531.50448,
+      "goal_id": "1791221504-3719825078",
+      "run_id": "run:1791221504-1223225220",
+      "request_id": "",
+      "account_scope": ""
+    },
+    {
+      "kind": "readback",
+      "detail": "结果内容与写入内容一致。",
+      "at": 1791221531.514174,
+      "goal_id": "1791221504-3719825078",
+      "run_id": "run:1791221504-1223225220",
+      "request_id": "",
+      "account_scope": ""
+    },
+    {
+      "kind": "memory saved",
+      "detail": "已核验产物摘要及来源 hash 已保存。",
+      "at": 1791221531.552419,
+      "goal_id": "1791221504-3719825078",
+      "run_id": "run:1791221504-1223225220",
+      "request_id": "",
+      "account_scope": "local"
+    }
+  ]
+}

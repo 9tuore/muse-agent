@@ -1,4 +1,16 @@
-## 2026-10-06 凌晨：rc45 真实事项闭环与精简交付（当前）
+## 2026-10-06：rc48 启动、任务和交付收口（当前）
+
+产品89bfd399 /0.3.26-rc48，readable179fd6b6、compactfcf9408f，98422官方tokens相等；Host1d7不变。真实App Hub安装6文件SHA一致、22个应用根文件/ledger保持。rc47启动gm_has预算失败保留；chat校验8→2仍全检查，256消息正常/损坏尾条两fixture各5PASS，实机16聊天恢复可写无[E]。
+
+关联导航按Goal/版本/chat/page/request分回调守卫；精确verified删除后只移对应缓存；资料分隔符后文字不决定任务动作。rc48原误路由请求实际模型准备资料计划、批准一次、storage/readback、completed及来源记忆完成。同候选Shell恢复主要状态/结果/ledger保持，Activity追加恢复、mail-watch轮询正常改变；既有空聊天正确召回新任务两条并引用结果记忆，无新Run/Action。不是所有文件byte-equal或OS重启。
+
+公开确定性fixture回执、导航/删除、路由、启动及修复旧异步suite均按版本记录，原失败保留。新增内置免费Qwen3-0.6B/Intel CPU runner自动配置、纯Q4打包，模型在复杂Muse请求仍有误答，不称strong。真实视频/中文配音/封面及<500MB桌面包以本轮DELIVERY.json为准，接收Mac未实测。
+
+用户已明确要求push最新代码，本轮普通fast-forward已恢复同步至GitHub；不移动旧Tag。正式隐私HTTPS/Issues已准备，本地扩展Gate PASS、官方原版rc48 REFUSED onlycalendar；仍未正式上架。原二十项及同最终外部整链、第二strong、两替代、真账号2h、OS/两Mac等保持PARTIAL。旧独立安装/生产/dirty baseline不动。入口：[本轮报告](../official_muse/rc/submission-ready-20261006-r1/REPORT.md)。
+
+---
+
+## 2026-10-06 凌晨：rc45 真实事项闭环与精简交付（历史）
 
 本地产品 d306d3c0 / 0.3.26-rc45，readable51c09d4b / payload3f0c9ee0，98231官方token相等，Host1d7不变。真实App Hub安装六SHA一致；同资料Shell新进程重启七状态/结果文件逐字节保持。未push、改旧Tag或发布，远端回到rc27的此前边界继续有效；未提交baseline.json保持。
 
