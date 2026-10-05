@@ -1,5 +1,15 @@
 # Handoff
 
+## 2026-10-06 最终媒体交付
+
+MEDIA_COMPLETE_LOCAL_DELIVERY。rc49 主讲解视频 177.70 秒，1920×1080 H.264 / AAC 中文离线配音与字幕，5,479,229 bytes，SHA `9c5c20dbf61929afa3073aff8318ceb1878f7f0b666ab0d590af7cfa05e8e232`。产品 e0eb5d82；125.7–170.7 秒保留明确标识的 rc48 重启/跨对话支持证据。成片与 Root 独立查看的 SHA 相同，未再次重做。
+
+已放入桌面现有最终文件夹 `Muse-0.3.26-rc49-Intel精简运行与源码-7e2d233b-2026-10-06/09-演示视频与截图/`，主视频名 `Muse-0.3.26-rc49-本轮实录.mp4`。共 14 文件、13,720,369 bytes：主片、SRT、封面、两张 rc49 脱敏截图、两段连续脱敏证据、来源时间戳/SHA/剪辑/公开证明/说明与校验记录。逐文件复制 SHA 回读通过。既有 497,158,213-byte 运行 ZIP 大小与修改时间未变；附件不在该 ZIP 内，发送时另附，未新建第二套源码或运行包。
+
+验证：625 原始帧 SHA 全部通过；rc49 471 帧、305.568 秒、13 次采集失败，rc48 支持段 154 帧、107.202 秒、3 次失败。编码只重复已有采样像素，不生成中间动作，主片剪辑范围完整记录。三段 MP4 全解码通过；主片 14 个时点及两张截图实际查看，审批前后/未发送文字/来源与 DSL/真实空查询/版本标识可见。886 个邮箱样式 OCR 框全部被遮挡，窗口分辨率变化逐帧适配；原始私人素材未外送。音频测量均值 -17.4 dB、峰值 -1.4 dB。未人工听审；字幕为句段近似对齐，成功字幕比捕获的结果切换约早 1 秒，64 秒画面已显示成功。没有扩展产品测试。
+
+自有交付记录：MEDIA_DELIVERY.json、DESKTOP_MEDIA_RECEIPT.json、RC49_MEDIA_README.md。Root 的 ROOT_MEDIA_QA.json、MUSE_COVER.png 和 record_visible_window.py 不纳入本聊天提交。仅本地精确 commit --only 媒体文档/制作脚本，未 push；由 Root 统一收口。下面保留早期预览记录。
+
 ## 2026-10-06 rc48 preview QA update
 
 当前为 PREVIEW_ONLY_FINAL_RC49_FOOTAGE_PENDING。Root 正在修复右侧计划卡批准路径并准备 rc49 实录；不把 rc48 画面改标为 rc49，不重新操作产品。174 秒 rc48 中文配音预览已编码、全解码通过，5,622,716 bytes；视频与原素材留在忽略的 outputs/inputs 内，未复制到桌面作为最终附件。详见 RC48_PREVIEW_QA.json。

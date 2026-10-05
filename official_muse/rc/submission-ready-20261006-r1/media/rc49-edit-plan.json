@@ -1,0 +1,42 @@
+{
+  "candidate": "0.3.26-rc49",
+  "product_commit": "e0eb5d82",
+  "duration": 177.7,
+  "voice": "Tingting",
+  "rate": 180,
+  "clips": [
+    {"id":"cover","source":null,"source_start":0,"source_end":5,"title":"Muse · 真实操作演示"},
+    {"id":"open","source":"live-rc49-r1","source_start":10,"source_end":30,"title":"01  rc49｜从应用中心打开"},
+    {"id":"candidate","source":"live-rc49-r1","source_start":30,"source_end":41,"title":"02  rc49｜自然语言准备计划"},
+    {"id":"plan","source":"live-rc49-r1","source_start":92.603,"source_end":110.603,"title":"03  rc49｜核对范围 · 保留未发送文字"},
+    {"id":"approve-result","source":"live-rc49-r1","source_start":118,"source_end":145,"title":"04  rc49｜确认一次 → 保存并独立读回"},
+    {"id":"memory","source":"live-rc49-r1","source_start":190,"source_end":203,"title":"05  rc49｜全局记忆"},
+    {"id":"search","source":"live-rc49-r1","source_start":219,"source_end":235,"title":"06  rc49｜找到本次结果与来源"},
+    {"id":"dsl","source":"live-rc49-r1","source_start":235,"source_end":247,"title":"07  rc49｜来源与 DSL"},
+    {"id":"empty","source":"live-rc49-r1","source_start":300,"source_end":303.7,"title":"08  rc49｜不存在的资料查询"},
+    {"id":"restart","source":"live-rc48-restart-r1","source_start":0,"source_end":12,"title":"09  rc48 支持证据｜重启恢复"},
+    {"id":"recall","source":"live-rc48-restart-r1","source_start":56,"source_end":89,"title":"10  rc48 支持证据｜跨对话召回"},
+    {"id":"closing","source":null,"source_start":0,"source_end":7,"title":"Muse · 让记忆推动行动"}
+  ],
+  "cues": [
+    {"start":0.3,"latest_end":4.8,"text":"Muse，让记忆推动行动。"},
+    {"start":5.3,"latest_end":14.2,"text":"从应用中心打开 Muse。本段实录版本为零点三点二六，候选四十九。"},
+    {"start":14.5,"latest_end":24.8,"text":"恢复已有对话后，用自然语言提出新任务：整理两条确认操作说明，并准备一次性计划。"},
+    {"start":25.3,"latest_end":35.8,"text":"模型先准备候选，界面提示尚未执行外部操作。本次模型调用发生在批准之前。"},
+    {"start":36.3,"latest_end":46.8,"text":"右侧计划说明将处理两条资料，保存后重新读取结果。历史邮件摘要已做隐私遮挡。"},
+    {"start":47,"latest_end":53.8,"text":"输入框中，另有一段尚未发送的手写内容。"},
+    {"start":54.3,"latest_end":62.2,"text":"确认范围后，只点击一次确认执行这个计划。批准阶段执行存储和读回。"},
+    {"start":63,"latest_end":72.8,"text":"结果卡显示成功，两条资料均已整理。未发送的手写文字仍留在输入框中。"},
+    {"start":73,"latest_end":80.8,"text":"真实执行记录确认写入与读回一致。这个阶段没有再次调用模型。"},
+    {"start":81.4,"latest_end":93.8,"text":"进入全局记忆。这里以自然语言展示内容，并区分资料本身与实际执行结果。"},
+    {"start":94.4,"latest_end":104.2,"text":"搜索刚才的任务标题，可以找到本次保存的结果。来源标记为执行回执。"},
+    {"start":104.4,"latest_end":113.8,"text":"展开来源与结构化记录，能够核对结果路径、任务关联和记录来源。"},
+    {"start":114,"latest_end":121.8,"text":"输入资料明确标为未核事实，不把文字内容当作邮件或日历已经执行。"},
+    {"start":123.8,"latest_end":125.65,"text":"没有匹配资料。"},
+    {"start":126,"latest_end":137.3,"text":"接下来是候选四十八的支持证据，保留原版本标识。重启后，已有任务和对话仍可恢复。"},
+    {"start":138.1,"latest_end":147.5,"text":"切换到一个已有的空对话，不删除历史，再询问之前保存的两条资料。"},
+    {"start":147.7,"latest_end":157.5,"text":"这次跨对话查询实际调用模型，并引用已保存结果的记忆来源。"},
+    {"start":158,"latest_end":170.2,"text":"回答找回两条资料，同时说明它们是未核事实摘录。这段支持证据不替代候选四十九的验证。"},
+    {"start":171,"latest_end":177.5,"text":"Muse，让记忆有来源，让行动可核对。"}
+  ]
+}
