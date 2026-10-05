@@ -5835,12 +5835,25 @@ fn gm_score(entry,query,conversation_id,goal_id){
     if gm_entry_field(entry,"conversation_id","") == conversation_id { score = score + 2 }
     return score
 }
+fn gm_completed_receipt(doc){
+    if doc.payload.predicate != "verified_result" || doc.payload.epistemic_type != "fact"
+        || doc.origin.type != "local_runtime" || doc.id != "memory:result:" + doc.origin.ref { return false }
+    let i = core_run_index(doc.origin.ref)
+    return i >= 0 && runs[i].status == "completed" && runs[i].goal_id == doc.payload.subject_id
+}
+fn gm_receipt_history(doc,other){
+    if !gm_completed_receipt(doc) || !gm_completed_receipt(other) || doc.origin.ref == other.origin.ref { return false }
+    for rel in doc.payload.relations { if rel.kind == "contradicts" && rel.target_id == other.id { return false } }
+    for rel in other.payload.relations { if rel.kind == "contradicts" && rel.target_id == doc.id { return false } }
+    return true
+}
 fn gm_hit_conflicts(doc,query,conversation_id,goal_id){
     let relations = []
     for entry in memory {
         let other = entry.document
         if other.id != doc.id && other.payload.subject_id == doc.payload.subject_id && other.payload.predicate == doc.payload.predicate
-            && other.payload.value != doc.payload.value && gm_same_scope(other["scope"],doc["scope"]) && gm_entry_access(entry) {
+            && other.payload.value != doc.payload.value && gm_same_scope(other["scope"],doc["scope"]) && gm_entry_access(entry)
+            && !gm_receipt_history(doc,other) {
             relations.push({kind: "contradicts" target_id: other.id})
         }
     }
@@ -8915,7 +8928,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc34" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc35" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
