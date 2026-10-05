@@ -1,3 +1,13 @@
+## 2026-10-05 11:55 · 晨间两小时窗口，rc11最小聊天修正进行中
+
+窗口11:44:10–13:44:10北京时间；用户可配合账号、应用和系统确认。Data可用约9.6GiB，A4从冻结F019dc303/SDKda进行全新独立Host构建，尚未报告产物。Root固定morning-final-live-r2/private，当前以旧Host938打开rc10官方登录，用户已回复登录；真实watch记录50条、ready=false/sync_complete=false，历史同步未完成，不能宣称已覆盖收件箱。
+
+rc11只改普通chat_model_config提示，要求汇报依据已有事实、总结保留原因/证据缺口，短答案仍在reply字符串中输出；动作候选提示、schema、守卫及预算不改。另同步设置版本。官方token等价91244、本地Hub check PASS；429其他命名函数块版本归一化逐字节一致（regex范围，不是AST证明）。语义与最终真实业务链未验证，原rc10模型失败保留。r1重复版本publish被拒绝并保留，r2本地Gate通过。
+
+稳定0.3.25、旧安装、生产数据及未提交baseline.json保护；同一路径官方登录，不取Secret。A2仅准备单次点击driver，A3仅准备变体验证，均未代执行真实动作。当前20项状态不升级，无push/Tag/发布。下一步新Host切入同profile后核对真实Calendar读取，准备唯一合成事件本人确认并走原事项改期/回复/恢复全链。
+
+---
+
 ## 2026-10-05 10:46 · rc10当前观察收口（PARTIAL）
 
 产品6fd5b54b/0.3.26-rc10未回退。真实Memory双保存/零重复写/首Shell恢复、本地一次性Goal两次model.complete/一次批准/Storage/Readback/首次恢复、新70启动和额外100普通重开均PASS。新合成7200.220574秒/241样本完整PASS，非真实邮箱/Calendar/OS重启。两模型各28唯一输入完成，原模型20题各19PASS/1FAIL，setup2/holdout6PASS；M3invalid_output、M27缺回执原因、两模型M01无依据评价均保留。独立内部A74/B73，不代表官方评分/排名。

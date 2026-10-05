@@ -2,32 +2,28 @@
 
 ## Task
 
-Muse 夜间RC收口；codex/muse-rc-finalization，产品6fd5b54b / 0.3.26-rc10。
+晨间11:44–13:44两小时补真实最终链；codex/muse-rc-finalization，基线dee82d3e，Root唯一产品/SDK/Git/窗口写入者。
 
 ## Result
 
-PARTIAL，原20项5PASS/14PARTIAL/1BLOCKED，独立内部A74/B73，非官方评分/排名。Memory更正UI连续保存/零重复写入及首次Shell恢复PASS；两个实际模型完整28唯一输入独立语义复核完成，各original20为19PASS/1FAIL，setup2/holdout6均PASS。真实一次性任务2模型调用/一次批准/存储/读回/首重启PASS。新70启动全部通过，额外100普通重开全部PASS，完整7200.220574秒/241样本合成驻留PASS（无真实后端）。
+PARTIAL：rc11聊天提示已改，语义待实测；新Calendar Host构建中。
 
 ## Changed
 
-仅memory_correct成功后同步输入缓冲，相同已授权值不生成修订/来源/审计。429其他命名函数块版本归一化后不变；官方token91244相同。UI驱动将消失控件的焦点保存改为单点击后存储后置检查，未重放模型输入。
+source/main.splash和bundle/main.splash：一处普通chat提示及版本；manifest更新/重签。固定morning-final-live-r2资料目录，用户已在官方UI登录。
 
 ## Tests
 
-RC10_LIVE_NODE_SUMMARY、RC10_MEMORY_CORRECTION_UI_SUMMARY、RC10_STARTUP_70_SUMMARY、RC10_FROZEN28_SEMANTIC_REVIEW、RC10_REOPEN_100_SUMMARY、RC10_SOAK_7200_SUMMARY。实际Memory同ID更正rev2/遗忘墓碑/空检索和跨聊天隔离。Goal首重启8SHA/ledger不变。M3 S02无效输出、M27 R02缺原因、两模型M01评价无依据保留，不能称双模型全过。
+官方Tokenizer 91244项等价；本地Hub check PASS，diff check PASS。429其他函数块版本归一化一致，仅regex证明。邮件watch50条、历史同步未完成。失败publish r1保留；未进行本轮日历写入和模型验证。
+
+## Commit
+
+本地提交号见Git，未push。
 
 ## Remaining
 
-完整Calendar桥Host与clean；最终profile登录/Calendar权限及精确测试事件授权；同候选真实外部整链；电脑重启/跨Mac/ARM、正式publisher/政策/业务视频。隔离诊断Mail缓存可读但官方同步明确凭据缺失；当前rc10旧授权Host实际Calendar只读仍schema拒绝。无发送尝试或日历修改。
+新Host/SDKda身份、当前账号真实同步、Calendar精确确认与整链、变化相关模型语义、恢复和完整20项门槛。
 
-## Boundaries
+## Important Boundaries
 
-用户self-mail授权有效，夜间不重复申请；不取Secret、不代点TCC。旧安装、生产数据和未提交baseline.json保护；只本地提交，无push/发布/成功Tag。历史通过保持原版本，不拼成最终全链。
-
-## Delivery
-
-公开源码使用S→manifestF及逐文件集合/SHA/模式核验；实际导出身份由外层记录说明，纯源码不含Host/启动器/模型。64MiB源码reserve、600MiB Hostgate保持；ENOSPC失败、无占用重复分发清理和编译中间副本精确重建补丁见RC10_FINAL_RESOURCE_RECOVERY_SUMMARY。原未提交baseline.json不收进commit/export。
-
-## Actual frozen export
-
-实际桌面交付已完成：Muse-0.3.26-rc10-源码与验收-2026-10-05。导出F=019dc303da964424e042402893008a387a675467，库存S=b6de15dfd90a07e978a07f2c4506b10d262000de；S→F只改SOURCE_MANIFEST，产品A仍6fd5b54b。1003份源码/共1006文件、70966332逻辑字节，导出器及Root独立全集合/长度/SHA/模式读回PASS；1000份native clone与3份Git blob写入，不含Host/启动器/模型/私有数据。外层00-先看这里.html、版本与交付边界.json和文件校验清单.json给出实际身份及使用边界。新ZIP未生成，现有空间不足保持容量门禁；旧087运行ZIP仍rc5。详见official_muse/rc/packaging/RC10_SOURCE_EXPORT_SUMMARY.json。冻结F中的报告是导出前摘要，当前这份记录是导出后的附加结果，不改写F或桌面核验内容。
+旧稳定、生产及未提交baseline保护；不取Secret；原失败不覆盖；token/Hub PASS不是模型或系统动作PASS。
