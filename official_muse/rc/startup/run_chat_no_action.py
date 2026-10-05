@@ -42,6 +42,10 @@ def main():
     choice.add_argument('--case-ids', nargs='+')
     choice.add_argument('--full-frozen-corpus', action='store_true',
                         help='Original20 + two real UI memory setup steps + six holdouts')
+    ap.add_argument('--resume-report', type=Path,
+                    help='Resume only the unobserved suffix; preserve the original failed report')
+    ap.add_argument('--continue-on-model-error', action='store_true',
+                    help='Record a bound Host error as FAIL and observe later cases without replay')
     ap.add_argument('--no-case-screenshots', action='store_true',
                     help='Retain disk-backed semantics/trace; take final native page shots separately')
     a = ap.parse_args()
@@ -91,6 +95,22 @@ def main():
         selected = [cases[key] for key in a.case_ids]
         assert all(c['execution'] == 'model' and not c.get('memory_operation')
                    for c in selected), 'No memory mutation in this subset'
+    previous = None
+    if a.resume_report:
+        assert a.full_frozen_corpus, 'Resume uses the fixed original corpus order'
+        previous_path = a.resume_report.resolve(strict=True)
+        assert previous_path.is_relative_to(candidate)
+        previous = read(previous_path)
+        for key in ['version', 'source_sha256', 'host_sha256']:
+            assert previous[key] == meta[key]
+        assert previous['model_metadata'] == safe_model
+        seen = [row['id'] for row in previous['cases']]
+        assert seen == [c['id'] for c in selected[:len(seen)]]
+        assert all(row['input'] == case['input'] for row, case in
+                   zip(previous['cases'], selected))
+        assert not previous.get('pending_input'), 'Do not replay an uncertain pending input'
+        selected = selected[len(seen):]
+        assert selected, 'All fixed inputs have already been observed'
     protected = {n: sha(jail / n) for n in [
         'goals.json', 'goals.backup.json', 'calendar-state.json',
         'mail-draft.json', 'mail-watch.json'] + ([] if a.full_frozen_corpus else ['memory.json'])}
@@ -111,7 +131,12 @@ def main():
               'original20_transport_complete': False, 'external_action_confirmation': False,
               'case_screenshots': not a.no_case_screenshots,
               'full_frozen_corpus': a.full_frozen_corpus,
-              'flow_sessions': {}, 'memory_operations': {}}
+              'flow_sessions': previous['flow_sessions'] if previous else {},
+              'memory_operations': previous['memory_operations'] if previous else {},
+              'prior_report': {'path': str(previous_path.relative_to(candidate)),
+                               'sha256': sha(previous_path)} if previous else None,
+              'continue_on_model_error': a.continue_on_model_error,
+              'retained_model_errors': []}
     def save():
         pending = a.out / 'report.json.pending'
         pending.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
@@ -182,7 +207,13 @@ def main():
                 assert current()['focus_project'] == wanted['project']
                 assert current()['focus_owner'] == wanted['owner']
             if case.get('memory_operation'):
-                memory_operation(case)
+                if previous and case['id'] in previous['memory_operations']:
+                    op = previous['memory_operations'][case['id']]
+                    proof = previous_path.parent / op['path']
+                    assert sha(proof) == op['sha256']
+                    assert read(jail / 'memory.json') == read(proof)['after']
+                else:
+                    memory_operation(case)
             is_model = case['execution'] == 'model'
             if is_model:
                 gap = 32 - (time.monotonic() - last_request)
@@ -255,6 +286,12 @@ def main():
             if not a.no_case_screenshots:
                 shot(r, a.out / (case['id']+'.png'))
             if is_model:
+                if terminal[-1]['state'] == 'error' and a.continue_on_model_error:
+                    assert row['actual_host_trace'] is not None, 'Bound failure trace missing'
+                    assert row['actual_host_trace']['is_ok'] is False
+                    report['retained_model_errors'].append(case['id'])
+                    save()
+                    continue
                 assert terminal[-1]['state'] in ['success', 'waiting_user'], 'Retain actual error response'
                 assert row['actual_host_trace'] is not None, 'Actual official callback proof missing'
                 assert row['actual_host_trace']['is_ok'] is True
@@ -264,9 +301,12 @@ def main():
                 assert terminal[-1]['state'] in ['success', 'waiting_user', 'cancelled']
         assert all(sha(jail / n) == h for n, h in protected.items())
         report['protected_external_state_unchanged'] = True
+        all_rows = (previous['cases'] if previous else []) + report['cases']
         report['original20_transport_complete'] = (a.full_frozen_corpus and
-            sum(row['suite'] == 'original20' for row in report['cases']) == 20)
-        report['status'] = 'OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW'
+            sum(row['suite'] == 'original20' for row in all_rows) == 20)
+        report['status'] = ('OBSERVED_WITH_RETAINED_MODEL_ERRORS_REQUIRES_MANUAL_REVIEW'
+            if report['retained_model_errors'] or (previous and previous['status'] == 'FAIL_RETAINED')
+            else 'OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW')
     except Exception:
         report['status'] = 'FAIL_RETAINED'
         (a.out / 'exception.txt').write_text(traceback.format_exc())
