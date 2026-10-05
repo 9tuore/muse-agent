@@ -1,0 +1,99 @@
+{
+  "version": "0.3.26-rc24",
+  "cases": [
+    {
+      "case": "model-gpt/original-long-question",
+      "input": "下面只是我的视频制作笔记：打算导出成片，但没有调用导出工具，没有系统回执，也没有独立读回。请判断能否说视频已经导出，并说明依据。",
+      "reply": "不能确认视频已经导出。依据：笔记只写了'打算导出'，是计划意图而非执行记录；没有调用导出工具的记录，没有系统回执，也没有独立读回的证据，三项执行证据均缺失，因此只能按未完成处理。",
+      "state": "success",
+      "is_ok": true,
+      "known_usage": true,
+      "meta": {
+        "class": "strong",
+        "requested": "fast",
+        "attempts": 2,
+        "usage": {
+          "estimated": true,
+          "input_tokens": 1131,
+          "output_tokens": 122
+        },
+        "budget": {
+          "calls_per_day": 100,
+          "calls_today": 38,
+          "per_minute": 6,
+          "resets_at": 1791244800,
+          "tokens_left": 52063,
+          "tokens_per_day": 100000,
+          "tokens_today": 47937
+        }
+      },
+      "error_code": null,
+      "format_error": null,
+      "single_app_dispatch": true,
+      "provider_id_omitted_by_host": true
+    },
+    {
+      "case": "model-m3/original-long-question",
+      "input": "下面只是我的视频制作笔记：打算导出成片，但没有调用导出工具，没有系统回执，也没有独立读回。请判断能否说视频已经导出，并说明依据。",
+      "reply": "不能确认视频已经导出。依据：笔记里只有'打算导出'的意图，不是执行记录；缺少调用导出工具的记录，也没有系统回执，更没有独立读回的证据。三项证据均不存在，不能把未确认的计划当作已完成的结果。",
+      "state": "success",
+      "is_ok": true,
+      "known_usage": true,
+      "meta": {
+        "class": "strong",
+        "requested": "fast",
+        "attempts": 1,
+        "usage": {
+          "estimated": false,
+          "input_tokens": 838,
+          "output_tokens": 57
+        },
+        "budget": {
+          "calls_per_day": 100,
+          "calls_today": 36,
+          "per_minute": 6,
+          "resets_at": 1791244800,
+          "tokens_left": 54982,
+          "tokens_per_day": 100000,
+          "tokens_today": 45018
+        }
+      },
+      "error_code": null,
+      "format_error": null,
+      "single_app_dispatch": true,
+      "provider_id_omitted_by_host": true
+    },
+    {
+      "case": "model-m3/summary-reason",
+      "input": "请用一句话概括刚才的判断，保留不能确认的原因。",
+      "reply": "不能确认视频已经导出，因为只有'打算导出'的意图，缺少导出工具调用、系统回执和文件读回三项执行证据。",
+      "state": "success",
+      "is_ok": true,
+      "known_usage": true,
+      "meta": {
+        "class": "strong",
+        "requested": "fast",
+        "attempts": 1,
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1449,
+          "output_tokens": 217
+        },
+        "budget": {
+          "calls_per_day": 100,
+          "calls_today": 37,
+          "per_minute": 6,
+          "resets_at": 1791244800,
+          "tokens_left": 53316,
+          "tokens_per_day": 100000,
+          "tokens_today": 46684
+        }
+      },
+      "error_code": null,
+      "format_error": null,
+      "single_app_dispatch": true,
+      "provider_id_omitted_by_host": true
+    }
+  ],
+  "scope": "synthetic ordinary chat; evaluate semantic and grounding; do not infer model identity or full-chain"
+}

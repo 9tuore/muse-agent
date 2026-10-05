@@ -1,0 +1,103 @@
+{
+  "status": "PARTIAL",
+  "identity": {
+    "version": "0.3.26-rc24",
+    "branch": "codex/muse-rc-finalization",
+    "application_commit": "a6a1f8babe38343e0c9831612685777203b324ca",
+    "readable_sha256": "0699524137cda658040a843b5af50b57f406d691f821701032c5279796ba5c98",
+    "compact_sha256": "4345edc8ce34eb4f98983537ad602c1f3be87c8b49d9eae6b37ba7ce7bc42b93",
+    "sdk_lock_sha256": "64ca58c7b1bb6b622657c223910964f8b4c2000577429a253b7cc73cb80598a0",
+    "host_sha256": "3de610b8acceeefd722b58a8cc30dbf658ef2280b00c2e834fa2e6c2f0d23925"
+  },
+  "original_twenty_conservative_status": {
+    "PASS": 5,
+    "PARTIAL": 14,
+    "BLOCKED": 1
+  },
+  "local_apphub_installed": true,
+  "installation_six_core_files_preserved": true,
+  "tokenizer_equal_tokens": 93296,
+  "gate": "LOCAL_EXTENDED_HUB_PASS",
+  "formal_upstream_or_reviewer_acceptance": false,
+  "fixture_deltas": {
+    "scheduling_rc20": {
+      "groups": 15,
+      "checks": 101,
+      "second_process_restores": 5
+    },
+    "complete_test_id_rc22": {
+      "groups": 15,
+      "checks": 105
+    },
+    "mixed_intent_rc23": {
+      "new_groups": 3,
+      "checks": 48,
+      "independent_payload_readback": 12
+    },
+    "history_protocol_rc24": {
+      "groups": 6,
+      "checks": 106,
+      "independent_payload_and_persistent_readback": 25
+    }
+  },
+  "real_calendar": {
+    "version": "0.3.26-rc22",
+    "product_commit": "01940a68",
+    "host_sha256": "3de610b8acceeefd722b58a8cc30dbf658ef2280b00c2e834fa2e6c2f0d23925",
+    "compact_sha256": "0ecc8b49971624b94409c6c2a8da9f148dabf2b0c55cc718a779788256a58f11",
+    "calendar_scope": "Work, only MUSE-IMPROVE-20261005-1525",
+    "create_and_independent_get": true,
+    "update_same_event_and_independent_get": true,
+    "date_display_correct": "2026-10-06 16:00-16:30 +08:00",
+    "shell_restart": {
+      "hashes_unchanged": true,
+      "same_actions": true,
+      "receipt_count": 2,
+      "action_replay": false,
+      "at": 1791189498.228669
+    },
+    "delete_get_explicit_not_found": true,
+    "mutation_counts": {
+      "create": 1,
+      "update": 1,
+      "delete": 1
+    },
+    "event_identity_sha256": "caf6b633c9ba99543510f6d8053494022cd76d879b8922e597c234445a3b00f0",
+    "preserved_failures": [
+      "update initial binding changed before dispatch:0 clicks",
+      "update original postcondition wrong merged receipt path;1 actual click,no replay",
+      "date driver matched numeric widget ID before exact label correction;no external action"
+    ],
+    "same_final_mail_goal_chain": false,
+    "reason": "This is an authorized standalone Calendar sequence. New Mail/source Goal/reply chain still pending; no recipient confirmation fabricated."
+  },
+  "real_chat_rc24": {
+    "m3_primary_original_long_question": {
+      "is_ok": true,
+      "attempts": 1,
+      "estimated": false
+    },
+    "m3_primary_summary": {
+      "is_ok": true,
+      "attempts": 1,
+      "estimated": false
+    },
+    "gpt_primary_original_question": {
+      "is_ok": true,
+      "attempts": 2,
+      "estimated": true,
+      "cannot_exclude_fallback": true
+    },
+    "independent_semantic_review": "3/3 PASS; preserve unconfirmed vs not-completed wording qualification",
+    "provider_id_returned_by_host": false
+  },
+  "same_final_mail_goal_calendar_reply_chain_pass": false,
+  "new_mail_sends_this_round": 0,
+  "second_independent_strong_gate_pass": false,
+  "primary_restored": "MiniMax-M3 via official model settings",
+  "os_reboot_and_receiver_macs_tested": false,
+  "protected_dirty_baseline_sha256": "2830708d92b842d84eec1b7ec83d29e31b36bc599c9be5ea59a124a5aad97c90",
+  "production_and_legacy_install_modified": false,
+  "push_or_tag_or_formal_submission": false,
+  "public_evidence": "synthetic texts and SHA only; private Mail/Calendar runtime screenshots remain ignored"
+}

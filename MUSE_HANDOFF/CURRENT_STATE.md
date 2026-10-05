@@ -1,3 +1,13 @@
+## 2026-10-05 下午 rc24 UI、协议与真实日历收口
+
+实际AppHub安装0.3.26-rc24，产品a6a1f8ba，readable0699524137/compact4345edc8，Host3de610b8/SDKlock64ca58c7。UI简化、QQ授权码与完整地址登录、安排范围绑定、完整测试ID删除、显式邮件/日历意图优先及普通Chat历史JSON协议已实现。六核心文件安装前后SHA保持；93,296官方tokens等价，本地signed hub check/catalog PASS，非正式准入。
+
+rc20安排15组101+5恢复、rc22删除15组105、rc23混合意图原句48+12、rc24历史协议6组106+25均实际fixture PASS；不同范围/版本不合计冒充整链。rc24原长问题M3一次尝试成功，后续概括保留三项缺口；GPT首选回答有效但attempts2/estimatedtrue，不能排除fallback，第二strong未升级。M3首选已恢复。旧失败保留。
+
+指定真实“工作”日历合成事件在rc22创建一次/独立get、同ID改期一次/get、日期显示、Shell重启5SHA/2回执/0重放、删除一次/get明确不存在均通过并清理。这是独立Calendar序列，不是最终Mail/Goal整链。原20仍5PASS/14PARTIAL/1BLOCKED；旧信本人收件核对、最终关联邮件回复整链、第二strong、macOS Calendar外部变更、OS/接收机及rc24真账号2h等仍缺。详见official_muse/rc/improvement-20261005-r1/REPORT.md及RC_ACCEPTANCE_MATRIX。稳定/生产/baseline/旧Tag保护，无push/正式发布。
+
+---
+
 ## 2026-10-05 上午 rc18 最终实测收口
 
 真实普通任务正常全链、首次Shell重启11SHA/零重放、另一空聊天相关全局记忆M3召回全部PASS。新SDKda Host已编译/验签/切入相同profile并有Calendar完整访问；真实源信单次发送、自动来信卡、来源关联及目标冲突查询通过。日历policy扩查询范围仍FAIL；同最终外部写入/改期/回复全链、第二strong、OS/接收机仍缺，原20保守5PASS/14PARTIAL/1BLOCKED。详见RC_MORNING_FINAL_REPORT.md。本轮只本地提交，无push/成功Tag/Hub正式提交。生产、稳定、失败证据和dirty baseline保护。

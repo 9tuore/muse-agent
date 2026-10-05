@@ -1,0 +1,125 @@
+{
+  "source_version": "0.3.26-rc23",
+  "cases": [
+    {
+      "case": "model-gpt/no-receipt",
+      "input": "下面只是我的视频制作笔记：打算导出成片，但没有调用导出工具，没有系统回执，也没有独立读回。请判断能否说视频已经导出，并说明依据。",
+      "reply": "这次没有整理成功。请重试，或手动填写。",
+      "state": "error",
+      "trace": {
+        "schema": 1,
+        "request_at": 1791191074.267707,
+        "response_at": 1791191084.097517,
+        "query_sha256": "d81bf87137f9329405897289a823eee4cee8da9df727d802df72779167f9eb41",
+        "session_id": "chat:1791172352-3975344033",
+        "goal_id": "",
+        "current": true,
+        "is_ok": false,
+        "known_usage": false,
+        "error_code": "invalid_output",
+        "format_error": "invalid_json"
+      },
+      "single_app_dispatch": true,
+      "provider_id_omitted_by_host": true
+    },
+    {
+      "case": "model-gpt/ordinary-number",
+      "input": "算一下46加27。请只给结果。",
+      "reply": "73",
+      "state": "success",
+      "trace": {
+        "schema": 1,
+        "request_at": 1791191048.509424,
+        "response_at": 1791191051.140089,
+        "query_sha256": "52bcdf7e540a0a4aa56053c71bbbd84bb384c28651640c805358f6c7c691ccf7",
+        "session_id": "chat:1791172352-3975344033",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 2,
+          "usage": {
+            "estimated": true,
+            "input_tokens": 876,
+            "output_tokens": 50
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 32,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 61997,
+            "tokens_per_day": 100000,
+            "tokens_today": 38003
+          }
+        }
+      },
+      "single_app_dispatch": true,
+      "provider_id_omitted_by_host": true
+    },
+    {
+      "case": "model-m3/explicit-format-control",
+      "input": "下面只是我的视频制作笔记：打算导出成片，但没有调用导出工具，没有系统回执，也没有独立读回。请判断能否说视频已经导出，并说明依据。请仅输出一个JSON对象，唯一字段reply为字符串，把判断与依据放入reply；不要代码块。",
+      "reply": "不能确认视频已经导出。依据：笔记仅记录'打算导出'，属于计划意图而非执行记录；没有调用导出工具，没有系统回执，也没有文件读回结果，三项客观证据均缺失，因此只能按未完成处理。",
+      "state": "success",
+      "trace": {
+        "schema": 1,
+        "request_at": 1791191508.784932,
+        "response_at": 1791191532.139258,
+        "query_sha256": "3080a0330ef60eb4647492c71bab8dba201d0422ece4e00babf6bba3e93e3e2e",
+        "session_id": "chat:1791172352-3975344033",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "strong",
+          "requested": "fast",
+          "attempts": 2,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 1861,
+            "output_tokens": 725
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 35,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 55877,
+            "tokens_per_day": 100000,
+            "tokens_today": 44123
+          }
+        }
+      },
+      "single_app_dispatch": true,
+      "provider_id_omitted_by_host": true
+    },
+    {
+      "case": "model-m3/no-receipt",
+      "input": "下面只是我的视频制作笔记：打算导出成片，但没有调用导出工具，没有系统回执，也没有独立读回。请判断能否说视频已经导出，并说明依据。",
+      "reply": "这次没有整理成功。请重试，或手动填写。",
+      "state": "error",
+      "trace": {
+        "schema": 1,
+        "request_at": 1791191248.7026,
+        "response_at": 1791191259.835737,
+        "query_sha256": "d81bf87137f9329405897289a823eee4cee8da9df727d802df72779167f9eb41",
+        "session_id": "chat:1791172352-3975344033",
+        "goal_id": "",
+        "current": true,
+        "is_ok": false,
+        "known_usage": false,
+        "error_code": "invalid_output",
+        "format_error": "invalid_json"
+      },
+      "single_app_dispatch": true,
+      "provider_id_omitted_by_host": true
+    }
+  ],
+  "ordinary_original_long_question_still_failed": true,
+  "explicit_format_control_does_not_replace_original_case": true
+}

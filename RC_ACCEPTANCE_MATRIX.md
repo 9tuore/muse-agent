@@ -1,4 +1,22 @@
-# rc18 晨间最终增量核对
+# rc24 下午增量核对
+
+已安装0.3.26-rc24，产品a6a1f8ba，readable0699524137/compact4345edc8；Host3de610b8/SDKlock64ca58c7。本轮详细报告：official_muse/rc/improvement-20261005-r1/REPORT.md。**整体PARTIAL，原二十项仍5PASS/14PARTIAL/1BLOCKED**，不以新增局部节点替换完整标准。
+
+| 项 | 实际新增证据 | 尚缺 |
+|---|---|---|
+| T02/T03/T13/T16 | 新QQ完整邮箱登录/授权码UI与同步有效；原未知投递保护保留 | 旧信本人事实核对及同最终两封来信/回复到达整链 |
+| T07 | rc23原混合邮件短语48+12；rc24历史副本协议106+25；M3原长问及一句总结实际成功 | 旧语义失败保留；没有重新跑全套题集或扩大通过数 |
+| T08 | rc20安排范围15组101/5恢复，原无关任选扩范围反例已修 | 最多两条替代的真实日历核验仍缺 |
+| T09/T10 | rc22精确授权事件真实create/get，同IDupdate/get，Muse日期显示正确 | 这些是独立Calendar节点，非来信来源绑定的同最终事项 |
+| T11/T12 | 完整测试ID15组105；真实单次delete/get明确不存在 | 电脑日历外部改动后刷新、最终异常恢复 |
+| T17 | rc24 M3首选attempts1两次有效回答；GPT首选一回答有效 | GPT attempts2/estimatedtrue不能排除fallback；第二strong独立语义门槛仍未过 |
+| T18 | 邮箱/Calendar授权已生效；独立系统CRUD/读回/重启/清理通过 | BLOCKED保留：待本人收件事实答复及最终Mail→Goal→Calendar→reply整链 |
+| T19 | 简化导航/卡片、六页长文本、四尺寸可见fixture，rc24 UI字节绑定复用 | 412×892实际夹为412×817，不能写请求尺寸通过 |
+| T20 | 新QQHost验签/同目录安装六SHA保持；rc22真实事件存在时Shell重启5SHA/0重放 | OS重启、接收机、同rc24真账号2h及全新完整clean Host仍缺 |
+
+---
+
+# rc18 晨间最终增量核对（历史）
 
 当前应用A=b8545265，0.3.26-rc18；详见RC_MORNING_FINAL_REPORT.md。原20项保持5PASS/14PARTIAL/1BLOCKED，以下rc10矩阵保留为历史证据，不能作为当前宿主身份。
 
