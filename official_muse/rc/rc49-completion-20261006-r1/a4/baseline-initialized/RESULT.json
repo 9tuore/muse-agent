@@ -1,0 +1,137 @@
+{
+  "mode": "baseline-initialized",
+  "carrier_version": "0.3.26-rc49",
+  "product_commit": "e0eb5d82",
+  "model_sha256": "f755be04e46e7f768edb977e1ffa2ba25295941b69ca943dfb0388cfba4ee71b",
+  "model_alias": "Qwen3-0.6B-Q4_K_S-pure-offline",
+  "sampler_arguments": [
+    "--temp",
+    "0.2"
+  ],
+  "port": 8492,
+  "scope": "existing packaged Host and model, synthetic fresh profile; manual diagnostic server ownership, not automatic launcher test",
+  "app_state_seed": "earlier own synthetic rc48 schema; messages/proposals cleared in copied fixture only",
+  "paid_models": false,
+  "external_actions": false,
+  "weights_host_budget_unchanged": true,
+  "direct": [],
+  "host_calls": [
+    {
+      "question": "请只回答两个汉字：晴朗白天的天空通常是什么颜色？",
+      "answer": {
+        "role": "assistant",
+        "text": "晴朗",
+        "state": "success",
+        "at": 1791225244.307969,
+        "memory_refs": [],
+        "project": "",
+        "owner": ""
+      },
+      "trace": {
+        "schema": 1,
+        "request_at": 1791225221.422439,
+        "response_at": 1791225244.303237,
+        "query_sha256": "2bf1cfb58fdc9111dd813a6f6b3c57e7d4b2b898fab65f41b05184c29b9d48b7",
+        "session_id": "chat:1791221504-3776659746",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "unknown",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 573,
+            "output_tokens": 8
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 1,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 99419,
+            "tokens_per_day": 100000,
+            "tokens_today": 581
+          }
+        }
+      },
+      "semantic_correct": false,
+      "format_correct": false,
+      "correct": false,
+      "seconds": 23.132
+    },
+    {
+      "question": "请只回答数字：7加5等于几？",
+      "answer": {
+        "role": "assistant",
+        "text": "7",
+        "state": "success",
+        "at": 1791225258.182951,
+        "memory_refs": [],
+        "project": "",
+        "owner": ""
+      },
+      "trace": {
+        "schema": 1,
+        "request_at": 1791225244.858628,
+        "response_at": 1791225258.138585,
+        "query_sha256": "fae8d13dbe0c1cd25008b0e952bf0912fd516c9a23d63a0b601b8be44d895664",
+        "session_id": "chat:1791221504-3776659746",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "unknown",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 600,
+            "output_tokens": 7
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 2,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 98812,
+            "tokens_per_day": 100000,
+            "tokens_today": 1188
+          }
+        }
+      },
+      "semantic_correct": false,
+      "format_correct": false,
+      "correct": false,
+      "seconds": 13.566
+    }
+  ],
+  "status": "PARTIAL",
+  "installed_bundle_sha256": {
+    "listing.json": "760f688d1cb9a1bbfd8a07512fbacda73ee38f61a9703e1df41833d2a1b42885",
+    "main.splash": "15ea7e6d2da21ce8bedbcb1e4cee1537217ee653a4f603539e51fc35cefc540f",
+    "manifest.json": "e4f3de4e63e468e1b29b90b708203333356b4011296913926b8ad5dc09640621",
+    "screenshots/02-global-memory.png": "dcf301dbba19abbe4df6f5ccc3d7fdab105c624530a1cef1f9b3aa7c4a66c24c",
+    "screenshots/01-main.png": "b4688d836728aae6a06e7d729f3d66a2962fe20d6930d46dc46a7d74190ee5b6",
+    "assets/icon.svg": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3"
+  },
+  "ledger": {
+    "apps": {
+      "muse-goals": {
+        "calls": 2,
+        "tokens": 1188
+      }
+    },
+    "day": 20731,
+    "limits": {}
+  },
+  "own_host_stopped": true,
+  "own_model_stopped": true,
+  "raw_prompt_log_files": [
+    ".local-state/prompts/000100060760.txt",
+    ".local-state/prompts/000100037383.txt"
+  ]
+}

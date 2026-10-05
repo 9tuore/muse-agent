@@ -1,0 +1,73 @@
+{
+  "status": "FAIL_BEFORE_MODEL",
+  "carrier_version": "0.3.26-rc49",
+  "product_commit": "e0eb5d82",
+  "scope": "fresh own synthetic profile only",
+  "source_anchors": {
+    "official_muse/app/source/main.splash": {
+      "gm_has": 5366,
+      "chat_boot_data": 6727,
+      "chat_boot_finish": 6788,
+      "chat_save": 6691
+    },
+    "official_muse/app/bundle/main.splash": {
+      "gm_has": 5366,
+      "chat_boot_data": 6727,
+      "chat_boot_finish": 6788,
+      "chat_save": 6691
+    }
+  },
+  "errors": [
+    "[E] splash:140266954000896:5366:2 - script time budget exceeded (.sources/makepad/platform/script/src/vm.rs:1046)",
+    "[E] splash:140266954000896:7424:87 - property focus_owner not found in prototype chain. Did you mean: focus_project(\"\") or messages([1]), title(\"请只回答两个汉字：晴朗白...\"), proposals([0]), id(\"chat:1791224...\") (+2 more) (.sources/makepad/platform/script/src/object_heap.rs:935)"
+  ],
+  "primary": {
+    "schema": 1,
+    "selected_id": "chat:1791224960-3588064334",
+    "sessions": [
+      {
+        "id": "chat:1791224960-3588064334",
+        "title": "请只回答两个汉字：晴朗白天的天空通常是什么颜…",
+        "created_at": 1791224975.129958,
+        "updated_at": 1791224976.418032,
+        "messages": [
+          {
+            "role": "user",
+            "text": "请只回答两个汉字：晴朗白天的天空通常是什么颜色？",
+            "state": "success",
+            "at": 1791224976.41753,
+            "project": "",
+            "owner": ""
+          }
+        ],
+        "proposals": [],
+        "focus_project": ""
+      }
+    ]
+  },
+  "backup": {
+    "schema": 1,
+    "selected_id": "chat:1791224960-3588064334",
+    "sessions": [
+      {
+        "id": "chat:1791224960-3588064334",
+        "title": "新对话",
+        "created_at": 1791224975.129958,
+        "updated_at": 1791224975.132635,
+        "messages": []
+      }
+    ]
+  },
+  "verified_facts": [
+    "Fresh no-chat-files branch creates only id/title/created_at/updated_at/messages.",
+    "chat_ready becomes true and chat_save persists that minimal shape before chat_boot_finish adds defaults.",
+    "chat_boot_finish calls gm_has for proposals/focus_project/focus_owner/goal_id in the same callback.",
+    "Observed budget exception is at gm_has; saved backup retains minimal shape, current session gained proposals/focus_project but lacks focus_owner and goal_id.",
+    "Send request binding reads session.focus_owner directly; observed missing-property error occurs before model.complete.",
+    "Seeded earlier own synthetic schema with empty messages/proposals runs the same packaged rc49 Host model path; two actual calls complete and remain wrong."
+  ],
+  "inference": "Budget exhaustion interrupted default-field normalization after the first save, while chat_ready remained true. Exact wall-time cause/caller stack was not recorded; do not claim it has been fixed.",
+  "host_model_calls_in_fresh_failure": 0,
+  "production_root_profiles_modified": false,
+  "main_source_changed": false
+}
