@@ -1,33 +1,38 @@
-# Muse 晨间收口报告 · 0.3.26-rc9
+# Muse 晨间收口 · 0.3.26-rc10
 
-**状态：PARTIAL，5 PASS / 14 PARTIAL / 1 BLOCKED。** 本页为当前候选摘要；历史证据保留在版本摘要、原日志和Git中。未达到原二十项全过、READY或比赛第一的证据门槛。
+**状态：PARTIAL，原二十项5 PASS / 14 PARTIAL / 1 BLOCKED。** 未达到全部通过、95分或第一名的证据标准。
 
-## 实际完成
+| 项目 | 当前实际结果 |
+|---|---|
+| 昨晚开始 | 2026-10-04 23:23:21基线记录：0.3.26-rc3，长期任务入口已去除，冷启动/模型/Calendar还有失败；稳定0.3.25、旧安装及生产保护 |
+| 现在 | rc10 / 产品6fd5b54b，可读a19622e0、compact7cdfc751，91244官方token等价 |
+| 内部排名目标 | 原全部门槛、同候选真业务链和两套严格评分；不把目标当名次或结果 |
+| A score / B score | 旧rc9独立内部审阅70 / 70（历史截点）；rc10最终评分待全部现有观察结束，不预加分，不代表官方评分 |
+| T18 | BLOCKED：最终profile同步凭据缺失、当前Host未集成Calendar桥；同最终外部整链未完成 |
+| Stability | rc10新30冷/20重开/20Shell重启PASS；额外100重开PASS，7200秒合成驻留尚进行。未提高预算、清库或删失败 |
+| Model / Memory | 两实际模型各28唯一输入，原20各19PASS/1FAIL、setup2/holdout6全PASS；更正/遗忘/跨聊天隔离真实核对通过，额外无依据评价保留 |
+| Source | 官方Splash/Makepad入口，最小Memory UI修复及存储/记忆/来信/Activity模块责任明确；主入口540777字节/430函数regex，未称已彻底拆分或无死代码 |
+| Hub | 同rc10六文件/Git/mirror/pack、catalog签名和本地扩展Gate通过；七题scan packet已生成但无独立reviewer；正式身份/政策/业务视频待 |
+| 需要本人做的 | 最终Host/profile官方登录与Calendar身份授权、唯一事件窄确认、收件到达/电脑重启/跨Mac、正式材料与摘要确认。夜间未重复询问 |
 
-- 官方OctoScript/Splash主入口、Makepad、App Hub、manifest权限与官方model.complete保持。产品冻结1c9f3b46；readable9d01484c / payload4c970e04，91,195 token完全等价。
-- 邮件未请求修改的收件人/主题保留：16变体86检查；rc8两个真实模型E04均保持同卡、收件人、主题，只更新正文。原rc7失败保留。
-- 日历日期已知但缺时段时，先询问开始及结束，避免把模型臆造或反向时段当用户输入。15变体53检查；rc9 M3和M2.7实际D05均通过，零候选/零系统写入。原rc8 D05失败保留。
-- rc9跨聊天授权记忆六步/三次M3调用通过：更正同ID/revision2，新聊天读取新值，遗忘后内容及历史清除、墓碑保留、检索为空。
-- rc9一次性任务真实模型计划与建议→一次批准→保存→独立读回→第一次Shell重启通过。八项SHA和账本相同，没有重放；结果来源记忆metadata在创建时完整。
+## 真实完成与原失败
 
-## 稳定性与外部实测
+rc9 Memory UI两个单独保存导致新值被旧输入撤回，已保留磁盘/截图失败。rc10同步成功更正的输入缓冲并对已授权相同值无重复写入；连续两个保存、Memory/Activity SHA和首Shell恢复10文件/ledger实际通过。原模型/邮件/日历/Goal执行路径除该函数和版本文字外字节保持。
 
-rc8完整30冷启动/20重开/20Shell重启通过。rc9首轮保存报告ENOSPC中断，30冷/13重开的磁盘证据保留；两小时首轮19样本542.154秒后同样中断，均不写PASS。容量恢复后，同rc9第二轮30冷/20重开/20Shell重启及额外100次普通重开全部通过；完整两小时采样仍进行，结果见COLD_START_PROFILE.md、OVERNIGHT_SOAK.md。
+同rc10一次性任务两次真实model.complete→Plan/模型建议→一次本地批准→Storage/独立Readback→第一次Shell重启通过。八SHA含ledger相同，一个Goal/Run，无重放；账本67/57590→69/59921，token不当人民币账单。
 
-今晚稳定0.3.25真实本人邮箱自发自收一次，自动提醒、独立mail.message和正文SHA匹配。真实只读Calendar诊断也已完成：Host把truncated编码成数字0/1，产品严格布尔守卫拒绝。92b1df15一行桥源码及Foundation三边界/Clang对象/SDK12000条目检查通过；现有运行Host仍未包含修复，不称日历已跑通。
+两个实际模型28步分别保留前缀驱动故障，只继续未见后缀。独立语义复核M3 S02为invalid_output（provider原文/usage未知），M2.7 R02省略缺工具回执原因；两模型M01新增整体评价无事实依据。不能用终端完成/Host成功把失败变通过。Memory更正同claim rev1→2、遗忘墓碑/空检索及跨会话项目归属有实际UI和存储证明。
 
-## 仍缺什么
+## 真实外部节点及阻塞
 
-同最终候选真实邮件→项目记忆→系统日历创建/原事件改期/独立get→回复到达→首次恢复未完成。最新授权允许自发自收和日历读取，新的系统事件修改需精确授权；新Host身份权限/凭据状态不同于已授权稳定版。没有夜间代点TCC或寻找密钥。
+今晚稳定0.3.25按授权真实本人邮箱自发自收一次，自动卡和独立mail.message正文SHA一致。当前rc10隔离profile能读账号缓存，但官方实际同步缺凭据；Keychain命名包含Host邮件目录hash，账号缓存复制不继承登录。没有取秘密、修改命名空间或尝试发送。
 
-双模型原20题/2准备/6变体、电脑重启、clean Host、第二Mac/ARM、窄高窗原尺寸、最终外部业务链视频与正式发布身份/政策仍有缺项。不能用局部模型成功、空框或历史节点拼接替代。
+当前rc10在已授权旧Host0fd实际只读“工作”日历指定范围，full_access已观察，严格schema拒绝复现。旧独立raw诊断返回数字truncated；92b1布尔桥源码/Foundation三边界/Clang对象/SDK12000核对已过，完整运行Host938仍旧SDK3f，不称日历修复已安装。
 
-## 文件与交付
+## 文件、截图与下一节点
 
-清理只针对已结束候选的可恢复分发PNG，逐Git SHA/长度和lsof核对。最新164份操作前后可用从41,254,912增至357,711,872字节；APFS逻辑507MB不当实际释放。原始截图、失败、源码/包、账本、私人资料与生产数据未删。完整Host600MiB门禁未降低。
+当前真实rc10两次Memory保存及Goal首重启截图均为隔离合成资料，Root已查看；rc9约61秒六页采样界面短片保留历史身份，不代替rc10外部业务视频。失败日志和私人证据只留本机；源码导出排除账号、凭据、私人邮件/库、缓存和权重。
 
-最新源码薄交付将按最终Git清单+签名镜像导出；它不含独立运行Host/启动器/模型权重。桌面已有087 Intel运行ZIP仍是旧rc5，不能称最新版独立运行包。未push、未移动旧Tag、未正式提交App Hub。
+最终源码薄包待现有测试完成后固定S→manifestF；不含独立Host/启动器/模型。桌面旧087 Intel运行ZIP是rc5，未换标签为最新版。清理仅已结束可恢复分发副本，实际回收与APFS逻辑大小分开；完整Host600MiB门槛不降低。
 
-当前有约61秒真实六页界面短片与解码首帧，见CHAMPIONSHIP_DEMO.md；只展示界面，不能替代真实业务链视频。
-
-入口：RC_ACCEPTANCE_MATRIX.md、RC9_LIVE_NODE_SUMMARY.json、RC_CODE_FREEZE.json、RC_EVIDENCE_INDEX.json、MORNING_HUMAN_QUEUE.md、SOURCE_STRUCTURE_AUDIT.md。
+详细入口：[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)、[真实节点](RC_FINAL_LIVE_REPORT.md)、[冷启动](COLD_START_PROFILE.md)、[持续运行](OVERNIGHT_SOAK.md)、[冻结身份](RC_CODE_FREEZE.json)、[人工与环境队列](MORNING_HUMAN_QUEUE.md)、[评分](CHAMPIONSHIP_SCORECARD.md)、[交付](SOURCE_DELIVERY.md)。本轮只本地小步提交，未push、移动旧Tag、创建成功Tag或正式提交App Hub。

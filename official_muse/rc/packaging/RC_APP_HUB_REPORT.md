@@ -1,10 +1,10 @@
-# 当前App Hub材料 · 0.3.26-rc9 · PARTIAL
+# 当前App Hub材料 · 0.3.26-rc10 · PARTIAL
 
-产品来源1c9f3b46；可读9d01484c、payload4c970e04，官方token等价91,195。06:20静态记录RC9_1C9_PUBLIC_MAINTENANCE_SYNC.json实际核对Git/mirror/pack六文件、catalog签名和bundle公钥检查通过；该记录的运行测试聚合字段只代表当时，不覆盖后续结果。最终源码导出时会再次核对同一应用与签名镜像。
+签名产品A=6fd5b54b；readable a19622e0 / compact7cdfc751，官方91244token等价。canonical rc10-memory-ui-r1的Git/mirror/pack六文件和catalog签名、公钥bundle check通过，catalog sequence46/40 entries。当前新品通过局部运行不等于官方原版准入；正式publisher/政策HTTPS仍缺。
 
-两张当前rc9真实原生截图及约61秒六页界面短片已保存，身份、实际查看范围与SHA见../screenshots/RC9_PROVENANCE.json、RC9_VIDEO_PROVENANCE.json。短片只展示界面，完整邮件→日历→回复业务视频仍缺。Canonical listing两张图片属于既有支持素材，不能改标签称为最终业务证据。
+当前rc10三张真实原生截图：Memory第一次保存、第二次保存和Goal第一次Shell重启后结果，均为隔离合成资料；Root实际查看，SHA在对应公开摘要。canonical listing两张图片仍为已有身份记录的支持素材，未重写成最终业务证据。rc9约61秒六页采样界面短片保持历史身份，不是rc10或真实外部业务视频。
 
-原20项仍未全部通过；完整新Host未构建、日历布尔桥未进入Host938，正式publisher与真实隐私政策URL未齐。这里只准备草稿，没有正式发布、提交Issue、push或创建成功Tag。最终运行与验收以仓库根目录RC_ACCEPTANCE_MATRIX、RC_CODE_FREEZE和晨间报告为准。
+原20项5PASS/14PARTIAL/1BLOCKED。新Calendar桥尚未进入Host938；当前rc10旧授权Host真实只读仍schema拒绝，Mail独立profile实际凭据缺失，同最终外部全链未过。scan packet已生成七个问题，没有独立reviewer回复。这里只准备草稿，无正式申请、Issue、push、成功Tag或发布。最终Source S/F和薄包静态核对将在测试结束后固定。
 
 ---
 

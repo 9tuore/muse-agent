@@ -1,6 +1,10 @@
-# 当前源码与维护边界 · rc9
+# 当前源码与维护边界 · rc10
 
-产品1c9f3b46；可读9d01484c / compact4c970e04，官方91,195 token相同。OctoScript/Splash、Makepad和官方model.complete/存储/权限/宿主服务保持，没有第二Runtime。可读入口540,440字节，430个命名函数；正则扫描不是AST、没有宣称不存在死代码。
+产品6fd5b54b；可读a19622e0 / compact7cdfc751，官方91,244 token相同。OctoScript/Splash、Makepad和官方model.complete/存储/权限/宿主服务保持，没有第二Runtime。可读入口540,777字节，430个命名函数；正则扫描不是AST、没有宣称不存在死代码。
+
+rc10针对真实双保存回退只修memory_correct输入缓冲与授权同值no-op；官方token等价、429其他函数块归一化版本后不变。实际两个保存无回退/重复写入和首Shell恢复PASS；完整双模型28步中Memory更正/遗忘/跨聊天隔离核对通过，模型失败单列。模块并未变更，不引入新validator/runtime。
+
+有界只读单出现审计发现5个当前产品未见调用的helper，但全部仍有tracked合同/测试引用；生成模块两个readiness和gm wrapper会被sync_modules嵌入。冻结候选保留，不能仅删生成main或删除失败测试。实际runtime走chat_boot_begin、chat_model_history.earlier、gm_retired_at/gm_forgotten_at；证据RC10_SINGLE_OCCURRENCE_AUDIT.json，不把regex当AST或无死代码证明。
 
 rc9只把既有用户时段完整性检查移到模型payload校验之前；其他函数字节不变，仅Settings版本递增。15变体53检查、两个真实模型D05准确追问通过。rc8邮件未指定to/subject保留的16变体86检查及两个真实模型E04通过，原失败保留。修改及版本字节绑定见RC9_DELTA_BINDING、RC8_DELTA_BINDING。
 

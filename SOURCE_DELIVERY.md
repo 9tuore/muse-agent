@@ -1,14 +1,14 @@
-# 当前交付 · 0.3.26-rc9（PARTIAL）
+# 当前交付 · 0.3.26-rc10（PARTIAL）
 
-产品1c9f3b46；readable9d01484c / compact4c970e04，官方91,195 token等价。当前原20项5PASS/14PARTIAL/1BLOCKED，最终源码库存与薄交付待测试结束后固定。不要把下方旧SOURCE_MANIFEST与旧运行包身份当作最新导出。
+产品A=6fd5b54beeba7cc9892916c3de7f01106ab8a158；可读a19622e0 / compact7cdfc751，官方91244token等价。原20项5PASS/14PARTIAL/1BLOCKED。真实Memory双保存/无重复写入、跨聊天更正/遗忘/隔离、一次性任务2模型调用/一次批准/存储/独立读回/首次Shell重启通过。双模型完整28输入原20各19PASS/1FAIL，setup2和holdout6均PASS；服务/语义/grounding失败保留。
 
-交付以最终明确Git普通文件清单为准，不遍历工作区，不收未提交原件、账号、凭据、私人邮件、生产数据库、私有原始实测、vendor/target或权重。源码SDKda756dde及一行Calendar桥修复与运行Host938/SDK3f分开；现有Host不含该桥，官方上游未接受本地扩展。
+同rc10新70启动全部通过，额外100普通重开全部通过，完整7200秒合成驻留仍在完成；不等于电脑重启或真实Mail后端。最终profile同步凭据缺失，已授权旧Host真实只读Calendar仍schema拒绝，同候选外部整链未过。源码SDKda/布尔桥修复和Host938/运行SDK3f分开，官方上游未接受本地扩展。
 
-rc9真实六步记忆、更正/遗忘、一次性任务/首次Shell重启和两个真实模型D05通过；原20题、2个真实记忆准备步骤及6个保留变体的完整双模型观察与语义评阅仍待完成，外部全链未过。第二轮30次冷启动、20次重开、20次Shell重启全部通过，额外100次同进程连续重开通过；两小时第二轮仍在进行。第100轮另行取得真实窗口截图，首次截图404保留。失败版本原始记录保留；不能用编译、窗口或success文案替代真实系统动作。
+最终只从明确Git普通文件库存及同产品签名mirror导出，不遍历工作区、不收未提交原件、私有profile、账号/凭据、私人邮件/库、原始实测、vendor/target或权重。SOURCE_MANIFEST的库存parent S与最终导出F分开，manifest不包含自身哈希；目前清单仍旧，测试结束前不当最终导出。
 
-最新薄源码+签名镜像不包含可独立运行Host、启动器、模型权重；桌面旧087 Intel ZIP仍是rc5、来源0876314b。SOURCE_MANIFEST生成parent与最后导出commit分别绑定，不循环哈希。SOURCE_DELIVERY的历史内容按原版本保留。
+最新薄源码/签名镜像不含可独立运行Host、启动器和模型。桌面087 Intel运行ZIP仍为rc5/0876314b，旧入口不改称rc10；第二Mac/ARM、clean Host和新Calendar桥运行未过。当前三张rc10实际截图为合成资料；rc9采样界面视频保留历史身份。
 
-未push、未改旧Tag、未创建成功Tag或正式App Hub提交。只有原20项及关键门槛全部通过才进入成功发布流程。
+未push、改旧Tag、创建成功Tag或正式申请App Hub。原20项及关键门槛全部通过才进入成功发布流程。历史交付和唯一失败证据按原身份保留。
 
 ---
 

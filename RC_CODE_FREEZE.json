@@ -28,12 +28,12 @@
     "screenshots/01-main.png": "e3a85b8b5a6a20db1beae6e75d30e64b95a550ca45f7576f46c6ac7d4f80073e",
     "assets/icon.svg": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3"
   },
-  "startup70": "RC10_FRESH_30_COLD_20_REOPEN_20_SHELL_RESTART_RUNNING; RC9_HISTORICAL_ONLY",
+  "startup70": "PASS_RC10_FRESH_30_COLD_20_REOPEN_20_SHELL_RESTART",
   "final_soak": "RC10_FRESH_SYNTHETIC_FULL7200_RUNNING; NOT_REAL_MAIL_OR_CALENDAR",
   "calendar_fix_in_current_host": false,
   "final_live_chain": "NOT_PASSED",
   "hub_scope": "LOCAL_EXTENDED_DEVELOPMENT_ONLY",
-  "current_live_summary": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+  "current_live_summary": "RC10_LIVE_NODE_SUMMARY.json",
   "source_sdk_lock_sha256": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
   "prior_rc8_support": {
     "product_commit": "a80bd019db7581511b3891bcc3892548f767a42d",
@@ -48,7 +48,7 @@
   "prior_rc7_support": "RC7_LIVE_NODE_SUMMARY.json; actual E04 subject FAIL and ENOSPC preserved",
   "prior_V15_support": "COLD_START_PROFILE.md and OVERNIGHT_SOAK.md; historical70 and synthetic7200s PASS, no final rc9 re-labeling",
   "no_nested_history_duplication": "Current freeze keeps references; full historical versions and failures remain in Git and versioned evidence",
-  "frozen_model_scope": "RC10 fresh original20+setup2+holdout6 per channel RUNNING; all prior model and harness failures retained; terminal transport is not semantic PASS",
+  "frozen_model_scope": "Both actual models completed original20+setup2+holdout6 unique inputs; independent original20 19PASS/1FAIL each; setup2/holdout6 PASS; no release PASS",
   "prior_rc9_support": {
     "product_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
     "readable_sha256": "9d01484cb775329530d00f077fb74cfa8469e61ad3117a21360779c4bda13505",
@@ -61,5 +61,12 @@
     "soak": "RC9_R2_FULL7200_PASS_241_SAMPLES_NO_WRITES_MODEL_OR_RUNTIME_ERRORS",
     "soak_summary": "official_muse/rc/startup/RC9_SOAK_7200_SUMMARY.json"
   },
-  "memory_ui_fix": "PASS_TWO_SINGLE_SAVES_NO_REVERT_NO_DUPLICATE_WRITE_FIRST_SHELL_RESTART; NO_MODEL_NO_EXTERNAL_ACTION"
+  "memory_ui_fix": "PASS_TWO_SINGLE_SAVES_NO_REVERT_NO_DUPLICATE_WRITE_FIRST_SHELL_RESTART; NO_MODEL_NO_EXTERNAL_ACTION",
+  "startup70_summary": "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+  "reopen100": "PASS_RC10_100_ORDINARY_REOPENS_SAME_SHELL_PROCESS",
+  "frozen_model_review": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+  "goal_chain": "PASS_REAL_MODEL_PLAN_ONE_LOCAL_APPROVAL_STORAGE_READBACK_FIRST_SHELL_RESTART_8_SHA_NO_REPLAY",
+  "mail_profile_status": "Isolated official profile cache readable; actual sync missing credentials, no send attempt; RC10_MAIL_PROFILE_LOGIN_SUMMARY.json",
+  "calendar_read_status": "Current rc10 product on secondary already-authorized Host0fd reproduces strict schema rejection; not Calendar mutation PASS",
+  "reopen100_summary": "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json"
 }
