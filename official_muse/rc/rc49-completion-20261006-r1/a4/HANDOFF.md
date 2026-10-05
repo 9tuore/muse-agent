@@ -2,19 +2,19 @@
 
 ## Task
 
-A4 rc49本地模型有界诊断；Root产品e0eb5d82，自有8492。
+A4 rc49模型诊断及rc50-r2独立10cold+5reopen；自有8492。
 
 ## Result
 
-PARTIAL。基线与官方非思考参数各0/2；原始模型JSON就是“晴朗”“7”，与Host文本/tokens一致，无截断。模型生成层错误，不靠解析假修。
+PARTIAL。模型各0/2，原始回复“晴朗”“7”。rc50矩阵FAIL：冷8/10、重开5/5；02编译后UI eval预算失败，07日历Button高度16导致24阈值驱动导航失败。原失败不删除。
 
 ## Changed
 
-仅a4/诊断脚本与报告；launcher/config/Host/权重/主入口/预算/ZIP未改。
+仅a4/脚本、原始合成证据与报告；主矩阵只读，Host/权重/主入口/预算/ZIP未改。
 
 ## Tests
 
-8次本地推理：4 model.complete、2同题直连、2native回放；官方采样日志确认生效但失败。所有自有进程已退出；无付费/外部写入。REPORT.md / MODEL_DIAGNOSIS.json。Fresh另遇gm_has预算中断defaults，缺focus_owner导致未到模型；合成证据FRESH_PROFILE_CAUSE.json。
+既有8次本地推理已止。rc50 compact15ba9ea0、Host1d7；10个唯一冷PID，5重开同PID774；最终资料SHA不变、无模型ledger。PID774已quit/8492释放。RC50_MATRIX_REPORT.md与cold-rc50-r1/完整证据。
 
 ## Commit
 
@@ -22,8 +22,8 @@ PARTIAL。基线与官方非思考参数各0/2；原始模型JSON就是“晴朗
 
 ## Remaining
 
-Root修fresh初始化；当前小模型/长请求组合仍不可靠，无第二种可证配置修复依据。
+Root准备新UI初始化候选；小模型长请求仍不可靠，不追加参数枚举。
 
 ## Important Boundaries
 
-seeded profile是自有fixture数据，模型调用真实；raw回放匹配PASS不代表答题PASS。两Mac/最终整链未通过。
+矩阵是合成资料上的真实Shell/UI输入，不调用模型/邮件发送/日历写入。无OS重启或两Mac验收；冷02不是source preparation失败，冷07未证实日历功能失败。

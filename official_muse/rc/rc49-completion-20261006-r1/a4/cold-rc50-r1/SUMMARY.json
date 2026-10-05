@@ -1,0 +1,111 @@
+{
+  "version": "0.3.26-rc50",
+  "source_sha256": "15ba9ea00f55079a1243ca1dfab9b266b23e434855b69bd49cd13fb9d524d471",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "result": "FAIL",
+  "cold_pass": 8,
+  "cold_count": 10,
+  "reopen_pass": 5,
+  "reopen_count": 5,
+  "cold_process_pids": [
+    {
+      "index": 1,
+      "pids": [
+        95070
+      ]
+    },
+    {
+      "index": 2,
+      "pids": [
+        95657
+      ]
+    },
+    {
+      "index": 3,
+      "pids": [
+        96331
+      ]
+    },
+    {
+      "index": 4,
+      "pids": [
+        96893
+      ]
+    },
+    {
+      "index": 5,
+      "pids": [
+        97451
+      ]
+    },
+    {
+      "index": 6,
+      "pids": [
+        98020
+      ]
+    },
+    {
+      "index": 7,
+      "pids": [
+        98614
+      ]
+    },
+    {
+      "index": 8,
+      "pids": [
+        99224
+      ]
+    },
+    {
+      "index": 9,
+      "pids": [
+        99795
+      ]
+    },
+    {
+      "index": 10,
+      "pids": [
+        774
+      ]
+    }
+  ],
+  "unique_cold_processes": 10,
+  "reopen_pids": [
+    774,
+    774,
+    774,
+    774,
+    774
+  ],
+  "protected_state_after_equal": true,
+  "installed_source_after_equal": true,
+  "model_ledger_exists_after": false,
+  "pass_first_content_range_seconds": [
+    16.210097394,
+    17.28566099400001
+  ],
+  "pass_first_interactive_range_seconds": [
+    16.775637409000012,
+    17.809343364
+  ],
+  "cleanup": {
+    "pid": 774,
+    "remote_port_released": true
+  },
+  "failures": [
+    {
+      "kind": "cold",
+      "index": 2,
+      "error": "visible widget missing: 当前项目 · 合成验收项目  /  个人"
+    },
+    {
+      "kind": "cold",
+      "index": 7,
+      "error": "visible widget missing after scroll: 日历"
+    }
+  ],
+  "report_sha256": "3f9e28b9460f829b4a6dace33cf4992b95849a36cc8eb87f9edd6e74dc9c421a",
+  "audit_sha256": "8097068417d445c4f60fd5c337e80078f6435fda2368025f15b49ad1902b8319",
+  "no_os_restart": true,
+  "no_model_submission": true
+}

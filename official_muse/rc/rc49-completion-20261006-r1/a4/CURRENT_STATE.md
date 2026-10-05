@@ -4,4 +4,6 @@ PARTIAL：rc49两个Host基础题0/2。模型原始JSON回放与UI文本、573/6
 
 Fresh profile另有FAIL_BEFORE_MODEL：先保存最小chat，再同步补defaults；gm_has预算错误留下focus_owner/goal_id缺失，发送直接读取失败。仅合成资料在FRESH_PROFILE_CAUSE.json，交Root定位；A4未改主源。
 
-入口REPORT.md和MODEL_DIAGNOSIS.json。Root后续候选另定；不把模型0/2或fresh失败标成通过。
+rc50-r2独立矩阵已完成：冷启动8/10、重开5/5，整体FAIL。cold-02编译完成后eval UI初始化预算失败，view=false/ui不存在；cold-07日历Button可见高度16小于驱动24要求，导航未完成且无编译/[E]，不推断Calendar语义失败。10个新进程、重开同PID；最终合成资料SHA不变、model ledger未创建。自有PID774退出，8492释放；不改Host/预算/Root8493或49 ZIP。
+
+模型入口REPORT.md / MODEL_DIAGNOSIS.json / PROMPT_COMPARISON.md；启动入口RC50_MATRIX_REPORT.md / cold-rc50-r1/SUMMARY.json。所有原失败保留。Root准备新初始化候选，A4未修改产品源。
