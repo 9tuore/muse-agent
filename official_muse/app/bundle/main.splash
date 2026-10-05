@@ -6154,7 +6154,8 @@ if(role!="user"&&role!="assistant")|| !gm_text(value)|| !gm_text(state)
 || !chat_json_number(entry["at"]){return false}
 if gm_has(entry,"memory_refs")&& !chat_refs_valid(entry.memory_refs){return false}
 if gm_has(entry,"clarification_action")||gm_has(entry,"clarification_input"){
-if role!="assistant"||state!="waiting_user"||entry["clarification_action"]!="calendar_candidate"
+if role!="assistant"||state!="waiting_user"||(entry["clarification_action"]!="calendar_candidate"
+&&(entry["clarification_action"]!="mail_compose"||entry["clarification_need"]!="recipient"))
 || !gm_string(entry["clarification_input"],2400)||entry.clarification_input==""{return false}
 }
 for key in["project","owner"]{if gm_has(entry,key)&&(!gm_text(entry[key])||entry[key].len()>120){return false}}
@@ -6476,7 +6477,8 @@ return refs
 }
 fn chat_reply_is_context(reply){
 return reply.state=="success"||(reply.state=="waiting_user"
-&&gm_has(reply,"clarification_action")&&reply.clarification_action=="calendar_candidate"
+&&gm_has(reply,"clarification_action")&&(reply.clarification_action=="calendar_candidate"
+||(reply.clarification_action=="mail_compose"&&reply["clarification_need"]=="recipient"))
 &&gm_has(reply,"clarification_input")&&gm_string(reply.clarification_input,2400))
 }
 
@@ -6866,6 +6868,7 @@ if!chat_calendar_date_known(message)
 && !regex("[0-9一二三四五六七八九十]+(点|时)|[0-9]{1,2}:[0-9]{2}|今天|明天|后天|上午|下午|晚上|下周|过几天|改天|分钟|小时","").test(message){return message}
 let prior=messages[messages.len()-2]
 if prior.role!="assistant"||prior.state!="waiting_user"|| !chat_reply_is_context(prior)
+||prior.clarification_action!="calendar_candidate"
 || !chat_history_scope_current(prior)|| !chat_reply_context_valid(prior)
 ||gm_retired_text(prior.clarification_input,"local"){return message}
 let combined=prior.clarification_input+"\n用户补充："+message
@@ -6875,6 +6878,20 @@ return combined
 fn chat_render(){
 chat_window_sync()
 ui.chat_list.render()
+}
+
+fn chat_mail_followup_message(message){
+if messages.len()<2||message.split("@").len()!=2||message.split("@")[0]==""
+||message.split("@")[1].search(".")<1{return message}
+for separator in[",",";","；","，"," ","\n","\t","<",">"]{if message.search(separator)>=0{return message}}
+let prior=messages[messages.len()-2]
+if prior.role!="assistant"|| !chat_entry_valid(prior)|| !chat_reply_is_context(prior)
+||prior.clarification_action!="mail_compose"||prior["clarification_need"]!="recipient"
+|| !chat_history_scope_current(prior)|| !chat_reply_context_valid(prior)
+||gm_retired_text(prior.clarification_input,"local"){return message}
+let combined=prior.clarification_input+"\n用户补充：收件人 "+message
+if combined.len()>2400{return message}
+return combined
 }
 
 fn send_chat(){
@@ -6897,7 +6914,7 @@ chat_prepare_task_candidate()
 if!chat_save(){chat_restore()redraw()return}
 ui.goal_input.set_text("")
 if chat_local_command(message){redraw()return}
-let candidate_message=chat_calendar_followup_message(message)
+let candidate_message=chat_mail_followup_message(chat_calendar_followup_message(message))
 let request_id="chat-request:"+floor(time_now())+"-"+random_u32()
 let request_session=chat_selected_id
 let request_account=""
@@ -6957,10 +6974,14 @@ text=chat_candidate_input_error(config.action,r.data.output,candidate_message,fa
 if text==""{text="原请求已变化，未创建新动作。请核对后重试。"}
 state="error"
 if config.action=="calendar_candidate"&& !chat_calendar_input_clear(candidate_message){state="waiting_user"}
+if config.action=="mail_compose"&&r.data.output.to.trim()==""{state="waiting_user"}
 }
 }
 let reply={role:"assistant" text:text state:state at:time_now()memory_refs:memory_refs project:request.project owner:request.owner}
-if state=="waiting_user"{reply.clarification_action="calendar_candidate" reply.clarification_input=candidate_message}
+if state=="waiting_user"{
+reply.clarification_action=config.action reply.clarification_input=candidate_message
+if config.action=="mail_compose"{reply.clarification_need="recipient"}
+}
 original.push(reply)
 chat_sessions[index].messages=original
 chat_sessions[index].updated_at=time_now()
@@ -8501,7 +8522,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc11" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc12" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}

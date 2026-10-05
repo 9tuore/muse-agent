@@ -1,3 +1,13 @@
+## 2026-10-05 12:10 · rc12收件人补充修复，真实验证待
+
+同固定profile rc11/M3实际8个新变式：Host输出全部成功，独立语义与grounding各8/8PASS；ledger8calls/8089tokens，V01 Host attempts=2与两次click404保留。40结构fixture检查通过，前三轮探针错误保留；不重标旧28或T17，用户目前仅MiniMax。
+
+真实缺陷复现：缺收件地址的邮件起草保存为error，紧接只补邮箱地址变普通聊天，无邮件候选。rc12只将缺收件人的成功模型输出标为waiting_user，保留明确mail_compose/recipient澄清元数据；最近合法、同scope、有效记忆引用且未遗忘的原请求允许与一个纯地址合并，长度<=2400。Calendar补充限定Calendar，其他error仍排除。发送批准、防重与宿主未改。91519官方tokens一致，Hub check PASS；fixture与实际修复回归待，原失败不删。
+
+账号现真实258封baseline ready/sync_complete=true，默认来信提醒开启。新SDKda Host已完成网络下载恢复并开始release编译，尚未产出。源码应用A递增不触动A4冻结Host构建；稳定0.3.25、旧安装、生产与未提交baseline保护。最终完整20项保持未过，不push/Tag/发布。
+
+---
+
 ## 2026-10-05 11:55 · 晨间两小时窗口，rc11最小聊天修正进行中
 
 窗口11:44:10–13:44:10北京时间；用户可配合账号、应用和系统确认。Data可用约9.6GiB，A4从冻结F019dc303/SDKda进行全新独立Host构建，尚未报告产物。Root固定morning-final-live-r2/private，当前以旧Host938打开rc10官方登录，用户已回复登录；真实watch记录50条、ready=false/sync_complete=false，历史同步未完成，不能宣称已覆盖收件箱。
