@@ -1,0 +1,120 @@
+// Actual production routing/candidate editing; synthetic callbacks, no OS/model calls.
+let sq_case="__CASE__"
+let sq_checks={}
+let sq_observed=[]
+let sq_calls=[]
+let sq_queue=[]
+let sq_card=""
+let sq_query=""
+fn chain_fixture_request(service,args,cb){
+    sq_calls.push(service)
+    if service=="mail.accounts" {cb({is_ok:true data:[{id:"synthetic-account" address:"self@example.invalid"}]}) return}
+    if service=="model.complete" {sq_queue.push(cb) return}
+    cb({is_ok:false error:"Status fixture forbids external services"})
+}
+fn sq_finish(){
+    let safe=true for service in sq_calls {if service!="mail.accounts" && service!="model.complete" {safe=false}}
+    sq_checks.no_external_actions=safe && runs.len()==0 && actions.len()==0
+    sq_checks.observed=sq_observed
+    fs.write("probe.json",sq_checks.to_json())
+}
+fn sq_routing(){
+    let variants=[
+        {id:"original_calendar" text:"只依据记录回答：日历工具报告创建失败，没有系统回执，也没有独立读回。现在能向用户说日程已经安排好吗？请解释。" action:"" status:true}
+        {id:"mail_explain" text:"邮件工具报告发送失败，没有收件端回执。能说邮件已成功发送吗？请解释。" action:"" status:true}
+        {id:"calendar_brief" text:"日历工具报告创建失败，没有系统回执。能说日程已安排好了吗？请简要说明。" action:"" status:true}
+        {id:"mail_reason" text:"邮件没有投递回执，能说邮件已发出吗？请说明原因。" action:"" status:true}
+        {id:"calendar_reason" text:"日历没有系统读回，能说已经安排成功了吗？请解释原因。" action:"" status:true}
+        {id:"calendar_analyze" text:"日历没有系统读回，能说已经安排成功了吗？请分析原因。" action:"" status:true}
+        {id:"question_then_create" text:"日历结果已完成吗？请创建下一条日程。" action:"calendar_candidate" status:false}
+        {id:"mail_plain_question" text:"邮件没有投递回执，能说邮件已发送成功吗？" action:"" status:true}
+        {id:"explicit_mail" text:"请起草邮件给self@example.invalid，说明已完成资料整理。" action:"mail_compose" status:false}
+        {id:"explicit_calendar" text:"请安排日历2030-06-12 15:00–15:30，事项为资料整理。" action:"calendar_candidate" status:false}
+        {id:"explicit_goal" text:"请整理资料，目标为合成条目，资料为第一条和第二条。" action:"goal_plan" status:false}
+    ]
+    for v in variants {
+        let config=chat_model_config(v.text)
+        let status=chat_status_question(v.text)
+        sq_checks[v.id+"_route"]=config.action==v.action
+        sq_checks[v.id+"_status"]=status==v.status
+        sq_checks[v.id+"_schema"]=(v.action=="" && config.schema.properties["reply"]!=nil)
+            || (v.action!="" && config.schema.properties["reply"]==nil)
+        sq_observed.push({id:v.id action:config.action status:status})
+    }
+    sq_finish()
+}
+fn sq_seed(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot() chat_boot() calendar_boot()
+    if sq_case=="routing" {sq_routing() return}
+    if sq_case=="time_formats" {sq_time_formats() return}
+    sq_query="请起草邮件给self@example.invalid，主题合成测试，正文为合成旧正文。"
+    if sq_case=="edit_calendar" {sq_query="请安排日历2030-06-12 15:00–15:30，事项合成讨论，地点合成A。"}
+    ui.goal_input.set_text(sq_query) send_chat()
+    start_timeout(0.05,|| sq_reply_first())
+}
+fn sq_reply_first(){
+    sq_checks.first_request_queued=sq_queue.len()==1
+    if !sq_checks.first_request_queued {sq_finish() return}
+    let output={to:"self@example.invalid" subject:"合成测试" body:"合成旧正文"}
+    if sq_case=="edit_calendar" {output={title:"合成讨论" start:"2030-06-12T15:00:00+08:00" end:"2030-06-12T15:30:00+08:00"
+        time_zone:"Asia/Shanghai" location:"合成A"}}
+    sq_queue[0]({is_ok:true data:{output:output}})
+    start_timeout(0.05,|| sq_edit())
+}
+fn sq_edit(){
+    let card=chat_active_candidate(chat_selected_id)
+    sq_checks.production_candidate_created=card!=nil && chat_sessions[chat_session_index(chat_selected_id)].proposals.len()==1
+    if card==nil {sq_finish() return}
+    sq_card=card.id
+    let edit="请把正文改为合成新正文。"
+    if sq_case=="edit_calendar" {edit="请把地点改成合成B，时间和事项不变。"}
+    let action="mail_compose" if sq_case=="edit_calendar" {action="calendar_candidate"}
+    sq_checks.edit_route_kept=chat_edit_request(edit) && !chat_status_question(edit) && chat_model_config(edit).action==action
+    ui.goal_input.set_text(edit) send_chat()
+    start_timeout(0.05,|| sq_reply_edit())
+}
+fn sq_reply_edit(){
+    sq_checks.edit_request_queued=sq_queue.len()==2
+    if !sq_checks.edit_request_queued {sq_finish() return}
+    let output={to:"wrong@example.invalid" subject:"模型未授权更改主题" body:"合成新正文"}
+    if sq_case=="edit_calendar" {output={title:"合成讨论" start:"2030-06-12T15:00:00+08:00" end:"2030-06-12T15:30:00+08:00"
+        time_zone:"Asia/Shanghai" location:"合成B"}}
+    sq_queue[1]({is_ok:true data:{output:output}})
+    let card=chat_active_candidate(chat_selected_id)
+    sq_checks.same_candidate_updated=card!=nil && card.id==sq_card && card.revision>=2
+        && chat_sessions[chat_session_index(chat_selected_id)].proposals.len()==1
+    if card!=nil {
+        if sq_case=="edit_mail" {sq_checks.explicit_edit_applied=card.payload.body=="合成新正文" && card.payload.to=="self@example.invalid" && card.payload.subject=="合成测试"}
+        else {sq_checks.explicit_edit_applied=card.payload.location=="合成B" && card.payload.start=="2030-06-12T15:00:00+08:00" && card.payload.end=="2030-06-12T15:30:00+08:00"}
+    }
+    let persisted=fs.read("chat-sessions.json").parse_json()
+    sq_checks.actual_readback=persisted.sessions[chat_session_index(chat_selected_id)].proposals.len()==1
+        && persisted.sessions[chat_session_index(chat_selected_id)].proposals[0].id==sq_card
+    sq_checks.request_finished=chat_request_index(chat_selected_id)<0
+    sq_finish()
+}
+
+fn sq_time_formats(){
+    let source="2030-06-12 "
+    let values=[{id:"endash" range:"15:00–15:30" complete:true}
+        {id:"ascii_dash" range:"15:00-15:30" complete:true}
+        {id:"tilde" range:"15:00~15:30" complete:true}
+        {id:"to" range:"15:00到15:30" complete:true}
+        {id:"zhi" range:"15:00至15:30" complete:true}
+        {id:"emdash" range:"15:00—15:30" complete:true}
+        {id:"missing_end" range:"15:00–" complete:false}
+        {id:"missing_start" range:"–15:30" complete:false}
+        {id:"missing_range" range:"" complete:false}]
+    let payload={title:"合成讨论" start:"2030-06-12T15:00:00+08:00" end:"2030-06-12T15:30:00+08:00" time_zone:"Asia/Shanghai" location:"合成A"}
+    for value in values {
+        let text="请安排日历"+source+value.range+"，事项合成讨论。"
+        let clear=chat_calendar_input_clear(text)
+        let error=chat_candidate_input_error("calendar_candidate",payload,text,false)
+        sq_checks[value.id+"_input_clear"]=clear==value.complete
+        sq_checks[value.id+"_candidate_guard"]=(value.complete && error=="") || (!value.complete && error!="")
+        sq_observed.push({id:value.id input_clear:clear candidate_error:error})
+    }
+    sq_finish()
+}
+start_timeout(0.1,|| sq_seed())

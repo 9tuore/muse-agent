@@ -1,0 +1,24 @@
+--- rc25/readable
+
++++ rc26/readable
+
+@@ -6707,7 +6707,7 @@
+
+     return nil
+ }
+ fn chat_status_question(text){
+-    return regex("(吗|么|[?？])$","").test(text.trim())
++    return regex("(吗|么|[?？])([。 ]*请(简要)?(解释|说明|分析)(原因|理由)?[。 ]*)?$","").test(text.trim())
+         && regex("已|成功|完成|回执|结果","").test(text)
+ }
+ fn chat_mail_reference(text){
+@@ -8680,7 +8680,7 @@
+
+ 
+                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
+                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
+-                    Label{text: "Muse · 0.3.26-rc25" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
++                    Label{text: "Muse · 0.3.26-rc26" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
