@@ -35,7 +35,7 @@
 | 真实目标日历查询 | 只查询“工作”日历的明确半小时，0 冲突；一条实际核验时段符合“至多两个、不足不凑”。未创建事件。 |
 | GPT 第二通道 | 一次无 fallback 的配置通道返回 HTTP200、text/html、1,166 bytes，Host provider error；非 JSON/SSE，不猜测登录页。仍 BLOCKED。 |
 | 内置本地模型 | 官方 Host 严格同题两题 0/2 正确；真实 HTTP token 化提示复放得到同输出，失败在模型生成，非 UI 解码。只作基础离线模型。 |
-| 本地 Hub | 最终 gate-rc51-release-r2 六文件与源码 bundle 完全相同；扩展 check/scan/catalog PASS。不是官方上游 Calendar 准入、正式发布或独立评审。 |
+| Hub 标准检查 | 最终 gate-rc51-release-r2 六文件与源码 bundle 完全相同；扩展 check/scan/catalog PASS。锁定官方原版 Hub 对同 rc51 实际 check exit1，唯一拒绝项是未知 calendar capability；不是上游准入、正式发布或独立评审。 |
 | 打包小型验证 | 普通与 solid 两模式 CRC、SHA、中文路径、755、符号链接及 macOS 自带 tar 解压 PASS；5 个负例拒绝。真实大包结果另列，不能由小样推断。 |
 
 ## 原二十项的判定边界
@@ -55,6 +55,7 @@
 - [rc50 修复范围](SCOPE_RC50.md)、[rc51 修复范围](SCOPE_RC51.md)、[受影响函数审计](a3/rc51/SOURCE_IMPACT.json)
 - [rc51 UI 四尺寸](a2/rc51/FINAL_REPORT.md)、[rc50 矩阵](a4/RC50_MATRIX_REPORT.md)、[rc51 最终矩阵](a4/RC51_R3_REPORT.md)、[rc51 r2 失败分类](a4/RC51_R2_REPORT.md)
 - [真实目标日历只读](REAL_TARGET_CALENDAR_QUERY.json)、[rc50 恢复](RC50_REAL_RESTART.json)、[本地 Gate 身份](compliance-rc51/GATE_IDENTITY.json)
+- [官方原版 rc51 实际检查](compliance-rc51/UPSTREAM_HUB_CHECK_RC51_PROVENANCE.json)与[完整拒绝输出](compliance-rc51/UPSTREAM_HUB_CHECK_RC51.txt)
 - [rc51 实机内部任务](RC51_LIVE_REGRESSION.json)、[同候选恢复](RC51_REAL_RESTART.json)、[跨聊天召回](RC51_CROSS_CHAT.json)、[真实启动超时](RC51_LIVE_LAUNCH.json)
 - [压缩补丁小型测试](a3/solid-source/RESULT.json)、[Root 实验原结果](MOUNT_EXPERIMENT_RESULTS.json)、[启动驱动故障](RUNNER_FAILURE_AND_FIX.md)
 
