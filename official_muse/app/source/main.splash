@@ -4409,6 +4409,7 @@ fn mail_finish_linked_step(goal_id,run_id,request_id,artifact,phase){
         || actions[ai].status != "verified" || actions[ai].goal_id != goal_id || actions[ai].run_id != run_id
         || runs[ri].goal_id != goal_id || runs[ri].plan_revision != goals[gi].version
         || (runs[ri].status != "running" && runs[ri].status != "completed")
+        || (runs[ri].status == "completed" && goals[gi].status != "completed")
         || calendar_links[li].status != "verified" || calendar_links[li].event_id != artifact.event_id
         || calendar_links[li].calendar_id != artifact.calendar_id || calendar_links[li].candidate.start != artifact.start
         || calendar_links[li].candidate.end != artifact.end || mail_draft.account != artifact.mail_account
@@ -4426,7 +4427,7 @@ fn mail_finish_linked_step(goal_id,run_id,request_id,artifact,phase){
             mail_verifying = false mail_error = "邮件已核验，但关联结果写入/回读失败；不会重新发送。" mail_redraw() return
         }
     }
-    if phase == 1 && !core_finish_run(goal_id,run_id,"completed",path) {
+    if phase == 1 && runs[ri].status != "completed" && !core_finish_run(goal_id,run_id,"completed",path) {
         mail_verifying = false mail_error = "邮件已核验，但执行记录未保存：" + core_error mail_redraw() return
     }
     if (phase == 2 || phase == 3) && !core_remember_result_part(goal_id,run_id,path,artifact.mail_account,
@@ -9074,7 +9075,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc44" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc45" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}

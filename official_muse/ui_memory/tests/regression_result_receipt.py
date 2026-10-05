@@ -15,10 +15,13 @@ import regression_run
 regression_run.existing.WIDGET = regression_run.existing.WIDGET.replace("    Label{text:", "    mail_test_id := TextInput{width: Fill}\n    mail_to := TextInput{width: Fill}\n    mail_subject := TextInput{width: Fill}\n    mail_body := TextInput{width: Fill}\n    Label{text:", 1)
 real_popen = subprocess.Popen
 results = {}
-for case in ["linked63_dense", "linked64"]:
+for case in ["linked63_dense", "linked64", "linked63_completed_dense"]:
     folder = out / case
     folder.mkdir()
     seed = run_receipt.profile(case)
+    if case == "linked63_completed_dense":
+        seed["goals.json"]["goals"][0]["status"] = "completed"
+        seed["goals.json"]["runs"][0]["status"] = "completed"
     text = (A2 / "receipt.splash").read_text().replace("__CASE__", case).replace("__MEMORY_COUNT__", str(len(seed["memory.json"]["claims"]))).replace("__ACTION_COUNT__", str(len(seed["goals.json"]["actions"])))
     # The phase counter is bounded, and final checks are identical to the old suite.
     text = text.replace("fn a2_assert(){", "let result_wait = 0\nfn a2_assert(){\n    if mail_verifying && result_wait < 100 { result_wait = result_wait + 1 start_timeout(0.05,|| a2_assert()) return }")
