@@ -1,0 +1,33 @@
+{
+  "checked_at_beijing": "2026-10-06T02:32:12.021822+08:00",
+  "scope": "AUTHORIZED_ISOLATED_PROFILE_READ_ONLY_NO_CREDENTIAL_RESOLUTION_NO_MODEL_CALL",
+  "configured_candidate_count": 2,
+  "runtime_eligible_candidate_count": "NOT_CHECKED_NO_KEY_RESOLUTION",
+  "providers": [
+    {
+      "family": "minimax-cn",
+      "model": "MiniMax-M3",
+      "effective_route_matches_family_official": false,
+      "effective_route_is_loopback": false,
+      "static_catalog_strong": true
+    },
+    {
+      "family": "openai",
+      "model": "gpt-4o",
+      "effective_route_matches_family_official": false,
+      "effective_route_is_loopback": false,
+      "static_catalog_strong": true
+    }
+  ],
+  "first_two_same_effective_origin": false,
+  "first_two_same_effective_path": false,
+  "first_two_same_effective_api_type": true,
+  "distinct_configured_model_count": 2,
+  "catalog_distinct_non_m3_strong_configured": true,
+  "limits": [
+    "Configured family/model or static catalog strong is not proof of actual backend identity or successful invocation.",
+    "Custom route mismatch is an observation, not a product failure or original T17 requirement.",
+    "No env_vars, endpoint, credential value, marker or suffix is emitted.",
+    "Configured count is not the Host key-filtered runnable candidate count."
+  ]
+}

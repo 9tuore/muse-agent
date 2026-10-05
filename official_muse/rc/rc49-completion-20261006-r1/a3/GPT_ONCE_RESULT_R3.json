@@ -1,0 +1,69 @@
+{
+  "started_beijing": "2026-10-06T02:40:37.639437+08:00",
+  "kind": "ACTUAL_OFFICIAL_MODEL_COMPLETE_SINGLE_PROVIDER_ONCE",
+  "requested_family": "openai",
+  "requested_model": "gpt-4o",
+  "configured_candidates": 1,
+  "fallbacks": 0,
+  "product_commit": "e0eb5d82",
+  "payload_sha256": "15ea7e6d2da21ce8bedbcb1e4cee1537217ee653a4f603539e51fc35cefc540f",
+  "transparent_observer": false,
+  "observer_modified_prompt_or_response": false,
+  "mail_or_calendar_calls_authorized": false,
+  "api_requests": [
+    {
+      "requested_model": "gpt-4o",
+      "http_status": 200,
+      "response_model": "<not exposed or withheld>"
+    }
+  ],
+  "ui_send_attempts": 1,
+  "original_profile_unchanged": true,
+  "status": "FAIL_OFFICIAL_MODEL_COMPLETE_PROVIDER_RESPONSE",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "pid": 70604,
+  "host_trace": {
+    "is_ok": false,
+    "known_usage": false,
+    "meta": null,
+    "error_code": "provider"
+  },
+  "terminal_state": "error",
+  "answer_is_expected_5": false,
+  "answer_sha256": "34f992438ea8357f165a40ca905d6b8305f7f551de0548ea19c45728921db070",
+  "finished_beijing": "2026-10-06T02:40:50.540674+08:00",
+  "runtime_errors_present": false,
+  "failure_category": "HOST_PROVIDER_NON_JSON_RESPONSE_OBSERVER_PROTOCOL_NOT_EQUIVALENT",
+  "actual_response_model": "NOT_OBSERVED",
+  "no_minimax_fallback": true,
+  "official_model_success": false,
+  "provider_success_http_status_is_not_model_success": true,
+  "owned_ports_closed": true,
+  "observer_preserved_body_bytes": true,
+  "observer_limitations": [
+    "response Content-Type forced to application/json",
+    "response Content-Encoding not retained",
+    "urllib may follow redirects; original Host redirects(0)"
+  ],
+  "upstream_response_observation": {
+    "content_type": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "content_encoding": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "byte_count": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "sha256": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "is_html": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "is_sse": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "is_gzip": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "is_json": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "is_plain_error": "NOT_OBSERVED_RESPONSE_NOT_RETAINED",
+    "is_login_page_redirect": "NOT_OBSERVED_RESPONSE_NOT_RETAINED"
+  },
+  "request_api_suffix": "/chat/completions",
+  "suffix_evidence": "complete/wire.rs OpenAi preparation plus relay forwards request tail unchanged",
+  "safe_log_checks": {
+    "provider_answer_not_json": true,
+    "provider_no_text": false,
+    "gzip_error": false,
+    "sse_content_type_marker": false
+  },
+  "upstream_failure_uniquely_attributed": false
+}
