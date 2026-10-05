@@ -1,0 +1,47 @@
+// Two valid synthetic rows. Actual gm_save and schema, no Host service.
+let a2_checks={}
+let a2_kept_claim=nil
+let a2_kept_source=nil
+let a2_kept_claims=nil
+let a2_kept_sources=nil
+let a2_before={}
+fn chain_fixture_request(service,args,cb){a2_checks.forbidden_calls=true cb({is_ok:false error:"A2 memory guard denies every service"})}
+fn a2_guard_save(){
+    a2_kept_claim=memory[0] a2_kept_source=memory_sources[0]
+    a2_kept_claims=memory a2_kept_sources=memory_sources
+    a2_before={claim:memory[0].to_json() source:memory_sources[0].to_json() claims:memory.to_json()
+        sources:memory_sources.to_json() disk:fs.read("memory.json")}
+    a2_checks.valid_append=gm_save("合成更正但未采用的新说法","fact","a2-subject-0","status","a2-cow-guard","a2-project","a2-owner","synthetic-account")
+    start_timeout(0.1,|| a2_guard_check())
+}
+fn a2_guard_check(){
+    a2_checks.old_entry_reference_unchanged=a2_kept_claim.to_json()==a2_before.claim
+    a2_checks.old_source_reference_unchanged=a2_kept_source.to_json()==a2_before.source
+    a2_checks.old_array_reference_unchanged=a2_kept_claims.to_json()==a2_before.claims && a2_kept_sources.to_json()==a2_before.sources
+    a2_checks.old_committed_fields_unchanged=memory[0].to_json()==a2_before.claim && memory_sources[0].to_json()==a2_before.source
+    a2_checks.new_arrays_and_new_record=memory.len()==3 && memory_sources.len()==3
+        && memory[2].document.payload.relations.len()==1 && memory[2].document.payload.relations[0].kind=="contradicts"
+        && memory[2].document.payload.relations[0].target_id==memory[0].document.id
+    a2_checks.backup_preserves_previous=fs.read("memory.backup.json")==a2_before.disk && fs.read("memory.json")==core_last_memory
+    fs.write("cow-before.json",a2_before.to_json())
+    start_timeout(0.03,|| a2_guard_rejections())
+}
+fn a2_guard_rejections(){
+    let before=fs.read("memory.json") let backup=fs.read("memory.backup.json")
+    a2_checks.empty_input_rejected=!gm_save("","fact","new","status","a2-guard","a2-project","a2-owner","synthetic-account")
+    a2_checks.unauthorized_account_rejected=!gm_save("合成拒绝","fact","new","status","a2-guard","a2-project","a2-owner","not-authorized")
+    a2_checks.missing_scope_rejected=!gm_save("合成拒绝","fact","new","status","a2-guard","","","synthetic-account")
+    core_memory_ready=false
+    a2_checks.storage_not_ready_rejected=!gm_save("合成拒绝","fact","new","status","a2-guard","a2-project","a2-owner","synthetic-account")
+    core_memory_ready=true
+    a2_checks.failure_preserves_disk=fs.read("memory.json")==before && fs.read("memory.backup.json")==backup && memory.len()==3 && memory_sources.len()==3
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    gm_set_accounts(["synthetic-account"]) gm_boot() gm_set_focus("a2-project","a2-owner")
+    a2_checks.memory_ready=gm_ready && gm_enabled && core_memory_ready && memory.len()==2
+    start_timeout(0.03,|| a2_guard_save())
+}
+start_timeout(0.1,|| a2_probe())

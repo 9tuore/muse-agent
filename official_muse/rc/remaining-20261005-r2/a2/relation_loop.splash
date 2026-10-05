@@ -1,0 +1,40 @@
+// Actual gm_save relation logic; valid synthetic old rows, no Host service.
+let a2_case="__CASE__"
+let a2_checks={}
+let a2_before={}
+let a2_old_claims=nil
+let a2_old_sources=nil
+fn chain_fixture_request(service,args,cb){a2_checks.forbidden_calls=true cb({is_ok:false error:"A2 relation fixture forbids services"})}
+fn a2_save(){
+    a2_before={claims:memory.to_json() sources:memory_sources.to_json() disk:fs.read("memory.json")}
+    a2_old_claims=memory a2_old_sources=memory_sources
+    let predicate="status" let value="新合成说法"
+    if a2_case=="relation_predicate" {predicate="different-predicate"}
+    if a2_case=="relation_same_value" {value=memory[0].document.payload.value}
+    a2_checks.saved=gm_save(value,"fact","a2-subject-0",predicate,"a2-relation-case","a2-project","a2-owner","synthetic-account")
+    start_timeout(0.1,|| a2_assert())
+}
+fn a2_assert(){
+    let expected=0
+    if a2_case=="relation_accessible" {expected=1}
+    a2_checks.expected_relation_count=memory.len()==3 && memory[2].document.payload.relations.len()==expected
+    if expected==1 {
+        a2_checks.original_target=memory[2].document.payload.relations[0].kind=="contradicts"
+            && memory[2].document.payload.relations[0].target_id==memory[0].document.id
+    }
+    a2_checks.old_array_references_unchanged=a2_old_claims.to_json()==a2_before.claims && a2_old_sources.to_json()==a2_before.sources
+    a2_checks.old_fields_unchanged=memory[0].to_json()==a2_old_claims[0].to_json()
+        && memory[1].to_json()==a2_old_claims[1].to_json()
+        && memory_sources[0].to_json()==a2_old_sources[0].to_json() && memory_sources[1].to_json()==a2_old_sources[1].to_json()
+    a2_checks.primary_and_backup=fs.read("memory.json")==core_last_memory && fs.read("memory.backup.json")==a2_before.disk
+    fs.write("relation-before.json",a2_before.to_json())
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    gm_set_accounts(["synthetic-account"]) gm_boot() gm_set_focus("a2-project","a2-owner")
+    a2_checks.boot_valid=gm_ready && core_memory_ready && memory.len()==2
+    start_timeout(0.03,|| a2_save())
+}
+start_timeout(0.1,|| a2_probe())

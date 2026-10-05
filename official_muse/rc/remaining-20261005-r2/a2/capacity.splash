@@ -1,0 +1,66 @@
+// Current production memory functions, real jailed fs; no model or OS actions.
+let cc_phase="first"
+let a2_checks={}
+let a2_calls=[]
+let a2_count=0
+let a2_target=""
+let a2_new="合成容量第零条更正为明确内容。"
+fn chain_fixture_request(service,args,cb){a2_calls.push(service) cb({is_ok:false error:"A2 capacity fixture forbids every external service"})}
+fn a2_finish(){
+    a2_checks.no_model_or_external_request=a2_calls.len()==0
+    a2_checks.no_goal_run_action=goals.len()==0 && runs.len()==0 && actions.len()==0
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_save_next(){
+    fs.write("capacity-progress.json",{phase:"save" count:a2_count}.to_json())
+    let saved=gm_save("合成容量记录"+a2_count,"fact","CAPACITY-"+a2_count,"status","synthetic-capacity",
+        "synthetic-capacity-project","synthetic-capacity-owner","local")
+    if !saved {a2_checks.all_64_saved=false a2_checks.failure_message=gm_error a2_finish() return}
+    if a2_count==0 {a2_target=memory[0].document.id}
+    a2_count=a2_count+1
+    if a2_count<64 {start_timeout(0.03,|| a2_save_next()) return}
+    a2_checks.all_64_saved=memory.len()==64 && memory_sources.len()==64
+    start_timeout(0.05,|| a2_correct())
+}
+fn a2_correct(){
+    fs.write("capacity-progress.json",{phase:"correct" count:memory.len() target_id:a2_target}.to_json())
+    a2_checks.correct_at_capacity=gm_correct(a2_target,a2_new,"local","synthetic-capacity-correction")
+    start_timeout(0.05,|| a2_readback())
+}
+fn a2_readback(){
+    let i=core_memory_index(a2_target,"local")
+    a2_checks.corrected_identity=i>=0 && memory[i].document.revision==2 && memory[i].document.payload.value==a2_new
+    a2_checks.old_version_retained=i>=0 && memory[i].history.len()==1 && memory[i].history[0].revision==1
+        && memory[i].history[0].payload.value=="合成容量记录0" && memory[i].source_history.len()==2
+    a2_checks.counts=memory.len()==64 && memory_sources.len()==65 && memory_forget.len()==0
+    let other=true
+    for n in 63 {let j=n+1 if memory[j].document.revision!=1 || memory[j].document.payload.value!="合成容量记录"+j {other=false}}
+    a2_checks.other_63_unchanged=other
+    a2_checks.primary_backup_readback=fs.read("memory.json")==core_last_memory && fs.read("memory.backup.json")==core_last_memory
+    fs.write("capacity-baseline.json",{memory_bytes:fs.read("memory.json") activity_bytes:fs.read("activity.json")
+        target_id:a2_target claims:memory.len() sources:memory_sources.len()}.to_json())
+    a2_finish()
+}
+fn a2_restore(){
+    let base=fs.read("capacity-baseline.json").parse_json()
+    a2_target=base.target_id
+    let i=core_memory_index(a2_target,"local")
+    a2_checks.restore_primary_bytes=fs.read("memory.json")==base.memory_bytes && fs.read("memory.backup.json")==base.memory_bytes
+    a2_checks.restore_activity_bytes=fs.read("activity.json")==base.activity_bytes
+    a2_checks.restore_counts=memory.len()==64 && memory_sources.len()==65 && memory_forget.len()==0
+    a2_checks.restore_corrected_identity=i>=0 && memory[i].document.revision==2 && memory[i].document.payload.value==a2_new
+        && memory[i].history.len()==1 && memory[i].history[0].payload.value=="合成容量记录0"
+    a2_checks.restore_scope=i>=0 && memory[i].document["scope"].project_id=="synthetic-capacity-project"
+        && memory[i].document["scope"].owner_id=="synthetic-capacity-owner"
+    a2_finish()
+}
+fn a2_probe(){
+    notification_enabled=false
+    fs.write("capacity-progress.json",{phase:"boot" restart:cc_phase}.to_json())
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot()
+    gm_set_focus("synthetic-capacity-project","synthetic-capacity-owner")
+    a2_checks.memory_ready=core_memory_ready && gm_enabled
+    if cc_phase=="restart" {start_timeout(0.05,|| a2_restore()) return}
+    start_timeout(0.03,|| a2_save_next())
+}
+start_timeout(0.1,|| a2_probe())

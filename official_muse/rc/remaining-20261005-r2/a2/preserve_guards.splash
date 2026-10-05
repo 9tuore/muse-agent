@@ -1,0 +1,68 @@
+// Actual jailed file changes/errors; fs and storage wrappers remain unmodified.
+let a2_checks={}
+let a2_before=""
+let a2_bad="{\"schema\":"
+let a2_digest=""
+let a2_path=""
+fn chain_fixture_request(service,args,cb){a2_checks.forbidden_calls=true cb({is_ok:false error:"A2 preserve fixture forbids services"})}
+fn a2_known(){
+    a2_before=fs.read("memory.json")
+    a2_checks.known_ready=core_memory_ready && core_last_memory==a2_before
+    fs.write("a2-known.json",a2_before)
+    a2_checks.known_exact_bytes=core_preserve_memory_file("a2-known.json") && fs.read("a2-known.json")==a2_before
+    start_timeout(0.03,|| a2_changed_valid())
+}
+fn a2_changed_valid(){
+    let changed="{\"schema\":1,\"claims\":[],\"sources\":[],\"forget\":[]}"
+    fs.write("a2-changed-valid.json",changed)
+    a2_checks.changed_valid_distinct=changed!=core_last_memory && core_memory_valid(changed.parse_json())
+    a2_checks.changed_valid_accept=core_preserve_memory_file("a2-changed-valid.json")
+        && fs.read("a2-changed-valid.json")==changed
+        && !fs.exists("a2-changed-valid.json.corrupt-"+fs.sha256(changed))
+    start_timeout(0.03,|| a2_malformed())
+}
+fn a2_malformed(){
+    fs.write("a2-malformed.json",a2_bad)
+    a2_digest=storage_file_hash("a2-malformed.json")
+    a2_path="a2-malformed.json.corrupt-"+a2_digest
+    a2_checks.malformed_not_known=a2_bad!=core_last_memory && !core_memory_valid(a2_bad.parse_json())
+    a2_checks.malformed_preserved=core_preserve_memory_file("a2-malformed.json")
+        && fs.read("a2-malformed.json")==a2_bad && fs.read(a2_path)==a2_bad
+        && storage_file_hash(a2_path)==a2_digest && a2_digest==fs.sha256(a2_bad)
+    start_timeout(0.03,|| a2_existing())
+}
+fn a2_existing(){
+    a2_checks.already_preserved_idempotent=core_preserve_memory_file("a2-malformed.json")
+        && fs.read(a2_path)==a2_bad && fs.read("a2-malformed.json")==a2_bad
+    start_timeout(0.03,|| a2_collision())
+}
+fn a2_collision(){
+    let collision="a2-collision.json.corrupt-"+a2_digest
+    fs.write("a2-collision.json",a2_bad)
+    fs.write(collision,"different synthetic preservation bytes")
+    a2_checks.collision_rejected=!core_preserve_memory_file("a2-collision.json") && !core_memory_ready
+    a2_checks.collision_no_overwrite=fs.read("a2-collision.json")==a2_bad
+        && fs.read(collision)=="different synthetic preservation bytes"
+    a2_checks.failed_preserve_blocks_commit=!core_commit_memory(memory,memory_sources,memory_forget)
+        && fs.read("memory.json")==a2_before
+    core_memory_ready=true
+    start_timeout(0.03,|| a2_hash_error())
+}
+fn a2_hash_error(){
+    let prior_faults=storage_fault_count
+    fs.mkdir("a2-unreadable-file.json")
+    a2_checks.actual_digest_failure=storage_file_hash("a2-unreadable-file.json")==""
+        && storage_fault_count>prior_faults && storage_last_fault.operation=="digest"
+    a2_checks.hash_error_rejected=!core_preserve_memory_file("a2-unreadable-file.json") && !core_memory_ready
+    a2_checks.hash_error_original_preserved=fs.exists("a2-unreadable-file.json") && fs.read("memory.json")==a2_before
+    a2_checks.no_fake_empty_digest_copy=!fs.exists("a2-unreadable-file.json.corrupt-")
+    a2_checks.receipts={malformed_digest:a2_digest preserved_path:a2_path error_path:"a2-unreadable-file.json"
+        error_kind:"Actual directory placed where file read/hash is requested; native fs unchanged"}
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    start_timeout(0.03,|| a2_known())
+}
+start_timeout(0.1,|| a2_probe())

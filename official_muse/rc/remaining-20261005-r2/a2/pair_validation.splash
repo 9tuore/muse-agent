@@ -1,0 +1,66 @@
+// Actual old dual and new canonical-pair validators. No storage commit.
+let a2_checks={}
+let a2_observations=[]
+let a2_seed=nil
+let a2_case=0
+let a2_names=["valid","missing_source","duplicate_claim","duplicate_source","cross_source_scope",
+    "illegal_relation","missing_relation_target","self_relation","deleted_relation_target",
+    "invalid_source_hash","invalid_source_time","invalid_history","old_duplicate_id","old_unknown_scope","invalid_tombstone"]
+fn chain_fixture_request(service,args,cb){a2_checks.forbidden_calls=true cb({is_ok:false error:"A2 validator fixture rejects every service"})}
+fn a2_candidate(){
+    let next=a2_seed.to_json().parse_json()
+    let source=next.sources[0].to_json().parse_json()
+    let claim=next.claims[0].to_json().parse_json()
+    source.source_id="a2-new-source"
+    claim.document.id="a2-new-claim"
+    claim.document.payload.source_ids=[source.source_id]
+    claim.source_history=[source.source_id]
+    claim.document.payload.relations=[]
+    next.sources.push(source) next.claims.push(claim)
+    if a2_case==1 {next.sources=[next.sources[0] next.sources[1]]}
+    if a2_case==2 {next.claims[2].document.id=next.claims[0].document.id}
+    if a2_case==3 {next.sources[2].source_id=next.sources[0].source_id}
+    if a2_case==4 {next.sources[2]["scope"].project_id="other-project"}
+    if a2_case==5 {next.claims[2].document.payload.relations=[{kind:"not-a-relation" target_id:next.claims[0].document.id}]}
+    if a2_case==6 {next.claims[2].document.payload.relations=[{kind:"contradicts" target_id:"not-present"}]}
+    if a2_case==7 {next.claims[2].document.payload.relations=[{kind:"contradicts" target_id:next.claims[2].document.id}]}
+    if a2_case==8 {
+        next.claims[0].document.payload.deleted=true
+        next.claims[2].document.payload.relations=[{kind:"contradicts" target_id:next.claims[0].document.id}]
+    }
+    if a2_case==9 {next.sources[2].content_sha256="invalid"}
+    if a2_case==10 {next.sources[2].observed_at="not-a-timestamp"}
+    if a2_case==11 {next.claims[2].history=[next.claims[0].document.to_json().parse_json()]}
+    if a2_case==12 {next.claims[1].document.id=next.claims[0].document.id}
+    if a2_case==13 {next.sources[0]["scope"].unexpected="invalid"}
+    if a2_case==14 {next.forget=[{}]}
+    return next.to_json().parse_json()
+}
+fn a2_next(){
+    let candidate=a2_candidate()
+    let before=candidate.to_json()
+    let old=gm_validate_part(candidate,true,"sources",candidate.sources.len()-1,candidate.sources.len())
+        && gm_validate_part(candidate,true,"claims",candidate.claims.len()-1,candidate.claims.len())
+    let paired=gm_validate_canonical_part(candidate,true,"correction",candidate.claims.len()-1,candidate.sources.len()-1)
+    let expected=a2_case==0
+    let name=a2_names[a2_case]
+    a2_checks[name+"_same_result"]=old==paired
+    a2_checks[name+"_expected"]=paired==expected
+    a2_checks[name+"_candidate_unchanged"]=candidate.to_json()==before
+    a2_observations.push({case:name dual:old paired:paired expected:expected})
+    a2_case=a2_case+1
+    if a2_case<a2_names.len() {start_timeout(0.03,|| a2_next()) return}
+    a2_checks.original_memory_unchanged=memory.to_json()==a2_seed.claims.to_json() && memory_sources.to_json()==a2_seed.sources.to_json()
+        && fs.read("memory.json")==core_last_memory
+    a2_checks.observations=a2_observations
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    gm_set_accounts(["synthetic-account"]) gm_boot() gm_set_focus("a2-project","a2-owner")
+    a2_checks.memory_ready=gm_ready && gm_enabled && core_memory_ready && memory.len()==2
+    a2_seed=fs.read("memory.json").parse_json()
+    start_timeout(0.03,|| a2_next())
+}
+start_timeout(0.1,|| a2_probe())

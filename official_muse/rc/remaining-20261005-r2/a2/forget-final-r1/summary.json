@@ -1,0 +1,91 @@
+{
+  "status": "FAIL",
+  "source_sha256": "5e9318464390741f31c5deb12cf94571521aefd22efe2d02d1731ba0174c6f0a",
+  "compact_sha256": "4ce3a734d94e1cedea8260f9b74ca54ce2a8339d0db2e6200f702b5f2bb71ee6",
+  "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "default_budget_unchanged": true,
+  "fixture_only": true,
+  "real_model": false,
+  "real_external_actions": false,
+  "production_data_used": false,
+  "existing_probe_sha256": "ad3652ee54de7d41ee8295ff7f320aaf7b050b341e179e58192ee15d3e0db36b",
+  "cases": {
+    "choose_old": {
+      "status": "PASS",
+      "first": {
+        "passed": 20,
+        "failed": [],
+        "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+        "source_sha256": "4ce3a734d94e1cedea8260f9b74ca54ce2a8339d0db2e6200f702b5f2bb71ee6"
+      },
+      "second": {
+        "dependent_cleared": true,
+        "no_goal_run_action": true,
+        "snapshots_clean": true,
+        "primary_readback": true,
+        "restore_selected_only": true,
+        "new_reindex_blocked": true,
+        "no_external_host_request": true,
+        "old_reindex_blocked": true,
+        "restore_forget_not_added": true,
+        "no_retrieval_after_forget": true,
+        "restore_bytes_unchanged": true,
+        "explicit_forget_success": true,
+        "old_export_cannot_revive": true,
+        "restore_other_value": true,
+        "all_values_tombstoned": true,
+        "restore_other_history": true,
+        "restore_sources": true,
+        "chosen_cleared": true,
+        "boot_ready": true,
+        "sources_sanitized": true,
+        "restore_resolved_link": true,
+        "failed": [],
+        "passed": 21
+      },
+      "third": {
+        "boot_ready": true,
+        "restore_deleted": true,
+        "restore_history_cleared": true,
+        "restore_sources_clean": true,
+        "restore_all_tombstones": true,
+        "restore_no_retrieval": true,
+        "restore_old_import_blocked": true,
+        "restore_reindex_blocked": true,
+        "restore_same_clean_bytes": true,
+        "no_external_host_request": true,
+        "no_goal_run_action": true,
+        "primary_readback": true,
+        "failed": [],
+        "passed": 12
+      }
+    },
+    "other_project": {
+      "status": "FAIL",
+      "first": {
+        "passed": 14,
+        "failed": [
+          "guard_activity_unchanged"
+        ],
+        "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+        "source_sha256": "4ce3a734d94e1cedea8260f9b74ca54ce2a8339d0db2e6200f702b5f2bb71ee6"
+      },
+      "second": null,
+      "third": null
+    },
+    "other_owner": {
+      "status": "FAIL",
+      "first": {
+        "passed": 14,
+        "failed": [
+          "guard_activity_unchanged"
+        ],
+        "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+        "source_sha256": "4ce3a734d94e1cedea8260f9b74ca54ce2a8339d0db2e6200f702b5f2bb71ee6"
+      },
+      "second": null,
+      "third": null
+    }
+  },
+  "checks": 81
+}

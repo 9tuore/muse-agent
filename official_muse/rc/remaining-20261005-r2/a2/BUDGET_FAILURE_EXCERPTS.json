@@ -1,0 +1,277 @@
+{
+  "note": "Structured excerpts of observed original errors; report spans are not proof of root-cause statements. Original logs preserved locally. No OS/account/secret data included.",
+  "failures": [
+    {
+      "directory": "capacity-r1",
+      "source_sha256": "96ebb52f70a6cbf2050b14468e2eef2d8334e4cd5c4db18539e43c5bd67b4c05",
+      "original_log_sha256": "88e78e4fe0cb34c7b112d476e977d5d654ea0ab59e259a8cfbb6128bacb57ccb",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 4615,
+          "reported_column": 38,
+          "span": [
+            {
+              "line": 4613,
+              "text": "candidate.push({kind:kind detail:detail at:time_now()goal_id:goal_id"
+            },
+            {
+              "line": 4614,
+              "text": "run_id:run_id request_id:request_id account_scope:account_scope})"
+            },
+            {
+              "line": 4615,
+              "text": "let serialized=candidate.to_json()"
+            },
+            {
+              "line": 4616,
+              "text": "if serialized.len()>900000{core_error=\"活动记录接近 1 MiB 上限。\" return false}"
+            },
+            {
+              "line": 4617,
+              "text": "if core_last_activity!=\"\"{"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "capacity-deferred-r1",
+      "source_sha256": "19d2eced42c2fd2e251e61b207a48da142197b8fe6ce545b05d8c88529763525",
+      "original_log_sha256": "a39abb9fa7ff3e8b88df330616d420e75c37d8e9de35de746cef72fb9f16751b",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 4822,
+          "reported_column": 29,
+          "span": [
+            {
+              "line": 4820,
+              "text": "core_error=\"记忆写入或回读失败。\""
+            },
+            {
+              "line": 4821,
+              "text": "core_restore_memory()"
+            },
+            {
+              "line": 4822,
+              "text": "return false"
+            },
+            {
+              "line": 4823,
+              "text": "}"
+            },
+            {
+              "line": 4824,
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "capacity-copy-on-write-r1",
+      "source_sha256": "e980b30cf4c68ad63a81af961b249a3d86d45a93e91c8d21c16148112a5b9aaf",
+      "original_log_sha256": "0d371401ab12b1871ae40dbb5d3f7fe73893f300a897bacec9bdad10353e650e",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 4831,
+          "reported_column": 26,
+          "span": [
+            {
+              "line": 4829,
+              "text": "memory_forget=committed.forget"
+            },
+            {
+              "line": 4830,
+              "text": "core_last_memory=serialized"
+            },
+            {
+              "line": 4831,
+              "text": "core_error=\"\""
+            },
+            {
+              "line": 4832,
+              "text": "return true"
+            },
+            {
+              "line": 4833,
+              "text": "}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "capacity-pair-r1",
+      "source_sha256": "a4165f054938679681d8bfed260e0dc93c40022465db6ec5d38482b96161405a",
+      "original_log_sha256": "abebb3ff47a481fb6c3b5154783f62c9655a08e07ecad99abcf167bf94b38678",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 4806,
+          "reported_column": 44,
+          "span": [
+            {
+              "line": 4804,
+              "text": "if next_claims.len()>64||next_sources.len()>128||next_forget.len()>256{"
+            },
+            {
+              "line": 4805,
+              "text": "core_error=\"记忆、来源或墓碑达到本地容量上限。\""
+            },
+            {
+              "line": 4806,
+              "text": "return false"
+            },
+            {
+              "line": 4807,
+              "text": "}"
+            },
+            {
+              "line": 4808,
+              "text": "let serialized={schema:1 claims:next_claims sources:next_sources forget:next_forget}.to_json()"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "capacity-canonical-header-r1",
+      "source_sha256": "da91e5a008104c2eed4170757789e8d917a7732845fd999154e12f7b146177e8",
+      "original_log_sha256": "81bbc273cb827f6195841e10f1ee2b2c43e14b0319cb5745e8a4d0e9350861db",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 4821,
+          "reported_column": 2,
+          "span": [
+            {
+              "line": 4819,
+              "text": "if error!=nil||storage_read(\"memory.json\")!=serialized{"
+            },
+            {
+              "line": 4820,
+              "text": "core_error=\"记忆写入或回读失败。\""
+            },
+            {
+              "line": 4821,
+              "text": "core_restore_memory()"
+            },
+            {
+              "line": 4822,
+              "text": "return false"
+            },
+            {
+              "line": 4823,
+              "text": "}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "capacity-preserve-fast-r1",
+      "source_sha256": "e2e05b05364545d8a8db67e9ef2ee04123418a51b0caf1531a449f2bfcc04f64",
+      "original_log_sha256": "fc7a34dfbe65a2a80e5f46a5160bd61b8b9412ef4018294a0ff155d5ee469058",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 5093,
+          "reported_column": 2,
+          "span": [
+            {
+              "line": 5091,
+              "text": "let cache_key=[legacy,s[\"project\"],s[\"account\"],s[\"visibility\"],s[\"user_id\"],s[\"project_id\"],s[\"owner_id\"]].to_json()"
+            },
+            {
+              "line": 5092,
+              "text": "if gm_scope_cache[cache_key]==true{return true}"
+            },
+            {
+              "line": 5093,
+              "text": "if!gm_required(s,[\"project\",\"account\",\"visibility\"]){return false}"
+            },
+            {
+              "line": 5094,
+              "text": "if s.project!=\"muse-goals\"||s.visibility!=\"personal\"|| !gm_string(s.account,200)||s.account==\"\"{return false}"
+            },
+            {
+              "line": 5095,
+              "text": "for key in[\"user_id\",\"project_id\",\"owner_id\"]{"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "capacity-scope-cache-r1",
+      "source_sha256": "1e565c4ac78f6b309bd8a2ac6030e94cb8351fb6bbdc213ec751a3eff78051ce",
+      "original_log_sha256": "8c080b1daa276ae13dfb3e0393db938679bbd2759ee693eace3968dea9e97737",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 5279,
+          "reported_column": 64,
+          "span": [
+            {
+              "line": 5277,
+              "text": "let e=saved.claims[i]"
+            },
+            {
+              "line": 5278,
+              "text": "if!gm_required(e,[\"document\",\"pinned\",\"source_history\"]){return false}"
+            },
+            {
+              "line": 5279,
+              "text": "let d=e.document"
+            },
+            {
+              "line": 5280,
+              "text": "if!gm_keys(e,[\"document\",\"pinned\",\"source_history\",\"memory_type\",\"confidence\",\"conversation_id\",\"history\",\"resolved_by\"])"
+            },
+            {
+              "line": 5281,
+              "text": "|| !gm_doc_valid(d,legacy)|| !gm_bool(e.pinned)|| !gm_array(e.source_history)||e.source_history.len()>128{return false}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "capacity-scope-paused-r1",
+      "source_sha256": "1e565c4ac78f6b309bd8a2ac6030e94cb8351fb6bbdc213ec751a3eff78051ce",
+      "original_log_sha256": "f8341b622df4cb05aa8f038842301c1d47942badcc971f9cf19d06df3a9c8b2b",
+      "errors": [
+        {
+          "diagnostic": "script time budget exceeded",
+          "reported_instrumented_line": 4814,
+          "reported_column": 19,
+          "span": [
+            {
+              "line": 4812,
+              "text": "if core_last_memory!=\"\"{"
+            },
+            {
+              "line": 4813,
+              "text": "let backup_error=storage_write(\"memory.backup.json\",core_last_memory)"
+            },
+            {
+              "line": 4814,
+              "text": "if backup_error!=nil||storage_read(\"memory.backup.json\")!=core_last_memory{"
+            },
+            {
+              "line": 4815,
+              "text": "core_error=\"记忆回退快照保存失败。\""
+            },
+            {
+              "line": 4816,
+              "text": "core_restore_memory()"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

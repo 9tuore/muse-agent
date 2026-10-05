@@ -1,0 +1,56 @@
+// Original helper is copied verbatim from frozen e2 source with only its name changed.
+let a2_checks={}
+let a2_case=0
+let a2_scope=nil
+let a2_observations=[]
+let a2_names=["canonical_valid","literal_valid","missing_project","canonical_extra","literal_extra",
+    "account_number","wrong_visibility","user_number","legacy_missing_true","legacy_missing_false",
+    "warm_then_extra","warm_then_type","warm_then_valid_change","legacy_cache_switch"]
+fn chain_fixture_request(service,args,cb){a2_checks.forbidden_calls=true cb({is_ok:false error:"A2 scope fixture forbids services"})}
+fn a2_make_scope(){
+    let s=a2_scope.to_json().parse_json()
+    if a2_case==1 {s={project:"muse-goals" account:"synthetic-account" visibility:"personal" user_id:"synthetic-user" project_id:"a2-project" owner_id:"a2-owner"}}
+    if a2_case==2 {s="{\"account\":\"synthetic-account\",\"visibility\":\"personal\"}".parse_json()}
+    if a2_case==3 {s.unexpected="invalid"}
+    if a2_case==4 {s={project:"muse-goals" account:"synthetic-account" visibility:"personal" unexpected:"invalid"}}
+    if a2_case==5 {s.account=17}
+    if a2_case==6 {s.visibility="public"}
+    if a2_case==7 {s.user_id=42}
+    if a2_case==8 || a2_case==9 || a2_case==13 {s="{\"project\":\"muse-goals\",\"account\":\"synthetic-account\",\"visibility\":\"personal\"}".parse_json()}
+    return s
+}
+fn a2_run(checker,s){
+    let legacy=true
+    if a2_case==9 {legacy=false}
+    if a2_case>=10 {
+        if !checker(s,true) {return "warm_failed"}
+        if a2_case==10 {s.unexpected="invalid"}
+        if a2_case==11 {s.account=17}
+        if a2_case==12 {s.owner_id="another-valid-owner"}
+        if a2_case==13 {legacy=false}
+    }
+    return checker(s,legacy)
+}
+fn a2_next(){
+    gm_scope_cache={} gm_scope_cache_count=0
+    let old=a2_run(a2_old_scope_valid,a2_make_scope())
+    gm_scope_cache={} gm_scope_cache_count=0
+    let current=a2_run(gm_scope_valid,a2_make_scope())
+    let expected=a2_case==0 || a2_case==1 || a2_case==8 || a2_case==12
+    let name=a2_names[a2_case]
+    a2_checks[name+"_same_result"]=old==current
+    a2_checks[name+"_expected"]=current==expected
+    a2_observations.push({case:name old:old current:current expected:expected})
+    a2_case=a2_case+1
+    if a2_case<a2_names.len() {start_timeout(0.03,|| a2_next()) return}
+    a2_checks.memory_unchanged=fs.read("memory.json")==core_last_memory
+    a2_checks.observations=a2_observations
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    a2_scope=memory_sources[0]["scope"].to_json().parse_json()
+    start_timeout(0.03,|| a2_next())
+}
+start_timeout(0.1,|| a2_probe())

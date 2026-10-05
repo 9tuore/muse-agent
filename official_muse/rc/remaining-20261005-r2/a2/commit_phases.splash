@@ -1,0 +1,53 @@
+// Isolate real validation and commit costs, using only a2's synthetic failed profile.
+let a2_checks={}
+let a2_next=nil
+let a2_wait=0
+let a2_metrics={}
+fn chain_fixture_request(service,args,cb){a2_checks.forbidden_calls=true cb({is_ok:false error:"A2 phase fixture rejects every service"})}
+fn a2_prepare(){
+    let started=time_now()
+    a2_next="{\"schema\":1,\"claims\":[],\"sources\":[],\"forget\":[]}".parse_json()
+    for entry in memory {a2_next.claims.push(entry)}
+    for source in memory_sources {a2_next.sources.push(source)}
+    a2_next.forget=memory_forget
+    let source=memory_sources[0].to_json().parse_json()
+    let claim=memory[0].to_json().parse_json()
+    source.source_id="a2-phase-source" source.locator="a2-synthetic-phase"
+    claim.document.id="a2-phase-memory" claim.document.payload.subject_id="a2-phase-subject"
+    claim.document.payload.source_ids=[source.source_id] claim.source_history=[source.source_id]
+    a2_next.sources.push(source) a2_next.claims.push(claim)
+    a2_metrics.prepare_ms=(time_now()-started)*1000
+    fs.write("phase-progress.json",{phase:"prepared" metrics:a2_metrics}.to_json())
+    start_timeout(0.05,|| a2_validate())
+}
+fn a2_validate(){
+    let started=time_now()
+    a2_checks.pair_valid=gm_validate_canonical_part(a2_next,true,"correction",a2_next.claims.len()-1,a2_next.sources.len()-1)
+    a2_metrics.validation_ms=(time_now()-started)*1000
+    fs.write("phase-progress.json",{phase:"validated" metrics:a2_metrics}.to_json())
+    start_timeout(0.05,|| a2_commit())
+}
+fn a2_commit(){
+    let started=time_now()
+    a2_checks.commit_valid=core_commit_memory(a2_next.claims,a2_next.sources,a2_next.forget)
+    a2_metrics.commit_ms=(time_now()-started)*1000
+    fs.write("phase-progress.json",{phase:"committed" metrics:a2_metrics}.to_json())
+    start_timeout(0.05,|| a2_check())
+}
+fn a2_check(){
+    a2_checks.counts=memory.len()==63 && memory_sources.len()==63
+    a2_checks.primary_readback=fs.read("memory.json")==core_last_memory
+    a2_checks.metrics=a2_metrics
+    fs.write("probe.json",a2_checks.to_json())
+}
+fn a2_wait_ready(){
+    if gm_boot_pending {a2_wait=a2_wait+1 if a2_wait<180 {start_timeout(0.03,|| a2_wait_ready()) return}}
+    a2_checks.boot_ready=gm_ready && gm_enabled && core_memory_ready && memory.len()==62
+    start_timeout(0.05,|| a2_prepare())
+}
+fn a2_probe(){
+    notification_enabled=false
+    core_boot_goals() core_boot_activity() core_boot_memory() gm_boot()
+    start_timeout(0.03,|| a2_wait_ready())
+}
+start_timeout(0.1,|| a2_probe())

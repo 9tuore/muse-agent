@@ -1,0 +1,194 @@
+let rr_case="__CASE__"
+let cc_phase="first"
+let rr_checks={}
+let rr_calls=[]
+let rr_old=""
+let rr_new=""
+let rr_keep=""
+let rr_other=""
+let rr_baseline=nil
+let rr_initial="合成事实甲最初提案"
+let rr_old_value="合成事实甲更新为周六"
+let rr_new_value="合成事实乙最新为周日"
+fn chain_fixture_request(service,args,cb){
+    rr_calls.push(service)
+    cb({is_ok:false error:"Memory fixture forbids all external service requests"})
+}
+fn rr_finish(){
+    rr_checks.no_external_host_request=rr_calls.len()==0
+    rr_checks.no_goal_run_action=goals.len()==0 && runs.len()==0 && actions.len()==0
+    rr_checks.primary_readback=fs.read("memory.json")==core_last_memory
+    fs.write("probe.json",rr_checks.to_json())
+}
+fn rr_save_old(){
+    rr_checks.old_saved=gm_save(rr_initial,"fact","合成事实","约定","synthetic-A","synthetic-project","synthetic-owner","local")
+    rr_old=memory[0].document.id
+    start_timeout(0.03,|| rr_correct_old())
+}
+fn rr_correct_old(){
+    rr_checks.old_corrected=gm_correct(rr_old,rr_old_value,"local","synthetic-B")
+    start_timeout(0.03,|| rr_save_new())
+}
+fn rr_save_new(){
+    let project="synthetic-project" let owner="synthetic-owner" let account="local"
+    let subject="合成事实" let predicate="约定"
+    if rr_case=="other_project" {project="synthetic-other-project"}
+    if rr_case=="other_owner" {owner="synthetic-other-owner"}
+    if rr_case=="other_account" {account="synthetic-account"}
+    if rr_case=="other_subject" {subject="不同合成事实"}
+    if rr_case=="other_predicate" {predicate="不同约定"}
+    rr_checks.new_saved=gm_save(rr_new_value,"fact",subject,predicate,"synthetic-C",project,owner,account)
+    rr_new=memory[1].document.id
+    rr_keep=rr_old rr_other=rr_new
+    if rr_case=="choose_new" {rr_keep=rr_new rr_other=rr_old}
+    start_timeout(0.15,|| rr_before())
+}
+fn rr_before(){
+    let i=core_memory_index(rr_keep,"local") let j=core_memory_index(rr_other,"local")
+    let other_index=1
+    if rr_case=="choose_new" {other_index=0}
+    rr_baseline={old_id:rr_old new_id:rr_new keep_id:rr_keep other_id:rr_other
+        other:memory[other_index].to_json().parse_json()
+        sources:memory_sources.to_json() forget:memory_forget.to_json()
+        memory_bytes:fs.read("memory.json") backup_bytes:fs.read("memory.backup.json")
+        activity_bytes:fs.read("activity.json")}
+    fs.write("resolve-baseline.json",rr_baseline.to_json())
+    if rr_case=="choose_old" || rr_case=="choose_new" || rr_case=="baseline_old" {
+        let ctx=gm_context("合成事实","synthetic-D","")
+        rr_checks.conflict_requires_resolution=ctx.requires_resolution && ctx.conflicts.len()>0 && ctx.hits.len()==2
+    }
+
+    if rr_case=="other_project" || rr_case=="other_owner" {
+        let ctx=gm_context("合成事实","synthetic-isolation","")
+        rr_checks.original_scope_only=ctx.hits.len()==1 && ctx.hits[0].id==rr_old && ctx.text.search(rr_new_value)<0
+        if rr_case=="other_project" {gm_set_focus("synthetic-other-project","synthetic-owner")}
+        else {gm_set_focus("synthetic-project","synthetic-other-owner")}
+        ctx=gm_context("合成事实","synthetic-isolation","")
+        rr_checks.other_scope_only=ctx.hits.len()==1 && ctx.hits[0].id==rr_new && ctx.text.search(rr_old_value)<0
+        gm_set_focus("synthetic-project","synthetic-owner")
+    }
+    start_timeout(0.03,|| rr_resolve())
+}
+fn rr_resolve(){
+    let keep=rr_keep let other=rr_other
+    if rr_case=="same_id" {other=keep}
+    if rr_case=="missing_id" {other="synthetic-missing"}
+    let user=gm_user_id
+    if rr_case=="other_user" {gm_user_id="user:synthetic-other"}
+    let resolved=gm_resolve(keep,other,"local")
+    gm_user_id=user
+    if rr_case!="choose_old" && rr_case!="choose_new" && rr_case!="baseline_old" {
+        rr_checks.guard_rejected=!resolved
+        rr_checks.guard_primary_unchanged=fs.read("memory.json")==rr_baseline.memory_bytes
+        rr_checks.guard_backup_unchanged=fs.read("memory.backup.json")==rr_baseline.backup_bytes
+        rr_checks.guard_activity_unchanged=fs.read("activity.json")==rr_baseline.activity_bytes
+        rr_checks.guard_sources_unchanged=memory_sources.to_json()==rr_baseline.sources
+        rr_checks.guard_forget_unchanged=memory_forget.to_json()==rr_baseline.forget
+        rr_finish() return
+    }
+    rr_checks.resolve_success=resolved
+    start_timeout(0.03,|| rr_verify_resolution())
+}
+fn rr_verify_resolution(){
+    let i=core_memory_index(rr_keep,"local") let j=core_memory_index(rr_other,"local")
+    let after=memory[j] let before=rr_baseline.other
+    rr_checks.resolved_link=after["resolved_by"]==rr_keep
+    rr_checks.other_document_preserved=after.document.to_json()==before.document.to_json()
+    rr_checks.other_value_preserved=after.document.payload.value==before.document.payload.value && !after.document.payload.deleted
+    rr_checks.other_history_preserved=after.history.to_json()==before.history.to_json()
+    rr_checks.other_source_history_preserved=after.source_history.to_json()==before.source_history.to_json()
+    rr_checks.sources_unchanged=memory_sources.to_json()==rr_baseline.sources
+    rr_checks.forget_not_added=memory_forget.to_json()==rr_baseline.forget
+    let ctx=gm_context("合成事实","synthetic-E","")
+    rr_checks.only_selected_retrieved=ctx.hits.len()==1 && ctx.hits[0].id==rr_keep
+        && ctx.text.search(memory[i].document.payload.value)>=0 && ctx.text.search(before.document.payload.value)<0
+    rr_checks.no_unresolved_conflict=!ctx.requires_resolution && ctx.conflicts.len()==0
+    let event_found=false
+    for event in activity {if event.kind=="memory conflict resolved" {event_found=true}}
+    rr_checks.resolution_event=event_found
+    let before_repeat=fs.read("memory.json") let events_repeat=fs.read("activity.json")
+    rr_checks.duplicate_resolution_rejected=!gm_resolve(rr_keep,rr_other,"local")
+        && fs.read("memory.json")==before_repeat && fs.read("activity.json")==events_repeat
+    rr_finish()
+}
+fn rr_restore(){
+    rr_baseline=fs.read("resolve-baseline.json").parse_json()
+    rr_old=rr_baseline.old_id rr_new=rr_baseline.new_id rr_keep=rr_baseline.keep_id rr_other=rr_baseline.other_id
+    let j=core_memory_index(rr_other,"local")
+    rr_checks.restore_resolved_link=memory[j]["resolved_by"]==rr_keep
+    rr_checks.restore_other_value=memory[j].document.to_json()==rr_baseline.other.document.to_json()
+    rr_checks.restore_other_history=memory[j].history.to_json()==rr_baseline.other.history.to_json()
+    rr_checks.restore_sources=memory_sources.to_json()==rr_baseline.sources
+    rr_checks.restore_forget_not_added=memory_forget.to_json()==rr_baseline.forget
+    let ctx=gm_context("合成事实","synthetic-F","")
+    rr_checks.restore_selected_only=ctx.hits.len()==1 && ctx.hits[0].id==rr_keep && !ctx.requires_resolution
+    fs.write("before-explicit-forget-export.json",gm_export())
+    start_timeout(0.03,|| rr_explicit_forget())
+}
+fn rr_explicit_forget(){
+    rr_checks.explicit_forget_success=gm_forget(rr_keep,"local")
+    start_timeout(0.03,|| rr_privacy())
+}
+fn rr_privacy(){
+    let i=core_memory_index(rr_keep,"local") let j=core_memory_index(rr_other,"local")
+    rr_checks.chosen_cleared=memory[i].document.payload.deleted && memory[i].document.payload.value==""
+        && memory[i].source_history.len()==0 && memory[i].history.len()==0 && memory[i].document.payload.source_ids.len()==0
+    rr_checks.dependent_cleared=memory[j].document.payload.deleted && memory[j].document.payload.value==""
+        && memory[j].source_history.len()==0 && memory[j].history.len()==0 && memory[j].document.payload.source_ids.len()==0
+    let all_empty=true
+    for source in memory_sources {if source.support_excerpt!="" {all_empty=false}}
+    rr_checks.sources_sanitized=all_empty
+    let ctx=gm_context("合成事实","synthetic-G","")
+    rr_checks.no_retrieval_after_forget=ctx.hits.len()==0
+    rr_checks.all_values_tombstoned=gm_forgotten_text(rr_initial,"local") && gm_forgotten_text(rr_old_value,"local") && gm_forgotten_text(rr_new_value,"local")
+    let clean=true
+    for path in ["memory.json","memory.backup.json","memory-forget-candidate.json"] {
+        let raw=fs.read(path)
+        if raw.search(rr_initial)>=0 || raw.search(rr_old_value)>=0 || raw.search(rr_new_value)>=0 {clean=false}
+    }
+    rr_checks.snapshots_clean=clean
+    start_timeout(0.03,|| rr_no_resurrection())
+}
+fn rr_no_resurrection(){
+    let before=fs.read("memory.json")
+    rr_checks.old_export_cannot_revive=!gm_import(fs.read("before-explicit-forget-export.json")) && fs.read("memory.json")==before
+    rr_checks.old_reindex_blocked=!gm_save(rr_old_value,"fact","不同合成记录","不同谓词","synthetic-H","synthetic-project","synthetic-owner","local")
+        && fs.read("memory.json")==before
+    rr_checks.new_reindex_blocked=!gm_save(rr_new_value,"fact","不同合成记录","不同谓词","synthetic-H","synthetic-project","synthetic-owner","local")
+        && fs.read("memory.json")==before
+    rr_finish()
+}
+
+fn rr_forgotten_restore(){
+    let before=fs.read("memory.json") let backup=fs.read("memory.backup.json")
+    rr_baseline=fs.read("resolve-baseline.json").parse_json()
+    rr_old=rr_baseline.old_id rr_new=rr_baseline.new_id rr_keep=rr_baseline.keep_id rr_other=rr_baseline.other_id
+    let i=core_memory_index(rr_keep,"local") let j=core_memory_index(rr_other,"local")
+    rr_checks.restore_deleted=memory[i].document.payload.deleted && memory[j].document.payload.deleted
+    rr_checks.restore_history_cleared=memory[i].history.len()==0 && memory[j].history.len()==0
+        && memory[i].source_history.len()==0 && memory[j].source_history.len()==0
+        && memory[i].document.payload.source_ids.len()==0 && memory[j].document.payload.source_ids.len()==0
+    let sources_clean=true for source in memory_sources {if source.support_excerpt!="" {sources_clean=false}}
+    rr_checks.restore_sources_clean=sources_clean
+    rr_checks.restore_all_tombstones=gm_forgotten_text(rr_initial,"local") && gm_forgotten_text(rr_old_value,"local") && gm_forgotten_text(rr_new_value,"local")
+    rr_checks.restore_no_retrieval=gm_context("合成事实","synthetic-fresh-forgotten","").hits.len()==0
+    rr_checks.restore_old_import_blocked=!gm_import(fs.read("before-explicit-forget-export.json")) && fs.read("memory.json")==before && fs.read("memory.backup.json")==backup
+    rr_checks.restore_reindex_blocked=!gm_save(rr_old_value,"fact","different-subject","different-predicate","synthetic-new","synthetic-project","synthetic-owner","local")
+        && fs.read("memory.json")==before && fs.read("memory.backup.json")==backup
+    rr_checks.restore_same_clean_bytes=before==backup
+    rr_finish()
+}
+
+fn rr_probe(){
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    let before="" if fs.exists("memory.json") {before=fs.read("memory.json")}
+    rr_checks.boot_ready=gm_boot() && core_memory_ready && gm_ready
+    gm_set_focus("synthetic-project","synthetic-owner") gm_set_accounts(["synthetic-account"])
+    if cc_phase=="forgotten" {rr_forgotten_restore() return}
+    if cc_phase=="restart" {
+        rr_checks.restore_bytes_unchanged=fs.read("memory.json")==before
+        rr_restore() return
+    }
+    start_timeout(0.03,|| rr_save_old())
+}
+start_timeout(0.1,|| rr_probe())
