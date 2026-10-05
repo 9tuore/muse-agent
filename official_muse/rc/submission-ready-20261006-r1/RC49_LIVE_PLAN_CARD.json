@@ -1,0 +1,125 @@
+{
+  "version": "0.3.26-rc49",
+  "product_commit": "e0eb5d82",
+  "readable_sha256": "2bad514d69d777fabb9ad2daf2b0aa2862555c2db5c146b22bc635b3b1e70484",
+  "payload_sha256": "15ea7e6d2da21ce8bedbcb1e4cee1537217ee653a4f603539e51fc35cefc540f",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "goal_id": "1791222912-516469458",
+  "state": "completed",
+  "result": {
+    "schema": 1,
+    "task_id": "1791222912-516469458",
+    "goal": "整理 Muse 确认操作说明",
+    "source": "用户在 Muse 官方界面输入",
+    "source_text": "日历改期必须关联原事件；邮件发送前单独确认",
+    "count": 2,
+    "items": [
+      {
+        "number": 1,
+        "text": "日历改期必须关联原事件"
+      },
+      {
+        "number": 2,
+        "text": "邮件发送前单独确认"
+      }
+    ],
+    "model_summary": "",
+    "created_at": 1791222996.261096
+  },
+  "result_sha256": "7b4b49b5a392ddab5a2d040137c4c29df7e4847b9e99dda208b62faddd3fa58b",
+  "runs": [
+    {
+      "id": "run:1791223040-1181385126",
+      "goal_id": "1791222912-516469458",
+      "plan_revision": 1,
+      "request_id": "goal-1791223040-2272301630",
+      "status": "completed",
+      "started_at": 1791222996.176451,
+      "finished_at": 1791222996.312809,
+      "result_path": "results/result-1791222912-516469458.json"
+    }
+  ],
+  "actions": [],
+  "activity": [
+    {
+      "kind": "Goal created",
+      "detail": "整理 Muse 确认操作说明",
+      "at": 1791222956.669118,
+      "goal_id": "1791222912-516469458",
+      "run_id": "",
+      "request_id": "",
+      "account_scope": ""
+    },
+    {
+      "kind": "Plan approved",
+      "detail": "已绑定当前目标Spec与结果路径。",
+      "at": 1791222996.230363,
+      "goal_id": "1791222912-516469458",
+      "run_id": "run:1791223040-1181385126",
+      "request_id": "goal-1791223040-2272301630",
+      "account_scope": ""
+    },
+    {
+      "kind": "storage write",
+      "detail": "results/result-1791222912-516469458.json",
+      "at": 1791222996.283021,
+      "goal_id": "1791222912-516469458",
+      "run_id": "run:1791223040-1181385126",
+      "request_id": "",
+      "account_scope": ""
+    },
+    {
+      "kind": "readback",
+      "detail": "结果内容与写入内容一致。",
+      "at": 1791222996.292507,
+      "goal_id": "1791222912-516469458",
+      "run_id": "run:1791223040-1181385126",
+      "request_id": "",
+      "account_scope": ""
+    },
+    {
+      "kind": "memory saved",
+      "detail": "已核验产物摘要及来源 hash 已保存。",
+      "at": 1791222996.329085,
+      "goal_id": "1791222912-516469458",
+      "run_id": "run:1791223040-1181385126",
+      "request_id": "",
+      "account_scope": "local"
+    }
+  ],
+  "model_response": {
+    "schema": 1,
+    "request_at": 1791222890.825701,
+    "response_at": 1791222897.319897,
+    "query_sha256": "dd9acb72eaac4d7d71566179981346822154bb8a2c11ef1814fb9911da8b513a",
+    "session_id": "chat:1791212672-110143110",
+    "goal_id": "",
+    "current": true,
+    "is_ok": true,
+    "known_usage": true,
+    "meta": {
+      "class": "strong",
+      "requested": "fast",
+      "attempts": 1,
+      "usage": {
+        "estimated": false,
+        "input_tokens": 1204,
+        "output_tokens": 410
+      },
+      "budget": {
+        "calls_per_day": 100,
+        "calls_today": 54,
+        "per_minute": 6,
+        "resets_at": 1791244800,
+        "tokens_left": 16279,
+        "tokens_per_day": 100000,
+        "tokens_today": 83721
+      }
+    }
+  },
+  "approval_button": "确认执行这个计划",
+  "approval_clicks": 1,
+  "composer_preserved": true,
+  "errors": [],
+  "scope": "live real Shell and model candidate followed by direct right card approval and actual jailed storage/readback; no new Mail/Calendar write"
+}

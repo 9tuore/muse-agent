@@ -1,4 +1,18 @@
-# Muse rc48 · 交付与证据收口
+# Muse rc49 · 当前冻结产品
+
+**PARTIAL。产品 `e0eb5d82`，实际候选 `gate-rc49-r2`。** readable `2bad514d69d777fabb9ad2daf2b0aa2862555c2db5c146b22bc635b3b1e70484`；实装 compact `15ea7e6d2da21ce8bedbcb1e4cee1537217ee653a4f603539e51fc35cefc540f`，98469官方tokens完全相等；Host1d7不变。
+
+rc48收口中再次发现真正回归：右卡确认仍假设select_goal同步，直接确认读到空/手写composer，且延迟导航会覆盖草稿。`plan-card-before-r2`保留6FAIL。rc49仅为当前绑定Goal/id/revision确认，临时使用原计划目标与资料调用既有approve并还原编辑内容，去掉冗余导航；两处按钮捕获渲染时的id/revision，拒绝旧卡使用新全局Task。实际完整本地存储/readback等10检查在最终readable2bad上通过（不是spy批准）；重复、旧版本、不同聊天绑定拒绝，未增加权限或预算。见 [PLAN_CARD_REGRESSION.json](PLAN_CARD_REGRESSION.json)。49-r1是未安装/未公开的中间候选，原Gate/测试/上游拒绝日志保留，不替换成r2身份。
+
+**rc49最终实机关键路径：** App Hub安装6文件SHA相同、23个应用文件/ledger保持；启动16聊天可写、无[E]。自然语言输入后真实官方model.complete生成候选，实际1204输入/410输出；打开核对后回到Chat，保留未发送手写内容，右侧“确认执行这个计划”仅点击一次。Goal `1791222912-516469458` / 新Run completed，实际2条资料保存并独立readback，结果卡与来源记忆一致，composer原文完整保留。完整证明见 [RC49_LIVE_PLAN_CARD.json](RC49_LIVE_PLAN_CARD.json) / [安装核对](RC49_INSTALL.json)。没有新发邮件或写系统日历。
+
+rc48的Shell恢复、跨聊天召回及模型精度保持原版本身份，相关路径未因rc49卡片修补改变，可作支持证据，不重贴49标签或拼成最终外部整链。内置0.6B自动配置与误答验证源于rc45/48，复用范围在模型报告中说明；它仍不是第二strong。原版Hub对最终49-r2的可靠exit=1、唯一calendar拒绝见 [来源及退出状态](compliance/UPSTREAM_HUB_CHECK_RC49_R2_PROVENANCE.json)，本地Gate/check/scan/catalog通过只是扩展演练。
+
+真实视频、两张脱敏关键截图、封面和内置模型<500,000,000字节桌面包，以最终 `DELIVERY.json` 的路径/摘要为准。代码按本人授权普通推送，旧Tag不动，未正式上架。原二十项的完整外部最终链、第二strong、两替代、真实账号2h、OS/两Mac及publisher/review缺项仍保留；不宣布20/20。
+
+---
+
+# Muse rc48 · 已保留的前一候选验证
 
 状态：**PARTIAL**。当前产品提交 `89bfd399`，版本 `0.3.26-rc48`；本轮在真实 OctoSense / App Hub 安装并验证。原二十项未全过，未正式申请 App Hub，没有移动旧 Tag。
 

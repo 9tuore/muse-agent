@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前源码与实装候选：0.3.26-rc48 / 89bfd399；验收 PARTIAL。** 用户已授权恢复 GitHub 普通同步。本轮修复关联任务导航、精确删除缓存、引用资料误判任务类型和聊天恢复批次；真实官方模型候选、批准、保存/独立读回、记忆、Shell恢复和另一聊天召回通过。正式App Hub未提交，原二十项仍未全过。详见[当前收口报告](official_muse/rc/submission-ready-20261006-r1/REPORT.md)。
+**当前源码与实装候选：0.3.26-rc49 / e0eb5d82；验收 PARTIAL。** 用户已授权恢复 GitHub 普通同步。本轮修复关联任务导航、精确删除缓存、引用资料误判任务类型、聊天恢复批次及右卡直接确认时手写内容丢失；真实官方模型候选、批准、保存/独立读回、记忆、Shell恢复和另一聊天召回通过。正式App Hub未提交，原二十项仍未全过。详见[当前收口报告](official_muse/rc/submission-ready-20261006-r1/REPORT.md)。
 
 此前已补收件声明恢复、64条记忆保存与更正、日历短回调与同事项改期绑定、缺RFC时明确选原事项，以及执行回执误冲突修复。真实同事项已完成系统创建、电脑日历外部修改、原ID改期、确认邮件到达、结果和记忆、Shell恢复；节点跨rc28/29/34/35，不冒充同最终整链通过。完整Shell默认558项单测与空target Host重建通过；第二GPT单通道实测provider失败，原二十项完整门槛仍未全过。历史入口：[rc35报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
@@ -22,7 +22,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc48 compact payload、manifest、listing和资源；payload fcf9408f 对应当前候选，listing截图仍为有身份记录的V12支持材料 |
+| `official_muse/app/bundle/` | 0.3.26-rc49 compact payload、manifest、listing和资源；payload 15ea7e6d 对应当前候选，listing截图仍为有身份记录的V12支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |

@@ -1,4 +1,12 @@
-## 2026-10-06：rc48 启动、任务和交付收口（当前）
+## 2026-10-06：rc49 右卡回归修复（当前）
+
+当前e0eb5d82/rc49，最终Gate49-r2，readable2bad514d/compact15ea7e6d，98469官方tokens相等；Host1d7不变。发现异步导航使右卡批准读空composer并覆盖手写稿，实际before6FAIL保留；修后当前绑定Goal/revision守卫、临时原计划inputs调用既有approve后还原、按钮冻结渲染id/rev，10fixture真实本地写入/readback全部PASS。
+
+最终rc49实装六SHA/23文件保持；16聊天启动可写无[E]，真实模型1204/410tokens候选→右卡确认一次→Goal1791222912-516469458 completed/两资料独立读回/来源记忆，未发送手写原文保留。原版Hub最终r2 exit1 onlycalendar；未新发信或写系统日历。rc48恢复/跨聊天召回及0.6B误答保留原身份，字节未改路径支持，不拼最终外部全链。A4最终冻结完整公开源码，内置模型ZIP<500MB；视频/截图/配音/封面和GitHub最终身份见DELIVERY.json。原二十项总体PARTIAL、旧Tag/生产/旧安装/dirty baseline保护。
+
+---
+
+## 2026-10-06：rc48 启动、任务和交付收口（历史）
 
 产品89bfd399 /0.3.26-rc48，readable179fd6b6、compactfcf9408f，98422官方tokens相等；Host1d7不变。真实App Hub安装6文件SHA一致、22个应用根文件/ledger保持。rc47启动gm_has预算失败保留；chat校验8→2仍全检查，256消息正常/损坏尾条两fixture各5PASS，实机16聊天恢复可写无[E]。
 

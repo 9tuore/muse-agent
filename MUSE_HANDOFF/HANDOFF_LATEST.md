@@ -6,11 +6,11 @@ rc45基线9b83f98c，codex/muse-rc-finalization；收口、<500MB内置模型交
 
 ## Result
 
-PARTIAL。产品89bfd399/rc48；真实模型候选→批准→保存/读回→记忆→Shell恢复→另一聊天召回已观察。原20项及最终外部全链等未全过。
+PARTIAL。产品e0eb5d82/rc49；真实模型候选→批准→保存/读回→记忆→Shell恢复→另一聊天召回已观察。原20项及最终外部全链等未全过。
 
 ## Changed
 
-main.splash：导航守卫分片、精确删除缓存、资料意图边界、聊天全校验批次8→2；公开fixture和异步suite、内置模型打包、隐私说明及媒体流水线。
+main.splash：导航守卫分片、精确删除缓存、资料意图边界、聊天全校验批次8→2、右卡直接批准/冻结id-revision且保留手写稿；公开fixture和异步suite、内置模型打包、隐私说明及媒体流水线。
 
 ## Tests
 
@@ -18,7 +18,7 @@ main.splash：导航守卫分片、精确删除缓存、资料意图边界、聊
 
 ## Commit
 
-产品89bfd399；文档/证据另有提交。用户明确授权普通push，最终远端身份见DELIVERY.json；旧Tag不动。
+产品e0eb5d82；文档/证据另有提交。用户明确授权普通push，最终远端身份见DELIVERY.json；旧Tag不动。
 
 ## Remaining
 

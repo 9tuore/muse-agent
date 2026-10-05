@@ -1,4 +1,12 @@
-# rc48 本轮增量（当前）
+# rc49 当前增量
+
+产品e0eb5d82，Gate49-r2；原20完整门槛继续PARTIAL。右侧直接确认回归before6FAIL、最终生产函数10PASS；实机16聊天启动、model.complete实际1204/410tokens候选、右卡确认一次、2条资料Storage/readback/completed/来源记忆、手写composer保留通过。6bundle/23安装前文件SHA保持。rc48恢复/跨聊天/内置小模型验证按原身份支持，未重贴49。原版Hub最终r2 exit1 onlycalendar，本地扩展PASS≠准入。
+
+旧外部链仍跨rc37/41/42/45；同最终完整外链、第二strong、两真实替代、真账号2h、OS/两Mac/正式身份等未因右卡修复而升级。报告：[本轮收口](official_muse/rc/submission-ready-20261006-r1/REPORT.md)。以下历史保留。
+
+---
+
+# rc48 本轮增量（历史）
 
 **总体PARTIAL；原二十项完整门槛未全过，不重算历史5/14/1为20/20。** 产品89bfd399；实际普通任务model候选→批准→Storage/readback→记忆→Shell恢复→另一聊天召回通过。导航/删除缓存/资料意图/启动分片最小修复及旧suite维护均记录版本和原失败。rc47实机启动预算失败保留，rc48当前16聊天实测成功，不能宣称所有冷启动风险消除。
 
