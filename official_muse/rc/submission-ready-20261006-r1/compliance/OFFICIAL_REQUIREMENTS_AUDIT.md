@@ -96,3 +96,9 @@
 ## 交付后协同变化（不改rc45历史判定）
 
 Root在审计期间开始修复导航/删除缓存，并写出新的 receipt_fixture.py、fixtures/receipt-template.json 和 regression_receipt.splash，替换A2输出依赖。已只读验证working-tree合成profile的63/64/63条生成，wrapper不再引用A2输出或覆盖Host；见PUBLIC_FIXTURE_REPAIR_WORKING_TREE.json。核对时HEAD f2a47219尚未包含这三个新文件，修复需提交并从最终公共Git树再次核验；本审计没有运行其CardHost测试或将之写成产品真链。Root也正在把隐私草案审阅为正式公开政策；rc45占位链接的历史结论不改写。
+
+### 提交后复核
+
+在9dc74da8提交树重新读取四个依赖，新的receipt_fixture.py、fixtures/receipt-template.json、regression_receipt.splash与已核对wrapper全部在Git树内，且SHA与working-tree核对相同。见PUBLIC_FIXTURE_REPAIR_COMMITTED.json。旧A2输出依赖已从这条公开wrapper路径移除；旧9b83f98c失败记录仍保留。本次只验证便携依赖/合成profile，不代替Root的实际CardHost验收。新的bundle listing已使用GitHub的docs/PRIVACY_POLICY.md；rc45历史占位仍为事实，新候选的公开URL访问及Gate由Root另验。
+
+官方快照按SOURCE_ATTRIBUTION.md留存归属。DesignFlow的LICENSE与NOTICE已读取并保存；另两仓库根LICENSE/NOTICE在本次固定main上返回404，保留记录，不能把404写成已有LICENSE文件或据此猜测整库无许可。AppHub crate元数据已声明Apache-2.0。
