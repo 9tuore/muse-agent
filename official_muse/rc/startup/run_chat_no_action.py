@@ -350,7 +350,7 @@ def main():
         all_rows = prior_rows + report['cases']
         report['original20_transport_complete'] = (a.full_frozen_corpus and
             sum(row['suite'] == 'original20' for row in all_rows) == 20)
-        report['status'] = ('OBSERVED_WITH_RETAINED_MODEL_ERRORS_REQUIRES_MANUAL_REVIEW'
+        report['status'] = ('OBSERVED_WITH_RETAINED_PRIOR_FAILURES_REQUIRES_MANUAL_REVIEW'
             if report['retained_model_errors'] or (previous and previous['status'] == 'FAIL_RETAINED')
             else 'OBSERVED_REQUIRES_MANUAL_SEMANTIC_REVIEW')
     except Exception:
