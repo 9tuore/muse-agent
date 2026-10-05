@@ -1,0 +1,74 @@
+[
+  {
+    "model": "pure-Q4",
+    "scope": "direct server diagnosis, not Host model.complete",
+    "fixture": false,
+    "questions": [
+      {
+        "question": "晴朗白天的天空通常是什么颜色？",
+        "reply": "晴朗白天的天空通常呈现**蓝色**，这是由于大气中的水蒸气、颗粒物和光的散射作用，使得天空颜色为深蓝色。",
+        "correct": true,
+        "usage": {
+          "completion_tokens": 36,
+          "prompt_tokens": 21,
+          "total_tokens": 57,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "seconds": 3.714
+      },
+      {
+        "question": "7加5等于几？",
+        "reply": "7加5等于12。",
+        "correct": true,
+        "usage": {
+          "completion_tokens": 8,
+          "prompt_tokens": 18,
+          "total_tokens": 26,
+          "prompt_tokens_details": {
+            "cached_tokens": 3
+          }
+        },
+        "seconds": 0.999
+      }
+    ],
+    "own_server_exit_code": 0
+  },
+  {
+    "model": "official-Q8",
+    "scope": "direct server diagnosis, not Host model.complete",
+    "fixture": false,
+    "questions": [
+      {
+        "question": "晴朗白天的天空通常是什么颜色？",
+        "reply": "晴朗白天的天空通常呈现出**蓝色**。这是因为太阳光在穿过大气层时，主要被**氮气和氧气分子**吸收，而蓝色光谱在到达地球表面时被散射到可见光中，使得天空看起来是蓝色的。",
+        "correct": true,
+        "usage": {
+          "completion_tokens": 56,
+          "prompt_tokens": 21,
+          "total_tokens": 77,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "seconds": 12.173
+      },
+      {
+        "question": "7加5等于几？",
+        "reply": "7加5等于12。",
+        "correct": true,
+        "usage": {
+          "completion_tokens": 8,
+          "prompt_tokens": 18,
+          "total_tokens": 26,
+          "prompt_tokens_details": {
+            "cached_tokens": 3
+          }
+        },
+        "seconds": 2.315
+      }
+    ],
+    "own_server_exit_code": 0
+  }
+]

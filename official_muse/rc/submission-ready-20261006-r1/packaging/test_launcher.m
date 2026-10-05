@@ -61,8 +61,8 @@ int main(int argc, const char *argv[]) {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
         NSArray *required = @[@"OctoSense Host.app/Contents/MacOS/octosense", @"mirror/catalog.json",
-            @"mirror/artifacts/muse-goals-0.3.26-rc5.bundle/manifest.json",
-            @"mirror/artifacts/muse-goals-0.3.26-rc5.bundle.pack.json", @"tutorial.html",
+            @"mirror/artifacts/muse-goals-0.3.26-rc45.bundle/manifest.json",
+            @"mirror/artifacts/muse-goals-0.3.26-rc45.bundle.pack.json", @"tutorial.html",
             @"local-model/llama/llama-server", @"local-model/Qwen3-0.6B-Q4_K_S-pure.gguf"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
         BOOL models = argc == 2 && strcmp(argv[1], "--models") == 0;
@@ -75,11 +75,11 @@ int main(int argc, const char *argv[]) {
             }
         }
         if (check) {
-            puts("Muse 0.3.26-rc5 / b48618ac: packaged launch resources present; no window or account opened.");
+            puts("Muse 0.3.26-rc45 / d306d3c0: packaged launch resources present; no window or account opened.");
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
-        NSString *state = inherited[@"MUSE_REPRO_STATE"] ?: join(NSHomeDirectory(), @"Library/Application Support/Muse Reproduction 0.3.26-rc5 b48618ac");
+        NSString *state = inherited[@"MUSE_REPRO_STATE"] ?: join(NSHomeDirectory(), @"Library/Application Support/Muse Reproduction 0.3.26-rc45 d306d3c0");
         NSError *error = nil;
         if (![files createDirectoryAtPath:state withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:&error]) {
             fail([NSString stringWithFormat:@"无法建立数据目录：%@\n%@", state, error.localizedDescription]); return 1;

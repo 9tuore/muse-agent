@@ -1,0 +1,88 @@
+{
+  "status": "FAIL",
+  "carrier_version": "0.3.26-rc45",
+  "carrier_commit": "d306d3c04284413a5891592c26a30a93d2c0866e",
+  "scope": "first-model feasibility on prior frozen product; not new final archive",
+  "port": 8492,
+  "profile_initially_absent": true,
+  "fixture": false,
+  "real_host_model_complete": true,
+  "quality": "basic offline fallback; not strong",
+  "model": "Qwen3-0.6B-Q4_K_S-pure-offline",
+  "external_actions_performed": false,
+  "recipient_machines_tested": false,
+  "calls": [
+    {
+      "question": "请只回答两个汉字：晴朗白天的天空通常是什么颜色？",
+      "answer": {
+        "role": "assistant",
+        "text": "晴朗",
+        "state": "success",
+        "at": 1791219952.628124,
+        "memory_refs": [],
+        "project": "",
+        "owner": ""
+      },
+      "elapsed_seconds": 7.488,
+      "trace": {
+        "schema": 1,
+        "request_at": 1791219945.387589,
+        "response_at": 1791219952.62544,
+        "query_sha256": "2bf1cfb58fdc9111dd813a6f6b3c57e7d4b2b898fab65f41b05184c29b9d48b7",
+        "session_id": "chat:1791219968-750709842",
+        "goal_id": "",
+        "current": true,
+        "is_ok": true,
+        "known_usage": true,
+        "meta": {
+          "class": "unknown",
+          "requested": "fast",
+          "attempts": 1,
+          "usage": {
+            "estimated": false,
+            "input_tokens": 573,
+            "output_tokens": 8
+          },
+          "budget": {
+            "calls_per_day": 100,
+            "calls_today": 1,
+            "per_minute": 6,
+            "resets_at": 1791244800,
+            "tokens_left": 99419,
+            "tokens_per_day": 100000,
+            "tokens_today": 581
+          }
+        }
+      },
+      "answer_correct": false
+    }
+  ],
+  "first_configuration": {
+    "primary": {
+      "family_id": "local",
+      "context_window": 4096,
+      "route": {
+        "base_url": "http://127.0.0.1:58999/v1",
+        "api_type": "openai",
+        "label": "内置基础离线模型"
+      },
+      "model_id": "Qwen3-0.6B-Q4_K_S-pure-offline"
+    },
+    "enabled": true,
+    "timestamps_present": true,
+    "empty_credentials": true,
+    "profile_mode": "0600",
+    "loopback_only": true
+  },
+  "installed_bundle_sha256": {
+    "listing.json": "e957714ff80157b84857807e2db18b709fe0385fee0aa3ceeb0b0fb7a5105816",
+    "main.splash": "3f0c9ee008a7365e3652290176e327c1746ed6bc2e4a6602ffe2a6053728339e",
+    "manifest.json": "5d63b4227cdb8d12fe1ed56b6428ad0c60609d5359b916ee545c8443957cb8bd",
+    "screenshots/02-global-memory.png": "dcf301dbba19abbe4df6f5ccc3d7fdab105c624530a1cef1f9b3aa7c4a66c24c",
+    "screenshots/01-main.png": "b4688d836728aae6a06e7d729f3d66a2962fe20d6930d46dc46a7d74190ee5b6",
+    "assets/icon.svg": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3"
+  },
+  "error": "<urlopen error [Errno 61] Connection refused>",
+  "launcher_exit_code": -15,
+  "own_model_stopped": null
+}
