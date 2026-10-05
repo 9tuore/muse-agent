@@ -7416,11 +7416,10 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
         if gi >= 0 && gm_has(goals[gi],"mail_source") { source_account = goals[gi].mail_source.account_id }
         if source_account != "" { gm_set_accounts([source_account]) }
         let context = gm_context(query,session_id,goal_id)
-        let payload = args.to_json().parse_json()
         if args["schema"] != nil && args.schema["properties"] != nil && args.schema.properties["policy"] != nil {
             let missing_preference = false
             for entry in memory {
-                if gm_score(entry,query,session_id,goal_id) > 0 && gm_entry_field(entry,"memory_type","source") == "preference" {
+                if gm_entry_field(entry,"memory_type","source") == "preference" && gm_score(entry,query,session_id,goal_id) > 0 {
                     let included = false
                     for hit in context.hits { if hit.id == entry.document.id { included = true } }
                     if !included { missing_preference = true }
@@ -7439,6 +7438,18 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
             callback({is_ok: false error: "memory_conflict: 相关记忆有冲突，请在记忆页核对并明确更正后继续。"})
             return
         }
+        let memory_binding = core_last_memory let account_binding = gm_accounts.to_json()
+        let user_binding = gm_user_id let enabled_binding = gm_enabled
+        gm_set_focus(saved_project,saved_owner)
+        // Retrieval and request construction each retain the default VM budget.
+        start_timeout(0.05,|| {
+        if !current() || core_last_memory != memory_binding || gm_accounts.to_json() != account_binding
+            || gm_user_id != user_binding || gm_enabled != enabled_binding
+            || gm_project != saved_project || gm_owner != saved_owner {
+            callback({is_ok: false error: "cancelled: 相关记忆、授权或当前项目已变化，请重新请求。"}) return
+        }
+        gm_set_focus(project,owner)
+        let payload = args.to_json().parse_json()
         let captured_refs = chat_context_refs(context.hits).to_json().parse_json()
         let data_context = context.text
         if context.hits.len() == 0 { data_context = "相关全局记忆：本轮没有相关资料；不能凭空生成私人事实。一般知识仍可回答。" }
@@ -7497,6 +7508,7 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
             }
             r.memory_refs = captured_refs.to_json().parse_json()
             callback(r)
+        })
         })
     }
     if !current() { return }
@@ -8903,7 +8915,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc32" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.26-rc34" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
