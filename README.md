@@ -61,4 +61,4 @@ cd ../..
 - [来源和交付边界](SOURCE_DELIVERY.md)与[SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)
 - [问题反馈](https://github.com/9tuore/muse-agent/issues)
 
-仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。当前四张原生截图使用隔离合成资料，并记录source/Host身份。保留唯一失败证据、旧Git历史和公开Tag。正式隐私政策地址与publisher材料尚待核实，未正式提交App Hub。本轮仅本地小步提交，原20项及关键门槛未全过前不同步公开main或创建成功Tag。
+仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。当前四张原生截图使用隔离合成资料，并记录source/Host身份。保留唯一失败证据、旧Git历史和公开Tag。正式隐私政策地址与publisher材料尚待核实，未正式提交App Hub。按用户最新要求同步候选源码和真实验收记录；未通过项保持PARTIAL，不创建成功Tag或正式上架。
