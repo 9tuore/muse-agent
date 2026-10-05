@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前本地候选：0.3.26-rc27；验收 PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 稳定基线0.3.25保留。已修复侧栏删除按钮被滚动条遮挡、OctoSense最大化时Dock覆盖输入区、状态问题后接“请解释”误路由，以及常用时间分隔符“–”。真实 App Hub 更新与首 Shell 重启六核心文件 SHA 保持，真实 MiniMax 一次尝试正确回答原失败问题。日历系统 CRUD、记忆与一次性任务已有分版本实测，不能拼成当前最终邮件关联整链；最终外部整链、第二强模型独立证明及接收机门槛仍缺。最新入口：[本轮报告](official_muse/rc/improvement-20261005-r1/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
+**当前源码候选：0.3.26-rc28；验收 PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 稳定基线0.3.25保留。收件核对支持半提交恢复；全局记忆实际逐条64次保存、更正、容量拒绝和新进程恢复已在隔离Card通过。真实rc27已验证新邮箱同步、正文展开滚动、侧栏/Dock避让与首次Shell重启；rc28安装和同候选最终外部整链继续补证，第二强模型独立证明与接收机门槛仍缺。最新入口：[本轮报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
@@ -20,7 +20,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc27 compact payload、manifest、listing和资源；source e5461fd7 对应当前实机候选，listing截图仍为有身份记录的V12支持材料 |
+| `official_muse/app/bundle/` | 0.3.26-rc28 compact payload、manifest、listing和资源；source 4ce3a734 对应当前源码候选，listing截图仍为有身份记录的V12支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |

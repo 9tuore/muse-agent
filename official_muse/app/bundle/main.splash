@@ -102,6 +102,7 @@ let mail_connection_verified=false
 let mail_pending=false
 let mail_model_pending=false
 let mail_sending=false
+let mail_verifying=false
 let mail_error=""
 let mail_error_detail=""
 let mail_error_detail_user=""
@@ -4153,7 +4154,7 @@ mail_redraw()
 }
 
 fn mail_verify_received(){
-if mail_draft.status!="accepted"{return}
+if mail_draft.status!="accepted"||mail_verifying{return}
 let test_id=ui.mail_test_id.text().trim()
 let synthetic=mail_draft.subject.search("MUSE-R2-")>=0||mail_draft.body.search("MUSE-R2-")>=0
 ||mail_draft.subject.search("MUSE-PHASE2-")>=0||mail_draft.body.search("MUSE-PHASE2-")>=0
@@ -4164,18 +4165,37 @@ mail_redraw()
 return
 }
 if test_id==""{test_id=mail_draft.request_id}
-let action_i=core_action_index(mail_draft.request_id)
+mail_verifying=true
+let requested_id=mail_draft.request_id
+start_timeout(0.05,||mail_verify_received_step(requested_id,test_id,0))
+}
+
+
+
+fn mail_verify_received_step(requested_id,test_id,phase){
+if mail_draft.request_id!=requested_id||(phase<2&&mail_draft.status!="accepted")
+||(phase>=2&&mail_draft.status!="verified"){mail_verifying=false return}
+if phase==0{
+let action_i=core_action_index(requested_id)
 let already_verified=action_i>=0&&actions[action_i].status=="verified"
-if!already_verified&& !core_finish_action(mail_draft.request_id,"verified"){
+if!already_verified&& !core_finish_action(requested_id,"verified"){
+mail_verifying=false
 mail_error="收件端核验未能保存："+core_error
 mail_redraw()
 return
 }
+}
+if phase==1{
 mail_draft.status="verified"
 mail_draft.verified_at=time_now()
 mail_draft.verified_id=test_id
-if!mail_save(){mail_redraw()return}
-core_record_event("MAIL_DELIVERY_USER_CONFIRMED","用户声明已在独立收件端核对本封邮件，核验关联 ID "+test_id+"；非宿主自动投递证明。",mail_draft.link_goal_id,mail_draft.link_run_id,mail_draft.request_id,mail_draft.account)
+if!mail_save(){mail_verifying=false mail_redraw()return}
+}
+if phase==2{
+core_record_event("MAIL_DELIVERY_USER_CONFIRMED","用户声明已在独立收件端核对本封邮件，核验关联 ID "+test_id+"；非宿主自动投递证明。",mail_draft.link_goal_id,mail_draft.link_run_id,requested_id,mail_draft.account)
+}
+if phase<3{start_timeout(0.05,||mail_verify_received_step(requested_id,test_id,phase+1))return}
+mail_verifying=false
 mail_finish_linked_result()
 mail_notice="已记录本人收件端核验声明。"
 mail_redraw()
@@ -4783,6 +4803,8 @@ memory_forget=saved.forget
 fn core_preserve_memory_file(name){
 if!fs.exists(name){return true}
 let raw=storage_read(name)
+
+if core_last_memory!=""&&raw==core_last_memory{return true}
 if core_memory_valid(raw.parse_json()){return true}
 let digest=storage_file_hash(name)
 if!storage_hash_valid(digest){
@@ -5082,13 +5104,13 @@ let gm_scope_cache_count=0
 fn gm_scope_valid(s,legacy){
 
 if!gm_object(s){return false}
+let cache_key=[legacy,s].to_json()
+if gm_scope_cache[cache_key]==true{return true}
 for k v in s{
 let key=""+k
 if key!="project"&&key!="account"&&key!="visibility"
 &&key!="user_id"&&key!="project_id"&&key!="owner_id"{return false}
 }
-let cache_key=[legacy,s["project"],s["account"],s["visibility"],s["user_id"],s["project_id"],s["owner_id"]].to_json()
-if gm_scope_cache[cache_key]==true{return true}
 if!gm_required(s,["project","account","visibility"]){return false}
 if s.project!="muse-goals"||s.visibility!="personal"|| !gm_string(s.account,200)||s.account==""{return false}
 for key in["user_id","project_id","owner_id"]{
@@ -5735,20 +5757,23 @@ source_ids:[source.source_id]observed_at:now valid_from:nil valid_until:nil rela
 doc=doc.to_json().parse_json()
 for entry in memory{
 let old=entry.document
-if gm_entry_access(entry)&&gm_same_scope(old["scope"],mem_scope)&&old.payload.subject_id==subject_id
-&&old.payload.predicate==predicate&&old.payload.value!=value{
+if gm_object(old.payload)&&old.payload.subject_id==subject_id&&old.payload.predicate==predicate
+&&old.payload.value!=value&&gm_entry_access(entry)&&gm_same_scope(old["scope"],mem_scope){
 doc.payload.relations.push({kind:"contradicts" target_id:old.id})
 }
 }
-let claims=memory.to_json().parse_json()let sources=memory_sources.to_json().parse_json()
+let claims=[]let sources=[]
+for item in memory{claims.push(item)}
+for item in memory_sources{sources.push(item)}
 let entry={document:doc pinned:false source_history:[source.source_id]memory_type:memory_type conversation_id:conversation_id history:[]}
 claims.push(entry.to_json().parse_json())
 sources.push(source)
-let next={schema:1 claims:claims sources:sources forget:memory_forget}
-let validated=gm_validate_part(next,true,"sources",sources.len()-1,sources.len())
-&&gm_validate_part(next,true,"claims",claims.len()-1,claims.len())
+
+let next="{\"schema\":1,\"claims\":[],\"sources\":[],\"forget\":[]}".parse_json()
+next.claims=claims next.sources=sources next.forget=memory_forget
+let validated=gm_validate_canonical_part(next,true,"correction",claims.len()-1,sources.len()-1)
 if!validated|| !core_commit_memory(claims,sources,memory_forget){gm_error="记忆校验或提交失败："+gm_error+core_error return false}
-core_record_event("memory saved","用户保存全局记忆并独立读回。","","","",account)
+start_timeout(0.05,||core_record_event("memory saved","用户保存全局记忆并独立读回。","","","",account))
 return true
 }
 fn gm_correct(id,value,account,conversation_id){
@@ -8680,7 +8705,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc27" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc28" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
@@ -8769,7 +8794,7 @@ if mail_draft.status=="verified"{Label{width:Fill text:"已记录本人独立收
 if mail_draft.status=="unknown"{Label{width:Fill text:"上次发送结果未知，不会自动重发。请人工核对收件端。" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:12}}
 if mail_draft.status=="accepted"{
 Label{width:Fill text:"仅在你确实从独立收件端找到这封测试邮件后，输入邮件中的测试 ID 并记录核验。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
-Secondary{text:"我已在收件端核对测试 ID" on_click: ||mail_verify_received()}
+Secondary{text:"我已在收件端核对测试 ID" enabled: !mail_verifying on_click: ||mail_verify_received()}
 }
 if mail_draft.status=="verified"{Label{width:Fill text:"已记录本人收件端核验声明 · "+mail_draft.verified_id draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
 if mail_draft.status=="verified"&&mail_draft.link_run_id!=""{Secondary{text:"回读并完成关联 执行记录" on_click: ||{mail_finish_linked_result()mail_redraw()}}}

@@ -90,15 +90,15 @@ fn gm_field(doc,key,fallback){
 let gm_scope_cache = {}
 let gm_scope_cache_count = 0
 fn gm_scope_valid(s,legacy){
-    // Check keys on every access; cached values never authorize extra fields.
+    // Cache the complete scope, including all keys, so changes cannot reuse a hit.
     if !gm_object(s) { return false }
+    let cache_key = [legacy,s].to_json()
+    if gm_scope_cache[cache_key] == true { return true }
     for k v in s {
         let key = "" + k
         if key != "project" && key != "account" && key != "visibility"
             && key != "user_id" && key != "project_id" && key != "owner_id" { return false }
     }
-    let cache_key = [legacy,s["project"],s["account"],s["visibility"],s["user_id"],s["project_id"],s["owner_id"]].to_json()
-    if gm_scope_cache[cache_key] == true { return true }
     if !gm_required(s,["project","account","visibility"]) { return false }
     if s.project != "muse-goals" || s.visibility != "personal" || !gm_string(s.account,200) || s.account == "" { return false }
     for key in ["user_id","project_id","owner_id"] {
@@ -745,20 +745,23 @@ fn gm_save(value,memory_type,subject_id,predicate,conversation_id,project_id,own
     doc = doc.to_json().parse_json()
     for entry in memory {
         let old = entry.document
-        if gm_entry_access(entry) && gm_same_scope(old["scope"],mem_scope) && old.payload.subject_id == subject_id
-            && old.payload.predicate == predicate && old.payload.value != value {
+        if gm_object(old.payload) && old.payload.subject_id == subject_id && old.payload.predicate == predicate
+            && old.payload.value != value && gm_entry_access(entry) && gm_same_scope(old["scope"],mem_scope) {
             doc.payload.relations.push({kind: "contradicts" target_id: old.id})
         }
     }
-    let claims = memory.to_json().parse_json() let sources = memory_sources.to_json().parse_json()
+    let claims = [] let sources = []
+    for item in memory { claims.push(item) }
+    for item in memory_sources { sources.push(item) }
     let entry = {document: doc pinned: false source_history: [source.source_id] memory_type: memory_type conversation_id: conversation_id history: []}
     claims.push(entry.to_json().parse_json())
     sources.push(source)
-    let next = {schema: 1 claims: claims sources: sources forget: memory_forget}
-    let validated = gm_validate_part(next,true,"sources",sources.len()-1,sources.len())
-        && gm_validate_part(next,true,"claims",claims.len()-1,claims.len())
+    // Entries are canonical after boot/commit; canonicalize only the new header.
+    let next = "{\"schema\":1,\"claims\":[],\"sources\":[],\"forget\":[]}".parse_json()
+    next.claims = claims next.sources = sources next.forget = memory_forget
+    let validated = gm_validate_canonical_part(next,true,"correction",claims.len()-1,sources.len()-1)
     if !validated || !core_commit_memory(claims,sources,memory_forget) { gm_error = "记忆校验或提交失败：" + gm_error + core_error return false }
-    core_record_event("memory saved","用户保存全局记忆并独立读回。","","","",account)
+    start_timeout(0.05,|| core_record_event("memory saved","用户保存全局记忆并独立读回。","","","",account))
     return true
 }
 fn gm_correct(id,value,account,conversation_id){

@@ -1,3 +1,7 @@
+## 2026-10-05 晚间 rc28：收件短回调与记忆容量修复
+
+当前冻结rc28，readable5e931846 /payload4ce3a734，93420官方token相等。隔离真实Card逐条保存64→更正→65拒绝→新进程恢复20检查通过，独立旧字段14检查、关系/旧引用68检查通过；八次旧容量失败保留。收件短回调恢复/绑定/防重复144检查已过，实际旧R1邮件用户已确认收到，但rc27核对出现action verified/draft accepted半提交；rc28安装实机恢复仍待。运行Host1d7未换，空target Host完整重建已PASS，新SDK仅两处test-only修正，默认full suite仍进行。当前仍PARTIAL，原20项5/14/1未升格。39e2b20d已按本轮授权普通push至9tuore/muse-agent/main，旧Tag不动；后续实际证据见official_muse/rc/remaining-20261005-r2/REPORT.md。旧安装/稳定0.3.25/生产资料和未提交baseline.json保护。
+
 ## 2026-10-05 傍晚 rc27：Dock/侧栏与状态问答修复
 
 真实App Hub已安装0.3.26-rc27，产品17698129，readable96ebb52f/compacte5461fd7；Host1d7d1674、SDKlock78a5eef0，当前8493同授权测试目录已打开。侧栏12px避让滚动条，真实长标题及删除预览/取消可点击；OctoSense自身保留88px Dock工作区，最大化/恢复/输入可用，实际1400×809发送按钮与Dock有41px间隔。六核心文件安装及首次Shell重启SHA相同；这些不替代外部链。
