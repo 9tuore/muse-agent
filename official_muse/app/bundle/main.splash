@@ -1912,7 +1912,7 @@ let parsed=page_parse_date(day_text)
 if parsed==nil{return nil}
 day=parsed.number*86400-offset
 }
-let flexible=regex("(?:当天|当日|这天|时间|时段|空闲).{0,12}(?:任选|任择|任意|都可以|均可)|(?:任选|任择|找个|找一个|可选|可用|替代).{0,6}(?:时间|时段|分钟|小时)","").test(request)
+let flexible=regex("(?:当天|当日|这天|时间|时段|空闲)(?:均|都|可|可以|内|中|范围内)?(?:任选|任择|任意|都可以|均可)|(?:任选|任择|找个|找一个|可选|可用|替代)(?:一个|一段|的)?(?:时间|时段|分钟|小时)","").test(request)
 if flexible&&regex("(?:不|不要|不能|不可|不允许|禁止|别).{0,4}(?:任选|任择|任意时间|找个时间|找一个时间|替代时间)","").test(request){return nil}
 let range=regex("(^|[^0-9-])([0-9]{1,2})(?:[:：]([0-9]{2}))?(?:点|时)?[ ]*(?:至|到|—|–|~|-)[ ]*([0-9]{1,2})(?:[:：]([0-9]{2}))?(?:点|时)?([^0-9-]|$)","").exec(request)
 let quote=""
@@ -8660,7 +8660,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc19" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc20" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
