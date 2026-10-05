@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Export verified frozen Muse source into a new folder, without a runtime or mirror."""
 import argparse
+import ctypes
 import hashlib
 import html
 import json
@@ -14,7 +15,8 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[3]
 RESERVE = 64 * 1024**2
-METADATA_MARGIN = 4 * 1024**2
+METADATA_MARGIN = 8 * 1024**2
+CLONE_NOFOLLOW = 0x0001
 MANIFEST = 'official_muse/app/bundle/manifest.json'
 PRODUCT_FILES = [
     'official_muse/app/bundle/' + path for path in (
@@ -106,12 +108,35 @@ def matching_working_file(repo, path, row, sha):
         if file_digest(source) != sha:
             return False
         after = source.lstat()
-        return (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns,
-                before.st_ctime_ns) == (
-                    after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns,
-                    after.st_ctime_ns)
+        signature = (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns,
+                     before.st_ctime_ns, stat.S_IMODE(before.st_mode))
+        if signature == (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns,
+                         after.st_ctime_ns, stat.S_IMODE(after.st_mode)):
+            return signature
+        return False
     except OSError:
         return False
+
+
+def native_clone_function():
+    try:
+        function = ctypes.CDLL(None, use_errno=True).clonefile
+    except (AttributeError, OSError) as error:
+        raise ValueError('Mandatory native clonefile is unavailable; no copy fallback') from error
+    function.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint32]
+    function.restype = ctypes.c_int
+    return function
+
+
+def frozen_file(repo, commit, path, row, hashes):
+    data = git(repo, 'show', commit + ':' + path)
+    sha = digest(data)
+    require(len(data) == row['bytes']
+            and hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+            == row['git_blob'], 'Frozen Git blob mismatch: ' + path)
+    require(path == 'SOURCE_MANIFEST.json' or sha == hashes[path],
+            'SOURCE_MANIFEST SHA mismatch: ' + path)
+    return data, sha
 
 
 def tutorial(metadata):
@@ -135,6 +160,11 @@ td,th{{text-align:left;vertical-align:top;padding:9px;border-bottom:1px solid #d
 查看完整冻结的公开 Git 文件；开发说明和测试报告在源码中，不含 Git 历史、vendor、构建缓存、
 原始运行环境或私人资料。
 接收 Mac 的运行、模型、邮箱、日历和电脑重启结果，以对应产品身份的实际报告为准。</p>
+<p>macOS 上，同设备且内容、权限匹配冻结 Git 的文件必须使用 native clonefile；
+接口不可用、克隆失败或预检后原文件变化会立即拒绝，不回退全复制或硬链接。
+其他文件写入冻结 Git 内容；非 macOS 按完整 Git 文件写入预算。
+容量预检按必须写入的 Git 字节加 8 MiB 元数据余量和 64 MiB 保留空间计算，
+执行中继续检查保留空间。克隆不代表已回收物理空间，也不保证后续编辑所需空间。</p>
 <table><tr><th>文件</th><th>用途</th></tr>
 <tr><td>01-源码/</td><td>冻结 Git 普通文件，保留文件内容和可执行权限。</td></tr>
 <tr><td><a href="版本与交付边界.json">版本与交付边界.json</a></td><td>源码、应用与 SDK 身份和明确欠项。</td></tr>
@@ -163,13 +193,24 @@ def export_source(repo, commit, application_commit, destination):
     require(destination.parent.is_dir(), 'Destination parent must already exist')
     manifest, rows, hashes = prepare(repo, commit, application_commit)
     source_bytes = sum(row['bytes'] for row in rows.values())
+    clone = native_clone_function() if sys.platform == 'darwin' else None
+    destination_device = destination.parent.stat().st_dev
+    clone_plan = {}
+    required_git_write_bytes = 0
+    for path, row in rows.items():
+        _, sha = frozen_file(repo, commit, path, row, hashes)
+        signature = matching_working_file(repo, path, row, sha) if clone else False
+        if signature and signature[0] == destination_device:
+            clone_plan[path] = signature
+        else:
+            required_git_write_bytes += row['bytes']
     require(shutil.disk_usage(destination.parent).free
-            > source_bytes + RESERVE + METADATA_MARGIN,
+            > required_git_write_bytes + RESERVE + METADATA_MARGIN,
             'Pure source capacity guard failed')
     pending.mkdir(mode=0o755)
     expected = {}
     verified = {}
-    cp_c_files = 0
+    native_clone_files = 0
     git_blob_files = 0
 
     def reserve(length):
@@ -187,22 +228,22 @@ def export_source(repo, commit, application_commit, destination):
         expected[path] = {'bytes': len(data), 'sha256': digest(data), 'mode': mode}
 
     for path, row in rows.items():
-        data = git(repo, 'show', commit + ':' + path)
-        sha = digest(data)
-        require(len(data) == row['bytes']
-                and hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
-                == row['git_blob'], 'Frozen Git blob mismatch: ' + path)
-        require(path == 'SOURCE_MANIFEST.json' or sha == hashes[path],
-                'SOURCE_MANIFEST SHA mismatch: ' + path)
+        data, sha = frozen_file(repo, commit, path, row, hashes)
         target = pending / '01-源码' / path
         target.parent.mkdir(parents=True, exist_ok=True)
-        reserve(len(data))
-        if sys.platform == 'darwin' and matching_working_file(repo, path, row, sha):
-            subprocess.run(['/bin/cp', '-c', str(repo / path), str(target)],
-                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if path in clone_plan:
+            reserve(0)
+            require(matching_working_file(repo, path, row, sha) == clone_plan[path],
+                    'Planned clone source changed; no copy fallback: ' + path)
+            ctypes.set_errno(0)
+            if clone(os.fsencode(repo / path), os.fsencode(target), CLONE_NOFOLLOW) != 0:
+                error = ctypes.get_errno()
+                raise OSError(error, 'Mandatory native clonefile failed; no copy fallback: '
+                              + path + ': ' + os.strerror(error))
             require(not target.samefile(repo / path), 'Editable source must not be hardlinked')
-            cp_c_files += 1
+            native_clone_files += 1
         else:
+            reserve(len(data))
             with target.open('xb') as stream:
                 stream.write(data)
             git_blob_files += 1
@@ -230,9 +271,11 @@ def export_source(repo, commit, application_commit, destination):
         'historical_old087_runtime_sdk_commit': 'b48618acef0ff291ad3dc23b09946b0b15fa4f2f',
         'historical_old087_runtime_sdk_lock_sha256': '3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e',
         'calendar_bridge_fix_in_old087_host': False,
-        'cp_c_verified_copy_files': cp_c_files, 'frozen_git_blob_copy_files': git_blob_files,
+        'native_clone_verified_files': native_clone_files,
+        'frozen_git_blob_copy_files': git_blob_files,
+        'required_git_write_bytes': required_git_write_bytes,
         'copy_scope': 'Exact frozen Git regular files; working files used only after hash/mode match',
-        'cp_c_scope': 'macOS cp -c may fallback to copyfile; no hardlinks and no physical reclaim claim',
+        'native_clone_scope': 'Mandatory macOS clonefile for preverified same-device matches; fail on unavailable interface, changed source or clone error; no copy fallback, hardlinks or physical reclaim claim',
         'reserve_bytes': RESERVE, 'metadata_margin_bytes': METADATA_MARGIN,
     }
     add('00-先看这里.html', tutorial(metadata).encode())
@@ -263,8 +306,9 @@ def export_source(repo, commit, application_commit, destination):
             'destination': str(destination), 'version': manifest['version'],
             'source_export_commit': commit, 'application_commit': application_commit,
             'source_files': len(rows), 'files_verified': len(expected),
-            'source_bytes': source_bytes, 'cp_c_verified_copy_files': cp_c_files,
+            'source_bytes': source_bytes, 'native_clone_verified_files': native_clone_files,
             'frozen_git_blob_copy_files': git_blob_files,
+            'required_git_write_bytes': required_git_write_bytes,
             'free_bytes_after': shutil.disk_usage(destination).free}
 
 

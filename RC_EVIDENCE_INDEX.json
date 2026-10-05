@@ -1,6 +1,6 @@
 {
   "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
-  "status": "CURRENT_RC10_PARTIAL_7200_SECONDS_RUNNING",
+  "status": "CURRENT_RC10_PARTIAL_SYNTHETIC7200_PASS_REAL_CHAIN_BLOCKED",
   "raw_records_publication": "local only; no credentials, Mail bodies or production data included in public repository",
   "rows": [
     {
@@ -456,10 +456,10 @@
     {
       "id": "rc10-source-folder-tool",
       "path": "official_muse/rc/packaging/RC10_SOURCE_FOLDER_TOOL_SUMMARY.json",
-      "bytes": 1107,
-      "sha256": "e258ce7ce9dc92f12b267629dd0943850fc9bc773bbc35adc8f0553fc06407b2",
-      "observed_status": "PASS_MINIMAL_SYNTHETIC_EXPORTER_FIXTURES_ONLY",
-      "scope": "AST/help and14 minimal synthetic tests only; actual F export and receiving Mac runtime not yet done"
+      "bytes": 2818,
+      "sha256": "1f6c1ff57f91595f362518d26cbec1c177180400317a08a664605f1c64142fd4",
+      "observed_status": "PASS_NATIVE_CLONE_MICRO_FIXTURES_ONLY_REAL_EXPORT_PENDING",
+      "scope": "Micro fixture validates export mechanics; no actual frozen F/Desktop export or recipient Mac runtime proof."
     },
     {
       "id": "rc10-hub-gate-scan",
@@ -492,6 +492,30 @@
       "sha256": "c1162d4a26ab0c7d40ac0ff876fdc67843f8d290a883fefb39c83d0481a956fc",
       "observed_status": "PASS_THIN_EXPORT_METADATA_IDENTITY_AND_VARIANTS_ONLY_NO_ARCHIVE",
       "scope": "9 metadata fixture variants and Root actual Git identity check; frozen current statuses propagated, no archive produced."
+    },
+    {
+      "id": "rc10-current-final-soak-raw",
+      "path": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
+      "bytes": 156115,
+      "sha256": "ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f",
+      "observed_status": "PASS_SYNTHETIC_7200_ONLY",
+      "scope": "241 samples; no writes/model/actions/errors; not real Mail/Calendar/OS reboot"
+    },
+    {
+      "id": "rc10-current-final-soak-summary",
+      "path": "official_muse/rc/startup/RC10_SOAK_7200_SUMMARY.json",
+      "bytes": 1826,
+      "sha256": "a64d44df29c95d26011db02dda8321617694cd3c13c9cf606fe92e353ba4003b",
+      "observed_status": "PASS_VISIBLE_SHELL_SYNTHETIC_7200_SECONDS_ONLY",
+      "scope": "Current frozen rc10 visible native Shell with synthetic unconnected account and nonempty stored data; not real Mail, Calendar CRUD, OS reboot, clean build or final T18 chain."
+    },
+    {
+      "id": "rc10-current-final-resource-recovery",
+      "path": "official_muse/rc/packaging/RC10_FINAL_RESOURCE_RECOVERY_SUMMARY.json",
+      "bytes": 2733,
+      "sha256": "bffa7009b7445945e4827f254f56a799c2045aeba92bad271dde975391a1be59",
+      "observed_status": "PASS_ENDED_DUPLICATES_AND_EXACTLY_RECONSTRUCTABLE_INTERMEDIATE_ONLY",
+      "scope": "All source, SDK dependencies, logs, failure evidence, private state, canonical runtimes/mirror and user active window. Unsigned original is byte-for-byte reconstructable from unchanged canonical binary plus recorded small patch."
     }
   ],
   "last_index_utc": "2026-10-05T02:23:14.878955+00:00",

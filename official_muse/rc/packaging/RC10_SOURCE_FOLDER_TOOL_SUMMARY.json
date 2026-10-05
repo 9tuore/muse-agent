@@ -1,24 +1,48 @@
 {
-  "status": "PASS_MINIMAL_SYNTHETIC_EXPORTER_FIXTURES_ONLY",
-  "script_sha256": "77061207c0a07dd52396fe23731195b1c0fa92ba29f97e29496a34f674363fa9",
-  "ast_parse": "PASS",
-  "cli_help": "PASS",
-  "fixture_results": [
-    {
-      "path": "official_muse/rc/packaging/.local-state/source-folder-fixture-rc10-r1/results.json",
-      "sha256": "fd2d3f6dc52051b2bcdfe034e772f30474300cab4f93b58e839f812ef42bb281",
-      "status": "PASS_SYNTHETIC_FIXTURE_NOT_PRODUCTION_EXPORT",
-      "checks": 10
-    },
-    {
-      "path": "official_muse/rc/packaging/.local-state/source-folder-fixture-rc10-r2/results.json",
-      "sha256": "4d1dc639182d11b3e7b05dcb158fad13e42f5a7cd761468e423de87bb8715e7d",
-      "status": "PASS_CURRENT_SCRIPT_NARROW_GUARD_RECHECK_NOT_REAL_EXPORT",
-      "checks": 4
-    }
-  ],
-  "current_capacity_guard_boundary_tests": "PASS_REJECT_EXACT_INITIAL_AND_LIVE_BOUNDARIES",
-  "actual_source_export": "NOT_YET_PERFORMED",
+  "status": "PASS_NATIVE_CLONE_MICRO_FIXTURES_ONLY_REAL_EXPORT_PENDING",
+  "script_sha256": "28597b5825ef04ed5bb2f50f92d249ecddde332aaa33d1d46432a33b558a0ba7",
+  "ast_parse": "PASS_ROOT_RECHECK",
+  "cli_help": "PASS_ROOT_RECHECK",
+  "actual_native_interface": "Local macOS SDK sys/clonefile.h verifies int clonefile(const char*,const char*,uint32_t), CLONE_NOFOLLOW=0x0001; actual tiny clone has independent inode and edit independence.",
+  "reserve_bytes": 67108864,
+  "metadata_margin_bytes": 8388608,
+  "capacity_basis": "Mandatory same-device native clone with no fallback for verified matching files; frozen Git write bytes plus metadata margin plus unchanged reserve. Non-Mac uses full Git byte budget.",
+  "current_fixture": {
+    "path": "official_muse/rc/packaging/.local-state/source-folder-fixture-rc10-r4/results.json",
+    "bytes": 3269,
+    "sha256": "46d23eb9c7b2f81f7d8a07be7700674d77c9c5afe4dede588f622c13f16dd720",
+    "checks": 10,
+    "actual_native_clone_and_dirty_git_readback": "PASS_1725_BYTE_SYNTHETIC_SOURCE_ONLY",
+    "successful_capacity": "SIMULATED_QUOTA_ONLY",
+    "actual_capacity": "BLOCKED_NO_OUTPUT_AT_FIXTURE_CUTOFF",
+    "earlier_r3_harness_failure": "Overstrong zero-output assertion: dirty Git file may be written before first clone; corrected to verify failed clone target is never copied"
+  },
+  "historical_previous_script_summary": {
+    "status": "PASS_MINIMAL_SYNTHETIC_EXPORTER_FIXTURES_ONLY",
+    "script_sha256": "77061207c0a07dd52396fe23731195b1c0fa92ba29f97e29496a34f674363fa9",
+    "ast_parse": "PASS",
+    "cli_help": "PASS",
+    "fixture_results": [
+      {
+        "path": "official_muse/rc/packaging/.local-state/source-folder-fixture-rc10-r1/results.json",
+        "sha256": "fd2d3f6dc52051b2bcdfe034e772f30474300cab4f93b58e839f812ef42bb281",
+        "status": "PASS_SYNTHETIC_FIXTURE_NOT_PRODUCTION_EXPORT",
+        "checks": 10
+      },
+      {
+        "path": "official_muse/rc/packaging/.local-state/source-folder-fixture-rc10-r2/results.json",
+        "sha256": "4d1dc639182d11b3e7b05dcb158fad13e42f5a7cd761468e423de87bb8715e7d",
+        "status": "PASS_CURRENT_SCRIPT_NARROW_GUARD_RECHECK_NOT_REAL_EXPORT",
+        "checks": 4
+      }
+    ],
+    "current_capacity_guard_boundary_tests": "PASS_REJECT_EXACT_INITIAL_AND_LIVE_BOUNDARIES",
+    "actual_source_export": "NOT_YET_PERFORMED",
+    "private_data_or_runtime_operations": false,
+    "limitations": "Fixture uses 1725 bytes of synthetic source; not proof of actual frozen F export or recipient Mac runtime."
+  },
+  "actual_source_export": "PENDING_FROZEN_SOURCE_MANIFEST_AND_FINAL_GUARD",
+  "free_bytes_observed": 86126592,
   "private_data_or_runtime_operations": false,
-  "limitations": "Fixture uses 1725 bytes of synthetic source; not proof of actual frozen F export or recipient Mac runtime."
+  "limitations": "Micro fixture validates export mechanics; no actual frozen F/Desktop export or recipient Mac runtime proof."
 }

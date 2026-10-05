@@ -1,0 +1,66 @@
+{
+  "status": "PASS_ENDED_DUPLICATES_AND_EXACTLY_RECONSTRUCTABLE_INTERMEDIATE_ONLY",
+  "duplicate_files_removed": 70,
+  "duplicate_logical_bytes": 136930122,
+  "duplicate_free_before": 32960512,
+  "duplicate_free_after": 32956416,
+  "duplicate_physical_reclaim": "NONE_OBSERVED_APFS_SHARED_BLOCKS",
+  "intermediate_bytes": 49943760,
+  "intermediate_free_before": 33423360,
+  "intermediate_free_after": 83378176,
+  "exact_original_sha256": "82331677540bd344327c7d192370a174e5bafd2458085662e37b01f303759940",
+  "exact_original_reconstruction": {
+    "canonical_prefix_bytes": 49943760,
+    "patch_original_bytes": [
+      {
+        "offset": 16,
+        "original_hex": "2b"
+      },
+      {
+        "offset": 20,
+        "original_hex": "e8"
+      },
+      {
+        "offset": 2361,
+        "original_hex": "c085"
+      },
+      {
+        "offset": 2376,
+        "original_hex": "d0b485"
+      },
+      {
+        "offset": 5384,
+        "original_hex": "00"
+      },
+      {
+        "offset": 5388,
+        "original_hex": "00"
+      },
+      {
+        "offset": 5392,
+        "original_hex": "00000000000000"
+      }
+    ],
+    "readback_original_sha256": "82331677540bd344327c7d192370a174e5bafd2458085662e37b01f303759940",
+    "verified_before_removal": true
+  },
+  "canonical_signed_executable": "official_muse/rc/packaging/.local-state/OctoSense Muse RC Host.app/Contents/MacOS/octosense",
+  "canonical_signed_sha256": "d5000c8319ed7eb7237594d2cc6824a1510f7b3024bf84f78d68d5c1b72b1742",
+  "canonical_strict_signature_exit": 0,
+  "private_journals": [
+    {
+      "path": "official_muse/rc/packaging/.local-state/rc10-ended-final-distribution-removal-r1.json",
+      "bytes": 51043,
+      "sha256": "2ffe2c32345578744fd6606956eed5aad0326ba5dd00552589930b717e9828d1"
+    },
+    {
+      "path": "official_muse/rc/packaging/.local-state/rc10-reconstructable-unsigned-intermediate-recovery-r1.json",
+      "bytes": 2394,
+      "sha256": "237381ec73bd94001d8034fbafe0f46a981e0f5149c0c1f7799b0f6012ce7df8"
+    }
+  ],
+  "prior_prewrite_guard_failure": "JSON orchestration rounded nanosecond integers; first mutation guard rejected before any unlink. Re-read exact nanosecond strings, same hashes.",
+  "prior_readonly_signature_guard_failures": "Two read-only guards rejected unsigned binary before mutation because it has no signature command; added terminal command case then verified entire normalized prefix and exact reverse-byte recipe.",
+  "preserved": "All source, SDK dependencies, logs, failure evidence, private state, canonical runtimes/mirror and user active window. Unsigned original is byte-for-byte reconstructable from unchanged canonical binary plus recorded small patch.",
+  "host600MiB_guard": "UNCHANGED_NOT_PASSED"
+}

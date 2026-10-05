@@ -1,0 +1,52 @@
+{
+  "status": "PASS_VISIBLE_SHELL_SYNTHETIC_7200_SECONDS_ONLY",
+  "version": "0.3.26-rc10",
+  "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+  "payload_sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "raw_report": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
+    "bytes": 156115,
+    "sha256": "ddb29f9535072aefaaf187a6a9092efea643f9fd1cbe5c805b2ca9a45a38ce8f"
+  },
+  "start_utc": "2026-10-05T00:32:17.539792+00:00",
+  "last_sample_utc": "2026-10-05T02:32:17.353118+00:00",
+  "requested_seconds": 7200,
+  "actual_seconds": 7200.220573930001,
+  "sample_count": 241,
+  "baseline_counts": {
+    "mail_enabled": true,
+    "accounts": 1,
+    "ready_accounts": 1,
+    "seen": 64,
+    "alerts": 0,
+    "claims": 64,
+    "sources": 65,
+    "sessions": 16,
+    "messages": 256,
+    "calendar_links": 0,
+    "actions": 0
+  },
+  "checks": {
+    "every_sample_records_unchanged": true,
+    "runtime_error_count": 0,
+    "content_change_samples": 0,
+    "unchanged_content_rewrite_samples": 0,
+    "model_usage_unchanged": true,
+    "action_count_unchanged": true
+  },
+  "resource_range": {
+    "cpu_percent": {
+      "min": 0.2,
+      "max": 19.9
+    },
+    "rss_kib": {
+      "min": 153504,
+      "max": 329524
+    }
+  },
+  "external_write_or_send_performed_by_sampler": false,
+  "owned_shell_quit_after_completion": "PASS_HTTP200_PORT8489_CLOSED",
+  "scope": "Current frozen rc10 visible native Shell with synthetic unconnected account and nonempty stored data; not real Mail, Calendar CRUD, OS reboot, clean build or final T18 chain.",
+  "real_mail_soak": "Historical stable live Mail run failed before7200; not relabeled by this synthetic PASS."
+}
