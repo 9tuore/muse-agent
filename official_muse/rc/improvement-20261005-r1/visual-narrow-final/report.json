@@ -1,0 +1,137 @@
+{
+  "source_sha256": "85da03a6886719b7dcd642b9d7322aac1f5b2444db1377bf048fb4b070524682",
+  "size": "412x892",
+  "test_kind": "FIXTURE_VISIBLE_CARD_HOST",
+  "captures": [
+    "chat",
+    "邮箱",
+    "日历",
+    "记忆"
+  ],
+  "external_actions": false,
+  "png_pixels": [
+    824,
+    1634
+  ],
+  "long_scene": true,
+  "host_calls": [
+    "mail.accounts",
+    "calendar.status",
+    "calendar.status",
+    "calendar.list"
+  ],
+  "unexpected_side_effects": [],
+  "interactions": {
+    "columns": {
+      "left_collapsed": true,
+      "left_reexpanded": true,
+      "right_boundary": "Width <=740 uses zero-width result column; full result page is exercised separately."
+    },
+    "sidebar_collapsed": true,
+    "result_fullwidth": [
+      0,
+      0,
+      412,
+      817
+    ],
+    "long_mail": {
+      "original_default_collapsed": true,
+      "original_expanded": true,
+      "original_visible_rect": [
+        25,
+        239,
+        362,
+        177
+      ],
+      "original_bounded_height": true,
+      "original_scroll_image_changed": true,
+      "original_collapsed_again": true,
+      "reply_opens_intent": true,
+      "reply_input_rect": [
+        22,
+        463,
+        368,
+        90
+      ]
+    },
+    "forms": {
+      "calendar_sidebar_collapsed": true,
+      "calendar_fields_readback": true,
+      "calendar_field_readbacks": {
+        "calendar_title": true,
+        "calendar_start": true,
+        "calendar_end": true,
+        "calendar_timezone": true,
+        "calendar_location": true
+      },
+      "calendar_confirmation_reachable": true,
+      "calendar_confirmation_rect": [
+        63,
+        704,
+        172,
+        36
+      ],
+      "calendar_confirm_clicked": false,
+      "mail_sidebar_collapsed": true,
+      "mail_long_body_readback": true,
+      "mail_body_rect": [
+        52,
+        436,
+        312,
+        142
+      ],
+      "mail_preview_control_reachable": true,
+      "mail_preview_control_rect": [
+        139,
+        177,
+        65,
+        36
+      ],
+      "mail_send_clicked": false
+    }
+  },
+  "input_check": {
+    "typed_readback": true,
+    "rect": [
+      202,
+      752,
+      91,
+      32
+    ]
+  },
+  "page_entry_checks": {
+    "邮箱": {
+      "body": "mail_list_body",
+      "body_rect": [
+        192,
+        140,
+        172,
+        661
+      ],
+      "title": "收件箱",
+      "title_at_first_screen": true
+    },
+    "日历": {
+      "body": "calendar_editor",
+      "body_rect": [
+        192,
+        140,
+        172,
+        661
+      ],
+      "title": "系统日历",
+      "title_at_first_screen": true
+    },
+    "记忆": {
+      "body": "memory_body",
+      "body_rect": [
+        192,
+        190,
+        172,
+        611
+      ],
+      "title": "全局记忆",
+      "title_at_first_screen": true
+    }
+  }
+}

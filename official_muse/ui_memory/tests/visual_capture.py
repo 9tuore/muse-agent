@@ -30,7 +30,13 @@ def navigate(r,page):
  if any(w.get('i') == 'shortcuts' for w in r.widgets()):
   x,y,w,h=r.find('shortcuts')['r']
   r.scroll(int(x+w/2),int(y+h/2),-500)
-  return r.click_scroll(page,'shortcuts')
+  try:return r.click_scroll(page,'shortcuts')
+  except AssertionError:
+   if page not in ['操作记录','能力授权','设置']:raise
+   # Offscreen entries are omitted from /snap; try scrolling before opening.
+   r.scroll(int(x+w/2),int(y+h/2),-1000)
+   r.click_scroll('更多','shortcuts')
+   return r.click_scroll(page,'shortcuts')
  for _ in range(12):
   try:
    w=r.find(page)
@@ -59,7 +65,7 @@ def shot(r,path):
    if error.code != 404 or attempt == 2: raise
    r.widgets();time.sleep(.3)
 def body_area(r,page):
- names={'对话':'chat_body','长期目标':'goals_body','记忆':'memory_body','活动记录':'activity_body','操作记录':'activity_body',
+ names={'对话':'chat_list','长期目标':'goals_body','记忆':'memory_body','活动记录':'activity_body','操作记录':'activity_body',
         '邮箱':'mail_list_body','日历':'calendar_editor','能力授权':'capabilities_body','设置':'settings_body'}
  name=names[page]
  return name if any(w.get('i')==name for w in r.widgets()) else 'page_content'
@@ -71,8 +77,9 @@ def first_screen(r,page):
          and w['r'][2]>2 and w['r'][3]>2 and rect[1]-1<=w['r'][1]<rect[1]+80]
  return {'body':area,'body_rect':rect,'title':titles[page],'title_at_first_screen':bool(labels)}
 def reachable(r,key,area):
- # The centre may be inside the nested original-body scroll view. Use the
- # outer pane's padding to bring its reply/collapse controls into view.
+ # Start above a target that may have been inserted above the retained scroll.
+ # The centre may be inside a nested body; use the outer pane's padding.
+ x,y,w,h=r.find(area)['r'];r.scroll(int(x+w-4),int(y+h/2),-10000)
  for _ in range(24):
   try:
    widget=r.find(key)
@@ -105,6 +112,7 @@ def long_mail_check(r,out):
  checks['original_collapsed_again']=any(w.get('t')=='展开原邮件全文' for w in r.widgets()) and not any(w.get('t')=='收起原邮件' for w in r.widgets())
  shot(r,out/'mail-original-collapsed.png')
  click_scroll_edge(r,'回复这封邮件',area)
+ reachable(r,'mail_reply_intent_page',area)
  checks['reply_opens_intent']=r.find('mail_reply_intent_page').get('val')=='请礼貌说明改约。'
  checks['reply_input_rect']=r.find('mail_reply_intent_page')['r']
  shot(r,out/'mail-reply-intent.png')
@@ -137,8 +145,8 @@ def form_checks(r,out):
  collapsed_navigate(r,'日历')
  checks['calendar_sidebar_collapsed']=any(w.get('t')=='☰' for w in r.widgets())
  click_scroll_edge(r,'＋ 新建日程','calendar_editor')
- values={'calendar_title':'MUSE-UI-FIXTURE-NO-WRITE','calendar_start':'2026-10-05T15:00:00+08:00',
-         'calendar_end':'2026-10-05T16:00:00+08:00','calendar_timezone':'Asia/Shanghai','calendar_location':'合成会议室'}
+ values={'calendar_title':'MUSE-UI-FIXTURE-NO-WRITE','calendar_start':'2030-10-05T15:00:00+08:00',
+         'calendar_end':'2030-10-05T16:00:00+08:00','calendar_timezone':'Asia/Shanghai','calendar_location':'合成会议室'}
  readback={}
  for key,value in values.items():
   reachable(r,key,'calendar_editor');r.set_text(key,value)
@@ -227,7 +235,12 @@ def main():
     interactions['columns']=column_checks(r,a.out,a.size)
     r.click('‹');time.sleep(.2);shot(r,a.out/'chat-sidebar-collapsed.png')
     interactions['sidebar_collapsed']=any(w.get('t')=='☰' for w in r.widgets())
-    r.click('卡');time.sleep(.2);shot(r,a.out/'result-fullwidth.png')
+    controls=[w for w in r.widgets() if w.get('ty')=='Button' and w.get('t') in ['卡','结果'] and w['r'][2]>=2 and w['r'][3]>=24]
+    if not controls and any(w.get('t')=='收起' for w in r.widgets()):
+     r.click('收起');controls=[w for w in r.widgets() if w.get('ty')=='Button' and w.get('t')=='结果' and w['r'][2]>=2 and w['r'][3]>=24]
+    assert len(controls)==1, 'Result-page control must be unambiguous and reachable'
+    x,y,w,h=controls[0]['r'];r.request('/click',x=int(x+w/2),y=int(y+h/2))
+    time.sleep(.2);shot(r,a.out/'result-fullwidth.png')
     interactions['result_fullwidth']=r.find('right_page')['r']
     if any(w.get('t')=='展开原邮件全文' for w in r.widgets()):
      interactions['long_mail']=long_mail_check(r,a.out)
