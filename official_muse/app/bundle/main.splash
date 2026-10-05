@@ -5820,9 +5820,10 @@ if i<0||j<0||i==j|| !gm_entry_access(memory[i])|| !gm_entry_access(memory[j])
 || !gm_same_scope(memory[i].document["scope"],memory[j].document["scope"])
 ||memory[i].document.payload.subject_id!=memory[j].document.payload.subject_id
 ||memory[i].document.payload.predicate!=memory[j].document.payload.predicate{gm_error="冲突项不在同一事实作用域。" return false}
-if!gm_forget(other_id,account){return false}
+if!gm_prepare(){return false}
 let claims=memory.to_json().parse_json()claims[j].resolved_by=keep_id
 if!core_commit_memory(claims,memory_sources,memory_forget){gm_error=core_error return false}
+core_record_event("memory conflict resolved","用户选择采用的记忆，冲突来源保留。","","","",account)
 return true
 }
 fn gm_export(){
@@ -8522,7 +8523,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc13" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc14" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}

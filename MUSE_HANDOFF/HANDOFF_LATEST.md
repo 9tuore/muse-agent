@@ -1,29 +1,5 @@
-# Handoff
+# Muse 接手 · 2026-10-05 12:31
 
-## Task
+分支codex/muse-rc-finalization；当前应用0.3.26-rc14，只修gm_resolve保留冲突来源（普通明确遗忘不变），readable2bc158c9/payload3a185042，91536官方tokens相等、Hub check PASS。源修复fixture待；此前rc13实际冲突采用错误遗忘的FAIL完整保留。rc13 Mail澄清13组262检查/5次恢复通过；真实地址topic guard无trap/无候选，但M3仍答活动名称，语义FAIL。跨新聊天个人项目真实偏好召回/有效refs，老师隔离未知/refs空，累计16calls15223tokens。
 
-晨间11:44–13:44最终真实链；Root唯一产品/SDK/Git/GUI操作员。
-
-## Result
-
-PARTIAL：rc13多补一个已复现的澄清话题守卫，相关fixture待。
-
-## Changed
-
-chat_mail_followup_message增加上一条waiting_user条件；source/compact/settings/manifest版本一致。
-
-## Tests
-
-91525官方tokens相等、Hub check PASS。rc12两次真实M3输入waiting→同邮件candidate通过；普通成功回复后纯地址Card失败保留并定位缺字段。rc11八新变式语义/grounding8PASS、结构40PASS作为未改变路径支持，不改旧失败。
-
-## Commit
-
-仅本地，未push。
-
-## Remaining
-
-rc13变体/restore、新SDKda Host/权限、同事项真实邮件→日历原ID改期→回复到达→重启和跨对话记忆。
-
-## Important Boundaries
-
-保护稳定/生产/baseline；不取Secret。源码Gate和局部真实模型不等于最终二十项或系统整链。
+唯一live morning-final-live-r2/private，8493当前rc13/Host938，用户官方邮箱已登录、258完整baseline；源邮件合成稿未发。A4新SDKda Host由冻结F019dc303独立release构建，待就绪再切同profile。Root唯一main/SDK/GUI/Git写入者，A2新morning-memory-resolve-r1测fixture，A3独立语义，A4独立构建。窗口11:44:10–13:44:10BJT。真实链/新Host权限/精确合成日历本人确认/OS重启仍待，不拼旧节点。稳定0.3.25、旧独立安装、生产、未提交baseline、所有失败保护。未push/Tag/发布；第二strong用户目前只有MiniMax。

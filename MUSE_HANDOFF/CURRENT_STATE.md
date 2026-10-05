@@ -1,3 +1,11 @@
+## 2026-10-05 12:31 · rc14冲突采用保留来源
+
+rc13真实MemoryUI保存两条不同碰面时长，检索正确询问冲突且模型调用0；点击“保留旧内容”后，另一条被gm_forget清空/墓碑化，FAIL保留。rc14只把gm_resolve改为gm_prepare+resolved_by+既有commit，并记真实选择事件，保留冲突原文/来源；明确遗忘原函数不改。官方91536tokens相等，Hub check PASS；新Card/恢复/隐私变体待实际结果，不提前标通过。
+
+rc13 Mail澄清13组262检查与5次第二进程PASS。真实换话题后裸地址无trap/无邮件候选，guard通过，但模型仍回答活动名，普通语义失败保留。真实新聊天相关个人偏好正确召回并有效source/rev引用；老师归属未知/无引用。MiniMax累计16调用15223tokens，无第二strong。新Host release已进入octosense/Host服务编译，尚未就绪；同profile源测试稿已准备但零发信/零日历写入。稳定/生产/旧证据及baseline保护，无push/Tag/发布。
+
+---
+
 ## 2026-10-05 12:16 · rc13澄清话题边界保护
 
 rc12实际M3两步起草→补纯地址已通过：waiting_user/recipient元数据持久化，原主题与意图生成candidate，无外部动作。A2实际Card发现普通成功回复后再纯地址时helper读取不存在的clarification_action，完整失败保留；rc13仅加prior.state!=waiting_user早退与版本，其他业务不改。官方91525tokens相等、Hub check PASS；新相关fixture/restore进行中，不提前宣称修复全验收。
