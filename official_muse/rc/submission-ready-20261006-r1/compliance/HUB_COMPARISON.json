@@ -1,0 +1,78 @@
+{
+  "kind": "ACTUAL_TWO_CLI_SAME_SIGNED_DELIVERY_BUNDLE",
+  "results": [
+    {
+      "kind": "UPSTREAM_HUB_CHECK_RC45",
+      "command": [
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/submission-ready-20261006-r1/compliance/.local-state/upstream-hub/target/release/hub",
+        "check",
+        "/Users/mima0000/Desktop/Muse-0.3.26-rc45-Intel\u7cbe\u7b80\u8fd0\u884c\u4e0e\u6e90\u7801-d306d3c0-2026-10-06/Muse 0.3.26-rc45.app/Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc45.bundle",
+        "--publisher-key",
+        "muse-local-rehearsal=bb05ce91333a0045f9f8187eba865f11d9e14ec636aeaee80144708984e740c5"
+      ],
+      "exit_code": 1,
+      "binary_sha256": "151e5319bb4058a0bc1ccec665be455a81dd35057a99c3ce18aa8be65e79421d",
+      "checked_at": "2026-10-06T01:04:59.978641+08:00",
+      "log": "UPSTREAM_HUB_CHECK_RC45.txt"
+    },
+    {
+      "kind": "LOCAL_EXTENDED_HUB_CHECK_RC45",
+      "command": [
+        "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/packaging/.local-state/qq-login-20261005-r1/hub",
+        "check",
+        "/Users/mima0000/Desktop/Muse-0.3.26-rc45-Intel\u7cbe\u7b80\u8fd0\u884c\u4e0e\u6e90\u7801-d306d3c0-2026-10-06/Muse 0.3.26-rc45.app/Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc45.bundle",
+        "--publisher-key",
+        "muse-local-rehearsal=bb05ce91333a0045f9f8187eba865f11d9e14ec636aeaee80144708984e740c5"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "24db5e559582c44936e3023b2bd6e276f9390531d94f77682d45760db9a6b64d",
+      "checked_at": "2026-10-06T01:05:00.178958+08:00",
+      "log": "LOCAL_EXTENDED_HUB_CHECK_RC45.txt"
+    }
+  ],
+  "bundle_path": "/Users/mima0000/Desktop/Muse-0.3.26-rc45-Intel\u7cbe\u7b80\u8fd0\u884c\u4e0e\u6e90\u7801-d306d3c0-2026-10-06/Muse 0.3.26-rc45.app/Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc45.bundle",
+  "bundle_sha256_matches_delivery": true,
+  "files": [
+    {
+      "path": "assets/icon.svg",
+      "bytes": 329,
+      "sha256": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3",
+      "symlink": false
+    },
+    {
+      "path": "listing.json",
+      "bytes": 1589,
+      "sha256": "e957714ff80157b84857807e2db18b709fe0385fee0aa3ceeb0b0fb7a5105816",
+      "symlink": false
+    },
+    {
+      "path": "main.splash",
+      "bytes": 462886,
+      "sha256": "3f0c9ee008a7365e3652290176e327c1746ed6bc2e4a6602ffe2a6053728339e",
+      "symlink": false
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 674,
+      "sha256": "5d63b4227cdb8d12fe1ed56b6428ad0c60609d5359b916ee545c8443957cb8bd",
+      "symlink": false
+    },
+    {
+      "path": "screenshots/01-main.png",
+      "bytes": 112000,
+      "sha256": "b4688d836728aae6a06e7d729f3d66a2962fe20d6930d46dc46a7d74190ee5b6",
+      "symlink": false
+    },
+    {
+      "path": "screenshots/02-global-memory.png",
+      "bytes": 133451,
+      "sha256": "dcf301dbba19abbe4df6f5ccc3d7fdab105c624530a1cef1f9b3aa7c4a66c24c",
+      "symlink": false
+    }
+  ],
+  "total_bytes": 710929,
+  "preserved_initial_failure": "*_PREP_DIRECTORY_CHECK_RC45.txt: compact preparation manifest differed from signed delivery manifest; five non-manifest files equal",
+  "new_signing": false,
+  "new_publish": false,
+  "secret_key_read": false
+}
