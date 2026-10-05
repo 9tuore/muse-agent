@@ -1,0 +1,38 @@
+{
+  "status": "PASS_CONTENT_IDENTICAL_CLOSED_DISTRIBUTION_COALESCING_SIGNATURES_REVERIFIED",
+  "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+  "created_utc": "2026-10-05T01:52:12.624016+00:00",
+  "method": "Only byte/mode identical >=1MiB assets and one identical executable in owned inactive distribution copies; fresh lsof closed checks and original/after codesign --verify --strict; /bin/cp -c clone may fallback; atomically replace verified copy, preserve mode/mtime, no hardlink. Canonical source and active applications remain unchanged.",
+  "batches": [
+    {
+      "journal_path": "official_muse/rc/packaging/.local-state/rc10-ended-host-identical-coalescing-r1.json",
+      "journal_sha256": "c81bdbb7879be8643cef115664fa4237f0990de35ca98f6d871911e3823f2bc5",
+      "status": "PASS_IDENTICAL_COPIES_SIGNATURES_REVERIFIED",
+      "files": 15,
+      "logical_identical_bytes": 161987166,
+      "free_before_bytes": 87777280,
+      "free_after_bytes": 141889536,
+      "observed_free_delta_bytes": 54112256
+    },
+    {
+      "journal_path": "official_muse/rc/packaging/.local-state/rc10-ended-host-identical-coalescing-r2.json",
+      "journal_sha256": "ad7f3698deef529a13ed640593ee9c896427886ac7d5366ffa65fd8d81ab7091",
+      "status": "PASS_IDENTICAL_COPIES_SIGNATURES_REVERIFIED",
+      "files": 17,
+      "logical_identical_bytes": 158218503,
+      "free_before_bytes": 136577024,
+      "free_after_bytes": 292945920,
+      "observed_free_delta_bytes": 156368896
+    }
+  ],
+  "total_files": 32,
+  "total_logical_identical_bytes": 320205669,
+  "sum_separate_observed_free_deltas_bytes": 210481152,
+  "free_delta_limit": "Before/after filesystem measurements include concurrent system allocations; do not infer reclaim solely from logical bytes.",
+  "prior_probe_failure": "/usr/bin/lsof did not exist (127), failed before mutation; command -v verified /usr/sbin/lsof and closed checks succeeded.",
+  "deleted_unique_sources_or_failures": false,
+  "production_credentials_profiles_or_data_modified": false,
+  "host_build_guard_bytes": 629145600,
+  "host_build_guard_lowered": false,
+  "full_host_build": "STILL_BLOCKED_CAPACITY_NOT_RUN_BY_COALESCING"
+}
