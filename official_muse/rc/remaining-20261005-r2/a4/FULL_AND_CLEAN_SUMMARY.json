@@ -1,0 +1,238 @@
+{
+  "time": "2026-10-05T12:10:58.810355+00:00",
+  "result": "FULL_DEFAULT_DEV_558_PASS_AND_EMPTY_TARGET_HOST_RELEASE_PASS",
+  "full_default_dev_suite": {
+    "command": [
+      "cargo",
+      "test",
+      "--lib",
+      "--locked",
+      "--offline",
+      "-j",
+      "2",
+      "-p",
+      "octosense-shell",
+      "--no-default-features",
+      "--features",
+      "app-hub",
+      "--",
+      "--test-threads=1"
+    ],
+    "profile": "DEFAULT_DEV",
+    "exit_code": 0,
+    "seconds": 1296.058465869,
+    "guard_stop": null,
+    "log_sha256": "c43a4ebefa0c06496934936ad004f733dc9ea3043ccc19825c60c49703176182",
+    "summary": {
+      "status": "ok",
+      "passed": "558",
+      "failed": "0",
+      "ignored": "0",
+      "measured": "0",
+      "filtered_out": "0"
+    },
+    "failed_tests": [],
+    "ignored_tests": [],
+    "free_before": 13820973056,
+    "minimum_free_bytes": 11841683456,
+    "free_after": 11841540096,
+    "unfiltered": true,
+    "elapsed_wall_seconds_includes_coordinated_pause": true,
+    "coordinated_pause_seconds": 283.854092,
+    "pause_scope": "ONLY_OWN_CARGO_AND_RUSTC_PROCESS_GROUP",
+    "load_root_cause_claim": false
+  },
+  "retained_first_release_suite": {
+    "name": "shell-full-default-suite",
+    "command": [
+      "cargo",
+      "test",
+      "--lib",
+      "--release",
+      "--locked",
+      "--offline",
+      "-j",
+      "2",
+      "-p",
+      "octosense-shell",
+      "--no-default-features",
+      "--features",
+      "app-hub",
+      "--",
+      "--test-threads=1"
+    ],
+    "cwd": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/build/remaining-20261005-r2/a4/octosense",
+    "exit_code": 101,
+    "seconds": 10.06370356,
+    "guard_stop": null,
+    "log_sha256": "0b99a91a4a0d269676d8d0995b8257f735608d405ce2f84302edf486fd26a929",
+    "free_bytes_before": 14855237632,
+    "minimum_free_bytes": 14853844992,
+    "free_bytes_after": 14853836800,
+    "cold_target": false,
+    "rust_summary": {
+      "status": "FAILED",
+      "passed": "552",
+      "failed": "6",
+      "ignored": "0",
+      "measured": "0",
+      "filtered_out": "0"
+    },
+    "failed_tests": [
+      "dev_mode::tests::debug_builds_are_development_builds",
+      "sandbox::tests::a_jail_only_app_reads_its_jail_and_is_refused_everything_else",
+      "sandbox::tests::home_rw_never_reaches_the_octosense_home_or_the_kernel",
+      "shell::menu::tests::browsing_shows_direct_children_in_order",
+      "shell::menu::tests::developer_options_carry_the_typed_phrase",
+      "shell::menu::tests::search_scores_the_way_menumodel_does"
+    ],
+    "ignored_tests": [],
+    "unfiltered_runtime_suite": true,
+    "result": "FAIL"
+  },
+  "retained_corrected_tmp_release_suite": {
+    "command": [
+      "cargo",
+      "test",
+      "--lib",
+      "--release",
+      "--locked",
+      "--offline",
+      "-j",
+      "2",
+      "-p",
+      "octosense-shell",
+      "--no-default-features",
+      "--features",
+      "app-hub",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit_code": 101,
+    "seconds": 13.44842731,
+    "log_sha256": "26cabab812336fd96b1c3f26fc1ba716f0a6e550788eefab8afc18a8c7f3dedf",
+    "tmpdir": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/build/remaining-shell-default-20261005-r2/tmp",
+    "runtime_production_bytes_changed": false,
+    "test_source_changed": false,
+    "summary": {
+      "status": "FAILED",
+      "passed": "554",
+      "failed": "4",
+      "ignored": "0",
+      "measured": "0",
+      "filtered_out": "0"
+    },
+    "failed_tests": [
+      "dev_mode::tests::debug_builds_are_development_builds",
+      "shell::menu::tests::browsing_shows_direct_children_in_order",
+      "shell::menu::tests::developer_options_carry_the_typed_phrase",
+      "shell::menu::tests::search_scores_the_way_menumodel_does"
+    ]
+  },
+  "cold_host_release": {
+    "name": "host-clean-empty-target",
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "--offline",
+      "-j",
+      "2",
+      "-p",
+      "octosense",
+      "--bin",
+      "octosense",
+      "--no-default-features",
+      "--features",
+      "app-hub"
+    ],
+    "cwd": "/private/tmp/muse-morning-clean-019dc303-20261005/checkout/vendor/octosense",
+    "exit_code": 0,
+    "seconds": 1476.8838736179998,
+    "guard_stop": null,
+    "log_sha256": "a112d660118276f3b98b67d672bb328e8ffe90e3059e7eeed3d45988ee0ffa8a",
+    "free_bytes_before": 14853013504,
+    "minimum_free_bytes": 13874192384,
+    "free_bytes_after": 13824708608,
+    "cold_target": true,
+    "result": "PASS",
+    "binary": "/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/rc/remaining-20261005-r2/a4/.local-state/cold-host-target/release/octosense",
+    "binary_sha256": "c81c9011fc66127ee23022d62986c8edb87c4e642f70f2b5f251c085077b8525",
+    "binary_bytes": 49967552,
+    "product_host_replaced": false,
+    "packaged": false,
+    "gui_started": false,
+    "allocated_target_bytes": 912363520
+  },
+  "cold_host_sdk_lock_sha256": "78a5eef0b1af8eb82cd28e464d5681e6e3b0685e63719207d1a77e4ffdd706d6",
+  "cold_host_octosense_tree_sha256": "0f832030637de18258e191effa2e8b1d000df5a6e90a7223d82c3fde52a88e6e",
+  "current_main_and_test_copy_sdk_lock_sha256": "f487df0cc37049fe09e92a66bad348b7ce6b42c834313967ca33f49c3442f715",
+  "current_main_and_normalized_test_copy_octosense_tree_sha256": "24b324a2473880afadeee8f6bbefce21fe5ce213bbe12b22d6572eadb19687bf",
+  "main_root_head_after": "438943d11be8bb1839a90d918103054a12d2a113",
+  "source_identity_is_distinct": true,
+  "production_source_bytes_equal": true,
+  "test_only_changes": {
+    "crates/shell/src/shell/launcher.rs": {
+      "old_sha256": "c51f23eeefed9be97697dbcafe5fa944d3ba744237d451d64e72503f91154f0a",
+      "new_sha256": "ac0d3c377a6fb0323bb66e9dd60e11964c43466e444adcb2293457292b11faf7",
+      "production_before_cfg_test_unchanged": true,
+      "production_after_test_module_unchanged": true
+    },
+    "crates/shell/src/shell/menu.rs": {
+      "old_sha256": "d1b14196e5a2827b8ea5391a3c730dae7aff2b6b2c389724b30cb74086b5661e",
+      "new_sha256": "c4e4a9d3c9c00b3ae2b5f1ab5eaacf2e36b5ff9a1febcb6d8ffbf5c0ffda5eaa",
+      "production_before_cfg_test_unchanged": true,
+      "production_after_test_module_unchanged": true
+    }
+  },
+  "frozen_sdk_after": [
+    {
+      "name": "makepad",
+      "tree_sha256": "de11ee5e9a0509e51039cb9929bb9a217e2a36d63bf0744cbad4a84e1d13ccef",
+      "files": 8724
+    },
+    {
+      "name": "octosense",
+      "tree_sha256": "0f832030637de18258e191effa2e8b1d000df5a6e90a7223d82c3fde52a88e6e",
+      "files": 2309
+    },
+    {
+      "name": "app-hub",
+      "tree_sha256": "dd0becd97554c0349d58313bba065f17eb0d191c3ae81927890cf269b5af7064",
+      "files": 121
+    },
+    {
+      "name": "octoscript",
+      "tree_sha256": "cacc27110a2c3691083b37fbb1f375e39917bb20b2a85c1b02c19b2a708d58f2",
+      "files": 278
+    },
+    {
+      "name": "octoscript-makepad",
+      "tree_sha256": "732341716284e2b5f7ec9cf7d4dd68a93260b339596c51ba05bbfa45cbe8dc22",
+      "files": 568
+    }
+  ],
+  "test_copy_changed_paths": [
+    ".sources/app-hub",
+    ".sources/makepad",
+    ".sources/octoscript",
+    ".sources/octoscript-makepad",
+    "crates/shell/src/shell/launcher.rs",
+    "crates/shell/src/shell/menu.rs"
+  ],
+  "cargo_lock_unchanged": true,
+  "cold_build_reused_verified_sdk_and_cargo_source_cache": true,
+  "cold_target_was_empty": true,
+  "strict_fresh_checkout_sdk_cargo_home_workflow_completed": false,
+  "product_host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "rc27_zip_sha256": "a5db3565f0b9daf3bc446792c9210ec629107863417fb88d18b220532d18cb8f",
+  "new_host_installed_or_started": false,
+  "new_app_or_zip_packaged": false,
+  "live_mail_calendar_model_account_tests_run": false,
+  "receiver_macs_or_os_reboot_tested": false,
+  "existing_target_or_user_files_deleted": false,
+  "a4_git_commit_push_tag": false,
+  "final_free_bytes": 11839131648,
+  "default_target_allocated_bytes": 873246720
+}

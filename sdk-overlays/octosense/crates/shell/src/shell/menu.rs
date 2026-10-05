@@ -1939,18 +1939,18 @@ mod tests {
         let apps = MenuItem::new("apps", "应用", MenuKind::Menu);
         let style = MenuItem::new("style", "外观", MenuKind::Menu);
         // An exact top-level label match is tier 0, minus the menu nudge.
-        let exact = search_score(&apps, "apps", 0, 0).unwrap();
-        let prefix = search_score(&style, "st", 0, 3).unwrap();
+        let exact = search_score(&apps, "应用", 0, 0).unwrap();
+        let prefix = search_score(&style, "外", 0, 3).unwrap();
         assert!(exact < prefix);
         // A non-matching term drops the row entirely.
         assert!(search_score(&apps, "zzz", 0, 0).is_none());
         // Depth and declaration order break ties, in that order.
         let deep = MenuItem::new("style.theme", "应用", MenuKind::Menu);
-        assert!(search_score(&apps, "apps", 0, 0).unwrap() < search_score(&deep, "apps", 1, 0).unwrap());
+        assert!(search_score(&apps, "应用", 0, 0).unwrap() < search_score(&deep, "应用", 1, 0).unwrap());
         // Apps outrank menus at the same tier.
         let app = MenuItem::new("apps.terminal", "终端", MenuKind::App);
         let menu = MenuItem::new("terminal", "终端", MenuKind::Menu);
-        assert!(search_score(&app, "term", 1, 0).unwrap() < search_score(&menu, "term", 1, 0).unwrap());
+        assert!(search_score(&app, "终", 1, 0).unwrap() < search_score(&menu, "终", 1, 0).unwrap());
     }
 
     #[test]
