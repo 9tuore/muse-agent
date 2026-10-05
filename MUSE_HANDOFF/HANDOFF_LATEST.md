@@ -5,6 +5,7 @@
 
 ## Result
 PARTIAL；rc27已安装打开，原20仍5PASS/14PARTIAL/1BLOCKED。
+桌面rc27 Intel复现文件夹/ZIP已生成；F464b07f3，316项打包读回、Root五项ZIP身份及全摘要PASS，非接收机实测。
 
 ## Changed
 侧栏留12px；OctoSense自身Dock工作区留88px；状态问题识别解释后缀，en-dash须完整双时钟。仅两业务helper、UI间距及宿主几何，沿用官方运行链。

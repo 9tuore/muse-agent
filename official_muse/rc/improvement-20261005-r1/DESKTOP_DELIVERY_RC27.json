@@ -1,0 +1,54 @@
+{
+  "version": "0.3.26-rc27",
+  "status": "PARTIAL",
+  "frozen_commit": "464b07f39120b612973b67c3728525e4e6e1cfed",
+  "application_commit": "17698129751e2679533b2c6fac1e5578af98bdbb",
+  "desktop_folder": "/Users/mima0000/Desktop/Muse-0.3.26-rc27-Intel双机复现包-2026-10-05",
+  "desktop_zip": "/Users/mima0000/Desktop/Muse-0.3.26-rc27-Intel双机复现包-2026-10-05.zip",
+  "zip_bytes": 752832491,
+  "zip_sha256": "a5db3565f0b9daf3bc446792c9210ec629107863417fb88d18b220532d18cb8f",
+  "root_independent_zip_payload_checks": [
+    {
+      "path": "Muse 0.3.26-rc27.app/Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc27.bundle/main.splash",
+      "sha256": "e5461fd7ecc1b32ee0e82019ac478b1f691d5137f18d2ac41a1d7e4f6ecd18af",
+      "PASS": true
+    },
+    {
+      "path": "Muse 0.3.26-rc27.app/Contents/Resources/mirror/artifacts/muse-goals-0.3.26-rc27.bundle/manifest.json",
+      "sha256": "7a91e2fd8e9627cdc2e78d0f9677f797febbef5200db0d6c0c540786972d933d",
+      "PASS": true
+    },
+    {
+      "path": "Muse 0.3.26-rc27.app/Contents/Resources/OctoSense Host.app/Contents/MacOS/octosense",
+      "sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "PASS": true
+    },
+    {
+      "path": "补丁与来源/依赖锁.json",
+      "sha256": "78a5eef0b1af8eb82cd28e464d5681e6e3b0685e63719207d1a77e4ffdd706d6",
+      "PASS": true
+    },
+    {
+      "path": "补丁与来源/宿主desktop.rs",
+      "sha256": "0be5f526e2c9a4a7a098d2deff825b83a2644163822c71622ab31d7972e5450f",
+      "PASS": true
+    }
+  ],
+  "assembler_full_allowlist_readback": {
+    "reported_entries": 316,
+    "reported_result": "PASS",
+    "scope": "content SHA, length, permission, symlink target; separate existing packaging chat"
+  },
+  "root_scope": "ZIP whole digest plus five critical identities and frozen metadata. No receiver-Mac test or external-action replay.",
+  "receiver_Mac_A": "NOT_TESTED",
+  "receiver_Mac_B": "NOT_TESTED",
+  "original_twenty": {
+    "PASS": 5,
+    "PARTIAL": 14,
+    "BLOCKED": 1
+  },
+  "production_or_account_export": false,
+  "previous_rc24_preserved": true,
+  "GitHub_push": false,
+  "App_Hub_formal_submit": false
+}

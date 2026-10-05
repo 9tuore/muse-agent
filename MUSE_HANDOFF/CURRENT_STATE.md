@@ -6,6 +6,8 @@
 
 原20仍5PASS/14PARTIAL/1BLOCKED。新签名日历最新只读检查已是完整访问；QQ账号可识别，当前同步未获回执。旧信本人收件核对、最终关联邮件日历回复整链、第二strong独立证明、外部Calendar修改、OS/接收机、同最终真账号2h与完整clean等缺项保持。公开稳定/生产/旧Tag/dirty baseline与失败证据保护，只本地提交。详见official_muse/rc/improvement-20261005-r1/REPORT.md。
 
+rc27桌面Intel/macOS14+复现文件夹与ZIP已交付，冻结F=464b07f3、产品A=17698129；ZIP752832491字节、SHA a5db3565f0b9daf3bc446792c9210ec629107863417fb88d18b220532d18cb8f。打包聊天316项允许清单读回PASS；Root独立核对ZIP全摘要、五项关键载荷/Host/SDK身份与冻结元数据PASS。内含中文教程和本地模型，不含账号/生产资料；不替代两台接收机实测。记录DESKTOP_DELIVERY_RC27.json。旧rc24包保留，当前应用已回到对话页。
+
 ---
 
 ## 2026-10-05 下午 rc24 UI、协议与真实日历收口

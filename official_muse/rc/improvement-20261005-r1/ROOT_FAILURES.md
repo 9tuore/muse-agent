@@ -45,3 +45,4 @@
 - Root先后请求不存在的nav_mail/page_scroll widget，前者零点击、后者在只读账号请求后停止；使用实际可见中文按钮和mail_list_body后继续，不能把失败标成功。
 - 新Host最初日历not_determined，已请求本人允许；最新真实只读检查为完整访问。账号metadata和缓存提醒可见，当前没有新收信同步完成证据；不拿cache替代service回执。
 - 原完整Shell单测因launcher已有super::menu命名空间错误BLOCKED，日志留包装目录；8项窄几何PASS和新Host增量构建/严格验签不替代完整clean/全suite。
+- 导出完成前返回对话页时，驱动把观察到的非唯一widget ID“-”传给find，匹配了另一控件，随后goal_input缺失断言失败。没有模型/邮件/日历提交；改用唯一可见中文文本“对话”后正确返回，输入框278/644/703/32与发送按钮986/644/56/36可见。保留此工具定位失败，不解释为产品回归。
