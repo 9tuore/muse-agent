@@ -6574,9 +6574,6 @@ fn set_page(next){
         calendar_status_load(false)
         calendar_watch_permissions()
     }
-    chat_render()
-    ui.page_content.render()
-    ui.detail_view.render()
     redraw()
 }
 
@@ -8193,18 +8190,23 @@ fn redraw(){
     ui.memory_tools.set_visible(page == "Memory")
 
     ui.goal_composer.set_visible(page == "Chat" || page == "Goal Detail")
-    chat_render()
-    ui.page_content.render()
-    ui.detail_view.render()
-    ui.calendar_panel.render()
-    ui.calendar_actions.render()
-    ui.calendar_confirm_panel.render()
-    ui.right_content.render()
-    ui.right_page_content.render()
+    if page == "Chat" { chat_render() }
+    if page != "Chat" && page != "Goal Detail" && page != "Calendar" && (page != "Mail" || !mail_compose_open) { ui.page_content.render() }
+    if page == "Goal Detail" { ui.detail_view.render() }
+    if page == "Calendar" {
+        ui.calendar_panel.render()
+        ui.calendar_actions.render()
+        ui.calendar_confirm_panel.render()
+    }
+    if right_open && !right_page_mode { ui.right_content.render() }
+    if right_page_mode { ui.right_page_content.render() }
 }
 
 fn boot(){
-    boot_load(-1,"")
+    // Build native controls in their own bounded callback before restoring data.
+    // This mount runs once; ordinary redraws retain inputs and scroll views.
+    ui.main_mount.render()
+    start_timeout(0.03,|| boot_load(-1,""))
 }
 
 fn boot_load(step,boot_error){
@@ -8692,6 +8694,7 @@ let Primary = ButtonFlat{height: 36
     draw_bg +: {color: blue color_hover: #x589cff color_down: #x2778e9}
     draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
 SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg.color: paper
+    main_mount := SolidView{width: Fill height: Fill flow: Right draw_bg.color: paper on_render: || {
     left_rail := View{visible: false width: 36 height: Fill flow: Down padding: 2 spacing: 8
         Nav{width: 32 text: "☰" on_click: || sidebar_toggle()}
         Nav{width: 32 text: "+" on_click: || chat_new_session()}
@@ -9882,4 +9885,5 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
             }
         }}
     }
+    }}
 }
