@@ -1,0 +1,37 @@
+{
+  "status": "PASS_BOUNDED_SCAN_ONLY_KNOWN_SYNTHETIC_TEST_LITERALS",
+  "scan_commit": "bb635716d72e8aa67d13d9d646fc5fc061603278",
+  "created_utc": "2026-10-05T02:05:20.052213+00:00",
+  "ordinary_tracked_text_files_checked": 969,
+  "binary_files_excluded": 26,
+  "patterns": [
+    "private_key_block",
+    "github_token",
+    "aws_access_key_id",
+    "sk_token_like"
+  ],
+  "findings": [
+    {
+      "path": "app/test_muse_model_costs.py",
+      "pattern_id": "private_key_block",
+      "matches": 1,
+      "file_sha256": "55e2e28006e06cf04a7d1b5512472274cea7db5446075c466f0ff3a422f34a5c",
+      "classification": "KNOWN_SYNTHETIC_TEST_LITERAL_NO_PRIVATE_KEY_BODY",
+      "evidence": "test_sensitive_content_is_blocked_before_network_and_reservations, one35char single-line header+fixture, no PEM end/body"
+    },
+    {
+      "path": "sdk-overlays/octosense/apps/ai-providers/host-service/tests/complete.rs",
+      "pattern_id": "sk_token_like",
+      "matches": 1,
+      "file_sha256": "2ab83b78f19e5ae1a21a927e58efe729e946742bdfbcbe2480d57ed24227bbad",
+      "classification": "KNOWN_SYNTHETIC_TEST_LITERAL_FAKE_TRANSPORT",
+      "evidence": "29char const contains test marker; Rig registers Fake Transport and records requests without real network"
+    }
+  ],
+  "contents_or_tokens_printed": false,
+  "scope": "Only frozen Git UTF8 file content. Not a complete secret detector or security audit; no working private profile, Keychain, production data, credentials, or environment read. Final export accepts frozen allowlisted ordinary Git files only.",
+  "unresolved_findings": 0,
+  "detected_test_literal_count": 2,
+  "raw_pattern_findings_preserved": true,
+  "credential_values_printed": false
+}
