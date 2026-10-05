@@ -25,3 +25,23 @@
 - rc22实际完整ID预览、确认、单次删除、独立get明确不存在成功。首次partial按钮和scroll区域定位失败均在外部dispatch前，原记录保留。
 - rc23普通短答46+27实际73通过；原长问无工具回执的视频笔记，在GPT首选及M3首选均invalid_json，单次app dispatch，无额外重发。显式用户JSON格式控制通过，仅作诊断，不替换原输入。
 - 模型settings菜单不在/snap widget树；通过真实窗口截图和官方菜单进入设置，M3首选已恢复。response不返回provider ID，attempts=2不能单独证明独立GPT成功。
+
+## rc25 界面修复的保留失败
+
+- 默认 CardHost 路径已被清理，首次视觉脚本启动 FileNotFoundError；之后指定现存 QQ 配套 CardHost，没有伪造执行。
+- 视觉脚本传入“对话”页触发 first_screen 标题映射 KeyError；三页新目录重新运行，旧截图/runtime保留。
+- 原生16聊天第一次把整个 sessions JSON要求逐字节不变，实际 chat_save 对选中聊天更新 updated_at，断言失败；检查实际函数后仅排除这个已知时间戳，所有其他字段严格比较，并在新目录重新运行。原两个删除预览截图及失败报告保留。
+- 更新重启后原生 Shell尺寸从1440×900变为1400×809，旧菜单坐标误打开官方Mail应用；没有登录/发送/修改账号，关闭后按当前真实截图进入模型设置。第一次首选切换断言失败，0聊天提交，截图留在私人目录。
+- GPT-4o精确连接测试成功，但一次普通聊天仍attempts=2、usage.estimated=true；正确回答不证明独立GPT通道，T17仍不升级，M3首选恢复。
+- SDK首次verify发现本地忽略的vendor中两处Mail文件仍为QQ改动前源码；已有overlay与冻结构建SDK一致。两处原文件已备份到私人证据目录后对齐已提交overlay，新的完整SDKverify通过12000文件；没有把首次失败删除。
+
+
+## rc25→rc27 最小修复与测试留痕
+
+- 原实际Chat状态问题后接“请解释”被误路由calendar_candidate，GPT首选请求2次尝试/估算用量，持久回复追问日期；无系统写入。原问题与路由失败在A2 `rc25-baseline-r1/v2`保留；不以连接成功或错误动作模型响应升级T17。
+- A2原en-dash准备句被旧格式检查拒绝，不能只把setup改“到”算修好。rc26-r2只补字符后缺右钟“15:00–”2FAIL保留且未安装；rc27限定新分支完整双时钟，同原失败＋变体拒绝通过。新34/5与旧状态52/10不相加冒充全套。
+- Root第一次全源逆向检查误要求旧regex全文件只出现一次，其他函数也使用该literal导致AssertionError；改为精确函数前缀后验证全部余字节相同，原失败未用于产品结论。
+- Root首次rc26本地发布前状态检查误列sources.json/calendar-goals.json，缺文件立即停止，零publish/安装；改用已经观察的六文件列表并保存前后SHA，未创建这些不存在的文件。
+- Root先后请求不存在的nav_mail/page_scroll widget，前者零点击、后者在只读账号请求后停止；使用实际可见中文按钮和mail_list_body后继续，不能把失败标成功。
+- 新Host最初日历not_determined，已请求本人允许；最新真实只读检查为完整访问。账号metadata和缓存提醒可见，当前没有新收信同步完成证据；不拿cache替代service回执。
+- 原完整Shell单测因launcher已有super::menu命名空间错误BLOCKED，日志留包装目录；8项窄几何PASS和新Host增量构建/严格验签不替代完整clean/全suite。

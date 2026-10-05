@@ -1,3 +1,19 @@
+# rc27 傍晚增量核对
+
+当前已安装0.3.26-rc27（17698129 / compacte5461fd7），Host1d7d1674 / SDKlock78a5eef0。**原20仍5PASS/14PARTIAL/1BLOCKED，总体PARTIAL。** 不把局部新证据升级为完整门槛。
+
+| 项 | 本轮实际证据 | 剩余边界 |
+|---|---|---|
+| T07 | 解释后缀52/10生产fixture按字节复用；原失败问题最终真实M3一次尝试正确回答 | 未重跑完整冻结语义题集，GPT两尝试仍不能排除fallback |
+| T08/T13/T15 | 完整en-dash/空格与不完整拒绝34/5新fixture；原候选同ID修改保时间 | 非真实系统写入或两真实替代核验，旧2FAIL保留 |
+| T19 | 原生16标题/首尾删除预览取消、两侧折叠及宽/矮/窄渲染；真实Shell Dock工作区修复，输入/最大化/恢复PASS | native412×809为实际尺寸，不冒充412×892；其他未知“无法标签”含义尚未获澄清 |
+| T20 | rc27同目录实际AppHub安装和首次Shell重启六SHA一致；SDK全12000文件、Host增量构建/严格验签、几何8项PASS | 全Shell单测已有launcher错误BLOCKED；完整clean/OS/接收机/最终真账号2h仍缺 |
+| T02/T18 | 新Host识别QQ账号，缓存提醒仍在；新日历最新显示完整访问 | 新同步尚无回执；最新完整访问已生效，真实写入仍遵守精确授权；本人旧信核对及最终关联外部整链未过 |
+
+本轮REPORT和UI_RC27_LIVE等保存实际身份。以下为历史记录，不代表当前宿主连接已验证。
+
+---
+
 # rc24 下午增量核对
 
 已安装0.3.26-rc24，产品a6a1f8ba，readable0699524137/compact4345edc8；Host3de610b8/SDKlock64ca58c7。本轮详细报告：official_muse/rc/improvement-20261005-r1/REPORT.md。**整体PARTIAL，原二十项仍5PASS/14PARTIAL/1BLOCKED**，不以新增局部节点替换完整标准。

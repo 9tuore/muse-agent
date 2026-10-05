@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前开发候选：0.3.26-rc10；验收PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 公开稳定基线0.3.25保留。rc10修复真实Memory更正后旧值回退，连续保存/零重复写入与首次Shell恢复通过。两个实际模型各28唯一输入完整观察，original20各19PASS/1FAIL，setup2/holdout6均PASS；失败及额外无依据评价保留。真实一次性任务2模型调用、一次批准、存储/读回/首重启及70启动通过；额外100重开通过，同rc10完整7200.220574秒/241样本合成驻留通过（不是真实后端）。独立邮箱profile缓存不继承Keychain凭据，Calendar桥源码未进入运行Host，同候选外部链未过。最新入口是[晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
+**当前本地候选：0.3.26-rc27；验收 PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 稳定基线0.3.25保留。已修复侧栏删除按钮被滚动条遮挡、OctoSense最大化时Dock覆盖输入区、状态问题后接“请解释”误路由，以及常用时间分隔符“–”。真实 App Hub 更新与首 Shell 重启六核心文件 SHA 保持，真实 MiniMax 一次尝试正确回答原失败问题。日历系统 CRUD、记忆与一次性任务已有分版本实测，不能拼成当前最终邮件关联整链；最终外部整链、第二强模型独立证明及接收机门槛仍缺。最新入口：[本轮报告](official_muse/rc/improvement-20261005-r1/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
@@ -20,7 +20,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc10 compact payload、manifest、listing和资源；source7cdfc751对应rc10实机候选，listing截图仍为有身份记录的V12支持材料 |
+| `official_muse/app/bundle/` | 0.3.26-rc27 compact payload、manifest、listing和资源；source e5461fd7 对应当前实机候选，listing截图仍为有身份记录的V12支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
@@ -51,7 +51,7 @@ cd ../..
 
 四个内部`.sources/`链接由bootstrap恢复。已有vendor时脚本只核验，发现差异立即停止，保留本地修改。开发公钥不是发布私钥；开发check不代替Gate、正式发布身份、catalog、能力授权及人工审查。模型和邮箱/日历账号在官方Host设置中配置。
 
-历史清理补丁已集成，不向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。最新SDK锁da756dde包含Calendar布尔修复；当前可复用Intel暖Host938来自旧SDK3f，不能宣称已集成新修复。完整clean build因空间不足受控中止，记录在[源码及运行交付边界](SOURCE_DELIVERY.md)。完整运行资料不放在源码仓库。
+历史清理补丁已集成，不向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。当前SDK锁78a5eef0包含既有Calendar布尔桥、QQ登录与最小Dock工作区修复；运行Intel Host1d7d1674与该冻结树绑定，严格验签通过。此次Host构建是146.43秒增量构建，不冒充完整clean build；全Shell单测仍被已有launcher测试命名空间错误阻塞，8项实际SDK几何窄测试通过。历史clean/磁盘失败见[源码及运行交付边界](SOURCE_DELIVERY.md)。完整运行资料不放在源码仓库。
 
 ## 4. 验收、支持与隐私
 

@@ -1,3 +1,13 @@
+## 2026-10-05 傍晚 rc27：Dock/侧栏与状态问答修复
+
+真实App Hub已安装0.3.26-rc27，产品17698129，readable96ebb52f/compacte5461fd7；Host1d7d1674、SDKlock78a5eef0，当前8493同授权测试目录已打开。侧栏12px避让滚动条，真实长标题及删除预览/取消可点击；OctoSense自身保留88px Dock工作区，最大化/恢复/输入可用，实际1400×809发送按钮与Dock有41px间隔。六核心文件安装及首次Shell重启SHA相同；这些不替代外部链。
+
+新增真实状态问答误路由与en-dash不完整时间失败保留。解释后缀52/10 fixture PASS按字节复用，最终时间格式34/5实际PASS；最终原问题真实M3一次尝试正确说明失败/缺回执/读回。93,304官方token等价、signed local Hub check/catalog59 PASS。SDK12000文件验证、新Host增量146.43s/严格验签PASS；完整Shell单测被已有launcher测试命名空间错误阻塞，不标全套PASS。
+
+原20仍5PASS/14PARTIAL/1BLOCKED。新签名日历最新只读检查已是完整访问；QQ账号可识别，当前同步未获回执。旧信本人收件核对、最终关联邮件日历回复整链、第二strong独立证明、外部Calendar修改、OS/接收机、同最终真账号2h与完整clean等缺项保持。公开稳定/生产/旧Tag/dirty baseline与失败证据保护，只本地提交。详见official_muse/rc/improvement-20261005-r1/REPORT.md。
+
+---
+
 ## 2026-10-05 下午 rc24 UI、协议与真实日历收口
 
 实际AppHub安装0.3.26-rc24，产品a6a1f8ba，readable0699524137/compact4345edc8，Host3de610b8/SDKlock64ca58c7。UI简化、QQ授权码与完整地址登录、安排范围绑定、完整测试ID删除、显式邮件/日历意图优先及普通Chat历史JSON协议已实现。六核心文件安装前后SHA保持；93,296官方tokens等价，本地signed hub check/catalog PASS，非正式准入。
