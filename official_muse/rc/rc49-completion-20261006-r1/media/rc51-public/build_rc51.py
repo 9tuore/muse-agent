@@ -30,7 +30,7 @@ CLIPS = [
  dict(id='v1-plan',duration=10,source='live-rc51-r1',start=382,end=392,central=True,title='01  真实对话形成首版计划',note='v1 · 原始时间节选 / 连续 10 秒',lines=['M3 真实聊天 → 首版计划','两条资料，等待用户批准','首版批准瞬间未在本片录像中']),
  dict(id='v1-result',duration=8,still='task-done.private.png',title='02  用户批准后的结果',note='v1 · 批准后截屏 / 非连续录像',lines=['内部存储 → 独立读回','两条资料已完成','手写输入仍保留']),
  dict(id='v2-update',duration=8,source='live-rc51-r2',start=0.001,end=8.001,title='03  显式更新为第二版',note='v2 · 原始时间节选 / 连续 8 秒',lines=['同一目标，版本更新','真实 Goal 模型建议','新计划重新等待批准']),
- dict(id='v2-approve',duration=22,source='live-rc51-r2',start=222,end=244,title='04  第二版批准 → 保存 → 读回',note='v2 · 连续 22 秒 / 未变速 / 保留采集间隙',lines=['真实窗口，原始时间轴','1 次抓帧失败，间隔约 2.18 秒','结果已核验：整理 2 条资料']),
+ dict(id='v2-approve',duration=22,source='live-rc51-r2',start=222,end=244,title='04  第二版批准 → 保存 → 读回',note='v2 · 连续 22 秒 / 未变速 / 保留采集间隙',lines=['真实窗口，原始时间轴','抓帧间隙约 2.18 秒','结果已核验：整理 2 条资料']),
  dict(id='before-restart',duration=5,source_still='live-rc51-r2',frame='frame-00232.png',title='05  Shell 重启前后对照',note='重启前截屏 · 非连续重启录像',lines=['证据：本轮重启核对报告','7 个受保护文件保持一致','8 提醒 / 9 Goal / 13 Run / 17 Action']),
  dict(id='after-restart',duration=5,still='restart-restored.private.png',title='05  Shell 重启前后对照',note='重启后截屏 · 此帧界面尚为空',lines=['文件与记录数来自独立核对','不能仅凭这张空界面证明恢复','后续召回见下一段']),
  dict(id='cross-chat',duration=20,still='cross-chat.private.png',central=True,title='06  另一已有聊天召回结果',note='重启后 · 真实截屏 / 非连续录像',lines=['两条说明 + 两个真实结果来源','“未核事实”指用户资料摘录','保存动作已独立读回核对']),
@@ -180,12 +180,18 @@ def narrate():
     assert all(c['end']<=c['latest_end'] for c in timings),'Shorten narration; never stretch live footage'
     with wave.open(str(folder/'narration.wav'),'wb') as w:w.setparams((1,2,48000,0,'NONE','not compressed'));w.writeframes(pcm)
     ff('-i',folder/'narration.wav','-af','loudnorm=I=-16:TP=-1.5:LRA=11','-ar',48000,'-c:a','aac','-b:a','128k',ROOT/'Muse-rc51-narration.m4a')
+    subtitles(timings)
+
+def subtitles(timings):
     subs=[]
     for i,c in enumerate(timings):
-        t=c['text'];split=math.ceil(len(t)/2) if len(t)>27 else len(t)
+        t=c['text'];split=len(t)
+        if len(t)>27:
+            boundaries=[m.end() for m in re.finditer('[。；，]',t) if m.end()<len(t)]
+            split=min(boundaries,key=lambda n:abs(n-len(t)/2)) if boundaries else math.ceil(len(t)/2)
         # Whole utterance on screen for its measured duration; no fabricated word alignment.
         subs.append(f'{i+1}\n{stamp(c["start"])} --> {stamp(c["end"])}\n'+t[:split]+ ('\n'+t[split:] if split<len(t) else '')+'\n\n')
-    (ROOT/'Muse-rc51.zh-CN.srt').write_text(''.join(subs))
+    (ROOT/'Muse-rc51.zh-CN.srt').write_text(''.join(subs).rstrip()+'\n')
 
 def render():
     folder=TMP/'clips';folder.mkdir(exist_ok=True)
@@ -206,7 +212,8 @@ def qa():
         if not p.exists():ff('-ss',t,'-i',VIDEO,'-frames:v',1,p)
     result=subprocess.run([str(FF),'-hide_banner','-i',str(VIDEO),'-af','volumedetect','-vn','-f','null','-'],capture_output=True,text=True,check=True)
     # Store only technical stream/audio output, never source pixels or private text.
-    (ROOT/'decode-audio-qa.txt').write_text(result.stderr)
+    clean_log=result.stderr.replace(str(ROOT)+'/', '')
+    (ROOT/'decode-audio-qa.txt').write_text('\n'.join(line.rstrip() for line in clean_log.splitlines()).rstrip()+'\n')
     write(ROOT/'render-status.json',dict(duration_seconds=96,bytes=VIDEO.stat().st_size,sha256=sha(VIDEO),full_decode='PASS',keyframe_seconds=times,visual_qa='PENDING',audio_listening='NOT_PERFORMED',audio_measurement='decode-audio-qa.txt'))
 
 if __name__=='__main__':

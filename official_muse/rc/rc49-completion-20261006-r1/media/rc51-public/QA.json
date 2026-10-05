@@ -1,0 +1,71 @@
+{
+  "reviewed_at": "2026-10-06T04:18:16.209759+08:00",
+  "media_checks": "PASS_WITH_LISTENING_LIMITATION",
+  "product_acceptance": "PARTIAL",
+  "duration_seconds_observed": 96.0,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "output_fps": 30,
+  "video_codec": "H.264",
+  "audio_codec": "AAC LC",
+  "audio_rate": 48000,
+  "audio_channels": 1,
+  "full_decode": "PASS",
+  "audio_decode": "PASS",
+  "mean_volume_db": -18.5,
+  "max_volume_db": -1.4,
+  "audio_listening": "NOT_PERFORMED",
+  "speech_recognition_backcheck": "NOT_PERFORMED",
+  "measured_tts_cues": 13,
+  "cue_overlap": false,
+  "cue_overrun": false,
+  "subtitles": "13 measured utterance intervals; punctuation-bound wrapping; burned in and SRT",
+  "prepared_frames_visual_review": 37,
+  "encoded_keyframes_visual_review": [
+    1,
+    9,
+    18,
+    26,
+    34,
+    42,
+    49,
+    56,
+    61,
+    67,
+    77,
+    88,
+    93
+  ],
+  "privacy": "All selected prepared frames reviewed. Whole left history/desktop removed; whole historical mail/address regions masked, including upper-right entries. Private originals not committed.",
+  "continuous_capture": {
+    "source": "live-rc51-r2",
+    "source_start": 222,
+    "source_end": 244,
+    "output_start": 32,
+    "output_end": 54,
+    "displayed_seconds": 22,
+    "captured_frames": 16,
+    "missed_attempts": 1,
+    "max_capture_gap_seconds": 2.183570144000015,
+    "retiming": false,
+    "interpolation": false
+  },
+  "restart": "Before/after stills explicitly labeled; after screenshot is empty UI. Recovery counters attributed to Root independent report, not screenshot alone.",
+  "edits_after_first_review": [
+    "Kept 2.18 seconds together in sidebar",
+    "Wrapped long captions at punctuation"
+  ],
+  "verification": "All 37 prepared hashes and selected raw input hashes checked; 9 segment duration sums checked; final stream metadata, decode and audio levels checked; textual public files checked for email-shaped addresses.",
+  "toolchain": {
+    "ffmpeg": "7.1 existing local binary",
+    "pillow": "11.3.0",
+    "voice": "macOS Tingting zh_CN offline, rate 205",
+    "dependencies_installed": false
+  },
+  "no_new_native_windows": true,
+  "no_new_model_calls": true,
+  "no_new_mail_or_calendar_writes": true,
+  "no_push": true
+}
