@@ -9670,9 +9670,10 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                         Label{width: Fill text: task.goal draw_text.color: ink draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 15}}
                         Label{text: status_name(task.status) draw_text.color: blue draw_text.text_style.font_size: 12}
                         if task.status == "planned" && !is_calendar_goal(task) {
+                            let card_goal_id=task.id let card_revision=task.version
                             Label{width: Fill text: "将处理 " + task.items.len() + " 条资料，保存并重新读取结果。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 13}
                             if task.model_summary != "" { Label{width: Fill text: task.model_summary draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 13} }
-                            Primary{text: "确认执行这个计划" on_click: || approve_plan_card(task.id,task.version)}
+                            Primary{text: "确认执行这个计划" on_click: || approve_plan_card(card_goal_id,card_revision)}
                         }
                         if task.status == "running" { Label{width: Fill text: "正在继续执行，完成后在这里给你结果。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                         if result != nil && task.status == "completed" {
@@ -9837,9 +9838,10 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                         Label{width: Fill text: task.goal draw_text.color: ink draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 15}}
                         Label{text: status_name(task.status) draw_text.color: blue draw_text.text_style.font_size: 12}
                         if task.status == "planned" && !is_calendar_goal(task) {
+                            let card_goal_id=task.id let card_revision=task.version
                             Label{width: Fill text: "将处理 " + task.items.len() + " 条资料，保存并重新读取结果。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 13}
                             if task.model_summary != "" { Label{width: Fill text: task.model_summary draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 13} }
-                            Primary{text: "确认执行这个计划" on_click: || approve_plan_card(task.id,task.version)}
+                            Primary{text: "确认执行这个计划" on_click: || approve_plan_card(card_goal_id,card_revision)}
                         }
                         if task.status == "running" { Label{width: Fill text: "正在继续执行，完成后在这里给你结果。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                         if result != nil && task.status == "completed" {
