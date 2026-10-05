@@ -1,0 +1,77 @@
+{
+  "version": "0.3.26-rc9",
+  "payload_stage": "rc9",
+  "product_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+  "readable_sha256": "9d01484cb775329530d00f077fb74cfa8469e61ad3117a21360779c4bda13505",
+  "payload_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+  "sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+  "pending_sdk_lock_sha256": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "hub_sha256": "de6840e5aa85c73c915434488da2cd4ec8f633bde7f2f69f6259e17993318e6f",
+  "source_compact_token_equivalence": {
+    "tokens_equal": true,
+    "original_count": 91195,
+    "artifact_count": 91195,
+    "readable_sha256": "9d01484cb775329530d00f077fb74cfa8469e61ad3117a21360779c4bda13505",
+    "artifact_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+    "tokenizer_sha256": "6be4e3191848529b36f093d93f1fe8da41ef897f60b4fb1f342a037a093583c6",
+    "version": "0.3.26-rc9"
+  },
+  "budgets_increased": false,
+  "status": "PARTIAL_FINAL_RC9_VALIDATION_RUNNING",
+  "bundle_file_sha256": {
+    "listing.json": "e957714ff80157b84857807e2db18b709fe0385fee0aa3ceeb0b0fb7a5105816",
+    "main.splash": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+    "manifest.json": "f37eee5cef082a6631507f8a31f84c5e77993c919baaa40a8be0ba6473ba9315",
+    "screenshots/02-global-memory.png": "336b144406e24b93addb920b9e305ef9ce4970bc1ee1713de39e7b82204256ef",
+    "screenshots/01-main.png": "e3a85b8b5a6a20db1beae6e75d30e64b95a550ca45f7576f46c6ac7d4f80073e",
+    "assets/icon.svg": "18b07143d46e7a691686a067048a1d50ac976e99eb2329192c3a5e23cc76bbf3"
+  },
+  "startup70": "RC9_R2_PASS_30_COLD_20_REOPEN_20_SHELL_RESTART; RC9_R1_ENOSPC_PRESERVED",
+  "final_soak": "RC9_R1_ENOSPC_19_SAMPLES_542.154S; RC9_R2_FULL7200_RUNNING",
+  "calendar_fix_in_current_host": false,
+  "final_live_chain": "NOT_PASSED",
+  "hub_scope": "LOCAL_EXTENDED_DEVELOPMENT_ONLY",
+  "current_live_summary": "RC9_LIVE_NODE_SUMMARY.json",
+  "final_actual_model_usage_after_memory_and_goal": {
+    "calls": 95,
+    "tokens": 88292
+  },
+  "source_sdk_lock_sha256": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
+  "last_actual_two_model_D05_ledger": {
+    "calls": 97,
+    "tokens": 89960
+  },
+  "prior_rc8_support": {
+    "product_commit": "a80bd019db7581511b3891bcc3892548f767a42d",
+    "payload_sha256": "f2c2ce15d42c8c8a6bccfa63f00722f28d6a6efb30bbc249ba7c6c05af258065",
+    "summary": "RC8_LIVE_NODE_SUMMARY.json",
+    "startup": "official_muse/rc/startup/RC8_STARTUP_70_SUMMARY.json",
+    "m3_eight": "official_muse/rc/startup/RC8_M3_EIGHT_SEMANTIC_REVIEW.json",
+    "m27_eight": "official_muse/rc/startup/RC8_M27_EIGHT_SEMANTIC_REVIEW.json",
+    "soak": "CONTROLLED_STOP2678.479S_90SAMPLES_NOT_PASS"
+  },
+  "historical_freeze_git_reference": "637cbe519686d6d28f30b31292b0e8a7f10102c7:RC_CODE_FREEZE.json",
+  "prior_rc7_support": "RC7_LIVE_NODE_SUMMARY.json; actual E04 subject FAIL and ENOSPC preserved",
+  "prior_V15_support": "COLD_START_PROFILE.md and OVERNIGHT_SOAK.md; historical70 and synthetic7200s PASS, no final rc9 re-labeling",
+  "no_nested_history_duplication": "Current freeze keeps references; full historical versions and failures remain in Git and versioned evidence",
+  "additional_reopen100": "RC9_PASS100_CONTIGUOUS_APP_REOPENS; first_capture404_retained_separate_after100_native_capture",
+  "startup70_summary": "official_muse/rc/startup/RC9_STARTUP_70_SUMMARY.json",
+  "reopen100_summary": "official_muse/rc/startup/RC9_REOPEN_100_SUMMARY.json",
+  "internal_reviews": {
+    "A": {
+      "score": 70,
+      "max": 100,
+      "review": "official_muse/rc/memory_model/RC9_INTERNAL_A_REVIEW.json"
+    },
+    "B": {
+      "score": 70,
+      "max": 100,
+      "review": "official_muse/rc/core_chain/RC9_INTERNAL_B_REVIEW.json"
+    },
+    "not_official_or_rank": true,
+    "cutoff_before100_and2h_completion": true
+  },
+  "frozen_model_scope": "Original20 + setup2 + holdout6 =28 steps,24 model turns per channel. Pending after observed official daily reset; subset15 controller stopped BEFORE any call."
+}

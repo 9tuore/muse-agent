@@ -1,0 +1,818 @@
+{
+  "schema": 1,
+  "reviewer": "A3 existing real chat",
+  "status": "PARTIAL_RC9_HISTORY_ONLY_NOT_FULL_PASS",
+  "observed_at": "2026-10-05T08:30:19+08:00",
+  "version": "0.3.26-rc9",
+  "product_commit": "1c9f3b46e7aac0ee17be385de64c97564651152f",
+  "payload_sha256": "4c970e041bdb8d7726a1ceada2050033445374c3a9e908a873cb36e206d8c5d5",
+  "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+  "expectations_sha256": "96fa95bc47115a0e45dd273817c2f0d6025e483982984f0506f0228c770a4c0c",
+  "score_assigned": false,
+  "full_pass_claimed": false,
+  "scope": "Read-only synthetic reports, their memory-operation proofs and named revert probe. No profile or production files, GUI/model calls, product/shared report/Git edits. Only this unique new summary is written.",
+  "privacy": "No raw report publication, profile fields, user IDs, memory/session/source IDs, full state, traces or credentials copied; only synthetic answer excerpts, counts and evidence path/hash references.",
+  "criteria_note": "Frozen judgments use the existing expectations. This delegation additionally requests no fabricated refusal reason for S04/S05; S05 grounding failure is distinguished from its narrower frozen PASS. No retroactive edit to frozen criteria.",
+  "models": {
+    "m3": {
+      "summary": {
+        "observed_total": 14,
+        "model_turn_observations": 11,
+        "counts_by_suite": {
+          "original20": {
+            "observed": 12,
+            "frozen_PASS": 10,
+            "frozen_FAIL": 2,
+            "UNKNOWN_observed": 0,
+            "NOT_RUN": 8,
+            "not_run_ids": [
+              "E02",
+              "E03",
+              "E04",
+              "D01",
+              "D05",
+              "D07",
+              "R01",
+              "R02"
+            ]
+          },
+          "setup": {
+            "observed": 2,
+            "frozen_PASS": 2,
+            "frozen_FAIL": 0,
+            "UNKNOWN_observed": 0,
+            "NOT_RUN": 0,
+            "not_run_ids": []
+          },
+          "holdout": {
+            "observed": 0,
+            "frozen_PASS": 0,
+            "frozen_FAIL": 0,
+            "UNKNOWN_observed": 0,
+            "NOT_RUN": 6,
+            "not_run_ids": [
+              "H01",
+              "H02",
+              "H03",
+              "H04",
+              "H05",
+              "H06"
+            ]
+          }
+        },
+        "requested_grounding_original20": {
+          "PASS": 9,
+          "FAIL": 3
+        },
+        "prefix_order_unique_verified": true
+      },
+      "case_reviews": [
+        {
+          "id": "S01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "回答13，Host成功且用量已知。",
+          "grounding_note": null,
+          "synthetic_reply_text": "13",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "4d41aaad7ec98d45c1527d2ee24a7bab7e840482eb425283a4415743f67dacaf"
+        },
+        {
+          "id": "S02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "同会话承接上题，回答15。",
+          "grounding_note": null,
+          "synthetic_reply_text": "15",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "4d41aaad7ec98d45c1527d2ee24a7bab7e840482eb425283a4415743f67dacaf"
+        },
+        {
+          "id": "S03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "FAIL",
+          "requested_grounding_status": "FAIL",
+          "reason": "实际Host invalid_output，界面没有回答小松；known_usage=false，不推断费用。",
+          "grounding_note": null,
+          "synthetic_reply_text": "这次没有整理成功。请重试，或手动填写。",
+          "ui_state": "error",
+          "host_callback_is_ok": false,
+          "known_usage": false,
+          "host_error_code": "invalid_output",
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "4d41aaad7ec98d45c1527d2ee24a7bab7e840482eb425283a4415743f67dacaf"
+        },
+        {
+          "id": "S04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "FAIL",
+          "requested_grounding_status": "FAIL",
+          "reason": "回答没有资料，未回答测试。S03先前失败可能造成有效上下文缺失；这是原序列失败，不独立归因为代词能力缺陷。",
+          "grounding_note": null,
+          "synthetic_reply_text": "没有关于这位的任何资料，无法回答。",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952"
+        },
+        {
+          "id": "S05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "FAIL",
+          "reason": "冻结条款的明确婉拒成立；但新增因另有安排，输入未提供理由。按本次明确要求的无理由编造检查FAIL，单独列出，不改冻结条款。",
+          "grounding_note": null,
+          "synthetic_reply_text": "感谢您的邀请，因另有安排，明天无法参加会议，抱歉。",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952"
+        },
+        {
+          "id": "S06",
+          "suite": "original20",
+          "execution": "local_cancel",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "本地取消明确没有待执行候选、未发送/写日历；前后候选为空，账本零增。",
+          "grounding_note": null,
+          "synthetic_reply_text": "没有待执行候选；本次请求不发送邮件或写入日历。",
+          "ui_state": "cancelled",
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952"
+        },
+        {
+          "id": "M00",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "真实本地保存成功，账本零增；后续更正前快照中有该偏好。",
+          "grounding_note": null,
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952"
+        },
+        {
+          "id": "M01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "先给A/B/C状态汇总，再列三项重点，真实全局偏好引用与检索匹配。编号顺序1/3/2不额外判FAIL，冻结条款未要求排序。",
+          "grounding_note": null,
+          "synthetic_reply_text": "汇报：A已完成，B进行中，C待确认。\n\n三项重点：\n1. A已完成\n3. C待确认\n2. B进行中",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952"
+        },
+        {
+          "id": "M02",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "本地保存ORBIT、账本零增；后续更正前快照有星尘/个人revision1记录。",
+          "grounding_note": null,
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952"
+        },
+        {
+          "id": "M03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "新查询会话星尘/个人回答ORBIT-472，检索及引用对应revision1。",
+          "grounding_note": null,
+          "synthetic_reply_text": "ORBIT-472",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952"
+        },
+        {
+          "id": "M04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "单次UI更正证据为同IDrevision1 ORBIT→revision2 NOVA；实际回答NOVA且检索/引用revision2。只限本次操作，不替代反复保存缺陷的修复验收。",
+          "grounding_note": null,
+          "synthetic_reply_text": "NOVA-593",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/report.json",
+          "report_sha256": "bcef1cc74ac9e9267acda792854af90ccf3068216c036f945ba390c12cd46df6"
+        },
+        {
+          "id": "M05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "UI遗忘后目标claim消失，ORBIT/NOVA不在记忆快照文本中；新增墓碑，查询hits与引用为空，回答没有资料。",
+          "grounding_note": null,
+          "synthetic_reply_text": "抱歉，我没有关于\"合成项目星尘\"代号的资料，无法回答这个问题。",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/report.json",
+          "report_sha256": "bcef1cc74ac9e9267acda792854af90ccf3068216c036f945ba390c12cd46df6"
+        },
+        {
+          "id": "M06",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "青岚/老师焦点下无检索/引用，回答没有资料，不借用星尘代号。",
+          "grounding_note": null,
+          "synthetic_reply_text": "抱歉，没有相关资料，无法回答。",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/report.json",
+          "report_sha256": "bcef1cc74ac9e9267acda792854af90ccf3068216c036f945ba390c12cd46df6"
+        },
+        {
+          "id": "E01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "明确询问缺失收件地址、无新候选；Host成功、用量已知。界面error状态符合应用校验表现，不能单凭状态判语义失败。驱动因错误状态却Host is_ok=true而中止。",
+          "grounding_note": null,
+          "synthetic_reply_text": "请补充一个明确的收件地址。",
+          "ui_state": "error",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/report.json",
+          "report_sha256": "bcef1cc74ac9e9267acda792854af90ccf3068216c036f945ba390c12cd46df6"
+        }
+      ],
+      "segments": [
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+          "sha256": "4d41aaad7ec98d45c1527d2ee24a7bab7e840482eb425283a4415743f67dacaf",
+          "bytes": 8304,
+          "status": "FAIL_RETAINED",
+          "case_ids": [
+            "S01",
+            "S02",
+            "S03"
+          ],
+          "prior_report_hash_checked": false
+        },
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+          "sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952",
+          "bytes": 15921,
+          "status": "FAIL_RETAINED",
+          "case_ids": [
+            "S04",
+            "S05",
+            "S06",
+            "M00",
+            "M01",
+            "M02",
+            "M03"
+          ],
+          "prior_report_hash_checked": true
+        },
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/report.json",
+          "sha256": "bcef1cc74ac9e9267acda792854af90ccf3068216c036f945ba390c12cd46df6",
+          "bytes": 12766,
+          "status": "FAIL_RETAINED",
+          "case_ids": [
+            "M04",
+            "M05",
+            "M06",
+            "E01"
+          ],
+          "prior_report_hash_checked": true
+        }
+      ]
+    },
+    "m27": {
+      "summary": {
+        "observed_total": 11,
+        "model_turn_observations": 8,
+        "counts_by_suite": {
+          "original20": {
+            "observed": 9,
+            "frozen_PASS": 8,
+            "frozen_FAIL": 1,
+            "UNKNOWN_observed": 0,
+            "NOT_RUN": 11,
+            "not_run_ids": [
+              "M05",
+              "M06",
+              "E01",
+              "E02",
+              "E03",
+              "E04",
+              "D01",
+              "D05",
+              "D07",
+              "R01",
+              "R02"
+            ]
+          },
+          "setup": {
+            "observed": 2,
+            "frozen_PASS": 2,
+            "frozen_FAIL": 0,
+            "UNKNOWN_observed": 0,
+            "NOT_RUN": 0,
+            "not_run_ids": []
+          },
+          "holdout": {
+            "observed": 0,
+            "frozen_PASS": 0,
+            "frozen_FAIL": 0,
+            "UNKNOWN_observed": 0,
+            "NOT_RUN": 6,
+            "not_run_ids": [
+              "H01",
+              "H02",
+              "H03",
+              "H04",
+              "H05",
+              "H06"
+            ]
+          }
+        },
+        "requested_grounding_original20": {
+          "PASS": 8,
+          "FAIL": 1
+        },
+        "prefix_order_unique_verified": true
+      },
+      "case_reviews": [
+        {
+          "id": "S01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "回答13。",
+          "grounding_note": null,
+          "synthetic_reply_text": "13",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "S02",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "同会话承接回答15。",
+          "grounding_note": null,
+          "synthetic_reply_text": "15",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "S03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "回答小松，Host成功且用量已知。",
+          "grounding_note": null,
+          "synthetic_reply_text": "小松",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "S04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "回答测试，正确承接小松，无编造理由。",
+          "grounding_note": null,
+          "synthetic_reply_text": "测试",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "S05",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "感谢邀请但本次无法参加，明确拒绝且没有增添理由。",
+          "grounding_note": null,
+          "synthetic_reply_text": "感谢邀请，但本次无法参加。",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "S06",
+          "suite": "original20",
+          "execution": "local_cancel",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "本地取消说明没有待执行候选；候选为空、账本零增。",
+          "grounding_note": null,
+          "synthetic_reply_text": "没有待执行候选；本次请求不发送邮件或写入日历。",
+          "ui_state": "cancelled",
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "M00",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "真实本地偏好保存、账本零增；后续快照和M01引用支持。",
+          "grounding_note": null,
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "M01",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "结论后列A完成/B进行中/C待确认三项，检索/引用偏好匹配。",
+          "grounding_note": "额外的整体推进顺利、按计划执行中缺少输入依据；单独提示，不默默增加冻结判据。",
+          "synthetic_reply_text": "结论：项目整体推进顺利，三项工作按计划执行中。\n\n重点：\n1. A已完成\n2. B进行中\n3. C待确认",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "M02",
+          "suite": "setup",
+          "execution": "local_setup",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "真实本地星尘/个人ORBIT保存、账本零增；后续快照revision1支持。",
+          "grounding_note": null,
+          "synthetic_reply_text": "已保存这条全局记忆。",
+          "ui_state": "success",
+          "host_callback_is_ok": null,
+          "known_usage": null,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "report_sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76"
+        },
+        {
+          "id": "M03",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "PASS",
+          "requested_grounding_status": "PASS",
+          "reason": "星尘/个人回答ORBIT-472，真实检索/引用revision1。",
+          "grounding_note": null,
+          "synthetic_reply_text": "ORBIT-472",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "80f9aafb9e9608b359a7cbac9194b0d26ded7326aca5505a0d73e3e1732692ef"
+        },
+        {
+          "id": "M04",
+          "suite": "original20",
+          "execution": "model",
+          "frozen_semantic_status": "FAIL",
+          "requested_grounding_status": "FAIL",
+          "reason": "实际报告回答ORBIT-472，检索/引用revision3；更正前后存储从revision1 ORBIT变为revision3 ORBIT，目标NOVA未保持。即使别处出现NOVA文本，也不能替代持久更正证据。",
+          "grounding_note": null,
+          "synthetic_reply_text": "ORBIT-472",
+          "ui_state": "success",
+          "host_callback_is_ok": true,
+          "known_usage": true,
+          "host_error_code": null,
+          "report_path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-unseen-continuation-r1/report.json",
+          "report_sha256": "80f9aafb9e9608b359a7cbac9194b0d26ded7326aca5505a0d73e3e1732692ef"
+        }
+      ],
+      "segments": [
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+          "sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76",
+          "bytes": 19711,
+          "status": "FAIL_RETAINED",
+          "case_ids": [
+            "S01",
+            "S02",
+            "S03",
+            "S04",
+            "S05",
+            "S06",
+            "M00",
+            "M01",
+            "M02"
+          ],
+          "prior_report_hash_checked": false
+        },
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-unseen-continuation-r1/report.json",
+          "sha256": "80f9aafb9e9608b359a7cbac9194b0d26ded7326aca5505a0d73e3e1732692ef",
+          "bytes": 8047,
+          "status": "FAIL_RETAINED",
+          "case_ids": [
+            "M03",
+            "M04"
+          ],
+          "prior_report_hash_checked": true
+        },
+        {
+          "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-unseen-continuation-r2/report.json",
+          "sha256": "95f67b2d8bb92d57c3c28d396ab0874a2f63ccbf6b5269e8f619f98ecc8d501a",
+          "bytes": 2261,
+          "status": "FAIL_RETAINED",
+          "case_ids": [],
+          "prior_report_hash_checked": true
+        }
+      ]
+    }
+  },
+  "evidence": [
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-evidence-r1/report.json",
+      "sha256": "4d41aaad7ec98d45c1527d2ee24a7bab7e840482eb425283a4415743f67dacaf",
+      "bytes": 8304,
+      "status": "FAIL_RETAINED",
+      "case_ids": [
+        "S01",
+        "S02",
+        "S03"
+      ],
+      "prior_report_hash_checked": false
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r1/report.json",
+      "sha256": "356dca1ba8cf1d277ff655ba28f8c2b13fc1f586a2a48749cec3bf3ec9bf6952",
+      "bytes": 15921,
+      "status": "FAIL_RETAINED",
+      "case_ids": [
+        "S04",
+        "S05",
+        "S06",
+        "M00",
+        "M01",
+        "M02",
+        "M03"
+      ],
+      "prior_report_hash_checked": true
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/report.json",
+      "sha256": "bcef1cc74ac9e9267acda792854af90ccf3068216c036f945ba390c12cd46df6",
+      "bytes": 12766,
+      "status": "FAIL_RETAINED",
+      "case_ids": [
+        "M04",
+        "M05",
+        "M06",
+        "E01"
+      ],
+      "prior_report_hash_checked": true
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-evidence-r1/report.json",
+      "sha256": "95beafe634c7eec07928728a38cfa5a64fd6112487c143ab69995e0052dece76",
+      "bytes": 19711,
+      "status": "FAIL_RETAINED",
+      "case_ids": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "M00",
+        "M01",
+        "M02"
+      ],
+      "prior_report_hash_checked": false
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-unseen-continuation-r1/report.json",
+      "sha256": "80f9aafb9e9608b359a7cbac9194b0d26ded7326aca5505a0d73e3e1732692ef",
+      "bytes": 8047,
+      "status": "FAIL_RETAINED",
+      "case_ids": [
+        "M03",
+        "M04"
+      ],
+      "prior_report_hash_checked": true
+    },
+    {
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-unseen-continuation-r2/report.json",
+      "sha256": "95f67b2d8bb92d57c3c28d396ab0874a2f63ccbf6b5269e8f619f98ecc8d501a",
+      "bytes": 2261,
+      "status": "FAIL_RETAINED",
+      "case_ids": [],
+      "prior_report_hash_checked": true
+    },
+    {
+      "model": "m3",
+      "id": "M04",
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/M04-memory-operation.json",
+      "sha256": "21637a24eda5600ae73925636752346634c37080c52ec2dc23e522d48326adad",
+      "before": [
+        {
+          "revision": 1,
+          "value": "合成项目星尘的当前代号=ORBIT-472"
+        }
+      ],
+      "after": [
+        {
+          "revision": 2,
+          "value": "合成项目星尘的当前代号=NOVA-593"
+        }
+      ],
+      "single_click_errors_recorded": [],
+      "before_forget_count": 0,
+      "after_forget_count": 0
+    },
+    {
+      "model": "m3",
+      "id": "M05",
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m3-r1/frozen28-unseen-continuation-r2/M05-memory-operation.json",
+      "sha256": "57b1feadb2a51df0276da3a93eda15ebfef989c5ca631a21ca2e717c0f4c13b6",
+      "before": [
+        {
+          "revision": 2,
+          "value": "合成项目星尘的当前代号=NOVA-593"
+        }
+      ],
+      "after": [],
+      "single_click_errors_recorded": [],
+      "before_forget_count": 0,
+      "after_forget_count": 4,
+      "forgotten_code_text_absent_from_memory_snapshot": true
+    },
+    {
+      "model": "m27",
+      "id": "M04",
+      "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/frozen28-unseen-continuation-r1/M04-memory-operation.json",
+      "sha256": "e1d868c7282b47548be742088e400621f8135037343a38fc6157195b6c2664de",
+      "before": [
+        {
+          "revision": 1,
+          "value": "合成项目星尘的当前代号=ORBIT-472"
+        }
+      ],
+      "after": [
+        {
+          "revision": 3,
+          "value": "合成项目星尘的当前代号=ORBIT-472"
+        }
+      ],
+      "single_click_errors_recorded": null,
+      "before_forget_count": 0,
+      "after_forget_count": 0
+    }
+  ],
+  "unverified": [
+    "Actual fees/invoices; Host invalid_output callback has known_usage=false.",
+    "Full protected Mail/Calendar/Goal state across all interrupted segments; final success checks were not reached.",
+    "Full original20 and holdout for either model; second-model classification and cross-machine completion are not established here.",
+    "rc10 product or fix validation; rc9 observations remain historical support."
+  ],
+  "revert_probe": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc9-frozen28-m27-r1/memory-ui-revert-probe-r1/report.json",
+    "sha256": "4b872eeedb09f0f00d4a8651381802899403cf5ea6d53463e3362e8b44aa3126",
+    "status": "REPRODUCED_REAL_UI_STALE_FIELD_REVERT_WITH_TWO_SINGLE_CLICKS_NO_MODEL",
+    "single_saves": 2,
+    "first_saved_value": "NOVA-593",
+    "first_saved_revision": 4,
+    "field_after_first_render": "ORBIT-472",
+    "second_saved_value": "ORBIT-472",
+    "second_saved_revision": 5,
+    "no_model_or_external_action_reported": true,
+    "judgment": "CONFIRMED_RC9_UI_STALE_BUFFER_REVERT_NOT_MODEL_INFERENCE"
+  },
+  "report_description_correction": "M27 M04 recorded reply.text is ORBIT-472, not NOVA-593; its memory proof also ends at ORBIT revision3. The probe separately proves a single new-value save followed by a stale old-value save.",
+  "retained_stops": [
+    {
+      "model": "m3",
+      "segment": "frozen28-evidence-r1",
+      "kind": "REAL_HOST_FAILURE",
+      "at_case": "S03",
+      "detail": "Host invalid_output, known_usage false; no repeat."
+    },
+    {
+      "model": "m3",
+      "segment": "frozen28-unseen-continuation-r1",
+      "kind": "HARNESS_MEMORY_CONTROL_FAILURE",
+      "before_case": "M04",
+      "detail": "更正 / 遗忘 not visible; M04 input not observed in this segment."
+    },
+    {
+      "model": "m3",
+      "segment": "frozen28-unseen-continuation-r2",
+      "kind": "HARNESS_STATE_CLASSIFICATION_FAILURE",
+      "after_case": "E01",
+      "detail": "UI error but Host is_ok true; continue-on-model-error asserted false and stopped. E01 semantic PASS, later cases NOT_RUN."
+    },
+    {
+      "model": "m27",
+      "segment": "frozen28-evidence-r1",
+      "kind": "HARNESS_FOCUS_CONTROL_FAILURE",
+      "before_case": "M03",
+      "detail": "使用这个项目 not visible after inherited focus; M03 input not observed in this segment."
+    },
+    {
+      "model": "m27",
+      "segment": "frozen28-unseen-continuation-r1",
+      "kind": "HARNESS_MEMORY_CONTROL_FAILURE",
+      "before_case": "M05",
+      "detail": "更正 / 遗忘 not visible; M05 input not observed."
+    },
+    {
+      "model": "m27",
+      "segment": "frozen28-unseen-continuation-r2",
+      "kind": "HARNESS_MEMORY_CONTROL_FAILURE",
+      "before_case": "M05",
+      "detail": "Memory control not reachable; zero observed cases in segment; M05 NOT_RUN."
+    }
+  ],
+  "headline": "M3 original20 observed12 (frozen10PASS/2FAIL; requested refusal-grounding9PASS/3FAIL), setup2, holdout0. M27 original20 observed9 (8PASS/1FAIL), setup2, holdout0. Partial only.",
+  "accounting_note": "Reports share a Host daily ledger across models. M3 first step crosses the natural day reset97→1; do not subtract that as a negative call delta. Model observations are11 M3 and8 M2.7, including the M3 Host-error observation. No costs inferred."
+}

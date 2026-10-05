@@ -1,3 +1,9 @@
+# 当前候选：0.3.26-rc10 · PARTIAL
+
+产品A=6fd5b54beeba7cc9892916c3de7f01106ab8a158，可读a19622e0 / compact7cdfc751，91244个官方token一致。rc9的真实Memory UI旧值回退已复现并修复；rc10连续两次保存、零重复写入和第一次Shell重启PASS。新70启动、两小时及两个模型完整28步均在运行，以下rc9矩阵是历史快照，不改标签为rc10通过；最终矩阵待新结果。运行Host/SDK未变，Calendar T18仍BLOCKED。
+
+---
+
 # Muse 原二十项验收矩阵 · 0.3.26-rc9
 
 **PARTIAL：5 PASS / 14 PARTIAL / 1 BLOCKED。** 产品冻结1c9f3b46，payload4c970e04，可读9d01484c；官方91,195 token等价。原二十项和既有关键门槛必须全部通过才READY；未采用18/20，没有push、新成功Tag或正式App Hub提交。
