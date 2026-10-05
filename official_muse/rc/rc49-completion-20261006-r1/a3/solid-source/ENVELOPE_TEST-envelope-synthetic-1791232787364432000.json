@@ -1,0 +1,32 @@
+{
+  "kind": "SYNTHETIC_PACKAGING_NOT_PRODUCT",
+  "cases": [
+    {
+      "case": "full payload native tar SHA modes Unicode exec symlink",
+      "status": "PASS"
+    },
+    {
+      "case": "corrupted checksum stops before extraction/open",
+      "status": "PASS_REJECTED"
+    },
+    {
+      "case": "real bootstrap restores bytes but missing synthetic app rejects without success/open",
+      "status": "PASS_REJECTED_NOT_PRODUCT"
+    },
+    {
+      "case": "STORED ZIP CRC allowlist SHA modes",
+      "status": "PASS"
+    },
+    {
+      "case": "traversal",
+      "status": "PASS_REJECTED"
+    },
+    {
+      "case": "escaping symlink",
+      "status": "PASS_REJECTED"
+    }
+  ],
+  "native_GUI_started": false,
+  "status": "PASS_SYNTHETIC_ONLY",
+  "tool_sha256": "bdda3ace14a9ded542e80bf497ea33155bcd334030888ade1aa55c28614499c2"
+}
