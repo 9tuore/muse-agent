@@ -1,0 +1,76 @@
+{
+  "status": "PRELIMINARY_INTAKE_MASK_REVIEW_NOT_PUBLICATION_CLEARED",
+  "source": "inputs/live-rc46-r1/capture.private.json",
+  "manifest_sha256": "bbf215b7eb04e0dc7226481124d8f8f1919bb0e0c41127abfaa587d2ba42564d",
+  "candidate": "rc46 per Root; candidate/Host hashes still needed for final provenance",
+  "frame_count": 127,
+  "dimensions": [
+    2800,
+    1618
+  ],
+  "all_frame_sha_checks": "PASS",
+  "monotonic_strictly_increasing": true,
+  "utc_strictly_increasing": true,
+  "first_to_last_frame_seconds": 129.935885695,
+  "capture_reported_elapsed_seconds": 131.035613634,
+  "median_gap_seconds": 0.9296392184999975,
+  "maximum_gap_seconds": 3.765118409000003,
+  "average_sample_fps": 0.9697090170744767,
+  "pixel_review_frame_indices": [
+    0,
+    20,
+    40,
+    60,
+    80,
+    90,
+    100,
+    110,
+    115,
+    120,
+    126
+  ],
+  "pixel_review_scope": "11 sampled frames, not full-frame or full-timeline privacy clearance",
+  "observed": [
+    "App Hub page",
+    "Muse compact window with incoming reminder and historical conversation",
+    "enlarged Muse calendar and historical task/result pages",
+    "new conversation/project-entry page, including last sampled frame"
+  ],
+  "reported_but_not_yet_visually_located": "Root reported calendar-term routing failure; sampled frames do not show this error. Do not use this capture as visual proof of that specific error until exact frame/time is identified.",
+  "mask_needs": [
+    {
+      "region": "compact Muse right reminder sender line",
+      "source_pixels_xywh_proposal": [
+        1685,
+        585,
+        415,
+        65
+      ]
+    },
+    {
+      "region": "enlarged Muse right reminder sender line",
+      "source_pixels_xywh_proposal": [
+        2160,
+        460,
+        500,
+        65
+      ]
+    },
+    {
+      "region": "enlarged Muse bottom right summary repeated sender",
+      "source_pixels_xywh_proposal": [
+        2260,
+        1315,
+        425,
+        55
+      ]
+    }
+  ],
+  "mask_status": "Draft rectangles from samples only; transitions and all frames require verification. Coordinates are original 2800x1618 pixels, not encode pipeline normalized coordinates. No masks applied yet.",
+  "other_review": "Check historical text/sidebar and reminders against approved public scope; no private strings copied to this report.",
+  "encoding_method": "Use monotonic frame gaps for presentation durations; keep original approximate 0.97fps cadence disclosed. Never label output fps as capture fps. Do not interpolate missing action.",
+  "use_limit": "rc46 historical/navigation or explicitly verified failure excerpts only; never new candidate success chain",
+  "raw_preserved": true,
+  "raw_published": false,
+  "video_created": false
+}
