@@ -1254,6 +1254,12 @@ result=nil
 return true
 }
 
+fn calendar_delete_id_matches(event,id){
+if event==nil|| !regex("^MUSE-(PHASE2|CALENDAR-TEST|CALENDAR-FINAL|R2|IMPROVE)-[A-Za-z0-9]+(-[A-Za-z0-9]+)*$","").test(id){return false}
+
+return regex("(^|\\s)"+id+"($|\\s)","").test(event.title)
+}
+
 fn calendar_preview_action(){
 if!chat_reply_context_valid({memory_refs:calendar_context_refs}.to_json().parse_json()){calendar_error="相关记忆已变化，请重新准备候选。" calendar_preview="" redraw()return}
 if!calendar_ready|| !core_storage_ready{calendar_error="目标或日历状态不可读，禁止外部操作。" redraw()return}
@@ -1275,12 +1281,8 @@ return
 if calendar_operation=="delete"{
 if calendar_selected_event==nil{calendar_error="请先选择准确系统事件。" redraw()return}
 calendar_delete_id=ui.calendar_delete_id.text().trim()
-if(calendar_delete_id.search("MUSE-PHASE2-")!=0
-&&calendar_delete_id.search("MUSE-CALENDAR-TEST-")!=0
-&&calendar_delete_id.search("MUSE-CALENDAR-FINAL-")!=0
-&&calendar_delete_id.search("MUSE-R2-")!=0)
-||calendar_selected_event.title.search(calendar_delete_id)<0{
-calendar_error="删除前请输入所选测试事件标题中的完整测试 ID（MUSE-PHASE2、MUSE-CALENDAR-TEST、MUSE-CALENDAR-FINAL 或 MUSE-R2）。"
+if!calendar_delete_id_matches(calendar_selected_event,calendar_delete_id){
+calendar_error="删除前请输入所选测试事件标题中的完整测试 ID（MUSE-PHASE2、MUSE-CALENDAR-TEST、MUSE-CALENDAR-FINAL、MUSE-R2 或 MUSE-IMPROVE）。"
 redraw()
 return
 }
@@ -1361,7 +1363,7 @@ return
 }
 }
 if operation=="delete"&&(ui.calendar_delete_id.text().trim()!=calendar_delete_id
-||calendar_selected_event==nil||calendar_selected_event.title.search(calendar_delete_id)<0){
+|| !calendar_delete_id_matches(calendar_selected_event,calendar_delete_id)){
 calendar_preview=""
 calendar_error="删除确认 ID 或目标事件已改变。"
 redraw()
@@ -8668,7 +8670,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc21" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc22" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
