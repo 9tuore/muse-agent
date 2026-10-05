@@ -1,0 +1,47 @@
+{
+  "candidate": "0.3.26-rc34",
+  "status": "FAIL",
+  "model_called": false,
+  "ledger_calls_before": 44,
+  "ledger_calls_after": 44,
+  "retrieval": {
+    "query_sha256": "b7378a3a2231b6df53a50baff9a302b6a567a69b47c8d98e96b5773cd7352c28",
+    "conversation_id": "chat:1791174784-1887716322",
+    "goal_id": "",
+    "hits": [
+      {
+        "id": "memory:result:run:1791206272-4199585529",
+        "revision": 1,
+        "source_ids": [
+          "source:goalmail:1791202432-60103582:345edd965b37140a9250d9e5:1013863dd17aeefaa0fed20b",
+          "source:calendar:run:1791206272-4199585529"
+        ]
+      },
+      {
+        "id": "memory:result:run:1791206400-480873275",
+        "revision": 1,
+        "source_ids": [
+          "source:goalmail:1791202432-60103582:345edd965b37140a9250d9e5:1013863dd17aeefaa0fed20b",
+          "source:calendar:run:1791206272-4199585529",
+          "source:mail-result:run:1791206400-480873275"
+        ]
+      }
+    ],
+    "bytes": 1719,
+    "truncated": false,
+    "conflicts": [
+      {
+        "id": "memory:result:run:1791206272-4199585529",
+        "other_id": "memory:result:run:1791206400-480873275"
+      },
+      {
+        "id": "memory:result:run:1791206400-480873275",
+        "other_id": "memory:result:run:1791206272-4199585529"
+      }
+    ],
+    "reasons": [],
+    "at": "2026-10-05T13:29:10Z"
+  },
+  "cause": "Distinct completed runs of the same Goal use verified_result with different receipt paths; scalar conflict heuristic blocked ordinary Chat.",
+  "data_removed": false
+}

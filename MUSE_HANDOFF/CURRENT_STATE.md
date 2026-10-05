@@ -1,3 +1,17 @@
+## 2026-10-05 晚间 rc35 缺项收口（当前）
+
+当前产品0f8e027d /0.3.26-rc35，可读de37933e、实装800b11dc，96651官方token相等。Host1d7不变；源码SDKf487与Host构建锁78a5仅两处test-only差异。真实AppHub67安装六SHA保持、同目录Shell正常重启八文件/ledger不变、零重发。稳定0.3.25/独立旧安装/生产/旧Tag和dirty baseline保护。
+
+修复收件短回调/半提交恢复、64容量校验、Calendar批准执行与get/result短回调绑定、缺RFC手选原事项、改期分段以及model检索后延迟构造。rc35区分不同已完成内部Run的回执历史，保留用户/事实/显式矛盾；19窄fixture PASS，原误冲突失败保留。最终rc34密集改期20runtime＋27磁盘检查PASS，旧64容量/引用等按身份记载。
+
+真实同Goal1791202432：源信rc28/创建与外部刷新rc29/同EventKit ID改至16:00–16:30 rc34/确认邮件本人到达并核对rc34，Goal v4、Run completed、draft/action verified、结果与三条结果记忆保留。rc35重启及原生日历精确UID清理后独立标题/UID计数0；Muse删除导航本轮未完成，不替代其delete/get验收。跨版本节点不拼为同最终整链。
+
+默认Shell全套558/0、空target Host1476.884秒PASS（复用Cargo/SDK缓存，未换运行Host）；旧失败保留。GPT唯一候选/无fallback真实model.complete provider FAIL/usage未知，自定义route身份未证明；原MiniMax配置已恢复，rc35普通Chat strong/attempts1真实成功。重启后早期一次model前失败原因未定保留。
+
+PARTIAL：同最终完整外链、第二strong完整语义、两真实替代、最终真实账号2h、整机重启/两Mac/全新空缓存及正式材料未闭环。按用户授权普通同步GitHub，不force/成功Tag/Hub正式提交。入口official_muse/rc/remaining-20261005-r2/REPORT.md及RC_ACCEPTANCE_MATRIX。以下记录均为历史身份。
+
+---
+
 ## 2026-10-05 晚间 rc28：收件短回调与记忆容量修复
 
 当前冻结rc28，readable5e931846 /payload4ce3a734，93420官方token相等。隔离真实Card逐条保存64→更正→65拒绝→新进程恢复20检查通过，独立旧字段14检查、关系/旧引用68检查通过；八次旧容量失败保留。收件短回调恢复/绑定/防重复144检查已过，实际旧R1邮件用户已确认收到，但rc27核对出现action verified/draft accepted半提交；rc28安装实机恢复仍待。运行Host1d7未换，空target Host完整重建已PASS，新SDK仅两处test-only修正，默认full suite仍进行。当前仍PARTIAL，原20项5/14/1未升格。39e2b20d已按本轮授权普通push至9tuore/muse-agent/main，旧Tag不动；后续实际证据见official_muse/rc/remaining-20261005-r2/REPORT.md。旧安装/稳定0.3.25/生产资料和未提交baseline.json保护。

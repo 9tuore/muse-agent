@@ -1,0 +1,375 @@
+{
+  "sdk_test_changes": [
+    {
+      "path": "sdk-overlays/octosense/crates/shell/src/shell/launcher.rs",
+      "before_cfg_test_equal": true,
+      "all_diff_lines_after_cfg_test": true,
+      "old_sha256": "c51f23eeefed9be97697dbcafe5fa944d3ba744237d451d64e72503f91154f0a",
+      "new_sha256": "ac0d3c377a6fb0323bb66e9dd60e11964c43466e444adcb2293457292b11faf7",
+      "edited_line_groups": [
+        [
+          164,
+          166,
+          164,
+          166,
+          "replace"
+        ]
+      ]
+    },
+    {
+      "path": "sdk-overlays/octosense/crates/shell/src/shell/menu.rs",
+      "before_cfg_test_equal": true,
+      "all_diff_lines_after_cfg_test": true,
+      "old_sha256": "d1b14196e5a2827b8ea5391a3c730dae7aff2b6b2c389724b30cb74086b5661e",
+      "new_sha256": "c4e4a9d3c9c00b3ae2b5f1ab5eaacf2e36b5ff9a1febcb6d8ffbf5c0ffda5eaa",
+      "edited_line_groups": [
+        [
+          1941,
+          1943,
+          1941,
+          1943,
+          "replace"
+        ],
+        [
+          1948,
+          1949,
+          1948,
+          1949,
+          "replace"
+        ],
+        [
+          1952,
+          1953,
+          1952,
+          1953,
+          "replace"
+        ]
+      ]
+    }
+  ],
+  "python_syntax_and_io_sites": [
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a2/run_capacity.py",
+      "parse": "PASS",
+      "io_call_sites": [
+        {
+          "line": 19,
+          "call": "hashlib.sha256(p.read_bytes()).hexdigest"
+        },
+        {
+          "line": 26,
+          "call": "shutil.copytree"
+        },
+        {
+          "line": 29,
+          "call": "subprocess.run"
+        },
+        {
+          "line": 30,
+          "call": "(out / 'compact-binding.json').write_text"
+        },
+        {
+          "line": 37,
+          "call": "subprocess.run(['ps', '-A', '-o', 'pid,pcpu,comm'], capture_output=True, text=True, check=True).stdout.splitlines"
+        },
+        {
+          "line": 47,
+          "call": "(out / 'summary.json').write_text"
+        },
+        {
+          "line": 48,
+          "call": "print"
+        },
+        {
+          "line": 27,
+          "call": "shutil.copyfile"
+        },
+        {
+          "line": 36,
+          "call": "subprocess.run(['uptime'], capture_output=True, text=True, check=True).stdout.strip"
+        },
+        {
+          "line": 41,
+          "call": "regression_run.run_suite"
+        },
+        {
+          "line": 41,
+          "call": "(compact / 'main.splash').read_text"
+        },
+        {
+          "line": 19,
+          "call": "p.read_bytes"
+        },
+        {
+          "line": 37,
+          "call": "subprocess.run"
+        },
+        {
+          "line": 36,
+          "call": "subprocess.run"
+        }
+      ]
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a2/run_receipt.py",
+      "parse": "PASS",
+      "io_call_sites": [
+        {
+          "line": 8,
+          "call": "hashlib.sha256(p.read_bytes()).hexdigest"
+        },
+        {
+          "line": 75,
+          "call": "shutil.copytree"
+        },
+        {
+          "line": 76,
+          "call": "shutil.copyfile"
+        },
+        {
+          "line": 78,
+          "call": "subprocess.run"
+        },
+        {
+          "line": 79,
+          "call": "(out / 'compact-binding.json').write_text"
+        },
+        {
+          "line": 84,
+          "call": "regression_run.existing.WIDGET.replace"
+        },
+        {
+          "line": 118,
+          "call": "(out / 'summary.json').write_text"
+        },
+        {
+          "line": 15,
+          "call": "(HERE / 'capacity-r1/first/state/muse-goals/memory.json').read_text"
+        },
+        {
+          "line": 19,
+          "call": "copy.deepcopy"
+        },
+        {
+          "line": 19,
+          "call": "copy.deepcopy"
+        },
+        {
+          "line": 91,
+          "call": "(case_out / 'seed-profile.json').write_text"
+        },
+        {
+          "line": 94,
+          "call": "template.read_text"
+        },
+        {
+          "line": 101,
+          "call": "probe.write_text"
+        },
+        {
+          "line": 116,
+          "call": "(out / 'summary.json').write_text"
+        },
+        {
+          "line": 116,
+          "call": "print"
+        },
+        {
+          "line": 54,
+          "call": "copy.deepcopy"
+        },
+        {
+          "line": 56,
+          "call": "copy.deepcopy"
+        },
+        {
+          "line": 56,
+          "call": "goals['runs'].append"
+        },
+        {
+          "line": 57,
+          "call": "copy.deepcopy"
+        },
+        {
+          "line": 96,
+          "call": "(HERE / 'capacity-preserve-fast-r1/readable/main.splash').read_text"
+        },
+        {
+          "line": 97,
+          "call": "regression_run.existing.replace_function"
+        },
+        {
+          "line": 111,
+          "call": "regression_run.run_suite"
+        },
+        {
+          "line": 8,
+          "call": "p.read_bytes"
+        },
+        {
+          "line": 13,
+          "call": "(own / name).read_text"
+        },
+        {
+          "line": 23,
+          "call": "copy.deepcopy"
+        },
+        {
+          "line": 44,
+          "call": "copy.deepcopy"
+        },
+        {
+          "line": 111,
+          "call": "(compact / 'main.splash').read_text"
+        },
+        {
+          "line": 107,
+          "call": "(state / name).write_text"
+        }
+      ]
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a2/run_forget.py",
+      "parse": "PASS",
+      "io_call_sites": [
+        {
+          "line": 11,
+          "call": "hashlib.sha256(p.read_bytes()).hexdigest"
+        },
+        {
+          "line": 14,
+          "call": "(first / 'bundle/main.splash').read_text"
+        },
+        {
+          "line": 15,
+          "call": "shutil.copytree"
+        },
+        {
+          "line": 16,
+          "call": "(bundle / 'main.splash').write_text"
+        },
+        {
+          "line": 44,
+          "call": "shutil.copytree"
+        },
+        {
+          "line": 45,
+          "call": "subprocess.run"
+        },
+        {
+          "line": 46,
+          "call": "(out / 'compact-binding.json').write_text"
+        },
+        {
+          "line": 50,
+          "call": "old.read_text"
+        },
+        {
+          "line": 90,
+          "call": "(out / 'probe-template.splash').write_text"
+        },
+        {
+          "line": 104,
+          "call": "(out / 'summary.json').write_text"
+        },
+        {
+          "line": 19,
+          "call": "(out / 'forgotten-runtime.log').open"
+        },
+        {
+          "line": 20,
+          "call": "subprocess.Popen"
+        },
+        {
+          "line": 93,
+          "call": "probe.write_text"
+        },
+        {
+          "line": 101,
+          "call": "(out / 'summary.json').write_text"
+        },
+        {
+          "line": 101,
+          "call": "print"
+        },
+        {
+          "line": 26,
+          "call": "(out / 'forgotten-runtime.log').read_text"
+        },
+        {
+          "line": 29,
+          "call": "(out / 'forgotten-report.json').write_text"
+        },
+        {
+          "line": 95,
+          "call": "regression_run.run_suite"
+        },
+        {
+          "line": 11,
+          "call": "p.read_bytes"
+        },
+        {
+          "line": 26,
+          "call": "target.read_text"
+        },
+        {
+          "line": 31,
+          "call": "urlopen('http://127.0.0.1:8509/quit', timeout=2).read"
+        },
+        {
+          "line": 95,
+          "call": "(compact / 'main.splash').read_text"
+        }
+      ]
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a2/readback_forget.py",
+      "parse": "PASS",
+      "io_call_sites": [
+        {
+          "line": 45,
+          "call": "(OUT / 'READBACK.json').write_text"
+        },
+        {
+          "line": 54,
+          "call": "(OUT / 'ORIGINAL_ACTIVITY_RACE.json').write_text"
+        },
+        {
+          "line": 55,
+          "call": "print"
+        },
+        {
+          "line": 16,
+          "call": "(state / n).read_bytes"
+        },
+        {
+          "line": 37,
+          "call": "(s / 'resolve-baseline.json').read_text"
+        },
+        {
+          "line": 49,
+          "call": "(s / 'resolve-baseline.json').read_text"
+        },
+        {
+          "line": 51,
+          "call": "(s / 'activity.json').read_text"
+        },
+        {
+          "line": 39,
+          "call": "(s / name).read_text"
+        },
+        {
+          "line": 40,
+          "call": "(s / 'memory.json').read_text"
+        }
+      ]
+    }
+  ],
+  "frozen_source_hashes": {
+    "official_muse/app/source/main.splash": "5e9318464390741f31c5deb12cf94571521aefd22efe2d02d1731ba0174c6f0a",
+    "official_muse/app/bundle/main.splash": "4ce3a734d94e1cedea8260f9b74ca54ce2a8339d0db2e6200f702b5f2bb71ee6",
+    "dependencies.lock.json": "f487df0cc37049fe09e92a66bad348b7ce6b42c834313967ca33f49c3442f715"
+  },
+  "runtime_tests_run": false,
+  "scope": "read-only source/report audit; no full SDK tree rebuild or log read"
+}

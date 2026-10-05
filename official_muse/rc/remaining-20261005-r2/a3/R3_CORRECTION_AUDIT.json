@@ -1,0 +1,44 @@
+{
+  "status": "CORRECTION_PASS; R3_REQUIRED_CLARIFICATION_RESOLVED",
+  "effective_publication_result": "NO_PRIVACY_OR_REPORTED_FACT_CONSISTENCY_BLOCKER_FOUND_IN_R3_PLUS_THIS_CORRECTION",
+  "correction_input": {
+    "path": "official_muse/rc/remaining-20261005-r2/AUDIT_INPUT_R3_CORRECTION.json",
+    "sha256": "60c46d6f5a2f4c9c51a8a497d1ce672ab91d553624b3d86df7548d1f7b681c71"
+  },
+  "prior_r3_input_sha256": "2dc5080a15990e84b8915b5a7d1b00838522db18ee424d03938c1559e72b4025",
+  "corrected_file": {
+    "path": "official_muse/rc/remaining-20261005-r2/RC35_CALENDAR_CLEANUP_NATIVE.json",
+    "sha256": "2a4fafa06591c636c27e2a9104512ef0b41093c6c11e48159c13fe582f1ab2b2",
+    "bytes": 1576
+  },
+  "prior_reviewed_file_sha256": "c24adff9a48d0611c7e434bf38f26d7aeed2ca498158b7cae7ec2a9636d6abba",
+  "checks": {
+    "obsolete_top_level_fields_removed": true,
+    "first_error_is_explicit_history": true,
+    "two_attempts_one_effect": true,
+    "first_independent_counts_one": true,
+    "final_independent_counts_zero": true,
+    "successful_attempt_response_explicit": true,
+    "not_claiming_muse_delete": true,
+    "delete_script_identity_preserved": true,
+    "query_script_identity_preserved": true
+  },
+  "sensitive_pattern_counts": {
+    "PRIVATE_KEY_MARKER": 0,
+    "PROVIDER_TOKEN_SHAPE": 0,
+    "GITHUB_TOKEN_SHAPE": 0,
+    "AWS_ACCESS_ID_SHAPE": 0,
+    "JWT_SHAPE": 0,
+    "CREDENTIAL_LITERAL_REVIEW": 0,
+    "BEARER_LITERAL_REVIEW": 0,
+    "HOME_ABSOLUTE_PATH": 0,
+    "TEMP_ABSOLUTE_PATH": 0,
+    "NONEXAMPLE_EMAIL_REVIEW": 0,
+    "AUTHENTICATED_URL_REVIEW": 0
+  },
+  "end_hashes_match": true,
+  "other_r3_files_or_a2_files_reread": false,
+  "interpretation": "First native Calendar reference failure is now explicitly historical. Two attempts, one deletion effect, independent1/1 then0/0; not Muse delete/get acceptance. Other R3 findings and partial/version/model boundaries unchanged.",
+  "evidence_limit": "Content/schema/hash audit of safe projection only; no new Calendar/model/GUI/private-state query or action. Original R3 finding remains preserved.",
+  "safe_stage": "Corrected file can enter SAFE_STAGE_R3.txt at this new SHA, with correction manifest and addendum. Prior R3 manifest stays historical; this input overrides only its one file entry."
+}

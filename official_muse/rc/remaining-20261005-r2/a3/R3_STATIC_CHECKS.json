@@ -1,0 +1,57 @@
+{
+  "input_sha256": "2dc5080a15990e84b8915b5a7d1b00838522db18ee424d03938c1559e72b4025",
+  "commit": "0f8e027d4e23081681df49a7395e7718cdf79d2c",
+  "source_sha256": "de37933e0894a838c17d664f265fa6e9c4ad8f5211a2c133927cca012a94f9e3",
+  "payload_sha256": "800b11dca4717fb37b100ae4680385a4ea8eae548538d2d187350c698793c2af",
+  "checks": {
+    "source_matches_install": true,
+    "payload_matches_install_and_fixture": true,
+    "manifest_budget_permissions_and_nonintegrity_fields_unchanged": true,
+    "install_six_dicts_equal": true,
+    "restore_eight_dicts_equal": true,
+    "mail_result_digest_matches_restart": true,
+    "fixture_true_checks": 19,
+    "fixture_declared_passes": 19,
+    "fixture_probe_digest_matches": true,
+    "cleanup_script_digest_matches": true,
+    "cleanup_first_script_digest_matches": true,
+    "cleanup_readback_script_digest_matches": true,
+    "chat_query_digest_matches": true,
+    "gpt_ledger_delta": 1,
+    "gpt_token_ledger_delta": 0,
+    "gpt_usage_is_unknown": true,
+    "archived_rc28_report_exact_original": true,
+    "current_state_preserves_prior_document": true,
+    "matrix_preserves_prior_document": true
+  },
+  "json_parsed": 13,
+  "manifest_unchanged_fields": {
+    "id": true,
+    "name": true,
+    "schema": true,
+    "compute": true,
+    "network": true,
+    "agent": true,
+    "capabilities": true,
+    "storage": true
+  },
+  "cleanup_final_record_issue": {
+    "path": "official_muse/rc/remaining-20261005-r2/RC35_CALENDAR_CLEANUP_NATIVE.json",
+    "sha256": "c24adff9a48d0611c7e434bf38f26d7aeed2ca498158b7cae7ec2a9636d6abba",
+    "stale_flat_fields": [
+      "one_delete_attempt",
+      "error_code",
+      "error"
+    ],
+    "current_fields": [
+      "status=DELETED_AND_INDEPENDENTLY_ABSENT",
+      "delete_attempts=2",
+      "effect_count=1",
+      "after_success_fresh_counts=[0,0]"
+    ],
+    "required_clarification": "Move/label first-attempt error metadata as historical, make attempt count unambiguous, preserve first failure file, refreeze changed file."
+  },
+  "runtime_rerun": false,
+  "applescript_executed": false,
+  "raw_log_or_private_state_read": false
+}

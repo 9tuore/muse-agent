@@ -8,7 +8,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 - 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
 - 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
 
-**当前源码候选：0.3.26-rc28；验收 PARTIAL（5 PASS / 14 PARTIAL / 1 BLOCKED）。** 稳定基线0.3.25保留。收件核对支持半提交恢复；全局记忆实际逐条64次保存、更正、容量拒绝和新进程恢复已在隔离Card通过。真实rc27已验证新邮箱同步、正文展开滚动、侧栏/Dock避让与首次Shell重启；rc28安装和同候选最终外部整链继续补证，第二强模型独立证明与接收机门槛仍缺。最新入口：[本轮报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
+**当前源码候选：0.3.26-rc35；验收 PARTIAL。** 已补收件声明恢复、64条记忆保存与更正、日历短回调与同事项改期绑定、缺RFC时明确选原事项，以及执行回执误冲突修复。真实同事项已完成系统创建、电脑日历外部修改、原ID改期、确认邮件到达、结果和记忆、Shell恢复；节点跨rc28/29/34/35，不冒充同最终整链通过。完整Shell默认558项单测与空target Host重建通过；第二GPT单通道实测provider失败，原二十项完整门槛仍未全过。最新入口：[本轮报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
 
 ![来信结果卡](official_muse/prelim/evidence/fix-guide-0313/mail-visible-final/automatic-incoming-card.png)
 
@@ -20,7 +20,7 @@ Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮
 
 | 路径 | 用途 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc28 compact payload、manifest、listing和资源；source 4ce3a734 对应当前源码候选，listing截图仍为有身份记录的V12支持材料 |
+| `official_muse/app/bundle/` | 0.3.26-rc35 compact payload、manifest、listing和资源；payload 800b11dc 对应当前候选，listing截图仍为有身份记录的V12支持材料 |
 | `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
 | `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
 | `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
@@ -51,7 +51,7 @@ cd ../..
 
 四个内部`.sources/`链接由bootstrap恢复。已有vendor时脚本只核验，发现差异立即停止，保留本地修改。开发公钥不是发布私钥；开发check不代替Gate、正式发布身份、catalog、能力授权及人工审查。模型和邮箱/日历账号在官方Host设置中配置。
 
-历史清理补丁已集成，不向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。当前SDK锁78a5eef0包含既有Calendar布尔桥、QQ登录与最小Dock工作区修复；运行Intel Host1d7d1674与该冻结树绑定，严格验签通过。此次Host构建是146.43秒增量构建，不冒充完整clean build；全Shell单测仍被已有launcher测试命名空间错误阻塞，8项实际SDK几何窄测试通过。历史clean/磁盘失败见[源码及运行交付边界](SOURCE_DELIVERY.md)。完整运行资料不放在源码仓库。
+历史清理补丁已集成，不向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。当前源码SDK锁f487df0c相对运行Host构建锁78a5eef0只多两处test-only修正；Intel Host1d7d1674仍与原冻结生产源码绑定、严格验签通过。默认完整Shell suite 558/0通过，8项实际SDK几何窄测也通过。另一个空target release Host重编译1476.884秒PASS，复用已有Cargo/SDK缓存，未替换运行Host，不宣称全新checkout/空缓存构建。构建与旧失败见[完整测试和重建报告](official_muse/rc/remaining-20261005-r2/a4/FULL_AND_CLEAN_REPORT.md)。历史clean/磁盘失败见[源码及运行交付边界](SOURCE_DELIVERY.md)。完整运行资料不放在源码仓库。
 
 ## 4. 验收、支持与隐私
 

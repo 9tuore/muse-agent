@@ -1,3 +1,22 @@
+# rc35 本轮增量证据（当前）
+
+**总体PARTIAL，原20项完整标准未全部通过。** 当前0.3.26-rc35 /0f8e027d，可读de37933e/实装800b11dc，Host1d7，官方96651 tokens一致。以下是增量节点；原5/14/1计数是保留的历史全矩阵判定，没有以局部测试重新计算通过数。
+
+| 项 | 新增实际证据 | 尚缺/边界 |
+|---|---|---|
+| T02/T03/T13/T16 | rc28源信自动卡，rc29收件/改期来信核对，rc34关联回复发送一次且本人收到、实际核对draft/action verified | 节点跨版本；最终候选全部来信/断连及两小时真实账号未跑 |
+| T04/T05/T14 | 同Goal v4、结果SHA、三条关联结果记忆；rc35内部不同completed Run回执误冲突修复19 fixture，64保存/更正/容量/恢复按各轮身份通过 | 同最终跨会话外部事项记忆全链；原真实语义失败保留 |
+| T07/T17 | rc34真实模型日程候选attempts1；rc35MiniMax普通Chat strong/attempts1/known usage | GPT唯一候选无fallback的真实调用provider失败、usage未知；自定义route后端身份未证明；完整冻结语义门槛不变 |
+| T08/T09/T10/T12 | rc29 Work真实create/get、外部Calendar改期刷新；rc34明确选原事项，同ID改至16:00–16:30并独立get | 最多两真实核验替代、最终异常恢复；不是同最终从头完整链 |
+| T11 | 本人批准唯一事件清理，macOS日历精确UID删除，独立标题/UID皆0；首次引用错误及1/1未删除证明保留 | 本轮Muse删除界面导航未完成，不把原生清理当Muse delete/get通过 |
+| T18 | 真实账号/权限/精确事件确认均已获得；同事项的模型/原IDupdate/get、关联回复本人收到、结果和Memory通过 | 原“缺账号授权”原因已解除；同一最终候选完整业务链仍未通过，不能据跨版本节点解除全链门槛 |
+| T19 | rc27真实Dock/侧栏/正文滚动与宽/矮/窄证据保持；后续改动主要业务/Memory，不宣称所有rc35新尺寸重测 | 本轮Calendar嵌套滚动导航未到删除控件；请求412×892曾被Host夹尺寸的失败仍保留 |
+| T20 | 默认Shell 558/0单测、空target release Host重建PASS；rc35同profile Shell重启八文件/ledger一致、零重发 | 非全新Cargo/SDK缓存、未换运行Host；OS重启/接收机/最终真账号2h未完，早期model前失败未定因 |
+
+细项与身份见[本轮报告](official_muse/rc/remaining-20261005-r2/REPORT.md)。本地扩展Hub check/scan/catalog PASS不是独立评审或官方上架。源代码按授权同步GitHub，不创建成功Tag。以下旧记录保留原身份与原结论。
+
+---
+
 # rc27 傍晚增量核对
 
 当前已安装0.3.26-rc27（17698129 / compacte5461fd7），Host1d7d1674 / SDKlock78a5eef0。**原20仍5PASS/14PARTIAL/1BLOCKED，总体PARTIAL。** 不把局部新证据升级为完整门槛。

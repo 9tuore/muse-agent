@@ -1,0 +1,37 @@
+// Classification fixture: actual production functions; no model/OS transport.
+let rh_checks={} let rh_calls=[]
+fn chain_fixture_request(service,args,cb){rh_calls.push(service) cb({is_ok:false error:"external transport forbidden"})}
+fn rh_doc(run,value){
+ let d={id:"memory:result:"+run origin:{type:"local_runtime" ref:run}
+ payload:{subject_id:"goal:synthetic" predicate:"verified_result" value:value epistemic_type:"fact" source_ids:[] relations:[] deleted:false valid_until:nil}}
+ d["scope"]={project:"muse-goals" account:"local" visibility:"personal" user_id:gm_user_id project_id:"synthetic" owner_id:"synthetic"}
+ return d
+}
+fn rh_count(a,b){memory=[{document:a} {document:b}] return gm_hit_conflicts(a,"","","").len()}
+fn rh_clone(d){return d.to_json().parse_json()}
+fn rh_probe(){
+ core_boot_goals() core_boot_activity() core_boot_memory() gm_boot()
+ runs=[{id:"run:1" goal_id:"goal:synthetic" status:"completed"} {id:"run:2" goal_id:"goal:synthetic" status:"completed"}]
+ let a=rh_doc("run:1","日历已读回") let b=rh_doc("run:2","确认邮件已核对")
+ rh_checks.distinct_completed_receipts=rh_count(a,b)==0
+ let c=rh_clone(b) c.origin.type="user" rh_checks.user_origin_conflict=rh_count(a,c)==1
+ c=rh_clone(b) c.origin.type="external" rh_checks.external_origin_conflict=rh_count(a,c)==1
+ c=rh_clone(b) c.id="memory:other" rh_checks.spoofed_id_conflict=rh_count(a,c)==1
+ c=rh_clone(b) c.origin.ref="run:unknown" c.id="memory:result:run:unknown" rh_checks.unknown_run_conflict=rh_count(a,c)==1
+ runs[1].status="running" rh_checks.unfinished_run_conflict=rh_count(a,b)==1 runs[1].status="completed"
+ runs[1].goal_id="goal:other" rh_checks.wrong_goal_conflict=rh_count(a,b)==1 runs[1].goal_id="goal:synthetic"
+ c=rh_clone(b) c.payload.epistemic_type="external_claim" rh_checks.unverified_fact_conflict=rh_count(a,c)==1
+ c=rh_clone(b) c.payload.relations=[{kind:"contradicts" target_id:a.id}] rh_checks.explicit_other_contradicts=rh_count(a,c)==1
+ c=rh_clone(a) c.payload.relations=[{kind:"contradicts" target_id:b.id}] rh_checks.explicit_self_contradicts=rh_count(c,b)==1
+ c=rh_clone(a) c.payload.predicate="meeting_duration" let d=rh_clone(b) d.payload.predicate="meeting_duration" rh_checks.preference_fact_conflict=rh_count(c,d)==1
+ d.payload.value=c.payload.value rh_checks.same_value_no_conflict=rh_count(c,d)==0
+ d=rh_clone(c) d.id="memory:second" d.payload.value="other" d["scope"].owner_id="teacher" rh_checks.other_owner_excluded=rh_count(c,d)==0
+ d=rh_clone(c) d.id="memory:second" d.payload.value="other" d["scope"].project_id="other" rh_checks.other_project_excluded=rh_count(c,d)==0
+ d=rh_clone(c) d.id="memory:second" d.payload.value="other" d["scope"].account="unauthorized" rh_checks.unauthorized_excluded=rh_count(c,d)==0
+ d=rh_clone(c) d.id="memory:second" d.payload.value="other" d.payload.deleted=true rh_checks.deleted_excluded=rh_count(c,d)==0
+ d=rh_clone(c) d.id="memory:second" d.payload.value="other" d["scope"].user_id="other" rh_checks.other_user_excluded=rh_count(c,d)==0
+ memory=[{document:c} {document:d resolved_by:c.id}] rh_checks.resolved_excluded=gm_hit_conflicts(c,"","","").len()==0
+ rh_checks.no_external_calls=rh_calls.len()==0
+ fs.write("probe.json",rh_checks.to_json())
+}
+start_timeout(0.1,||rh_probe())

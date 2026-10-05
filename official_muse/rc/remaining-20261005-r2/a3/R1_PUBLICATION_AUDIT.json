@@ -1,0 +1,330 @@
+{
+  "status": "NO_PUBLICATION_PRIVACY_BLOCKER_FOUND_IN_EXACT_R1_INPUT",
+  "input": {
+    "path": "official_muse/rc/remaining-20261005-r2/AUDIT_INPUT_R1.json",
+    "sha256": "782d83dab9a41dc72d80d5cc373964b8275006225dd9f089a2514082e93a6a55",
+    "base": "39e2b20d992bea5e856fe93bc97702650a37c487",
+    "head": "f84e2c1e9bda675f437709d8c5263b504553f81a",
+    "commits": 2,
+    "ancestor_verified": true
+  },
+  "coverage": {
+    "new_committed_objects": 15,
+    "explicit_files": 46,
+    "unique_paths": 60,
+    "explicit_bytes": 139963,
+    "all_explicit_hashes_and_sizes_match_before_and_after": true,
+    "binary_files": 0,
+    "private_files_opened": 0,
+    "unlisted_worktree_files_opened": 0,
+    "rc29_included": false,
+    "safe_stage_list_read": false
+  },
+  "sensitive_scan": {
+    "committed_summary": {
+      "entries": 15,
+      "scanned_bytes": 1301280,
+      "text_files": 15,
+      "HOME_ABSOLUTE_PATH_files": 2,
+      "HOME_ABSOLUTE_PATH_matches": 9,
+      "TEMP_ABSOLUTE_PATH_files": 1,
+      "TEMP_ABSOLUTE_PATH_matches": 2
+    },
+    "explicit_pattern_totals": {},
+    "secret_or_private_email_pattern_hits": 0,
+    "classification": "Only authorized source/build absolute paths in committed evidence; no Secret classification. Public bundle signature is verification metadata, not signing key. Heuristic plus bounded source/report inspection, not universal secrecy proof."
+  },
+  "committed_paths": [
+    {
+      "path": "MUSE_HANDOFF/CURRENT_STATE.md",
+      "sha256": "cb97f18c20a6a2e524ddff81d6027f3ac66ae51c5dd45b10194c7a979a9e8dfa"
+    },
+    {
+      "path": "README.md",
+      "sha256": "7f3ff2993976bafdf51d9931c440b80f4db4bcfc0c04675eddcecd10d2e1f72b"
+    },
+    {
+      "path": "dependencies.lock.json",
+      "sha256": "f487df0cc37049fe09e92a66bad348b7ce6b42c834313967ca33f49c3442f715"
+    },
+    {
+      "path": "official_muse/app/bundle/main.splash",
+      "sha256": "4ce3a734d94e1cedea8260f9b74ca54ce2a8339d0db2e6200f702b5f2bb71ee6"
+    },
+    {
+      "path": "official_muse/app/bundle/manifest.json",
+      "sha256": "db12c81fc72e7d39dd6be5f3853936edc62ee7095dc8c165793c6db898f84384"
+    },
+    {
+      "path": "official_muse/app/source/main.splash",
+      "sha256": "5e9318464390741f31c5deb12cf94571521aefd22efe2d02d1731ba0174c6f0a"
+    },
+    {
+      "path": "official_muse/global_memory.splash",
+      "sha256": "64d958b9a055c43b60cc3e3acf1782628b9448bf07d3b0069f77008ba1d4245a"
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/RC28_FREEZE.json",
+      "sha256": "cfeae4be1c0a087566931dfbddb52a4465c59fa660a5507db149c7b84060dff1"
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/REPORT.md",
+      "sha256": "cfd8b74af788c2a154b108e87878e43582a83f806c1a2d664ed1e6cd518386e0"
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a2/RC28_FINAL_FUNCTION_BINDING.json",
+      "sha256": "cbe9a8bcec95530b76d220efd602c922a4d4e16ce6b328f5390f486f8b015366"
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a4/FULL_AND_CLEAN_REPORT.md",
+      "sha256": "c602e1513c9fe5949a400ecf1b9ee455d573a11933805212ca5e09408a7762fe"
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a4/FULL_AND_CLEAN_SUMMARY.json",
+      "sha256": "8fa2c9361374359c3bd748f383584923f759d150f1edfa829db3b70423dc5c3f"
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/a4/HANDOFF_FULL_AND_CLEAN.md",
+      "sha256": "eb41b1752eb0edd3444e52daaa05a55dc478cebeeabcec4d41a16b513770f424"
+    },
+    {
+      "path": "sdk-overlays/octosense/crates/shell/src/shell/launcher.rs",
+      "sha256": "ac0d3c377a6fb0323bb66e9dd60e11964c43466e444adcb2293457292b11faf7"
+    },
+    {
+      "path": "sdk-overlays/octosense/crates/shell/src/shell/menu.rs",
+      "sha256": "c4e4a9d3c9c00b3ae2b5f1ab5eaacf2e36b5ff9a1febcb6d8ffbf5c0ffda5eaa"
+    }
+  ],
+  "cross_manifest_checks": [
+    {
+      "manifest": "official_muse/rc/remaining-20261005-r2/a2/FINAL_EVIDENCE_MANIFEST.json",
+      "included_files": [
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/FINAL_CAPACITY_REPORT.md",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/PUBLIC_FINAL_RESULT.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/RC28_FINAL_FUNCTION_BINDING.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/CAPACITY_FINAL_READBACK.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/PRESERVE_FINAL_READBACK.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/BUDGET_FAILURE_EXCERPTS.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/capacity.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/capacity-r2.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/capacity-r3.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/cow_guard.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/pair_validation.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/scope_cache.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/preserve_guards.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/relation_loop.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/commit_phases.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/run_capacity.py",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/run_receipt.py",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/relation-guards-r1/summary.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/final-pair-guards-r1/summary.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/scope-cache-guards-r1/summary.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/preserve-guards-r2/summary.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/capacity-relation-short-circuit-r1/first/report.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/capacity-relation-short-circuit-r1/restart-report.json",
+          "hash_matches": true
+        }
+      ],
+      "references_not_in_r1_not_opened": []
+    },
+    {
+      "manifest": "official_muse/rc/remaining-20261005-r2/a2/FORGET_EVIDENCE_MANIFEST.json",
+      "included_files": [
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/run_forget.py",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/readback_forget.py",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/REPORT.md",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/PUBLIC_RESULT.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/READBACK.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/ORIGINAL_ACTIVITY_RACE.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/probe-template.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/summary.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/choose_old/first/report.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/choose_old/restart-report.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/choose_old/forgotten-report.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/other_project/first/report.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r1/other_owner/first/report.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r2/probe-template.splash",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r2/summary.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r2/other_project/first/report.json",
+          "hash_matches": true
+        },
+        {
+          "path": "official_muse/rc/remaining-20261005-r2/a2/forget-final-r2/other_owner/first/report.json",
+          "hash_matches": true
+        }
+      ],
+      "references_not_in_r1_not_opened": []
+    }
+  ],
+  "failure_retention": {
+    "capacity_error_records": 8,
+    "capacity_error_excerpt_records": 8,
+    "forget_r1_original_failed_cases": [
+      "other_project",
+      "other_owner"
+    ],
+    "forget_r2_is_separate": true,
+    "sdk_release_retained": {
+      "first": {
+        "status": "FAILED",
+        "passed": "552",
+        "failed": "6",
+        "ignored": "0",
+        "measured": "0",
+        "filtered_out": "0"
+      },
+      "corrected_tmp": {
+        "status": "FAILED",
+        "passed": "554",
+        "failed": "4",
+        "ignored": "0",
+        "measured": "0",
+        "filtered_out": "0"
+      }
+    },
+    "rc28_calendar_failure_included": true,
+    "verification_boundary": "Original failed reports/excerpts and log hashes are included. Unlisted raw logs/jails were not opened or independently reverified."
+  },
+  "evidence_classification": {
+    "sdk_full_suite": "A4 recorded default-dev unfiltered 558 PASS; command/summary/log hash inspected, not rerun or raw-log revalidated by A3",
+    "sdk_changes": "Observed edits restricted to two existing test functions; production prefix and all unchanged sections preserved; no new runtime diagnostics/network",
+    "cold_host_build": "A4 recorded empty-target release build PASS with SDK/cargo source cache; not strict fresh-checkout workflow or installed replacement Host",
+    "memory": "Synthetic fixture with real product functions; narrow capacity/forget results only",
+    "native_receipt": "Safe projection of user declaration for old R1; not automatic delivery proof",
+    "native_new_send": "accepted, recipient_arrival UNVERIFIED",
+    "calendar": "FAIL_PRE_HOST_CALLBACK_BUDGET",
+    "overall": "PARTIAL; no second-strong-model independent success or complete twenty-gate claim"
+  },
+  "nonblocking_document_observations": [
+    "Committed rc28 REPORT/CURRENT_STATE retain earlier still-running/default-suite and install-pending wording; later A4 summary and explicit native projections provide subsequent bounded results. Reconcile latest entry when final increment is frozen, retain historical records.",
+    "FINAL_CAPACITY_REPORT and PUBLIC_FINAL_RESULT leave forget unverified at their capture time; explicit forget addendum fills the narrow actual-forget path, without upgrading full-capacity/native/full-chain acceptance.",
+    "Fixture runners explicitly rely on retained local templates and CardHost; not a fresh-checkout portable reproduction package."
+  ],
+  "not_performed": [
+    "model/API call",
+    "profile/account/production/private read",
+    "product tests/build",
+    "stage/commit/push",
+    "unfrozen rc29 review",
+    "new screenshots/media scan"
+  ],
+  "report_files": {
+    "R1_COMMITTED_SCAN.json": "84614347042db3a0834808cb73e26ac1f925b5c5ca0bb02f08633d1757e03f3e",
+    "R1_EXPLICIT_SCAN.json": "2bffe17606549c6286873dc97e6e89aae8bc2191203932999e2f2fd713b6afeb",
+    "R1_STATIC_CHECKS.json": "56b8919c859551b200b0e92cfd6f0c1cfe6b4e1f2ec527b568b17869016b9f1a"
+  }
+}

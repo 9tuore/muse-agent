@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "commit": "f84e2c1e9bda675f437709d8c5263b504553f81a",
+  "base_commit": "39e2b20d992bea5e856fe93bc97702650a37c487",
+  "scope": "all newly reachable unique file objects in commit range",
+  "verdict": "REVIEW_REQUIRED_NOT_PUBLICATION_CLEARANCE",
+  "limitations": [
+    "Heuristic patterns can miss or falsely flag secrets.",
+    "Binary pixels and embedded content were not inspected.",
+    "Credential-like named files are classified without reading them.",
+    "Git commit messages and tree entry names are not content-scanned.",
+    "Untracked and dirty worktree data were not read or approved."
+  ],
+  "summary": {
+    "entries": 15,
+    "scanned_bytes": 1301280,
+    "text_files": 15,
+    "HOME_ABSOLUTE_PATH_files": 2,
+    "HOME_ABSOLUTE_PATH_matches": 9,
+    "TEMP_ABSOLUTE_PATH_files": 1,
+    "TEMP_ABSOLUTE_PATH_matches": 2
+  },
+  "findings": [
+    {
+      "path_sha256": "7f2c62b4c4c1641b8de0b7cd4d39b66e5a2cd0a3dd24f2184ac4d135d15a8fda",
+      "git_object": "b047caca7aba1021277d2379cc47321d2f71f901",
+      "mode": "100644",
+      "size": 112448,
+      "content_sha256": "cb97f18c20a6a2e524ddff81d6027f3ac66ae51c5dd45b10194c7a979a9e8dfa",
+      "classes": {
+        "HOME_ABSOLUTE_PATH": 7
+      }
+    },
+    {
+      "path_sha256": "14ef3aa9bb108ce573fe7ec050b706050df641be755d06502f817f66f4f4fe38",
+      "git_object": "b1531a8f771d933774473f6bc48408b8d7789f03",
+      "mode": "100644",
+      "size": 8002,
+      "content_sha256": "8fa2c9361374359c3bd748f383584923f759d150f1edfa829db3b70423dc5c3f",
+      "classes": {
+        "HOME_ABSOLUTE_PATH": 2,
+        "TEMP_ABSOLUTE_PATH": 2
+      }
+    }
+  ],
+  "inventory_sha256": "9fe899d0436870fc5ca8867563c818afaaad3ebbf20a1a7b940adae83c8fad7d",
+  "script_sha256": "e10321f6420bbc51d56e974e5b742f914cdb0e8378c7fe300bcaf89fcd53f71a"
+}

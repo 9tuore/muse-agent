@@ -1,23 +1,29 @@
-# Muse rc27 交接
+# Handoff
 
 ## Task
-修复展开/遮挡并继续实际缺陷收口；codex/muse-rc-finalization。
+
+补缺项并同步GitHub；codex/muse-rc-finalization，产品0f8e027d。
 
 ## Result
-PARTIAL；rc27已安装打开，原20仍5PASS/14PARTIAL/1BLOCKED。
-桌面rc27 Intel复现文件夹/ZIP已生成；F464b07f3，316项打包读回、Root五项ZIP身份及全摘要PASS，非接收机实测。
+
+PARTIAL。当前rc35/de37933e/800b11dc，Host1d7。收件恢复、记忆容量、Calendar/改期短回调绑定和执行回执误冲突已修。
 
 ## Changed
-侧栏留12px；OctoSense自身Dock工作区留88px；状态问题识别解释后缀，en-dash须完整双时钟。仅两业务helper、UI间距及宿主几何，沿用官方运行链。
+
+官方main可读/compact/manifest、SDK两处test-only；本轮公开证据、README、矩阵与CURRENT_STATE。
 
 ## Tests
-真实标题/删除预览取消/最大化恢复/输入PASS，Dock间隔41px。状态52/10fixture复用；最终时间34/5新PASS。原问题真实M3一次成功。安装/首Shell重启六SHA保持；tokens93304相等，local hub check/catalog59 PASS；SDK12000文件、Host增量/严格验签、几何8项PASS。旧失败保留。
+
+真实同事项已创建、外部修改、同ID改期/get、回复本人收到、Goal v4/Run completed、结果/Memory。rc35首恢复八文件/ledger不变、零重发；原生日历精确UID清理后独立0/0。558全Shell单测、空target Host重建、rc35窄19 fixture通过；密集改期20＋27按rc34身份。GPT真实单通道provider FAIL，原模型恢复后普通Chat通过。所有旧失败保留。
 
 ## Commit
-43a7c03e、6ba05d91、17698129等，仅本地，无push/Tag。
+
+产品0f8e027d；按本轮授权普通push，最终远端号见收口回复。
 
 ## Remaining
-邮箱同步回执/旧信核对、最终外部整链、第二strong、外部Calendar修改、OS/接收机/真实2h/完整clean及正式材料。
+
+同最终从源信开始整链、第二strong全语义、真实2h、两替代、OS/两Mac/空缓存、正式材料。Muse删除导航、早期model前失败未关闭。
 
 ## Important Boundaries
-全Shell单测已有launcher错误BLOCKED；GPT两尝试不能归因独立模型。fixture、独立rc22日历序列与最终整链分开；稳定/生产/dirty baseline保护。详见本轮REPORT。
+
+跨版本不合计全链；fixture不代表OS。原生清理不代表Muse delete/get。旧安装/稳定/生产/dirty baseline保护，不force/旧Tag/正式Hub。

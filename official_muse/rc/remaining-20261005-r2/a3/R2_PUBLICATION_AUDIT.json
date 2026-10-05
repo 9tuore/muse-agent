@@ -1,0 +1,109 @@
+{
+  "status": "NO_PUBLICATION_PRIVACY_BLOCKER_FOUND_IN_EXACT_R2_INPUT",
+  "input": {
+    "path": "official_muse/rc/remaining-20261005-r2/AUDIT_INPUT_R2.json",
+    "sha256": "4b2d9cb47c0726efc3cacfc0fafc6dc3e8c3ed880b37b51f66ddf124b6905177",
+    "base": "f84e2c1e9bda675f437709d8c5263b504553f81a",
+    "head": "dffed0702815cea2255b90da00e9f00edddf9e23",
+    "commits": 4,
+    "ancestor_verified": true
+  },
+  "coverage": {
+    "new_committed_objects": 13,
+    "committed_bytes_scanned": 4079593,
+    "explicit_files": 156,
+    "a2_synthetic_files": 140,
+    "root_safe_projections": 16,
+    "explicit_bytes": 479574,
+    "unique_paths": 160,
+    "input_and_all_explicit_hashes_and_sizes_match_before_and_after": true,
+    "binary_files": 0,
+    "private_files_opened": 0,
+    "unlisted_live_or_worktree_files_opened": 0,
+    "r1_reports_overwritten": false,
+    "future_r3_results_included": false
+  },
+  "sensitive_scan": {
+    "committed_summary": {
+      "entries": 13,
+      "scanned_bytes": 4079593,
+      "text_files": 13
+    },
+    "explicit_pattern_totals": {
+      "HOME_ABSOLUTE_PATH": 7
+    },
+    "secret_or_private_mail_pattern_hits": 0,
+    "classification": "Seven authorized home/source-path occurrences in two synthetic failure summaries only. No token/private-key/authenticated-URL/private-email hits. Synthetic event IDs, times, source IDs and storage digests are allowed test projections. No raw mail/account/settings, media or credentials in inputs. Heuristic inspection is bounded, not universal secrecy proof."
+  },
+  "committed_head_paths": [
+    {
+      "path": "official_muse/app/bundle/main.splash",
+      "sha256": "f9dff57661d37b5f3f0b403e40ac323dfee075e78c90c38f0b249127bae66b80"
+    },
+    {
+      "path": "official_muse/app/bundle/manifest.json",
+      "sha256": "ac8d1efc0817c3946fb9d6a646a90ced867d93483c538f4abd4ada732babbfec"
+    },
+    {
+      "path": "official_muse/app/source/main.splash",
+      "sha256": "b01873c853ea1d08dfbc41f4fa23e19e537d2966412331238b75536f9461e461"
+    },
+    {
+      "path": "official_muse/rc/remaining-20261005-r2/CALENDAR_RC28_FAILURE.json",
+      "sha256": "22708ec365f35356e0824bb92992ed3d74fb64309792ed66d1e3efd0b11d347f"
+    }
+  ],
+  "cross_manifest": {
+    "entries_checked": 138,
+    "mismatches": 0,
+    "references_outside_input": 0
+  },
+  "syntax_checks": {
+    "json_parsed": 100,
+    "python_ast_parsed": 7,
+    "scripts_executed": false
+  },
+  "claim_review": {
+    "overall": "PARTIAL; no complete twenty-gate acceptance",
+    "version_chain": "Source mail sent rc28; create and external refresh rc29; update on rc34 is not claimed complete in this frozen batch. No same-final-candidate full-chain pass. Two rc29 source revisions are distinct by SHA.",
+    "gpt": "PREPARED_NOT_CALLED; one configured openai/gpt-4o candidate, no fallbacks, standard_openai_endpoint=false. Preparation only; not official OpenAI endpoint acceptance, inference success, second-strong-model proof or a billable call result. No actual profile was read by A3.",
+    "budgets": "No budget-limit or Host/SDK budget-setting changes in authorized product commits; callbacks split across turns. 26 explicit top-level default_budget_unchanged claims are true; seven runners parsed, not executed. This does not imply unchanged total elapsed latency or all-load guarantee.",
+    "fixture": "Synthetic async transport/account replies and model enqueue are explicitly separated from real model/EventKit/SMTP execution; prior-source guards retain source hashes and are not relabeled as rc34 reruns.",
+    "native": "Install/receipt/create/refresh projections reviewed as records. Private screenshots, account state and native live were not independently re-executed or read. User declaration is distinguished from automated delivery evidence."
+  },
+  "failure_preservation": {
+    "top_level_failure_or_partial_records": 19,
+    "retained_groups": [
+      "eight capacity errors",
+      "forget first activity-race failures",
+      "calendar omitted-boot fixture failure, duplicate timeout, version-mutation mismatch and missing-widget errors",
+      "manual rc30 instruction exhaustion and omitted mail.accounts fixture response",
+      "rc31 stale binding and fixture missing-history error",
+      "rc32 preference-scoring instruction exhaustion",
+      "rc33 reference construction instruction exhaustion and PARTIAL report",
+      "rc28 pre-host Calendar budget failure",
+      "rc29 initial UTC-vs-local format predicate observation",
+      "rc34 initial install identity mismatch showing rc31"
+    ],
+    "scope": "Historical failed reports, safe source spans and log hashes are retained in the reviewed files/history. Not a reinspection of unlisted raw logs/jails or proof that every raw local artifact still exists."
+  },
+  "nonblocking_boundaries": [
+    "Current frozen materials maintain per-version/source identities; final R3 must identify actual update result and must not retroactively turn this cross-version sequence into a final same-candidate chain.",
+    "GPT standard_openai_endpoint=false must stay explicit until any separately authorized and independently evidenced route conclusion; single-candidate preparation does not establish the backend identity.",
+    "Local diagnostic runners depend on retained Host/templates; no fresh-checkout portability or installed full-chain claim.",
+    "Future R3 receipts/docs, screenshots and changed files are excluded; changed SHA requires new audit input."
+  ],
+  "not_performed": [
+    "source edit",
+    "profile/account/production/private access",
+    "model/API call",
+    "fixture runtime/build/full test suite",
+    "main Shell GUI operation",
+    "stage/commit/push"
+  ],
+  "reports": {
+    "R2_COMMITTED_SCAN.json": "5a2d8a35c00ed9229acbf6b94c2f5c3fb76357e0bbf92d0128e74ccfbea3d776",
+    "R2_EXPLICIT_SCAN.json": "0dc17db30ff9893b3b9a8a4c06f3e6397900282456e71f63a5e3f70425d82178",
+    "R2_STATIC_CHECKS.json": "fcb6d32f27ac997ce8ffe93ddaf2d9252a719418a11248c4051aa56eeab15add"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "commit": "0f8e027d4e23081681df49a7395e7718cdf79d2c",
+  "base_commit": "dffed0702815cea2255b90da00e9f00edddf9e23",
+  "scope": "all newly reachable unique file objects in commit range",
+  "verdict": "REVIEW_REQUIRED_NOT_PUBLICATION_CLEARANCE",
+  "limitations": [
+    "Heuristic patterns can miss or falsely flag secrets.",
+    "Binary pixels and embedded content were not inspected.",
+    "Credential-like named files are classified without reading them.",
+    "Git commit messages and tree entry names are not content-scanned.",
+    "Untracked and dirty worktree data were not read or approved."
+  ],
+  "summary": {
+    "entries": 3,
+    "scanned_bytes": 1028354,
+    "text_files": 3
+  },
+  "findings": [],
+  "inventory_sha256": "ad3a4b50a0e44278e0d38bc940e7533cc6c44fdb60400fe63cb23473c730b13c",
+  "script_sha256": "e10321f6420bbc51d56e974e5b742f914cdb0e8378c7fe300bcaf89fcd53f71a"
+}
