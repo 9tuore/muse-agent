@@ -8,7 +8,7 @@ rc48收口中再次发现真正回归：右卡确认仍假设select_goal同步�
 
 rc48的Shell恢复、跨聊天召回及模型精度保持原版本身份，相关路径未因rc49卡片修补改变，可作支持证据，不重贴49标签或拼成最终外部整链。内置0.6B自动配置与误答验证源于rc45/48，复用范围在模型报告中说明；它仍不是第二strong。原版Hub对最终49-r2的可靠exit=1、唯一calendar拒绝见 [来源及退出状态](compliance/UPSTREAM_HUB_CHECK_RC49_R2_PROVENANCE.json)，本地Gate/check/scan/catalog通过只是扩展演练。
 
-真实视频、两张脱敏关键截图、封面和内置模型<500,000,000字节桌面包，以最终 `DELIVERY.json` 的路径/摘要为准。代码按本人授权普通推送，旧Tag不动，未正式上架。原二十项的完整外部最终链、第二strong、两替代、真实账号2h、OS/两Mac及publisher/review缺项仍保留；不宣布20/20。
+**本轮实际交付：** rc49内置模型与1642个公开源码文件ZIP为497,158,213字节，SHA315d670cc0d2f321e360309bb19194fab5fde3e2f1845f2fbd757d2100e24f6a；Root独立整体SHA/全成员CRC/可读与运行入口及权重SHA通过，首次路径过滤漏查记录保留。中文自动配音实录177.70秒，H264/AAC、5,479,229字节，视频SHA9c5c20dbf61929afa3073aff8318ceb1878f7f0b666ab0d590af7cfa05e8e232。两张真实脱敏截图、封面、连续证据及字幕是桌面同文件夹的独立附件，不加入497.16MB ZIP。Root全片解码和8处抽查通过，未人工听审。路径及冻结源码身份见 [DELIVERY.json](DELIVERY.json)，不是两台接收电脑实测。代码按本人授权普通推送，旧Tag不动，未正式上架。原二十项的完整外部最终链、第二strong、两替代、真实账号2h、OS/两Mac及publisher/review缺项仍保留；不宣布20/20。
 
 ---
 
