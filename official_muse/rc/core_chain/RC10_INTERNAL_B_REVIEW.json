@@ -1,0 +1,559 @@
+{
+  "schema": 1,
+  "status": "PARTIAL_PREPARED_PENDING_FINAL_SOAK_EVIDENCE",
+  "reviewer": {
+    "identity": "A2 existing real Codex chat; gpt-6.1-sol",
+    "role": "Independent evidence review, not independent runtime retest",
+    "identity_source": "Current coordination requirement; no independent server/model identification query performed"
+  },
+  "audit_time": "2026-10-05T09:59:07.144762+08:00",
+  "identity": {
+    "observed_head": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+    "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+    "version": "0.3.26-rc10",
+    "readable_sha256": "a19622e0977b3f988531a1d7db743bc9ef4cd6973fa75bbcdc5dec07d6823cc5",
+    "compact_sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+    "runtime_host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+    "runtime_sdk_lock": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "source_sdk_lock": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
+    "secondary_authorized_diagnostic_host": "0fd9936126acad3a5c61ac1e7a477ba2c9393d740572ec517472f52da9181047"
+  },
+  "score": 71,
+  "maximum": 100,
+  "previous_rc9_internal_score": 70,
+  "score_change": "Only actual two-model complete-input coverage subitem 2/4 ->3/4; retained original failures/grounding mean no full score. No running soak credit.",
+  "rubric": [
+    {
+      "dimension": "任务实现",
+      "score": 18,
+      "maximum": 25,
+      "criteria": [
+        {
+          "criterion": "一次性Goal计划、批准、执行、独立回读和首次恢复",
+          "score": 8,
+          "maximum": 8,
+          "evidence": [
+            "RC10_LIVE_NODE_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "rc10一次性本地Goal已证；不是持续周期目标或Mail/Calendar同事项外部全链。"
+        },
+        {
+          "criterion": "来源记忆、新聊天召回、更正、遗忘",
+          "score": 6,
+          "maximum": 7,
+          "evidence": [
+            "RC10_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md",
+            "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+            "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：双保存零重复、跨聊天召回/更正rev2/遗忘/项目归属已有实际证据，真实冲突问询和最终Mail/Calendar关联仍缺。"
+        },
+        {
+          "criterion": "实际模型与自然语言问询",
+          "score": 3,
+          "maximum": 4,
+          "evidence": [
+            "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：两个模型各28输入完整观察原20各19PASS1FAIL；M3 S02 invalid_output/usage未知，M2.7 R02缺回执原因，M01额外grounding失败。完整观察有证，语义全过没有证。"
+        },
+        {
+          "criterion": "Mail/Calendar同事项外部任务",
+          "score": 1,
+          "maximum": 6,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md",
+            "official_muse/rc/startup/RC10_MAIL_PROFILE_LOGIN_SUMMARY.json",
+            "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json"
+          ],
+          "deduction": 5,
+          "deduction_reason": "扣5：当前隔离profile缺凭据；已授权Host0fd只读schema拒绝；不是最终Host938的外部整链。稳定历史Mail只作节点支持。"
+        }
+      ]
+    },
+    {
+      "dimension": "可靠性",
+      "score": 15,
+      "maximum": 20,
+      "criteria": [
+        {
+          "criterion": "持久化、独立回读与首次进程恢复",
+          "score": 5,
+          "maximum": 5,
+          "evidence": [
+            "RC10_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "rc10一次Goal首次Shell恢复8SHA及Memory双保存后恢复已证；不等于电脑重启。"
+        },
+        {
+          "criterion": "当前70启动及额外100普通重开",
+          "score": 4,
+          "maximum": 4,
+          "evidence": [
+            "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+            "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "30冷/20重开/20Shell重启与额外100普通重开均完成；同一子项上限4分，不因追加次数超过上限。"
+        },
+        {
+          "criterion": "失败拒绝、绑定、防重放与恢复",
+          "score": 4,
+          "maximum": 5,
+          "evidence": [
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：旧20故障/stale callback保护按未改函数字节复用；当前候选取消/缺时段拒绝有真实模型流程支持，最终服务异常/外部修改仍缺。"
+        },
+        {
+          "criterion": "长运行",
+          "score": 1,
+          "maximum": 4,
+          "evidence": [
+            "OVERNIGHT_SOAK.md"
+          ],
+          "deduction": 3,
+          "deduction_reason": "扣3：当前rc10完整7200秒仍RUNNING，暂只给旧rc9/V15合成驻留支持1分；真实账号长测及稳定Mail5357秒绘制FAIL仍未解决。"
+        },
+        {
+          "criterion": "性能与容量余量",
+          "score": 1,
+          "maximum": 2,
+          "evidence": [
+            "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：rc10普通重开中位9.389s/最高10.210s、冷启动最高18.882s；64条更正66.055ms历史余量及磁盘中断风险保留，空间合并不是Host重新编译。"
+        }
+      ]
+    },
+    {
+      "dimension": "人机协作",
+      "score": 11,
+      "maximum": 15,
+      "criteria": [
+        {
+          "criterion": "计划、确认、结果与解释",
+          "score": 5,
+          "maximum": 6,
+          "evidence": [
+            "RC10_LIVE_NODE_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md",
+            "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：真实本地Goal计划/批准/结果已证，最终外部连续卡片仍缺。"
+        },
+        {
+          "criterion": "权限与用户编辑控制",
+          "score": 3,
+          "maximum": 4,
+          "evidence": [
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md",
+            "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：E04实际候选正文更正保持to/subject、holdout保留/取消通过；最终真实手写/采用/外发确认完整体验尚缺。"
+        },
+        {
+          "criterion": "导航、输入、标题和响应式界面",
+          "score": 3,
+          "maximum": 5,
+          "evidence": [
+            "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+            "RC_EVIDENCE_INDEX.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 2,
+          "deduction_reason": "扣2：六页/输入/100重开及Memory双保存可靠性通过；412×892实际夹到412×818且Dock遮挡旧FAIL保留，不授予完整UI_PARITY。"
+        }
+      ]
+    },
+    {
+      "dimension": "官方适配",
+      "score": 12,
+      "maximum": 15,
+      "criteria": [
+        {
+          "criterion": "官方运行语言、Shell、Makepad、App Hub入口",
+          "score": 7,
+          "maximum": 7,
+          "evidence": [
+            "RC10_DELTA_BINDING.json",
+            "MORNING_CHAMPIONSHIP_REPORT.md",
+            "SOURCE_DELIVERY.md"
+          ],
+          "deduction": 0,
+          "deduction_reason": "实际官方Splash/Makepad/Shell运行和App Hub入口已证；本地扩展不冒充上游原版。"
+        },
+        {
+          "criterion": "实际model.complete和官方存储回读",
+          "score": 3,
+          "maximum": 3,
+          "evidence": [
+            "RC10_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "真实模型调用与Storage/Readback已证，不由开发Agent代做"
+        },
+        {
+          "criterion": "manifest权限与宿主服务集成",
+          "score": 2,
+          "maximum": 3,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md",
+            "RC_CODE_FREEZE.json",
+            "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：源码SDKda布尔桥未进入最终Host938/SDK3f；另一个Host0fd实际读取仍schema拒绝。"
+        },
+        {
+          "criterion": "官方准入与发布认可",
+          "score": 0,
+          "maximum": 2,
+          "evidence": [
+            "MORNING_CHAMPIONSHIP_REPORT.md",
+            "SOURCE_DELIVERY.md"
+          ],
+          "deduction": 2,
+          "deduction_reason": "扣2：本地开发Gate/签名及七题scan packet不等于独立reviewer、正式publisher/政策或官方正式准入。"
+        }
+      ]
+    },
+    {
+      "dimension": "复现交付",
+      "score": 7,
+      "maximum": 15,
+      "criteria": [
+        {
+          "criterion": "版本、源码、运行时和证据可追踪",
+          "score": 3,
+          "maximum": 3,
+          "evidence": [
+            "RC10_DELTA_BINDING.json",
+            "RC10_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "SHA及提交绑定明确，源码SDK和旧运行SDK分开"
+        },
+        {
+          "criterion": "生产资料保护和证据保留",
+          "score": 2,
+          "maximum": 2,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md",
+            "SOURCE_DELIVERY.md",
+            "OVERNIGHT_SOAK.md"
+          ],
+          "deduction": 0,
+          "deduction_reason": "旧资料和失败保护按文档与公开证据核对，未检查生产目录，不声称全仓无Secret。"
+        },
+        {
+          "criterion": "当前可复现交付材料",
+          "score": 2,
+          "maximum": 4,
+          "evidence": [
+            "MORNING_CHAMPIONSHIP_REPORT.md",
+            "SOURCE_DELIVERY.md",
+            "official_muse/rc/packaging/RC10_SOURCE_FOLDER_TOOL_SUMMARY.json"
+          ],
+          "deduction": 2,
+          "deduction_reason": "扣2：folder导出工具14最小fixture/边界守卫通过，但只1725字节合成源，正式F/桌面导出未做；旧Intel087包仍rc5，当前薄包不是独立可运行成品。"
+        },
+        {
+          "criterion": "clean全构建与新Host",
+          "score": 0,
+          "maximum": 3,
+          "evidence": [
+            "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json"
+          ],
+          "deduction": 3,
+          "deduction_reason": "扣3：clean SDK12000恢复有证，完整新Host构建受容量中止；资源32闭合副本合并只保持内容/签名，无编译成功。"
+        },
+        {
+          "criterion": "第二Mac/ARM/电脑重启",
+          "score": 0,
+          "maximum": 3,
+          "evidence": [
+            "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 3,
+          "deduction_reason": "扣3：均未完成，旧机暖运行和Shell进程重启不替代"
+        }
+      ]
+    },
+    {
+      "dimension": "差异化",
+      "score": 8,
+      "maximum": 10,
+      "criteria": [
+        {
+          "criterion": "可追溯记忆和跨聊天更正遗忘",
+          "score": 4,
+          "maximum": 4,
+          "evidence": [
+            "RC10_LIVE_NODE_SUMMARY.json",
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json"
+          ],
+          "deduction": 0,
+          "deduction_reason": "真实当前记忆六步支持产品特性"
+        },
+        {
+          "criterion": "统一任务上下文和同事项版本绑定",
+          "score": 2,
+          "maximum": 3,
+          "evidence": [
+            "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+            "RC_ACCEPTANCE_MATRIX.md"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：原事件关联及改期主要fixture，最终外部同事项链待"
+        },
+        {
+          "criterion": "主动提醒、批准与验证的产品组合",
+          "score": 2,
+          "maximum": 3,
+          "evidence": [
+            "RC_ACCEPTANCE_MATRIX.md",
+            "RC10_LIVE_NODE_SUMMARY.json"
+          ],
+          "deduction": 1,
+          "deduction_reason": "扣1：本地结果与历史真Mail提醒有证，当前后台真实账号连续体验尚缺。未比较竞争作品，不推断领先"
+        }
+      ]
+    }
+  ],
+  "evidence_registry": {
+    "RC10_LIVE_NODE_SUMMARY.json": {
+      "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+      "last_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json": {
+      "sha256": "8b2657b1e490e53c0a07b70ae7f9948ec82e9bbf11899342bc88339fd407db05",
+      "last_commit": "91d21a3fd94f67953d048e1901fd0403b888db65",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "RC_ACCEPTANCE_MATRIX.md": {
+      "sha256": "3f4057767fab85944a503aa2402a57cb79368f9f536b835b68c488d4cb426e5b",
+      "last_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json": {
+      "sha256": "d35e54837f14181b9799d50a3eaecb3c7ecc359320cfd65c8e3c9f0bc05e4ee4",
+      "last_commit": "f8b1d612de0ee97defd35309b35059e615292dfb",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json": {
+      "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+      "last_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/startup/RC10_MAIL_PROFILE_LOGIN_SUMMARY.json": {
+      "sha256": "0b21bb3f7a94bdaa1f57b87df832c0ff70cb3a2f7eb4b9e8ac8999082cba9ef3",
+      "last_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json": {
+      "sha256": "365d5d07ef3b145c90f8e250f151d6a56f5be83571290d0ec29ee7e085aea4f3",
+      "last_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json": {
+      "sha256": "bd911844ce37920703ef6118d787a248c6b674698fea90e700919ac01a1ef579",
+      "last_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json": {
+      "sha256": "3594c7496adff38b8f221485f5f2f5c0526c2e91b4bf625101bdc2279f77d42e",
+      "last_commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "OVERNIGHT_SOAK.md": {
+      "sha256": "62ba2c1aaabfc91ccd8a9757983b7d4a5032d4b0a50bcb08a72f6e78dc6754a8",
+      "last_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "RC_EVIDENCE_INDEX.json": {
+      "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+      "last_commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "RC10_DELTA_BINDING.json": {
+      "sha256": "c6e557053d8760aa86e316eedb107eb7d0c9f4781770fbdebcb9727396fa536b",
+      "last_commit": "6e3204f2d53fba0103f3baa8a75c35d0debaeae4",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "MORNING_CHAMPIONSHIP_REPORT.md": {
+      "sha256": "e05e16f85c32d399933bf72cd91827163210f6209c47b141100784ecd69d389e",
+      "last_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "SOURCE_DELIVERY.md": {
+      "sha256": "8e1009064ce563066d6d106a8ce684c5e678fe52997b0e20d53aa31771c2c161",
+      "last_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "RC_CODE_FREEZE.json": {
+      "sha256": "14a793b3b160961cc10db9ce1d90305935e798e0953726e888e3f06b2d1a5311",
+      "last_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/packaging/RC10_SOURCE_FOLDER_TOOL_SUMMARY.json": {
+      "sha256": "e258ce7ce9dc92f12b267629dd0943850fc9bc773bbc35adc8f0553fc06407b2",
+      "last_commit": "932d4f6bfc1a3e2cafb9d8c26a4129b7f7a32ae0",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json": {
+      "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+      "last_commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "CHAMPIONSHIP_SCORECARD.md": {
+      "sha256": "a4c7960b32c00a48a65436b44bd3fe2e88d1b46c5717b49e388f8c6509b09dee",
+      "last_commit": "c176acfdfed10b404344dfda2dc78dcd407a4a40",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/packaging/RC10_DISTRIBUTION_COALESCING_SUMMARY.json": {
+      "sha256": "789809c0a53e64d1499d0c096ed2647d80a8e24860bf73e85f45cd2dc96b8db8",
+      "last_commit": "932d4f6bfc1a3e2cafb9d8c26a4129b7f7a32ae0",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/rc/core_chain/RC10_SINGLE_OCCURRENCE_AUDIT.json": {
+      "sha256": "cfc1254df8431527391d5349d2874580fb3a22dbce952f5c0449f6eee4d2bb49",
+      "last_commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    },
+    "official_muse/prelim/tests/semantic_expectations.json": {
+      "sha256": "96fa95bc47115a0e45dd273817c2f0d6025e483982984f0506f0228c770a4c0c",
+      "last_commit": "33b322ea6fc34fd5920937ad1e6440c89a453b9e",
+      "scope": "Existing public/synthetic evidence only; no rerun"
+    }
+  },
+  "independent_static_checks": {
+    "55_index_paths_exist": true,
+    "private_indexed_files_read": false,
+    "source_sha_matches_6fd": true,
+    "startup70_raw_sha_verified": "df8adb7409350b069a3c3bcf9619536937d7ceab2331699dc797732e24afa66f",
+    "startup70_counts": {
+      "cold": 30,
+      "reopen": 20,
+      "restart": 20
+    },
+    "reopen100_raw_sha_verified": "eabaefced85fc8b953e8982c918c5cabc0f8fe328c649d75786f34d8826e502c",
+    "reopen100_counts": {
+      "cold": 0,
+      "reopen": 100,
+      "restart": 0
+    },
+    "all_nonempty_observed_startup_entries_pass_protected_ledger": true,
+    "semantic_expectations_sha_verified": "96fa95bc47115a0e45dd273817c2f0d6025e483982984f0506f0228c770a4c0c",
+    "both_model_reviews_have28_unique_rows_counts_checked": true,
+    "folder14_fixture_result_sha_verified": true,
+    "screenshots_viewed": false,
+    "host_or_hub_binary_rehashed": false,
+    "gui_model_tests_or_build_run": false
+  },
+  "model_semantics": {
+    "m3": {
+      "original20": "19PASS_1FAIL_S02_INVALID_OUTPUT_USAGE_UNKNOWN",
+      "setup2": "PASS",
+      "holdout6": "PASS",
+      "M01": "FROZEN_PASS_WITH_ADDITIONAL_GROUNDING_FAILURE"
+    },
+    "m27": {
+      "original20": "19PASS_1FAIL_R02_MISSING_RECEIPT_REASON",
+      "setup2": "PASS",
+      "holdout6": "PASS",
+      "M01": "FROZEN_PASS_WITH_ADDITIONAL_GROUNDING_FAILURE",
+      "runtime_model_class": "unknown"
+    },
+    "input_count_is_not_model_call_count": true
+  },
+  "acceptance": {
+    "overall": "PARTIAL",
+    "original_product20": "5PASS_14PARTIAL_1BLOCKED",
+    "T17": "PARTIAL",
+    "T18": "BLOCKED",
+    "T20": "PARTIAL",
+    "rc10_soak7200": "RUNNING_NOT_CREDITED",
+    "desktop_final_export": "NOT_PERFORMED",
+    "computer_restart_clean_cross_mac_arm": "NOT_PASSED",
+    "official_approval": "NOT_PROVEN"
+  },
+  "resource_boundary": {
+    "closed_identical_distribution_files": 32,
+    "sum_observed_space_delta_bytes": 210481152,
+    "concurrent_allocations_affect_measurement": true,
+    "host_build_completed": false,
+    "unique_sources_or_failures_deleted": false
+  },
+  "findings": [
+    {
+      "id": "C01",
+      "kind": "STALE_SCORECARD_SCOPE",
+      "finding": "CHAMPIONSHIP_SCORECARD.md标题rc9，却段落写当前候选/当前内部A/B并称原28尚待；MORNING报告已经明确rc9是历史截点、rc10已完成28观察。",
+      "action": "Root最终冻结后将旧70显式标历史，引用本轮审阅；保留原FAIL，不以新观察把旧证据换版本。"
+    },
+    {
+      "id": "C02",
+      "kind": "TRACEABILITY_GAP_NOT_FAILURE_PROOF",
+      "finding": "MORNING报告声称当前rc10六文件/Git/mirror/pack、catalog与本地Gate通过；当前55行索引未有对应rc10 gate/scan直接行。A2没有重跑或读取私有gate目录，不能独立证成这项检查。",
+      "action": "Root加入已存在的确切check/catalog/scan摘要路径/SHA和版本；没有独立reviewer仍须记录。"
+    },
+    {
+      "id": "C03",
+      "kind": "EXPECTED_UNFINISHED_GATE",
+      "finding": "folder工具14fixture真实范围明确；正式F/桌面导出仍NOT_YET_PERFORMED，不能把工具测试PASS写成交付已完成。",
+      "action": "测试冻结后Root执行正式导出并固定S/F与manifest；本轮准备评分不给成品/clean/跨机分。"
+    },
+    {
+      "id": "C04",
+      "kind": "SCOPE_GUARD",
+      "finding": "模型original20是冻结聊天输入组，不等于产品T01–T20矩阵。56唯一输入含8本地setup/cancel步骤，不能写56次模型业务调用。M01冻结PASS与额外grounding失败并存。",
+      "action": "保留两层语义结论与known_usage/attempts未知；不改原20期待、不称模型全部通过。"
+    }
+  ],
+  "scope": {
+    "only_outputs": [
+      "official_muse/rc/core_chain/RC10_INTERNAL_B_REVIEW.md",
+      "official_muse/rc/core_chain/RC10_INTERNAL_B_REVIEW.json"
+    ],
+    "root_sole_product_sdk_git_main_report_writer": true,
+    "old_evidence_or_allowlists_edited": false,
+    "production_credentials_private_mail_or_competitors_read": false,
+    "gui_external_actions_model_build_new_chat_or_subagents": false,
+    "official_score_or_rank_claimed": false
+  },
+  "planned_single_update": {
+    "updates_performed": 0,
+    "trigger": "Root supplies precise completed rc10 7200 summary, same product/source/runtime and preserved failure scope",
+    "allowed_change": "One update to long-runtime related subitem and evidence binding after independent read-only review; no precommit points, no assumed PASS, no extrapolation to live Mail/Calendar/T18.",
+    "current_long_runtime_score": 1,
+    "current_long_runtime_maximum": 4
+  },
+  "limits": [
+    "Goal/Memory/private live evidence reviewed through public SHA-bound Root/A3 summaries, not independent replay or private raw inspection.",
+    "Only nonprivate synthetic startup/reopen raw reports and tiny folder fixture results were parsed/SHA checked.",
+    "Static module scope/access review does not prove current-owner focus restriction; gm_entry_access retains existing global memory access semantics.",
+    "Scores are transparent internal engineering estimates under inherited subweights, not official judging/ranking."
+  ]
+}

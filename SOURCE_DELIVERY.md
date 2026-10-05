@@ -6,7 +6,7 @@
 
 最终只从明确Git普通文件库存及同产品签名mirror导出，不遍历工作区、不收未提交原件、私有profile、账号/凭据、私人邮件/库、原始实测、vendor/target或权重。SOURCE_MANIFEST的库存parent S与最终导出F分开，manifest不包含自身哈希；目前清单仍旧，测试结束前不当最终导出。
 
-最新薄源码/签名镜像不含可独立运行Host、启动器和模型。桌面087 Intel运行ZIP仍为rc5/0876314b，旧入口不改称rc10；第二Mac/ARM、clean Host和新Calendar桥运行未过。当前三张rc10实际截图为合成资料；rc9采样界面视频保留历史身份。
+最新薄源码/签名镜像不含可独立运行Host、启动器和模型。桌面087 Intel运行ZIP仍为rc5/0876314b，旧入口不改称rc10；第二Mac/ARM、clean Host和新Calendar桥运行未过。当前四张rc10实际截图为合成资料；rc9采样界面视频保留历史身份。
 
 未push、改旧Tag、创建成功Tag或正式申请App Hub。原20项及关键门槛全部通过才进入成功发布流程。历史交付和唯一失败证据按原身份保留。
 

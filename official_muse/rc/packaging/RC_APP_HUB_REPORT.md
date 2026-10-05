@@ -2,7 +2,7 @@
 
 签名产品A=6fd5b54b；readable a19622e0 / compact7cdfc751，官方91244token等价。canonical rc10-memory-ui-r1的Git/mirror/pack六文件和catalog签名、公钥bundle check通过，catalog sequence46/40 entries。当前新品通过局部运行不等于官方原版准入；正式publisher/政策HTTPS仍缺。
 
-当前rc10三张真实原生截图：Memory第一次保存、第二次保存和Goal第一次Shell重启后结果，均为隔离合成资料；Root实际查看，SHA在对应公开摘要。canonical listing两张图片仍为已有身份记录的支持素材，未重写成最终业务证据。rc9约61秒六页采样界面短片保持历史身份，不是rc10或真实外部业务视频。
+当前rc10四张真实原生截图：Memory第一次保存、第二次保存、Goal第一次Shell重启后结果和100次重开后完整界面，均为隔离合成资料；Root实际查看，SHA在对应公开摘要。canonical listing两张图片仍为已有身份记录的支持素材，未重写成最终业务证据。rc9约61秒六页采样界面短片保持历史身份，不是rc10或真实外部业务视频。
 
 原20项5PASS/14PARTIAL/1BLOCKED。新Calendar桥尚未进入Host938；当前rc10旧授权Host真实只读仍schema拒绝，Mail独立profile实际凭据缺失，同最终外部全链未过。scan packet已生成七个问题，没有独立reviewer回复。这里只准备草稿，无正式申请、Issue、push、成功Tag或发布。最终Source S/F和薄包静态核对将在测试结束后固定。
 

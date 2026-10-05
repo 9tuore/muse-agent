@@ -2,7 +2,7 @@
 
 产品6fd5b54b / 0.3.26-rc10，readable a19622e0 / payload7cdfc751，91244官方token等价。真实Memory UI连续两次单保存不回退且零重复写入；首次Shell重启10文件与ledger相同。两个模型各28唯一输入已完整观察并由已有真实聊天独立语义复核：original20各19PASS/1FAIL、setup2和holdout6各全PASS。M3 S02 invalid_output及未知usage、M2.7 R02漏缺回执原因、两模型M01无依据评价均保留，不用终端完成代替语义PASS。更正同claim rev1→rev2、遗忘后空检索、跨聊天项目/归属隔离已从实际UI和存储证据核对。
 
-rc10一次性任务实际2次model.complete→Plan/建议→一次本地批准→Storage/独立Readback→第一次Shell重启PASS；8个SHA含ledger不变，无重复执行，ledger67/57590→69/59921。新的30冷/20重开/20Shell重启全部PASS；额外100次普通重开、完整7200秒合成驻留仍运行。属于同source原生Shell测试，不是电脑重启或真实Mail后端。
+rc10一次性任务实际2次model.complete→Plan/建议→一次本地批准→Storage/独立Readback→第一次Shell重启PASS；8个SHA含ledger不变，无重复执行，ledger67/57590→69/59921。新的30冷/20重开/20Shell重启全部PASS；额外100次普通重开已全部PASS；完整7200秒合成驻留仍运行。属于同source原生Shell测试，不是电脑重启或真实Mail后端。
 
 本人self-mail授权有效，但独立诊断profile真实同步返回“账号密码缺失，请重新登录”；官方Keychain命名绑定Host邮件目录，缓存复制不继承凭据。没有查找密码、绕过命名空间或尝试发送。已授权旧Host0fd/当前rc10 UI实际只读Calendar查询复现严格schema拒绝，未写日历；92b1桥源码尚未编入运行Host938。旧稳定0.3.25今晚真实自发自收/自动提醒/独立正文读回是历史节点，不能改标签为rc10整链。
 

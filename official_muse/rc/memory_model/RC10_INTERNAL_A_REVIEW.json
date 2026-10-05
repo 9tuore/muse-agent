@@ -1,0 +1,1508 @@
+{
+  "schema": 1,
+  "review_kind": "INDEPENDENT_INTERNAL_A_EVIDENCE_AUDIT",
+  "reviewer": "A3 existing real chat",
+  "reviewer_model": "gpt-6-astra",
+  "reviewer_model_basis": "Root指定的既有真实聊天身份；本轮未读取或独立验证应用运行模型配置。",
+  "observed_at_utc": "2026-10-05T01:58:43.491974+00:00",
+  "status": "PARTIAL_PRE_SOAK_COMPLETION_REVIEW",
+  "score": 73,
+  "max_score": 100,
+  "official_score": false,
+  "official_rank_claimed": false,
+  "target_score_used": false,
+  "method": "沿用RC9内部A的六维度及全部子项权重；按当前证据逐项判定。Root提供维度，本聊天的内部子项判断不是官方评委量表。不以旧70或目标95为起点加减。报告准备完成，待Root提供完整soak结果后只更新对应新增证据一次。",
+  "identity": {
+    "product_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+    "version": "0.3.26-rc10",
+    "readable_sha256": "a19622e0977b3f988531a1d7db743bc9ef4cd6973fa75bbcdc5dec07d6823cc5",
+    "payload_sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+    "host_sha256": "938ba58a204de0421b2935c974a22645de14a6b7682f1004bc72c701c3793b3d",
+    "card_host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+    "runtime_sdk_lock_sha256": "3f1bbb4e4486dd418bb7692d250c567ecfbe8fb6665a9fc5c1c2cd335f48f71e",
+    "source_sdk_lock_sha256": "da756dde48232ccc9a3ec642cf206a0872e1731d4f0c0d55b2490de281a810cc",
+    "hub_sha256": "de6840e5aa85c73c915434488da2cd4ec8f633bde7f2f69f6259e17993318e6f",
+    "audit_head": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+    "branch": "codex/muse-rc-finalization",
+    "calendar_fix_in_runtime_host": false,
+    "token_count": 91244,
+    "token_equivalence": "既有Root官方tokenizer结果，本轮只验证文件身份，未执行tokenizer"
+  },
+  "scope": {
+    "writes": [
+      "official_muse/rc/memory_model/RC10_INTERNAL_A_REVIEW.md",
+      "official_muse/rc/memory_model/RC10_INTERNAL_A_REVIEW.json"
+    ],
+    "independent_test_execution": false,
+    "gui_or_model_calls": false,
+    "build_or_external_actions": false,
+    "product_sdk_git_or_shared_report_writes": false,
+    "subagents": false,
+    "review_method": "只读Git元数据、源码比较、精确文件SHA、既有合成报告逐行断言和脱敏摘要审阅。未读取账号profile/生产原件/Secret。"
+  },
+  "original20": {
+    "PASS": 5,
+    "PARTIAL": 14,
+    "BLOCKED": 1,
+    "changed_by_this_review": false
+  },
+  "frozen_model_semantics": {
+    "M3": {
+      "original20": {
+        "PASS": 19,
+        "FAIL": 1
+      },
+      "setup": {
+        "PASS": 2
+      },
+      "holdout": {
+        "PASS": 6
+      },
+      "frozen_failure": "S02 invalid_output；provider原文/usage/attempts未知，不归因算术错误",
+      "additional_grounding_failure": "M01整体可控评价无输入事实支持"
+    },
+    "M27": {
+      "original20": {
+        "PASS": 19,
+        "FAIL": 1
+      },
+      "setup": {
+        "PASS": 2
+      },
+      "holdout": {
+        "PASS": 6
+      },
+      "frozen_failure": "R02严格冻结条款：省略缺工具回执原因",
+      "additional_grounding_failure": "M01正常推进评价无输入事实支持",
+      "runtime_class": "unknown"
+    },
+    "local_steps_per_model": 4,
+    "model_steps_per_model": 24,
+    "original20_is_not_the_T01_T20_matrix": true
+  },
+  "soak_cutoff": {
+    "path": "official_muse/app/build/ui-memory-20261003/rc10-final-soak-evidence-r1/report.json",
+    "snapshot_sha256": "7ff2a607fcd020915be0f1f75639d38f44e189e1755530a2fd1a12d795e9b351",
+    "status": "RUNNING",
+    "requested_seconds": 7200,
+    "start_utc": "2026-10-05T00:32:17.539792+00:00",
+    "samples_seen": 173,
+    "completion_credit": 0,
+    "host_request_count": "NOT_OBSERVABLE_FROM_EXISTING_REMOTE_SURFACE",
+    "snapshot_mutable": true
+  },
+  "dimensions": [
+    {
+      "name": "任务完成",
+      "max": 25,
+      "score": 17,
+      "items": [
+        {
+          "label": "普通聊天与候选修改",
+          "max": 5,
+          "score": 4,
+          "evidence": [
+            "E01",
+            "E04"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E01",
+              "commit": "6e3204f2d53fba0103f3baa8a75c35d0debaeae4",
+              "file": "RC10_DELTA_BINDING.json",
+              "sha256": "c6e557053d8760aa86e316eedb107eb7d0c9f4781770fbdebcb9727396fa536b",
+              "test": "当前源/六文件哈希；相对rc9仅memory_correct和版本文本变化；官方91244 token等价为既有Root结果，本轮不重跑tokenizer。",
+              "scope": "当前产品身份及限定函数复用，不把regex边界当AST证明。"
+            },
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            }
+          ],
+          "deduction": "扣1：候选生成和同卡编辑已有双模型当前证据，但M3 S02未答出要求值、M2.7 R02缺回执原因，且两模型M01新增无依据评价；普通聊天可靠性未满。"
+        },
+        {
+          "label": "跨聊天记忆更正与遗忘",
+          "max": 6,
+          "score": 5,
+          "evidence": [
+            "E02",
+            "E04"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E02",
+              "commit": "f8b1d612de0ee97defd35309b35059e615292dfb",
+              "file": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+              "sha256": "d35e54837f14181b9799d50a3eaecb3c7ecc359320cfd65c8e3c9f0bc05e4ee4",
+              "test": "两个真实单保存相同文档/输入；重复保存无写入；首次Shell重启10SHA与ledger相同。",
+              "scope": "当前rc10合成Memory UI；本轮检查报告，不点击UI。"
+            },
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            }
+          ],
+          "deduction": "扣1：当前双保存、更正/遗忘、跨会话项目与归属隔离已证实；真实冲突询问及Mail/Calendar关联全过程未覆盖。"
+        },
+        {
+          "label": "一次性本地任务",
+          "max": 7,
+          "score": 6,
+          "evidence": [
+            "E03"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E03",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "RC10_LIVE_NODE_SUMMARY.json",
+              "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+              "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+              "scope": "本地任务，非外部业务链或OS重启。"
+            }
+          ],
+          "deduction": "扣1：一个本地Goal/Run经模型、批准、存储/读回和首次Shell重启成立；其他任务与外部业务语义未覆盖。"
+        },
+        {
+          "label": "同候选外部系统全链",
+          "max": 5,
+          "score": 0,
+          "evidence": [
+            "E16",
+            "E17",
+            "E12"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E16",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_MAIL_PROFILE_LOGIN_SUMMARY.json",
+              "sha256": "0b21bb3f7a94bdaa1f57b87df832c0ff70cb3a2f7eb4b9e8ac8999082cba9ef3",
+              "test": "当前rc10在次级已授权Host0fd诊断缓存可读、同步缺凭据、零发送。",
+              "scope": "依据公开脱敏摘要与vault源SHA；未读取私有原件或Secret；非最终Host938实发。"
+            },
+            {
+              "id": "E17",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json",
+              "sha256": "365d5d07ef3b145c90f8e250f151d6a56f5be83571290d0ec29ee7e085aea4f3",
+              "test": "当前UI在次级Host0fd真实只读仍严格schema拒绝，零mutation。",
+              "scope": "不是Host938集成修复/权限/写入通过。"
+            },
+            {
+              "id": "E12",
+              "commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+              "file": "RC_EVIDENCE_INDEX.json",
+              "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+              "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+              "scope": "三处入口文字滞后单列，不修改主报告。"
+            }
+          ],
+          "deduction": "扣5：T18仍BLOCKED。最终profile无同步凭据，新Calendar桥未进Host938，同候选来信→记忆→创建/get→原ID改期/get→回复到达链未过。"
+        },
+        {
+          "label": "两模型受影响D05",
+          "max": 2,
+          "score": 2,
+          "evidence": [
+            "E04"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            }
+          ],
+          "deduction": "不扣：当前两个模型D05均准确要求起止时间且既有候选不变；仅奖励冻结D05这个窄子项，其他模型失败在普通聊天项处理。"
+        }
+      ]
+    },
+    {
+      "name": "可靠运行",
+      "max": 20,
+      "score": 14,
+      "items": [
+        {
+          "label": "当前启动与重开矩阵",
+          "max": 5,
+          "score": 4,
+          "evidence": [
+            "E05",
+            "E06"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E05",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+              "sha256": "bd911844ce37920703ef6118d787a248c6b674698fea90e700919ac01a1ef579",
+              "test": "逐行核对30冷/20重开/20Shell重启PASS；六页、输入、焦点、16聊天256消息64claims65sources、SHA/ledger保持。",
+              "scope": "无OS缓存清理/电脑重启/真实Mail后端；最大可交互18.882秒。"
+            },
+            {
+              "id": "E06",
+              "commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+              "file": "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json",
+              "sha256": "3594c7496adff38b8f221485f5f2f5c0526c2e91b4bf625101bdc2279f77d42e",
+              "test": "同一Shell PID的100普通重开逐行检查PASS；原capture404保留。",
+              "scope": "不是100次冷启动；仅重复重开耐受证据。"
+            }
+          ],
+          "deduction": "扣1：同候选70和100重开全部成立，但固定合成负载、最大可交互18.882秒且有ui-hang信息；不计OS冷缓存/真实后端或不同硬件。"
+        },
+        {
+          "label": "第一次任务重启持久性",
+          "max": 4,
+          "score": 4,
+          "evidence": [
+            "E03",
+            "E02"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E03",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "RC10_LIVE_NODE_SUMMARY.json",
+              "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+              "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+              "scope": "本地任务，非外部业务链或OS重启。"
+            },
+            {
+              "id": "E02",
+              "commit": "f8b1d612de0ee97defd35309b35059e615292dfb",
+              "file": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+              "sha256": "d35e54837f14181b9799d50a3eaecb3c7ecc359320cfd65c8e3c9f0bc05e4ee4",
+              "test": "两个真实单保存相同文档/输入；重复保存无写入；首次Shell重启10SHA与ledger相同。",
+              "scope": "当前rc10合成Memory UI；本轮检查报告，不点击UI。"
+            }
+          ],
+          "deduction": "不扣：本地Goal首次Shell重启八SHA相等且无重放；Memory另有十SHA等值。文件数不当作多次重启。"
+        },
+        {
+          "label": "故障与恢复机制",
+          "max": 4,
+          "score": 3,
+          "evidence": [
+            "E01",
+            "E07"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E01",
+              "commit": "6e3204f2d53fba0103f3baa8a75c35d0debaeae4",
+              "file": "RC10_DELTA_BINDING.json",
+              "sha256": "c6e557053d8760aa86e316eedb107eb7d0c9f4781770fbdebcb9727396fa536b",
+              "test": "当前源/六文件哈希；相对rc9仅memory_correct和版本文本变化；官方91244 token等价为既有Root结果，本轮不重跑tokenizer。",
+              "scope": "当前产品身份及限定函数复用，不把regex边界当AST证明。"
+            },
+            {
+              "id": "E07",
+              "commit": "91d21a3fd94f67953d048e1901fd0403b888db65",
+              "file": "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+              "sha256": "8b2657b1e490e53c0a07b70ae7f9948ec82e9bbf11899342bc88339fd407db05",
+              "test": "历史core28+4、proposal25+6、fault20+3；限定Goal9/58和metadata5/91等按原源身份记录。",
+              "scope": "fixture/synthetic Host及本地存储；以不变路径有限复用，不是rc10全部故障实测。"
+            }
+          ],
+          "deduction": "扣1：已有真实隔离文件系统/合成Host故障与恢复记录，未改变路径有限支持；当前真实服务异常、外部改动和未知投递恢复未完整验证。"
+        },
+        {
+          "label": "长运行与跨环境",
+          "max": 4,
+          "score": 1,
+          "evidence": [
+            "E06",
+            "E13",
+            "E10"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E06",
+              "commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+              "file": "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json",
+              "sha256": "3594c7496adff38b8f221485f5f2f5c0526c2e91b4bf625101bdc2279f77d42e",
+              "test": "同一Shell PID的100普通重开逐行检查PASS；原capture404保留。",
+              "scope": "不是100次冷启动；仅重复重开耐受证据。"
+            },
+            {
+              "id": "E13",
+              "commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+              "file": "OVERNIGHT_SOAK.md",
+              "sha256": "62ba2c1aaabfc91ccd8a9757983b7d4a5032d4b0a50bcb08a72f6e78dc6754a8",
+              "test": "rc10新7200秒仍RUNNING；原始原子报告只作本轮状态快照。",
+              "scope": "不预加完成分；rc9旧7200PASS与稳定真Mail5357秒FAIL均保留版本。"
+            },
+            {
+              "id": "E10",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+              "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+              "test": "历史五SDK固定还原/12000验证与三项纯Calendar测试；clean最终中止、无新可执行物。贡献草稿可审阅。",
+              "scope": "DRAFT/NOT_SUBMITTED；非官方准入/上游合并/当前复现。"
+            }
+          ],
+          "deduction": "扣3：只给完成100次持续重开的耐受观察1分；当前完整7200秒仍RUNNING，不给长驻完成分；真实后端长测、clean/OS重启/第二Mac/ARM仍缺。"
+        },
+        {
+          "label": "失败可观察与保护",
+          "max": 3,
+          "score": 2,
+          "evidence": [
+            "E04",
+            "E12",
+            "E13"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            },
+            {
+              "id": "E12",
+              "commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+              "file": "RC_EVIDENCE_INDEX.json",
+              "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+              "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+              "scope": "三处入口文字滞后单列，不修改主报告。"
+            },
+            {
+              "id": "E13",
+              "commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+              "file": "OVERNIGHT_SOAK.md",
+              "sha256": "62ba2c1aaabfc91ccd8a9757983b7d4a5032d4b0a50bcb08a72f6e78dc6754a8",
+              "test": "rc10新7200秒仍RUNNING；原始原子报告只作本轮状态快照。",
+              "scope": "不预加完成分；rc9旧7200PASS与稳定真Mail5357秒FAIL均保留版本。"
+            }
+          ],
+          "deduction": "扣1：失败和no-replay/未知项保留，当前可核对回调与账本；M3 S02 usage/attempts未知、Host收信请求数不可观察，历史真实Mail绘制FAIL未由当前真后端长测关闭。"
+        }
+      ]
+    },
+    {
+      "name": "人机协作",
+      "max": 15,
+      "score": 13,
+      "items": [
+        {
+          "label": "明确批准并防重放",
+          "max": 4,
+          "score": 4,
+          "evidence": [
+            "E03"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E03",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "RC10_LIVE_NODE_SUMMARY.json",
+              "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+              "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+              "scope": "本地任务，非外部业务链或OS重启。"
+            }
+          ],
+          "deduction": "不扣：一次明确本地批准、唯一Goal/Run及首次恢复不重放有证据；只奖励该本地批准机制。"
+        },
+        {
+          "label": "缺时间先追问",
+          "max": 4,
+          "score": 4,
+          "evidence": [
+            "E04"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            }
+          ],
+          "deduction": "不扣：当前两模型E01缺收件人、D05缺时段、D07/H05缺日期时段均正确追问且未添候选；E01 error与waiting_user准确区分，不把应用守卫说成原始模型自行追问。"
+        },
+        {
+          "label": "范围/过期/重复保护",
+          "max": 4,
+          "score": 3,
+          "evidence": [
+            "E01",
+            "E04",
+            "E07"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E01",
+              "commit": "6e3204f2d53fba0103f3baa8a75c35d0debaeae4",
+              "file": "RC10_DELTA_BINDING.json",
+              "sha256": "c6e557053d8760aa86e316eedb107eb7d0c9f4781770fbdebcb9727396fa536b",
+              "test": "当前源/六文件哈希；相对rc9仅memory_correct和版本文本变化；官方91244 token等价为既有Root结果，本轮不重跑tokenizer。",
+              "scope": "当前产品身份及限定函数复用，不把regex边界当AST证明。"
+            },
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            },
+            {
+              "id": "E07",
+              "commit": "91d21a3fd94f67953d048e1901fd0403b888db65",
+              "file": "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+              "sha256": "8b2657b1e490e53c0a07b70ae7f9948ec82e9bbf11899342bc88339fd407db05",
+              "test": "历史core28+4、proposal25+6、fault20+3；限定Goal9/58和metadata5/91等按原源身份记录。",
+              "scope": "fixture/synthetic Host及本地存储；以不变路径有限复用，不是rc10全部故障实测。"
+            }
+          ],
+          "deduction": "扣1：当前项目/归属隔离、遗忘、同卡修订和取消已见，历史stale/重复守卫支持；最终真实手写稿与外发连续体验未完成。"
+        },
+        {
+          "label": "可见可编辑交互",
+          "max": 3,
+          "score": 2,
+          "evidence": [
+            "E02",
+            "E05",
+            "E06",
+            "E11"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E02",
+              "commit": "f8b1d612de0ee97defd35309b35059e615292dfb",
+              "file": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+              "sha256": "d35e54837f14181b9799d50a3eaecb3c7ecc359320cfd65c8e3c9f0bc05e4ee4",
+              "test": "两个真实单保存相同文档/输入；重复保存无写入；首次Shell重启10SHA与ledger相同。",
+              "scope": "当前rc10合成Memory UI；本轮检查报告，不点击UI。"
+            },
+            {
+              "id": "E05",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+              "sha256": "bd911844ce37920703ef6118d787a248c6b674698fea90e700919ac01a1ef579",
+              "test": "逐行核对30冷/20重开/20Shell重启PASS；六页、输入、焦点、16聊天256消息64claims65sources、SHA/ledger保持。",
+              "scope": "无OS缓存清理/电脑重启/真实Mail后端；最大可交互18.882秒。"
+            },
+            {
+              "id": "E06",
+              "commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+              "file": "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json",
+              "sha256": "3594c7496adff38b8f221485f5f2f5c0526c2e91b4bf625101bdc2279f77d42e",
+              "test": "同一Shell PID的100普通重开逐行检查PASS；原capture404保留。",
+              "scope": "不是100次冷启动；仅重复重开耐受证据。"
+            },
+            {
+              "id": "E11",
+              "commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+              "file": "official_muse/rc/screenshots/RC10_NATIVE_PROVENANCE.json",
+              "sha256": "b18d34d5c6397423bb5ea6142c9af7e24e2ce37b1c817bd5da42060813cdd979",
+              "test": "四张当前合成原生PNG逐文件SHA匹配，Root已看图的provenance。",
+              "scope": "本轮不声称新视觉验收；无当前外部链视频。"
+            }
+          ],
+          "deduction": "扣1：当前六页、编辑、焦点和Memory输入修复有记录；完整当前尺寸/视觉验收缺失，旧412×892 Dock遮挡失败不被412×700替代。"
+        }
+      ]
+    },
+    {
+      "name": "项目反哺",
+      "max": 15,
+      "score": 10,
+      "items": [
+        {
+          "label": "可还原SDK与锁",
+          "max": 4,
+          "score": 3,
+          "evidence": [
+            "E08",
+            "E10",
+            "E15"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E08",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CHUNK_DELTA_BUILD_RESULTS.json",
+              "sha256": "566d9642b158d46dc77130b8f048533785750ef984bd619b5042c873aaebb00c",
+              "test": "历史native摘要/4KiB准备与取消测试、增量Host/Card构建及签名。",
+              "scope": "增量SDK机制；非当前clean或新Calendar Host。"
+            },
+            {
+              "id": "E10",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+              "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+              "test": "历史五SDK固定还原/12000验证与三项纯Calendar测试；clean最终中止、无新可执行物。贡献草稿可审阅。",
+              "scope": "DRAFT/NOT_SUBMITTED；非官方准入/上游合并/当前复现。"
+            },
+            {
+              "id": "E15",
+              "commit": "932d4f6bfc1a3e2cafb9d8c26a4129b7f7a32ae0",
+              "file": "official_muse/rc/packaging/RC10_SOURCE_FOLDER_TOOL_SUMMARY.json",
+              "sha256": "e258ce7ce9dc92f12b267629dd0943850fc9bc773bbc35adc8f0553fc06407b2",
+              "test": "源码导出器AST/help及10+4微型合成fixture结果存在且哈希匹配。",
+              "scope": "1725字节fixture；实际F/桌面导出NOT_YET_PERFORMED，不能计复现成功。"
+            }
+          ],
+          "deduction": "扣1：固定SDK/overlay/锁及历史12000还原可查，源码导出器有窄fixture；当前新SDK完整clean构建和实际F导出未完成。"
+        },
+        {
+          "label": "具体框架与桥接修复",
+          "max": 5,
+          "score": 4,
+          "evidence": [
+            "E08",
+            "E09",
+            "E17"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E08",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CHUNK_DELTA_BUILD_RESULTS.json",
+              "sha256": "566d9642b158d46dc77130b8f048533785750ef984bd619b5042c873aaebb00c",
+              "test": "历史native摘要/4KiB准备与取消测试、增量Host/Card构建及签名。",
+              "scope": "增量SDK机制；非当前clean或新Calendar Host。"
+            },
+            {
+              "id": "E09",
+              "commit": "637cbe519686d6d28f30b31292b0e8a7f10102c7",
+              "file": "RC_CALENDAR_READONLY_REPORT.md",
+              "sha256": "3cca5dfde37bc0f0edc9fa23d19a9c86f9911df3e7ed23c667462d4b2d805f1e",
+              "test": "旧Host实读数字truncated问题；源码92b1布尔修复、Foundation三个边界与桥object编译的既有结果。",
+              "scope": "源码修复未进运行Host938；不计当前创建/改期/get成功。"
+            },
+            {
+              "id": "E17",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json",
+              "sha256": "365d5d07ef3b145c90f8e250f151d6a56f5be83571290d0ec29ee7e085aea4f3",
+              "test": "当前UI在次级Host0fd真实只读仍严格schema拒绝，零mutation。",
+              "scope": "不是Host938集成修复/权限/写入通过。"
+            }
+          ],
+          "deduction": "扣1：native存储摘要、4KiB准备/取消机制及Calendar布尔序列化最小修复有具体源和测试；新Calendar修复未进运行Host。"
+        },
+        {
+          "label": "贡献材料与边界",
+          "max": 3,
+          "score": 3,
+          "evidence": [
+            "E09",
+            "E10"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E09",
+              "commit": "637cbe519686d6d28f30b31292b0e8a7f10102c7",
+              "file": "RC_CALENDAR_READONLY_REPORT.md",
+              "sha256": "3cca5dfde37bc0f0edc9fa23d19a9c86f9911df3e7ed23c667462d4b2d805f1e",
+              "test": "旧Host实读数字truncated问题；源码92b1布尔修复、Foundation三个边界与桥object编译的既有结果。",
+              "scope": "源码修复未进运行Host938；不计当前创建/改期/get成功。"
+            },
+            {
+              "id": "E10",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+              "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+              "test": "历史五SDK固定还原/12000验证与三项纯Calendar测试；clean最终中止、无新可执行物。贡献草稿可审阅。",
+              "scope": "DRAFT/NOT_SUBMITTED；非官方准入/上游合并/当前复现。"
+            }
+          ],
+          "deduction": "不扣：已有可审阅的缺陷、接口、纯测试、权限/回读限制和最小上游拆分草稿；只奖励材料质量，不奖励尚未提交的贡献。"
+        },
+        {
+          "label": "上游合并与准入",
+          "max": 3,
+          "score": 0,
+          "evidence": [
+            "E10",
+            "E12"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E10",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+              "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+              "test": "历史五SDK固定还原/12000验证与三项纯Calendar测试；clean最终中止、无新可执行物。贡献草稿可审阅。",
+              "scope": "DRAFT/NOT_SUBMITTED；非官方准入/上游合并/当前复现。"
+            },
+            {
+              "id": "E12",
+              "commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+              "file": "RC_EVIDENCE_INDEX.json",
+              "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+              "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+              "scope": "三处入口文字滞后单列，不修改主报告。"
+            }
+          ],
+          "deduction": "扣3：贡献仍DRAFT/NOT_SUBMITTED，本地扩展没有上游合并、官方原版准入或正式reviewer通过的证据。"
+        }
+      ]
+    },
+    {
+      "name": "ROM/系统突破",
+      "max": 10,
+      "score": 7,
+      "items": [
+        {
+          "label": "官方运行路径与模型",
+          "max": 4,
+          "score": 4,
+          "evidence": [
+            "E03",
+            "E04",
+            "E05"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E03",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "RC10_LIVE_NODE_SUMMARY.json",
+              "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+              "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+              "scope": "本地任务，非外部业务链或OS重启。"
+            },
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            },
+            {
+              "id": "E05",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+              "sha256": "bd911844ce37920703ef6118d787a248c6b674698fea90e700919ac01a1ef579",
+              "test": "逐行核对30冷/20重开/20Shell重启PASS；六页、输入、焦点、16聊天256消息64claims65sources、SHA/ledger保持。",
+              "scope": "无OS缓存清理/电脑重启/真实Mail后端；最大可交互18.882秒。"
+            }
+          ],
+          "deduction": "不扣：同rc10官方Splash/OctoSense真实Host路径、model.complete和本地存储确实运行；M2.7 classunknown仍保留。"
+        },
+        {
+          "label": "OS服务机制",
+          "max": 4,
+          "score": 2,
+          "evidence": [
+            "E09",
+            "E16",
+            "E17"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E09",
+              "commit": "637cbe519686d6d28f30b31292b0e8a7f10102c7",
+              "file": "RC_CALENDAR_READONLY_REPORT.md",
+              "sha256": "3cca5dfde37bc0f0edc9fa23d19a9c86f9911df3e7ed23c667462d4b2d805f1e",
+              "test": "旧Host实读数字truncated问题；源码92b1布尔修复、Foundation三个边界与桥object编译的既有结果。",
+              "scope": "源码修复未进运行Host938；不计当前创建/改期/get成功。"
+            },
+            {
+              "id": "E16",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_MAIL_PROFILE_LOGIN_SUMMARY.json",
+              "sha256": "0b21bb3f7a94bdaa1f57b87df832c0ff70cb3a2f7eb4b9e8ac8999082cba9ef3",
+              "test": "当前rc10在次级已授权Host0fd诊断缓存可读、同步缺凭据、零发送。",
+              "scope": "依据公开脱敏摘要与vault源SHA；未读取私有原件或Secret；非最终Host938实发。"
+            },
+            {
+              "id": "E17",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json",
+              "sha256": "365d5d07ef3b145c90f8e250f151d6a56f5be83571290d0ec29ee7e085aea4f3",
+              "test": "当前UI在次级Host0fd真实只读仍严格schema拒绝，零mutation。",
+              "scope": "不是Host938集成修复/权限/写入通过。"
+            }
+          ],
+          "deduction": "扣2：已有历史EventKit读和稳定版Mail节点与宿主机制；当前Mail同步缺凭据、当前UI旧Host只读schema拒绝，新桥及最终系统写入/get链缺失。"
+        },
+        {
+          "label": "隔离存储与能力边界",
+          "max": 2,
+          "score": 1,
+          "evidence": [
+            "E03",
+            "E08",
+            "E12"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E03",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "RC10_LIVE_NODE_SUMMARY.json",
+              "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+              "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+              "scope": "本地任务，非外部业务链或OS重启。"
+            },
+            {
+              "id": "E08",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CHUNK_DELTA_BUILD_RESULTS.json",
+              "sha256": "566d9642b158d46dc77130b8f048533785750ef984bd619b5042c873aaebb00c",
+              "test": "历史native摘要/4KiB准备与取消测试、增量Host/Card构建及签名。",
+              "scope": "增量SDK机制；非当前clean或新Calendar Host。"
+            },
+            {
+              "id": "E12",
+              "commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+              "file": "RC_EVIDENCE_INDEX.json",
+              "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+              "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+              "scope": "三处入口文字滞后单列，不修改主报告。"
+            }
+          ],
+          "deduction": "扣1：隔离本地存储与受限能力可核对；LOCAL_EXTENDED_HUB不是stock准入，跨机器权限和完整外部能力没有完成证据。"
+        }
+      ]
+    },
+    {
+      "name": "效果证据",
+      "max": 15,
+      "score": 12,
+      "items": [
+        {
+          "label": "身份与原件哈希绑定",
+          "max": 3,
+          "score": 3,
+          "evidence": [
+            "E01",
+            "E02",
+            "E03",
+            "E04",
+            "E05",
+            "E06",
+            "E12"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E01",
+              "commit": "6e3204f2d53fba0103f3baa8a75c35d0debaeae4",
+              "file": "RC10_DELTA_BINDING.json",
+              "sha256": "c6e557053d8760aa86e316eedb107eb7d0c9f4781770fbdebcb9727396fa536b",
+              "test": "当前源/六文件哈希；相对rc9仅memory_correct和版本文本变化；官方91244 token等价为既有Root结果，本轮不重跑tokenizer。",
+              "scope": "当前产品身份及限定函数复用，不把regex边界当AST证明。"
+            },
+            {
+              "id": "E02",
+              "commit": "f8b1d612de0ee97defd35309b35059e615292dfb",
+              "file": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+              "sha256": "d35e54837f14181b9799d50a3eaecb3c7ecc359320cfd65c8e3c9f0bc05e4ee4",
+              "test": "两个真实单保存相同文档/输入；重复保存无写入；首次Shell重启10SHA与ledger相同。",
+              "scope": "当前rc10合成Memory UI；本轮检查报告，不点击UI。"
+            },
+            {
+              "id": "E03",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "RC10_LIVE_NODE_SUMMARY.json",
+              "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+              "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+              "scope": "本地任务，非外部业务链或OS重启。"
+            },
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            },
+            {
+              "id": "E05",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+              "sha256": "bd911844ce37920703ef6118d787a248c6b674698fea90e700919ac01a1ef579",
+              "test": "逐行核对30冷/20重开/20Shell重启PASS；六页、输入、焦点、16聊天256消息64claims65sources、SHA/ledger保持。",
+              "scope": "无OS缓存清理/电脑重启/真实Mail后端；最大可交互18.882秒。"
+            },
+            {
+              "id": "E06",
+              "commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+              "file": "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json",
+              "sha256": "3594c7496adff38b8f221485f5f2f5c0526c2e91b4bf625101bdc2279f77d42e",
+              "test": "同一Shell PID的100普通重开逐行检查PASS；原capture404保留。",
+              "scope": "不是100次冷启动；仅重复重开耐受证据。"
+            },
+            {
+              "id": "E12",
+              "commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+              "file": "RC_EVIDENCE_INDEX.json",
+              "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+              "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+              "scope": "三处入口文字滞后单列，不修改主报告。"
+            }
+          ],
+          "deduction": "不扣：当前源、六文件bundle、四条模型原报告、启动/重开/首恢复和55行索引SHA可核对；身份未拼接。"
+        },
+        {
+          "label": "实际原生画面",
+          "max": 3,
+          "score": 2,
+          "evidence": [
+            "E11"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E11",
+              "commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+              "file": "official_muse/rc/screenshots/RC10_NATIVE_PROVENANCE.json",
+              "sha256": "b18d34d5c6397423bb5ea6142c9af7e24e2ce37b1c817bd5da42060813cdd979",
+              "test": "四张当前合成原生PNG逐文件SHA匹配，Root已看图的provenance。",
+              "scope": "本轮不声称新视觉验收；无当前外部链视频。"
+            }
+          ],
+          "deduction": "扣1：当前四张合成原生截图有Root查看与SHA provenance；rc9约61秒UI采样片是历史，当前外部业务全过程视频仍缺。本轮不声称独立视觉重测。"
+        },
+        {
+          "label": "输出独立核对与反例",
+          "max": 3,
+          "score": 3,
+          "evidence": [
+            "E02",
+            "E03",
+            "E04",
+            "E05",
+            "E06"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E02",
+              "commit": "f8b1d612de0ee97defd35309b35059e615292dfb",
+              "file": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+              "sha256": "d35e54837f14181b9799d50a3eaecb3c7ecc359320cfd65c8e3c9f0bc05e4ee4",
+              "test": "两个真实单保存相同文档/输入；重复保存无写入；首次Shell重启10SHA与ledger相同。",
+              "scope": "当前rc10合成Memory UI；本轮检查报告，不点击UI。"
+            },
+            {
+              "id": "E03",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "RC10_LIVE_NODE_SUMMARY.json",
+              "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+              "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+              "scope": "本地任务，非外部业务链或OS重启。"
+            },
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            },
+            {
+              "id": "E05",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+              "sha256": "bd911844ce37920703ef6118d787a248c6b674698fea90e700919ac01a1ef579",
+              "test": "逐行核对30冷/20重开/20Shell重启PASS；六页、输入、焦点、16聊天256消息64claims65sources、SHA/ledger保持。",
+              "scope": "无OS缓存清理/电脑重启/真实Mail后端；最大可交互18.882秒。"
+            },
+            {
+              "id": "E06",
+              "commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+              "file": "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json",
+              "sha256": "3594c7496adff38b8f221485f5f2f5c0526c2e91b4bf625101bdc2279f77d42e",
+              "test": "同一Shell PID的100普通重开逐行检查PASS；原capture404保留。",
+              "scope": "不是100次冷启动；仅重复重开耐受证据。"
+            }
+          ],
+          "deduction": "不扣：输出/候选字段、记忆存储、独立Readback、SHA和原反例可追踪；证据复核不等于重新跑测试，也不把多个副本累加为覆盖。"
+        },
+        {
+          "label": "完整复现与材料同步",
+          "max": 4,
+          "score": 2,
+          "evidence": [
+            "E10",
+            "E12",
+            "E14",
+            "E15"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E10",
+              "commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+              "file": "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+              "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+              "test": "历史五SDK固定还原/12000验证与三项纯Calendar测试；clean最终中止、无新可执行物。贡献草稿可审阅。",
+              "scope": "DRAFT/NOT_SUBMITTED；非官方准入/上游合并/当前复现。"
+            },
+            {
+              "id": "E12",
+              "commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+              "file": "RC_EVIDENCE_INDEX.json",
+              "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+              "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+              "scope": "三处入口文字滞后单列，不修改主报告。"
+            },
+            {
+              "id": "E14",
+              "commit": "932d4f6bfc1a3e2cafb9d8c26a4129b7f7a32ae0",
+              "file": "official_muse/rc/packaging/RC10_DISTRIBUTION_COALESCING_SUMMARY.json",
+              "sha256": "789809c0a53e64d1499d0c096ed2647d80a8e24860bf73e85f45cd2dc96b8db8",
+              "test": "两批15+17=32份相同分发文件；分别观测空间差额合计210481152字节。",
+              "scope": "观测包含并发系统分配，非按逻辑320205669字节推算物理回收；没有新Host构建。"
+            },
+            {
+              "id": "E15",
+              "commit": "932d4f6bfc1a3e2cafb9d8c26a4129b7f7a32ae0",
+              "file": "official_muse/rc/packaging/RC10_SOURCE_FOLDER_TOOL_SUMMARY.json",
+              "sha256": "e258ce7ce9dc92f12b267629dd0943850fc9bc773bbc35adc8f0553fc06407b2",
+              "test": "源码导出器AST/help及10+4微型合成fixture结果存在且哈希匹配。",
+              "scope": "1725字节fixture；实际F/桌面导出NOT_YET_PERFORMED，不能计复现成功。"
+            }
+          ],
+          "deduction": "扣2：当前55行索引完整匹配、源身份与工具边界明确；实际F/桌面导出、完整clean/第二Mac/ARM/OS重启未做，三处当前入口文字滞后。资源合并约210MB观测不作为复现成功。"
+        },
+        {
+          "label": "真实披露覆盖边界",
+          "max": 2,
+          "score": 2,
+          "evidence": [
+            "E04",
+            "E12",
+            "E13",
+            "E16",
+            "E17"
+          ],
+          "evidence_receipts": [
+            {
+              "id": "E04",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+              "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+              "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+              "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+            },
+            {
+              "id": "E12",
+              "commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+              "file": "RC_EVIDENCE_INDEX.json",
+              "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+              "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+              "scope": "三处入口文字滞后单列，不修改主报告。"
+            },
+            {
+              "id": "E13",
+              "commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+              "file": "OVERNIGHT_SOAK.md",
+              "sha256": "62ba2c1aaabfc91ccd8a9757983b7d4a5032d4b0a50bcb08a72f6e78dc6754a8",
+              "test": "rc10新7200秒仍RUNNING；原始原子报告只作本轮状态快照。",
+              "scope": "不预加完成分；rc9旧7200PASS与稳定真Mail5357秒FAIL均保留版本。"
+            },
+            {
+              "id": "E16",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_MAIL_PROFILE_LOGIN_SUMMARY.json",
+              "sha256": "0b21bb3f7a94bdaa1f57b87df832c0ff70cb3a2f7eb4b9e8ac8999082cba9ef3",
+              "test": "当前rc10在次级已授权Host0fd诊断缓存可读、同步缺凭据、零发送。",
+              "scope": "依据公开脱敏摘要与vault源SHA；未读取私有原件或Secret；非最终Host938实发。"
+            },
+            {
+              "id": "E17",
+              "commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+              "file": "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json",
+              "sha256": "365d5d07ef3b145c90f8e250f151d6a56f5be83571290d0ec29ee7e085aea4f3",
+              "test": "当前UI在次级Host0fd真实只读仍严格schema拒绝，零mutation。",
+              "scope": "不是Host938集成修复/权限/写入通过。"
+            }
+          ],
+          "deduction": "不扣：fixture/真实节点/官方全链、旧新版本、诊断Host0fd/最终Host938、未知usage和未完成soak均明确披露。"
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "E01",
+      "file": "RC10_DELTA_BINDING.json",
+      "sha256": "c6e557053d8760aa86e316eedb107eb7d0c9f4781770fbdebcb9727396fa536b",
+      "bytes": 1781,
+      "last_file_commit": "6e3204f2d53fba0103f3baa8a75c35d0debaeae4",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/app/source/main.splash",
+          "sha256": "a19622e0977b3f988531a1d7db743bc9ef4cd6973fa75bbcdc5dec07d6823cc5",
+          "bytes": 540777,
+          "last_file_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+          "tracked": true
+        },
+        {
+          "file": "official_muse/app/bundle/main.splash",
+          "sha256": "7cdfc751ca3438d453ad28918b30ee93bc5b86091faa56a30864caa5ed1e6cd0",
+          "bytes": 429776,
+          "last_file_commit": "6fd5b54beeba7cc9892916c3de7f01106ab8a158",
+          "tracked": true
+        },
+        {
+          "file": "RC_CODE_FREEZE.json",
+          "sha256": "14a793b3b160961cc10db9ce1d90305935e798e0953726e888e3f06b2d1a5311",
+          "bytes": 5170,
+          "last_file_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+          "tracked": true
+        }
+      ],
+      "test": "当前源/六文件哈希；相对rc9仅memory_correct和版本文本变化；官方91244 token等价为既有Root结果，本轮不重跑tokenizer。",
+      "scope": "当前产品身份及限定函数复用，不把regex边界当AST证明。"
+    },
+    {
+      "id": "E02",
+      "file": "official_muse/rc/startup/RC10_MEMORY_CORRECTION_UI_SUMMARY.json",
+      "sha256": "d35e54837f14181b9799d50a3eaecb3c7ecc359320cfd65c8e3c9f0bc05e4ee4",
+      "bytes": 1156,
+      "last_file_commit": "f8b1d612de0ee97defd35309b35059e615292dfb",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/app/build/ui-memory-20261003/rc10-memory-ui-r1/memory-correction-ui-evidence-r2/report.json",
+          "sha256": "042be31275b4fd3f988c78e2ff6f30b19786a62bd902ed386c9b2ef143ff74d1",
+          "bytes": 5056,
+          "last_file_commit": null,
+          "tracked": false
+        }
+      ],
+      "test": "两个真实单保存相同文档/输入；重复保存无写入；首次Shell重启10SHA与ledger相同。",
+      "scope": "当前rc10合成Memory UI；本轮检查报告，不点击UI。"
+    },
+    {
+      "id": "E03",
+      "file": "RC10_LIVE_NODE_SUMMARY.json",
+      "sha256": "c6fc7e68c94b0cc02b65d1dcc864d05ef6416c8e07c40ed3faacbf0cf3816eca",
+      "bytes": 1807,
+      "last_file_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/app/build/ui-memory-20261003/rc10-final-goal-r1/goal-restart-evidence/report.json",
+          "sha256": "4bf632b80d8c027fd7e1b140ea3e1a61eddb7df453711986c7c0bbecac793bea",
+          "bytes": 3303,
+          "last_file_commit": null,
+          "tracked": false
+        }
+      ],
+      "test": "两次模型调用、一次批准、两个结果；首Shell重启八SHA相等、唯一Goal/Run、不重放。",
+      "scope": "本地任务，非外部业务链或OS重启。"
+    },
+    {
+      "id": "E04",
+      "file": "official_muse/rc/memory_model/RC10_FROZEN28_SEMANTIC_REVIEW.json",
+      "sha256": "1a75b836a6b79b6bc597e0eb8fdc3e59705370267e9f2f85316ef3831c82fbe1",
+      "bytes": 93833,
+      "last_file_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/prelim/tests/semantic_expectations.json",
+          "sha256": "96fa95bc47115a0e45dd273817c2f0d6025e483982984f0506f0228c770a4c0c",
+          "bytes": 14492,
+          "last_file_commit": "33b322ea6fc34fd5920937ad1e6440c89a453b9e",
+          "tracked": true
+        }
+      ],
+      "test": "同一真实聊天先前逐项复核，两模型各28；原20各19PASS1FAIL，setup2/holdout6PASS；M01额外grounding保留。",
+      "scope": "24模型步+4本地步每模型；S02未知usage、M27 classunknown、R02严格缺项均不抹除。"
+    },
+    {
+      "id": "E05",
+      "file": "official_muse/rc/startup/RC10_STARTUP_70_SUMMARY.json",
+      "sha256": "bd911844ce37920703ef6118d787a248c6b674698fea90e700919ac01a1ef579",
+      "bytes": 1747,
+      "last_file_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/rc/startup/evidence/rc10-6fd-final-70-r1/report.json",
+          "sha256": "df8adb7409350b069a3c3bcf9619536937d7ceab2331699dc797732e24afa66f",
+          "bytes": 240518,
+          "last_file_commit": null,
+          "tracked": false
+        }
+      ],
+      "test": "逐行核对30冷/20重开/20Shell重启PASS；六页、输入、焦点、16聊天256消息64claims65sources、SHA/ledger保持。",
+      "scope": "无OS缓存清理/电脑重启/真实Mail后端；最大可交互18.882秒。"
+    },
+    {
+      "id": "E06",
+      "file": "official_muse/rc/startup/RC10_REOPEN_100_SUMMARY.json",
+      "sha256": "3594c7496adff38b8f221485f5f2f5c0526c2e91b4bf625101bdc2279f77d42e",
+      "bytes": 1295,
+      "last_file_commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/rc/startup/evidence/rc10-6fd-light-reopen-100-r1/report.json",
+          "sha256": "eabaefced85fc8b953e8982c918c5cabc0f8fe328c649d75786f34d8826e502c",
+          "bytes": 242630,
+          "last_file_commit": null,
+          "tracked": false
+        }
+      ],
+      "test": "同一Shell PID的100普通重开逐行检查PASS；原capture404保留。",
+      "scope": "不是100次冷启动；仅重复重开耐受证据。"
+    },
+    {
+      "id": "E07",
+      "file": "official_muse/rc/core_chain/PUBLIC_TEST_SUMMARY.json",
+      "sha256": "8b2657b1e490e53c0a07b70ae7f9948ec82e9bbf11899342bc88339fd407db05",
+      "bytes": 12254,
+      "last_file_commit": "91d21a3fd94f67953d048e1901fd0403b888db65",
+      "tracked": true,
+      "support_files": [],
+      "test": "历史core28+4、proposal25+6、fault20+3；限定Goal9/58和metadata5/91等按原源身份记录。",
+      "scope": "fixture/synthetic Host及本地存储；以不变路径有限复用，不是rc10全部故障实测。"
+    },
+    {
+      "id": "E08",
+      "file": "official_muse/rc/packaging/CHUNK_DELTA_BUILD_RESULTS.json",
+      "sha256": "566d9642b158d46dc77130b8f048533785750ef984bd619b5042c873aaebb00c",
+      "bytes": 13963,
+      "last_file_commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/rc/overnight/NATIVE_STORAGE_CHANGE.md",
+          "sha256": "abfe6775bd19bf398082419b6553b6a011233c363ef2eda248d82772ec65309d",
+          "bytes": 1529,
+          "last_file_commit": "aacc8d17cc25724bacaebb5260ff13b628655db7",
+          "tracked": true
+        },
+        {
+          "file": "PREPARATION_CHUNK_CHANGE.md",
+          "sha256": "159d49ec6a1aa4b70cdedc69abc32d86675befab61f9499441925356c7c35828",
+          "bytes": 1113,
+          "last_file_commit": "852fa951b5b509d04cd0f0b9b9225d1091ef84fe",
+          "tracked": true
+        }
+      ],
+      "test": "历史native摘要/4KiB准备与取消测试、增量Host/Card构建及签名。",
+      "scope": "增量SDK机制；非当前clean或新Calendar Host。"
+    },
+    {
+      "id": "E09",
+      "file": "RC_CALENDAR_READONLY_REPORT.md",
+      "sha256": "3cca5dfde37bc0f0edc9fa23d19a9c86f9911df3e7ed23c667462d4b2d805f1e",
+      "bytes": 4293,
+      "last_file_commit": "637cbe519686d6d28f30b31292b0e8a7f10102c7",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/rc/startup/calendar_boolean_serialization.m",
+          "sha256": "54c4a8c396a49d2bcc21fd864430fd3d249d7b5794313a43dd9fafad2e97f094",
+          "bytes": 1317,
+          "last_file_commit": "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
+          "tracked": true
+        },
+        {
+          "file": "sdk-overlays/octosense/apps/calendar/host-service/src/eventkit.m",
+          "sha256": "6c51230d3dab93b2d320bc2f0ad12bfec2d01a1766d74ec862af1e0942261029",
+          "bytes": 11073,
+          "last_file_commit": "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
+          "tracked": true
+        }
+      ],
+      "test": "旧Host实读数字truncated问题；源码92b1布尔修复、Foundation三个边界与桥object编译的既有结果。",
+      "scope": "源码修复未进运行Host938；不计当前创建/改期/get成功。"
+    },
+    {
+      "id": "E10",
+      "file": "official_muse/rc/packaging/CLEAN_ROOM_R2_FINAL_AUDIT.json",
+      "sha256": "1c4f75db8cc99d72962e7665562961282b949d68f71281012d94356b3f56f36c",
+      "bytes": 6696,
+      "last_file_commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "official_muse/rc/packaging/CALENDAR_PURE_TEST_RESULTS.json",
+          "sha256": "f5c8bd6fa6b22f70d5fee5fb132a9c8067e476d32c5ecc087aa6c3077cde31ae",
+          "bytes": 415,
+          "last_file_commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+          "tracked": true
+        },
+        {
+          "file": "official_muse/rc/packaging/UPSTREAM_CALENDAR_CONTRIBUTION.md",
+          "sha256": "20d5cdeb7b92b9ca678eb5b781328580b862710846304f556001188b23ac00a9",
+          "bytes": 7174,
+          "last_file_commit": "51359d702603e9cc5c98e6f46f2aa6ed631ded26",
+          "tracked": true
+        }
+      ],
+      "test": "历史五SDK固定还原/12000验证与三项纯Calendar测试；clean最终中止、无新可执行物。贡献草稿可审阅。",
+      "scope": "DRAFT/NOT_SUBMITTED；非官方准入/上游合并/当前复现。"
+    },
+    {
+      "id": "E11",
+      "file": "official_muse/rc/screenshots/RC10_NATIVE_PROVENANCE.json",
+      "sha256": "b18d34d5c6397423bb5ea6142c9af7e24e2ce37b1c817bd5da42060813cdd979",
+      "bytes": 1309,
+      "last_file_commit": "9780c16f4e27ae55a30908885a9596ba419077ca",
+      "tracked": true,
+      "support_files": [],
+      "test": "四张当前合成原生PNG逐文件SHA匹配，Root已看图的provenance。",
+      "scope": "本轮不声称新视觉验收；无当前外部链视频。"
+    },
+    {
+      "id": "E12",
+      "file": "RC_EVIDENCE_INDEX.json",
+      "sha256": "eec7c106d8a9955781f7091a2cfeb2c60cf99abe15859a165f30fa1cbf1bb1f6",
+      "bytes": 23398,
+      "last_file_commit": "642aa35b5c648e026f9c068244ebcbe92a7896d1",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "RC_ACCEPTANCE_MATRIX.md",
+          "sha256": "3f4057767fab85944a503aa2402a57cb79368f9f536b835b68c488d4cb426e5b",
+          "bytes": 5581,
+          "last_file_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+          "tracked": true
+        },
+        {
+          "file": "RC_CODE_FREEZE.json",
+          "sha256": "14a793b3b160961cc10db9ce1d90305935e798e0953726e888e3f06b2d1a5311",
+          "bytes": 5170,
+          "last_file_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+          "tracked": true
+        },
+        {
+          "file": "MORNING_CHAMPIONSHIP_REPORT.md",
+          "sha256": "e05e16f85c32d399933bf72cd91827163210f6209c47b141100784ecd69d389e",
+          "bytes": 4518,
+          "last_file_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+          "tracked": true
+        },
+        {
+          "file": "CHAMPIONSHIP_SCORECARD.md",
+          "sha256": "a4c7960b32c00a48a65436b44bd3fe2e88d1b46c5717b49e388f8c6509b09dee",
+          "bytes": 4389,
+          "last_file_commit": "c176acfdfed10b404344dfda2dc78dcd407a4a40",
+          "tracked": true
+        },
+        {
+          "file": "MUSE_HANDOFF/CURRENT_STATE.md",
+          "sha256": "a204420559cbd88c15ed9eb5b36e9de66a334642333a816fe12a4a1bbe889652",
+          "bytes": 97493,
+          "last_file_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+          "tracked": true
+        },
+        {
+          "file": "SOURCE_DELIVERY.md",
+          "sha256": "8e1009064ce563066d6d106a8ce684c5e678fe52997b0e20d53aa31771c2c161",
+          "bytes": 10216,
+          "last_file_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+          "tracked": true
+        },
+        {
+          "file": "OVERNIGHT_SOAK.md",
+          "sha256": "62ba2c1aaabfc91ccd8a9757983b7d4a5032d4b0a50bcb08a72f6e78dc6754a8",
+          "bytes": 2950,
+          "last_file_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+          "tracked": true
+        }
+      ],
+      "test": "55行bytes/SHA均匹配；原20项5/14/1独立计数；主报告身份分开。",
+      "scope": "三处入口文字滞后单列，不修改主报告。"
+    },
+    {
+      "id": "E13",
+      "file": "OVERNIGHT_SOAK.md",
+      "sha256": "62ba2c1aaabfc91ccd8a9757983b7d4a5032d4b0a50bcb08a72f6e78dc6754a8",
+      "bytes": 2950,
+      "last_file_commit": "3237019b82bceb8e47a1c4dcf74640d4650dfa06",
+      "tracked": true,
+      "support_files": [],
+      "test": "rc10新7200秒仍RUNNING；原始原子报告只作本轮状态快照。",
+      "scope": "不预加完成分；rc9旧7200PASS与稳定真Mail5357秒FAIL均保留版本。"
+    },
+    {
+      "id": "E14",
+      "file": "official_muse/rc/packaging/RC10_DISTRIBUTION_COALESCING_SUMMARY.json",
+      "sha256": "789809c0a53e64d1499d0c096ed2647d80a8e24860bf73e85f45cd2dc96b8db8",
+      "bytes": 2178,
+      "last_file_commit": "932d4f6bfc1a3e2cafb9d8c26a4129b7f7a32ae0",
+      "tracked": true,
+      "support_files": [],
+      "test": "两批15+17=32份相同分发文件；分别观测空间差额合计210481152字节。",
+      "scope": "观测包含并发系统分配，非按逻辑320205669字节推算物理回收；没有新Host构建。"
+    },
+    {
+      "id": "E15",
+      "file": "official_muse/rc/packaging/RC10_SOURCE_FOLDER_TOOL_SUMMARY.json",
+      "sha256": "e258ce7ce9dc92f12b267629dd0943850fc9bc773bbc35adc8f0553fc06407b2",
+      "bytes": 1107,
+      "last_file_commit": "932d4f6bfc1a3e2cafb9d8c26a4129b7f7a32ae0",
+      "tracked": true,
+      "support_files": [],
+      "test": "源码导出器AST/help及10+4微型合成fixture结果存在且哈希匹配。",
+      "scope": "1725字节fixture；实际F/桌面导出NOT_YET_PERFORMED，不能计复现成功。"
+    },
+    {
+      "id": "E16",
+      "file": "official_muse/rc/startup/RC10_MAIL_PROFILE_LOGIN_SUMMARY.json",
+      "sha256": "0b21bb3f7a94bdaa1f57b87df832c0ff70cb3a2f7eb4b9e8ac8999082cba9ef3",
+      "bytes": 1822,
+      "last_file_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "tracked": true,
+      "support_files": [
+        {
+          "file": "sdk-overlays/octosense/apps/mail/host-service/src/vault.rs",
+          "sha256": "5a81d0df77a3d8ea7235db368970ccdd0d38fe1c8c1a0c94187e62c76fd47a98",
+          "bytes": 17208,
+          "last_file_commit": "eba2924db8a8531a3affe8882a7c5b89fb0c220d",
+          "tracked": true
+        }
+      ],
+      "test": "当前rc10在次级已授权Host0fd诊断缓存可读、同步缺凭据、零发送。",
+      "scope": "依据公开脱敏摘要与vault源SHA；未读取私有原件或Secret；非最终Host938实发。"
+    },
+    {
+      "id": "E17",
+      "file": "official_muse/rc/startup/RC10_CALENDAR_READONLY_UI_SUMMARY.json",
+      "sha256": "365d5d07ef3b145c90f8e250f151d6a56f5be83571290d0ec29ee7e085aea4f3",
+      "bytes": 1143,
+      "last_file_commit": "10a1b12491569782cfda5d11e4829b0f2e9f4dcd",
+      "tracked": true,
+      "support_files": [],
+      "test": "当前UI在次级Host0fd真实只读仍严格schema拒绝，零mutation。",
+      "scope": "不是Host938集成修复/权限/写入通过。"
+    }
+  ],
+  "independent_checks": {
+    "source_and_six_bundle_hashes_match": true,
+    "all_text_except_memory_correct_and_version_identical_to_rc9": true,
+    "index_rows_verified": 55,
+    "rc10-startup70-raw": {
+      "cold": {
+        "rows": 30,
+        "pass": 30,
+        "interactive_median_seconds": 14.72870623899999,
+        "interactive_max_seconds": 18.881699742000002
+      },
+      "reopen": {
+        "rows": 20,
+        "pass": 20,
+        "interactive_median_seconds": 9.240689262999979,
+        "interactive_max_seconds": 10.088647519999995
+      },
+      "restart": {
+        "rows": 20,
+        "pass": 20,
+        "interactive_median_seconds": 12.588640781499976,
+        "interactive_max_seconds": 14.660818662999986
+      }
+    },
+    "rc10-reopen100-raw": {
+      "cold": {
+        "rows": 0,
+        "pass": 0,
+        "interactive_median_seconds": null,
+        "interactive_max_seconds": null
+      },
+      "reopen": {
+        "rows": 100,
+        "pass": 100,
+        "interactive_median_seconds": 9.389030739499958,
+        "interactive_max_seconds": 10.209891209000034
+      },
+      "restart": {
+        "rows": 0,
+        "pass": 0,
+        "interactive_median_seconds": null,
+        "interactive_max_seconds": null
+      }
+    },
+    "goal_first_restart_eight_hashes_equal": true,
+    "memory_same_document_after_two_saves_and_first_restart_ten_hashes_equal": true,
+    "frozen28_prior_independent_review_hash_bound_no_rerun": true,
+    "four_synthetic_native_png_hashes_match_not_visual_rereview": true,
+    "resource_and_export_fixture_arithmetic": {
+      "coalesced_files": 32,
+      "observed_separate_free_delta_bytes": 210481152,
+      "exporter_micro_checks": 14,
+      "actual_export": "NOT_YET_PERFORMED"
+    },
+    "acceptance_matrix": {
+      "PASS": 5,
+      "PARTIAL": 14,
+      "BLOCKED": 1
+    },
+    "vault_and_calendar_source_hashes_match": true
+  },
+  "findings": [
+    {
+      "priority": 3,
+      "file": "CHAMPIONSHIP_SCORECARD.md",
+      "lines": [
+        1,
+        3,
+        7,
+        19
+      ],
+      "issue": "页面rc9标题和RC9审阅引用是历史身份，但正文仍称当前内部A/B且写原28步骤两模型尚待；作为rc10晨间报告的评分入口容易误读。",
+      "action": "Root把旧70/70段明确标为rc9历史截点；rc10审阅另列，保留原结果，不把完整观察写为尚待。"
+    },
+    {
+      "priority": 3,
+      "file": "MUSE_HANDOFF/CURRENT_STATE.md",
+      "lines": [
+        5
+      ],
+      "related_file": "MUSE_HANDOFF/README.md",
+      "issue": "最新接手段仍把额外100普通重开与7200秒都写为运行中；当前RC10_REOPEN_100_SUMMARY及原报告已100/100 PASS。",
+      "action": "Root只同步最新入口的100完成状态；7200秒仍按本截点RUNNING。"
+    },
+    {
+      "priority": 3,
+      "file": "SOURCE_DELIVERY.md",
+      "lines": [
+        9
+      ],
+      "issue": "写当前三张rc10截图；RC10_NATIVE_PROVENANCE已列四张且四个文件SHA匹配。",
+      "action": "Root同步为四张，保留合成资料及非外部业务视频的限制。"
+    }
+  ],
+  "deduplication": [
+    "两个模型各28=原20+setup2+holdout6；其中24模型步+4本地步。local_cancel/local_setup不冒充模型题。",
+    "每个模型的前缀8/13和未见后缀20/15各合成一次28；原驱动故障和M3 S02失败保留，未重放输入。",
+    "48个冻结模型步骤是两个通道的同一28题集，不是48个独立业务场景；成功Host回调不等于语义通过。",
+    "一次Goal有2模型调用、1批准、2本地结果、1首次Shell重启；八个相等SHA不是八次重启。",
+    "Memory双保存首次Shell恢复10文件是独立窄UI回归；不和Goal八文件混成18次重启。",
+    "70由30+20+20组成；另100是同Shell PID内普通重开，启动功能与长运行子项只分别奖励启动正确性及重复操作耐受，不扩大运行环境。",
+    "正在运行的rc10新soak不给完成分，旧rc9/V15已完成时长不累加至本候选；旧真实Mail5357秒FAIL保留。",
+    "32相同分发文件和210481152字节为分别观测差额；不是新Host构建或新系统能力。",
+    "导出器10+4为两批微型fixture及当前脚本窄复核，不是实际F导出、14次完整复现或接收Mac运行。",
+    "跨维度引用同一原件只证明不同属性，不增加实际测试次数；fixture、真实节点和官方full-chain始终分开。"
+  ],
+  "unmet_gates": [
+    "同最终候选/身份Mail→Memory→Calendar create/get→原ID改期/get→回复到达→首次恢复/跨聊天完整业务链。",
+    "当前profile通过官方登录获得同步凭据；新Calendar桥编入Host、对应权限和精确动作授权。",
+    "M3 S02 invalid_output/未知usage、M27 R02缺因及两个M01无依据评价尚未有已授权修复后的新验收。",
+    "rc10完整7200秒合成驻留仍RUNNING；真实Mail后端长运行未完成，历史5357秒绘制FAIL未关闭。",
+    "完整clean构建/安装、OS重启、第二Mac/ARM；当前Frozen F及桌面交付尚未实际导出。",
+    "当前外部业务视频、正式publisher/政策、独立scan reviewer、stockHub准入与上游贡献接纳。"
+  ],
+  "followup_policy": "Root提供soak完成原件精确SHA和范围后，仅复核新证据并对这两份A审阅做一次短增量更新；不重复既有测试，不自动抬分，不修改共享主报告。",
+  "headline": "当前截点内部A73/100，原20项仍5PASS14PARTIAL1BLOCKED。soak未完成不给完成分；不代表官方评分、排名、READY或发布通过。"
+}
+

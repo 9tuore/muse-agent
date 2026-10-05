@@ -3,7 +3,7 @@
 夜间不重复询问产品方向或申请权限。本人自发自收与日历读取授权有效；下列缺项不是取消已有授权，也不能靠代填Secret或代点TCC解决。
 
 1. **运行中的Calendar桥**：源码92b1df15/SDKda756dde已修布尔编码，但Host938仍SDK3f。完整Host600MiB构建门槛与clean验证保留；当前rc10已授权旧Host0fd真实查询仍schema拒绝。
-2. **最终profile凭据**：独立profile缓存可读，真实同步“账号密码缺失，请重新登录”；官方Keychain按Host邮件目录绑定。请在最终匹配Host/profile官方UI登录，不把密码/授权码发到聊天。不得通过读取旧Keychain秘密、改命名空间或共享生产邮件目录规避。
+2. **最终profile凭据**：独立profile缓存可读，真实同步“账号密码缺失，请重新登录”；官方Keychain按Host邮件目录绑定。先固定一个最终隔离profile路径，后续候选沿用该路径；在最终匹配Host/profile官方UI登录，不把密码/授权码发到聊天。不得通过读取旧Keychain秘密、改命名空间或共享生产邮件目录规避。
 3. **最终Calendar身份与精确事件**：新身份not_determined不等于原稳定身份full_access。沿用本人读取授权；新建/原ID改期/清理仍须确认唯一测试ID、工作日历、ISO时段/时区和窄范围动作，不能把历史事件授权扩为任意修改。
 4. **同最终外部全链**：真实两封邮件→授权项目记忆→目标Calendar冲突/最多两个核验替代→create/get→同事项原ID改期/get→独立发信确认/到达→第一次恢复/跨聊天。旧0.3.25今晚实际自发自收保持旧身份，不拼接。
 5. **模型失败**：rc10两实际模型原20题各19PASS/1FAIL，setup2/holdout6全PASS。M3 S02格式无效/usage未知，M2.7 R02缺回执原因，两模型M01评价无依据；保留失败，不重跑挑答案、硬编码或降低标准。M2.7 classunknown不称第二strong。
