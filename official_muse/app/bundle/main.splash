@@ -2371,7 +2371,7 @@ mail_redraw()
 }
 
 fn mail_link_calendar(){
-if mail_account==nil||mail_selected==nil|| !calendar_ready{return}
+if mail_calendar_link_pending||mail_account==nil||mail_selected==nil|| !calendar_ready{return}
 let project=mail_scope_project let owner=mail_scope_owner
 if mail_selected!=nil{
 let explicit_scope=schedule_scope(mail_selected.body,mail_account.id)
@@ -2447,19 +2447,16 @@ return
 }
 if recovered_goal{
 let recovered=goals[core_goal_index(id)].to_json().parse_json()
+if recovered.mail_source.source_id!=source_id{
 recovered.mail_source.source_id=source_id
 if!core_upsert_goal(recovered){mail_error=core_error mail_redraw()return}
-core_select_goal(id)
+}
+if selected_id!=id{core_select_goal(id)}
 }
 let source={source_id:source_id kind:"runtime_receipt"
 locator:"mail:"+account_id+":"+message_id content_sha256:fs.sha256(mail_selected.body)
 observed_at:now updated_at:now support_excerpt:excerpt}
 source["scope"]=task_memory_scope(id,account_id)
-if!core_add_source(source){
-mail_error="目标 已保存，但邮件来源未保存："+core_error
-mail_redraw()
-return
-}
 let memory_id="memory:goalmail:"+id+":"+message_id
 let doc={schema_version:"muse.dsl/1" kind:"memory" id:memory_id revision:1
 created_at:now updated_at:now origin:{type:"local_runtime" ref:"mail-host"}
@@ -2467,26 +2464,52 @@ payload:{subject_id:id predicate:"calendar_source_message:"+message_id value:bod
 epistemic_type:"external_claim" source_ids:[source_id]observed_at:now
 valid_from:nil valid_until:nil relations:[]deleted:false}}
 doc["scope"]=task_memory_scope(id,account_id)
-if core_memory_index(memory_id,account_id)<0&& !core_add_claim(doc){
-mail_error="目标 已保存，但来源记忆未保存："+core_error
-mail_redraw()
-return
+let context={goal_id:id goal_revision:goals[core_goal_index(id)].version
+account_id:account_id message_id:message_id session_id:chat_selected_id
+project_id:project owner_id:owner focus_project:gm_project focus_owner:gm_owner
+rfc_message_id:mail_selected["message_id"]}
+mail_calendar_link_pending=true
+start_timeout(0.05,||mail_calendar_attach(context,source,doc,excerpt,body,1))
 }
-let candidate={title:"" start:"" end:"" time_zone:"Asia/Shanghai" location:""}
-calendar_links.push({goal_id:id account_id:account_id message_id:message_id
-source_id:source_id observed_at:now source_claim_id:memory_id
-candidate:candidate calendar_id:"" run_id:"" event_id:"" version:""
-status:"candidate" last_error:"" updated_at:time_now()rfc_message_id:mail_selected["message_id"]})
-if!calendar_save(){
-mail_error="目标 与来源已保存，但日历关联未保存："+calendar_error
-mail_redraw()
-return
+
+let mail_calendar_link_pending=false
+fn mail_calendar_attach(context,source,doc,excerpt,body,phase){
+let gi=core_goal_index(context.goal_id)
+if!core_storage_ready|| !core_memory_ready|| !calendar_ready|| !gm_account_allowed(context.account_id)
+||chat_selected_id!=context.session_id||gm_project!=context.focus_project||gm_owner!=context.focus_owner
+||gi<0||goals[gi].status!="planned"
+||goals[gi].archived||goals[gi].version!=context.goal_revision
+||goals[gi].project_id!=context.project_id||goals[gi].owner_id!=context.owner_id
+||goals[gi].mail_source.account_id!=context.account_id
+||goals[gi].mail_source.message_id!=context.message_id||goals[gi].mail_source.source_id!=source.source_id{
+mail_calendar_link_pending=false
+mail_error="任务、来源或授权已变化，请重新核对这封邮件。" mail_redraw()return
 }
-if!recovered_goal{core_record_event("Goal created","从已授权邮件建立日程候选，来源为账号/消息 ID。",id,"","",account_id)}
-calendar_selected_goal=id
-calendar_notice="邮件事实和来源已关联同一 目标；模型只能提出候选，需核对后查询冲突。"
-calendar_model_candidate(id,account_id,message_id,excerpt,body)
-calendar_select_link(id)
+if phase==1{
+if!core_add_source(source){mail_calendar_link_pending=false mail_error="邮件来源未保存："+core_error mail_redraw()return}
+}
+if phase==2{
+if core_memory_index(doc.id,context.account_id)<0&& !core_add_claim(doc){
+mail_calendar_link_pending=false mail_error="来源记忆未保存："+core_error mail_redraw()return
+}
+}
+if phase==3{
+if calendar_link_index(context.goal_id)<0{
+calendar_links.push({goal_id:context.goal_id account_id:context.account_id message_id:context.message_id
+source_id:source.source_id observed_at:source.observed_at source_claim_id:doc.id
+candidate:{title:"" start:"" end:"" time_zone:"Asia/Shanghai" location:""}
+calendar_id:"" run_id:"" event_id:"" version:"" status:"candidate" last_error:"" updated_at:time_now()
+rfc_message_id:context["rfc_message_id"]})
+if!calendar_save(){mail_calendar_link_pending=false mail_error=calendar_error mail_redraw()return}
+core_record_event("Goal created","从已授权邮件建立日程候选，来源为账号/消息 ID。",context.goal_id,"","",context.account_id)
+}
+}
+if phase<4{start_timeout(0.05,||mail_calendar_attach(context,source,doc,excerpt,body,phase+1))return}
+mail_calendar_link_pending=false
+calendar_selected_goal=context.goal_id
+calendar_notice="邮件事实和来源已关联同一任务；请核对日程候选。"
+calendar_model_candidate(context.goal_id,context.account_id,context.message_id,excerpt,body)
+calendar_select_link(context.goal_id)
 }
 
 
@@ -8530,7 +8553,7 @@ Secondary{text:"技术详情" on_click: ||technical_toggle()}
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.3.26-rc16" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.3.26-rc17" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Label{width:Fill text:"能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}

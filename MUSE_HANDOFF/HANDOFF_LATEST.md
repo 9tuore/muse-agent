@@ -1,3 +1,3 @@
-# Muse rc16 交接
+# Muse rc17 交接
 
-分支 codex/muse-rc-finalization。稳定0.3.25和生产资料未改。当前源码rc16，来源碰撞最小修复，本地签名Gate PASS。真实rc15合成来源邮件ID 7f0fe6bd70c6ddda0395969f 自动提醒已通过，但日历关联失败；证据保留在 morning-final-live-r2/morning-real-chain-rc15-r1。rc16待真实同候选回归，不可宣称20项全通过。用户已给新宿主完整日历权限；固定授权profile不迁移。协作A2窄fixture、A4可复现包草稿。所有Secret/私人运行数据不进入Git，无push。
+当前分支codex/muse-rc-finalization，rc17。rc16来源namespace修复空库86项PASS；实机6claims场景执行预算耗尽，已保留。rc17分段来源/claim/关联/模型回调，不升预算不清数据，权限/版本/来源/焦点各步复查。本地签名Gate PASS，实机正在继续，不能宣称全量PASS或同候选全链PASS。固定用户授权profile morning-final-live-r2/private，新Host 7eeb...，授权已完整。无push。
