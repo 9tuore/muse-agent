@@ -1,4 +1,18 @@
-## 2026-10-05 晚间：停止公开最新版，rc36本地续测（当前）
+## 2026-10-06 凌晨：rc45 真实事项闭环与精简交付（当前）
+
+本地产品 d306d3c0 / 0.3.26-rc45，readable51c09d4b / payload3f0c9ee0，98231官方token相等，Host1d7不变。真实App Hub安装六SHA一致；同资料Shell新进程重启七状态/结果文件逐字节保持。未push、改旧Tag或发布，远端回到rc27的此前边界继续有效；未提交baseline.json保持。
+
+唯一合成事项1791214080-2315162597已完成：源信/初次创建rc37，明确原事项改期与关联确认信rc41，本人到达核对rc42，结果与三来源记忆结算/重启/新对话召回rc45。原EventKit ID从15:00–15:30改至16:00–16:30，没有第二条创建；rc45经Muse精确删除一次，独立get守卫/verified收据及完整刷新确认不存在。这是同一事项的跨版本真实闭环，不能写成同最终候选从头验收。
+
+结果分段恢复、精确已校验Memory字节缓存及completed Run内部结算恢复已实现；rc45三组fixture各15检查PASS，无外部动作模拟冒充。新对话真实M3读到最新时间和同UID，但“核验时间”仍有语义歧义。关联任务导航触发VM预算错误、删除后月视图缓存需手动刷新：失败保留，下轮先最小修这两项。产品VM预算/权限/Host未改。
+
+桌面rc45精简运行与公开源码ZIP约131.3MB（<500MB），Intel/macOS14+、ad hoc未公证，空资料首次需配置模型/邮箱/权限，不附权重/凭据。Root独立CRC/SHA/payload核对PASS；包装方ditto/模式/符号链接/签名/启动器检查PASS，未测第二Mac。最终外层报告重包以DELIVERY/.sha256.txt为准。
+
+总体PARTIAL：原20完整标准未全过；同最终从头链、第二strong完整验证、两真实替代、真账号2h及OS/接收机等尚缺。本地扩展Gate/check/scan/catalog PASS是演练，非官方原版Calendar准入或正式Hub上架。详细入口：[本轮报告](../official_muse/rc/closed-loop-rc36-20261005-r1/REPORT.md)、[验收矩阵](../RC_ACCEPTANCE_MATRIX.md)。旧记录保留原身份。
+
+---
+
+## 2026-10-05 晚间：停止公开最新版，rc36本地续测（历史）
 
 用户最新要求“继续跑，把GitHub撤到上一版，不公布最新版”；中途“动错版本”的指正已由本人撤销。远端9tuore/muse-agent/main以精确force-with-lease从bce33551恢复到本轮同步前39e2b20d（rc27），GitHub API及ls-remote独立读回一致。本地最新提交、数据和失败证据保留；自动push授权停止，旧Tag不动。主分支回退不承诺清除已公开对象URL或缓存。
 

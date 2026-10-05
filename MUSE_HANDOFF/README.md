@@ -2,7 +2,7 @@
 
 这是 Muse/GOSIM 项目的统一交接文件夹。**不必读完整聊天，也不必等用户填写任务。**先看 [CURRENT_STATE.md](CURRENT_STATE.md) 的实际通过项、阻塞与下一优先级；需要分层关系时看 [ARCHITECTURE.md](ARCHITECTURE.md)，产品方向看 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)。根目录 `AGENTS.md` 链接到本文件夹的 [开发规则](AGENTS.md)。
 
-当前2026-10-05下午入口：已安装0.3.26-rc24，产品a6a1f8ba；20项仍5PASS/14PARTIAL/1BLOCKED。UI/QQ登录/安排范围/意图与历史协议已修，指定真实Calendar独立创建→改期→读回→Shell重启→清理通过。最终邮箱关联整链、第二strong独立验收及OS/接收机等未完。优先看CURRENT_STATE、[本轮报告](../official_muse/rc/improvement-20261005-r1/REPORT.md)与RC_ACCEPTANCE_MATRIX；下面2026-09-29内容为旧调查基线。
+当前2026-10-06凌晨入口：本地0.3.26-rc45 / d306d3c0；指定真实事项完成邮件→原事件改期→关联确认信本人到达→结果与记忆→Shell重启→新对话召回→Muse精确清理。节点跨rc37/41/45，总体PARTIAL，不能写成同最终候选整链或20/20。桌面Intel/macOS14+精简运行与公开源码ZIP约131.3MB；没有push/Tag/正式Hub提交。优先看CURRENT_STATE、[最新报告](../official_muse/rc/closed-loop-rc36-20261005-r1/REPORT.md)与[验收矩阵](../RC_ACCEPTANCE_MATRIX.md)；下一项是关联任务导航预算错误和删除缓存刷新。下面是历史调查基线。
 
 截至 2026-09-29 的调查基线：仓库 `main`，代码基线 `dbd08ed`，交接包首次提交 `c068fb6`；macOS 应用版本 `0.3.1`。本机原生 App、Qwen、QQ 邮箱和受限长期 Goal 有真实本机路径；高阶模型实调、Calendar 完整读写、robrix2 与官方同任务全链不可宣称完成。当前安装应用在前次文档验证后已恢复有效签名；运行状态和 HEAD 每次都要现场重查。
 

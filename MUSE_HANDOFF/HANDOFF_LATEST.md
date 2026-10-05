@@ -2,28 +2,28 @@
 
 ## Task
 
-继续本地测试，按用户最新要求撤回本轮GitHub同步；codex/muse-rc-finalization。
+rc45真实事项闭环与<500MB交付；codex/muse-rc-finalization，产品d306d3c0。
 
 ## Result
 
-PARTIAL。远端main已恢复39e2b20d/rc27，API和ls-remote读回一致。新版暂停公开。本地rc36已在8493真实AppHub安装并打开。
+PARTIAL。唯一事项邮件/原事件改期/关联确认信到达/结果Memory/新Shell恢复/跨对话召回/Muse删除读回均完成；节点跨rc37/41/45，非同最终从头整链。
 
 ## Changed
 
-rc36把返回日历移至固定标题，源码f9b3a4d5/载荷827ba8d7；更新发布边界和续测记录。
+官方Splash邮件与结果短回调、项目偏好检索、正文/直接改期UI、已校验记忆缓存和completed Run内部恢复；本轮报告与矩阵更新。
 
 ## Tests
 
-rc35重启后的原文字问题真实strong/attempts1成功，正确区分意图与执行，未触发动作。Work真实刷新成功；旧日期点击失败是数字ID/文本混淆。rc36准确点击日期打开表单，滚到底仍可返回；六安装SHA、七资料文件及ledger保持，96668官方tokens相等，本地Gate PASS。旧失败保留，私人截图不入Git。
+rc45 3组fixture各15PASS；真实AppHub六SHA，重启七文件字节保持；唯一合成事件delete一次/独立get守卫与刷新确认不存在；桌面ZIP约131.3MB，CRC/SHA/载荷核对。证据official_muse/rc/closed-loop-rc36-20261005-r1/REPORT.md。
 
 ## Commit
 
-产品522ad495，仅本地。远端固定39e2b20d；不push/Tag/正式Hub。
+产品d306d3c0，本次报告另本地提交。未push/Tag/发布。
 
 ## Remaining
 
-同最终完整外链、第二strong、两替代、真账号2h、OS/双Mac等未完成；早期model前失败未定根因，Muse删除导航未验。
+关联任务导航VM预算超时；删除缓存需手动刷新；同最终从头链、第二strong/两替代/真账号2h/OS与接收机等完整门槛尚缺。
 
 ## Important Boundaries
 
-跨版本与节点不合成整链PASS。Gate检查前Git基线bce33551，产品以源码SHA/522ad495绑定。旧安装/稳定/生产/dirty baseline保护。
+fixture与实际Host分开；Calendar本地扩展/Gate演练，非正式官方准入。Intel/macOS14+空profile需本人配置账号/模型。生产、旧独立版与dirty baseline保护。
