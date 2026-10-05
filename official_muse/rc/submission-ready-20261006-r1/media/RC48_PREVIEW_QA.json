@@ -1,0 +1,114 @@
+{
+  "status": "PREVIEW_ONLY_FINAL_RC49_FOOTAGE_PENDING",
+  "candidate": "0.3.26-rc48",
+  "product_commit": "89bfd399",
+  "video": "outputs/rc48-final-r1/Muse-rc48-demo.zh-CN.mp4",
+  "video_bytes": 5622716,
+  "video_sha256": "f2f8ded3dd3d80d1966c2ecb6367c760d00e72c1a5f6d47596b432c1cc7399c5",
+  "duration_seconds": 174,
+  "full_decode": "PASS",
+  "audio_listened": false,
+  "sources": [
+    {
+      "name": "live-rc48-r1",
+      "manifest_sha256": "fa9ba62bfe44195991605e68266aa9973723231adc73eb6eb8993a745b7f7cf0",
+      "frames": 172,
+      "frame_sha_verification": "PASS",
+      "elapsed_seconds": 228.042533378,
+      "first_last_span_seconds": 227.24714693,
+      "median_interval_seconds": 0.7514867690000244,
+      "max_interval_seconds": 18.3561189,
+      "missed_attempts": 9
+    },
+    {
+      "name": "live-rc48-restart-r1",
+      "manifest_sha256": "a3fe0714fd6a03cb45fbf05c647ec93b9b6d0145857001685ed360788cad2786",
+      "frames": 154,
+      "frame_sha_verification": "PASS",
+      "elapsed_seconds": 107.202384982,
+      "first_last_span_seconds": 106.047687821,
+      "median_interval_seconds": 0.600965979999998,
+      "max_interval_seconds": 2.9709468160000014,
+      "missed_attempts": 3
+    }
+  ],
+  "privacy_ocr": {
+    "images_checked": 326,
+    "email_like_hit_frames": 21,
+    "uncovered_detected_email_boxes": 0,
+    "method": "macOS Vision fast en-US; matches @ or qq.com; only boxes exported, no recognized strings",
+    "limitations": "Heuristic scan supplements sampled visual review; not an exhaustive sensitive-content classifier",
+    "hit_ranges": {
+      "live-rc48-r1": [
+        [
+          6,
+          11
+        ],
+        [
+          31,
+          45
+        ]
+      ]
+    },
+    "redaction_rectangles_original_pixels": [
+      {
+        "frames": [
+          5,
+          11
+        ],
+        "xywh": [
+          1655,
+          550,
+          485,
+          655
+        ]
+      },
+      {
+        "frames": [
+          31,
+          45
+        ],
+        "xywh": [
+          40,
+          435,
+          2710,
+          670
+        ]
+      }
+    ]
+  },
+  "qa_findings": [
+    {
+      "issue": "Oversized subtitles and orphan punctuation",
+      "state": "Caption splitting and font changed; actual libass sample visually checked; full revised encode pending"
+    },
+    {
+      "issue": "Privacy/history note overlaps subtitle band",
+      "state": "Moved note to header y62 in builder; full revised encode pending"
+    },
+    {
+      "issue": "Full-page privacy mask covers first plan detail frames",
+      "state": "Last sensitive OCR frame45, visual frame46 already plan; mask end changed48 to45; full revised encode pending"
+    },
+    {
+      "issue": "Calendar narration starts before calendar page",
+      "state": "UNRESOLVED in retained preview; source168 at223.924 still Memory; shorten/remove section in final edit"
+    },
+    {
+      "issue": "Narrator says latest candidate while footage is rc48",
+      "state": "UNRESOLVED in retained preview after rc49 steering; replace with actual final footage or version-specific wording"
+    }
+  ],
+  "disclosure": {
+    "capture": "Actual visible-window sampled PNG stream; low cadence and missed requests retained in private manifests",
+    "playback": "30fps repeats captured pixels between actual sample timestamps; no motion interpolation or invented action frames",
+    "cuts": "rc48-edit-plan.json",
+    "external_chain": "Mail/Calendar external actions are cross-version historical evidence, not new rc48 full-chain execution",
+    "model": "Candidate model before approval; approval only Storage/readback/memory; cross-chat recall performs separate actual model call"
+  },
+  "delivery": {
+    "desktop_copied": false,
+    "publishable_final": false,
+    "next": "Intake rc49 final capture, align narration once, render and review final; create safe continuous evidence clips and separate Desktop attachment folder"
+  }
+}
