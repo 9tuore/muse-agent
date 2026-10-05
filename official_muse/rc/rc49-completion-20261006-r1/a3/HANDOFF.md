@@ -8,3 +8,7 @@ r4同Host1d7/rc49 payload15ea、正常AppHub打开Muse：单gpt-4o、fallback空
 
 ## 未完成/下一步
 GPT通道API base/路径需准确核验；现在停止请求，不猜URL、不寻找Key、不改Host吞HTML。T17安全题及同最终候选T18完整链尚不能放行。Root继续产品工作；A3只拥有本目录。不得提交.local-state或将配置名当实际后端身份。
+
+## rc51审计接力
+
+仅新增a3/rc51源码影响与原20余项审计，确切快照5c182b67。结论PARTIAL：初始化和重绘改动必须实测，A4当前原启动矩阵未过。T08一准确且真实检查时段有效；T19不需所有矮窗同时4条；自定义URL不是天然不独立。新Calendar未获批准/零写入，本人到达声明不补。继续由Root/A2/A4各自所有权推进，不启动/调用模型、邮件或Calendar。
