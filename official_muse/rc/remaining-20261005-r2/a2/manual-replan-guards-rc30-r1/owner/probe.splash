@@ -1,0 +1,79 @@
+let mr_case="owner"
+let mr_checks={}
+let mr_calls=[]
+let mr_models=[]
+let mr_before={}
+let mr_wait=0
+let mr_message_id="a2-follow-message"
+fn chain_fixture_request(service,args,cb){
+    mr_calls.push(service)
+    if service=="mail.accounts" {cb({is_ok:true data:[{id:"synthetic-account" address:"self@example.invalid"}]}) return}
+    if service=="model.complete" {mr_models.push(cb) return}
+    if service=="calendar.get" {
+        if mr_case=="message_late" {start_timeout(0.01,|| {mail_selected.id="a2-message-changed-during-get" mr_checks.message_changed_during_get=true})}
+        let event=calendar_links[0].original_event.to_json().parse_json()
+        event.recurring=false
+        start_timeout(0.05,|| cb({is_ok:true data:{found:true event:event}})) return
+    }
+    cb({is_ok:false error:"A2 manual replan forbids real model/external actions"})
+}
+fn mr_finish(){
+    let safe=true for call in mr_calls {if call!="model.complete" && call!="calendar.get" && call!="mail.accounts" {safe=false}}
+    mr_checks.no_external_mutation=safe && actions.len()==1 && runs.len()==1
+    mr_checks.original_event_id_preserved=calendar_links[0].event_id=="a2-created-event"
+    mr_checks.calls=mr_calls mr_checks.model_requests=mr_models.len() mr_checks.error=calendar_error mr_checks.mail_error=mail_error
+    fs.write("probe.json",mr_checks.to_json())
+}
+fn mr_ready(){
+    if gm_boot_pending {start_timeout(0.03,|| mr_ready()) return}
+    mr_checks.memory_ready=gm_ready && memory.len()==2
+    core_boot_goals() core_boot_activity() calendar_boot() chat_boot()
+    gm_set_accounts(["synthetic-account"])
+    gm_set_focus("a2-project","a2-owner")
+    mail_account={id:"synthetic-account" address:"self@example.invalid"}
+    mail_scope_project="a2-project" mail_scope_owner="a2-owner"
+    mail_selected={id:mr_message_id sender:"合成发送人" address:"sender@example.invalid"
+        subject:"合成改期" body:"请把原约定改到2026年12月16日15点至16点。" date:"2026-10-05T12:00:00Z"}
+    notification_enabled=false
+    mr_checks.no_rfc_auto_match=schedule_match_original(mail_account.id,mail_selected)==""
+    if mr_case=="account" {mail_account.id="synthetic-other-account"}
+    if mr_case=="project" {mail_scope_project="a2-other-project"}
+    if mr_case=="owner" {mail_scope_owner="a2-other-owner"}
+    if mr_case=="message" {mail_selected.id="a2-different-message"}
+    if mr_case=="not_verified" {calendar_links[0].status="candidate" mr_checks.unverified_seed_saved=calendar_save()}
+    start_timeout(0.05,|| mr_call())
+}
+fn mr_call(){
+    mr_before={goals:fs.read("goals.json") memory:fs.read("memory.json") calendar:fs.read("calendar-state.json")}
+    mail_replan_confirmed("a2-goal",mr_message_id)
+    start_timeout(0.05,|| mr_poll())
+}
+fn mr_poll(){
+    mr_wait=mr_wait+1
+    if mr_case=="message_late" && mr_wait<3 {start_timeout(0.03,|| mr_poll()) return}
+    if mr_case=="legal" || mr_case=="legal_dense" {
+        if mr_models.len()==0 && calendar_error=="" && mr_wait<100 {start_timeout(0.03,|| mr_poll()) return}
+        let g=goals[core_goal_index("a2-goal")]
+        let link=calendar_links[calendar_link_index("a2-goal")]
+        let source="source:goalmail:a2-goal:synthetic-account:"+mr_message_id
+        mr_checks.same_goal_updated=goals.len()==1 && g.id=="a2-goal" && g.version==2 && g.status=="planned"
+        mr_checks.same_original_matter=link.goal_id=="a2-goal" && link.operation=="update" && link.event_id=="a2-created-event"
+        mr_checks.exact_new_message_bound=g.mail_source.message_id==mr_message_id && link.message_id==mr_message_id
+            && g.mail_source.source_id==source && link.source_id==source
+        mr_checks.history_retains_old_message=link.history.len()==1 && link.history[0].message_id=="a2-mail-message"
+        mr_checks.update_capability=g.goal_spec.steps[0].capability=="calendar.update" && g.goal_spec.permissions.capabilities[0]=="calendar.update"
+        mr_checks.source_readback=core_source_index(source,"synthetic-account")>=0
+            && core_memory_index("memory:goalmail:a2-goal:"+mr_message_id,"synthetic-account")>=0
+        mr_checks.only_candidate_model_enqueued=mr_models.len()==1
+    } else {
+        mr_checks.reject_no_get_or_model=mr_calls.len()==0 && mr_models.len()==0
+        if mr_case=="message_late" {mr_checks.reject_no_get_or_model=mr_calls.len()==1 && mr_calls[0]=="calendar.get" && mr_models.len()==0}
+        mr_checks.reject_goal_disk_unchanged=fs.read("goals.json")==mr_before.goals
+        mr_checks.reject_memory_disk_unchanged=fs.read("memory.json")==mr_before.memory
+        mr_checks.reject_calendar_disk_unchanged=fs.read("calendar-state.json")==mr_before.calendar
+        mr_checks.reject_original_version_retained=goals[0].version==1
+    }
+    mr_finish()
+}
+fn mr_probe(){core_boot_memory() gm_boot() start_timeout(0.03,|| mr_ready())}
+start_timeout(0.1,|| mr_probe())

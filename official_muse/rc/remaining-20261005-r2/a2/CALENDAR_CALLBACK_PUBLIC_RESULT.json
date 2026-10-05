@@ -1,0 +1,58 @@
+{
+  "status": "FIXTURE_PASS",
+  "source_sha256": "464cd4caa46ed88b1dde2231e4dc3d4249879707c1102a6e4bb977573bb87253",
+  "compact_sha256": "db1d828b3eee8bc41ef9ef5f9c32d1361577218d873af290da18c021694f7040",
+  "groups": {
+    "dense": {
+      "passed": 14,
+      "failed": [],
+      "report": "calendar-callback-rc29-r4/dense/first/report.json"
+    },
+    "duplicate": {
+      "passed": 14,
+      "failed": [],
+      "report": "calendar-callback-rc29-r3/duplicate/first/report.json"
+    },
+    "request_changed": {
+      "passed": 9,
+      "failed": [],
+      "report": "calendar-callback-rc29-r4/request_changed/first/report.json"
+    },
+    "version_changed": {
+      "passed": 10,
+      "failed": [],
+      "report": "calendar-callback-rc29-r4/version_changed/first/report.json"
+    },
+    "restart_no_action": {
+      "passed": 7,
+      "failed": [],
+      "report": "calendar-callback-rc29-r6/restart_no_action/first/report.json"
+    },
+    "recover_create": {
+      "passed": 13,
+      "failed": [],
+      "report": "calendar-recovery-rc29-r1/recover_create/first/report.json"
+    },
+    "recover_update": {
+      "passed": 13,
+      "failed": [],
+      "report": "calendar-recovery-rc29-r1/recover_update/first/report.json"
+    }
+  },
+  "runtime_checks_passed": 80,
+  "independent_readback_passed": 26,
+  "default_budget_unchanged": true,
+  "real_model": false,
+  "real_os_action": false,
+  "real_smtp": false,
+  "production_data_used": false,
+  "whole_product_status": "PARTIAL",
+  "not_tested": [
+    "real EventKit",
+    "native Shell budget reproduction",
+    "update/delete external callbacks",
+    "post-accept ownership/source changes",
+    "UI visual parity"
+  ],
+  "baseline_note": "Old5e dense also passed; no claim that this fixture reproduces Root native time-budget failure."
+}

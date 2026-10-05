@@ -1,0 +1,57 @@
+{
+  "failures_preserved": [
+    {
+      "directory": "calendar-callback-baseline-r1/dense",
+      "runtime_log_sha256": "00d16d818b2246058db2b6425405431930b5fa571da6b95e58b5af304a26d630",
+      "original_report_exists": true,
+      "passed": 12,
+      "failed": [
+        "memory_loaded",
+        "primary_readback"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "directory": "calendar-callback-rc29-r2/duplicate",
+      "runtime_log_sha256": "77ebf7e4b97947e6ac99da478b2f4509ab1d479f95aa62c907647332acace2cd",
+      "original_report_exists": false,
+      "runtime_errors": []
+    },
+    {
+      "directory": "calendar-callback-rc29-r2/version_changed",
+      "runtime_log_sha256": "bbe6d3a1050daff2b6b6193f5931cfb65f61a67ae696c9727db63c1524b5497c",
+      "original_report_exists": true,
+      "passed": 8,
+      "failed": [
+        "primary_readback"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "directory": "calendar-callback-rc29-r2/restart_no_action",
+      "runtime_log_sha256": "0e6a451bb0001e62c9ace6e8ea8f8455bfdef9eea5f9c2d33a46f52aea12cad2",
+      "original_report_exists": false,
+      "runtime_errors": [
+        "widget 'mail_to' not found in tree (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)",
+        "widget 'right_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ]
+    },
+    {
+      "directory": "calendar-callback-rc29-r4/restart_no_action",
+      "runtime_log_sha256": "0611d3819f9847f119ba8ebc24e12a3154f0b13d822530d66e29aff2ef3d2da6",
+      "original_report_exists": false,
+      "runtime_errors": [
+        "widget 'right_page_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ]
+    },
+    {
+      "directory": "calendar-callback-rc29-r5/restart_no_action",
+      "runtime_log_sha256": "a24498223b83664b4b850ba275aff4b910d732dc974618d58ce5f215b9b51d6a",
+      "original_report_exists": false,
+      "runtime_errors": [
+        "widget 'chat_list' not found in tree (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ]
+    }
+  ],
+  "scope": "Only owned synthetic diagnostics; raw logs/jails remain local, excluded from stage list."
+}

@@ -1,0 +1,39 @@
+{
+  "status": "ERROR",
+  "source_sha256": "d17be7228f3ac8349ab7e012cfd80c2101508daa6d1081f9c48012d04d8c24a0",
+  "compact_sha256": "54bbd6452a553577850922138f11f3f60c6a64128869e91a17cfb2602b9c4d49",
+  "runtime_error": "script instruction limit exceeded",
+  "instrumented_line": 4850,
+  "enclosing_function": "fn core_utc_iso(epoch){",
+  "source_span": [
+    "let doy=doe-(365*yoe+floor(yoe/4)-floor(yoe/100))",
+    "let mp=floor((5*doy+2)/153)",
+    "let day_of_month=doy-floor((153*mp+2)/5)+1",
+    "let month=mp+3",
+    "if mp>=10{month=mp- 9}",
+    "if month<=2{year=year+1}",
+    "let hour=floor(second/3600)"
+  ],
+  "runtime_log_sha256": "2d7caf6b9cc8404ddd8d351c5540d6bb721a36b5ab9c4d610aa839395389108e",
+  "default_budget_unchanged": true,
+  "partial_disk_observations": {
+    "memory_claims": 64,
+    "memory_sources": 64,
+    "same_goal_id": "a2-goal",
+    "goal_version": 2,
+    "goal_status": "planned",
+    "link_status": "candidate",
+    "new_message_bound": true,
+    "original_event_id_retained": true,
+    "run_array_unchanged": true,
+    "action_array_unchanged": true,
+    "new_source_present": true,
+    "new_claim_present": true,
+    "generation_record_present": true
+  },
+  "observations_are_not_success": true,
+  "error_span_is_not_root_cause_proof": true,
+  "real_model": false,
+  "real_calendar": false,
+  "production_data_used": false
+}

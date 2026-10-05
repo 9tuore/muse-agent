@@ -1,0 +1,113 @@
+{
+  "fixture_only": true,
+  "default_budget_unchanged": true,
+  "real_model": false,
+  "real_os_action": false,
+  "errors": [
+    {
+      "directory": "manual-replan-rc31-r1/legal_dense",
+      "source_sha256": "5e9fb03edb42a4ab79f2ea9db506843118abf676cc14d5e818638e81ea6e5435",
+      "compact_sha256": "34aadeec8d77b0327d56cc8cf2f0082eddcc34496d15c070342a9154d15520fe",
+      "runtime_log_sha256": "571fbdad398ded851890e916d0f024030cccca2afb88370e769c827036d3ba2c",
+      "runtime_errors": [
+        "property history not found in prototype chain. Did you mean: status(\"verified\") or version(\"a2-v1\"), goal_id(\"a2-goal\"), event_id(\"a2-created-e...\"), run_id(\"run:17912037...\") (+16 more) (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/object_heap.rs:935)"
+      ],
+      "instrumented_line": 8514,
+      "enclosing_function": "fn mr_poll(){",
+      "source_span": [
+        "        mr_checks.history_retains_old_message=link.history.len()==1 && link.history[0].message_id==\"a2-mail-message\"",
+        "        mr_checks.update_capability=g.goal_spec.steps[0].capability==\"calendar.update\" && g.goal_spec.permissions.capabilities[0]==\"calendar.update\"",
+        "        mr_checks.source_readback=core_source_index(source,\"synthetic-account\")>=0",
+        "            && core_memory_index(\"memory:goalmail:a2-goal:\"+mr_message_id,\"synthetic-account\")>=0",
+        "        mr_checks.only_candidate_model_enqueued=mr_models.len()==1",
+        "    } else {",
+        "        mr_checks.reject_no_get_or_model=mr_calls.len()==0 && mr_models.len()==0"
+      ],
+      "phase_observations": {
+        "claims": 63,
+        "sources": 63,
+        "goal_version": 1,
+        "goal_status": "completed",
+        "link_status": "verified",
+        "original_event_retained": true,
+        "run_array_unchanged": true,
+        "action_array_unchanged": true
+      },
+      "observations_are_not_success": true
+    },
+    {
+      "directory": "manual-replan-rc32-r1/legal_dense",
+      "source_sha256": "0a1607dee2926313b0a2f01a485429fd679d424ab07a2d936daf9a5fe34a52e4",
+      "compact_sha256": "c3b17675f2361778a4ef7467fa46f4b78f22146b970f295d212e554b4350c226",
+      "runtime_log_sha256": "0cdfc711207208567357dfd3c21b1d043b63c7560ebd19d447fff7d2a47ca19d",
+      "runtime_errors": [
+        "script instruction limit exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1018)"
+      ],
+      "instrumented_line": 5809,
+      "enclosing_function": "fn gm_score(entry,query,conversation_id,goal_id){",
+      "source_span": [
+        "let pair=\"\".to_chars()pair.push(chars[j])pair.push(chars[j+1])",
+        "let word=pair.to_string()",
+        "if word!=\"项目\"&&word!=\"什么\"&&word!=\"我的\"&&word!=\"记住\"&&word!=\"一下\"",
+        "&&word!=\"老师\"&&hay.search(word)>=0{score=score+1}",
+        "}",
+        "}",
+        "if score==0{return 0}"
+      ],
+      "phase_observations": {
+        "claims": 64,
+        "sources": 64,
+        "goal_version": 2,
+        "goal_status": "planned",
+        "link_status": "candidate",
+        "original_event_retained": true,
+        "run_array_unchanged": true,
+        "action_array_unchanged": true
+      },
+      "observations_are_not_success": true,
+      "retrieval_trace": {
+        "hits": 5,
+        "bytes": 2069,
+        "truncated": true,
+        "reasons": 59
+      }
+    },
+    {
+      "directory": "manual-replan-rc33-r1/legal_dense",
+      "source_sha256": "4e0269b9267f6e047c22c7e48906eb03a6f8aa56fc4927914a2e8da56176f7ec",
+      "compact_sha256": "20cf8dff2d3926b816ce6de2bf0b4b3c4bf9a07bfc77317a3b42c9cce6e7aefd",
+      "runtime_log_sha256": "adb78cfe765280c3cc51cc8b0650b3111d91522f2dffd6598c9f34fb90593114",
+      "runtime_errors": [
+        "script instruction limit exceeded (/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/vendor/makepad/platform/script/src/vm.rs:1018)"
+      ],
+      "instrumented_line": 6759,
+      "enclosing_function": "fn chat_context_refs(hits){",
+      "source_span": [
+        "if entry.document.id==hit.id&&entry.document.revision==hit.revision",
+        "&&entry.document.payload.source_ids.to_json()==hit.source_ids.to_json()&&gm_access(entry.document){",
+        "refs.push({id:hit.id revision:hit.revision account:entry.document[\"scope\"].account source_ids:hit.source_ids})",
+        "}",
+        "}",
+        "}",
+        "return refs"
+      ],
+      "phase_observations": {
+        "claims": 64,
+        "sources": 64,
+        "goal_version": 2,
+        "goal_status": "planned",
+        "link_status": "candidate",
+        "original_event_retained": true,
+        "run_array_unchanged": true,
+        "action_array_unchanged": true
+      },
+      "observations_are_not_success": true,
+      "retrieval_trace": {
+        "hits": 5,
+        "bytes": 2069,
+        "truncated": true,
+        "reasons": 59
+      }
+    }
+  ]
+}

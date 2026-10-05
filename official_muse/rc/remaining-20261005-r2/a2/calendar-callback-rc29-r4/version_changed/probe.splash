@@ -1,0 +1,121 @@
+// Real production callbacks and jailed storage; synthetic transport only.
+let cc_phase="first"
+let ac_case="version_changed"
+let ac_checks={}
+let ac_calls=[]
+let ac_writes=0
+let ac_event=nil
+let ac_mutated=false
+let ac_wait=0
+let ac_request=""
+let ac_before={}
+fn chain_fixture_request(service,args,cb){
+    ac_calls.push(service)
+    if service=="mail.accounts" {cb({is_ok:true data:[]}) return}
+    if service=="calendar.status" {start_timeout(0.05,|| cb({is_ok:true data:{permission:"full_access" calendars:[{id:"a2-calendar" writable:true}]}})) return}
+    if service=="calendar.list" {start_timeout(0.05,|| cb({is_ok:true data:{events:[] truncated:false}})) return}
+    if service=="calendar.create" {
+        ac_writes=ac_writes+1
+        ac_event={id:"a2-created-event" version:"a2-v1" calendar_id:args.calendar_id title:args.title
+            start:args.start end:args.end time_zone:args.time_zone location:args.location}
+        start_timeout(0.05,|| cb({is_ok:true data:{event_id:ac_event.id version:ac_event.version}})) return
+    }
+    if service=="calendar.get" {start_timeout(0.05,|| cb({is_ok:true data:{found:ac_event!=nil event:ac_event}})) return}
+    cb({is_ok:false error:"Synthetic A2 calendar callback test forbids external/model services"})
+}
+fn ac_finish(){
+    let forbidden=false
+    for call in ac_calls {if call=="model.complete" || call=="mail.send" || call=="calendar.update" || call=="calendar.delete" {forbidden=true}}
+    ac_checks.no_real_model_or_external_transport=!forbidden
+    let saved=fs.read("goals.json").parse_json()
+    ac_checks.primary_readback=core_goals_valid(saved) && saved.goals.len()==goals.len()
+        && saved.runs.len()==runs.len() && saved.actions.len()==actions.len()
+        && saved.goals[0].status==goals[0].status && saved.goals[0].version==goals[0].version
+    ac_checks.calls=ac_calls ac_checks.writes=ac_writes ac_checks.error=calendar_error
+    fs.write("probe.json",ac_checks.to_json())
+}
+fn ac_ready(){
+    if gm_boot_pending || !chat_ready {start_timeout(0.03,|| ac_ready()) return}
+    ac_checks.memory_loaded=gm_ready && memory.len()==63
+    gm_set_accounts(["synthetic-account"])
+    gm_set_focus("a2-project","a2-owner")
+    core_boot_goals()
+    start_timeout(0.05,|| ac_calendar_boot())
+}
+fn ac_calendar_boot(){
+    core_boot_activity() calendar_boot()
+    ac_checks.dense_profile=goals.len()==32 && runs.len()==127 && actions.len()==127 && calendar_links.len()==32
+    if ac_case=="restart_no_action" {
+        let ri=core_run_index("a2-new-calendar-run")
+        ac_checks.preexisting_running_without_action=ri>=0 && runs[ri].status=="running" && goals[0].status=="running" && core_action_index("a2-new-calendar-request")<0
+        boot_restore("")
+        start_timeout(0.4,|| ac_restart_check()) return
+    }
+    let goal=goals[0].to_json().parse_json()
+    goal.goal_spec=calendar_goal_spec(goal.id,goal.version,goal.goal,goal.result_path)
+    ac_checks.goal_spec_bound=core_upsert_goal(goal)
+    start_timeout(0.05,|| ac_preview())
+}
+fn ac_restart_check(){
+    ac_checks.restart_no_dispatch=ac_writes==0 && core_action_index("a2-new-calendar-request")<0
+    ac_checks.restart_running_preserved=goals[0].status=="running" && runs[core_run_index("a2-new-calendar-run")].status=="running"
+    ac_finish()
+}
+fn ac_preview(){
+    notification_enabled=false
+    calendar_permission="full_access" calendar_calendars=[{id:"a2-calendar" writable:true}]
+    calendar_calendar_id="a2-calendar" calendar_selected_goal="a2-goal" calendar_operation="create"
+    calendar_draft=calendar_links[0].candidate.to_json().parse_json()
+    ui.calendar_title.set_text(calendar_draft.title) ui.calendar_start.set_text(calendar_draft.start)
+    ui.calendar_end.set_text(calendar_draft.end) ui.calendar_timezone.set_text(calendar_draft.time_zone)
+    ui.calendar_location.set_text(calendar_draft.location)
+    calendar_checked=calendar_draft_payload().to_json()
+    calendar_checked_calendar=calendar_calendars[0].to_json() calendar_checked_events=[] calendar_conflicts=[]
+    calendar_preview_action()
+    ac_request=calendar_request_id
+    ac_checks.valid_initial_approval=calendar_preview!="" && goals[0].status=="planned" && calendar_links[0].status=="waiting_user"
+    ac_before={goals:fs.read("goals.json") memory:fs.read("memory.json")}
+    start_timeout(0.05,|| ac_start())
+}
+fn ac_start(){
+    calendar_confirm_action()
+    if ac_case=="duplicate" {start_timeout(0.01,|| calendar_confirm_action())}
+    start_timeout(0.01,|| ac_poll())
+}
+fn ac_poll(){
+    ac_wait=ac_wait+1
+    if (ac_case=="request_changed" || ac_case=="version_changed") && !ac_mutated
+        && goals[0].status=="running" && core_action_index(ac_request)<0 {
+        ac_mutated=true
+        if ac_case=="request_changed" {calendar_request_id="a2-changed-after-approval"}
+        else {
+            let revised=goals[0].to_json().parse_json() revised.version=revised.version+1
+            ac_checks.changed_version_committed=core_upsert_goal(revised)
+        }
+    }
+    if ac_wait<240 && calendar_error=="" && (calendar_pending || (ac_case=="dense" || ac_case=="duplicate") && goals[0].status!="completed") {
+        start_timeout(0.01,|| ac_poll()) return
+    }
+    if ac_case=="request_changed" || ac_case=="version_changed" {
+        ac_checks.mutation_window_observed=ac_mutated
+        ac_checks.changed_binding_no_host_write=ac_writes==0
+        ac_checks.changed_binding_no_action=core_action_index(ac_request)<0
+        ac_finish() return
+    }
+    let ai=core_action_index(ac_request)
+    let li=calendar_link_index("a2-goal")
+    let ri=-1
+    if ai>=0 {ri=core_run_index(actions[ai].run_id)}
+    ac_checks.exactly_one_dispatch=ac_writes==1
+    ac_checks.action_verified=ai>=0 && actions[ai].status=="verified" && actions[ai].payload_json!=""
+    ac_checks.original_run_completed=ri>=0 && runs[ri].status=="completed" && runs[ri].request_id==ac_request
+    ac_checks.goal_completed=goals[0].status=="completed"
+    ac_checks.link_verified=li>=0 && calendar_links[li].status=="verified" && calendar_links[li].event_id=="a2-created-event"
+    let result=fs.read(goals[0].result_path).parse_json()
+    ac_checks.artifact_readback=result!=nil && result.task_id=="a2-goal" && result.request_id==ac_request && result.event_id=="a2-created-event" && result.version=="a2-v1"
+    ac_checks.receipt_verified=calendar_receipts.len()>0 && calendar_receipts[calendar_receipts.len()-1].request_id==ac_request && calendar_receipts[calendar_receipts.len()-1].status=="verified"
+    ac_checks.capacity_bound_respected=runs.len()==128 && actions.len()==128 && memory.len()<=64
+    ac_finish()
+}
+fn ac_probe(){core_boot_memory() gm_boot() chat_boot() start_timeout(0.03,|| ac_ready())}
+start_timeout(0.1,|| ac_probe())

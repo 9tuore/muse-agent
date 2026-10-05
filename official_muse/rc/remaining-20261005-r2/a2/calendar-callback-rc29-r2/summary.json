@@ -1,0 +1,43 @@
+{
+  "status": "FAIL",
+  "source_sha256": "02319f51aeac7f9b9935281fc421199d683d4704afbce8f34d490da45193b9a8",
+  "compact_sha256": "9897efce26394ee24d30381abd80edaf04ec9be239a9ba00c0a1665fe4431c9a",
+  "host_sha256": "52768f5750b51574c892f7d51dbf33422511c0a615bd2027687e34874e0c6837",
+  "fixture_only": true,
+  "default_budget_unchanged": true,
+  "real_model": false,
+  "real_os_action": false,
+  "production_data_used": false,
+  "profile": "Own synthetic 63-memory/16-chat/32-goal/127-run/127-action/32-link/64-receipt seed; never read live profile",
+  "cases": {
+    "duplicate": {
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log"
+    },
+    "request_changed": {
+      "status": "PASS",
+      "initial": {
+        "passed": 9,
+        "failed": [],
+        "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+        "source_sha256": "9897efce26394ee24d30381abd80edaf04ec9be239a9ba00c0a1665fe4431c9a"
+      }
+    },
+    "version_changed": {
+      "status": "FAIL",
+      "initial": {
+        "passed": 8,
+        "failed": [
+          "primary_readback"
+        ],
+        "test_kind": "FIXTURE_PRODUCTION_FUNCTIONS",
+        "source_sha256": "9897efce26394ee24d30381abd80edaf04ec9be239a9ba00c0a1665fe4431c9a"
+      }
+    },
+    "restart_no_action": {
+      "status": "ERROR",
+      "error": "No probe report; inspect runtime.log"
+    }
+  },
+  "passed_checks": 17
+}
