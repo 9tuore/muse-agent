@@ -883,3 +883,5 @@ fa8e980 2026-09-28 Reshape native home and review card hierarchy
 ZIP 为489,595,070字节（489.60 MB），SHA256：000b2815c6072d2b8033bea42ddc608b91c307a38f11bc53299b67f8391efbd8。814文件独立解压一致，基础离线模型与宿主文件一致，五项入口/失败保护测试通过。没有复制私人账号或运行数据库。
 
 本人追加授权后，仅隔离测试profile的官方model ledger日token限制调整为200,000，原day/apps调用计数和100,211 token使用记录保留；未改脚本执行预算。此配置不会消除已有业务缺项，不改变PARTIAL结论。
+
+23:29收口：正式候选rc10字节不变，允许清单完成分发清理；六个仅在入口出现定义的函数仍被fixture调用，未盲删。App Hub issues/112已提交审核，main/新Tag已同步；PARTIAL门槛未改。详见STABILITY_RELEASE_SCOPE.md。
