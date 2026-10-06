@@ -1,41 +1,55 @@
-# Muse · 星海队
+# Muse · 让记忆推动行动
 
-## 1. 把对话变成可核对的行动
+![Muse · 星海队](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-cover-v2.png)
 
-Muse 在 OctoSense 官方容器中提供中文 AI 对话、来信结果卡、邮件起草与确认发送、系统日历安排与改期，以及带来源、跨对话检索的全局记忆。
+**星海队｜中文 AI Agent｜邮件 · 日历 · 全局记忆**
 
-- 左侧：可折叠聊天历史与邮箱、日历、记忆等快捷入口。
-- 中间：当前讨论和输入；新对话沿用授权范围内的相关全局记忆。
-- 右侧：来信提醒、有效结果和具体动作确认，技术详情默认收起。
+把你想做的事告诉 Muse。它结合当前讨论与相关记忆，帮助你整理计划、处理来信、安排日程，并把行动结果和来源保留下来。切换对话后，相关的全局记忆依然可以继续使用。
 
-**当前源码候选：0.3.26-rc51 / 6b46c3c8；验收 PARTIAL。** 用户已授权 GitHub 普通同步。rc50 补全首次对话持久记录、拆分邮件来源保存与审计，并调整矮窗历史区域；rc51 将首次界面挂载与资料恢复分开，仅刷新可见页面。四种尺寸的受影响 UI 检查通过，原冷启动和模型失败仍保留。当前实机、冻结源码、压缩包及回归结论以[本轮收口报告](official_muse/rc/rc49-completion-20261006-r1/REPORT.md)为准；不把不同版本的邮件、日历节点拼成同最终整链。正式 App Hub 未提交，原二十项仍未全过。
+[观看中文产品演示](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-product-demo.zh-CN.mp4) · [查看封面](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-cover-v2.png) · [问题反馈](https://github.com/9tuore/muse-agent/issues)
 
-此前已补收件声明恢复、64条记忆保存与更正、日历短回调与同事项改期绑定、缺RFC时明确选原事项，以及执行回执误冲突修复。真实同事项已完成系统创建、电脑日历外部修改、原ID改期、确认邮件到达、结果和记忆、Shell恢复；节点跨rc28/29/34/35，不冒充同最终整链通过。完整Shell默认558项单测与空target Host重建通过；第二GPT单通道实测provider失败，原二十项完整门槛仍未全过。历史入口：[rc35报告](official_muse/rc/remaining-20261005-r2/REPORT.md)和[二十项矩阵](RC_ACCEPTANCE_MATRIX.md)。
+## Muse 能帮你做什么
 
-![Muse rc51 实录封面](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-cover.png)
-
-[rc51 中文配音实录（96 秒）](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-demo.zh-CN.mp4) · [字幕](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51.zh-CN.srt) · [画面与音轨核验](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/QA.json)。本轮真实内部任务与跨聊天召回；连续画面和前后截图分开标注，账号与历史邮件已遮挡。整体仍 PARTIAL，视频不冒充本轮新邮件/日历整链。
-
-## 2. 官方源码与依赖
-
-官方应用使用 **OctoScript / Splash / Makepad**，入口是[main.splash](official_muse/app/bundle/main.splash)，提交目录为`official_muse/app/bundle/`。可读源码位于`official_muse/app/source/main.splash`；Python为测试和构建工具，Rust为官方宿主配套扩展。
-
-| 路径 | 用途 |
+| 能力 | 交互 |
 | --- | --- |
-| `official_muse/app/bundle/` | 0.3.26-rc51 compact payload、manifest、listing 和资源；payload ed4874d1，listing 截图仍为有身份记录的 V12 支持材料 |
-| `official_muse/global_memory.splash`、`incoming_mail.splash`、`scheduling.splash` | 全局记忆、逐封来信和安排/改期模块 |
-| `dependencies.lock.json` | 五个官方SDK的固定commit、完整差异和重建树哈希 |
-| `sdk-overlays/` | 可直接阅读的本地宿主/框架/准入修改，完整保留已有修复 |
-| `scripts/bootstrap_sdk.py` | 从官方锁定来源恢复依赖，逐文件/模式/链接验证，不接受不匹配的树 |
-| `patches/muse-source-cleanup-20261004.patch` | 历史主入口清理补丁；已集成0.3.25，保留为来源记录 |
-| `official_muse/prelim/`、`ui_memory/`、`round2/`、`phase2/` | 测试、公开证据和历史失败记录 |
-| `app/`、`scripts/`、`miniapp/`、`MUSE_HANDOFF/` | 保留的桌面历史源码、工具和交接 |
+| 中文对话 | 围绕当前项目讨论，生成计划，并结合相关记忆继续交流 |
+| 邮件处理 | 新来信提醒、逐封处理、按意图起草、手写回复、发送前确认 |
+| 日历安排 | 查询目标日历、查看日期上的真实事件、创建安排与关联原事件改期 |
+| 全局记忆 | 跨对话相关检索，保留来源与资料归属，支持更正、遗忘和冲突处理 |
+| 可核对的行动 | 计划、确认、执行结果、独立读回与恢复记录相互关联 |
 
-官方基础源码按锁定版本下载；本地Calendar、准入、模型和框架扩展可重建，但尚未声称获官方上游接受。许可见[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)，瘦身说明见[sdk-overlays/README.md](sdk-overlays/README.md)。
+### 同一事项，可以接着做
 
-## 3. 构建和检查
+一封邮件可以成为日程讨论的来源，后续改期继续关联原事件；回复内容由你决定，发送前单独确认。结果卡保留当前事项的关键内容，让讨论与行动保持连续。
 
-环境：macOS、Rust、Apple Command Line Tools、Python 3。首次准备需要访问官方GitHub及Cargo依赖；无需输入私人密钥。
+### 新对话，也能接着记
+
+对话负责聚焦当前讨论，全局记忆保存同一用户授权范围内的相关知识。Muse 每轮检索相关资料，保留来源、项目和归属；用户明确纠正或遗忘后，后续检索使用更新后的记录。
+
+### 界面聚焦你正在做的事
+
+- 左侧：聊天历史与邮箱、日历、记忆快捷入口，可折叠。
+- 中间：当前讨论与输入。
+- 右侧：来信、有效结果与关键动作确认，详情按需展开。
+
+## 官方技术路线
+
+应用使用 **OctoScript / Splash / Makepad**，在 OctoSense 容器中运行。模型通过官方 `model.complete` 调用，存储、权限与系统服务接入 Host；日历配套宿主扩展与依赖锁定源码一并提供。
+
+| 路径 | 内容 |
+| --- | --- |
+| [official_muse/app/bundle/](official_muse/app/bundle/) | 官方应用入口、manifest、listing 与资源 |
+| [official_muse/app/source/main.splash](official_muse/app/source/main.splash) | 可读的 Splash 主界面与应用逻辑 |
+| `official_muse/global_memory.splash` | 记忆 DSL 与相关检索 |
+| `official_muse/incoming_mail.splash`、`scheduling.splash` | 来信处理、安排与改期 |
+| [dependencies.lock.json](dependencies.lock.json)、[sdk-overlays/](sdk-overlays/) | 官方 SDK 固定来源及配套扩展 |
+| [scripts/bootstrap_sdk.py](scripts/bootstrap_sdk.py) | 依赖恢复与逐文件核对 |
+
+当前候选版本：**0.3.26-rc51**。运行包提供原生启动器、基础离线模型与首次配置流程；也可在官方 Host 设置中配置模型与账号。
+
+## 源码构建
+
+开发环境：macOS、Rust、Apple Command Line Tools、Python 3。
 
 ```sh
 python3 scripts/bootstrap_sdk.py
@@ -43,28 +57,15 @@ python3 scripts/bootstrap_sdk.py --verify
 cd vendor/octosense
 cargo build --locked --release -p octosense --bin octosense --no-default-features --features app-hub
 python3 tools/package_calendar_candidate.py --release --output ../../build/Muse-OctoSense.app
-cd ../app-hub
-cargo build --locked -p octosense-app-hub --bin hub
-cargo build --locked -p octosense-card-host --bin card-host
-cd ../..
-./vendor/app-hub/target/debug/hub check official_muse/app/bundle --allow-unsigned \
-  --publisher-key muse-local-rehearsal=bb05ce91333a0045f9f8187eba865f11d9e14ec636aeaee80144708984e740c5
 ```
 
-四个内部`.sources/`链接由bootstrap恢复。已有vendor时脚本只核验，发现差异立即停止，保留本地修改。开发公钥不是发布私钥；开发check不代替Gate、正式发布身份、catalog、能力授权及人工审查。模型和邮箱/日历账号在官方Host设置中配置。
+交付包包含完整冻结公开源码、依赖来源、配套宿主和许可证。**完整运行与源码 ZIP 为 492.36MB**，使用 macOS 自带工具展开；接收环境为 Intel Mac / macOS 14 或更新版本。
 
-历史清理补丁已集成，不向当前源码重复应用。改动可读入口后，须重新生成compact bundle、stamp/签名并核验。当前源码SDK锁f487df0c相对运行Host构建锁78a5eef0只多两处test-only修正；Intel Host1d7d1674仍与原冻结生产源码绑定、严格验签通过。默认完整Shell suite 558/0通过，8项实际SDK几何窄测也通过。另一个空target release Host重编译1476.884秒PASS，复用已有Cargo/SDK缓存，未替换运行Host，不宣称全新checkout/空缓存构建。构建与旧失败见[完整测试和重建报告](official_muse/rc/remaining-20261005-r2/a4/FULL_AND_CLEAN_REPORT.md)。历史clean/磁盘失败见[源码及运行交付边界](SOURCE_DELIVERY.md)。完整运行资料不放在源码仓库。
+## 技术资料与支持
 
-## 4. 验收、支持与隐私
+- [来源与交付说明](SOURCE_DELIVERY.md) · [第三方许可证](THIRD_PARTY_NOTICES.md)
+- [运行与验收记录](official_muse/rc/rc49-completion-20261006-r1/REPORT.md) · [测试矩阵](RC_ACCEPTANCE_MATRIX.md)
+- [源码清单](SOURCE_MANIFEST.json) · [完整分发核对](official_muse/rc/packaging/rc51-solid-envelope-r2/FINAL_REPORT.md)
+- [隐私说明](docs/PRIVACY_POLICY.md) · [Issues 支持入口](https://github.com/9tuore/muse-agent/issues)
 
-- [晨间报告](MORNING_CHAMPIONSHIP_REPORT.md)、[原二十项判定](RC_ACCEPTANCE_MATRIX.md)、[日历实际诊断](RC_CALENDAR_READONLY_REPORT.md)与[真实模型和邮箱证据](RC_FINAL_LIVE_REPORT.md)
-- [历史日历修复报告](MUSE_CALENDAR_REPAIR_REPORT.md)、[历史判定](ROUND_ACCEPTANCE.md)与[历史三小时报告](THREE_HOUR_FINAL_REPORT.md)
-- [源码清理报告](MUSE_CODE_CLEANUP_REPORT.md)、[SDK瘦身记录](SDK_SLIMMING_REPORT.md)和[历史截图归档](EVIDENCE_ARCHIVE.md)
-- [来源和交付边界](SOURCE_DELIVERY.md)与[SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)
-- [问题反馈](https://github.com/9tuore/muse-agent/issues)
-
-仓库不包含凭据、私人邮件、生产数据库、私人实机资料、模型权重、构建缓存或安装包。真实账号录屏原件仅本地保留，公开媒体须去除账号信息。桌面候选包内置有许可证和摘要的免费 Qwen3-0.6B 及 Intel CPU runner，首次启动经官方 Host 模型配置调用；严格格式的同题测试仍为 0/2 正确，不称强模型，也不把自动配置成功当作语义通过。可在官方设置配置较强模型。`--solid-source` 打包完整冻结源码及历史证据为 tar.xz，桌面文件夹保留展开源码；源码文件集合、内容和权限独立核对，不靠删证据减小体积。
-
-[隐私说明](docs/PRIVACY_POLICY.md)已发布到HTTPS，支持入口为[Issues](https://github.com/9tuore/muse-agent/issues)。正式 publisher 登记及独立 packet 审核仍缺；原版 Hub 拒绝本地 `calendar` capability，扩展 Gate PASS不等于上游准入。保留唯一失败证据、旧Git历史和公开Tag，不创建成功Tag。
-
-rc51最终完整展开包实际 **492,361,442 字节（492.36MB）**，通过严格小于500,000,000字节的体积门槛。整体XZ保留完整冻结源码2,180文件和相同应用/内置模型字节；只排除同源码的重复tar.xz。使用macOS自带tar实际还原，完整SHA、权限、符号链接、原应用签名、原生启动器及本地扩展Hub检查通过；Root另行核对外层ZIP CRC和摘要。解压ZIP后运行 `00-展开并启动.command`，首次展开完成再进入原应用；无需Python/Rust/Git。接收环境为Intel Mac/macOS14+，未测两接收Mac，此轮包装校验未打开GUI。首次527,708,351字节超限包和失败记录保留。体积通过不改变产品PARTIAL；精确身份见[本轮交付记录](official_muse/rc/rc49-completion-20261006-r1/DELIVERY.json)。中文配音实录另附，完整源码内也保留媒体。
+**Muse · 星海队**

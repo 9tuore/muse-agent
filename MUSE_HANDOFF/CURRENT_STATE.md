@@ -1,5 +1,7 @@
 ## 2026-10-06：rc51 界面挂载与交付收口（当前）
 
+宣传素材更新：采用用户提供的“Muse／让记忆推动行动”图，imagegen局部删除页脚Agentic App 2026及分隔线，保留星海队。新cover-v2.png、74秒产品演示和字幕以真实rc51任务画面呈现产品能力，README改为正向产品介绍，详细测试记录独立保留。桌面Muse-参赛展示材料-2026-10-06含封面/视频/字幕/简介；精确身份见media/rc51-public各JSON和当前DELIVERY。产品仍6b46c3c8，原证据视频/ZIP按各自冻结身份保留，技术验收PARTIAL。
+
 分支 codex/muse-rc-finalization，产品6b46c3c8/0.3.26-rc51，readable5c182b67、compact ed4874d1、官方98560 tokens等价，Host1d7未变。rc50首次对话补全字段、来源关联存储与活动分段和矮窗历史区域；rc51控件单次挂载，普通刷新只构建可见内容，保留输入与滚动。19处关键批准/来源/取消/执行守卫不变，见a3/rc51/SOURCE_IMPACT.json。
 
 宽1400×760、普通990×539、矮990×380、窄实际412×813的受影响UI通过。宽是readable fixture，后三窗是token等价compact fixture，载荷注入身份分别留存；原短窗启动失败保留。rc50冷8/10、重开5/5；rc51 r1/r2失败保留，最终r3冷7/10重开5/5，完整矩阵FAIL。真实资料Root首次launcher也40.017秒超时，后续打开成功，不定位为已证明的编译失败；未增Host或40秒时限。

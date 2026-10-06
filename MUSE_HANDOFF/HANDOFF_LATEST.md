@@ -2,27 +2,27 @@
 
 ## Task
 
-rc51收口；Root；codex/muse-rc-finalization，产品6b46c3c8。
+用户指定封面与正向宣传文案；Root；codex/muse-rc-finalization，基线f454cbc1，产品6b46c3c8。
 
 ## Result
 
-PARTIAL。rc50补对话字段、来源保存分段、矮窗历史；rc51单次挂载与可见内容刷新。Host、预算、批准和防重复守卫未改。
+媒体编辑PASS：新封面仅保留星海队页脚；README与74秒产品视频突出已有能力。技术验收仍PARTIAL，原始记录保持。
 
 ## Changed
 
-main.splash、首次保存/关联fixture、启动退出器、完整XZ展开分发；公开报告保留失败与版本身份。
+cover-v2 PNG/JSON、产品视频/SRT/生成脚本/provenance；README、DELIVERY、桌面展示文件夹更新。源证据视频和ZIP保持冻结身份。
 
 ## Tests
 
-2026-10-06四尺寸fixture UI通过；cold7/10、reopen5/5，矩阵FAIL。真实内部任务两版本各批准一次，M3候选/Goal建议、保存读回、记忆通过；模型在批准前。Shell重启7SHA/8提醒/9Goal/13Run/17Action保持，另一已有Chat召回两说明及来源。Root初次40秒超时保留。
+imagegen局部编辑；新视频完整解码、配音时段核对、7个编码关键帧实际审看，真实UI与遮挡保持；桌面SHA核对。未重复功能测试。
 
 ## Commit
 
-产品6b46c3c8；冻结F/a4cf4d9e；打包d27c3d52。普通push46a65ef6已独立读回，最终记录继续同步；身份见DELIVERY.json。
+本次媒体小步提交并按已有授权普通同步GitHub；产品6b46c3c8，冻结F/a4cf4d9e，原同步f454cbc1。
 
 ## Remaining
 
-启动超时/关停、有效第二GPT、同最终外部整链、新空Chat/OS/两Mac及正式publisher/准入缺项。新日历零写入、未代填收件声明。用户睡眠期间不再询问。
+冷启动7/10、第二GPT API、同最终外部整链、OS/两Mac和官方准入仍缺。用户睡眠期间不申请权限。
 
 ## Important Boundaries
 
