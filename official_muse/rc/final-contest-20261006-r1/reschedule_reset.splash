@@ -1,0 +1,31 @@
+// New-message replan transition only. Guards and transport are stubbed by the
+// runner; production phase 3 resets candidate state in real isolated storage.
+let reset_model_calls = 0
+fn reset_probe(){
+    goals = [{id: "synthetic-goal"}]
+    let event = {id: "synthetic-event" calendar_id: "synthetic-calendar" version: "v1"
+        title: "合成见面" start: "2030-10-10T07:00:00Z" end: "2030-10-10T07:30:00Z"
+        time_zone: "Asia/Shanghai" location: "synthetic"}
+    let old = {goal_id: "synthetic-goal" message_id: "old-message" source_id: "old-source"
+        event_id: event.id version: event.version candidate: event run_id: "old-run"
+        schedule_policy: {search_start: event.start search_end: event.end}
+        requested_range: {start: event.start end: event.end} question: "旧问题"
+        user_clarification: "旧补充"}
+    calendar_links = [old]
+    let context = {goal_id: "synthetic-goal" account: "synthetic-account" link: old event: event
+        message: {id: "new-message" subject: "改期" body: "请改到16点"}
+        source: {source_id: "new-source"} document: {id: "new-claim"}}
+    schedule_replan_step(context,3)
+    start_timeout(0.4,|| {
+        let link = calendar_links[0]
+        let checks = {old_policy_cleared: link["schedule_policy"] == nil
+            old_requested_range_cleared: link["requested_range"] == nil
+            old_question_cleared: link.question == ""
+            old_clarification_cleared: link["user_clarification"] == nil
+            same_event_retained: link.event_id == event.id && link.original_event.id == event.id
+            new_source_bound: link.message_id == "new-message" && link.source_id == "new-source"
+            new_model_request_once: reset_model_calls == 1}
+        fs.write("probe.json",checks.to_json())
+    })
+}
+start_timeout(0.1,|| reset_probe())

@@ -2558,6 +2558,8 @@ fn schedule_replan_step(context,phase){
         link.original_event = event
         link.status = "candidate"
         link.operation = "update"
+        link.schedule_policy = nil link.requested_range = nil link.question = ""
+        link.user_clarification = nil
         link.candidate = {title: event.title start: event.start end: event.end time_zone: event.time_zone location: event.location}
         link.version = event.version
         link.active_generation = nil
