@@ -67,7 +67,7 @@ python3 tools/package_calendar_candidate.py --release --output ../../build/Muse-
 
 ## 新手使用教程
 
-[中文版使用教程](docs/USER_GUIDE.zh-CN.md)：GOSIM / 天猫版打开方式、QQ 邮箱授权码获取、邮箱连接、日历完整授权、模型切换、聊天与记忆、常见报错。
+[中文版使用教程](docs/USER_GUIDE.zh-CN.md)：Muse 参赛版打开方式、QQ 邮箱授权码获取、邮箱连接、日历完整授权、模型切换、聊天与记忆、常见报错。
 
 ## 技术资料与支持
 
