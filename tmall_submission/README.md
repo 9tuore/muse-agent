@@ -1,3 +1,7 @@
+## 当前交付：0.3.27-rc10
+
+窄范围授权的新约定可自动安排，改期和发信仍单独确认。[本轮实测与缺项](FINAL_REPORT.md)。完整状态PARTIAL；App Hub审核状态以提交issue为准。
+
 # Muse · 个人智能 Agent
 
 **会记住你，并帮你把事情办下去的个人 AI Agent。**
@@ -24,7 +28,7 @@ AI 负责理解，本地端负责行动。
 
 ## 看作品
 
-- [产品演示与拍摄状态](demo/README.md)：中文配音的产品流程讲解，以及 rc51 真实操作节选。
+- [产品演示与拍摄状态](demo/README.md)：中文配音的产品流程讲解，以及 rc9→rc10 邮件联动日历实测回放。
 - [作品介绍](PROJECT_INTRO.md) · [AI 实践](AI_PRACTICE.md) · [端云架构](ARCHITECTURE.md)
 - [真实截图清单](assets/screenshots/README.md) · [三分钟实机拍摄脚本](TMALL_DEMO_SCRIPT.md)
 - [技术栈](TECH_STACK.md) · [已知限制](KNOWN_LIMITATIONS.md) · [源码身份](source/SOURCE_MANIFEST.md)

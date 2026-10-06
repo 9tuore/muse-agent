@@ -13,7 +13,7 @@ def main():
     parser.add_argument('delivery', type=Path)
     args = parser.parse_args()
     delivery = args.delivery.resolve()
-    state = Path.home() / 'Library/Application Support/Muse Tmall Experience rc51'
+    state = Path.home() / 'Library/Application Support/Muse Tmall Experience rc10'
     before = state.exists()
     rows = []
 
@@ -24,7 +24,7 @@ def main():
         assert text in result.stdout + result.stderr
         rows.append(dict(flags=flags, expected_exit=code, observed_exit=result.returncode))
 
-    check(delivery, ['--check'], 0, '0.3.26-rc51')
+    check(delivery, ['--check'], 0, '0.3.27-rc10')
     check(delivery, ['--unknown'], 1, '[--check|--models]')
     with tempfile.TemporaryDirectory(prefix='tmall-entry-check-') as temp:
         root = Path(temp)
@@ -37,7 +37,7 @@ def main():
         weight.rename(saved)
         check(root, ['--check'], 1, '文件缺失')
         saved.rename(weight)
-        payload = resources / 'mirror/artifacts/muse-goals-0.3.26-rc51.bundle/main.splash'
+        payload = resources / 'mirror/artifacts/muse-goals-0.3.27-rc10.bundle/main.splash'
         with payload.open('a') as out:
             out.write('\n// deliberately altered copy\n')
         check(root, ['--check'], 1, '包文件检查失败')

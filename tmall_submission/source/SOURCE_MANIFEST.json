@@ -1,82 +1,88 @@
 {
-  "version": "0.3.26-rc51",
-  "base_commit": "7175af663c55703959b481791a304196343df5b6",
-  "application_commit": "6b46c3c8cc3ea5b5d5d9073224a3b303b8b1d109",
-  "source_freeze": "a4cf4d9e6cd3ff1067e2821a29d4e5be48d2ad39",
-  "core_sha256": {
-    "official_muse/app/source/main.splash": "5c182b67d91182350388b726db64b97dc588be089e9f43951284fa899e0d99f1",
-    "official_muse/app/bundle/main.splash": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
-    "official_muse/app/bundle/manifest.json": "b75fd9686e25697a1766f276b4aaf9aa527c466446215cac8879d61047c69a75",
-    "official_muse/global_memory.splash": "64d958b9a055c43b60cc3e3acf1782628b9448bf07d3b0069f77008ba1d4245a",
-    "official_muse/incoming_mail.splash": "c4dc3f24b018fa83e6dfb98f73403af203668e3c49fb8de96b715971293a3160",
-    "official_muse/scheduling.splash": "dba5560a999361d27c4d1749bd2fb8933267c2f7e297a2fd9463324765dc1870",
-    "dependencies.lock.json": "f487df0cc37049fe09e92a66bad348b7ce6b42c834313967ca33f49c3442f715"
-  },
-  "sdk_pins": {
-    "makepad": {
-      "repository": "https://github.com/OctoSense-org/makepad",
-      "commit": "bf318136a375c4d1fb7ee10e13e27336b6d98744",
-      "tree_sha256": "de11ee5e9a0509e51039cb9929bb9a217e2a36d63bf0744cbad4a84e1d13ccef",
-      "files": 8724
+  "version": "0.3.27-rc10",
+  "application_code_commit": "0fa9d4ee",
+  "current_sources": "source/current with CURRENT_FILES.json; exact Git object bytes",
+  "dependencies": "fixed dependency restore, full third-party SDK not bundled",
+  "historical_restore_provenance": {
+    "version": "0.3.26-rc51",
+    "base_commit": "7175af663c55703959b481791a304196343df5b6",
+    "application_commit": "6b46c3c8cc3ea5b5d5d9073224a3b303b8b1d109",
+    "source_freeze": "a4cf4d9e6cd3ff1067e2821a29d4e5be48d2ad39",
+    "core_sha256": {
+      "official_muse/app/source/main.splash": "5c182b67d91182350388b726db64b97dc588be089e9f43951284fa899e0d99f1",
+      "official_muse/app/bundle/main.splash": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+      "official_muse/app/bundle/manifest.json": "b75fd9686e25697a1766f276b4aaf9aa527c466446215cac8879d61047c69a75",
+      "official_muse/global_memory.splash": "64d958b9a055c43b60cc3e3acf1782628b9448bf07d3b0069f77008ba1d4245a",
+      "official_muse/incoming_mail.splash": "c4dc3f24b018fa83e6dfb98f73403af203668e3c49fb8de96b715971293a3160",
+      "official_muse/scheduling.splash": "dba5560a999361d27c4d1749bd2fb8933267c2f7e297a2fd9463324765dc1870",
+      "dependencies.lock.json": "f487df0cc37049fe09e92a66bad348b7ce6b42c834313967ca33f49c3442f715"
     },
-    "octosense": {
-      "repository": "https://github.com/OctoSense-org/OctoSense",
-      "commit": "7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
-      "tree_sha256": "24b324a2473880afadeee8f6bbefce21fe5ce213bbe12b22d6572eadb19687bf",
-      "files": 2309
+    "sdk_pins": {
+      "makepad": {
+        "repository": "https://github.com/OctoSense-org/makepad",
+        "commit": "bf318136a375c4d1fb7ee10e13e27336b6d98744",
+        "tree_sha256": "de11ee5e9a0509e51039cb9929bb9a217e2a36d63bf0744cbad4a84e1d13ccef",
+        "files": 8724
+      },
+      "octosense": {
+        "repository": "https://github.com/OctoSense-org/OctoSense",
+        "commit": "7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
+        "tree_sha256": "24b324a2473880afadeee8f6bbefce21fe5ce213bbe12b22d6572eadb19687bf",
+        "files": 2309
+      },
+      "app-hub": {
+        "repository": "https://github.com/OctoSense-org/OctoSense-App-Hub",
+        "commit": "e8601b80ce104db2e48208094714bdcffdce6b5a",
+        "tree_sha256": "dd0becd97554c0349d58313bba065f17eb0d191c3ae81927890cf269b5af7064",
+        "files": 121
+      },
+      "octoscript": {
+        "repository": "https://github.com/OctoSense-org/Octoscript",
+        "commit": "68f6a9df55692b5d8ef8873a12721e279a3f40d6",
+        "tree_sha256": "cacc27110a2c3691083b37fbb1f375e39917bb20b2a85c1b02c19b2a708d58f2",
+        "files": 278
+      },
+      "octoscript-makepad": {
+        "repository": "https://github.com/OctoSense-org/OctoScript-Makepad",
+        "commit": "019e6bf043b484676ff39d6ff5be58a1e94abed8",
+        "tree_sha256": "732341716284e2b5f7ec9cf7d4dd68a93260b339596c51ba05bbfa45cbe8dc22",
+        "files": 568
+      }
     },
-    "app-hub": {
-      "repository": "https://github.com/OctoSense-org/OctoSense-App-Hub",
-      "commit": "e8601b80ce104db2e48208094714bdcffdce6b5a",
-      "tree_sha256": "dd0becd97554c0349d58313bba065f17eb0d191c3ae81927890cf269b5af7064",
-      "files": 121
+    "calendar_overlay_commit": "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
+    "calendar_overlay_files": {
+      "apps/calendar/host-service/Cargo.toml": {
+        "mode": "100644",
+        "sha256": "65a56a6eaa58870838ad7edb63ff5f82c019a82bb2d0d2479ee888dac3d2c31b"
+      },
+      "apps/calendar/host-service/build.rs": {
+        "mode": "100644",
+        "sha256": "c5536479c7dff511aa9059b2b86243c5662904c3b80c59589846318ccd820c34"
+      },
+      "apps/calendar/host-service/src/eventkit.m": {
+        "mode": "100644",
+        "sha256": "6c51230d3dab93b2d320bc2f0ad12bfec2d01a1766d74ec862af1e0942261029"
+      },
+      "apps/calendar/host-service/src/lib.rs": {
+        "mode": "100644",
+        "sha256": "9ed94317c35a7b8b487798c434c63078f34b50e72f4a8f8d8a968ea744229588"
+      }
     },
-    "octoscript": {
-      "repository": "https://github.com/OctoSense-org/Octoscript",
-      "commit": "68f6a9df55692b5d8ef8873a12721e279a3f40d6",
-      "tree_sha256": "cacc27110a2c3691083b37fbb1f375e39917bb20b2a85c1b02c19b2a708d58f2",
-      "files": 278
-    },
-    "octoscript-makepad": {
-      "repository": "https://github.com/OctoSense-org/OctoScript-Makepad",
-      "commit": "019e6bf043b484676ff39d6ff5be58a1e94abed8",
-      "tree_sha256": "732341716284e2b5f7ec9cf7d4dd68a93260b339596c51ba05bbfa45cbe8dc22",
-      "files": 568
-    }
-  },
-  "calendar_overlay_commit": "92b1df15112a1d5edf6336a3d3cfae181b4a99ca",
-  "calendar_overlay_files": {
-    "apps/calendar/host-service/Cargo.toml": {
-      "mode": "100644",
-      "sha256": "65a56a6eaa58870838ad7edb63ff5f82c019a82bb2d0d2479ee888dac3d2c31b"
-    },
-    "apps/calendar/host-service/build.rs": {
-      "mode": "100644",
-      "sha256": "c5536479c7dff511aa9059b2b86243c5662904c3b80c59589846318ccd820c34"
-    },
-    "apps/calendar/host-service/src/eventkit.m": {
-      "mode": "100644",
-      "sha256": "6c51230d3dab93b2d320bc2f0ad12bfec2d01a1766d74ec862af1e0942261029"
-    },
-    "apps/calendar/host-service/src/lib.rs": {
-      "mode": "100644",
-      "sha256": "9ed94317c35a7b8b487798c434c63078f34b50e72f4a8f8d8a968ea744229588"
-    }
-  },
-  "bootstrap": "python3 scripts/bootstrap_sdk.py; python3 scripts/bootstrap_sdk.py --verify",
-  "source_restore": {
-    "files": 95,
-    "overlay_hash_checks": 76,
-    "mode_and_bytes_verified": true,
-    "whole_Rust_build_performed_this_task": false,
-    "SDK_download_performed_in_fresh_directory_this_task": true,
-    "fresh_SDK_restore": {
-      "status": "PASS",
-      "dependencies": 5,
-      "files": 12000,
-      "independent_verify_exit": 0,
-      "first_attempt": "TLS EOF failure preserved",
-      "retry_exit": 0
+    "bootstrap": "python3 scripts/bootstrap_sdk.py; python3 scripts/bootstrap_sdk.py --verify",
+    "source_restore": {
+      "files": 95,
+      "overlay_hash_checks": 76,
+      "mode_and_bytes_verified": true,
+      "whole_Rust_build_performed_this_task": false,
+      "SDK_download_performed_in_fresh_directory_this_task": true,
+      "fresh_SDK_restore": {
+        "status": "PASS",
+        "dependencies": 5,
+        "files": 12000,
+        "independent_verify_exit": 0,
+        "first_attempt": "TLS EOF failure preserved",
+        "retry_exit": 0
+      }
     }
   }
 }

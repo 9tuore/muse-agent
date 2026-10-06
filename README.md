@@ -1,3 +1,7 @@
+## 当前交付：0.3.27-rc10
+
+窄范围授权的新约定可自动安排，改期和发信仍单独确认。[本轮实测与缺项](official_muse/rc/final-contest-20261006-r1/FINAL_REPORT.md)。完整状态PARTIAL；App Hub审核状态以提交issue为准。
+
 # Muse · 让记忆推动行动
 
 ![Muse · 星海队](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-cover-v2.png)

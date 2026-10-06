@@ -1,28 +1,3 @@
-# 源码清单
+# 当前源码身份
 
-| 项目 | 固定身份 |
-| --- | --- |
-| Muse 核心 | 0.3.26-rc51；产品提交 `6b46c3c8cc3ea5b5d5d9073224a3b303b8b1d109` |
-| 本次包装基线 | `7175af663c55703959b481791a304196343df5b6` |
-| 已有完整公开源码冻结 | `a4cf4d9e6cd3ff1067e2821a29d4e5be48d2ad39` |
-| 开发源码 | `official_muse/app/source/main.splash` |
-| 实际 App Hub bundle | `official_muse/app/bundle/` |
-| Calendar Extension 提交 | `92b1df15112a1d5edf6336a3d3cfae181b4a99ca`；`sdk-overlays/octosense/apps/calendar/host-service/` |
-
-此 source 目录只记录身份，不复制几百 MB SDK。下载固定源码：[GitHub 基线](https://github.com/9tuore/muse-agent/tree/7175af663c55703959b481791a304196343df5b6)。
-
-## 官方 SDK pins
-
-- makepad：`bf318136a375c4d1fb7ee10e13e27336b6d98744`，https://github.com/OctoSense-org/makepad
-- octosense：`7f962547cd8035ed2bb05962cf7824d8aa33e3a3`，https://github.com/OctoSense-org/OctoSense
-- app-hub：`e8601b80ce104db2e48208094714bdcffdce6b5a`，https://github.com/OctoSense-org/OctoSense-App-Hub
-- octoscript：`68f6a9df55692b5d8ef8873a12721e279a3f40d6`，https://github.com/OctoSense-org/Octoscript
-- octoscript-makepad：`019e6bf043b484676ff39d6ff5be58a1e94abed8`，https://github.com/OctoSense-org/OctoScript-Makepad
-
-`dependencies.lock.json` 与 `sdk-overlays/` 一起复现准确依赖；根 lock 的 product_version 字段仍是历史0.3.22，实际应用版本取 bundle manifest 0.3.26-rc51，不据该历史字段回退。Host 是既有签名二进制，构建锁78a5与当前源码锁f487存在两处仅测试代码差异；本次没有重建或换 Host。
-
-## 复现
-
-按 [RUN_GUIDE.md](../RUN_GUIDE.md) clone、checkout固定提交、bootstrap、build、run。现有配套Runtime与正式上游Calendar准入分别记载，不能混称。
-
-本次在全新临时目录从固定Git提取运行核心、bootstrap、锁和overlay，核对95文件与76个overlay摘要。随后在另一全新目录按相同固定Git恢复bootstrap/锁/overlay，从官方pin下载并恢复五套SDK，12,000文件的树摘要、模式与链接验证通过，独立--verify也通过。首次TLS EOF失败保留。未进行新的完整Rust编译；详见SOURCE_MANIFEST.json。
+应用代码冻结：0fa9d4ee；0.3.27-rc10。current目录按明确允许清单从Git提交读取，CURRENT_FILES.json逐文件记录SHA256。包括当前Splash、宿主覆盖源码和依赖恢复脚本；第三方完整SDK按根dependencies.lock.json恢复。运行Host保持既有1d7d1674二进制，未宣称本轮从最新SDK重新编译Host。历史SDK还原证据保留，版本不同不得混为本轮验证。

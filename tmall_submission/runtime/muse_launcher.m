@@ -61,8 +61,8 @@ int main(int argc, const char *argv[]) {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
         NSArray *required = @[@"OctoSense Host.app/Contents/MacOS/octosense", @"mirror/catalog.json",
-            @"mirror/artifacts/muse-goals-0.3.26-rc51.bundle/manifest.json",
-            @"mirror/artifacts/muse-goals-0.3.26-rc51.bundle.pack.json",
+            @"mirror/artifacts/muse-goals-0.3.27-rc10.bundle/manifest.json",
+            @"mirror/artifacts/muse-goals-0.3.27-rc10.bundle.pack.json",
             @"local-model/llama/llama-server", @"local-model/qwen2.5-0.5b-instruct-q4_0.gguf"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
         BOOL models = argc == 2 && strcmp(argv[1], "--models") == 0;
@@ -91,11 +91,11 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
         if (check) {
-            puts("PASS：Muse 0.3.26-rc51 / 内置基础离线模型；未启动窗口或创建配置。");
+            puts("PASS：Muse 0.3.27-rc10 / 内置基础离线模型；未启动窗口或创建配置。");
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
-        NSString *state = inherited[@"MUSE_TMALL_STATE"] ?: join(NSHomeDirectory(), @"Library/Application Support/Muse Tmall Experience rc51");
+        NSString *state = inherited[@"MUSE_TMALL_STATE"] ?: join(NSHomeDirectory(), @"Library/Application Support/Muse Tmall Experience rc10");
         NSError *error = nil;
         if (![files createDirectoryAtPath:state withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:&error]) {
             fail([NSString stringWithFormat:@"无法建立数据目录：%@\n%@", state, error.localizedDescription]); return 1;
@@ -207,7 +207,7 @@ int main(int argc, const char *argv[]) {
         NSString *installed = join(state, @"apps/muse-goals/bundle/main.splash");
         NSString *action = @"launch-apphub";
         if ([files fileExistsAtPath:installed]) {
-            NSData *expected = [NSData dataWithContentsOfFile:join(resources, @"mirror/artifacts/muse-goals-0.3.26-rc51.bundle/main.splash")];
+            NSData *expected = [NSData dataWithContentsOfFile:join(resources, @"mirror/artifacts/muse-goals-0.3.27-rc10.bundle/main.splash")];
             if (![expected isEqualToData:[NSData dataWithContentsOfFile:installed]]) {
                 [output closeFile]; finishTask(model);
                 fail(@"此体验目录中的 Muse 版本不同，请在应用中心处理版本；启动器不会覆盖资料。"); return 1;
