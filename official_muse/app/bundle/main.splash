@@ -1177,8 +1177,30 @@ redraw()
 return
 }
 calendar_pending=true
-start_timeout(0.05,||calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,action_payload,0))
+let next_phase=0
+if actions[action_i].status=="verified"{next_phase=1}
+start_timeout(0.05,||calendar_readback_step(request_id,goal_id,run_id,service,payload,event_id,event,action_payload,next_phase))
 })
+}
+
+
+fn calendar_reconcile_verified(goal_id){
+if calendar_pending{return}
+let li=calendar_link_index(goal_id)
+if li<0||calendar_links[li].status!="accepted"||calendar_links[li].event_id==""{return}
+let link=calendar_links[li]
+if link["write_binding"]==nil||calendar_write_binding(goal_id)!=link.write_binding{calendar_error="来源绑定已变化，保留待核对记录。" redraw()return}
+let matched=nil
+for action in actions{
+if action.goal_id==goal_id&&action.run_id==link.run_id&&action.status=="verified"
+&&action.target_scope==link.calendar_id&&action.service=="calendar."+link.operation{matched=action}
+}
+if matched==nil{calendar_error="尚无独立读回记录，不能恢复结果。" redraw()return}
+let payload=matched.payload_json.parse_json()
+if payload==nil||payload.calendar_id!=link.calendar_id
+||(link.operation=="update"&&payload.event_id!=link.event_id){calendar_error="动作标识不一致，保留待核对记录。" redraw()return}
+calendar_pending=true
+calendar_readback_written(matched.id,goal_id,link.run_id,matched.service,link.candidate,link.event_id,link.version)
 }
 
 fn calendar_readback_deleted(request_id,payload,event_id){
@@ -9498,6 +9520,7 @@ Label{width:Fill text:"上次约定 · "+calendar_display_time(prior.candidate.s
 if calendar_unstarted_run(calendar_links[li].goal_id)!=""{
 Secondary{text:"恢复未开始的安排" on_click: ||calendar_recover_unstarted(calendar_links[li].goal_id)}
 }
+if calendar_links[li].status=="accepted"{Secondary{text:"核对已执行结果" on_click: ||calendar_reconcile_verified(calendar_links[li].goal_id)}}
 Secondary{text:"查看关联 目标" on_click: ||select_goal(calendar_links[li].goal_id)}
 if calendar_links[li].status=="verified"{Secondary{text:"为本 目标 起草后续确认邮件" on_click: ||mail_compose_from_calendar(calendar_links[li].goal_id)}}
 }
