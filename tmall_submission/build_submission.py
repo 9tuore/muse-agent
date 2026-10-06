@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import plistlib
 import shutil
 import stat
 import subprocess
@@ -24,10 +25,13 @@ PAYLOAD_SHA = 'ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da'
 BUNDLE_FILES = ['assets/icon.svg', 'listing.json', 'main.splash', 'manifest.json',
                 'screenshots/01-main.png', 'screenshots/02-global-memory.png']
 DOCS = ['README.md', 'PROJECT_INTRO.md', 'AI_PRACTICE.md', 'ARCHITECTURE.md',
+        '使用教程.md', '使用教程.html',
         'RUN_GUIDE.md', 'KNOWN_LIMITATIONS.md', 'DEMO_SCRIPT.md', 'TMALL_DEMO_SCRIPT.md',
         'TECH_STACK.md', 'FORM_AI_PRACTICE_300.txt', 'FORM_PROJECT_INTRO_500.txt',
         'RUN_MUSE.command', 'ACCEPTANCE.md', 'VERIFICATION.json', 'build_submission.py',
         'build_overview.py', 'tests/test_entry.py', 'runtime/README.md', 'runtime/RUNTIME_LOCK.json',
+        'runtime/MODEL_LOCK.json', 'runtime/muse_launcher.m', 'tests/test_offline_live.py',
+        'tests/test_profile_preservation.py',
         'source/SOURCE_MANIFEST.md', 'source/SOURCE_MANIFEST.json',
         'assets/cover.png', 'assets/diagrams/architecture.svg', 'assets/diagrams/architecture.png',
         'assets/screenshots/README.md', 'assets/screenshots/01-main.png',
@@ -76,8 +80,11 @@ def scan(stage):
     reviewed = set()
     for p in stage.rglob('*'):
         assert not set(p.relative_to(stage).parts) & prohibited
-        assert not p.name.endswith(('.key', '.pem', '.sqlite', '.db', '.log', '.gguf'))
-        if p.is_file() and p.suffix in ('.md', '.txt', '.json', '.command', '.py', '.svg', '.splash', '.srt', '.plist'):
+        assert not p.name.endswith(('.key', '.pem', '.sqlite', '.db', '.log'))
+        if p.suffix == '.gguf':
+            assert p.relative_to(stage).as_posix() == 'Muse.app/Contents/Resources/local-model/qwen2.5-0.5b-instruct-q4_0.gguf'
+            assert sha(p) == '7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed'
+        if p.is_file() and p.suffix in ('.md', '.html', '.txt', '.json', '.command', '.py', '.m', '.svg', '.splash', '.srt', '.plist'):
             data = p.read_bytes()
             assert not any(re.search(pattern, data) for pattern in patterns), str(p)
             for address in emails.findall(data):
@@ -92,12 +99,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--host-app', type=Path, required=True)
     parser.add_argument('--mirror', type=Path, required=True)
+    parser.add_argument('--model-root', type=Path, required=True)
     parser.add_argument('--destination', type=Path, required=True)
     args = parser.parse_args()
     assert sha(args.host_app / 'Contents/MacOS/octosense') == HOST_SHA
     run('/usr/bin/codesign', '--verify', '--deep', '--strict', args.host_app)
     locked = json.loads((HERE / 'runtime/RUNTIME_LOCK.json').read_text())
     assert inventory(args.host_app) == locked['host_files']
+    model = json.loads((HERE / 'runtime/MODEL_LOCK.json').read_text())
+    assert inventory(args.model_root) == model['files'], 'Model/runner/license identity mismatch'
+    assert run('/usr/bin/lipo', '-archs', args.model_root / 'llama/llama-server').strip() == 'x86_64'
     catalog = json.loads((args.mirror / 'catalog.json').read_text())
     selected = [e for e in catalog['entries'] if e['manifest']['id'] == 'muse-goals'
                 and e['manifest']['version'] == '0.3.26-rc51']
@@ -116,13 +127,30 @@ def main():
         out = stage / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(HERE / rel, out)
-    shutil.copytree(args.host_app, stage / 'runtime/OctoSense Host.app', symlinks=True)
+    app = stage / 'Muse.app'
+    contents = app / 'Contents'
+    resources = contents / 'Resources'
+    (contents / 'MacOS').mkdir(parents=True)
+    resources.mkdir()
+    shutil.copytree(args.host_app, resources / 'OctoSense Host.app', symlinks=True)
+    shutil.copytree(args.model_root, resources / 'local-model', symlinks=True)
     paths = ['catalog.json', artifact + '.pack.json'] + [artifact + '/' + f for f in BUNDLE_FILES]
     for rel in paths:
         assert sha(args.mirror / rel) == locked['mirror_files'][rel]
-        out = stage / 'runtime/mirror' / rel
+        out = resources / 'mirror' / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(args.mirror / rel, out)
+    run('/usr/bin/clang', '-fobjc-arc', '-mmacosx-version-min=14.0', '-framework', 'AppKit',
+        HERE / 'runtime/muse_launcher.m', '-o', contents / 'MacOS/muse-launcher')
+    info = dict(CFBundleIdentifier='org.xinghai.muse.tmall.rc51', CFBundleExecutable='muse-launcher',
+                CFBundleName='Muse', CFBundleDisplayName='Muse', CFBundlePackageType='APPL',
+                CFBundleShortVersionString='0.3.26', CFBundleVersion='51',
+                CFBundleDevelopmentRegion='zh_CN', LSMinimumSystemVersion='14.0', LSUIElement=True)
+    (contents / 'Info.plist').write_bytes(plistlib.dumps(info))
+    run('/usr/bin/codesign', '--force', '--sign', '-', app)
+    run('/usr/bin/codesign', '--verify', '--deep', '--strict', app)
+    assert inventory(resources / 'OctoSense Host.app') == locked['host_files']
+    assert inventory(resources / 'local-model') == model['files']
     rows = inventory(stage)
     audit = scan(stage)
     archive = stage.parent / 'Muse-Tmall-Submission.zip'
@@ -134,15 +162,18 @@ def main():
             entry.external_attr = ((stat.S_IFLNK if item['kind'] == 'link' else stat.S_IFREG) | item['mode']) << 16
             entry.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(entry, item['target'].encode() if item['kind'] == 'link' else (stage / rel).read_bytes())
+    assert archive.stat().st_size < 500_000_000, 'Delivery ZIP must stay below 500 MB (decimal)'
     fresh = Path(tempfile.mkdtemp(prefix='tmall-clean-restore-', dir=HERE / '.local-state'))
     run('/usr/bin/ditto', '-x', '-k', archive, fresh)
     restored = fresh / stage.name
     assert inventory(restored) == rows
-    run('/usr/bin/codesign', '--verify', '--deep', '--strict', restored / 'runtime/OctoSense Host.app')
+    run('/usr/bin/codesign', '--verify', '--deep', '--strict', restored / 'Muse.app')
     checked = run('/bin/sh', restored / 'RUN_MUSE.command', '--check')
     result = dict(status='PASS_SCOPED_PACKAGING', product_status='PARTIAL', base_commit=BASE,
                   zip_bytes=archive.stat().st_size, zip_sha256=sha(archive), zip_path=str(archive),
                   files=len(rows), clean_restore_exact=True, signature_and_entry_check=checked.strip(),
+                  model_bundled=True, model=model['model_id'], below_500_MB=True,
+                  model_files_exact=True, host_files_exact=True,
                   GUI_opened=False, model_called=False, private_profiles_copied=False,
                   scan=audit, receiving_mac_tested=False)
     record = HERE / '.local-state/PACKAGING_RESULT.json'

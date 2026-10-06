@@ -1,0 +1,148 @@
+{
+  "source_model_repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+  "source_model_revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+  "source_model_sha256": "7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed",
+  "quantization": "Publisher Q4_0; original GGUF unchanged; no tensor pruning",
+  "quality": "basic offline model; not strong; short format and complex semantic accuracy limited",
+  "license_urls": {
+    "Qwen-Apache-2.0.txt": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/9217f5db79a29953eb74d5343926648285ec7e67/LICENSE",
+    "llama.cpp-MIT.txt": "https://raw.githubusercontent.com/ggml-org/llama.cpp/f9af9be21/LICENSE"
+  },
+  "runtime_version": "0.5.0-dev build 11178 commit f9af9be21 Intel CPU",
+  "runtime_settings": {
+    "reasoning": "off",
+    "temperature": 0.2,
+    "loopback_only": true,
+    "CPU_threads": 4,
+    "context_tokens": 4096
+  },
+  "model_id": "Qwen2.5-0.5B-Instruct-Q4_0-offline",
+  "files": {
+    "qwen2.5-0.5b-instruct-q4_0.gguf": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 428730208,
+      "sha256": "7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed"
+    },
+    "licenses/llama.cpp-MIT.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 1078,
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d"
+    },
+    "licenses/NOTICE.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 305,
+      "sha256": "3fa187e86dbaf61cbdf4b80f0177807756015a846c348437f34190d9948fe8b7"
+    },
+    "licenses/Qwen-Apache-2.0.txt": {
+      "kind": "file",
+      "mode": 420,
+      "bytes": 11343,
+      "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e"
+    },
+    "llama/libggml-rpc.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libggml-rpc.0.25.3.dylib"
+    },
+    "llama/libllama.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libllama.0.5.0.dylib"
+    },
+    "llama/libmtmd.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libmtmd.0.5.0.dylib"
+    },
+    "llama/libggml.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libggml.0.25.3.dylib"
+    },
+    "llama/libllama-server-impl.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 9354712,
+      "sha256": "dbb974dfe3beab2dfdcdddd47a69a3a7e28f8935b040b112c3abd4940d42bed8"
+    },
+    "llama/libggml-blas.0.25.3.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 33688,
+      "sha256": "18417f06d605a0d67ae8fc7fcb95abcfd225421d6cb9ce7ff05557b92170097a"
+    },
+    "llama/libggml-rpc.0.25.3.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 160848,
+      "sha256": "2efd8e6f5b87e625a8ba5784543c6bbecf3ee4be6237ab172d3f4428ab7c01e5"
+    },
+    "llama/libggml.0.25.3.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 43336,
+      "sha256": "a3c0839b713759154d17059b54d1afcec3ef22b5b3aa44963dceaee4ca64a0d1"
+    },
+    "llama/libggml-cpu.0.25.3.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 1429728,
+      "sha256": "239b803c5e346cd7249155706579f874d1f5caa7cdbcf398f9167f56df8d0724"
+    },
+    "llama/libmtmd.0.5.0.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 1488584,
+      "sha256": "d37916c5a6f191cdb0080a42004e8fd0f5688085cd3e5b8744208fabd160c71f"
+    },
+    "llama/libllama.0.5.0.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 3413472,
+      "sha256": "e7f7915cdf06c33e25c54664b3d68f67a39cf423fd4861b9bc3b42b560bb5b16"
+    },
+    "llama/libllama-common.0.5.0.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 8123400,
+      "sha256": "33c6affe71c8b9da1e9c319dd6f532a6e820703abdf8ccbdad004a44371b9782"
+    },
+    "llama/libllama-common.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libllama-common.0.5.0.dylib"
+    },
+    "llama/libggml-base.0.25.3.dylib": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 726056,
+      "sha256": "ed0f1ec2967f7e6c4df3a3bc15c7428896541a86c0aba7730d0746dbc9373fd7"
+    },
+    "llama/llama-server": {
+      "kind": "file",
+      "mode": 493,
+      "bytes": 20760,
+      "sha256": "b4b04e4ebd969ad0a920b544c4a7bd8c193861aa20a42d5280c9fdd48b107693"
+    },
+    "llama/libggml-base.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libggml-base.0.25.3.dylib"
+    },
+    "llama/libggml-blas.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libggml-blas.0.25.3.dylib"
+    },
+    "llama/libggml-cpu.0.dylib": {
+      "kind": "link",
+      "mode": 493,
+      "target": "libggml-cpu.0.25.3.dylib"
+    }
+  },
+  "total_bytes": 453537518,
+  "weight_file": "qwen2.5-0.5b-instruct-q4_0.gguf"
+}
