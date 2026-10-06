@@ -6,15 +6,15 @@
 
 ## Task
 
-天猫离线模型打包与GOSIM/天猫中文使用教程。Root；codex/tmall-submission，核心rc51/6b46c3c8不变。
+参赛离线模型打包与GOSIM/参赛中文使用教程。Root；codex/tmall-submission，核心rc51/6b46c3c8不变。
 
 ## Result
 
-交付包/入门教程通过范围核验；产品总体PARTIAL。最终天猫ZIP以桌面Muse-Tmall-Delivery.json为准。GOSIM492,370,211字节，旧内载荷不变。
+交付包/入门教程通过范围核验；产品总体PARTIAL。最终参赛ZIP以桌面Muse-Tmall-Delivery.json为准。GOSIM492,370,211字节，旧内载荷不变。
 
 ## Changed
 
-原生入口复用：Qwen2.5-0.5B Q4_0/llama.cpp自动本机配置、整包验签、生命周期/正常安装；精确allowlist与500MB硬门槛。docs使用教程和天猫md/html；GOSIM外层加教程。
+原生入口复用：Qwen2.5-0.5B Q4_0/llama.cpp自动本机配置、整包验签、生命周期/正常安装；精确allowlist与500MB硬门槛。docs使用教程和参赛md/html；GOSIM外层加教程。
 
 ## Tests
 
@@ -35,3 +35,5 @@ ZIP 为489,595,070字节（489.60 MB），SHA256：000b2815c6072d2b8033bea42ddc6
 本人追加授权后，仅隔离测试profile的官方model ledger日token限制调整为200,000，原day/apps调用计数和100,211 token使用记录保留；未改脚本执行预算。此配置不会消除已有业务缺项，不改变PARTIAL结论。
 
 GitHub main/新Tag已推送5d6e6d16。App Hub已提交issues/112，待维护者审核，未上架。
+
+命名更正：所有当前文件中的错误赛事称呼已清除；桌面教程和启动器同步更正，旧历史与核心bundle不改。

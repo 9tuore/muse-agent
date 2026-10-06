@@ -114,7 +114,7 @@ int main(int argc, const char *argv[]) {
         }
         NSString *profilePath = join(core, @"profiles/_main.json");
         BOOL first = ![files fileExistsAtPath:profilePath];
-        NSMutableDictionary *profile = first ? [@{@"id":@"_main", @"name":@"Muse 天猫离线体验", @"enabled":@YES,
+        NSMutableDictionary *profile = first ? [@{@"id":@"_main", @"name":@"Muse 参赛离线体验", @"enabled":@YES,
             @"config":@{@"llm":@{@"primary":@{@"family_id":@"local", @"model_id":@"Qwen2.5-0.5B-Instruct-Q4_0-offline",
                 @"context_window":@4096}, @"fallbacks":@[]}, @"env_vars":@{}}} mutableCopy] :
             [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:profilePath]

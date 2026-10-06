@@ -20,19 +20,19 @@ rc2仅扩已有待核对归档至accepted，保留完整旧草稿/action状态/�
 
 ---
 
-## 2026-10-06：天猫包内置离线模型与两版教程（当前）
+## 2026-10-06：参赛包内置离线模型与两版教程（当前）
 
 codex/tmall-submission，核心仍6b46c3c8/rc51、基线7175af66。原生 Muse.app 复用既有启动器，附 Qwen2.5-0.5B Instruct Q4_0/Intel llama.cpp b11178，空配置自动路由到官方model.complete；云端配置字节保持、退出回收本入口模型。Host/core/预算/权限不改；首次安装仍正常App Hub确认。旧76MB交付保留在tmall_submission/.local-state/tmall-before-offline。
 
 隔离真实正常安装六SHA一致、4次Host模型调用/usage，重开后欢迎语及17+6通过。短格式两题1/2，天空误答保留；Qwen3旧试验0/2、初重开驱动启动竞争失败保留。整包签名与字节/模式/链接精确还原、22模型组件和五项入口检查通过。最终ZIP数值以桌面Muse-Tmall-Delivery.json为准；模型自然基础体验不等于强模型或产品全门槛通过。
 
-中文使用教程在docs/USER_GUIDE.zh-CN.md、天猫使用教程.md/html；GOSIM外层/展开目录附02-使用教程.md/html，ZIP492,370,211字节，SHA5faa52b3，旧XZ内载荷未变、旧ZIP保存。涵盖QQ授权码、完整邮箱地址、TLS参数、真实日历完整访问、模型切换、两版启动、记忆/项目和排错。
+中文使用教程在docs/USER_GUIDE.zh-CN.md、参赛使用教程.md/html；GOSIM外层/展开目录附02-使用教程.md/html，ZIP492,370,211字节，SHA5faa52b3，旧XZ内载荷未变、旧ZIP保存。涵盖QQ授权码、完整邮箱地址、TLS参数、真实日历完整访问、模型切换、两版启动、记忆/项目和排错。
 
 本轮只普通同步包装分支；main/旧Tag不动。整体仍PARTIAL，冷7/10、复杂语义、第二GPT、同最终外部整链/接收Mac等缺项未升级。未外发、付费、写系统日历或动旧安装/生产；dirty baseline SHA2830708d保持。
 
 ---
 
-## 2026-10-06：天猫参赛包装（当前）
+## 2026-10-06：参赛参赛包装（当前）
 
 独立分支codex/tmall-submission，基线7175af66，核心仍6b46c3c8/0.3.26-rc51。只新增tmall_submission产品文案、端云架构、运行入口、锁与来源清单、表单、封面、讲解视频及包装工具；核心/Host/权限/预算/生产资料未修改，dirty baseline SHA保持。GOSIM既有资料和旧Tag不动。
 
@@ -42,7 +42,7 @@ codex/tmall-submission，核心仍6b46c3c8/rc51、基线7175af66。原生 Muse.a
 
 固定Git95文件及76overlay摘要核对；另一全新目录从官方pin恢复五套SDK/12000文件，独立verify通过。首次TLS EOF失败保留，重试通过；未重新完整编译或换机。第一次打包对目录条数的错误假设已修为按id/version选择唯一当前artifact，保留原签名catalog。实际报告tmall_submission/VERIFICATION.json和桌面Muse-Tmall-Delivery.json。
 
-天猫PARTIAL：最新rc51仍冷7/10，不能称稳定GOSIM Final；同最终外部邮件/日历/改期/回复/重启实录、六屏中五屏、实际失败状态及对应用户写入/收件确认待补。讲解不冒充全链，第二GPT路由/原版Calendar准入缺项保留。按既有GitHub授权只普通同步独立包装分支，不改main/Tag/正式提交；同步结果以桌面回执为准。
+参赛PARTIAL：最新rc51仍冷7/10，不能称稳定GOSIM Final；同最终外部邮件/日历/改期/回复/重启实录、六屏中五屏、实际失败状态及对应用户写入/收件确认待补。讲解不冒充全链，第二GPT路由/原版Calendar准入缺项保留。按既有GitHub授权只普通同步独立包装分支，不改main/Tag/正式提交；同步结果以桌面回执为准。
 
 ---
 
@@ -885,3 +885,5 @@ ZIP 为489,595,070字节（489.60 MB），SHA256：000b2815c6072d2b8033bea42ddc6
 本人追加授权后，仅隔离测试profile的官方model ledger日token限制调整为200,000，原day/apps调用计数和100,211 token使用记录保留；未改脚本执行预算。此配置不会消除已有业务缺项，不改变PARTIAL结论。
 
 23:29收口：正式候选rc10字节不变，允许清单完成分发清理；六个仅在入口出现定义的函数仍被fixture调用，未盲删。App Hub issues/112已提交审核，main/新Tag已同步；PARTIAL门槛未改。详见STABILITY_RELEASE_SCOPE.md。
+
+命名更正：当前仓库和交付材料统一采用Muse参赛版名称；产品逻辑、旧Tag和生产资料保持。全文与交付包检查记录随本轮提交。
