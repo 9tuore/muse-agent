@@ -1,4 +1,18 @@
-## 2026-10-06：rc51 界面挂载与交付收口（当前）
+## 2026-10-06：天猫参赛包装（当前）
+
+独立分支codex/tmall-submission，基线7175af66，核心仍6b46c3c8/0.3.26-rc51。只新增tmall_submission产品文案、端云架构、运行入口、锁与来源清单、表单、封面、讲解视频及包装工具；核心/Host/权限/预算/生产资料未修改，dirty baseline SHA保持。GOSIM既有资料和旧Tag不动。
+
+桌面Muse-Tmall-Submission文件夹与Muse-Tmall-Submission.zip共76,788,594字节，SHA4ffc0266。只含允许清单材料、原签名Host及当前Muse artifact；Git不附Host/SDK。RUN_MUSE.command验签、固定摘要与版本，首次正常AppHub安装，安装后已定义launch-hub:muse-goals入口，未代替用户授权。最终ZIP208文件的全新ditto还原、字节/模式/链接、Runtime验签与--check通过；四项入口检查PASS，未开新GUI/模型/账号。
+
+300/500字符表单分别220/368通过。端云图1600×900真实渲染审阅；162秒中文讲解完整解码、五帧抽查，通过标注区分示意与真实rc51内部任务节选；另附74秒实机节选。主截图是公开视频静帧，另有记忆召回，两张不替代完整六屏。封面保持用户图及星海队，增加端云副标题，原生1672×941近16:9，无拉伸。
+
+固定Git95文件及76overlay摘要核对；另一全新目录从官方pin恢复五套SDK/12000文件，独立verify通过。首次TLS EOF失败保留，重试通过；未重新完整编译或换机。第一次打包对目录条数的错误假设已修为按id/version选择唯一当前artifact，保留原签名catalog。实际报告tmall_submission/VERIFICATION.json和桌面Muse-Tmall-Delivery.json。
+
+天猫PARTIAL：最新rc51仍冷7/10，不能称稳定GOSIM Final；同最终外部邮件/日历/改期/回复/重启实录、六屏中五屏、实际失败状态及对应用户写入/收件确认待补。讲解不冒充全链，第二GPT路由/原版Calendar准入缺项保留。按既有GitHub授权只普通同步独立包装分支，不改main/Tag/正式提交；同步结果以桌面回执为准。
+
+---
+
+## 2026-10-06：rc51 界面挂载与交付收口（产品基线）
 
 宣传素材更新：采用用户提供的“Muse／让记忆推动行动”图，imagegen局部删除页脚Agentic App 2026及分隔线，保留星海队。新cover-v2.png、74秒产品演示和字幕以真实rc51任务画面呈现产品能力，README改为正向产品介绍，详细测试记录独立保留。桌面Muse-参赛展示材料-2026-10-06含封面/视频/字幕/简介；精确身份见media/rc51-public各JSON和当前DELIVERY。产品仍6b46c3c8，原证据视频/ZIP按各自冻结身份保留，技术验收PARTIAL。
 

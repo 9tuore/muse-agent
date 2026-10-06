@@ -2,28 +2,28 @@
 
 ## Task
 
-用户指定封面与正向宣传文案；Root；codex/muse-rc-finalization，基线f454cbc1，产品6b46c3c8。
+天猫比赛分发/展示包装；Root；codex/tmall-submission，基线7175af66，核心6b46c3c8/rc51。
 
 ## Result
 
-媒体编辑PASS：新封面仅保留星海队页脚；README与74秒产品视频突出已有能力。技术验收仍PARTIAL，原始记录保持。
+PARTIAL。桌面包76,788,594字节，208文件精确还原通过；核心仍原候选，外部实录/六屏未齐。
 
 ## Changed
 
-cover-v2 PNG/JSON、产品视频/SRT/生成脚本/provenance；README、DELIVERY、桌面展示文件夹更新。源证据视频和ZIP保持冻结身份。
+tmall_submission文案/架构/表单/薄入口/来源锁/演示/包装工具。只改交接文档，不改核心或Host。
 
 ## Tests
 
-imagegen局部编辑；新视频完整解码、配音时段核对、7个编码关键帧实际审看，真实UI与遮挡保持；桌面SHA核对。未重复功能测试。
+表单220/368；95源码与76overlay核对；全新五SDK12000文件恢复及独立verify PASS。首TLS失败保留。四项入口检查、ZIP模式/链接/SHA/验签PASS；162秒视频解码/5帧、架构图审看。未开新GUI、外发、付费调用。
 
 ## Commit
 
-本次媒体小步提交并按已有授权普通同步GitHub；产品6b46c3c8，冻结F/a4cf4d9e，原同步f454cbc1。
+首材料0e56ab4b；后续实际提交/远端回执见桌面Muse-Tmall-Delivery.json。只同步包装分支，main/Tag不动。
 
 ## Remaining
 
-冷启动7/10、第二GPT API、同最终外部整链、OS/两Mac和官方准入仍缺。用户睡眠期间不申请权限。
+冷7/10、第二GPT、同最终外部闭环、五屏/失败状态、接收Mac及正式准入仍缺；睡眠期间不申请权限。
 
 ## Important Boundaries
 
-完整包492361442bytes、2180源码及内置模型保持，真实tar还原/签名/启动器/Hub与Root ZIP CRC/SHA通过，未开GUI。首527MB失败包保留。扩展Hub PASS≠原版Calendar准入。旧安装/生产/Tag/dirty baseline保护，未标20/20。
+示意讲解≠实机外链。运行包需本人宿主配置模型/账号/系统授权；已有492MB完整包保持。旧安装/生产/Tag/dirty baseline保护，无长期产品fork。
