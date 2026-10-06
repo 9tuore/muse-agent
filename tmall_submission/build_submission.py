@@ -19,7 +19,7 @@ import zipfile
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-BASE = '7060e558aa07d7ecfb3ccd670eb165cebc726457'
+BASE = '0b764f852301c2f5e4deadd6d63fde0eee3d2660'
 HOST_SHA = '1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3'
 PAYLOAD_SHA = '0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686'
 BUNDLE_FILES = ['assets/icon.svg', 'listing.json', 'main.splash', 'manifest.json',
