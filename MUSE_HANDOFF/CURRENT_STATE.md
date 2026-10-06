@@ -1,3 +1,7 @@
+## 本轮旧运行版本清理
+
+旧包/重复原生运行副本和缓存已删除，最新rc10 ZIP/启动器/核心SHA保持，当前Host保留。私有删除清单不提交。见official_muse/rc/packaging/cleanup-20261006-r2/REPORT.md；源码、用户数据、旧失败证据与dirty baseline保持。
+
 # 2026-10-06 23:10 Muse rc10 接续
 
 代码已在现有最终参赛分支收口。详见 official_muse/rc/final-contest-20261006-r1/FINAL_REPORT.md。正常静止重启六文件和外部动作一致；真实改期、回信及新空白对话记忆有证据。完整同一候选受model日预算阻塞，删除后回执仍有脚本预算问题，状态PARTIAL。未修改旧独立安装包与生产资料。
