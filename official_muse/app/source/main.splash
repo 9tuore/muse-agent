@@ -6112,6 +6112,22 @@ fn gm_semantic_key(value){
     if value == "user" || gm_search_key_pattern.test(value) { return "" }
     return value
 }
+// Query terms are identical for every entry and keep their original multiplicity.
+let gm_score_query = nil
+let gm_score_words = []
+fn gm_score_terms(query){
+    if gm_score_query == query { return gm_score_words }
+    let words = [] let chars = query.to_chars()
+    for j in min(chars.len(),64) {
+        if j + 1 < chars.len() {
+            let pair = "".to_chars() pair.push(chars[j]) pair.push(chars[j+1])
+            let word = pair.to_string()
+            if word != "项目" && word != "什么" && word != "我的" && word != "记住" && word != "一下" && word != "老师" { words.push(word) }
+        }
+    }
+    gm_score_query = query gm_score_words = words
+    return words
+}
 fn gm_score(entry,query,conversation_id,goal_id){
     let doc = entry.document
     if !gm_entry_access(entry) { return -1 }
@@ -6134,14 +6150,8 @@ fn gm_score(entry,query,conversation_id,goal_id){
     if predicate != "" { hay = predicate + " " + hay }
     if subject != "" { hay = subject + " " + hay }
     if query != "" && hay.search(query) >= 0 { score = score + 20 }
-    let chars = query.to_chars()
-    for j in min(chars.len(),64) {
-        if j + 1 < chars.len() {
-            let pair = "".to_chars() pair.push(chars[j]) pair.push(chars[j+1])
-            let word = pair.to_string()
-            if word != "项目" && word != "什么" && word != "我的" && word != "记住" && word != "一下"
-                && word != "老师" && hay.search(word) >= 0 { score = score + 1 }
-        }
+    for word in gm_score_terms(query) {
+        if hay.search(word) >= 0 { score = score + 1 }
     }
     if score == 0 { return 0 }
     if completed_receipt { score = score + 4 }

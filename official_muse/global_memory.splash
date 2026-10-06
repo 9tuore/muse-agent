@@ -607,6 +607,22 @@ fn gm_semantic_key(value){
     if value == "user" || gm_search_key_pattern.test(value) { return "" }
     return value
 }
+// Query terms are identical for every entry and keep their original multiplicity.
+let gm_score_query = nil
+let gm_score_words = []
+fn gm_score_terms(query){
+    if gm_score_query == query { return gm_score_words }
+    let words = [] let chars = query.to_chars()
+    for j in min(chars.len(),64) {
+        if j + 1 < chars.len() {
+            let pair = "".to_chars() pair.push(chars[j]) pair.push(chars[j+1])
+            let word = pair.to_string()
+            if word != "项目" && word != "什么" && word != "我的" && word != "记住" && word != "一下" && word != "老师" { words.push(word) }
+        }
+    }
+    gm_score_query = query gm_score_words = words
+    return words
+}
 fn gm_score(entry,query,conversation_id,goal_id){
     let doc = entry.document
     if !gm_entry_access(entry) { return -1 }
@@ -621,29 +637,42 @@ fn gm_score(entry,query,conversation_id,goal_id){
     if goal_id != "" && doc.payload.subject_id == goal_id { score = score + 30 }
     let subject = gm_semantic_key(doc.payload.subject_id) let predicate = gm_semantic_key(doc.payload.predicate)
     let hay = doc.payload.value
+    // Receipts contain execution evidence; their associated task supplies search words.
+    let receipt_goal = core_goal_index(doc.payload.subject_id)
+    let completed_receipt = gm_completed_receipt(doc)
+    if completed_receipt && receipt_goal >= 0 && goals[receipt_goal]["project_id"] == project
+        && goals[receipt_goal]["owner_id"] == owner { hay = goals[receipt_goal].goal + " " + hay }
     if predicate != "" { hay = predicate + " " + hay }
     if subject != "" { hay = subject + " " + hay }
     if query != "" && hay.search(query) >= 0 { score = score + 20 }
-    let chars = query.to_chars()
-    for j in min(chars.len(),64) {
-        if j + 1 < chars.len() {
-            let pair = "".to_chars() pair.push(chars[j]) pair.push(chars[j+1])
-            let word = pair.to_string()
-            if word != "项目" && word != "什么" && word != "我的" && word != "记住" && word != "一下"
-                && word != "老师" && hay.search(word) >= 0 { score = score + 1 }
-        }
+    for word in gm_score_terms(query) {
+        if hay.search(word) >= 0 { score = score + 1 }
     }
     if score == 0 { return 0 }
+    if completed_receipt { score = score + 4 }
     if entry.pinned { score = score + 2 }
     if gm_entry_field(entry,"conversation_id","") == conversation_id { score = score + 2 }
     return score
+}
+fn gm_completed_receipt(doc){
+    if doc.payload.predicate != "verified_result" || doc.payload.epistemic_type != "fact"
+        || doc.origin.type != "local_runtime" || doc.id != "memory:result:" + doc.origin.ref { return false }
+    let i = core_run_index(doc.origin.ref)
+    return i >= 0 && runs[i].status == "completed" && runs[i].goal_id == doc.payload.subject_id
+}
+fn gm_receipt_history(doc,other){
+    if !gm_completed_receipt(doc) || !gm_completed_receipt(other) || doc.origin.ref == other.origin.ref { return false }
+    for rel in doc.payload.relations { if rel.kind == "contradicts" && rel.target_id == other.id { return false } }
+    for rel in other.payload.relations { if rel.kind == "contradicts" && rel.target_id == doc.id { return false } }
+    return true
 }
 fn gm_hit_conflicts(doc,query,conversation_id,goal_id){
     let relations = []
     for entry in memory {
         let other = entry.document
         if other.id != doc.id && other.payload.subject_id == doc.payload.subject_id && other.payload.predicate == doc.payload.predicate
-            && other.payload.value != doc.payload.value && gm_same_scope(other["scope"],doc["scope"]) && gm_entry_access(entry) {
+            && other.payload.value != doc.payload.value && gm_same_scope(other["scope"],doc["scope"]) && gm_entry_access(entry)
+            && !gm_receipt_history(doc,other) {
             relations.push({kind: "contradicts" target_id: other.id})
         }
     }
@@ -653,6 +682,9 @@ fn gm_track_conflicts(hit,conflicts){
     for relation in hit.conflicts { conflicts.push({id: hit.id other_id: relation.target_id}) }
 }
 fn gm_context(query,conversation_id,goal_id){
+    return gm_context_ranked(query,conversation_id,goal_id,false)
+}
+fn gm_context_ranked(query,conversation_id,goal_id,prefer_preferences){
     let found = []
     let conflicts = []
     let reasons = []
@@ -667,8 +699,14 @@ fn gm_context(query,conversation_id,goal_id){
         }
         for n in min(memory.len(),6) {
             let best = -1
-            let highest = 0
-            for i in scores.len() { if scores[i] > highest { best = i highest = scores[i] } }
+            let highest = 0 let best_preference = false
+            for i in scores.len() {
+                let preference = prefer_preferences && gm_entry_field(memory[i],"memory_type","source") == "preference"
+                if scores[i] > 0 && ((preference && !best_preference)
+                    || (preference == best_preference && scores[i] > highest)) {
+                    best = i highest = scores[i] best_preference = preference
+                }
+            }
             if best >= 0 {
                 scores[best] = 0
                 let doc = memory[best].document
@@ -954,9 +992,10 @@ fn gm_resolve(keep_id,other_id,account){
         || !gm_same_scope(memory[i].document["scope"],memory[j].document["scope"])
         || memory[i].document.payload.subject_id != memory[j].document.payload.subject_id
         || memory[i].document.payload.predicate != memory[j].document.payload.predicate { gm_error = "冲突项不在同一事实作用域。" return false }
-    if !gm_forget(other_id,account) { return false }
+    if !gm_prepare() { return false }
     let claims = memory.to_json().parse_json() claims[j].resolved_by = keep_id
     if !core_commit_memory(claims,memory_sources,memory_forget) { gm_error = core_error return false }
+    core_record_event("memory conflict resolved","用户选择采用的记忆，冲突来源保留。","","","",account)
     return true
 }
 fn gm_export(){
