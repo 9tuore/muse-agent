@@ -6109,6 +6109,11 @@ fn gm_score(entry,query,conversation_id,goal_id){
     if goal_id != "" && doc.payload.subject_id == goal_id { score = score + 30 }
     let subject = gm_semantic_key(doc.payload.subject_id) let predicate = gm_semantic_key(doc.payload.predicate)
     let hay = doc.payload.value
+    // Receipts contain execution evidence; their associated task supplies search words.
+    let receipt_goal = core_goal_index(doc.payload.subject_id)
+    let completed_receipt = gm_completed_receipt(doc)
+    if completed_receipt && receipt_goal >= 0 && goals[receipt_goal]["project_id"] == project
+        && goals[receipt_goal]["owner_id"] == owner { hay = goals[receipt_goal].goal + " " + hay }
     if predicate != "" { hay = predicate + " " + hay }
     if subject != "" { hay = subject + " " + hay }
     if query != "" && hay.search(query) >= 0 { score = score + 20 }
@@ -6122,6 +6127,7 @@ fn gm_score(entry,query,conversation_id,goal_id){
         }
     }
     if score == 0 { return 0 }
+    if completed_receipt { score = score + 4 }
     if entry.pinned { score = score + 2 }
     if gm_entry_field(entry,"conversation_id","") == conversation_id { score = score + 2 }
     return score

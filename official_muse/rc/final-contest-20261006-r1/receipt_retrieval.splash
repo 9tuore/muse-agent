@@ -1,0 +1,42 @@
+// Synthetic execution history and permissions; no model or OS services.
+fn receipt_entry(id,subject,predicate,value,origin,project,owner){
+    let entry = {document: {schema_version: "muse.dsl/1" kind: "memory" id: id revision: 1
+        created_at: "2026-01-01T00:00:00Z" updated_at: "2026-01-01T00:00:00Z"
+        origin: {type: "local_runtime" ref: origin}
+        payload: {subject_id: subject predicate: predicate value: value epistemic_type: "fact"
+            source_ids: [] observed_at: "2026-01-01T00:00:00Z" valid_from: nil valid_until: nil relations: [] deleted: false}}
+        memory_type: "source" pinned: false conversation_id: "" history: [] source_history: []}
+    entry.document["scope"] = {project: "muse-goals" account: "fixture-account" visibility: "personal" user_id: "fixture-user" project_id: project owner_id: owner}
+    return entry
+}
+fn receipt_probe(){
+    gm_user_id = "fixture-user" gm_project = "fixture-project" gm_owner = "personal"
+    gm_accounts = ["fixture-account"] gm_enabled = true gm_ready = true core_memory_ready = true
+    goals = [{id: "fixture-goal" goal: "安排 XK-BOOKING-63742 咖啡约定" project_id: "fixture-project" owner_id: "personal"}]
+    runs = [{id: "run:fixture-current" goal_id: "fixture-goal" status: "completed"} {id: "run:fixture-old" goal_id: "fixture-goal" status: "completed"}]
+    let latest = receipt_entry("memory:result:run:fixture-current","fixture-goal","verified_result","系统日历结果 · 2026-11-08T08:00:00Z 至 2026-11-08T08:30:00Z","run:fixture-current","fixture-project","personal")
+    let old = receipt_entry("memory:result:run:fixture-old","fixture-goal","verified_result","旧时段 · 2026-11-08T07:00:00Z","run:fixture-old","fixture-project","personal")
+    old.resolved_by = latest.document.id
+    let foreign = receipt_entry("memory:foreign","foreign-goal","record","XK-BOOKING-63742 咖啡约定","foreign","teacher-project","teacher")
+    memory = [old,foreign]
+    for i in 8 { memory.push(receipt_entry("memory:noise:" + i,"noise:" + i,"source","XK-BOOKING-63741 外部来信 请求改到2026年11月8日16:00–16:30，不代表日历已经修改。","external","fixture-project","personal")) }
+    memory.push(latest)
+    let query = "XK-BOOKING-63742 咖啡约定最后改到了几点？请根据已核验系统日历结果回答。"
+    let ctx = gm_context(query,"new-chat","")
+    let checks = {}
+    checks.current_receipt_first = ctx.hits.len() > 0 && ctx.hits[0].id == latest.document.id
+    checks.bounded_context = ctx.bytes <= 2200 && ctx.hits.len() <= 6
+    checks.actual_receipt_present = ctx.text.search("2026-11-08T08:00:00Z") >= 0
+    checks.superseded_excluded = ctx.text.search("run:fixture-old") < 0
+    checks.foreign_owner_excluded = ctx.text.search("memory:foreign") < 0
+    runs[0].status = "running"
+    checks.uncompleted_no_receipt_boost = !gm_completed_receipt(latest.document)
+    runs[0].status = "completed"
+    latest.document.payload.deleted = true
+    checks.deleted_excluded = gm_score(latest,query,"new-chat","") == -1
+    latest.document.payload.deleted = false
+    latest.document["scope"].account = "unauthorized"
+    checks.unauthorized_excluded = gm_score(latest,query,"new-chat","") == -1
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| receipt_probe())
