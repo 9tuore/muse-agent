@@ -50,4 +50,6 @@ cargo run --release --locked -p octosense --bin octosense --no-default-features 
 
 运行本地 Muse bundle 时，使用同一版本的配套目录与正常 App Hub 安装路径。重建 Host 如需系统日历授权，应按现有 `official_muse/rc/packaging/package_host_candidate.py` 的资源布局与 Info.plist 方法打包；不要拿旧身份下的授权或结果冒充新构建。此脚本读取历史构建报告，不能未经准备直接执行；配套已构建 Runtime 可通过本包快速体验运行。
 
-本次验证的“Clean restore”覆盖 ZIP 全文件还原、模式/链接、Runtime 验签/摘要、bundle 一致性，以及固定 Git 源码提取。没有重新进行耗时的完整 Rust 编译或宣称换机成功。
+本次验证的“Clean restore”覆盖 ZIP 全文件还原、模式/链接、Runtime 验签/摘要、bundle 一致性、固定 Git 源码提取，以及全新目录恢复五套准确SDK并独立核对12,000个文件。首次网络TLS失败保留，重试恢复通过。没有重新进行完整 Rust 编译或宣称换机成功。
+
+重建比赛 ZIP 时，从本任务的 `codex/tmall-submission` 包装提交运行 `build_submission.py`，传入已验证的Host应用、配套mirror和全新输出目录。工具读取固定基线Git对象；不要在单独桌面材料目录中运行它。Git不会重复提交Host二进制，发行ZIP由允许清单附带。

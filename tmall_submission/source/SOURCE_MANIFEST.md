@@ -25,4 +25,4 @@
 
 按 [RUN_GUIDE.md](../RUN_GUIDE.md) clone、checkout固定提交、bootstrap、build、run。现有配套Runtime与正式上游Calendar准入分别记载，不能混称。
 
-本次在全新临时目录从固定Git提取运行核心、bootstrap、锁和overlay，并逐文件核对字节、模式及overlay摘要。此检查不是全新SDK下载或完整编译；详见 SOURCE_MANIFEST.json。
+本次在全新临时目录从固定Git提取运行核心、bootstrap、锁和overlay，核对95文件与76个overlay摘要。随后在另一全新目录按相同固定Git恢复bootstrap/锁/overlay，从官方pin下载并恢复五套SDK，12,000文件的树摘要、模式与链接验证通过，独立--verify也通过。首次TLS EOF失败保留。未进行新的完整Rust编译；详见SOURCE_MANIFEST.json。
