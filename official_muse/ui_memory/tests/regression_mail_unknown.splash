@@ -41,7 +41,7 @@ fn unknown_save(){
     start_timeout(0.05,|| unknown_archive())
 }
 fn unknown_archive(){
-    mail_keep_unknown()
+    mail_keep_pending()
     start_timeout(0.4,|| unknown_archive_wait())
 }
 start_timeout(0.1,|| unknown_seed())

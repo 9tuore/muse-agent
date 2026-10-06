@@ -1,0 +1,43 @@
+// Real jailed storage and production mail guards; no external transport.
+let pending_checks = {} let pending_original = "" let pending_payload = ""
+let pending_status = "__STATE__" let pending_variant = "__VARIANT__"
+fn incoming_fixture_request(service,args,cb){ pending_checks.no_external_request = false }
+fn pending_finish(){
+    pending_checks.original_action_status = actions.len() == 1 && actions[0].status == pending_status
+    pending_checks.pending_payload_guard = mail_payload_pending(pending_payload)
+    if pending_variant == "corrupt" {
+        pending_checks.original_draft_unchanged = mail_draft.to_json() == pending_original
+        pending_checks.corrupt_archive_preserved = fs.read("mail-draft-archive.json") == "{\"schema\":1,\"drafts\":\"invalid\"}"
+        pending_checks.no_new_draft = mail_draft.status == pending_status
+    } else {
+        pending_checks.original_draft_preserved = fs.exists("mail-draft-archive.json") && fs.read("mail-draft-archive.json").parse_json().drafts[0].draft.to_json() == pending_original
+        pending_checks.new_draft_unsubmitted = mail_draft.status == "DRAFT" && mail_draft.request_id == ""
+        ui.mail_to.set_text("self@example.invalid") ui.mail_subject.set_text("Synthetic pending-mail test") ui.mail_body.set_text("same synthetic payload")
+        mail_preview()
+        pending_checks.same_payload_rejected = mail_draft.status == "DRAFT" && mail_draft.preview == ""
+        ui.mail_body.set_text("a different synthetic payload") mail_preview()
+        pending_checks.different_payload_reviewable = mail_draft.status == "waiting_user" && mail_draft.request_id == ""
+    }
+    fs.write("probe.json",pending_checks.to_json())
+}
+fn pending_archive(){
+    if pending_status == "accepted" { pending_checks.accepted_action_saved = core_finish_action(mail_draft.request_id,"accepted") }
+    else { pending_checks.unknown_action_saved = core_finish_action(mail_draft.request_id,"unknown") }
+    pending_checks.draft_saved = mail_save() pending_original = mail_draft.to_json()
+    if pending_variant == "corrupt" { fs.write("mail-draft-archive.json","{\"schema\":1,\"drafts\":\"invalid\"}") }
+    mail_keep_pending()
+    start_timeout(0.7,|| pending_finish())
+}
+fn pending_seed(){
+    core_boot_goals() core_boot_activity()
+    mail_account = {id: "synthetic-account" address: "self@example.invalid"}
+    pending_payload = {account: mail_account.id to: "self@example.invalid" subject: "Synthetic pending-mail test" body: "same synthetic payload"}.to_json()
+    mail_draft = {account: mail_account.id to: "self@example.invalid" subject: "Synthetic pending-mail test" body: "same synthetic payload"
+        status: pending_status preview: pending_payload attempt: pending_payload request_id: "synthetic-pending-request"
+        accepted_at: 0 verified_at: 0 verified_id: "" link_goal_id: "" link_event_id: "" link_run_id: "" incoming_key: ""}
+    if pending_variant == "linked" { mail_draft.link_goal_id = "synthetic-goal" mail_draft.link_event_id = "synthetic-event" mail_draft.link_run_id = "synthetic-run" }
+    pending_checks.no_external_request = true
+    pending_checks.action_saved = core_begin_action("","",0,"mail.send",mail_account.id,mail_draft.request_id,pending_payload)
+    start_timeout(0.05,|| pending_archive())
+}
+start_timeout(0.1,|| pending_seed())

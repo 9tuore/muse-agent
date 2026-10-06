@@ -1,0 +1,12 @@
+// A second real VM loads the first process's action and archive files.
+fn pending_restore_probe(){
+ pending_checks = {no_external_request: true}
+ core_boot_goals()
+ let archived = fs.read("mail-draft-archive.json").parse_json().drafts[0].draft
+ pending_checks.action_status_preserved = actions.len()==1 && actions[0].status==archived.status
+ pending_checks.original_request_preserved = actions[0].id==archived.request_id
+ pending_checks.archived_payload_guard = mail_payload_pending(archived.attempt)
+ pending_checks.archive_full_draft_present = archived.body=="same synthetic payload" && archived.to=="self@example.invalid"
+ fs.write("probe-restore.json",pending_checks.to_json())
+}
+start_timeout(0.1,|| pending_restore_probe())

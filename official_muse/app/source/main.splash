@@ -3510,7 +3510,7 @@ fn mail_watch_archive_current(){
     let saved = {schema: 1 drafts: []}
     if fs.exists("mail-draft-archive.json") {
         saved = storage_read("mail-draft-archive.json").parse_json()
-        if saved == nil || saved.to_json().search("\"drafts\":") < 0 {
+        if !gm_object(saved) || saved["schema"] != 1 || !gm_has(saved,"drafts") || !saved.drafts.is_array() {
             mail_reply_error = "旧草稿暂时无法保留，请稍后重试；没有发送。"
             return false
         }
@@ -4345,21 +4345,25 @@ fn mail_send_receipt_step(context,phase){
     mail_redraw()
 }
 
-// Abandon only the current attempt, retaining its unknown action and full draft.
+// Release the editor while preserving the pending action and its full draft.
 // mail_payload_pending still blocks the same exact payload after a new draft.
-fn mail_keep_unknown(){
-    if mail_draft.status != "unknown" || mail_sending || !mail_draft_writable { return }
+fn mail_keep_pending(){
+    if (mail_draft.status != "unknown" && mail_draft.status != "accepted") || mail_sending || !mail_draft_writable { return }
     let requested_id = mail_draft.request_id
+    let pending_status = mail_draft.status
     if !mail_watch_archive_current() { mail_redraw() return }
-    start_timeout(0.05,|| mail_keep_unknown_step(requested_id,0))
+    start_timeout(0.05,|| mail_keep_pending_step(requested_id,pending_status,0))
 }
 
-fn mail_keep_unknown_step(requested_id,phase){
-    if mail_draft.request_id != requested_id || mail_draft.status != "unknown" { return }
+fn mail_keep_pending_step(requested_id,pending_status,phase){
+    if mail_draft.request_id != requested_id || mail_draft.status != pending_status { return }
     if phase == 0 {
         let ai = core_action_index(requested_id)
         if ai < 0 { mail_error = "原动作记录不可读，请先核对；原邮件仍保留。" mail_redraw() return }
-        if actions[ai].status == "in_flight" && !core_finish_action(requested_id,"unknown") { mail_redraw() return }
+        if pending_status == "accepted" && actions[ai].status != "accepted" {
+            mail_error = "发送回执尚未完整保存，原邮件仍保留。" mail_redraw() return
+        }
+        if pending_status == "unknown" && actions[ai].status == "in_flight" && !core_finish_action(requested_id,"unknown") { mail_redraw() return }
     }
     if phase == 1 {
         mail_draft.status = "failed"
@@ -4367,7 +4371,7 @@ fn mail_keep_unknown_step(requested_id,phase){
         mail_notice = "原尝试已保留为待核对，不会重发相同内容。"
         return
     }
-    start_timeout(0.05,|| mail_keep_unknown_step(requested_id,1))
+    start_timeout(0.05,|| mail_keep_pending_step(requested_id,pending_status,1))
 }
 
 fn mail_finish_linked_result(){
@@ -9195,7 +9199,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                     if mail_draft.status == "accepted" { Label{width: Fill text: "宿主 SMTP 服务已受理；收件端尚未独立核验。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_draft.status == "verified" { Label{width: Fill text: "已记录本人独立收件端核验声明。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_draft.status == "unknown" { Label{width: Fill text: "上次发送结果未知，不会自动重发。请人工核对收件端。" draw_text.color: #xff9c94 draw_text.wrap: Words draw_text.text_style.font_size: 12} }
-                    if mail_draft.status == "unknown" { Secondary{text: "保留待核对记录，另写不同的邮件" on_click: || mail_keep_unknown()} }
+                    if mail_draft.status == "unknown" || mail_draft.status == "accepted" { Secondary{text: "保留待核对记录，另写不同的邮件" on_click: || mail_keep_pending()} }
                     if mail_draft.status == "accepted" {
                         Label{width: Fill text: "仅在你确实从独立收件端找到这封测试邮件后，输入邮件中的测试 ID 并记录核验。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
                         Secondary{text: "我已在收件端核对测试 ID" enabled: !mail_verifying on_click: || mail_verify_received()}

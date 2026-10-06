@@ -1,3 +1,11 @@
+## 2026-10-06：最终候选待核对邮件阻塞修复（验收进行中）
+
+基线1af7a896，分支codex/muse-final-contest。rc1真实同Host1d7打开，新空Chat/M3召回已有项目约定偏好与来源，Calendar完整访问；未外部写入。官方Keychain按canonical目录隔离，验收副本复用既有授权测试Host mail目录，不导出凭据。本人未收到旧信，未标verified、未重发；现已重新登录，后续同步待取证。
+
+rc2仅扩已有待核对归档至accepted，保留完整旧草稿/action状态/请求ID/相同载荷保护，拒绝畸形archive；没有重建发送链。旧行为4失败保留；修复6变体58检查及两个独立Card VM恢复10检查通过，均fixture。预算/Host/记忆实现未改。真实完整闭环与专项视频待完成，不提前标最终PASS。
+
+---
+
 ## 2026-10-06：天猫包内置离线模型与两版教程（当前）
 
 codex/tmall-submission，核心仍6b46c3c8/rc51、基线7175af66。原生 Muse.app 复用既有启动器，附 Qwen2.5-0.5B Instruct Q4_0/Intel llama.cpp b11178，空配置自动路由到官方model.complete；云端配置字节保持、退出回收本入口模型。Host/core/预算/权限不改；首次安装仍正常App Hub确认。旧76MB交付保留在tmall_submission/.local-state/tmall-before-offline。
