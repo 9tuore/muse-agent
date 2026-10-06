@@ -1,3 +1,15 @@
+## 2026-10-06：天猫包内置离线模型与两版教程（当前）
+
+codex/tmall-submission，核心仍6b46c3c8/rc51、基线7175af66。原生 Muse.app 复用既有启动器，附 Qwen2.5-0.5B Instruct Q4_0/Intel llama.cpp b11178，空配置自动路由到官方model.complete；云端配置字节保持、退出回收本入口模型。Host/core/预算/权限不改；首次安装仍正常App Hub确认。旧76MB交付保留在tmall_submission/.local-state/tmall-before-offline。
+
+隔离真实正常安装六SHA一致、4次Host模型调用/usage，重开后欢迎语及17+6通过。短格式两题1/2，天空误答保留；Qwen3旧试验0/2、初重开驱动启动竞争失败保留。整包签名与字节/模式/链接精确还原、22模型组件和五项入口检查通过。最终ZIP数值以桌面Muse-Tmall-Delivery.json为准；模型自然基础体验不等于强模型或产品全门槛通过。
+
+中文使用教程在docs/USER_GUIDE.zh-CN.md、天猫使用教程.md/html；GOSIM外层/展开目录附02-使用教程.md/html，ZIP492,370,211字节，SHA5faa52b3，旧XZ内载荷未变、旧ZIP保存。涵盖QQ授权码、完整邮箱地址、TLS参数、真实日历完整访问、模型切换、两版启动、记忆/项目和排错。
+
+本轮只普通同步包装分支；main/旧Tag不动。整体仍PARTIAL，冷7/10、复杂语义、第二GPT、同最终外部整链/接收Mac等缺项未升级。未外发、付费、写系统日历或动旧安装/生产；dirty baseline SHA2830708d保持。
+
+---
+
 ## 2026-10-06：天猫参赛包装（当前）
 
 独立分支codex/tmall-submission，基线7175af66，核心仍6b46c3c8/0.3.26-rc51。只新增tmall_submission产品文案、端云架构、运行入口、锁与来源清单、表单、封面、讲解视频及包装工具；核心/Host/权限/预算/生产资料未修改，dirty baseline SHA保持。GOSIM既有资料和旧Tag不动。

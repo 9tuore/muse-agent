@@ -15,10 +15,12 @@ AI 负责理解，本地端负责行动。
 ## 先体验
 
 1. 解压 `Muse-Tmall-Submission.zip`。
-2. 双击 **RUN_MUSE.command**。首次在应用中心安装并打开 Muse；以后直接打开 Muse。
-3. 在 OctoSense 的 AI 模型设置配置可用模型，在 Muse 连接邮箱并授权日历。凭据只填写在宿主窗口。
+2. 双击 **Muse.app**（也可用 RUN_MUSE.command）。离线模型会自动启动并配置；首次在应用中心确认安装并打开 Muse，以后直接进入 Muse。
+3. 基础聊天无需 API Key 或联网下载。需要真实邮件、日历时，再在 Muse 连接自己的邮箱并授权日历；复杂任务可在官方模型设置切换更强模型。
 
-运行包面向 **Intel Mac / macOS 14+**，使用配套的 OctoSense Agent Runtime。详细步骤见 [运行指南](RUN_GUIDE.md)。首次配置模型、账号与系统权限的时间不计入已测启动时间；没有承诺五分钟完成这些操作。
+运行包面向 **Intel Mac / macOS 14+**，使用配套的 OctoSense Agent Runtime。详细步骤见 [运行指南](RUN_GUIDE.md)。内置 Qwen2.5-0.5B Instruct Q4_0 基础离线模型和 Intel 推理组件；已有用户模型配置会保留。首次账号与系统授权的时间不计入已测启动时间。
+
+[完整使用教程（QQ 授权码、邮箱、日历、模型与常见问题）](使用教程.md)
 
 ## 看作品
 

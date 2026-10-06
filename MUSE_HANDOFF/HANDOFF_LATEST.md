@@ -2,28 +2,24 @@
 
 ## Task
 
-天猫比赛分发/展示包装；Root；codex/tmall-submission，基线7175af66，核心6b46c3c8/rc51。
+天猫离线模型打包与GOSIM/天猫中文使用教程。Root；codex/tmall-submission，核心rc51/6b46c3c8不变。
 
 ## Result
 
-PARTIAL。桌面包76,788,594字节，208文件精确还原通过；核心仍原候选，外部实录/六屏未齐。
+交付包/入门教程通过范围核验；产品总体PARTIAL。最终天猫ZIP以桌面Muse-Tmall-Delivery.json为准。GOSIM492,370,211字节，旧内载荷不变。
 
 ## Changed
 
-tmall_submission文案/架构/表单/薄入口/来源锁/演示/包装工具。只改交接文档，不改核心或Host。
+原生入口复用：Qwen2.5-0.5B Q4_0/llama.cpp自动本机配置、整包验签、生命周期/正常安装；精确allowlist与500MB硬门槛。docs使用教程和天猫md/html；GOSIM外层加教程。
 
 ## Tests
 
-表单220/368；95源码与76overlay核对；全新五SDK12000文件恢复及独立verify PASS。首TLS失败保留。四项入口检查、ZIP模式/链接/SHA/验签PASS；162秒视频解码/5帧、架构图审看。未开新GUI、外发、付费调用。
+真实AppHub安装6 SHA一致；4次官方model.complete/usage，重开自然两题通过。短格式1/2、旧Qwen3 0/2及驱动首次竞争失败保留。已有合成Provider配置字节保持；22模型文件锁、ZIP全还原/验签/五入口检查PASS，最终身份见记录。
 
 ## Commit
 
-首材料0e56ab4b；后续实际提交/远端回执见桌面Muse-Tmall-Delivery.json。只同步包装分支，main/Tag不动。
+教程10784ccf；原生模型781feb7a；后续包装/远端回执见桌面交付记录。只普通同步包装分支，main/Tag不动。
 
 ## Remaining
 
-冷7/10、第二GPT、同最终外部闭环、五屏/失败状态、接收Mac及正式准入仍缺；睡眠期间不申请权限。
-
-## Important Boundaries
-
-示意讲解≠实机外链。运行包需本人宿主配置模型/账号/系统授权；已有492MB完整包保持。旧安装/生产/Tag/dirty baseline保护，无长期产品fork。
+基本模型有限，原冷启动、第二strong、同最终外部整链、接收Mac等未补证。无付费或外部写入。旧76MB包/492MB旧ZIP保留；旧安装/生产/dirty baseline保护。
