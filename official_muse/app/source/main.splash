@@ -690,7 +690,10 @@ fn calendar_select_link(goal_id){
     ui.calendar_timezone.set_text(calendar_draft.time_zone)
     ui.calendar_location.set_text(calendar_draft.location)
     calendar_filling = false
-    set_page("Calendar")
+    if calendar_links[i]["auto_grant"] != nil && calendar_auto.enabled
+        && calendar_links[i].auto_grant == calendar_auto.grant_id && calendar_links[i].status == "candidate" {
+        set_page("Chat")
+    } else { set_page("Calendar") }
 }
 
 fn calendar_status_load(silent){
@@ -1034,6 +1037,12 @@ fn calendar_check_conflicts(){
         else { calendar_notice = "选中日历的这个已读范围发现 " + calendar_conflicts.len() + " 个重叠事件；请改时间。" }
         calendar_error = ""
         redraw()
+        let li = calendar_link_index(calendar_selected_goal)
+        if li >= 0 && calendar_operation == "create" && calendar_auto_link_allowed(calendar_selected_goal) {
+            let goal_id = calendar_selected_goal let grant_id = calendar_auto.grant_id
+            let revision = calendar_links[li]["candidate_revision"]
+            start_timeout(0.05,|| calendar_auto_confirm(goal_id,grant_id,revision))
+        }
     })
 }
 
@@ -1141,6 +1150,7 @@ fn calendar_finish_link_step(goal_id,run_id,request_id,payload,event,artifact,ph
     calendar_notice = "约定已安排并核对，结果与来源已保存。"
     if calendar_links[li]["operation"] == "update" { calendar_notice = "原约定已改期并核对。" }
     redraw()
+    if calendar_links[li]["auto_grant"] != nil && calendar_links[li]["operation"] != "update" { set_page("Chat") }
     start_timeout(0.1,|| schedule_auto_reply(goal_id,event))
 }
 
@@ -1466,6 +1476,10 @@ fn calendar_confirm_action(){
         goal_id: calendar_selected_goal goal_revision: goal_revision candidate_revision: calendar_candidate_revision
         source_binding: calendar_preview_binding
         approval_revision: calendar_approval_revision events: calendar_checked_events calendar: calendar_snapshot memory_refs: calendar_context_refs}.to_json().parse_json()
+    if calendar_auto_confirming != "" {
+        context.auto_grant = calendar_auto_confirming
+        if !calendar_auto_context_current(context) { calendar_error = "自动安排授权已变化，未写入日历。" redraw() return }
+    }
     calendar_refresh_preconditions(context,payload)
 }
 
@@ -1487,6 +1501,7 @@ fn calendar_snapshot_equal(before,after){
 }
 
 fn calendar_approval_current(context){
+    if !calendar_auto_context_current(context) { return false }
     if !chat_reply_context_valid(context) { return false }
     if context["source_binding"] != calendar_preview_binding
         || context["source_binding"] != schedule_slot_context(context.goal_id) { return false }
@@ -1600,6 +1615,7 @@ fn calendar_refresh_preconditions(context,payload){
 // Each durable commit gets its own VM turn. The captured approval remains
 // bound to the exact card and source; only our own persisted state advances it.
 fn calendar_execution_current(context,payload){
+    if !calendar_auto_context_current(context) { return false }
     if context["execution_run"] == nil { return calendar_approval_current(context) }
     if !chat_reply_context_valid(context) || calendar_preview != context.preview
         || calendar_request_id != context.request_id || calendar_operation != context.operation
@@ -1650,7 +1666,9 @@ fn calendar_execute_step(context,payload,phase){
         context.execution_binding = schedule_slot_context(goal_id)
     }
     if phase == 2 && linked {
-        if !core_record_event("Plan approved","日历确认绑定精确字段、日历 ID、请求 ID 与计划版本。",goal_id,run_id,context.request_id,payload.calendar_id) {
+        let detail = "日历确认绑定精确字段、日历 ID、请求 ID 与计划版本。"
+        if context["auto_grant"] != nil { detail = "按用户持续授权自动创建；绑定授权范围、邮件来源、精确字段和计划版本。" }
+        if !core_record_event("Plan approved",detail,goal_id,run_id,context.request_id,payload.calendar_id) {
             calendar_pending = false calendar_error = "确认活动未保存；未调用宿主。" redraw() return
         }
     }
@@ -1761,8 +1779,112 @@ let mail_scope_owner = ""
 let mail_analysis = {schema: 1 enabled: true permitted: false}
 let mail_analysis_busy = false
 let mail_analysis_epoch = 0
+let calendar_auto = {enabled: false grant_id: "" account_id: "" calendar_id: "" calendar_name: "" project: "" owner: "" granted_at: 0}
+
+// One persisted, account/project/calendar scoped grant. Existing inbox history is
+// excluded; updates, deletions and email sending never use this grant.
+fn calendar_auto_valid(grant){
+    return gm_object(grant) && gm_bool(grant["enabled"]) && gm_text(grant["grant_id"])
+        && gm_text(grant["account_id"]) && gm_text(grant["calendar_id"])
+        && gm_text(grant["calendar_name"]) && gm_text(grant["project"]) && gm_text(grant["owner"])
+        && gm_number(grant["granted_at"]) && (!grant.enabled || (grant.grant_id != ""
+            && grant.account_id != "" && grant.calendar_id != "" && grant.project != "" && grant.owner != "" && grant.granted_at > 0))
+}
+
+fn calendar_auto_allow(){
+    if mail_account == nil || !gm_account_allowed(mail_account.id) || gm_project == "" || gm_owner == ""
+        || calendar_permission != "full_access" || calendar_calendar_id == "" {
+        ui_error = "请先连接邮箱、选择当前项目，并在日历页选择可写日历。" redraw() return
+    }
+    let name = ""
+    for cal in calendar_calendars { if cal.id == calendar_calendar_id && cal.writable { name = cal.title } }
+    if name == "" { ui_error = "所选日历不可写，未开启自动安排。" redraw() return }
+    calendar_auto = {enabled: true grant_id: "auto-calendar-" + floor(time_now()) + "-" + random_u32()
+        account_id: mail_account.id calendar_id: calendar_calendar_id calendar_name: name
+        project: gm_project owner: gm_owner granted_at: time_now()}
+    mail_watch.calendar_auto = calendar_auto.to_json().parse_json()
+    mail_analysis.enabled = true mail_analysis.permitted = true
+    mail_watch.analysis_settings = mail_analysis.to_json().parse_json()
+    if !mail_watch_save() { calendar_auto.enabled = false mail_analysis.permitted = false redraw() return }
+    ui_error = "" redraw()
+}
+
+fn calendar_auto_pause(){
+    calendar_auto.enabled = false
+    mail_watch.calendar_auto = calendar_auto.to_json().parse_json()
+    mail_watch_save()
+    redraw()
+}
+
+fn calendar_auto_scope(alert){
+    if !calendar_auto_valid(calendar_auto) || !calendar_auto.enabled || !mail_analysis.enabled || !mail_analysis.permitted
+        || alert.account_id != calendar_auto.account_id || !gm_account_allowed(alert.account_id)
+        || !gm_number(alert["received_at"]) || alert.received_at < calendar_auto.granted_at
+        || alert.status != "new" || alert["source_message"] == nil { return nil }
+    let message_scope = schedule_scope(alert.source_body,alert.account_id)
+    if message_scope != nil {
+        if message_scope.project != calendar_auto.project || message_scope.owner != calendar_auto.owner { return nil }
+        return message_scope
+    }
+    if alert.source_body.search("项目：") >= 0 || alert.source_body.search("归属：") >= 0 { return nil }
+    return {project: calendar_auto.project owner: calendar_auto.owner}
+}
+
+fn calendar_auto_link_allowed(goal_id){
+    let li = calendar_link_index(goal_id) let gi = core_goal_index(goal_id)
+    if li < 0 || gi < 0 || !calendar_auto.enabled || !mail_analysis.enabled || !mail_analysis.permitted
+        || calendar_links[li]["auto_grant"] != calendar_auto.grant_id
+        || calendar_links[li].account_id != calendar_auto.account_id || !gm_account_allowed(calendar_auto.account_id)
+        || calendar_links[li].calendar_id != calendar_auto.calendar_id
+        || goals[gi].project_id != calendar_auto.project || goals[gi].owner_id != calendar_auto.owner
+        || goals[gi].archived || calendar_links[li]["operation"] == "update"
+        || calendar_links[li].event_id != "" || calendar_links[li]["original_event"] != nil { return false }
+    return true
+}
+
+fn calendar_auto_context_current(context){
+    if context["auto_grant"] == nil { return true }
+    return context.operation == "create" && context.auto_grant == calendar_auto.grant_id
+        && calendar_auto_link_allowed(context.goal_id)
+}
+
+fn calendar_auto_prepare(goal_id){
+    if !calendar_auto_link_allowed(goal_id) || calendar_pending || mail_pending || mail_sending
+        || mail_calendar_link_pending || page != "Chat" || calendar_preview != "" { return }
+    if calendar_permission != "full_access" { calendar_status_load(true) return }
+    let li = calendar_link_index(goal_id)
+    if calendar_links[li].status != "candidate" || calendar_links[li]["active_generation"] != nil
+        || calendar_links[li]["auto_checked"] == true { return }
+    calendar_links[li].auto_checked = true
+    if !calendar_save() { return }
+    calendar_select_link(goal_id)
+    let error = calendar_draft_error(calendar_draft_payload())
+    if error != "" { calendar_error = error redraw() return }
+    calendar_check_conflicts()
+}
+
+fn calendar_auto_confirm(goal_id,grant_id,candidate_revision){
+    let li = calendar_link_index(goal_id)
+    if !calendar_auto_link_allowed(goal_id) || calendar_auto.grant_id != grant_id || li < 0
+        || calendar_links[li].status != "candidate" || calendar_links[li]["candidate_revision"] != candidate_revision
+        || calendar_selected_goal != goal_id || calendar_operation != "create"
+        || calendar_links[li].candidate.to_json() != calendar_draft.to_json()
+        || calendar_draft_payload().to_json() != calendar_checked || calendar_conflicts.len() != 0 { return }
+    let payload = calendar_draft_payload() let candidate = calendar_links[li].candidate
+    if payload.calendar_id != calendar_auto.calendar_id || payload.title != candidate.title
+        || payload.start != candidate.start || payload.end != candidate.end
+        || payload.time_zone != candidate.time_zone || payload.location != candidate.location { return }
+    calendar_preview_action()
+    if calendar_preview == "" { return }
+    calendar_auto_confirming = grant_id
+    calendar_confirm_action()
+    calendar_auto_confirming = ""
+}
+let calendar_auto_confirming = ""
 
 fn mail_analysis_boot(){
+    let grant = mail_watch["calendar_auto"]
+    if calendar_auto_valid(grant) { calendar_auto = grant }
     let saved = mail_watch["analysis_settings"]
     if saved != nil {
         if !saved.is_object() || !saved["enabled"].is_bool() || !saved["permitted"].is_bool() {
@@ -1798,9 +1920,15 @@ fn mail_analysis_allow(){
 
 fn mail_analysis_pump(){
     if !mail_analysis.enabled || !mail_analysis.permitted || mail_analysis_busy || mail_model_pending
-        || mail_pending || mail_sending || !mail_watch_writable || !core_memory_ready || !gm_ready { return }
+        || mail_pending || mail_sending || calendar_pending || mail_calendar_link_pending
+        || !mail_watch_writable || !core_memory_ready || !gm_ready { return }
     for link in calendar_links {
-        if link.status == "verified" && link["reply_pending"] == true && link["original_event"] != nil {
+        if calendar_auto_link_allowed(link.goal_id) && link.status == "candidate" && link["active_generation"] == nil
+            && link["auto_checked"] != true { calendar_auto_prepare(link.goal_id) return }
+    }
+    for link in calendar_links {
+        if link.status == "verified" && link["reply_pending"] == true && link["original_event"] != nil
+            && (!calendar_auto.enabled || link["auto_grant"] == calendar_auto.grant_id) {
             if schedule_auto_reply(link.goal_id,link.original_event) { return }
             // A processed or unavailable source must not block later incoming mail.
             link.reply_pending = false
@@ -1811,7 +1939,8 @@ fn mail_analysis_pump(){
     for i in mail_watch.alerts.len() {
         let alert = mail_watch.alerts[i]
         if next < 0 && alert["analysis_state"] == nil && alert.status == "new"
-            && alert["source_message"] != nil && mail_watch_account(alert.account_id) != nil { next = i }
+            && alert["source_message"] != nil && mail_watch_account(alert.account_id) != nil
+            && (!calendar_auto.enabled || calendar_auto_scope(alert) != nil) { next = i }
     }
     if next < 0 { return }
     let alert = mail_watch.alerts[next].to_json().parse_json()
@@ -1823,6 +1952,7 @@ fn mail_analysis_pump(){
         return
     }
     let message_scope = schedule_scope(alert.source_body,alert.account_id)
+    if calendar_auto.enabled { message_scope = calendar_auto_scope(alert) }
     let project = "" let owner = ""
     if message_scope != nil { project = message_scope.project owner = message_scope.owner }
     let epoch = mail_analysis_epoch
@@ -1858,6 +1988,10 @@ fn mail_analysis_pump(){
         }
         mail_watch_save()
         mail_watch_refresh()
+        if r.is_ok && calendar_auto_scope(mail_watch.alerts[i]) != nil && r.data.output.kind == "appointment" {
+            mail_watch.alerts[i].auto_grant = calendar_auto.grant_id
+            if mail_watch_save() { start_timeout(0.1,|| mail_analysis_calendar(alert.key)) }
+        }
         start_timeout(0.1,|| mail_analysis_pump())
     })
 }
@@ -2734,6 +2868,8 @@ fn mail_link_calendar(){
         account_id: account_id message_id: message_id session_id: chat_selected_id
         project_id: project owner_id: owner focus_project: gm_project focus_owner: gm_owner
         rfc_message_id: mail_selected["message_id"]}
+    if incoming_i >= 0 && calendar_auto_scope(mail_watch.alerts[incoming_i]) != nil
+        && mail_watch.alerts[incoming_i]["auto_grant"] == calendar_auto.grant_id { context.auto_grant = calendar_auto.grant_id }
     mail_calendar_link_pending = true
     start_timeout(0.05,|| mail_calendar_attach(context,source,doc,excerpt,body,1))
 }
@@ -2781,6 +2917,11 @@ fn mail_calendar_attach(context,source,doc,excerpt,body,phase){
                 candidate: {title: "" start: "" end: "" time_zone: "Asia/Shanghai" location: ""}
                 calendar_id: "" run_id: "" event_id: "" version: "" status: "candidate" last_error: "" updated_at: time_now()
                 rfc_message_id: context["rfc_message_id"]})
+            if context["auto_grant"] != nil && context.auto_grant == calendar_auto.grant_id && calendar_auto.enabled {
+                let li = calendar_link_index(context.goal_id)
+                calendar_links[li].auto_grant = context.auto_grant
+                calendar_links[li].calendar_id = calendar_auto.calendar_id
+            }
             if !calendar_save() { mail_calendar_link_pending = false mail_error = calendar_error mail_redraw() return }
         }
     }
@@ -2794,6 +2935,7 @@ fn mail_calendar_attach(context,source,doc,excerpt,body,phase){
     calendar_notice = "邮件事实和来源已关联同一任务；请核对日程候选。"
     calendar_model_candidate(context.goal_id,context.account_id,context.message_id,excerpt,body)
     calendar_select_link(context.goal_id)
+    if context["auto_grant"] != nil { set_page("Chat") }
 }
 
 // Bind each candidate request to the durable Goal, source and active generation.
@@ -2919,6 +3061,7 @@ fn calendar_model_candidate(goal_id,account_id,message_id,subject,body){
                     calendar_error = policy_error
                     if revised.question != nil && revised.question != "" { calendar_notice = revised.question }
                 }
+                if revised["auto_grant"] != nil { set_page("Chat") start_timeout(0.1,|| calendar_auto_prepare(goal_id)) }
             } else { calendar_error = "候选未保存：" + calendar_error redraw() }
         } else {
             calendar_links[i].active_generation = nil
@@ -3341,7 +3484,7 @@ fn mail_watch_scan(account_id,ai,index,offset,notify){
                     if message["subject"].is_string() { subject = message.subject }
                     mail_watch.alerts.push({key: account_id + ":" + message.id account_id: account_id
                         message_id: message.id sender: sender subject: subject
-                        date: stamp(message.time) status: "new" intent: "" request_id: "" accepted_at: 0 draft_intent: ""})
+                        date: stamp(message.time) received_at: time_now() status: "new" intent: "" request_id: "" accepted_at: 0 draft_intent: ""})
                     let incoming_key = account_id + ":" + message.id
                     if mail_watch_focus == "" { mail_watch_focus = incoming_key }
                     new_keys.push(incoming_key)
@@ -9080,6 +9223,13 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                 Label{text: "日历" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 15}}
                 Label{width: Fill text: calendar_permission_text() draw_text.color: muted draw_text.wrap: Words}
                 Secondary{text: "管理系统日历" on_click: || set_page("Calendar")}
+                if calendar_auto.enabled {
+                    Label{width: Fill text: "来信自动安排 · " + calendar_auto.project + " / " + calendar_auto.owner + " → " + calendar_auto.calendar_name draw_text.color: ink draw_text.wrap: Words}
+                    Secondary{text: "暂停来信自动安排" on_click: || calendar_auto_pause()}
+                } else {
+                    Label{width: Fill text: "一次授权后，分析此邮箱的新来信，将当前项目中明确、无冲突的约定加入所选日历；信息不全、改期、删除和发回复仍先询问。" draw_text.color: muted draw_text.wrap: Words}
+                    Secondary{text: "授权当前邮箱与项目自动安排到所选日历" on_click: || calendar_auto_allow()}
+                }
                 Label{text: "外观与模型" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 15}}
                 Label{width: Fill text: "Muse 当前为深色外观。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                 Label{width: Fill text: "模型由 OctoSense 的“AI 模型设置”管理；此处只读。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
