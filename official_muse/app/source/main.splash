@@ -690,8 +690,7 @@ fn calendar_select_link(goal_id){
     ui.calendar_timezone.set_text(calendar_draft.time_zone)
     ui.calendar_location.set_text(calendar_draft.location)
     calendar_filling = false
-    if calendar_links[i]["auto_grant"] != nil && calendar_auto.enabled
-        && calendar_links[i].auto_grant == calendar_auto.grant_id && calendar_links[i].status == "candidate" {
+    if calendar_auto_link_allowed(goal_id) && calendar_links[i].status == "candidate" {
         set_page("Chat")
     } else { set_page("Calendar") }
 }
@@ -3079,7 +3078,7 @@ fn calendar_model_candidate(goal_id,account_id,message_id,subject,body){
                     calendar_error = policy_error
                     if revised.question != nil && revised.question != "" { calendar_notice = revised.question }
                 }
-                if revised["auto_grant"] != nil { set_page("Chat") start_timeout(0.1,|| calendar_auto_prepare(goal_id)) }
+                if calendar_auto_link_allowed(goal_id) { set_page("Chat") start_timeout(0.1,|| calendar_auto_prepare(goal_id)) }
             } else { calendar_error = "候选未保存：" + calendar_error redraw() }
         } else {
             calendar_links[i].active_generation = nil

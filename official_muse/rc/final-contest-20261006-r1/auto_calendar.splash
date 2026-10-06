@@ -103,6 +103,14 @@ fn auto_finish(){
         auto_checks.existing_attempt_is_not_replayed = auto_count("calendar.create") == created
         auto_checks.manual_context_remains_manual = calendar_auto_context_current({operation: "update" goal_id: id})
         auto_checks.auto_update_refused = !calendar_auto_context_current({auto_grant: calendar_auto.grant_id operation: "update" goal_id: id})
+        if flow {
+            calendar_links[0].operation = "update" calendar_links[0].status = "candidate"
+            calendar_links[0].original_event = auto_event
+            calendar_select_link(id)
+            auto_checks.reschedule_opens_calendar = page == "Calendar"
+            auto_checks.reschedule_preserves_selected_event = calendar_selected_event.id == auto_event.id && calendar_operation == "update"
+            auto_checks.reschedule_never_autocreates = auto_count("calendar.create") == created
+        }
         calendar_auto_pause()
         auto_checks.auto_context_revoked = !calendar_auto_context_current({auto_grant: calendar_auto.grant_id operation: "create" goal_id: id})
     }

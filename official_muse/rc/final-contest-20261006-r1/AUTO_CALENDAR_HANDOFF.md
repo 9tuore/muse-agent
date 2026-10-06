@@ -21,3 +21,7 @@ rc4 新来信曾出现分析后尚未关联的观察，随后候选实际建立�
 ## rc6 改期候选恢复
 
 rc5 真实自动新建与 get 已通过；后续改期 M3 请求一次 provider 失败，原记录保留。旧重排迁移保留了前次 policy/requested_range/question/user_clarification，导致重试入口隐藏，并可能沿用旧安排范围。rc6 只在同一原事件重排时清除这四项；事件 ID、独立 get、来源绑定与确认链不改。真实 VM 的阶段迁移 fixture before 四项失败、after 七项通过；守卫/模型边界 stub，非外部全链。最终候选实机验证继续。
+
+## rc7 导航边界
+
+自动新建关联在后续改期仍带原授权标记，旧导航据此错误返回 Chat。改为复用 calendar_auto_link_allowed 的新事件守卫；原事件候选正确进入 Calendar，确认操作继续保留。冻结compact阶段 before导航1FAIL/after23检查PASS，仍是合成模型/Host，独立读回与持久链由真实VM执行。
