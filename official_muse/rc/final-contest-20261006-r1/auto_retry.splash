@@ -1,0 +1,32 @@
+// Production pump with synthetic attachment boundary; no external operations.
+let retry_calls = 0
+fn retry_attach(key){ retry_calls = retry_calls + 1 mail_watch.alerts[0].goal_id = "synthetic-linked" }
+fn retry_probe(){
+    calendar_links = [] core_storage_ready = true core_memory_ready = true gm_ready = true
+    gm_accounts = ["synthetic-account"]
+    calendar_ready = true mail_watch_writable = true mail_analysis.enabled = true mail_analysis.permitted = true
+    mail_analysis_busy = false mail_model_pending = false mail_pending = false mail_sending = false
+    calendar_pending = false mail_calendar_link_pending = false
+    let now = time_now()
+    calendar_auto = {enabled: true grant_id: "synthetic-grant" account_id: "synthetic-account" project: "合成项目" owner: "个人" calendar_id: "synthetic-calendar" calendar_name: "合成日历" granted_at: now-60}
+    mail_watch.accounts = [{account_id: "synthetic-account" address: "self@example.invalid"}]
+    mail_accounts = [{id: "synthetic-account" address: "self@example.invalid"}]
+    let alert = {key: "synthetic-account:synthetic-message" account_id: "synthetic-account" message_id: "synthetic-message"
+        status: "new" received_at: now source_body: "请安排2030年11月8日下午见面。"
+        source_message: {id: "synthetic-message"} matter_project: "合成项目" matter_owner: "个人"
+        analysis_state: "ready" analysis: {kind: "appointment"} auto_grant: "synthetic-grant"}
+    mail_watch.alerts = [alert]
+    let checks = {}
+    mail_pending = true mail_analysis_pump()
+    checks.busy_does_not_attach = retry_calls == 0
+    mail_pending = false mail_analysis_pump()
+    checks.ready_resumes_after_busy = retry_calls == 1
+    mail_analysis_pump()
+    checks.linked_not_reattached = retry_calls == 1
+    mail_watch.alerts[0].goal_id = "" calendar_auto.enabled = false mail_analysis_pump()
+    checks.revoked_not_attached = retry_calls == 1
+    calendar_auto.enabled = true mail_watch.alerts[0].account_id = "other-account" mail_analysis_pump()
+    checks.other_account_not_attached = retry_calls == 1
+    fs.write("probe.json",checks.to_json())
+}
+start_timeout(0.1,|| retry_probe())
