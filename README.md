@@ -61,6 +61,10 @@ python3 tools/package_calendar_candidate.py --release --output ../../build/Muse-
 
 交付包包含完整冻结公开源码、依赖来源、配套宿主和许可证。**完整运行与源码 ZIP 为 492.36MB**，使用 macOS 自带工具展开；接收环境为 Intel Mac / macOS 14 或更新版本。
 
+## 新手使用教程
+
+[中文版使用教程](docs/USER_GUIDE.zh-CN.md)：GOSIM / 天猫版打开方式、QQ 邮箱授权码获取、邮箱连接、日历完整授权、模型切换、聊天与记忆、常见报错。
+
 ## 技术资料与支持
 
 - [来源与交付说明](SOURCE_DELIVERY.md) · [第三方许可证](THIRD_PARTY_NOTICES.md)
