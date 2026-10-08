@@ -75,3 +75,17 @@ python3 official_muse/rc/7h-20261008/business/run_matrix.py \
 
 候选新恢复接口用 `--delete-reconcile` 验证，`--require-settlement` 验证来源记忆与结果都落盘后才产生 `settled_request_id`。
 `malformed_model` 是官方服务“结构输出格式错误”分类的应用处理验证，不能据此声称已经测试真实 Model Host 的格式校验或模型推理。
+
+## 真实聊天接续：storage-shape-r1
+
+当前业务结论见 `REAL_CHAT_RESULTS.json` 与 `HANDOFF_REAL_CHAT.md`，不覆盖以上旧候选结果。
+
+- 候选 `cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78`，Host `46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe`。
+- 串行18场景首轮16通过、2 ERROR；已执行107/107。`late_model` 是 eval 脚本预算超限，`delete_unknown` 是源码准备预算超限；不能一概记为并发编译故障。
+- 同候选、同 Host、同官方预算的单独串行重试分别2/2、10/10通过，最终覆盖18场景119/119，但不是一次全绿、不是冷启动可靠性 PASS。
+- 四组新进程恢复：linked memory、linked result、delete receipt、delete acceptance accounting。实际8次 Host 启停，49/49 VM断言和80/80独立Python磁盘断言通过。
+- 每对记录真实PID、起止时间及复制seed哈希；旧进程退出后才启动新进程。故障由生产链实际生成记录，不手工伪造满足 shape 校验的状态。
+- 恢复只请求原 `test-calendar/test-event` 的 `calendar.get`；无create/update/delete/mail/model调用。校验原artifact字节、精确event字段、原request/run/goal绑定、单一receipt/Memory及来源digest、Activity增量和再次恢复稳定性。
+
+`run_recovery_restarts.py` 串行执行4对；参数与 `run_matrix.py` 一致，并增加 `--seed <本候选chain/state>`，输出目录必须新建。`--stop-after-fault` 在真实存储故障检查点结束测试进程，恢复用独立的 `recovery_restart.splash` 新进程；不是同进程再次调用 boot。
+原始首轮错误、单独重试和故障/重启对均在各自 `.local-state/storage-shape-*` 新目录保留，公开报告保存原 summary/log SHA 与每项布尔断言。不安装、不发信、不模型实调，不以 DRY_RUN 代替 LIVE。

@@ -1,0 +1,1471 @@
+{
+  "kind": "DRY_RUN_PRODUCTION_FUNCTIONS",
+  "reported_at": "2026-10-09T00:02:45.745514+08:00",
+  "candidate_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "first_pass_status": "PARTIAL",
+  "first_pass_cases": 18,
+  "first_pass_succeeded_cases": 16,
+  "first_pass_checks": 107,
+  "first_pass_passed": 107,
+  "first_pass": {
+    "chain": {
+      "status": "DRY_RUN_PASS",
+      "checks": 20,
+      "passed": 20,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "f36579084e291d8541b5a43654376885fb12592b75c2e848bef216786f64c0ae",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "6db4416e41e5d907cada9639ed63084a6b17398a78559c92353159eb98fb92af",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/chain/summary.json",
+      "summary_sha256": "0a400e6666e6827fb4398f5905c9503d2431b167e2f498e07683422832767149",
+      "runtime_log_sha256": "9b1b994f9711e954e99d14ec15285096a2ca89b244a87f24f2baa5e6294198c1",
+      "runtime_errors": [],
+      "assertions": {
+        "update_duplicate_confirmation_no_write": true,
+        "create_result_memory_exists": true,
+        "create_duplicate_confirmation_no_write": true,
+        "reply_linked_result_and_memory": true,
+        "acceptance_not_delivery": true,
+        "second_mail_matches_same_matter": true,
+        "create_same_goal_independent_get": true,
+        "update_settled_after_memory": true,
+        "replan_one_goal_one_event": true,
+        "update_waits_fresh_confirmation": true,
+        "first_mail_goal_and_source_bound": true,
+        "candidate_waits_confirmation": true,
+        "create_settled_after_memory": true,
+        "update_same_event_and_independent_get": true,
+        "reply_requires_separate_confirmation": true,
+        "synthetic_recipient_exact_readback": true,
+        "relevant_memory_in_model_input": true,
+        "scope_rejects_other_account": true,
+        "preference_saved": true,
+        "external_write_counts": true
+      },
+      "synthetic_service_counts": {
+        "calendar.create": 1,
+        "calendar.get": 4,
+        "calendar.list": 4,
+        "calendar.status": 2,
+        "calendar.update": 1,
+        "mail.accounts": 2,
+        "mail.message": 1,
+        "mail.send": 1,
+        "model.complete": 2
+      }
+    },
+    "restart": {
+      "status": "DRY_RUN_PASS",
+      "checks": 10,
+      "passed": 10,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "7aa27ee2dabaebdb3375da7819f53f7b20e8613d98e216056161e98a462f4e80",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "73b5beee5c42f20083bc06590ec4b7a4f5e3d0f15b067edc053f0cc6bee32958",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/restart/summary.json",
+      "summary_sha256": "7465f91ac043da4a7c8a2045a3bb5be1c0da707ce98126675e3e878d52987d43",
+      "runtime_log_sha256": "23c92cc582f46cd3bc18a39db3729d48b6dfff567859d54b4bfee31672fca357",
+      "runtime_errors": [],
+      "assertions": {
+        "restart_goal_bytes": true,
+        "restart_calendar_bytes": true,
+        "restart_memory_bytes": true,
+        "restart_draft_bytes": true,
+        "restart_activity_bytes": true,
+        "restart_completed_records": true,
+        "restart_does_not_replay_external_writes": true,
+        "new_session_global_recall": true,
+        "bounded_recall": true,
+        "unrelated_scope_does_not_leak": true
+      },
+      "synthetic_service_counts": {}
+    },
+    "ambiguous_matter": {
+      "status": "DRY_RUN_PASS",
+      "checks": 2,
+      "passed": 2,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "34d7da139a28c86463c6bb53d10960c53158bf7dd41e884c887b9e43a61067d7",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/ambiguous_matter/summary.json",
+      "summary_sha256": "3391302163a8fc139da145072a683e56a1bc0abec223ec4fe77b2ecec207b191",
+      "runtime_log_sha256": "502d5f9ada57764e8b38fd786e943e7ee592a20d4c53dcc934b266ae5009d2cb",
+      "runtime_errors": [],
+      "assertions": {
+        "ambiguous_reference_not_guessed": true,
+        "ambiguous_no_external_write": true
+      },
+      "synthetic_service_counts": {}
+    },
+    "external_version": {
+      "status": "DRY_RUN_PASS",
+      "checks": 3,
+      "passed": 3,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "b80db63bfa128562194fade4f2b028d5e3edfa20ff875334d5669af049f48f6f",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/external_version/summary.json",
+      "summary_sha256": "4891851a5bc9b8dacfbec87470ec796e9ebff854ebb1735172fedde6879e2e4f",
+      "runtime_log_sha256": "977f0cffb1644e2bb6022a66f39e3f990dfd97179fdaef7a974eba80eb516817",
+      "runtime_errors": [],
+      "assertions": {
+        "failure_fresh_preview": true,
+        "precondition_change_does_not_write": true,
+        "precondition_change_invalidates_preview": true
+      },
+      "synthetic_service_counts": {
+        "calendar.get": 2,
+        "calendar.list": 1,
+        "calendar.status": 1,
+        "mail.accounts": 1,
+        "model.complete": 1
+      }
+    },
+    "revoked_approval": {
+      "status": "DRY_RUN_PASS",
+      "checks": 3,
+      "passed": 3,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "94bbbd2cd01bbdeb97796b85d87857ee375e73a4145f6ad808a2f4b600bbeddc",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/revoked_approval/summary.json",
+      "summary_sha256": "24343283dde452a36f01029b866a23f00d03615afdb3ea16611b2a030da9933e",
+      "runtime_log_sha256": "1dbdb9cab4d02f1b91105a357348a727f03a97657755e8f3e8f7c9ee83499119",
+      "runtime_errors": [],
+      "assertions": {
+        "failure_fresh_preview": true,
+        "precondition_change_does_not_write": true,
+        "precondition_change_invalidates_preview": true
+      },
+      "synthetic_service_counts": {
+        "calendar.get": 2,
+        "calendar.list": 1,
+        "calendar.status": 1,
+        "mail.accounts": 1,
+        "model.complete": 1
+      }
+    },
+    "malformed_model": {
+      "status": "DRY_RUN_PASS",
+      "checks": 2,
+      "passed": 2,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "a4d11bfe51a05c0caf1ce5cb0af873e82d7c0755d4b740dd3a67a3ae14b7e61d",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/malformed_model/summary.json",
+      "summary_sha256": "97b8a9a077e817354949d91910826d21c5b6e99f5a7546c7d355e2d382bf033b",
+      "runtime_log_sha256": "b11e070e00f391f93035b3c03ac584ca35b5873fe9275081cdebe658f9d9b6a9",
+      "runtime_errors": [],
+      "assertions": {
+        "malformed_model_rejected_without_action": true,
+        "malformed_model_shows_recoverable_error": true
+      },
+      "synthetic_service_counts": {
+        "calendar.get": 1,
+        "mail.accounts": 1,
+        "model.complete": 1
+      }
+    },
+    "late_model": {
+      "status": "ERROR",
+      "checks": null,
+      "passed": null,
+      "failed": null,
+      "error": "No fresh report; inspect retained runtime.log/progress/state",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "ba0553b10c5e709274b1ce497ba29fcb984da2c2f1d842c4c977a7731e4f81b7",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/late_model/summary.json",
+      "summary_sha256": "ecc54a64fa1cf474c4e80c107334e6bf1cfe4d04dfece55781de20dbf304980c",
+      "runtime_log_sha256": "53ce61d3c34d910837bd0304719d869297ba327db22814c314f88f0208de8166",
+      "runtime_errors": [
+        "[E] splash:140484698622976:5722:6 - script time budget exceeded (<worktree>/vendor/makepad/platform/script/src/vm.rs:1046)"
+      ],
+      "assertions": {}
+    },
+    "storage_failure": {
+      "status": "DRY_RUN_PASS",
+      "checks": 4,
+      "passed": 4,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "6ac04427877efa02976b0632e5b727a68718cddedde79b827e60c33e98e07dd5",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page",
+        "storage_write"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/storage_failure/summary.json",
+      "summary_sha256": "cb30b9c5fd2653f77c335cd43fa4348ae22a64c3c931ddcb2e43eb2ce191e733",
+      "runtime_log_sha256": "dd13c47a30ea758f0dd066ac1b52cfed744d32ec92630f515841901fd6a5344c",
+      "runtime_errors": [],
+      "assertions": {
+        "storage_failure_rejected": true,
+        "storage_failure_preserves_disk": true,
+        "storage_failure_restores_memory": true,
+        "storage_failure_no_external_write": true
+      },
+      "synthetic_service_counts": {}
+    },
+    "delete_receipt_failure": {
+      "status": "DRY_RUN_PASS",
+      "checks": 10,
+      "passed": 10,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "af098deb224b6a8cbbef2683df9f5e960795a91aa7921ba099e8d0d8f3f77074",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page",
+        "storage_write"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/delete_receipt_failure/summary.json",
+      "summary_sha256": "61cfd52ebedf1eab5737a8a570b5350785d71bbe26925a823730fda7ff7f4340",
+      "runtime_log_sha256": "e67e70c457db8cd05faead1da5d2e3789fb5b6ed2ffde1ed6a24928dd92c1e13",
+      "runtime_errors": [],
+      "assertions": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "accepted_verified_but_receipt_not_persisted": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": true,
+        "delete_recovery_no_replay": true,
+        "delete_recovered_receipt_is_settled": true,
+        "delete_double_reconcile_no_duplicate_activity": true,
+        "delete_double_reconcile_stable_receipt": true,
+        "delete_double_reconcile_no_replay": true
+      },
+      "synthetic_service_counts": {
+        "calendar.delete": 1,
+        "calendar.get": 3,
+        "calendar.status": 1
+      }
+    },
+    "delete_accept_failure": {
+      "status": "DRY_RUN_PASS",
+      "checks": 10,
+      "passed": 10,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "efcaa40d504125006233a8353401684054de92d65a72bfb5d105b886162ba271",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page",
+        "storage_write"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/delete_accept_failure/summary.json",
+      "summary_sha256": "e09051e09da912f6a2da326c9e0b427aa0e29f2433a172ee09ad08dd8781235c",
+      "runtime_log_sha256": "6d4bdb1e36ff0bd28a13385d68ecda4fbf96f9c15b9d5956d900a0760dcd7506",
+      "runtime_errors": [],
+      "assertions": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "accept_save_failed_action_guarded": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": true,
+        "delete_recovery_no_replay": true,
+        "delete_recovered_receipt_is_settled": true,
+        "delete_double_reconcile_no_duplicate_activity": true,
+        "delete_double_reconcile_stable_receipt": true,
+        "delete_double_reconcile_no_replay": true
+      },
+      "synthetic_service_counts": {
+        "calendar.delete": 1,
+        "calendar.get": 2,
+        "calendar.status": 1
+      }
+    },
+    "delete_unknown": {
+      "status": "ERROR",
+      "checks": null,
+      "passed": null,
+      "failed": null,
+      "error": "No fresh report; inspect retained runtime.log/progress/state",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "3fee0415d841936323eb48003f8190356022d658a5c5ff63e0695a40a969b7d4",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/delete_unknown/summary.json",
+      "summary_sha256": "96e30926ea1805294c3c1e101c8c56f817d3422049da989c582b34171f9ea4f7",
+      "runtime_log_sha256": "4089d252b95cda3d1302ea9bbac40cba2f33eb02fa4c278a5517949fcb342e38",
+      "runtime_errors": [
+        "[I] <worktree>/vendor/makepad/widgets/src/splash.rs:493:13 - [SPLASH_COMPILE_FAILED] elapsed_ms=82.924 total_ms=226.029 max_chunk_ms=82.924",
+        "[I] <worktree>/vendor/makepad/widgets/src/splash.rs:495:35 - splash: <worktree>/vendor/octoscript-makepad/crates/octoscript-widgets/src/kit_shared.rs:26:52: script time budget exceeded (<worktree>/vendor/makepad/platform/script/src/vm.rs:916)"
+      ],
+      "assertions": {}
+    },
+    "delete_unknown_still_present": {
+      "status": "DRY_RUN_PASS",
+      "checks": 5,
+      "passed": 5,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "492d060b819347666d9d16baa1a0d6847e68e17945a583b49447b07fd64b1d20",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/delete_unknown_still_present/summary.json",
+      "summary_sha256": "8a180e85ecd4c90806f22e534e784fb37015793bac8d47bbbe6c26d87fa31072",
+      "runtime_log_sha256": "a2bc3a5a12cf73270e2533d8c00854d7e09a203a12258ae60d8af7a7f9774c69",
+      "runtime_errors": [],
+      "assertions": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "unknown_present_event_not_marked_verified": true,
+        "unknown_present_readback_shows_error": true,
+        "unknown_present_no_mutation_replay": true
+      },
+      "synthetic_service_counts": {
+        "calendar.delete": 1,
+        "calendar.get": 2,
+        "calendar.status": 1
+      }
+    },
+    "linked_memory_failure": {
+      "status": "DRY_RUN_PASS",
+      "checks": 13,
+      "passed": 13,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "30dd5a302afb8dacdcf18f245860ad963b4ca0d41cd2a907813414d93e427d8c",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page",
+        "storage_write"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/linked_memory_failure/summary.json",
+      "summary_sha256": "8693d8047ceaa460b6869d2648efbb93d7cba275eb1e60a550da73469feff894",
+      "runtime_log_sha256": "2508bdd918fdcdcfa766e8388c0b5f300aee00beb8ee965157a04a26548806b8",
+      "runtime_errors": [],
+      "assertions": {
+        "failure_fresh_preview": true,
+        "linked_mutation_verified_before_local_fault": true,
+        "linked_no_result_memory_before_recovery": true,
+        "linked_readonly_recovery_completes_memory": true,
+        "linked_recovery_no_mutation_replay": true,
+        "linked_recovery_settled_marker": true,
+        "linked_recovery_artifact_present": true,
+        "linked_original_artifact_bytes_retained": true,
+        "linked_double_reconcile_no_duplicate_activity": true,
+        "linked_double_reconcile_stable_memory": true,
+        "linked_double_reconcile_stable_goals": true,
+        "linked_double_reconcile_artifact_bytes_stable": true,
+        "linked_double_reconcile_no_replay": true
+      },
+      "synthetic_service_counts": {
+        "calendar.get": 4,
+        "calendar.list": 2,
+        "calendar.status": 1,
+        "calendar.update": 1,
+        "mail.accounts": 1,
+        "model.complete": 1
+      }
+    },
+    "linked_result_failure": {
+      "status": "DRY_RUN_PASS",
+      "checks": 13,
+      "passed": 13,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "aa474a830ae84213fbf14140092210f082dc5d31b9f0dbcbe917b8a80cbedca5",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page",
+        "storage_write"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/linked_result_failure/summary.json",
+      "summary_sha256": "0970bae60ba5113101a8053dfcb4a1107b36361add18e6efd7de73957f4ed548",
+      "runtime_log_sha256": "9d048135d111704aecc4abf60f70deb29a02ff01d89c7d532f34fd2d2decc7ad",
+      "runtime_errors": [],
+      "assertions": {
+        "failure_fresh_preview": true,
+        "linked_mutation_verified_before_local_fault": true,
+        "linked_no_result_memory_before_recovery": true,
+        "linked_readonly_recovery_completes_memory": true,
+        "linked_recovery_no_mutation_replay": true,
+        "linked_recovery_settled_marker": true,
+        "linked_recovery_artifact_present": true,
+        "linked_original_artifact_bytes_retained": true,
+        "linked_double_reconcile_no_duplicate_activity": true,
+        "linked_double_reconcile_stable_memory": true,
+        "linked_double_reconcile_stable_goals": true,
+        "linked_double_reconcile_artifact_bytes_stable": true,
+        "linked_double_reconcile_no_replay": true
+      },
+      "synthetic_service_counts": {
+        "calendar.get": 4,
+        "calendar.list": 2,
+        "calendar.status": 1,
+        "calendar.update": 1,
+        "mail.accounts": 1,
+        "model.complete": 1
+      }
+    },
+    "mail_accepted_receipt_failure": {
+      "status": "DRY_RUN_PASS",
+      "checks": 2,
+      "passed": 2,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "b8c33db4a51dd7a238d6e848249838a55cb5230a5a18d1867cacebbbd17bd30a",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page",
+        "storage_write"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/mail_accepted_receipt_failure/summary.json",
+      "summary_sha256": "933c5254e0f3eb4e2500297966bc8c5edb2db3040bfc77110dad7f6ffd6a6d0e",
+      "runtime_log_sha256": "1998d5c6f1fd214701746b44ea167a0cb266885b888e75d0792c54bd071c64b0",
+      "runtime_errors": [],
+      "assertions": {
+        "accepted_mail_draft_not_claimed_delivered": true,
+        "accepted_mail_does_not_replay": true
+      },
+      "synthetic_service_counts": {
+        "mail.send": 1
+      }
+    },
+    "accepted_receipt_restart": {
+      "status": "DRY_RUN_PASS",
+      "checks": 4,
+      "passed": 4,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "078464f530b35187513cbd4b7fc4deea18bbd1d1253d14732b6831edfb3291df",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "6bd38805b19aa2b709c0542d5788f3c9114b7397cd8e2d1baaef117669984b82",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/accepted_receipt_restart/summary.json",
+      "summary_sha256": "9958cd5c33bdb3128a420dc8dea7668a09d769795e296381031e0558964c5ff5",
+      "runtime_log_sha256": "901d9980ac6a57fe4c8529ebdc33a978c286e072224f2b7d67c79bc72cacc992",
+      "runtime_errors": [],
+      "assertions": {
+        "new_process_marks_lost_callback_unknown": true,
+        "unknown_is_not_delivery": true,
+        "interrupted_send_is_not_replayed": true,
+        "only_accounts_lookup_allowed": true
+      },
+      "synthetic_service_counts": {}
+    },
+    "interrupted_send": {
+      "status": "DRY_RUN_PASS",
+      "checks": 2,
+      "passed": 2,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "35db61d8e566020be55f9229219ed7aa3a55e6384ebbe3498c626cb4a3f77d1f",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "1bd04be2615dd242f43c2a2961cad55270fc949f180d03f94cd6441c32ffbe3e",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/interrupted_send/summary.json",
+      "summary_sha256": "d46a978cf0ec8533cbee83e3e2b49e84ee0420464616b443957e2775c1e2a796",
+      "runtime_log_sha256": "239322e316066312a0fb48d39bd86f1401abd8e41aeadf1e9fc59751052cbe4c",
+      "runtime_errors": [],
+      "assertions": {
+        "interruption_preserves_inflight_journal": true,
+        "no_delivery_claim_before_callback": true
+      },
+      "synthetic_service_counts": {
+        "mail.send": 1
+      }
+    },
+    "interruption_restart": {
+      "status": "DRY_RUN_PASS",
+      "checks": 4,
+      "passed": 4,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": null,
+      "probe_sha256": "078464f530b35187513cbd4b7fc4deea18bbd1d1253d14732b6831edfb3291df",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "6bd38805b19aa2b709c0542d5788f3c9114b7397cd8e2d1baaef117669984b82",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": null,
+      "host_started_epoch": null,
+      "host_stopped_epoch": null,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-real-chat-r1/interruption_restart/summary.json",
+      "summary_sha256": "0f43f886b32d0909fd2a54a259696a546a943d21bc342b656014ac5ed5df93bb",
+      "runtime_log_sha256": "02d097a4825c41ed63206ca3a4d89ee191a25a1141c662711061ec3dc3854eeb",
+      "runtime_errors": [],
+      "assertions": {
+        "new_process_marks_lost_callback_unknown": true,
+        "unknown_is_not_delivery": true,
+        "interrupted_send_is_not_replayed": true,
+        "only_accounts_lookup_allowed": true
+      },
+      "synthetic_service_counts": {}
+    }
+  },
+  "retries": {
+    "late_model": {
+      "status": "DRY_RUN_PASS",
+      "checks": 2,
+      "passed": 2,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "ba0553b10c5e709274b1ce497ba29fcb984da2c2f1d842c4c977a7731e4f81b7",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": 42314,
+      "host_started_epoch": 1791473488.926087,
+      "host_stopped_epoch": 1791473491.694602,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-retry-late_model-r1/summary.json",
+      "summary_sha256": "605f3ab0bf7c7983b4b78f3ad77c826a628e77e881f1d919dc12e7b292998f36",
+      "runtime_log_sha256": "2f66c7a52a366f13b6d6a3bb3f798d1300af79203640fca8640219558af9d294",
+      "runtime_errors": [],
+      "assertions": {
+        "revoke_saved": true,
+        "late_model_cannot_revive_cancelled_goal": true
+      },
+      "synthetic_service_counts": {
+        "calendar.get": 1,
+        "mail.accounts": 1,
+        "model.complete": 1
+      }
+    },
+    "delete_unknown": {
+      "status": "DRY_RUN_PASS",
+      "checks": 10,
+      "passed": 10,
+      "failed": [],
+      "error": null,
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+      "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+      "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+      "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+      "executed_sha256": "3fee0415d841936323eb48003f8190356022d658a5c5ff63e0695a40a969b7d4",
+      "all_other_functions_byte_equal": true,
+      "production_functions": 477,
+      "substitutions": [
+        "calendar_enabled",
+        "mail_enabled",
+        "mail_redraw",
+        "redraw",
+        "set_page"
+      ],
+      "host_pid": 42339,
+      "host_started_epoch": 1791473493.152735,
+      "host_stopped_epoch": 1791473496.856927,
+      "external_service_calls": 0,
+      "real_model_inference": false,
+      "evidence": ".local-state/storage-shape-retry-delete_unknown-r1/summary.json",
+      "summary_sha256": "b63c36fd5ee46286ca3efb0879982bfbdd29441860f500bd06e3482ed003ff03",
+      "runtime_log_sha256": "acc27e1a1c84ed99353023afd4d7c982910a2417fe4768151dcdc9f9ce7ca5da",
+      "runtime_errors": [],
+      "assertions": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "unknown_outcome_is_not_success": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": true,
+        "delete_recovery_no_replay": true,
+        "delete_recovered_receipt_is_settled": true,
+        "delete_double_reconcile_no_duplicate_activity": true,
+        "delete_double_reconcile_stable_receipt": true,
+        "delete_double_reconcile_no_replay": true
+      },
+      "synthetic_service_counts": {
+        "calendar.delete": 1,
+        "calendar.get": 2,
+        "calendar.status": 1
+      }
+    }
+  },
+  "same_sha_scenario_coverage_after_retries": {
+    "cases": 18,
+    "checks": 119,
+    "passed": 119,
+    "status": "DRY_RUN_PASS_WITH_RETAINED_FIRST_PASS_ERRORS"
+  },
+  "new_process_recovery": {
+    "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+    "pairs": [
+      {
+        "case": "linked_memory_failure",
+        "fault": {
+          "status": "DRY_RUN_PASS",
+          "checks": 3,
+          "passed": 3,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "0ded4a40f5c971787e4a12f65d89c43bdcece693827edf0243643472838b6d4b",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page",
+            "storage_write"
+          ],
+          "host_pid": 54442,
+          "host_started_epoch": 1791474681.535708,
+          "host_stopped_epoch": 1791474685.536188,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/linked_memory_failure-fault/summary.json",
+          "summary_sha256": "30760a333c5cea246fd41a6584a70d104cf76c610610f280afe26039f7d804c0",
+          "runtime_log_sha256": "05ac011d2a5f78b22cbf7ebb9615c2a287268744378ff00c72197e8b7d909afc",
+          "runtime_errors": [],
+          "assertions": {
+            "failure_fresh_preview": true,
+            "linked_mutation_verified_before_local_fault": true,
+            "linked_no_result_memory_before_recovery": true
+          },
+          "synthetic_service_counts": {
+            "calendar.get": 3,
+            "calendar.list": 2,
+            "calendar.status": 1,
+            "calendar.update": 1,
+            "mail.accounts": 1,
+            "model.complete": 1
+          }
+        },
+        "restart": {
+          "status": "DRY_RUN_PASS",
+          "checks": 12,
+          "passed": 12,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "2900ff6982050142e5a53e047031da158129f96fd277c88b95ad7d50dcc59fbf",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "501b336e9c2f9cd693edf7815487743c5fb7c5e1be5700cde8ab73bffac60534",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page"
+          ],
+          "host_pid": 54531,
+          "host_started_epoch": 1791474686.2322261,
+          "host_stopped_epoch": 1791474688.909055,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/linked_memory_failure-restart/summary.json",
+          "summary_sha256": "3c6d4b74532d19529b8ea2d149215b568197f0252aa4c3caaca599585b5aa418",
+          "runtime_log_sha256": "73aad77e2b2ca73797365b61f6cf5f84848da671aa1de0b7811a7edf56d45ac9",
+          "runtime_errors": [],
+          "assertions": {
+            "restart_original_action_restored": true,
+            "restart_link_still_unsettled": true,
+            "restart_original_action_verified": true,
+            "restart_only_independent_reads": true,
+            "restart_link_settled": true,
+            "restart_result_memory_saved": true,
+            "restart_completed_run_retained": true,
+            "restart_artifact_available": true,
+            "restart_original_artifact_bytes_retained": true,
+            "restart_second_reconcile_keeps_all_records": true,
+            "restart_second_reconcile_no_mutation": true,
+            "restart_second_reconcile_artifact_bytes_stable": true
+          },
+          "synthetic_service_counts": {
+            "calendar.get": 1
+          }
+        },
+        "independent_disk_audit": {
+          "checks": {
+            "distinct_host_processes": true,
+            "fault_host_stopped_before_restart": true,
+            "same_frozen_candidate": true,
+            "same_host_binary": true,
+            "seed_exact_failed_goals_bytes": true,
+            "no_new_goal_run_action_ids": true,
+            "original_action_payload_unchanged": true,
+            "action_verified": true,
+            "one_exact_persisted_receipt": true,
+            "only_exact_independent_event_get": true,
+            "activity_preserves_old_prefix": true,
+            "one_readback_activity_for_original_request": true,
+            "existing_artifacts_byte_equal": true,
+            "receipt_exact_action_identity": true,
+            "artifact_exact_ids": true,
+            "artifact_exact_event_fields": true,
+            "goal_run_artifact_path_agree": true,
+            "one_result_claim_and_source": true,
+            "result_claim_exact_binding": true,
+            "result_source_exact_artifact_digest": true,
+            "one_memory_activity_for_original_request": true,
+            "linked_only_missing_memory_activity_added": true
+          },
+          "passed": 22,
+          "failed": [],
+          "host_pids": [
+            54442,
+            54531
+          ],
+          "file_sha256": {
+            "goals.json": {
+              "before": "78bed9ffb91d00889b1ab537cc872ddafe17d9303bfeddc05c0a9abbc20a2aa3",
+              "after": "78bed9ffb91d00889b1ab537cc872ddafe17d9303bfeddc05c0a9abbc20a2aa3"
+            },
+            "memory.json": {
+              "before": "5782fa87127193ca80dd016838e8843ef32daa9c4a6424b77ea88e89f39505a0",
+              "after": "3b8b1d930d2ab158382147131ca1facb00f499e21f1e0d104902c9182372a508"
+            },
+            "activity.json": {
+              "before": "f11b5eae972b7f98f299a57a3275802df96d22beac499c79e2d37e59840f9374",
+              "after": "9087b5d36918dbd148b38c4e501365410732a8086e3aa1941162ff9320c74ff9"
+            },
+            "calendar-state.json": {
+              "before": "c0a9d090c8ab8086254349d5ddb518c468f13a58f048ae599a1877ffb467188b",
+              "after": "682f0363f4c055630de6bd528517f8271460eed5782441790d057bf5f47be21b"
+            }
+          }
+        },
+        "status": "DRY_RUN_PASS"
+      },
+      {
+        "case": "linked_result_failure",
+        "fault": {
+          "status": "DRY_RUN_PASS",
+          "checks": 3,
+          "passed": 3,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "92859b1251727d0cd5f29b9d762ae9734c841c837af37a491d84f745907bbc89",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page",
+            "storage_write"
+          ],
+          "host_pid": 54592,
+          "host_started_epoch": 1791474689.399628,
+          "host_stopped_epoch": 1791474693.064884,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/linked_result_failure-fault/summary.json",
+          "summary_sha256": "8e813779d319250133a56718280bf7ae4b707dc208351209710a45d7915a13a1",
+          "runtime_log_sha256": "7f4977b3112a3654ae008b468a7e606c14679771655263b60ec30d9c3e20230d",
+          "runtime_errors": [],
+          "assertions": {
+            "failure_fresh_preview": true,
+            "linked_mutation_verified_before_local_fault": true,
+            "linked_no_result_memory_before_recovery": true
+          },
+          "synthetic_service_counts": {
+            "calendar.get": 3,
+            "calendar.list": 2,
+            "calendar.status": 1,
+            "calendar.update": 1,
+            "mail.accounts": 1,
+            "model.complete": 1
+          }
+        },
+        "restart": {
+          "status": "DRY_RUN_PASS",
+          "checks": 12,
+          "passed": 12,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "2900ff6982050142e5a53e047031da158129f96fd277c88b95ad7d50dcc59fbf",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "501b336e9c2f9cd693edf7815487743c5fb7c5e1be5700cde8ab73bffac60534",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page"
+          ],
+          "host_pid": 54654,
+          "host_started_epoch": 1791474693.679297,
+          "host_stopped_epoch": 1791474696.143553,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/linked_result_failure-restart/summary.json",
+          "summary_sha256": "1a8c251fb750147771d838ae40f8eca52e3fd6a5e76aaea835a727457c083ab3",
+          "runtime_log_sha256": "146f15ae504c245fc03825efa2d4a076d33107140a6262b15e2e4ab7c5787773",
+          "runtime_errors": [],
+          "assertions": {
+            "restart_original_action_restored": true,
+            "restart_link_still_unsettled": true,
+            "restart_original_action_verified": true,
+            "restart_only_independent_reads": true,
+            "restart_link_settled": true,
+            "restart_result_memory_saved": true,
+            "restart_completed_run_retained": true,
+            "restart_artifact_available": true,
+            "restart_original_artifact_bytes_retained": true,
+            "restart_second_reconcile_keeps_all_records": true,
+            "restart_second_reconcile_no_mutation": true,
+            "restart_second_reconcile_artifact_bytes_stable": true
+          },
+          "synthetic_service_counts": {
+            "calendar.get": 1
+          }
+        },
+        "independent_disk_audit": {
+          "checks": {
+            "distinct_host_processes": true,
+            "fault_host_stopped_before_restart": true,
+            "same_frozen_candidate": true,
+            "same_host_binary": true,
+            "seed_exact_failed_goals_bytes": true,
+            "no_new_goal_run_action_ids": true,
+            "original_action_payload_unchanged": true,
+            "action_verified": true,
+            "one_exact_persisted_receipt": true,
+            "only_exact_independent_event_get": true,
+            "activity_preserves_old_prefix": true,
+            "one_readback_activity_for_original_request": true,
+            "existing_artifacts_byte_equal": true,
+            "receipt_exact_action_identity": true,
+            "artifact_exact_ids": true,
+            "artifact_exact_event_fields": true,
+            "goal_run_artifact_path_agree": true,
+            "one_result_claim_and_source": true,
+            "result_claim_exact_binding": true,
+            "result_source_exact_artifact_digest": true,
+            "one_memory_activity_for_original_request": true,
+            "linked_only_missing_memory_activity_added": true
+          },
+          "passed": 22,
+          "failed": [],
+          "host_pids": [
+            54592,
+            54654
+          ],
+          "file_sha256": {
+            "goals.json": {
+              "before": "0c6e50a28ec79f98f4297d59a74b50afe5191960aa29e32d175eafd58417a8e2",
+              "after": "4250ec6868915c3e3bbacceb317a4fd726372410b0b350bbce4cc6d8c9a85176"
+            },
+            "memory.json": {
+              "before": "3e04ed3558433cb03bb04655e6475d13d3012d013052bd844e10ad54893c5eaf",
+              "after": "3fd58d0d44591222c590fd193231cd75664fd8bfa4e2cbde08c34195a13a29a3"
+            },
+            "activity.json": {
+              "before": "5372d39a062d3d6b483b032001ad29cde7d229d93f82f96d1225cdd7955957b4",
+              "after": "c23f31d0077a195dee711ec584f25d26ae13a3b4ad63586e2a4287b4f1091a96"
+            },
+            "calendar-state.json": {
+              "before": "426f255c9601fac32745624637257074251bf070471f529afe35c7d5c264297e",
+              "after": "9e7e3102783c74a54f96f6dccb7c4b89ee270a6d8a4dd519007fb7091198403e"
+            }
+          }
+        },
+        "status": "DRY_RUN_PASS"
+      },
+      {
+        "case": "delete_receipt_failure",
+        "fault": {
+          "status": "DRY_RUN_PASS",
+          "checks": 3,
+          "passed": 3,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "3c3ae5d8a7cd520c9bb4081b0b78151c670f73867cce7f67ec7603075fc92bba",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page",
+            "storage_write"
+          ],
+          "host_pid": 54688,
+          "host_started_epoch": 1791474696.657742,
+          "host_stopped_epoch": 1791474699.0477571,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/delete_receipt_failure-fault/summary.json",
+          "summary_sha256": "b11daf8e5df64be50308286fb3ef509a4d93eaa1ae8b5c5d087b003a729ae414",
+          "runtime_log_sha256": "8c84a138b80d18204c622a4ef60278329f027b32de8eff0f3f7224132f9def49",
+          "runtime_errors": [],
+          "assertions": {
+            "delete_preview_valid": true,
+            "delete_only_once_before_recovery": true,
+            "accepted_verified_but_receipt_not_persisted": true
+          },
+          "synthetic_service_counts": {
+            "calendar.delete": 1,
+            "calendar.get": 2,
+            "calendar.status": 1
+          }
+        },
+        "restart": {
+          "status": "DRY_RUN_PASS",
+          "checks": 6,
+          "passed": 6,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "2900ff6982050142e5a53e047031da158129f96fd277c88b95ad7d50dcc59fbf",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "501b336e9c2f9cd693edf7815487743c5fb7c5e1be5700cde8ab73bffac60534",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page"
+          ],
+          "host_pid": 54723,
+          "host_started_epoch": 1791474699.560794,
+          "host_stopped_epoch": 1791474701.398643,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/delete_receipt_failure-restart/summary.json",
+          "summary_sha256": "12ab50cd9c9153f61487e2010e4ed1221c9166cf54526ea1bc672743052fad9f",
+          "runtime_log_sha256": "e9c6e6b0540a65fb9efcef21b39a96c1d21fb78e7b94c908934a4c9c69a040c1",
+          "runtime_errors": [],
+          "assertions": {
+            "restart_original_action_restored": true,
+            "restart_original_action_verified": true,
+            "restart_only_independent_reads": true,
+            "restart_delete_receipt_settled": true,
+            "restart_second_reconcile_keeps_all_records": true,
+            "restart_second_reconcile_no_mutation": true
+          },
+          "synthetic_service_counts": {
+            "calendar.get": 1
+          }
+        },
+        "independent_disk_audit": {
+          "checks": {
+            "distinct_host_processes": true,
+            "fault_host_stopped_before_restart": true,
+            "same_frozen_candidate": true,
+            "same_host_binary": true,
+            "seed_exact_failed_goals_bytes": true,
+            "no_new_goal_run_action_ids": true,
+            "original_action_payload_unchanged": true,
+            "action_verified": true,
+            "one_exact_persisted_receipt": true,
+            "only_exact_independent_event_get": true,
+            "activity_preserves_old_prefix": true,
+            "one_readback_activity_for_original_request": true,
+            "existing_artifacts_byte_equal": true,
+            "receipt_exact_action_identity": true,
+            "delete_receipt_payload_exact": true,
+            "delete_memory_bytes_unchanged": true,
+            "delete_goal_run_records_unchanged": true,
+            "delete_only_one_missing_activity_added": true
+          },
+          "passed": 18,
+          "failed": [],
+          "host_pids": [
+            54688,
+            54723
+          ],
+          "file_sha256": {
+            "goals.json": {
+              "before": "031e92ce2f6780aa1c48fc1d7f26c67fd0ae4d5f06fe3c1776e7eaaaedd3c12e",
+              "after": "031e92ce2f6780aa1c48fc1d7f26c67fd0ae4d5f06fe3c1776e7eaaaedd3c12e"
+            },
+            "memory.json": {
+              "before": "75d6e723550da83ba3188fd2cce6d8ad5ccab95500b30ed46b360ff269ebdd83",
+              "after": "75d6e723550da83ba3188fd2cce6d8ad5ccab95500b30ed46b360ff269ebdd83"
+            },
+            "activity.json": {
+              "before": "2d69d0551b2db444edcf956f291a33f826a75b3559911f1a31a001f4e33c1118",
+              "after": "c1db522919a51955f6221f488e658c3356a245ecd34814003f08ed654ba6d912"
+            },
+            "calendar-state.json": {
+              "before": "1756e0d537121a4a41ea4eeed652ced28b3b4809d7993278f089e0bf71d230ea",
+              "after": "9c06455c0a244f1c9e64dbab342ef5dece357969d26fd47e72312b6ddda8be61"
+            }
+          }
+        },
+        "status": "DRY_RUN_PASS"
+      },
+      {
+        "case": "delete_accept_failure",
+        "fault": {
+          "status": "DRY_RUN_PASS",
+          "checks": 3,
+          "passed": 3,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "ac64bd4517996005df5366cf19a01391fa40a965c54963e0d5ee9528e721887e",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "4649eecdc1c75af7a10e378b65d7845e3005880de9cb12f71532fbdea4f74010",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page",
+            "storage_write"
+          ],
+          "host_pid": 54766,
+          "host_started_epoch": 1791474701.9860532,
+          "host_stopped_epoch": 1791474704.052425,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/delete_accept_failure-fault/summary.json",
+          "summary_sha256": "f0a2e707f5e090be7583a0febe6f30574354d5d29f307fa137a7cecfaa8f4b40",
+          "runtime_log_sha256": "247e7fb6d2e89ea97f2d62912ca5ceae973641cb61a26b3019266df56fd4faf7",
+          "runtime_errors": [],
+          "assertions": {
+            "delete_preview_valid": true,
+            "delete_only_once_before_recovery": true,
+            "accept_save_failed_action_guarded": true
+          },
+          "synthetic_service_counts": {
+            "calendar.delete": 1,
+            "calendar.get": 1,
+            "calendar.status": 1
+          }
+        },
+        "restart": {
+          "status": "DRY_RUN_PASS",
+          "checks": 7,
+          "passed": 7,
+          "failed": [],
+          "error": null,
+          "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+          "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+          "runner_sha256": "b7e9a389ea8b05912b93578f411dde05e655c7af5fb1ebe6ada09c16e775011a",
+          "probe_sha256": "2900ff6982050142e5a53e047031da158129f96fd277c88b95ad7d50dcc59fbf",
+          "transport_sha256": "864a6ccc73361ca352327cd06374ccd52c62407ae307b47666f190a0a2d9db54",
+          "executed_sha256": "501b336e9c2f9cd693edf7815487743c5fb7c5e1be5700cde8ab73bffac60534",
+          "all_other_functions_byte_equal": true,
+          "production_functions": 477,
+          "substitutions": [
+            "calendar_enabled",
+            "mail_enabled",
+            "mail_redraw",
+            "redraw",
+            "set_page"
+          ],
+          "host_pid": 54790,
+          "host_started_epoch": 1791474704.5576682,
+          "host_stopped_epoch": 1791474706.5852091,
+          "external_service_calls": 0,
+          "real_model_inference": false,
+          "evidence": ".local-state/storage-shape-process-recovery-r1/delete_accept_failure-restart/summary.json",
+          "summary_sha256": "a71b29d07f6ac98d155a43f77d8357a778957c41f78f7dd846d16e8b703489f2",
+          "runtime_log_sha256": "690c57183a277a76a78a110e0725e891789d853ca58b23ab11d73e4ecd1ce8bb",
+          "runtime_errors": [],
+          "assertions": {
+            "restart_original_action_restored": true,
+            "restart_lost_acceptance_is_unknown": true,
+            "restart_original_action_verified": true,
+            "restart_only_independent_reads": true,
+            "restart_delete_receipt_settled": true,
+            "restart_second_reconcile_keeps_all_records": true,
+            "restart_second_reconcile_no_mutation": true
+          },
+          "synthetic_service_counts": {
+            "calendar.get": 1
+          }
+        },
+        "independent_disk_audit": {
+          "checks": {
+            "distinct_host_processes": true,
+            "fault_host_stopped_before_restart": true,
+            "same_frozen_candidate": true,
+            "same_host_binary": true,
+            "seed_exact_failed_goals_bytes": true,
+            "no_new_goal_run_action_ids": true,
+            "original_action_payload_unchanged": true,
+            "action_verified": true,
+            "one_exact_persisted_receipt": true,
+            "only_exact_independent_event_get": true,
+            "activity_preserves_old_prefix": true,
+            "one_readback_activity_for_original_request": true,
+            "existing_artifacts_byte_equal": true,
+            "receipt_exact_action_identity": true,
+            "delete_receipt_payload_exact": true,
+            "delete_memory_bytes_unchanged": true,
+            "delete_goal_run_records_unchanged": true,
+            "delete_only_one_missing_activity_added": true
+          },
+          "passed": 18,
+          "failed": [],
+          "host_pids": [
+            54766,
+            54790
+          ],
+          "file_sha256": {
+            "goals.json": {
+              "before": "a15cccde393978fe0ea3cbf8f6f59c93eaa982dde18d8601bee9058d9d8f86e7",
+              "after": "f495282185b054a6118365bf169adea607a11210c99e5bfeb0e939a4985a6a46"
+            },
+            "memory.json": {
+              "before": "75d6e723550da83ba3188fd2cce6d8ad5ccab95500b30ed46b360ff269ebdd83",
+              "after": "75d6e723550da83ba3188fd2cce6d8ad5ccab95500b30ed46b360ff269ebdd83"
+            },
+            "activity.json": {
+              "before": "24805c14db1b9ca5fe3d0954b35aa6ce0bf0330ab540d9d6b136c4718b4cf375",
+              "after": "4e12ee56271d62726a85a5ef37dac230467c099bd6909af66b19d7709f8f74f8"
+            },
+            "calendar-state.json": {
+              "before": "1756e0d537121a4a41ea4eeed652ced28b3b4809d7993278f089e0bf71d230ea",
+              "after": "0c26fa43374c10f8f253f1ee51a540484b80c54240520bbc6b645a1770dd0767"
+            }
+          }
+        },
+        "status": "DRY_RUN_PASS"
+      }
+    ],
+    "external_service_calls": 0,
+    "real_model_inference": false
+  },
+  "new_process_counts": {
+    "pairs": 4,
+    "processes": 8,
+    "vm_checks": 49,
+    "independent_disk_checks": 80
+  },
+  "external_service_calls": 0,
+  "real_model_inference": false,
+  "production_data_mutated": false,
+  "boundary": "Official actual card VM/fs; synthetic transport, no live model/Mail/EventKit. First-pass eval/compile budget errors remain; retry coverage is not one-pass reliability PASS."
+}
