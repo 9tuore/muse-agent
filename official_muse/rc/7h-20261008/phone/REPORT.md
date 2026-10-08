@@ -1,3 +1,26 @@
+# Packaging peak and stripped derivatives - 2026-10-09T03:40:33.083447+08:00
+
+PARTIAL_RESOURCE_BLOCKED. No rebuild/emulator/paid model/external message.
+
+Actual official cargo-makepad source has no dedicated strip or stage-reuse flag/stage. add_rust_library copies Cargo's original Home ELF and explicit MAKEPAD_ANDROID_EXTRA_LIBS; prepare_build removes its tmp/output directories; zipalign preserves an unaligned APK and a second aligned APK, then apksigner signs. Existing runner unchanged; derived Home override NOT_AVAILABLE in this packager. No trust/signature/payload-validation bypass.
+
+NDK llvm-strip --help verified --strip-unneeded/-o/--preserve-dates. Preserved unstripped Home/kernel original SHA. After proving a closed, single-link packager staging Home copy had the exact original SHA, removed only that redundant copy (289712864 bytes); original at Cargo native output and deps retained. Generated separately labeled derived files under own .local-state/packaging-derived:
+
+| File | Original bytes | Derived bytes | Derived SHA256 |
+|---|---:|---:|---|
+| Home | 289712864 | 234465896 | 7c032ab55f92b8654b92e7cb2bd48dfa9787bbbf67f5f05cdd80520f9ee834fb |
+| Kernel | 161277512 | 117334992 | 7da1d45f3647ee2022a7e28ad87fb4d10259925fe08744421998098c90f79400 |
+
+All SHF_ALLOC section names/addresses/sizes/flags/full bytes, full dynamic symbols, and dynamic-link tags compared identical before/after. ABI x86_64 Android ELF64; kernel interpreter/system/bin/linker64 retained; Home shared object. Font metadata section preserved. This is artifact verification, not runtime proof. Sources/features/locks/signing and originals unchanged; derived hashes are not original hashes.
+
+Both separate derivatives transparently compressed with ditto only after no-open-handle/nlink1 checks. Complete SHA/size/mode/owner/mtime verified before atomic replacement and SHA afterward. Block savings150237184 bytes. Existing partial stage about2.8MB; partial APK/dex/java retained.
+
+Peak planning used actual original/derived streaming zlib6 measurements, native font metadata (23 selected files), verified offline Cargo tree, and official resource path/filter rules (253 resources,59529454 raw bytes,39758058 zlib6 estimate). Normal native/resource staging plus two native/resource APK copies estimate990763538 bytes; derived equivalent866484522. Neither is a final APK or total peak measurement: ZIP/Java/dex/aapt rewrites/apksigner/compile temp/AVD still add overhead. Data free2490859520, above2GB by490859520, insufficient even for these incomplete estimates. Do not launch blind r7. Own10.5GB/Data2GB policy remains.
+
+Evidence: packaging-space-inspection.json, packaging-cargo-tree.txt, packaging-font-manifest.txt, strip-derived-artifacts.json, strip-home/kernel-elf/dynsym/dynamic.txt, derived-transparent-compression.json. Kernel/Home originals and original7H report reverified unchanged. APK NOT_COMPLETED_OR_SIGNED; kernel startup/AppHub/Muse Card/Chat/Memory NOT_RUN; rc16AndroidNOT_TESTED; physicalDEVICE_NOT_TESTED. All results excluded from ended7H passes.
+
+---
+
 # Transparent compression checkpoint - 2026-10-09T03:18:27.831132+08:00
 
 SPACE_RECOVERY_PARTIAL_RESOURCE_BLOCKED. No build or emulator restarted.
