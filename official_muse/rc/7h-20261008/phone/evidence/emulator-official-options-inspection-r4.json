@@ -1,0 +1,253 @@
+{
+  "source_url": "https://android.googlesource.com/platform/external/qemu/+/refs/heads/emu-master-dev/android-qemu2-glue/main.cpp?format=TEXT",
+  "source_branch": "emu-master-dev, current upstream reference; installedbinary37.2.12 independently confirmed actualsame6GiB behavior, exactsourcecommitnotmatched",
+  "source_sha256": "9469dc908eb4d1b1866b94bdc87f7816a65dc18070986af4728cc3beb5131cb9",
+  "source_contexts": [
+    {
+      "line": 1826,
+      "context": [
+        "    // needed",
+        "    AvdCompatibilityManager::ensureAvdCompatibility(avd, reportMetrics);",
+        "",
+        "    if (opts->read_only) {",
+        "        android::base::disableRestart();",
+        "    } else {",
+        "        android::base::finalizeEmulatorRestartParameters(",
+        "                avdInfo_getContentPath(avd));",
+        "    }",
+        "",
+        "    // Early initializaion of the hostpad loop.",
+        "    if (fc::isEnabled(fc::VirtioWifi)) {"
+      ]
+    },
+    {
+      "line": 1857,
+      "context": [
+        "               avdInfo_getName(avd));",
+        "        return 1;",
+        "    }",
+        "    if (opts->read_only) {",
+        "        TempFile* tempIni = tempfile_create();",
+        "        coreHwIniPath = tempfile_path(tempIni);",
+        "        is_multi_instance = true;",
+        "        opts->no_snapshot_save = true;",
+        "        args.add(\"-read-only\");",
+        "    } else if (!opts->check_snapshot_loadable &&",
+        "               filelock_create_timeout(coreHwIniPath, 2000) == NULL) {",
+        "        /* The AVD is already in use, we still support this as an"
+      ]
+    },
+    {
+      "line": 1875,
+      "context": [
+        "    }",
+        "",
+        "    android::base::FileShare shareMode =",
+        "            opts->read_only ? FileShare::Read : FileShare::Write;",
+        "    if (!android::multiinstance::initInstanceShareMode(shareMode)) {",
+        "        return 1;",
+        "    }",
+        "",
+        "    if (snapshotLock) {",
+        "        filelock_release(snapshotLock);",
+        "    }",
+        ""
+      ]
+    },
+    {
+      "line": 2063,
+      "context": [
+        "        if (memPath) {",
+        "            args.add2(\"-mem-path\", memPath.get());",
+        "",
+        "            bool mapAsShared = !opts->read_only && !opts->snapshot &&",
+        "                               !opts->no_snapshot_save &&",
+        "                               !opts->check_snapshot_loadable &&",
+        "                               androidSnapshot_getQuickbootChoice();",
+        "",
+        "            if (mapAsShared) {",
+        "                args.add(\"-mem-file-shared\");",
+        "                androidSnapshot_setRamFileDirty(nullptr, true);",
+        "            }"
+      ]
+    },
+    {
+      "line": 2240,
+      "context": [
+        "",
+        "#endif",
+        "",
+        "    bool firstTimeSetup =",
+        "            (android_op_wipe_data || !path_exists(hw->disk_dataPartition_path));",
+        "",
+        "    if (avd && feature_is_enabled(kFeature_DownloadableSnapshot) &&",
+        "        (hw->firstboot_bootFromDownloadableSnapshot ||",
+        "         hw->firstboot_bootFromLocalSnapshot) &&",
+        "        !path_exists(hw->disk_dataPartition_path)) {",
+        "        const char* avdName = avdInfo_getName(avd);",
+        "        char* s_AvdFolder = path_getAvdContentPath(avdName);"
+      ]
+    },
+    {
+      "line": 2426,
+      "context": [
+        "",
+        "    // studio avd manager does not allow user to change partition size, set a",
+        "    // lower limit to 6GB.",
+        "    constexpr auto kMinPlaystoreImageSize = 6LL * 1024 * 1024 * 1024;",
+        "    const int myApiLevel = avd ? avdInfo_getApiLevel(avd) : 1000;",
+        "    if (myApiLevel >= 24 || fc::isEnabled(fc::PlayStoreImage)) {",
+        "        if (firstTimeSetup &&",
+        "            getConsoleAgents()->settings->hw()->disk_dataPartition_size <",
+        "                    kMinPlaystoreImageSize) {",
+        "            getConsoleAgents()->settings->hw()->disk_dataPartition_size =",
+        "                    kMinPlaystoreImageSize;",
+        "            // Write it to config.ini as well, or we get all sorts of problems."
+      ]
+    },
+    {
+      "line": 2431,
+      "context": [
+        "    if (myApiLevel >= 24 || fc::isEnabled(fc::PlayStoreImage)) {",
+        "        if (firstTimeSetup &&",
+        "            getConsoleAgents()->settings->hw()->disk_dataPartition_size <",
+        "                    kMinPlaystoreImageSize) {",
+        "            getConsoleAgents()->settings->hw()->disk_dataPartition_size =",
+        "                    kMinPlaystoreImageSize;",
+        "            // Write it to config.ini as well, or we get all sorts of problems.",
+        "            if (getConsoleAgents()->settings->avdInfo()) {",
+        "                avdInfo_replaceDataPartitionSizeInConfigIni(",
+        "                        getConsoleAgents()->settings->avdInfo(),",
+        "                        kMinPlaystoreImageSize);",
+        "            }"
+      ]
+    },
+    {
+      "line": 2433,
+      "context": [
+        "            getConsoleAgents()->settings->hw()->disk_dataPartition_size <",
+        "                    kMinPlaystoreImageSize) {",
+        "            getConsoleAgents()->settings->hw()->disk_dataPartition_size =",
+        "                    kMinPlaystoreImageSize;",
+        "            // Write it to config.ini as well, or we get all sorts of problems.",
+        "            if (getConsoleAgents()->settings->avdInfo()) {",
+        "                avdInfo_replaceDataPartitionSizeInConfigIni(",
+        "                        getConsoleAgents()->settings->avdInfo(),",
+        "                        kMinPlaystoreImageSize);",
+        "            }",
+        "        }",
+        "    }"
+      ]
+    },
+    {
+      "line": 2438,
+      "context": [
+        "            if (getConsoleAgents()->settings->avdInfo()) {",
+        "                avdInfo_replaceDataPartitionSizeInConfigIni(",
+        "                        getConsoleAgents()->settings->avdInfo(),",
+        "                        kMinPlaystoreImageSize);",
+        "            }",
+        "        }",
+        "    }",
+        "",
+        "    // Create userdata file from init version if needed.",
+        "    if (firstTimeSetup) {",
+        "        // Check free space first if the path does not exist.",
+        "        if (!path_exists(hw->disk_dataPartition_path)) {"
+      ]
+    },
+    {
+      "line": 2455,
+      "context": [
+        "            if (dataPartitionPathAsDir &&",
+        "                System::get()->pathFreeSpace(*dataPartitionPathAsDir,",
+        "                                             &availableSpace)) {",
+        "                constexpr double kDataPartitionSafetyFactor = 1.2;",
+        "",
+        "                double needed = kDataPartitionSafetyFactor *",
+        "                                getConsoleAgents()",
+        "                                        ->settings->hw()",
+        "                                        ->disk_dataPartition_size /",
+        "                                (1024.0 * 1024.0);",
+        "",
+        "                double available = (double)availableSpace / (1024.0 * 1024.0);"
+      ]
+    },
+    {
+      "line": 2457,
+      "context": [
+        "                                             &availableSpace)) {",
+        "                constexpr double kDataPartitionSafetyFactor = 1.2;",
+        "",
+        "                double needed = kDataPartitionSafetyFactor *",
+        "                                getConsoleAgents()",
+        "                                        ->settings->hw()",
+        "                                        ->disk_dataPartition_size /",
+        "                                (1024.0 * 1024.0);",
+        "",
+        "                double available = (double)availableSpace / (1024.0 * 1024.0);",
+        "",
+        "                if (needed > available) {"
+      ]
+    },
+    {
+      "line": 2496,
+      "context": [
+        "        bool bShoudlConvertToQcow2 = false;",
+        "",
+        "        if (feature_is_enabled(kFeature_DownloadableSnapshot) ||",
+        "            opts->qcow2_for_userdata || hw->userdata_useQcow2) {",
+        "            bShoudlConvertToQcow2 = true;",
+        "        }",
+        "",
+        "        int ret = createUserData(avd, dataPath.c_str(), hw,",
+        "                                 bShoudlConvertToQcow2);",
+        "        if (ret != 0) {",
+        "            crashhandler_die(\"Failed to initialize userdata.img.\");",
+        "            return ret;"
+      ]
+    }
+  ],
+  "image_catalog_url": "https://dl.google.com/android/repository/sys-img/android/sys-img2-1.xml",
+  "catalog_sha256": "ebf2d810d9e0c0b511ae49ee6e8c671a8fa67d210d06f5e3e068f83244ece435",
+  "compatible_aosp_x86_64_api33_or_newer_archives": [
+    {
+      "path": "system-images;android-33;default;x86_64",
+      "api": 33,
+      "revision": "2",
+      "zip_bytes": 694005732,
+      "url": "x86_64-33_r02.zip",
+      "host_os": "any",
+      "checksum": "d4698590184a21fe1e8754284130ad3006b5fc79"
+    },
+    {
+      "path": "system-images;android-34;default;x86_64",
+      "api": 34,
+      "revision": "4",
+      "zip_bytes": 720747116,
+      "url": "x86_64-34_r04.zip",
+      "host_os": "any",
+      "checksum": "5f6a249f9bc3b1b4c459b13ce2eb646c9680bed1"
+    },
+    {
+      "path": "system-images;android-35;default;x86_64",
+      "api": 35,
+      "revision": "2",
+      "zip_bytes": 782404023,
+      "url": "x86_64-35_r02.zip",
+      "host_os": "any",
+      "checksum": "2d857d170c0d1b827149565da34b3383e5306f7f"
+    },
+    {
+      "path": "system-images;android-36;default;x86_64",
+      "api": 36,
+      "revision": "2",
+      "zip_bytes": 844217077,
+      "url": "x86_64-36_r02.zip",
+      "host_os": "any",
+      "checksum": "829c076e8ff448a336097ae25a355b495ba36e2c"
+    }
+  ],
+  "no_image_download_performed": true,
+  "data_free_now": 6016507904
+}

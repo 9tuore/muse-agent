@@ -1,3 +1,7 @@
+# CURRENT OFFICIAL OPTIONS CHECK — 2026-10-09T04:32:38.544374+08:00
+
+No supported1GiB firstbootoverride found in installedhelp/currentupstream+actual37.2.12. No userdata imageexists (AVD20KBallocated); API33 unpack4.458GB/API34 unpack1.7646GB cannotclosefree deficit. No launch/config/source/imagechange/deletion. Datafree6020972544, own8904937472, need7730941133 initialfree, deficit1709968589. Originalguards2GBfloor/10.5GB unchanged; actualallocatedbootpeakunknown. APKr7 retained; frozenrc16dd2; RootdesktopnewroutepatchNOTintegrated. RuntimeNOT_RUN. Seeevidence/emulator-supported-options-result-r4.json; sourceexactbuildcommitunmatched disclosed. No messages/subagents/models/permissions/devices. Priorhistory follows.
+
 # CURRENT APK PASS; API35 FIRST BOOT RESOURCE BLOCKED — 2026-10-09T04:09:19.928586+08:00
 
 APK r7 complete/signature/original-native SHA PASS,240541954 bytes SHA70a318d1. rc16 dd2ce025 main, private Gate/catalog/HTTP f1ea179e PASS. Signed APK/idsig retained kernel-artifacts; closed duplicate stage+unaligned removed only after all259payload exact SHA checks. Original7H report/status byte-for-byte unchanged.

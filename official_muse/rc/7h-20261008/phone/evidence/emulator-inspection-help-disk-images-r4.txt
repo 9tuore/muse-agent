@@ -1,0 +1,58 @@
+
+  The emulator needs several key image files to run appropriately.
+  Their exact location depends on whether you're using the emulator
+  from the Android SDK, or not (more details below).
+
+  The minimal required image files are the following:
+
+    kernel-qemu      the emulator-specific Linux kernel image
+    ramdisk.img      the ramdisk image used to boot the system
+    system.img       the *initial* system image
+    vendor.img       the *initial* vendor image
+    userdata.img     the *initial* data partition image
+
+  It will also use the following writable image files:
+
+    userdata-qemu.img  the persistent data partition image
+    system-qemu.img    an *optional* persistent system image
+    vendor-qemu.img    an *optional* persistent vendor image
+    cache.img          an *optional* cache partition image
+    sdcard.img         an *optional* SD Card partition image
+
+    snapshots.img      an *optional* state snapshots image
+
+  If you use a virtual device, its content directory should store
+  all writable images, and read-only ones will be found from the
+  corresponding platform/add-on directories. See -help-sdk-images
+  for more details.
+
+  If you are building from the Android build system, you should
+  have ANDROID_PRODUCT_OUT defined in your environment, and the
+  emulator shall be able to pick-up the right image files automatically.
+  See -help-build-images for more details.
+
+  If you're neither using the SDK or the Android build system, you
+  can still run the emulator by explicitely providing the paths to
+  *all* required disk images through a combination of the following
+  options: -sysdir, -datadir, -kernel, -ramdisk, -system, -data, -cache
+  -sdcard and -snapstorage.
+
+  The actual logic being that the emulator should be able to find all
+  images from the options you give it.
+
+  For more detail, see the corresponding -help-<option> entry.
+
+  Other related options are:
+
+      -init-data       Specify an alternative *initial* user data image
+
+      -wipe-data       Copy the content of the *initial* user data image
+                           (userdata.img) into the writable one (userdata-qemu.img)
+
+      -no-cache        do not use a cache partition, even if one is
+                       available.
+
+      -no-snapstorage  do not use a state snapshot image, even if one is
+                       available.
+
+

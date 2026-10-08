@@ -1,3 +1,19 @@
+# Official emulator option inspection — 2026-10-09T04:32:38.544374+08:00
+
+READONLY inspection complete; no startup repeated and no image/config/source changed. APK r7 preserved; Phone remains frozen rc16 dd2ce025. Root's new desktop route patch is not integrated into this Phone APK/candidate.
+
+Installed37.2.12 build16428233 is confirmed by source.properties and actual prior startup. Current AOSP emu-master-dev source is a reference, not an exact matched build commit. It defines firstTimeSetup as wipe OR missing userdata, forces6GiB forAPI>=24, rewrites config, then checks1.2 timesfree. Actualr2/r3 reproduce the same behavior. This is independent of PlayStore=no. There is no userdata-qemu.img or API35 initialuserdata.img on disk: AVD files total4631 logical/20480 allocated bytes; API35 SDK image1777736840 logical/1773527040 allocated bytes. No6GiB allocateduserdata exists to delete.
+
+Official installed help confirms data/initdata image paths, read-only sharing, qcow2 format, and partition-size, but none provides an advertised override for the first-boot minimum. SDK mkfs.ext4 exists; its -h returned1/usage, preserved. Hand-creating a blank image or changing API identity to skip firstTimeSetup is not a verified official first-boot workflow and was not attempted. No emulator source modification or bypass.
+
+Fresh official AOSP catalog shows compatible x86_64 API33/34/35. HTTP206 ZIP central-directory range reads used65536 bytes perAPI33/API34, no fullimage download. API33 zip694005732 but unpacked4457578928, system4.306GB; ZIP64 placeholders in first pass markedincomplete then correctedinr5. API34 zip720747116, unpacked1764599215, system1.622GB sameasAPI35; total logicalreduction only13137625 bytes. Switching these cannot close the currentfree deficit, and allcompatibleAPI>=33 remain subjectto6GiB firstboot.
+
+Current Datafree6020972544, ownallocated8904937472; firstboot needs7730941133, deficit1709968589; ownremaining headroom1595062528. Next condition is Datafree>=7730941133 and ownrunneradditional1GiB+66MiB preflight within10.5GB, with actual2GBfloor/10.5GB guard throughout. First-boot allocatedpeak is not yet measured, so this is permission to attempt under guard, not runtimeassurance. Do not rebuild or retrysameparameters belowthreshold. Home/kernel/AppHub/Muse runtimeNOT_RUN, physicalDEVICE_NOT_TESTED, CalendarMISSING_CAPABILITY. Original7H unchanged. No model requests, real devices, grants, productiondata, deletions, outgoingmessages orsubagents.
+
+Evidence: emulator-sizing-readonly-r4.json, emulator-official-options-inspection-r4.json with sourcehash/contexts, official-aosp-image-catalog-r4.xml, official-api33/api34-zip-range-inspection-r5.json, installedoption help logs, emulator-supported-options-result-r4.json. Raw fetchedofficialsource retainedlocally.
+
+---
+
 # Post-window APK r7 / rc16 checkpoint — 2026-10-09T04:09:19.928586+08:00
 
 **Home APK build and signature PASS; runtime remains blocked before emulator boot.** Original seven-hour final report and status are byte-for-byte unchanged. All results below are outside the seven-hour count.
