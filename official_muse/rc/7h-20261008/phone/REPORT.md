@@ -1,3 +1,21 @@
+# Expanded owned source/cache compression - 2026-10-09T03:49:46.991530+08:00
+
+PARTIAL_RESOURCE_BLOCKED. No APK rebuild/emulator/model/external action started.
+
+Expanded standard transparent filesystem compression to owned SDK/tool/private-registry source text, fonts and static archives, selected at >=32KB, non-symlink paths/parents, nlink1, and not already UF_COMPRESSED. Excluded .git/keys/profiles/.host/models and shared originals. Actual macOS stat.UF_COMPRESSED and SDK constant0x20 verified. Candidates1977, total555032576 disk-block bytes.
+
+Completed1973 beneficial replacements,4 no-saving originals retained, remaining0. Block savings315625472. Observed Data free2490621952 ->2832707584 bytes (342085632 net change, includes concurrent filesystem activity). No original source/cache files deleted. Each copy had full SHA/size/mode/owner/mtime/original-xattr comparison and two closed-handle lsof batch checks; replacement occurred only with fewer st_blocks. Final independent re-read of all1977 verified fullSHA/size/mode/owner/mtime/nlink; all1973 compressed flags verified; no temp copies remain. All source/dependency/evidence original bytes retained.
+
+First attempt failed before creating any copy/replacement because local Python os lacks listxattr. Failure record and empty audit retained; corrected to observed /usr/bin/xattr read-only interface, no package install. Full subsequent run and final verification succeeded. Script compress_source_cache.py and per-item audit retained.
+
+Preserved unstripped Home r6 SHA8c52e1d7 in separate .local-state/kernel-artifacts/liboctosense_home-unstripped-r6.so via ditto --clone (distinct inode/nlink1, full SHA/mode/size/mtime verified), so future Cargo output cannot erase this frozen original identity. Kernel original SHA32987f43 and original7H final report reverified unchanged. Derived stripped artifacts remain separately identified, not used in an APK.
+
+Final preflight Data free2837458944; normal known native/resource staging +2APK estimate990763538 bytes. Planning temporary/signing/Java/aapt margin300000000 bytes is an explicit estimate, not measured final peak. Start threshold2GB +990763538 +300000000 =3290763538; current shortfall453304594. This does not yet reserve AVD; it requires its own preflight after APK and closed duplicate-stage handling. Own10.5GB/Data2GB unchanged. Do NOT repeat Home r7 under current margin. APK NOT_COMPLETED_OR_SIGNED; Android kernel startup/AppHub/Muse Card/Chat/Memory NOT_RUN, physicalDEVICE_NOT_TESTED. All post-window results excluded from7H pass counts.
+
+Evidence: source-cache-compression-inventory.json, items.jsonl, summary.json, verification.json, r1-error.json, home-unstripped-preservation.json. Scope only phone-owned cache/artifacts; no source feature/budget/signature/lock/core/shared-data modifications.
+
+---
+
 # Packaging peak and stripped derivatives - 2026-10-09T03:40:33.083447+08:00
 
 PARTIAL_RESOURCE_BLOCKED. No rebuild/emulator/paid model/external message.
