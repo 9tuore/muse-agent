@@ -1,0 +1,90 @@
+{
+  "phase": "post-window",
+  "candidate": "0.3.27-rc16",
+  "operation": "one synthetic task-plan request, local Qwen, no external writes",
+  "observed": [
+    {
+      "type": "Button",
+      "id": "source",
+      "text": "在线目录"
+    },
+    {
+      "type": "Button",
+      "id": "refresh",
+      "text": ""
+    },
+    {
+      "type": "Button",
+      "id": "action",
+      "text": "打开"
+    },
+    {
+      "type": "Button",
+      "id": "apps",
+      "text": "应用"
+    },
+    {
+      "type": "Button",
+      "id": "search_tab",
+      "text": "搜索"
+    },
+    {
+      "type": "Button",
+      "id": "library",
+      "text": "已安装"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "当前项目 · 七小时合成验收  /  个人"
+    },
+    {
+      "type": "Button",
+      "id": "1",
+      "text": "切换"
+    },
+    {
+      "type": "Button",
+      "id": "-",
+      "text": "↑ 更早的 1 条"
+    },
+    {
+      "type": "Button",
+      "id": "1",
+      "text": "回到最新"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "Muse"
+    },
+    {
+      "type": "Label",
+      "id": "1",
+      "text": "请明确哪一天，以及开始和结束时间。"
+    },
+    {
+      "type": "Button",
+      "id": "send_button",
+      "text": "发送"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "结果"
+    },
+    {
+      "type": "Button",
+      "id": "1",
+      "text": "收起"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "结果会出现在这里。"
+    }
+  ],
+  "result": "FAIL_WRONG_INTENT_ROUTE",
+  "source_evidence": "chat proposal routing checks calendar keywords before goal_plan; negative 不操作日历 still contributes calendar keyword and 准备 contributes action verb",
+  "external_writes": 0
+}
