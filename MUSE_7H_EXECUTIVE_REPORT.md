@@ -118,3 +118,5 @@ Phone r7 APK已实际构建并验签，内含原始内核，约240.5MB，Home/Br
 ### 隔离rc17真实Goal回归
 
 修补集成于新私有候选0.3.27-rc17，compact SHA90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc，Host仍276b2b68；本地stamp/sign/check/scan/publish/verify通过，仅本地演练。实际可见Shell以免费Qwen生成任务候选与模型建议，批准一次后结果写入并独立读回；完整Host退出重启后completed保留、runs/actions原样、结果SHA一致。证据source-component-r1/live-route-rc17.json及真实窗口PNG。原rc16通过矩阵不转移为rc17全矩阵。模型将两条资料合并为一个items元素，原事实保留但计数显示1条；不宣称两条结构提取通过。中心聊天仍保留先前候选回执，右侧真实结果卡已成功。没有新增外发或系统日历写入。
+
+同一rc17重启后的新会话真实Qwen回答“蓝色文件，白色文件”，实际引用memory:result:run:1791492736-3020186196及对应source:result来源；项目/归属继承一致。该来源DSL保留“用户输入资料摘录（未核事实）”，没有把用户资料伪装成外部事实。live-route-rc17.json补齐跨会话检查PASS；仅证明这次合成Goal结果的跨会话检索，不覆盖Mail/Calendar真实闭环或此前遗忘后语义失败。

@@ -235,5 +235,121 @@
     "actions_unchanged": true,
     "result_sha_unchanged": true
   },
-  "status": "LIVE_GOAL_PASS"
+  "status": "LIVE_GOAL_PASS",
+  "cross_session": {
+    "session": {
+      "id": "chat:1791493120-932368405",
+      "title": "这个项目刚刚整理的两份文件分别是什么颜色？只…",
+      "created_at": 1791493105.517398,
+      "updated_at": 1791493110.968555,
+      "messages": [
+        {
+          "role": "user",
+          "text": "这个项目刚刚整理的两份文件分别是什么颜色？只根据已保存的任务结果回答，不知道就说明没有记录。",
+          "state": "success",
+          "at": 1791493105.862458,
+          "project": "七小时合成验收",
+          "owner": "个人"
+        },
+        {
+          "role": "assistant",
+          "text": "蓝色文件，白色文件",
+          "state": "success",
+          "at": 1791493110.968537,
+          "memory_refs": [
+            {
+              "id": "memory:result:run:1791492736-3020186196",
+              "revision": 1,
+              "account": "local",
+              "source_ids": [
+                "source:result:run:1791492736-3020186196"
+              ]
+            }
+          ],
+          "project": "七小时合成验收",
+          "owner": "个人"
+        }
+      ],
+      "proposals": [],
+      "focus_project": "七小时合成验收",
+      "focus_owner": "个人",
+      "goal_id": ""
+    },
+    "memory": {
+      "schema": 1,
+      "claims": [
+        {
+          "document": {
+            "schema_version": "muse.dsl/1",
+            "kind": "memory",
+            "id": "memory:result:run:1791492736-3020186196",
+            "revision": 1,
+            "created_at": "2026-10-08T20:52:59Z",
+            "updated_at": "2026-10-08T20:52:59Z",
+            "origin": {
+              "type": "local_runtime",
+              "ref": "run:1791492736-3020186196"
+            },
+            "payload": {
+              "subject_id": "1791492608-3969759074",
+              "predicate": "verified_result",
+              "value": "目标执行结果已保存并读回 · results/result-1791492608-3969759074.json\n目标：整理蓝色文件和白色文件的资料并准备计划\n用户输入资料摘录（未核事实）：资料甲是蓝色文件，资料乙是白色文件。",
+              "epistemic_type": "fact",
+              "source_ids": [
+                "source:result:run:1791492736-3020186196"
+              ],
+              "observed_at": "2026-10-08T20:52:59Z",
+              "valid_from": null,
+              "valid_until": null,
+              "relations": [],
+              "deleted": false
+            },
+            "scope": {
+              "project": "muse-goals",
+              "account": "local",
+              "visibility": "personal",
+              "user_id": "user:profile:4018055830-4137155142-1472630807-3832520902",
+              "project_id": "七小时合成验收",
+              "owner_id": "个人"
+            }
+          },
+          "pinned": false,
+          "source_history": [
+            "source:result:run:1791492736-3020186196"
+          ],
+          "memory_type": "source",
+          "conversation_id": "",
+          "history": []
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "source:result:run:1791492736-3020186196",
+          "kind": "runtime_receipt",
+          "locator": "result:results/result-1791492608-3969759074.json",
+          "content_sha256": "ba942538370bedab870a1a02f199f3cd81ef33939d6f4ec82d5296268aaea196",
+          "observed_at": "2026-10-08T20:52:59Z",
+          "updated_at": "2026-10-08T20:52:59Z",
+          "support_excerpt": "目标执行结果已保存并读回 · results/result-1791492608-3969759074.json\n目标：整理蓝色文件和白色文件的资料并准备计划\n用户输入资料摘录（未核事实）：资料甲是蓝色文件，资料乙是白色文件。",
+          "scope": {
+            "project": "muse-goals",
+            "account": "local",
+            "visibility": "personal",
+            "user_id": "user:profile:4018055830-4137155142-1472630807-3832520902",
+            "project_id": "七小时合成验收",
+            "owner_id": "个人"
+          }
+        }
+      ],
+      "forget": []
+    },
+    "checks": {
+      "new_session": true,
+      "project_inherited": true,
+      "owner_inherited": true,
+      "correct_colors": true,
+      "actual_result_memory_reference": true
+    },
+    "status": "PASS"
+  }
 }

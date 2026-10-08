@@ -31,3 +31,5 @@ PARTIAL。rc16/dd2ce025、Host276b2b68；可见单轮冷10+重开5通过，官�
 截止后路由修补：readable source忽略明确否定分句，第一轮26/29、第二轮32/32实际官方VM通过；r1失败保留。冻结rc16 bundle未更新，需候选集成与真实Shell Goal回归。Phone r7 APK构建验签完成（13611f48），模拟器启动仍需解决官方数据分区空间要求，非Android运行PASS。
 
 rc17私有集成90351cba已通过真实Shell Goal候选→模型建议→一次批准→存储→独立读回→完整重启，runs/actions与结果SHA不变。模型合并两资料为1items，事实保留，计数结构仍有差异。未推广为完整rc17回归，rc16包保持。
+
+rc17同候选重启后新会话正确召回蓝/白文件，实际结果Memory/source引用和项目归属匹配，证据live-route-rc17.json。真实邮件/日历及Android运行门槛未解除。
