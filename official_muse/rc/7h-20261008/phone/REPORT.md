@@ -2,7 +2,7 @@
 
 开始：2026-10-08 19:43:07；截止：2026-10-09 02:43:07（北京时间）。
 
-本目录只交付源码检查、隔离构建与候选补丁。未安装手机应用、未操作 ROM、未修改共享 SDK。没有连接设备，真实手机运行状态为 `DEVICE_NOT_TESTED`。
+本目录只交付源码检查、隔离构建与候选补丁。已在独立Android模拟器安装Bridge prototype，未在实体手机安装应用、未操作 ROM、未修改共享 SDK。没有连接设备，真实手机运行状态为 `DEVICE_NOT_TESTED`。
 
 ## 当前已验证结论
 
@@ -14,10 +14,11 @@
 | 签名、平台、权限准入回归 | 源码测试 PASS | App Policy 22 项单元测试 + 1 项文档测试；未改 launch 准入路径 |
 | cargo-makepad 构建 | PASS | 固定源码、`--locked --offline --release` 构建成功 |
 | 官方 Android 工具链 | 隔离准备完成 | JDK 17.0.2、Gradle 8.11.1、SDK 35/33-ext4、Build Tools 35/33.0.1、NDK r28b；发布摘要全部核对 |
-| Home/Bridge APK 构建 | IN_PROGRESS | 实际构建日志继续保留在 `evidence/` |
-| 官方源码身份检查 | BLOCKED | 冻结交付 SDK 不含 Git 元数据；`tools/setup.py --check` 拒绝，不绕过此门槛 |
+| Home APK 构建 | NOT_BUILT，x86_64 std下载中 | Home契约导出24任务成功；准备独立模拟器构建 |
+| Bridge APK 构建 | BUILD_PASS + EMULATOR_UI_PASS | prototype+lint 89任务成功；模拟器真实安装、设置页截图已查看 |
+| 官方源码身份检查 | FIXED_BASE_WITH_EXISTING_OVERLAYS | 真实Git恢复7f962547；2301文件核对，28既有覆层差异；framework --check --no-hub PASS |
 | Muse Android 日历 | MISSING_CAPABILITY / NEEDS_HOST_PATCH | 当前 Calendar Host 是 macOS EventKit，非 macOS 明确返回 unavailable |
-| Muse 手机全链与视觉 | DEVICE_NOT_TESTED | 未连接一加 6，也未取得模拟器运行证据 |
+| Muse 手机全链与视觉 | NOT_RUN / DEVICE_NOT_TESTED | 模拟器已开机，Muse尚未加载；实体手机未连接 |
 | 上游接受补丁 | 未接受 | 仅本地候选；没有 PR、发布或推送 |
 
 ## 官方路线与实际缺项
@@ -70,3 +71,11 @@ CARGO_TARGET_DIR=/path/to/isolated/cargo-target cargo test --locked --offline --
 上述命令已用实际隔离路径执行。离线测试要求已缓存锁定的 Rust 依赖；新环境没有缓存时会准确失败，不修改锁文件。
 
 构建工具以 `TOOLCHAIN_LOCK.json` 固定官方 URL 和摘要。`prepare_tools.py` 验证后安装到给定目录；NDK 只省略未用于编译的调试和分析工具，保留编译器、完整 sysroot、Clang 资源及许可证。构建状态与最终产物哈希会在实际完成后补入报告。
+
+## 真实聊天接续检查点（23:25，非最终验收）
+
+最新授权与意外上下文恢复边界见 `HANDOFF_REAL_CHAT.md`。当前分支只产出Phone范围成果；原项目清理提交7fbda978不属于本轮成果。
+
+AVD MusePhoneAPI35、Android API35 x86_64，emulator37.2.12；独立模拟器端口5580，ADB5041且仅连接emulator-5580。sys.boot_completed实际1。Bridge prototype安装Success，冷启动Status ok/8739ms；初次截图System UI ANR保留，点击Wait恢复后截图显示真实设置页。Notification access仍Not enabled，没有授权系统权限。`bridge-emulator-after-wait.png`为已查看页面证据。
+
+Home尚无APK。脚本计划使用官方包名dev.makepad.octosense，实际官方packager，release opt-level=1/debug=0/incremental=false，用于模拟器开发候选；已核对官方强制内核路径，新增独立x86_64 kernel构建脚本；Home构建强制检查并打包liboctos.so，尚无构建结果，不能称完整正式Home+kernel成品。最终还须实际构建、安装、AppHub→Muse Card/Chat/Memory验证。无EventKit，不做Calendar CRUD。

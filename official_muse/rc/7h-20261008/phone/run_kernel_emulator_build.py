@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the actual isolated official Home for an x86_64 Android emulator."""
+"""Cross-build the locked official octos kernel for the Android emulator."""
 import os
 from pathlib import Path
 import subprocess
@@ -20,29 +20,29 @@ env.update(LANG="en_US.UTF-8", LC_ALL="en_US.UTF-8",
     CARGO_TARGET_DIR=str(state / "android-target"), CARGO_HOME=str(state / "cargo-home"),
     CARGO_BUILD_JOBS="2", CARGO_PROFILE_RELEASE_DEBUG="0",
     CARGO_PROFILE_RELEASE_INCREMENTAL="false", CARGO_PROFILE_RELEASE_OPT_LEVEL="1")
-kernel = state / "android-target/x86_64-linux-android/release/octos"
-if not kernel.is_file():
-    raise SystemExit("Required official locked octos kernel is not built; refusing kernel-free Home")
-env["MAKEPAD_ANDROID_EXTRA_LIBS"] = "liboctos.so=" + str(kernel)
-public = json.loads((state / "validation-public.json").read_text())
-env["MUSE_PHONE_VALIDATION_HUB"] = "http://10.0.2.2:8571"
-env["MUSE_PHONE_VALIDATION_ANCHOR"] = public["public_keys"]["anchor"]
-command = [str(tools / "bin/cargo-makepad"), "makepad", "android",
-    "--sdk-path=" + str(tools / "android-sdk"), "--abi=x86_64",
-    "--package-name=dev.makepad.octosense",
-    "build", "-p", "octosense-home", "--release", "--locked", "--offline"]
+ndk = tools / "android-sdk/ndk/28.1.13356709/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+clang = ndk / "x86_64-linux-android33-clang"
+assert clang.is_file()
+env.update(CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=str(clang),
+    CARGO_TARGET_X86_64_LINUX_ANDROID_AR=str(ndk / "llvm-ar"),
+    CC_x86_64_linux_android=str(clang),
+    CXX_x86_64_linux_android=str(ndk / "x86_64-linux-android33-clang++"),
+    AR_x86_64_linux_android=str(ndk / "llvm-ar"),
+    RANLIB_x86_64_linux_android=str(ndk / "llvm-ranlib"))
+command = ["cargo", "build", "--locked", "--release", "--target", "x86_64-linux-android",
+    "-p", "octos-cli", "--bin", "octos", "--no-default-features", "--features", "api,git,ast", "--offline"]
 if "--online" in sys.argv:
     command.remove("--offline")
-log_name = "home-x86-build-r2.log" if "--online" in sys.argv else "home-x86-build-r1.log"
+log_name = "kernel-x86-build-r2.log" if "--online" in sys.argv else "kernel-x86-build-r1.log"
 with (p / "evidence" / log_name).open("w") as output:
-    process = subprocess.Popen(command, cwd=state / "sdk/octosense/phone",
+    process = subprocess.Popen(command, cwd=state / "octos-kernel-src",
         env=env, stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
     while process.poll() is None:
         time.sleep(20)
         used = int(subprocess.check_output(["du", "-sk", str(state)]).split()[0]) * 1024
         free = shutil.disk_usage(state).free
         if used > 9_000_000_000 or free < 5 * 1024**3:
-            (p / "evidence/home-build-resource-stop.json").write_text(json.dumps(
+            (p / "evidence/kernel-build-resource-stop.json").write_text(json.dumps(
                 {"own_bytes": used, "free_bytes": free, "reason": "authorized resource boundary"}, indent=2))
             os.killpg(process.pid, signal.SIGTERM)
             try:

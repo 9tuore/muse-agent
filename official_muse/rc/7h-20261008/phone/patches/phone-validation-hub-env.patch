@@ -1,0 +1,20 @@
+--- a/phone/src/main.rs
++++ b/phone/src/main.rs
+@@ -119,6 +119,17 @@
+ /// Tells the shell what only this package knows (before the shell starts;
+ /// tests that host Settings call it too).
+ pub(crate) fn install_ext() {
++    // Explicit private emulator validation build configuration.
++    #[cfg(target_os = "android")]
++    if let (Some(origin), Some(anchor)) = (
++        option_env!("MUSE_PHONE_VALIDATION_HUB"),
++        option_env!("MUSE_PHONE_VALIDATION_ANCHOR"),
++    ) {
++        if anchor.len() == 64 && anchor.bytes().all(|b| b.is_ascii_hexdigit()) {
++            std::env::set_var("OCTOSENSE_HUB", origin);
++            std::env::set_var("OCTOSENSE_HUB_ANCHOR", anchor);
++        }
++    }
+     octosense_shell::ext::install(octosense_shell::ext::Ext { linked_modules, trusted_module });
+ }
+ 
