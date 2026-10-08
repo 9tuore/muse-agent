@@ -1,0 +1,7 @@
+[workspace]
+resolver="2"
+members=["crates/app-contract","crates/app-policy","crates/app-hub"]
+[patch.crates-io]
+octosense-app-contract={path="crates/app-contract"}
+[patch."https://github.com/OctoSense-org/Octoscript.git"]
+octoscript-ui-l0={path="../OctoScript-5991dfae9344589e732b2605b530f788e8bbcd11/crates/octoscript-ui-l0"}

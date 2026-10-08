@@ -17,3 +17,9 @@ Initial diagnostic publication reused rc10 version and was correctly refused (`d
 ## Next required gate
 
 Root freezes candidate source/bundle/Host SHA. Run10complete new-process cold launches +5same-Shell app reopens with input edit/readback, nonempty memory/task recovery, unchanged protected bytes and no duplicate effects/errors. Standard official CLI provenance/check/scan must be bound separately; local rehearsal signatures are not official admission/publication.
+
+## Chat slice and official CLI unit (2026-10-08)
+
+Root changed only chat validation slice2→8; businessSHA `f5d45de6`. Four actual visible checks passed:256long messages,256entries each with6refs/16sourceIDs, bad final entry fail-closed with original/backup preserved, and corrupted primary recovered from intact backup without overwriting either. Input9.78/9.92s for valid stress variants versus16.99s baseline pilot; observations are not statistical claims. Evidence `chat-slice-checks.json`.
+
+Official App Hub78dfda5f source242Git blobs matched official commit tree; archivegzip bytes differ from historical archive, explicitly retained in binding. CLI build d60570a5 passed locked offline release after isolated headless lock resolution. No admission Rust/library source changes or repository SDK lock changes. Generated exact headlessCargo manifests/lock retained under `official-cli-reproduction`.23upstream bundle_admission tests passed. Baseline rc10 stamp/check/scan allPASS with unsigned warning; review packet creation is not publication. Final candidate Gate awaits Root freeze.

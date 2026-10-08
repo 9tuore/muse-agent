@@ -1,0 +1,31 @@
+{
+  "candidate_business_sha256": "f5d45de62c9689e6539fbdcb700570dcf19f412ff15a3aa45809eeb343d00d56",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "long_history": {
+    "pass": true,
+    "input_seconds": 9.781963864,
+    "evidence": "chat8-long-r1/report.json"
+  },
+  "max_refs": {
+    "pass": true,
+    "messages": 256,
+    "refs_each": 6,
+    "source_ids_each": 16,
+    "input_seconds": 9.921665556,
+    "evidence": "chat8-maxrefs-r1/report.json"
+  },
+  "bad_last_entry": {
+    "pass": true,
+    "unwritable": true,
+    "files_unchanged": true,
+    "unaffected_memory": true,
+    "evidence": "chat8-bad-tail-r1/report.json"
+  },
+  "primary_bad_valid_backup": {
+    "pass": true,
+    "input_seconds": 13.459355454,
+    "files_unchanged": true,
+    "evidence": "chat8-backup-tail-r1/report.json"
+  },
+  "interpretation": "Four bounded visible Shell checks of chat slice change; not final10+5matrix or real business chain. No model/external write calls."
+}
