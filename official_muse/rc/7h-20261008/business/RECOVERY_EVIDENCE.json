@@ -1,0 +1,626 @@
+{
+  "kind": "DRY_RUN_PRODUCTION_FUNCTIONS",
+  "updated_at": "2026-10-08T13:56:28.263442+00:00",
+  "baseline_git_commit": "5126afc4",
+  "baseline_source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+  "external_service_calls": 0,
+  "real_model_inference": false,
+  "boundary": "Actual official card VM, timers, jailed storage and unchanged production functions; synthetic Mail/Model/Calendar transport. No live UI, EventKit, SMTP/IMAP delivery or paid inference claim.",
+  "entries": [
+    {
+      "name": "baseline-chain-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+      "checks": {
+        "update_duplicate_confirmation_no_write": true,
+        "create_result_memory_exists": true,
+        "create_duplicate_confirmation_no_write": true,
+        "reply_linked_result_and_memory": true,
+        "acceptance_not_delivery": true,
+        "second_mail_matches_same_matter": true,
+        "create_same_goal_independent_get": true,
+        "replan_one_goal_one_event": true,
+        "update_waits_fresh_confirmation": true,
+        "first_mail_goal_and_source_bound": true,
+        "candidate_waits_confirmation": true,
+        "update_same_event_and_independent_get": true,
+        "synthetic_recipient_exact_readback": true,
+        "reply_requires_separate_confirmation": true,
+        "scope_rejects_other_account": true,
+        "relevant_memory_in_model_input": true,
+        "external_write_counts": true,
+        "preference_saved": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "chain_complete",
+        "goals": 1,
+        "runs": 3,
+        "actions": 3,
+        "calendar_error": "相关记忆已变化，旧确认失效。",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.list",
+        "calendar.create",
+        "calendar.get",
+        "calendar.get",
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.get",
+        "calendar.list",
+        "calendar.update",
+        "calendar.get",
+        "mail.send",
+        "mail.message"
+      ],
+      "summary_sha256": "94951024ee7171aa7225d3c5598c27a1dcb084fc4d4bad91c8266548c5582d20",
+      "runtime_log_sha256": "1928ed511cce196fcff65899cb9fc654394fcf07916ae5d3ef1c78962515b622",
+      "evidence": ".local-state/baseline-chain-r1/summary.json"
+    },
+    {
+      "name": "baseline-restart-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+      "checks": {
+        "restart_goal_bytes": true,
+        "restart_calendar_bytes": true,
+        "restart_memory_bytes": true,
+        "restart_draft_bytes": true,
+        "restart_activity_bytes": true,
+        "restart_completed_records": true,
+        "restart_does_not_replay_external_writes": true,
+        "new_session_global_recall": true,
+        "bounded_recall": true,
+        "unrelated_scope_does_not_leak": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "restart_and_recall",
+        "goals": 1,
+        "runs": 3,
+        "actions": 3,
+        "calendar_error": "确认卡已过期或日历授权变化，请重新查询并预览。",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [],
+      "summary_sha256": "d85f646b987bd62714b38f09e80b1535ac13b24b5d5f96a8a616c4a253880a35",
+      "runtime_log_sha256": "c03cd768295988e0c36c6fe65049131927baf909a4c82d67ee37941cf203cd6e",
+      "evidence": ".local-state/baseline-restart-r1/summary.json"
+    },
+    {
+      "name": "baseline-delete_receipt_failure-r3",
+      "status": "FAIL",
+      "source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+      "checks": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "accepted_verified_but_receipt_not_persisted": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": false,
+        "delete_recovery_no_replay": true
+      },
+      "failed": [
+        "delete_readonly_recovery_persists_receipt"
+      ],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "delete_recovery",
+        "goals": 1,
+        "runs": 3,
+        "actions": 4,
+        "calendar_error": "读回记录绑定已变化；请对账。",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.status",
+        "calendar.get",
+        "calendar.delete",
+        "calendar.get",
+        "calendar.get"
+      ],
+      "summary_sha256": "563ca0980a554534cc5a7ec3aca100140863d1aecd90c2cad27e17368659cd0e",
+      "runtime_log_sha256": "df4022fcce32b3310ee539f8f977cdf1ba1f23c788a9c00a30f6b43a7ec0c0f7",
+      "evidence": ".local-state/baseline-delete_receipt_failure-r3/summary.json"
+    },
+    {
+      "name": "baseline-delete_accept_failure-r3",
+      "status": "FAIL",
+      "source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+      "checks": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "accept_save_failed_action_guarded": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": false,
+        "delete_recovery_no_replay": true
+      },
+      "failed": [
+        "delete_readonly_recovery_persists_receipt"
+      ],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "delete_recovery",
+        "goals": 1,
+        "runs": 3,
+        "actions": 4,
+        "calendar_error": "读回记录绑定已变化；请对账。",
+        "core_error": "目标写入或回读失败；可由回退快照恢复。",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.status",
+        "calendar.get",
+        "calendar.delete",
+        "calendar.get"
+      ],
+      "summary_sha256": "7f6210c1a71ad4dd9f72e7aac0ff3ba6a1f37ae9e8727392a789cb1b2e85bc51",
+      "runtime_log_sha256": "f5fd7e3cfb44118eecb96ffbe993746f031de5a65224a2216f0cb4302ece11b8",
+      "evidence": ".local-state/baseline-delete_accept_failure-r3/summary.json"
+    },
+    {
+      "name": "baseline-linked_memory_failure-r3",
+      "status": "FAIL",
+      "source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+      "checks": {
+        "failure_fresh_preview": true,
+        "linked_mutation_verified_before_local_fault": true,
+        "linked_no_result_memory_before_recovery": true,
+        "linked_readonly_recovery_completes_memory": false,
+        "linked_recovery_no_mutation_replay": true
+      },
+      "failed": [
+        "linked_readonly_recovery_completes_memory"
+      ],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": {
+        "run_status": "completed",
+        "link_status": "verified"
+      },
+      "state_observation": {
+        "phase": "linked_recovery",
+        "goals": 1,
+        "runs": 4,
+        "actions": 4,
+        "calendar_error": "系统事件已完成，但来源记忆未保存：记忆写入或回读失败。",
+        "core_error": "记忆写入或回读失败。",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.get",
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.get",
+        "calendar.list",
+        "calendar.update",
+        "calendar.get"
+      ],
+      "summary_sha256": "9772ff83a8c2c2da702ddd9dc1d8acabec3ab6aa6f71e2d4f4e4afa731b374ec",
+      "runtime_log_sha256": "232d343e208b2d34f75cbaa4b8feca0064664097460904ed4bc9c6448f5e0f6b",
+      "evidence": ".local-state/baseline-linked_memory_failure-r3/summary.json"
+    },
+    {
+      "name": "baseline-linked_result_failure-r3",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+      "checks": {
+        "failure_fresh_preview": true,
+        "linked_mutation_verified_before_local_fault": true,
+        "linked_no_result_memory_before_recovery": true,
+        "linked_readonly_recovery_completes_memory": true,
+        "linked_recovery_no_mutation_replay": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": {
+        "run_status": "running",
+        "link_status": "accepted"
+      },
+      "state_observation": {
+        "phase": "linked_recovery",
+        "goals": 1,
+        "runs": 4,
+        "actions": 4,
+        "calendar_error": "",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.get",
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.get",
+        "calendar.list",
+        "calendar.update",
+        "calendar.get",
+        "calendar.get"
+      ],
+      "summary_sha256": "5c8000238681601a73af2fb1017f8203653ad73d49d433e145920f8172d6fd32",
+      "runtime_log_sha256": "32c541af33996c00088134ea99a0726c112e0de5fafc92bdca5f98c4dc06981b",
+      "evidence": ".local-state/baseline-linked_result_failure-r3/summary.json"
+    },
+    {
+      "name": "linked-r1-delete_receipt_failure-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "ef0bb62332f424735bf41628a8b25ccd70dcb82f5285736c300c6dd50ac70829",
+      "checks": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "accepted_verified_but_receipt_not_persisted": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": true,
+        "delete_recovery_no_replay": true,
+        "delete_recovered_receipt_is_settled": true,
+        "delete_double_reconcile_no_duplicate_activity": true,
+        "delete_double_reconcile_stable_receipt": true,
+        "delete_double_reconcile_no_replay": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "delete_double_recovery",
+        "goals": 1,
+        "runs": 3,
+        "actions": 4,
+        "calendar_error": "删除记录或授权尚不可读，请先刷新。",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.status",
+        "calendar.get",
+        "calendar.delete",
+        "calendar.get",
+        "calendar.get"
+      ],
+      "summary_sha256": "11af9e45f9eb759154dd498d297e1ce74eb8260e3e092b6b0d8de9e62d4417b2",
+      "runtime_log_sha256": "7b132393e7a35735163049156269dac732e5ab602a81edc6417d5d5abfadb5c5",
+      "evidence": ".local-state/linked-r1-delete_receipt_failure-r1/summary.json"
+    },
+    {
+      "name": "linked-r1-delete_accept_failure-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "ef0bb62332f424735bf41628a8b25ccd70dcb82f5285736c300c6dd50ac70829",
+      "checks": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "accept_save_failed_action_guarded": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": true,
+        "delete_recovery_no_replay": true,
+        "delete_recovered_receipt_is_settled": true,
+        "delete_double_reconcile_no_duplicate_activity": true,
+        "delete_double_reconcile_stable_receipt": true,
+        "delete_double_reconcile_no_replay": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "delete_double_recovery",
+        "goals": 1,
+        "runs": 3,
+        "actions": 4,
+        "calendar_error": "删除记录或授权尚不可读，请先刷新。",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.status",
+        "calendar.get",
+        "calendar.delete",
+        "calendar.get"
+      ],
+      "summary_sha256": "7eca9835558517105e45411c670df9b70b09aff4f818423aa58c5547631136be",
+      "runtime_log_sha256": "f7619c89e35cc5e5e319514f3643d89bbbdb127a2d2df820310bb0a78c55a4b0",
+      "evidence": ".local-state/linked-r1-delete_accept_failure-r1/summary.json"
+    },
+    {
+      "name": "linked-r1-delete_unknown-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "ef0bb62332f424735bf41628a8b25ccd70dcb82f5285736c300c6dd50ac70829",
+      "checks": {
+        "delete_preview_valid": true,
+        "delete_only_once_before_recovery": true,
+        "unknown_outcome_is_not_success": true,
+        "delete_duplicate_attempt_blocked": true,
+        "delete_readonly_recovery_persists_receipt": true,
+        "delete_recovery_no_replay": true,
+        "delete_recovered_receipt_is_settled": true,
+        "delete_double_reconcile_no_duplicate_activity": true,
+        "delete_double_reconcile_stable_receipt": true,
+        "delete_double_reconcile_no_replay": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "delete_double_recovery",
+        "goals": 1,
+        "runs": 3,
+        "actions": 4,
+        "calendar_error": "删除记录或授权尚不可读，请先刷新。",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.status",
+        "calendar.get",
+        "calendar.delete",
+        "calendar.get"
+      ],
+      "summary_sha256": "ad95bf5c238184388924a8b5d01d093f2685aca2164ee123d4f0704f5a4e3012",
+      "runtime_log_sha256": "ec967fb2d77ab69dfedff160edab2393303e407274412f3bcbf0ba63751ed15b",
+      "evidence": ".local-state/linked-r1-delete_unknown-r1/summary.json"
+    },
+    {
+      "name": "linked-r1-linked_memory_failure-r1",
+      "status": "FAIL",
+      "source_sha256": "ef0bb62332f424735bf41628a8b25ccd70dcb82f5285736c300c6dd50ac70829",
+      "checks": {
+        "failure_fresh_preview": true,
+        "linked_mutation_verified_before_local_fault": true,
+        "linked_no_result_memory_before_recovery": true,
+        "linked_readonly_recovery_completes_memory": false,
+        "linked_recovery_no_mutation_replay": true,
+        "linked_recovery_settled_marker": false,
+        "linked_original_artifact_bytes_retained": true,
+        "linked_double_reconcile_no_duplicate_activity": true,
+        "linked_double_reconcile_stable_memory": true,
+        "linked_double_reconcile_stable_goals": true,
+        "linked_double_reconcile_artifact_bytes_stable": true,
+        "linked_double_reconcile_no_replay": true
+      },
+      "failed": [
+        "linked_readonly_recovery_completes_memory",
+        "linked_recovery_settled_marker"
+      ],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": {
+        "run_status": "completed",
+        "link_status": "verified"
+      },
+      "state_observation": {
+        "phase": "linked_double_recovery",
+        "goals": 1,
+        "runs": 4,
+        "actions": 4,
+        "calendar_error": "系统读回匹配，但收据未保存。",
+        "core_error": "记忆写入或回读失败。",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.get",
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.get",
+        "calendar.list",
+        "calendar.update",
+        "calendar.get",
+        "calendar.get",
+        "calendar.get"
+      ],
+      "summary_sha256": "7270316855a0d9fd5425f0b6b63075fb47996bfba33493864040e2bb2892dbc6",
+      "runtime_log_sha256": "e0c107ec55c646be9aeac7c4909f6c442784bcc848d8cd1aadb991081b8e7a59",
+      "evidence": ".local-state/linked-r1-linked_memory_failure-r1/summary.json"
+    },
+    {
+      "name": "linked-r1-linked_result_failure-r1",
+      "status": "ERROR",
+      "source_sha256": "ef0bb62332f424735bf41628a8b25ccd70dcb82f5285736c300c6dd50ac70829",
+      "checks": {},
+      "failed": null,
+      "error": "No fresh report; inspect retained runtime.log/progress/state",
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": null,
+        "goals": null,
+        "runs": null,
+        "actions": null,
+        "calendar_error": null,
+        "core_error": null,
+        "calendar_pending": null
+      },
+      "calls": [],
+      "summary_sha256": "1d3b4971de79e67fa1a2854e82ed0129594130e654213222a3d48588a57c81c9",
+      "runtime_log_sha256": "fd9597e88566b9d48b5547d4bfdb1aed3b17c75b9b725cc0e5601b6787c1ddca",
+      "evidence": ".local-state/linked-r1-linked_result_failure-r1/summary.json"
+    },
+    {
+      "name": "linked-r2-linked_memory_failure-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "47a2fd792a844224bda22034b84df3391193933af763772a3f7c333643ac1a65",
+      "checks": {
+        "failure_fresh_preview": true,
+        "linked_mutation_verified_before_local_fault": true,
+        "linked_no_result_memory_before_recovery": true,
+        "linked_readonly_recovery_completes_memory": true,
+        "linked_recovery_no_mutation_replay": true,
+        "linked_recovery_settled_marker": true,
+        "linked_recovery_artifact_present": true,
+        "linked_original_artifact_bytes_retained": true,
+        "linked_double_reconcile_no_duplicate_activity": true,
+        "linked_double_reconcile_stable_memory": true,
+        "linked_double_reconcile_stable_goals": true,
+        "linked_double_reconcile_artifact_bytes_stable": true,
+        "linked_double_reconcile_no_replay": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": {
+        "run_status": "completed",
+        "link_status": "verified"
+      },
+      "state_observation": {
+        "phase": "linked_double_recovery",
+        "goals": 1,
+        "runs": 4,
+        "actions": 4,
+        "calendar_error": "",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.get",
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.get",
+        "calendar.list",
+        "calendar.update",
+        "calendar.get",
+        "calendar.get"
+      ],
+      "summary_sha256": "72b91c5bf099197b7a45bd17960cbb2158de881666fa89676e2175f5721d12d6",
+      "runtime_log_sha256": "224c22fc0a82601d9fd703df578f9a9abf7f816f4277449afefa3463e444513a",
+      "evidence": ".local-state/linked-r2-linked_memory_failure-r1/summary.json"
+    },
+    {
+      "name": "linked-r2-linked_result_failure-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "47a2fd792a844224bda22034b84df3391193933af763772a3f7c333643ac1a65",
+      "checks": {
+        "failure_fresh_preview": true,
+        "linked_mutation_verified_before_local_fault": true,
+        "linked_no_result_memory_before_recovery": true,
+        "linked_readonly_recovery_completes_memory": true,
+        "linked_recovery_no_mutation_replay": true,
+        "linked_recovery_settled_marker": true,
+        "linked_recovery_artifact_present": true,
+        "linked_original_artifact_bytes_retained": true,
+        "linked_double_reconcile_no_duplicate_activity": true,
+        "linked_double_reconcile_stable_memory": true,
+        "linked_double_reconcile_stable_goals": true,
+        "linked_double_reconcile_artifact_bytes_stable": true,
+        "linked_double_reconcile_no_replay": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": {
+        "run_status": "running",
+        "link_status": "accepted"
+      },
+      "state_observation": {
+        "phase": "linked_double_recovery",
+        "goals": 1,
+        "runs": 4,
+        "actions": 4,
+        "calendar_error": "",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "calendar.get",
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.get",
+        "calendar.list",
+        "calendar.update",
+        "calendar.get",
+        "calendar.get"
+      ],
+      "summary_sha256": "364fb253f40e041897589a1f1e9a0290be927734354ed554041b526bc3df7446",
+      "runtime_log_sha256": "7e23de8235dd37351121d5aaca35c487ee1466e3a9fae9339d94f7fcebedac42",
+      "evidence": ".local-state/linked-r2-linked_result_failure-r1/summary.json"
+    },
+    {
+      "name": "linked-r2-chain-r1",
+      "status": "DRY_RUN_PASS",
+      "source_sha256": "47a2fd792a844224bda22034b84df3391193933af763772a3f7c333643ac1a65",
+      "checks": {
+        "update_duplicate_confirmation_no_write": true,
+        "create_result_memory_exists": true,
+        "create_duplicate_confirmation_no_write": true,
+        "reply_linked_result_and_memory": true,
+        "acceptance_not_delivery": true,
+        "second_mail_matches_same_matter": true,
+        "create_same_goal_independent_get": true,
+        "replan_one_goal_one_event": true,
+        "update_waits_fresh_confirmation": true,
+        "first_mail_goal_and_source_bound": true,
+        "candidate_waits_confirmation": true,
+        "update_same_event_and_independent_get": true,
+        "synthetic_recipient_exact_readback": true,
+        "reply_requires_separate_confirmation": true,
+        "scope_rejects_other_account": true,
+        "relevant_memory_in_model_input": true,
+        "external_write_counts": true,
+        "preference_saved": true
+      },
+      "failed": [],
+      "error": null,
+      "runtime_errors": [],
+      "local_failure_observation": null,
+      "state_observation": {
+        "phase": "chain_complete",
+        "goals": 1,
+        "runs": 3,
+        "actions": 3,
+        "calendar_error": "相关记忆已变化，旧确认失效。",
+        "core_error": "",
+        "calendar_pending": false
+      },
+      "calls": [
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.list",
+        "calendar.create",
+        "calendar.get",
+        "calendar.get",
+        "mail.accounts",
+        "model.complete",
+        "calendar.list",
+        "calendar.status",
+        "calendar.get",
+        "calendar.list",
+        "calendar.update",
+        "calendar.get",
+        "mail.send",
+        "mail.message"
+      ],
+      "summary_sha256": "c8113d60e03f8cb4c8d574a42f8bd6e9d49af8482240427d75cc3bafb81fabe9",
+      "runtime_log_sha256": "eb8a12245872c5208eebaf00a2609e4edf4bd04ca1660ef0ffa779250ae62b65",
+      "evidence": ".local-state/linked-r2-chain-r1/summary.json"
+    }
+  ]
+}

@@ -48,6 +48,10 @@ def execute(args):
     assert marker, "Verified production startup marker required"
     prefix = source[:marker.start()]
     original = functions_in(prefix)
+    if args.delete_reconcile:
+        assert "calendar_reconcile_delete" in original, "Candidate must define the observed production recovery entry"
+    if args.require_settlement:
+        assert "calendar_reconcile_available" in original, "Candidate settlement contract must exist"
     prefix = prefix.replace("host.request(", "business_request(")
     substitutions = {
         "redraw": "fn redraw(){}",
@@ -57,10 +61,9 @@ def execute(args):
         "mail_enabled": "fn mail_enabled(){return true}",
     }
     if args.fault_storage:
-        body = original["storage_write"].replace(
-            "return try { fs.write(path,data) }", 
-            'if be_fault_path==path {be_fault_hits=be_fault_hits+1 return "synthetic_storage_failure"}\n'
-            "    return try { fs.write(path,data) }")
+        storage = original["storage_write"]
+        brace = storage.index("{") + 1
+        body = storage[:brace] + '\nif be_fault_path==path {be_fault_hits=be_fault_hits+1 return "synthetic_storage_failure"}\n' + storage[brace:]
         assert body != original["storage_write"]
         substitutions["storage_write"] = body
     for name, body in substitutions.items():
@@ -86,7 +89,13 @@ def execute(args):
     (bundle / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     common = HERE / "transport.splash"
     probe_text = args.probe.read_text().replace('"__CASE__"', json.dumps(args.case))
-    instrumented = prefix + common.read_text() + probe_text + widget
+    recovery = "calendar_reconcile_delete(be_request)" if args.delete_reconcile else "calendar_readback_deleted(be_request,be_payload,be_payload.event_id)"
+    probe_text = probe_text.replace("__DELETE_RECOVERY__", recovery)
+    # Splash functions capture let bindings at definition time. Fault controls
+    # must precede production storage_write; ordinary transport functions follow.
+    fault_controls = 'let be_fault_path="" let be_fault_hits=0\n' + "let be_use_delete_reconcile=" + str(args.delete_reconcile).lower() + "\n"
+    fault_controls += "let be_require_settlement=" + str(args.require_settlement).lower() + "\n"
+    instrumented = fault_controls + prefix + common.read_text() + probe_text + widget
     assert "host.request(" not in instrumented, "No real service dispatch can remain"
     (bundle / "main.splash").write_text(instrumented)
     state = out / "state"
@@ -101,10 +110,12 @@ def execute(args):
         (state / "muse-goals/probe.json").unlink(missing_ok=True)
     home = out / "home"
     home.mkdir()
-    env = dict(os.environ, HOME=str(home), MAKEPAD_REMOTE=str(args.port),
-               MAKEPAD_HIDE_WINDOWS="1", PYTHONDONTWRITEBYTECODE="1")
-    for name in ("MAKEPAD_FOCUS", "OCTOSENSE_HOME", "OCTOSENSE_APP_DATA", "OCTOS_APP_CORE_DIR"):
-        env.pop(name, None)
+    core = home / "octos-home/.octos"
+    core.mkdir(parents=True)
+    env = dict(os.environ, MAKEPAD_REMOTE=str(args.port), MAKEPAD_HIDE_WINDOWS="1",
+               PYTHONDONTWRITEBYTECODE="1", OCTOSENSE_HOME=str(home),
+               OCTOSENSE_APP_DATA=str(state), OCTOS_APP_CORE_DIR=str(core), MAKEPAD_APP_CONFIG="{}")
+    env.pop("MAKEPAD_FOCUS", None)
     summary = {
         "kind": "DRY_RUN_PRODUCTION_FUNCTIONS", "status": "RUNNING",
         "source_sha256": sha(snapshot / "main.splash"), "host_sha256": sha(host),
@@ -112,6 +123,8 @@ def execute(args):
         "production_functions": len(original), "retained_functions": len(retained),
         "substitutions": sorted(changed), "all_other_functions_byte_equal": True,
         "storage_fault_injection": args.fault_storage, "case": args.case,
+        "delete_reconcile_entry": args.delete_reconcile,
+        "settlement_contract_required": args.require_settlement,
         "external_service_calls": 0, "real_model_inference": False,
         "seed_hashes": seed_hashes, "budget": "Unchanged official VM/script budgets",
         "boundary": "Synthetic Host responses and minimal widgets; real official VM, timers and jailed storage. No OS EventKit, SMTP delivery or paid model evidence.",
@@ -141,7 +154,9 @@ def execute(args):
                            checks=len(checks), passed=sum(checks.values()), failed=failed,
                            result=result, runtime_errors=errors)
     except Exception as error:
-        summary.update(status="ERROR", error=str(error))
+        errors = [line for line in log_path.read_text().splitlines()
+                  if "[E]" in line or "script time budget exceeded" in line or "SPLASH_COMPILE_FAILED" in line]
+        summary.update(status="ERROR", error=str(error), runtime_errors=errors)
     finally:
         if proc is not None:
             proc.terminate()
@@ -167,4 +182,8 @@ if __name__ == "__main__":
     parser.add_argument("--case", default="default")
     parser.add_argument("--fault-storage", action="store_true",
                         help="Allow explicit one-path failure before real jailed fs.write")
+    parser.add_argument("--delete-reconcile", action="store_true",
+                        help="Test the verified new production calendar_reconcile_delete(request_id) entry")
+    parser.add_argument("--require-settlement", action="store_true",
+                        help="Require candidate settled_request_id and repeat-recovery stability")
     raise SystemExit(execute(parser.parse_args()))

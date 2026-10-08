@@ -4,7 +4,8 @@ let be_event = nil let be_sent = [] let be_forbidden = [] let be_goal = ""
 let be_hold_get = false let be_gets = [] let be_hold_list = false let be_lists = []
 let be_hold_send = false let be_send_callbacks = [] let be_external_changed = false
 let be_wait_count = 0 let be_phase = "boot"
-let be_fault_path = "" let be_fault_hits = 0 let be_fail_on_get = "" let be_fail_on_send = ""
+let be_fail_on_get = "" let be_fail_on_send = ""
+let be_fail_on_written_get = ""
 let be_fail_on_calendar_write = "" let be_calendar_unknown = false
 let be_test_id = "MUSE-R2-7H-ISOLATED"
 fn be_clone(value){return value.to_json().parse_json()}
@@ -24,6 +25,7 @@ fn business_request(service,args,cb){
     if service == "calendar.get" {
         if be_hold_get {be_gets.push(cb) return}
         if be_event==nil && be_fail_on_get!="" {be_fault_path=be_fail_on_get}
+        if be_event!=nil && be_count("calendar.update")==1 && be_fail_on_written_get!="" {be_fault_path=be_fail_on_written_get}
         cb({is_ok: true data: {found: be_event != nil event: be_clone(be_event)}}) return
     }
     if service == "calendar.create" {
@@ -36,7 +38,8 @@ fn business_request(service,args,cb){
         if be_event == nil || be_event.id != args.event_id || be_event.version != args.expected_version {
             cb({is_ok: false error: "Synthetic compare-and-swap version mismatch"}) return
         }
-        be_event.start=args.changes.start be_event.end=args.changes.end be_event.version="v2"
+        be_event.start=args.changes.start be_event.end=args.changes.end
+        if be_event.version=="v2" {be_event.version="v3"} else {be_event.version="v2"}
         cb({is_ok: true data: {event_id: be_event.id version: be_event.version}}) return
     }
     if service == "calendar.delete" {

@@ -1,5 +1,8 @@
 let be_case="__CASE__" let be_checkpoint=nil let be_request="" let be_payload=nil
 let be_before_memory="" let be_before_candidate="" let be_before_action=nil
+let be_recovered_activity="" let be_recovered_receipt=""
+let be_before_artifact="" let be_recovered_artifact="" let be_recovered_memory="" let be_recovered_goals=""
+let be_original_delete_event=nil
 fn be_failure_start(){
     be_checkpoint=fs.read("chain-checkpoint.json").parse_json()
     be_goal=be_checkpoint.goal be_event=be_checkpoint.event be_boot() calendar_boot()
@@ -54,8 +57,53 @@ fn be_failure_model(){
 }
 fn be_failure_preconditions(){
     calendar_preview_action() be_checks.failure_fresh_preview=calendar_preview!=""
+    if be_case=="linked_memory_failure" || be_case=="linked_result_failure" {
+        if be_case=="linked_memory_failure" {be_fail_on_written_get="memory.json"}
+        else {be_fail_on_written_get=goals[0].result_path}
+        calendar_confirm_action()
+        be_until(|| !calendar_pending && be_count("calendar.update")==1,|| be_failure_linked_observe(),"linked_save_failure",0)
+        return
+    }
     be_hold_get=true calendar_confirm_action()
     be_until(|| be_gets.len()==1,|| be_failure_release(),"failure_precondition_get",0)
+}
+fn be_failure_linked_observe(){
+    let li=calendar_link_index(be_goal) let id=calendar_links[li].run_id
+    be_checks.linked_mutation_verified_before_local_fault=be_count("calendar.update")==1
+        && actions[actions.len()-1].status=="verified" && be_fault_hits==1
+    be_checks.linked_no_result_memory_before_recovery=core_memory_index("memory:result:"+id,"test-account")<0
+    be_before_action={run_status: runs[core_run_index(id)].status link_status: calendar_links[li].status}
+    if fs.exists(goals[0].result_path) {be_before_artifact=fs.read(goals[0].result_path)}
+    be_fault_path="" be_fail_on_written_get=""
+    calendar_reconcile_verified(be_goal)
+    be_until(|| !calendar_pending,|| be_failure_linked_recovered(),"linked_recovery",0)
+}
+fn be_failure_linked_recovered(){
+    let li=calendar_link_index(be_goal) let id=calendar_links[li].run_id
+    be_checks.linked_readonly_recovery_completes_memory=core_memory_index("memory:result:"+id,"test-account")>=0
+        && goals[0].status=="completed" && runs[core_run_index(id)].status=="completed"
+    be_checks.linked_recovery_no_mutation_replay=be_count("calendar.update")==1 && be_count("calendar.create")==0
+    be_checks.local_failure_observation=be_before_action
+    if be_require_settlement {
+        be_checks.linked_recovery_settled_marker=calendar_links[li]["settled_request_id"]==actions[actions.len()-1].id
+        be_checks.linked_recovery_artifact_present=fs.exists(goals[0].result_path)
+        if fs.exists(goals[0].result_path) {be_recovered_artifact=fs.read(goals[0].result_path)}
+        be_checks.linked_original_artifact_bytes_retained=be_before_artifact=="" || be_before_artifact==be_recovered_artifact
+        be_recovered_activity=fs.read("activity.json") be_recovered_memory=fs.read("memory.json") be_recovered_goals=fs.read("goals.json")
+        calendar_reconcile_verified(be_goal)
+        be_until(|| !calendar_pending,|| be_failure_linked_double(),"linked_double_recovery",0)
+        return
+    }
+    be_finish()
+}
+fn be_failure_linked_double(){
+    be_checks.linked_double_reconcile_no_duplicate_activity=fs.read("activity.json")==be_recovered_activity
+    be_checks.linked_double_reconcile_stable_memory=fs.read("memory.json")==be_recovered_memory
+    be_checks.linked_double_reconcile_stable_goals=fs.read("goals.json")==be_recovered_goals
+    be_checks.linked_double_reconcile_artifact_bytes_stable=fs.exists(goals[0].result_path)
+        && fs.read(goals[0].result_path)==be_recovered_artifact
+    be_checks.linked_double_reconcile_no_replay=be_count("calendar.update")==1 && be_count("calendar.create")==0
+    be_finish()
 }
 fn be_failure_release(){
     if be_case=="external_version" {be_event.version="externally-modified-v3"}
@@ -69,6 +117,7 @@ fn be_failure_assert_precondition(){
     be_finish()
 }
 fn be_failure_delete(){
+    be_original_delete_event=be_clone(be_event)
     calendar_selected_goal="" calendar_selected_event=be_clone(be_event) calendar_operation="delete"
     ui.calendar_delete_id.set_text(be_test_id)
     calendar_preview_action()
@@ -76,7 +125,7 @@ fn be_failure_delete(){
     be_checks.delete_preview_valid=calendar_preview!=""
     if be_case=="delete_receipt_failure" {be_fail_on_get="calendar-state.json"}
     if be_case=="delete_accept_failure" {be_fail_on_calendar_write="goals.json"}
-    if be_case=="delete_unknown" {be_calendar_unknown=true}
+    if be_case=="delete_unknown" || be_case=="delete_unknown_still_present" {be_calendar_unknown=true}
     calendar_confirm_action()
     be_until(|| be_count("calendar.delete")==1 && !calendar_pending,|| be_failure_delete_observe(),"delete_failure",0)
 }
@@ -92,18 +141,53 @@ fn be_failure_delete_observe(){
     if be_case=="delete_accept_failure" {be_checks.accept_save_failed_action_guarded=actions[ai].status=="in_flight" && be_fault_hits==1}
     if be_case=="delete_unknown" {be_checks.unknown_outcome_is_not_success=actions[ai].status=="unknown" && calendar_error!=""}
     be_fault_path="" be_fail_on_get="" be_fail_on_calendar_write=""
+    if be_case=="delete_unknown_still_present" {
+        // The uncertain transport outcome could also mean no server mutation.
+        // Only a later independent get decides whether the event is absent.
+        be_event=be_clone(be_original_delete_event)
+        __DELETE_RECOVERY__
+        be_until(|| !calendar_pending,|| be_failure_delete_still_present(),"delete_present_readback",0)
+        return
+    }
     calendar_preview_action() calendar_confirm_action()
     be_checks.delete_duplicate_attempt_blocked=be_count("calendar.delete")==1
     // Existing production readback helper must resume accounting after the I/O fault.
     // It only reads the exact originally approved id; no delete is dispatched here.
-    calendar_readback_deleted(be_request,be_payload,be_payload.event_id)
+    __DELETE_RECOVERY__
     be_until(|| !calendar_pending,|| be_failure_delete_recovered(),"delete_recovery",0)
+}
+fn be_failure_delete_still_present(){
+    let found=false let disk=fs.read("calendar-state.json").parse_json()
+    for receipt in disk.receipts {if receipt.request_id==be_request {found=true}}
+    be_checks.unknown_present_event_not_marked_verified=actions[core_action_index(be_request)].status=="unknown" && !found
+    be_checks.unknown_present_readback_shows_error=calendar_error!=""
+    be_checks.unknown_present_no_mutation_replay=be_count("calendar.delete")==1
+        && be_count("calendar.create")==0 && be_count("calendar.update")==0
+    be_failure_delete_finish()
 }
 fn be_failure_delete_recovered(){
     let found=false let disk=fs.read("calendar-state.json").parse_json()
     for receipt in disk.receipts {if receipt.request_id==be_request && receipt.status=="verified" {found=true}}
     be_checks.delete_readonly_recovery_persists_receipt=found && actions[core_action_index(be_request)].status=="verified"
     be_checks.delete_recovery_no_replay=be_count("calendar.delete")==1
+    if be_use_delete_reconcile {
+        let persisted=false
+        for receipt in disk.receipts {if receipt.request_id==be_request && receipt["persisted"]==true {persisted=true}}
+        be_checks.delete_recovered_receipt_is_settled=persisted
+        be_recovered_activity=fs.read("activity.json") be_recovered_receipt=fs.read("calendar-state.json")
+        __DELETE_RECOVERY__
+        be_until(|| !calendar_pending,|| be_failure_delete_double(),"delete_double_recovery",0)
+        return
+    }
+    be_failure_delete_finish()
+}
+fn be_failure_delete_double(){
+    be_checks.delete_double_reconcile_no_duplicate_activity=fs.read("activity.json")==be_recovered_activity
+    be_checks.delete_double_reconcile_stable_receipt=fs.read("calendar-state.json")==be_recovered_receipt
+    be_checks.delete_double_reconcile_no_replay=be_count("calendar.delete")==1
+    be_failure_delete_finish()
+}
+fn be_failure_delete_finish(){
     fs.write("failure-checkpoint.json",{case: be_case request: be_request action: be_before_action payload: be_payload
         event: be_event goals: fs.read("goals.json") draft: fs.read("mail-draft.json")}.to_json())
     be_finish()

@@ -42,6 +42,9 @@ python3 official_muse/rc/7h-20261008/business/run.py \
 | `failure.splash / delete_receipt_failure` | 独立读回后收据写入失败，只读恢复记账而不再次删除；需 `--fault-storage` |
 | `failure.splash / delete_accept_failure` | 系统接受后动作记录写入失败，不重复删除；需 `--fault-storage` |
 | `failure.splash / delete_unknown` | 返回丢失而系统已删除，先读回核对再恢复记账 |
+| `failure.splash / delete_unknown_still_present` | UNKNOWN 后读回仍存在，保留 UNKNOWN，不生成成功收据，不重发删除 |
+| `failure.splash / linked_memory_failure` | Run 已完成且 link 已 verified，但来源记忆失败；只读恢复不能再次完成 Run 或更新事件；需 `--fault-storage` |
+| `failure.splash / linked_result_failure` | 系统事件已 verified，产物保存失败；重启/只读恢复后正确完成本地结果；需 `--fault-storage` |
 | `failure.splash / mail_accepted_receipt_failure` | 邮件被接受而回执保存失败，保留防重放记录；需 `--fault-storage` |
 | `interrupted_send.splash` → `interruption_restart.splash` | 实际终止持有发送回调的进程，再启动恢复为 UNKNOWN，禁止盲重发 |
 
@@ -50,5 +53,25 @@ python3 official_muse/rc/7h-20261008/business/run.py \
 
 ## 当前阶段
 
-隔离脚本已实现，Python 语法与入口参数检查通过。实际 VM 执行等待总控恢复兼容 card-host，尚未据此标 PASS。
-已有源代码审查指出：rc10 的 standalone delete 收据失败后复用读回 helper 会在 action 已 verified 时被 accepted 前置条件阻止；必须真实复现并由总控修复，不能重复 delete 完成回执。
+兼容 `card-host` 已实际构建并执行。基线 rc10 完整链 18/18、重启和跨对话 10/10 通过；真实生产函数隔离复现了删除回执缺失、删除已接受但动作落盘失败、日历结果已 verified 但来源记忆缺失这三种恢复缺陷。
+总控实现修复；r2 定向测试中两种关联任务恢复各 13/13，删除三种恢复各 10/10。
+检查了收尾标记、原产物字节不漂移、重复恢复活动/记忆/目标稳定，以及系统动作不重放。详见 `RECOVERY_EVIDENCE.json`。
+
+一次三进程矩阵启动中有一个官方 Splash 编译超时，未执行该场景，保留 ERROR 及日志。
+最终矩阵改为串行启动，继续使用原官方预算，不隐藏编译失败。
+原错误和失败样本保存在 `.local-state/`；它们与后续通过样本分开。
+
+## 同一候选矩阵
+
+`run_matrix.py` 先冻结一份完整 bundle，后续 18 个场景都使用同一份源码，输出每次输入、Host、probe 和执行包 SHA 及函数保留审计。
+包含新进程重启、关联恢复、UNKNOWN、防重复、存储故障、批准变化和模型服务错误；场景未执行或断言未过时输出 `PARTIAL`。
+
+```sh
+python3 official_muse/rc/7h-20261008/business/run_matrix.py \
+  --source-bundle <final-candidate-bundle> --host <reference-card-host> \
+  --host-cwd <host-resource-workspace> \
+  --out official_muse/rc/7h-20261008/business/.local-state/final-matrix-r1
+```
+
+候选新恢复接口用 `--delete-reconcile` 验证，`--require-settlement` 验证来源记忆与结果都落盘后才产生 `settled_request_id`。
+`malformed_model` 是官方服务“结构输出格式错误”分类的应用处理验证，不能据此声称已经测试真实 Model Host 的格式校验或模型推理。

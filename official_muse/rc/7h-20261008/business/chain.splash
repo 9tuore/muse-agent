@@ -34,6 +34,7 @@ fn be_created(){
         && calendar_links[li].event_id=="test-event" && artifact.event_id=="test-event"
         && artifact.version=="v1" && actions[0].status=="verified" && runs[0].status=="completed"
     be_checks.create_result_memory_exists=core_memory_index("memory:result:"+runs[0].id,"test-account")>=0
+    if be_require_settlement {be_checks.create_settled_after_memory=calendar_links[li]["settled_request_id"]==actions[0].id}
     calendar_confirm_action()
     be_checks.create_duplicate_confirmation_no_write=be_count("calendar.create")==1
     mail_selected=be_message("second-mail","2030-06-12T16:00:00+08:00","2030-06-12T16:30:00+08:00","<first-mail@example.invalid>")
@@ -62,6 +63,7 @@ fn be_updated(){
         && be_event.id=="test-event" && be_event.version=="v2" && be_event.start=="2030-06-12T16:00:00+08:00"
         && artifact.event_id=="test-event" && artifact.version=="v2" && actions[1].status=="verified"
         && be_count("calendar.get")>=3 && be_event.notes=="Keep synthetic metadata"
+    if be_require_settlement {be_checks.update_settled_after_memory=calendar_links[0]["settled_request_id"]==actions[1].id}
     calendar_confirm_action()
     be_checks.update_duplicate_confirmation_no_write=be_count("calendar.update")==1
     mail_compose_from_calendar(be_goal)
