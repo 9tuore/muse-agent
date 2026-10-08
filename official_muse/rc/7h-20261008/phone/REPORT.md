@@ -79,3 +79,9 @@ CARGO_TARGET_DIR=/path/to/isolated/cargo-target cargo test --locked --offline --
 AVD MusePhoneAPI35、Android API35 x86_64，emulator37.2.12；独立模拟器端口5580，ADB5041且仅连接emulator-5580。sys.boot_completed实际1。Bridge prototype安装Success，冷启动Status ok/8739ms；初次截图System UI ANR保留，点击Wait恢复后截图显示真实设置页。Notification access仍Not enabled，没有授权系统权限。`bridge-emulator-after-wait.png`为已查看页面证据。
 
 Home尚无APK。脚本计划使用官方包名dev.makepad.octosense，实际官方packager，release opt-level=1/debug=0/incremental=false，用于模拟器开发候选；已核对官方强制内核路径，新增独立x86_64 kernel构建脚本；Home构建强制检查并打包liboctos.so，尚无构建结果，不能称完整正式Home+kernel成品。最终还须实际构建、安装、AppHub→Muse Card/Chat/Memory验证。无EventKit，不做Calendar CRUD。
+
+## 2026-10-09 00:15 resource-limited checkpoint
+
+Bridge installation and real settings UI remain verified. Kernel r3/r4 used the explicit private Android sysroot and progressed beyond the prior missing-core error; r4 compiled octos-core/octos-bus and native dependencies. Both attempts terminated by the authorized resource guard, not by a new observed compiler error. r4 receipt: own8995561472 bytes, free5049843712 bytes. No kernel executable, Home APK or Muse Android full-chain success is claimed.
+
+CMake3.31.6 CLI/modules were installed only into own ignored tooling, after official published SHA validation. Scoped repair/evidence commit bbbdd2c2; no push. All sources, downloads, incremental build cache and failure evidence are retained. No kernel/Home/emulator build process is active. Resume only after adequate Data free space and own9GB headroom; private mirror remains running on127.0.0.1:8571. The cceeaa Muse input is a historical validation candidate, not Root final freeze.
