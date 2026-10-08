@@ -1,0 +1,138 @@
+{
+  "result": "FAIL",
+  "version": "0.3.26-rc51",
+  "source_sha256": "ed4874d1f21464233244410aa5f03d83d74a66ce82a4026a64a8f4539cf778da",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "cold_pass": 7,
+  "cold_attempts": 10,
+  "reopen_pass": 5,
+  "reopen_attempts": 5,
+  "cold_pid_observations": [
+    {
+      "index": 1,
+      "reported_pid": 35256,
+      "listener_pids": [
+        35256
+      ],
+      "log_available": true
+    },
+    {
+      "index": 2,
+      "reported_pid": null,
+      "listener_pids": [],
+      "log_available": false
+    },
+    {
+      "index": 3,
+      "reported_pid": null,
+      "listener_pids": [],
+      "log_available": false
+    },
+    {
+      "index": 4,
+      "reported_pid": 37022,
+      "listener_pids": [
+        37022
+      ],
+      "log_available": true
+    },
+    {
+      "index": 5,
+      "reported_pid": 37504,
+      "listener_pids": [
+        37504
+      ],
+      "log_available": true
+    },
+    {
+      "index": 6,
+      "reported_pid": 38404,
+      "listener_pids": [
+        38404
+      ],
+      "log_available": true
+    },
+    {
+      "index": 7,
+      "reported_pid": 39116,
+      "listener_pids": [
+        39116
+      ],
+      "log_available": true
+    },
+    {
+      "index": 8,
+      "reported_pid": 40013,
+      "listener_pids": [
+        40013
+      ],
+      "log_available": true
+    },
+    {
+      "index": 9,
+      "reported_pid": null,
+      "listener_pids": [],
+      "log_available": false
+    },
+    {
+      "index": 10,
+      "reported_pid": 41984,
+      "listener_pids": [
+        41984
+      ],
+      "log_available": true
+    }
+  ],
+  "confirmed_unique_cold_pids": 7,
+  "reopen_pids": [
+    41984,
+    41984,
+    41984,
+    41984,
+    41984
+  ],
+  "known_pid_processes_after": "",
+  "cleanup": {
+    "pid": 41984,
+    "remote_port_released": true
+  },
+  "port8492_free_after": true,
+  "protected_state_after_equal": true,
+  "installed_source_after_equal": true,
+  "model_ledger_exists_after": false,
+  "launcher_unchanged": true,
+  "wrapper_unchanged": true,
+  "upstream_runner_unchanged": true,
+  "observed_error_lines": [],
+  "failures": [
+    {
+      "kind": "cold",
+      "index": 2,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "cold",
+      "index": 3,
+      "error": "",
+      "capture_error": "HTTP Error 404: Not Found"
+    },
+    {
+      "kind": "cold",
+      "index": 9,
+      "error": "Command '['/Library/Developer/CommandLineTools/usr/bin/python3', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/ui_memory/launch_candidate.py', '--candidate', '/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松/official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3', '--port', '8492', '--restart']' timed out after 40 seconds",
+      "capture_error": "HTTP Error 404: Not Found"
+    }
+  ],
+  "passing_cold_first_content_range_seconds": [
+    18.811237728,
+    49.37132866800002
+  ],
+  "passing_cold_first_interactive_range_seconds": [
+    19.522970161,
+    50.136592337999986
+  ],
+  "report_sha256": "576ad18624dd39dd5329a7f84b075ac7926107deb7f97ddcd61e1a8ab61219e2",
+  "audit_sha256": "cd34c47101e8cbd303922867d920597560c3e4ca0891a7e23e4a2c15f65525b5",
+  "scope": "Final bounded matrix. Seven actual completed cold cases and five same-process reopens passed. Cold02/09 40-second launcher timeouts, cold03 prior Shell port not closed. Missing failed-case logs cannot prove absence of E. No additional retry, model submission or OS restart."
+}

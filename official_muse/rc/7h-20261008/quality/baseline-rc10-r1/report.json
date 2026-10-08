@@ -1,0 +1,128 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.27-rc10",
+  "code_commit": "09e8ea2c2a01c0b13998dec59d6a975f6c5a30d3",
+  "source_sha256": "0caaee7374e2446abafffeda33fe24bdcf8f9125757f881d664efabb83c36686",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 0,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "chat-sessions.backup.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "12d73915c579b367d9fb67fc3c826fdcf3af6e373adf66f7be5e02762639148f",
+    "goals.backup.json": null,
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "cold": [
+    {
+      "index": 1,
+      "pass": true,
+      "first_content_seconds": 16.514097244000002,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 16.985032525,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 0,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 586 ms · phase=widget-draw detail=0 · samples=6 · ticks=6/expected=5 · top frames: 1x widget-draw: makepad_script::tokenizer::ScriptTokenizer::tokenize+0xaf (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::combo_box::script_mod+0x4cd (octosense) ← makepad_widgets::widgets_mod+0x6a7 (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) ← makepad_widgets::widget::WidgetRef::set_text+0x2b (octosense) | 1x widget-draw: makepad_script::tokenizer::ScriptTokenizer::emit_separator+0x1dc (octosense) ← makepad_script::tokenizer::ScriptTokenizer::tokenize+0x27c4 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::glass_panel::script_mod+0x3f0 (octosense) ← makepad_widgets::widgets_mod+0x6cf (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) | 1x widget-draw: makepad_script::heap::ScriptHeap::def_scope_value+0x10b (octosense) ← makepad_script::vm::ScriptVm::handle_use+0x436 (octosense) ← makepad_script::vm::ScriptVm::run_core+0x2f9e (octosense) ← makepad_script::vm::ScriptVm::run_root+0x22d (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x386 (octosense) ← makepad_widgets::markdown::script_mod+0x361 (octosense) ← makepad_widgets::widgets_mod+0x7b7 (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) | 1x widget-draw: makepad_svg::tessellate::Tessellator::fill+0x10d7 (octosense) ← makepad_draw::vector::triangulate::tessellate_path_fill+0x5a (octosense) ← makepad_draw::shader::draw_vector::DrawVector::fill_opts_mode+0xd7 (octosense) ← makepad_draw::svg::render::render_nodes+0x5c98 (octosense) ← makepad_draw::svg::render::render_svg+0x3e3 (octosense) ← makepad_draw::shader::draw_svg::DrawSvg::render_to_rect+0x42f (octosense) ← makepad_widgets::app_icon::AppIconDraw::draw_rotated+0x7c5 (octosense) ← octosense_shell::octosense::style::AppIconDraw::draw+0xdfc (octosense)",
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 490 ms · phase=Actions detail=0 · samples=4 · ticks=4/expected=4 · top frames: 1x Actions: makepad_script::heap::ScriptHeap::freeze_shader+0x20 (octosense) ← makepad_widgets::map::view::script_mod+0x36d (octosense) ← makepad_widgets::widgets_mod+0x7ef (octosense) ← octosense_shell::module_host::apply_module_style+0x499 (octosense) ← _RINvNtCsfV1fogaGtha_18makepad_script_std2vm7with_vmNCNCNvMs0_NtCs20QgPeiaqct_15octosense_shell11module_hostNtBX_10ModuleHost6create00NtCs7CzefefTTkF_18makepad_app_module13InstancePartsEBZ_+0xe6 (octosense) ← _RINvXs2_NtCsfHdtRvWNvi1_15makepad_widgets12widget_asyncNtNtCsbjwPLTgOt8d_16makepad_platform2cx2CxNtB6_13CxSplashVmExt25with_script_vm_id_trustedNtCs7CzefefTTkF_18makepad_app_module13InstancePartsNCNCNvMs0_NtCs20QgPeiaqct_15octosense_shell11module_hostNtB3h_10ModuleHost6create00EB3j_+0x34e (octosense) ← octosense_shell::module_host::ModuleHost::create+0xa8e (octosense) ← octosense_shell::App::launch_module_as+0x178 (octosense) | 1x Actions: makepad_script::parser::ScriptParser::parse+0xe90 (octosense) ← makepad_script::parser::ScriptParser::parse+0x135 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x2d1 (octosense) ← octoscript_widgets::kit::shared::script_mod+0x45c (octosense) ← <octosense_appstore::cardapp::CardModule as makepad_app_module::AppModule>::register+0x19 (octosense) ← <octosense_app_hub_app::card_host::CardModule as makepad_app_module::AppModule>::register+0x63 (octosense) ← _RINvNtCsfV1fogaGtha_18makepad_script_std2vm7with_vmNCNCNvMs0_NtCs20QgPeiaqct_15octosense_shell11module_hostNtBX_10ModuleHost6create00NtCs7CzefefTTkF_18makepad_app_module13InstancePartsEBZ_+0x108 (octosense) ← _RINvXs2_NtCsfHdtRvWNvi1_15makepad_widgets12widget_asyncNtNtCsbjwPLTgOt8d_16makepad_platform2cx2CxNtB6_13CxSplashVmExt25with_script_vm_id_trustedNtCs7CzefefTTkF_18makepad_app_module13InstancePartsNCNCNvMs0_NtCs20QgPeiaqct_15octosense_shell11module_hostNtB3h_10ModuleHost6create00EB3j_+0x34e (octosense) | 1x Actions: makepad_script::tokenizer::ScriptTokenizer::tokenize+0x99 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::slider::script_mod+0x3cd (octosense) ← makepad_widgets::widgets_mod+0x677 (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) ← makepad_widgets::splash::SplashRef::set_text+0x6b (octosense) | 1x NextFrame: makepad_script::heap::ScriptHeap::mark_inner+0xd8a (octosense) ← makepad_script::heap::ScriptHeap::mark+0xbc5 (octosense) ← makepad_widgets::widget_async::pump_widget_async_hook+0xab0 (octosense) ← makepad_script_std::task::handle_script_tasks+0x617 (octosense) ← makepad_platform::cx::Cx::call_event_handler+0xc38 (octosense) ← makepad_platform::cx::Cx::call_next_frame_event+0x10f (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x3b82 (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x357f (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=476284 chunks=118 total_ms=132.676 max_chunk_ms=11.921"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 19.671716491,
+      "pid": 16907
+    }
+  ],
+  "reopen": [],
+  "restart": [],
+  "requested_counts": {
+    "cold": 1,
+    "reopen": 0,
+    "restart": 0
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "cold_pass": 1,
+  "reopen_pass": 0,
+  "restart_pass": 0,
+  "budget_evidence": "Pinned Host binary unchanged; no numeric callback-budget claim"
+}
