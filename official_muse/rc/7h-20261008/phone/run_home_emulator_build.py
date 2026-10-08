@@ -27,6 +27,7 @@ env["MAKEPAD_ANDROID_EXTRA_LIBS"] = "liboctos.so=" + str(kernel)
 public = json.loads((state / "validation-public.json").read_text())
 env["MUSE_PHONE_VALIDATION_HUB"] = "http://10.0.2.2:8571"
 env["MUSE_PHONE_VALIDATION_ANCHOR"] = public["public_keys"]["anchor"]
+env["AWS_LC_SYS_CMAKE_BUILDER_x86_64_linux_android"] = "0"
 env["PATH"] = str(tools / "bin") + os.pathsep + env["PATH"]
 command = [str(tools / "bin/cargo-makepad"), "makepad", "android",
     "--sdk-path=" + str(tools / "android-sdk"), "--abi=x86_64",

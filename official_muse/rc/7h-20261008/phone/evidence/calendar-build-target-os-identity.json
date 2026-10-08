@@ -1,0 +1,10 @@
+{
+  "before_sha256": "c5536479c7dff511aa9059b2b86243c5662904c3b80c59589846318ccd820c34",
+  "after_sha256": "40baa57702e9c0305fa989bf30eb8f7130045632494dc51a0787b60cab2c1adf",
+  "failure_log": "home-x86-build-r4.log",
+  "cause": "build script cfg target_os is its macOS host, not Android target",
+  "change": "use Cargo CARGO_CFG_TARGET_OS for EventKit compile/link branch only",
+  "scope": "own isolated SDK copy only",
+  "android_calendar_implemented": false,
+  "home_after_patch_verified": false
+}

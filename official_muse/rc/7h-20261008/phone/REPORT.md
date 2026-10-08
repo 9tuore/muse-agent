@@ -1,3 +1,24 @@
+<!-- PHONE_STATUS_CURRENT_START -->
+# Final seven-hour Phone status - 2026-10-09T02:43:44.146610+08:00
+
+Overall: PARTIAL. Deadline 2026-10-09 02:43:07 Asia/Shanghai.
+
+| Item | Actual evidence |
+|---|---|
+| Official Android kernel | BUILD_AND_ELF_PASS: locked c608384d, api/git/ast, real x86_64 ELF PIE with /system/bin/linker64. SHA32987f438f9b3bdddf62c7db521a7691a405322a796afbd58ace38bd1bf1a496, preserved kernel-artifacts/octos-x86_64 |
+| Home APK | NOT_BUILT. r4 real error: Calendar build.rs used its macOS host cfg to compile EventKit for Android; -fobjc-arc legacy runtime rejected. No APK exists under own android-target at this snapshot |
+| Minimal Calendar build patch | Own SDK build.rs now checks CARGO_CFG_TARGET_OS. NonmacOS unavailable implementation retained. Patch saved; no post-patch Home rebuild or runtime PASS |
+| Bridge | Prior build/lint89 tasks, emulator install and actual settings UI verified. Private AVD generated disks were later removed for storage and have not been recreated; reinstall Bridge after -wipe-data. APK/screenshots/logs retained |
+| AppHub to Muse Card/Chat/Memory | NOT_RUN. Private rc15 Gate/catalog verify PASS only. Latest Rootrc16 dd2ce025 was not Android-tested |
+| Physical phone / Android Calendar | DEVICE_NOT_TESTED / MISSING_CAPABILITY |
+
+Data free 3564646400 bytes. r4 exec67577 has observed failure and is waiting for remaining compilation jobs; no second Home build started. All r1-r4 failures and deadline snapshot retained. Kernel and source/download/evidence preserved; only authorized own runtime caches removed. No shared SDK/locks, production data, permissions, public release, real contacts or other workspaces changed.
+
+Next: let failed r4 finish, rebuild with own Calendar target-OS patch, verify APK signature and liboctos.so, then recreate only own AVD and reinstall Bridge/Home. Check latest Root source freeze before replacing the private candidate. No Calendar availability claim.
+
+Earlier evidence below is retained; this final status takes precedence.
+<!-- PHONE_STATUS_CURRENT_END -->
+
 # Muse 7H · Android 平台检查与候选补丁
 
 开始：2026-10-08 19:43:07；截止：2026-10-09 02:43:07（北京时间）。
