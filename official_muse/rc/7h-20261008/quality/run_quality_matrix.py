@@ -16,6 +16,10 @@ from visual_capture import navigate
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
 
+def array_counts(data, keys):
+    # A corrupted string is not a count of task records.
+    return {key: len(data.get(key, [])) if isinstance(data.get(key, []), list) else None for key in keys}
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--candidate',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--port',type=int,required=True)
     p.add_argument('--cold-count',type=int,default=10);p.add_argument('--reopen-count',type=int,default=5);p.add_argument('--restart-count',type=int,default=0);p.add_argument('--fail-fast',action='store_true')
@@ -39,7 +43,7 @@ def main():
     seeded_counts={}
     for filename,keys in [('chat-sessions.json',['sessions']),('goals.json',['goals','runs','actions']),('memory.json',['claims','sources','forget']),('calendar-state.json',['links','receipts','local_states']),('mail-watch.json',['accounts','alerts'])]:
         if (jail/filename).is_file():
-            data=json.loads((jail/filename).read_text());seeded_counts[filename]={key:len(data.get(key,[])) for key in keys}
+            data=json.loads((jail/filename).read_text());seeded_counts[filename]=array_counts(data,keys)
     seeded_counts['chat_message_count']=sum(len(item['messages']) for item in json.loads((jail/'chat-sessions.json').read_text())['sessions'])
     watch=json.loads((jail/'mail-watch.json').read_text())
     seeded_counts['mail_baseline']=[{'id':item['id'],'ready':item['ready'],'seen':len(item['seen'])} for item in watch['accounts']]
@@ -88,7 +92,7 @@ def main():
         run['first_interactive_seconds']=time.monotonic()-started
         observed_counts={}
         for filename,keys in [('chat-sessions.json',['sessions']),('goals.json',['goals','runs','actions']),('memory.json',['claims','sources','forget']),('calendar-state.json',['links','receipts','local_states'])]:
-            value=json.loads((jail/filename).read_text());observed_counts[filename]={key:len(value.get(key,[])) for key in keys}
+            value=json.loads((jail/filename).read_text());observed_counts[filename]=array_counts(value,keys)
         value=json.loads((jail/'mail-watch.json').read_text())
         observed_counts['mail_baseline']=[{'id':item['id'],'ready':item['ready'],'seen':len(item['seen'])} for item in value['accounts']]
         observed_counts['chat_message_count']=sum(len(item['messages']) for item in json.loads((jail/'chat-sessions.json').read_text())['sessions'])

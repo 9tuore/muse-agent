@@ -23,3 +23,11 @@ Root freezes candidate source/bundle/Host SHA. Run10complete new-process cold la
 Root changed only chat validation slice2→8; businessSHA `f5d45de6`. Four actual visible checks passed:256long messages,256entries each with6refs/16sourceIDs, bad final entry fail-closed with original/backup preserved, and corrupted primary recovered from intact backup without overwriting either. Input9.78/9.92s for valid stress variants versus16.99s baseline pilot; observations are not statistical claims. Evidence `chat-slice-checks.json`.
 
 Official App Hub78dfda5f source242Git blobs matched official commit tree; archivegzip bytes differ from historical archive, explicitly retained in binding. CLI build d60570a5 passed locked offline release after isolated headless lock resolution. No admission Rust/library source changes or repository SDK lock changes. Generated exact headlessCargo manifests/lock retained under `official-cli-reproduction`.23upstream bundle_admission tests passed. Baseline rc10 stamp/check/scan allPASS with unsigned warning; review packet creation is not publication. Final candidate Gate awaits Root freeze.
+
+## Preserved task-store failures
+
+`corrupt-goal-shape-r1` and `corrupt-goal-tail-r1` reproduce two real cold-start blockers on the same businessSHA `f5d45de6`. A schema2 store whose `goals` is a string passes the current validator, then `core_goal_index` raises `cannot index 0 on string`. A goals array containing only `{id:"broken-goal"}` also passes, then task rendering raises `property model_summary not found`. Both leave the expected Chat focus/input unrestored; original files remain intact. These are FAIL, not startup successes. The first raw report's legacy record counter measured the corrupted string length as12; it is not12 valid goals. The runner now reports non-array counts as null.
+
+Root received exact errors and a minimal recommendation: native root/array/type checks plus required render fields; corrupt files must fail closed or recover the intact backup without overwriting the originals. Quality does not modify the core implementation.
+
+Pinned L0 dependency5991dfae source33Git blobs match official tree `c4c531f5`; provenance is recorded in `OFFICIAL_CLI_BUILD.json` alongside App Hub provenance. The rebuilt CLI's dependency resolution remains explicitly separate from the historical binary.

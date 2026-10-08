@@ -7,7 +7,7 @@ OLD=Path('/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客�
 BASE=OLD/'official_muse/app/build/ui-memory-20261003/final-contest-0327-rc10-r1'
 SEED=OLD/'official_muse/app/build/ui-memory-20261003/rc51-cold-experiment-r3/private/apps/muse-goals'
 def main():
- p=argparse.ArgumentParser();p.add_argument('--bundle',type=Path,required=True);p.add_argument('--sha',required=True);p.add_argument('--name',required=True);p.add_argument('--version',required=True);p.add_argument('--case',choices=['long','maxrefs','bad-tail','backup-tail'],default='long');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--bundle',type=Path,required=True);p.add_argument('--sha',required=True);p.add_argument('--name',required=True);p.add_argument('--version',required=True);p.add_argument('--case',choices=['long','maxrefs','bad-tail','backup-tail','bad-goal-shape','bad-goal-tail'],default='long');a=p.parse_args()
  assert hashlib.sha256((a.bundle/'main.splash').read_bytes()).hexdigest()==a.sha
  out=Q/'runtime'/a.name;assert not out.exists()
  b=Q/'runtime'/(a.name+'-bundle');shutil.copytree(a.bundle,b);m=json.loads((b/'manifest.json').read_text());m['version']=a.version;(b/'manifest.json').write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n')
@@ -25,6 +25,9 @@ def main():
  raw=json.dumps(chat,ensure_ascii=False,separators=(',',':'));assert len(raw.encode())<=1048576
  (jail/'chat-sessions.json').write_text(raw)
  if a.case!='backup-tail':(jail/'chat-sessions.backup.json').write_text(raw)
+ if a.case in ['bad-goal-shape','bad-goal-tail']:
+  broken={'schema':2,'goals':'not-an-array' if a.case=='bad-goal-shape' else [{'id':'broken-goal'}],'runs':[],'actions':[],'selected_id':'broken-goal'}
+  (jail/'goals.json').write_text(json.dumps(broken,separators=(',',':')))
  record=json.loads((out/'candidate.json').read_text());record.update(test_case=a.case,business_artifact_sha256=a.sha,seed_kind='SYNTHETIC_ONLY',seed_provenance=str(SEED),chat_bytes=len(raw.encode()))
  (out/'candidate.json').write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')
 if __name__=='__main__':main()
