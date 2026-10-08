@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-10-09T03:03:18.108900+08:00",
-  "overall": "PARTIAL_RESOURCE_BLOCKED",
+  "timestamp": "2026-10-09T04:09:19.928586+08:00",
+  "overall": "APK_AND_RC16_FIXTURE_PASS_EMULATOR_FIRST_BOOT_RESOURCE_BLOCKED",
   "original_7h_snapshot_preserved": true,
   "excluded_from_7h_pass_count": true,
   "branch": "codex/muse-7h-reliability-phone-20261008",
@@ -14,18 +14,7 @@
     "sha256": "8c52e1d7746bc1cbedc88e53902fe88079fe0ec832b614f84f2d2dae7474456f",
     "file": "official_muse/rc/7h-20261008/phone/.local-state/android-target/x86_64-linux-android/release/liboctosense_home.so: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, not stripped"
   },
-  "home_apk": "NOT_COMPLETED_OR_SIGNED",
-  "partial_apk": {
-    "path": "official_muse/rc/7h-20261008/phone/.local-state/android-target/makepad-android-apk/octosense_home/apk/octo_sense.unaligned.apk",
-    "entries": [
-      "AndroidManifest.xml",
-      "classes.dex",
-      "res/drawable/makepad_launch_background.xml",
-      "res/menu/context_menu.xml",
-      "resources.arsc"
-    ],
-    "has_kernel": false
-  },
+  "home_apk": "BUILD_AND_SIGNATURE_PASS_ORIGINAL_KERNEL_EMBEDDED",
   "r5": {
     "exit": 241,
     "finished_rust": "11m38s",
@@ -45,14 +34,14 @@
     }
   },
   "own_unused_tools_removed_bytes": 311066624,
-  "data_free_bytes": 247660544,
-  "processes": "No cargo/rustc/java/emulator observed after r6 exit",
+  "data_free_bytes": 4956401664,
+  "processes": "No emulator/cargo/rustc build running; own HTTP8571/restrictedADB5041 retained",
   "kernel": "BUILD_AND_ELF_PASS_RETAINED",
   "bridge": "PRIOR_BUILD_AND_EMULATOR_UI_PASS_AVD_REINSTALL_REQUIRED",
   "muse_card_chat_memory": "NOT_RUN",
-  "rc16_android": "NOT_TESTED",
+  "rc16_android": "PRIVATE_GATE_CATALOG_HTTP_PASS_RUNTIME_NOT_RUN",
   "physical_device": "DEVICE_NOT_TESTED",
-  "next": "Data free >=2000000000 and enough own10.5GB headroom before existing locked offline runner; do not remove compile deps still required by runner",
+  "next": "Do not rebuild APK. Resume own guardedAVD after required initial free space and ownmonitor headroom. Then Bridge+Home install, kernel process, AppHub rc16 install, Card/Chat/Memory local runtime. No grants/providers/physical devices.",
   "scope": "No deletion or writes in original project/shared SDK/production data; accidental history read only, corrected before mutation",
   "transparent_compression_checkpoint": {
     "timestamp": "2026-10-09T03:18:27.831132+08:00",
@@ -86,8 +75,8 @@
     "apk": "NOT_COMPLETED_OR_SIGNED",
     "muse_android_runtime": "NOT_RUN"
   },
-  "latest_data_free_bytes": 2837458944,
-  "latest_overall": "PARTIAL_RESOURCE_BLOCKED",
+  "latest_data_free_bytes": 4956401664,
+  "latest_overall": "APK_AND_RC16_FIXTURE_PASS_EMULATOR_FIRST_BOOT_RESOURCE_BLOCKED",
   "packaging_checkpoint": {
     "timestamp": "2026-10-09T03:40:33.083447+08:00",
     "official_direct_strip_or_reuse_option": false,
@@ -134,5 +123,108 @@
       "source_text_font_static_archives_only": true,
       "shared_cache_symlinks_hardlinks_git_keys_profiles_host_models_excluded": true
     }
+  },
+  "home_apk_r7": {
+    "timestamp": "2026-10-09T03:56:29.882780+08:00",
+    "home_build_r7": "EXIT0_APK_BUILD_PASS",
+    "apk_path": "/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/7h-20261008/phone/.local-state/kernel-artifacts/octosense-home-r7.apk",
+    "apk_bytes": 240541954,
+    "apk_sha256": "70a318d1ccef68f62449a77ebc4b8d6d6dad79f6722a5b41b449ee8b534a62f1",
+    "signature_checks": {
+      "home": {
+        "apksigner_exit": 0,
+        "certificate_sha256": "e96d983997281700b9d0ecc674ec11edec96d433c0fa9ddd5c216479f2b738c9"
+      },
+      "bridge": {
+        "apksigner_exit": 0,
+        "certificate_sha256": "e96d983997281700b9d0ecc674ec11edec96d433c0fa9ddd5c216479f2b738c9"
+      }
+    },
+    "official_package": "dev.makepad.octosense",
+    "native_abi": "x86_64",
+    "native_entries": [
+      {
+        "entry": "lib/x86_64/liboctos.so",
+        "bytes": 161277512,
+        "zip_sha256": "32987f438f9b3bdddf62c7db521a7691a405322a796afbd58ace38bd1bf1a496",
+        "source": "/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/7h-20261008/phone/.local-state/kernel-artifacts/octos-x86_64",
+        "source_sha256": "32987f438f9b3bdddf62c7db521a7691a405322a796afbd58ace38bd1bf1a496",
+        "compress_type": 8
+      },
+      {
+        "entry": "lib/x86_64/libmakepad.so",
+        "bytes": 289712864,
+        "zip_sha256": "8c52e1d7746bc1cbedc88e53902fe88079fe0ec832b614f84f2d2dae7474456f",
+        "source": "/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/7h-20261008/phone/.local-state/android-target/x86_64-linux-android/release/liboctosense_home.so",
+        "source_sha256": "8c52e1d7746bc1cbedc88e53902fe88079fe0ec832b614f84f2d2dae7474456f",
+        "compress_type": 8
+      }
+    ],
+    "zip_entries": 262,
+    "data_free": 4273188864,
+    "model_external_actions": 0,
+    "outside_7h_counts": true,
+    "runtime_not_yet_tested": true,
+    "original_build_path": "/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/7h-20261008/phone/.local-state/android-target/makepad-android-apk/octosense_home/apk/octo_sense.apk",
+    "stage_cleanup_receipt": "home-r7-duplicate-stage-cleanup.json"
+  },
+  "rc16_identity": {
+    "timestamp": "2026-10-09T04:03:09.588614+08:00",
+    "version": "0.3.27-rc16",
+    "source_main_sha256": "dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4",
+    "candidate_main_sha256": "dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4",
+    "rc15_candidate_preserved": "/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/7h-20261008/phone/.local-state/muse-phone-candidate-rc15-preserved",
+    "previous_catalog_preserved": "/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP\u9ed1\u5ba2\u677e/official_muse/rc/7h-20261008/phone/.local-state/validation-hub/catalog-pre-rc16-preserved.json",
+    "catalog_sha256": "f1ea179ead381a1138f195a3e7c4040e692f65c5a6efe27f1e883f8face3f276",
+    "gate_verify": "PASS",
+    "android_calendar": "unavailable, excluded capability",
+    "compute_storage_budgets_unchanged": true,
+    "private_test_fixture_only": true,
+    "runtime_not_yet_tested": true,
+    "outside_7h_counts": true,
+    "model_external_requests": 0,
+    "no_prior_muse_install_in_wiped_avd": true
+  },
+  "emulator_first_boot": {
+    "timestamp": "2026-10-09T04:09:19.928586+08:00",
+    "overall": "APK_AND_RC16_FIXTURE_PASS_EMULATOR_FIRST_BOOT_RESOURCE_BLOCKED",
+    "home_apk_sha256": "70a318d1ccef68f62449a77ebc4b8d6d6dad79f6722a5b41b449ee8b534a62f1",
+    "home_apk_bytes": 240541954,
+    "home_original_native_payloads_reverified": true,
+    "rc16_main_sha256": "dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4",
+    "rc16_catalog_http_sha256": "f1ea179ead381a1138f195a3e7c4040e692f65c5a6efe27f1e883f8face3f276",
+    "r2_exit": 1,
+    "r3_exit": 1,
+    "emulator_log_fatal": "Not enough space to create userdata partition; need7372.80MB",
+    "actual_data_partition_bytes": 6442450944,
+    "emulator_required_free_bytes": 7730941133,
+    "data_free_bytes": 4956401664,
+    "emulator_start_deficit_bytes": 2774539469,
+    "own_bytes": 8904937472,
+    "resource_policy": {
+      "own_max_bytes": 10500000000,
+      "data_floor_bytes": 2000000000
+    },
+    "configuration_1GiB_attempt": "FAILED; emulator itself overwrote to6GiB; no more blind retries",
+    "official_source_url": "https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android-qemu2-glue/main.cpp",
+    "source_condition": "first-time setup API>=24 enforces6GiB, free-space safety factor1.2; actual installed37.2.12 run independently confirms same outcome",
+    "runtime": "HOME_KERNEL_APPHUB_MUSE_NOT_RUN",
+    "physical": "DEVICE_NOT_TESTED",
+    "calendar": "MISSING_CAPABILITY",
+    "model_external_requests": 0,
+    "seven_hour_final_report_and_status_exactly_unchanged": true,
+    "no_emulator_running": true,
+    "continuation": "Do not rebuild APK. Resume own guardedAVD after required initial free space and ownmonitor headroom. Then Bridge+Home install, kernel process, AppHub rc16 install, Card/Chat/Memory local runtime. No grants/providers/physical devices."
+  },
+  "historical_partial_apk_r6": {
+    "path": "official_muse/rc/7h-20261008/phone/.local-state/android-target/makepad-android-apk/octosense_home/apk/octo_sense.unaligned.apk",
+    "entries": [
+      "AndroidManifest.xml",
+      "classes.dex",
+      "res/drawable/makepad_launch_background.xml",
+      "res/menu/context_menu.xml",
+      "resources.arsc"
+    ],
+    "has_kernel": false
   }
 }

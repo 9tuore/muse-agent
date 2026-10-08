@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-10-09T04:09:19.928586+08:00",
+  "overall": "APK_AND_RC16_FIXTURE_PASS_EMULATOR_FIRST_BOOT_RESOURCE_BLOCKED",
+  "home_apk_sha256": "70a318d1ccef68f62449a77ebc4b8d6d6dad79f6722a5b41b449ee8b534a62f1",
+  "home_apk_bytes": 240541954,
+  "home_original_native_payloads_reverified": true,
+  "rc16_main_sha256": "dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4",
+  "rc16_catalog_http_sha256": "f1ea179ead381a1138f195a3e7c4040e692f65c5a6efe27f1e883f8face3f276",
+  "r2_exit": 1,
+  "r3_exit": 1,
+  "emulator_log_fatal": "Not enough space to create userdata partition; need7372.80MB",
+  "actual_data_partition_bytes": 6442450944,
+  "emulator_required_free_bytes": 7730941133,
+  "data_free_bytes": 4956401664,
+  "emulator_start_deficit_bytes": 2774539469,
+  "own_bytes": 8904937472,
+  "resource_policy": {
+    "own_max_bytes": 10500000000,
+    "data_floor_bytes": 2000000000
+  },
+  "configuration_1GiB_attempt": "FAILED; emulator itself overwrote to6GiB; no more blind retries",
+  "official_source_url": "https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android-qemu2-glue/main.cpp",
+  "source_condition": "first-time setup API>=24 enforces6GiB, free-space safety factor1.2; actual installed37.2.12 run independently confirms same outcome",
+  "runtime": "HOME_KERNEL_APPHUB_MUSE_NOT_RUN",
+  "physical": "DEVICE_NOT_TESTED",
+  "calendar": "MISSING_CAPABILITY",
+  "model_external_requests": 0,
+  "seven_hour_final_report_and_status_exactly_unchanged": true,
+  "no_emulator_running": true,
+  "continuation": "Do not rebuild APK. Resume own guardedAVD after required initial free space and ownmonitor headroom. Then Bridge+Home install, kernel process, AppHub rc16 install, Card/Chat/Memory local runtime. No grants/providers/physical devices."
+}

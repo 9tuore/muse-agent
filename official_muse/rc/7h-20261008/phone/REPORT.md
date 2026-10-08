@@ -1,3 +1,18 @@
+# Post-window APK r7 / rc16 checkpoint — 2026-10-09T04:09:19.928586+08:00
+
+**Home APK build and signature PASS; runtime remains blocked before emulator boot.** Original seven-hour final report and status are byte-for-byte unchanged. All results below are outside the seven-hour count.
+
+- Normal locked/offline r7 runner exited0, native compile2m00s and official packaging completed. Preserved APK `.local-state/kernel-artifacts/octosense-home-r7.apk` is240541954 bytes, SHA256 `70a318d1ccef68f62449a77ebc4b8d6d6dad79f6722a5b41b449ee8b534a62f1`; adjacent idsig retained. Official package dev.makepad.octosense, activity dev.makepad.octosense.MakepadApp, minSDK33/target35/x86_64. Home and Bridge apksigner verify exit0 and identical Android Debug certificate e96d9839…c9. APK embeds the original unstripped kernel32987f43…496 and Home8c52e1d7…456; both full hashes reverified against retained originals. Separate stripped derivatives were not selected. This private-fixture APK is not a formal release or a Mac reproduction package.
+- After signatures and259 unsigned payload hashes matched, only closed duplicate stage and unaligned APK were removed. Final APK/idsig moved unchanged; raw originals/source/evidence retained. Actual Data free4271255552→4963352576, gain692097024 bytes. First two strict comparison failures made no mutation; receipts retain signed-only metadata and one staged gitignore exception verified against source.
+- Frozen Root rc16 main dd2ce025…9a4 copied unchanged; prior rc15 candidate/catalog retained. Private stamp/sign/check/publish/verify all exit0, current catalog f1ea179e…276 and HTTP8571 bytes exact. Android Calendar excluded and budgets unchanged; no model/reviewer/external requests. This is fixture admission, not Android runtime admission.
+- Emulator r2 and r3 both exited1 before boot: need7372.80MB, available about4.95GB. The attempted own AVD1GiB config was overwritten by the emulator to6GiB. AOSP source first-time API>=24 enforces6GiB and1.2 free-space factor, consistent with actual37.2.12 logs. Wrapper now stops before startup below7730941133 bytes and retains own10.5GB/Data2GB monitoring. No workaround to bypass this check. Current Data free4956401664; own8904937472; initial-free deficit2774539469. Do not repeat wipe/config retries or rebuild the already verified APK.
+
+Bridge had a prior genuine emulator setting-page PASS; this fresh boot/install is not reverified. Home kernel process, AppHub rc16 install and Muse Card/Chat/Memory are NOT_RUN. Physical DEVICE_NOT_TESTED; Android Calendar MISSING_CAPABILITY. No permissions/providers/accounts configured.
+
+Resume only after own emulator preflight is satisfied, then install retained Bridge+Home, verify actual kernel process and AppHub discovery/install, and inspect Muse Card/Chat/Memory with local persistence and zero model requests. Original7H counts remain unchanged. HTTP8571 and restricted ADB5041 may be reused; no emulator is currently running. Evidence: home-apk-r7-artifact.json, home-apk-r7-verify.txt, home-r7-duplicate-stage-cleanup.json, phone-candidate-rc16-identity.json, emulator-runtime-block-r3.json, emulator-boot-r2/r3.log. No outgoing messages, subagents, shared/production writes or pushes.
+
+---
+
 # Expanded owned source/cache compression - 2026-10-09T03:49:46.991530+08:00
 
 PARTIAL_RESOURCE_BLOCKED. No APK rebuild/emulator/model/external action started.

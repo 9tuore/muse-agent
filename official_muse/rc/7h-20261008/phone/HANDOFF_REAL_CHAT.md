@@ -1,3 +1,17 @@
+# CURRENT APK PASS; API35 FIRST BOOT RESOURCE BLOCKED — 2026-10-09T04:09:19.928586+08:00
+
+APK r7 complete/signature/original-native SHA PASS,240541954 bytes SHA70a318d1. rc16 dd2ce025 main, private Gate/catalog/HTTP f1ea179e PASS. Signed APK/idsig retained kernel-artifacts; closed duplicate stage+unaligned removed only after all259payload exact SHA checks. Original7H report/status byte-for-byte unchanged.
+
+r2/r3 both exit1 before emulator boot. First-time API35 forces6GiB even after config1GiB and requires7730941133 free. Emulator itself rewrote config6GiB. Current Data4956401664, own8904937472, deficit2774539469. No emulator/build active. Do NOT rebuild APK, change override again or bypassfree check. run_emulator_validation.py nowpreflightsactual7.73GB andguardsown10.5GB/Data2GB; extra owngrowth estimate unchanged, actualmonitor retained. HTTP48295/8571 and restrictedADB31611/5041 remain, only emulator-5580 allowed. Home/AppHub/Muse runtimeNOT_RUN; no model requests/grants/devices/calendar. Need external Data headroom then guardedownAVD install/kernel/AppHub/MuseUI; alloutside7H. See REPORT.md andevidence/emulator-runtime-block-r3.json. Previoushistory follows.
+
+# CURRENT APK R7 PASS; EMULATOR R3 STARTING
+
+Home APK completed, signed verify0, original kernel SHA32987f43 and Home8c52e1d7 embedded exact. APK kernel-artifacts/octosense-home-r7.apk SHA70a318d1 size240541954. rc16 source dd2ce025 and private catalog verify/readback PASS. Duplicate stage+unsigned APK removed only after259payload SHA matches; original7H unchanged. Emulator r2 exited1: actual AVD config still6GB data and needs7.37GB. Before config retained, ownfixture data now1GiB, guardown10.5GB/Data2GB unchanged. Next single r3 startup, do not duplicate. HTTP48295/8571 and restrictedADB31611/5041 remain. Muse runtimeNOT_RUN.
+
+# CURRENT HOME R7 PREFLIGHT 2026-10-09T03:52:01.703861+08:00
+
+Data has recovered to5539229696, own8633417728. Above normal3.290763538GB start threshold, own+knownpack+temp9924181266 below10.5GB. No cargo/rustc/java/emulator active. ACTIVE exec14000 locked offline normalrunner r7 (do not duplicate); original kernel, derivedHome notselected, no trust/budget/featurechange. Sourcecompression result4a1d27bc retained and final7H unchanged. Follow actualAPKsignature/kernel digest then ownAVD and AppHub/Muse. Allresults outside7H. Do NOT resume oldcleanup. Previoushistory follows.
+
 # CURRENT SOURCE CACHE COMPRESSION 2026-10-09T03:49:46.991530+08:00
 
 Expanded own-only text/font/static archive compression completed:1973 beneficial replacements,4 no-saving originals retained;555032576 candidateblocks/315625472 savedblocks. Final all1977 SHA/size/mode/owner/mtime/nlink reverified, original xattrs compared duringcopy, compressed flags checked, zero temp. No source/dependency/unique evidence byte changed/deleted. Source script+inventory/items/summary/verification preserved. Initial os.listxattr failure happened beforeanycopy; corrected to verified systemxattr. Unstripped Home r6 independentlypreserved kernel-artifacts/liboctosense_home-unstripped-r6.so SHA8c52e1d7, distinct inode/COWrequested; original kernel and7H report SHA unchanged. Data2837458944; normal packager estimate990763538 +300MB temporarymargin +2GB floor =>start3290763538, deficit453304594. No blindrebuild; existingrunner unchanged; APK/MuseAndroidNOT_RUN, allnewresultsoutside7H. Need furtherDataandown10.5GBpackagingheadroom; AVDseparatepreflightafterAPK. No subagents/messages/models/fees/permissions/shared writes. Earlierhistory follows.

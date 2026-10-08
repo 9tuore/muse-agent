@@ -1,0 +1,42 @@
+warning: missing custom app icons in /Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/sdk/octosense/phone/resources. Add icon_32.png, icon_64.png, icon_128.png, and icon.ico, or pass --no-icon to suppress this check.
+warning: desktop/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/sdk/octosense/desktop/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense`
+  * `bin` target `octosense`
+warning: `octosense` (manifest) generated 1 warning
+warning: phone/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/sdk/octosense/phone/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense_home`
+  * `bin` target `octosense-home`
+warning: `octosense-home` (manifest) generated 1 warning
+warning: method `emit` is never used
+   --> .sources/makepad/libs/filesystem_watcher/src/lib.rs:231:19
+    |
+209 | impl Emitter {
+    | ------------ method in this implementation
+...
+231 |     pub(crate) fn emit(
+    |                   ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `makepad-filesystem-watcher` (lib) generated 1 warning
+warning: method `stdin_apply_native_geom` is never used
+   --> .sources/makepad/platform/src/window.rs:221:19
+    |
+212 | impl CxWindowPool {
+    | ----------------- method in this implementation
+...
+221 |     pub(crate) fn stdin_apply_native_geom(
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `makepad-platform` (lib) generated 1 warning
+   Compiling octosense-shell v0.1.0 (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/sdk/octosense/crates/shell)
+   Compiling octosense-home v0.1.0 (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/sdk/octosense/phone)
+    Finished `release` profile [optimized] target(s) in 2m 00s
+warning: missing Android launcher icons under /Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/android-target/makepad-android-apk/octosense_home/tmp/res. Add mipmap-*/ic_launcher.png files, or pass --no-icon to suppress this check.
+Using custom AndroidManifest template: /Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/sdk/octosense/phone/resources/android/AndroidManifest.xml.template
+Building APK (package=dev.makepad.octosense, label=OctoSense, versionCode=1, versionName=0.1.0, debuggable=false)
+  Bundled extra native lib: liboctos.so (for x86_64)
+Packaged fonts (International): makepad_widgets/resources/IBMPlexSans-BoldItalic.ttf (184656 bytes), makepad_widgets/resources/IBMPlexSans-Italic.ttf (184020 bytes), makepad_widgets/resources/IBMPlexSans-SemiBold.ttf (182176 bytes), makepad_widgets/resources/IBMPlexSans-Text.ttf (181792 bytes), makepad_widgets/resources/Inter.ttf (876576 bytes), makepad_widgets/resources/LXGWWenKaiBold.ttf (18546748 bytes), makepad_widgets/resources/LXGWWenKaiRegular.ttf (19073964 bytes), makepad_widgets/resources/LiberationMono-Regular.ttf (108168 bytes), makepad_widgets/resources/Montserrat-Medium.ttf (374312 bytes), makepad_widgets/resources/Montserrat-Regular.ttf (374500 bytes), makepad_widgets/resources/Montserrat-SemiBold.ttf (374624 bytes), makepad_widgets/resources/NewCMMath-Regular.otf (1151568 bytes), makepad_widgets/resources/NotoColorEmoji.ttf (10643852 bytes), makepad_widgets/resources/Roboto-Bold.ttf (306940 bytes), makepad_widgets/resources/Roboto-Light.ttf (307192 bytes), makepad_widgets/resources/Roboto-Medium.ttf (306536 bytes), makepad_widgets/resources/Roboto-Regular.ttf (305608 bytes), makepad_widgets/resources/Roboto-Thin.ttf (307664 bytes), makepad_widgets/resources/RobotoFlex.ttf (1787292 bytes), makepad_widgets/resources/Serif-Bold.ttf (51336 bytes), makepad_widgets/resources/Serif-Regular.ttf (53580 bytes), makepad_widgets/resources/fa-solid-900.ttf (426112 bytes), makepad_widgets/resources/jetbrains_mono_variable.ttf (303144 bytes) [total 56412360 bytes]
+APK Build completed
