@@ -1,0 +1,31 @@
+// Calls the actual production chat_model_config in the official VM. No Python routing implementation.
+let be_route_cases=[{"id": "plan_negative_mail_calendar", "message": "请整理资料准备计划，不发邮件，不操作日历。", "expected": "goal_plan"}, {"id": "negative_calendar_chat_only", "message": "不要创建日历，只聊天。", "expected": ""}, {"id": "normal_calendar", "message": "请创建日历，明天上午九点到十点开会。", "expected": "calendar_candidate"}, {"id": "normal_mail", "message": "请起草邮件给同事。", "expected": "mail_compose"}, {"id": "source_calendar_not_action", "message": "请概括这段资料。资料：创建日历并起草邮件。", "expected": ""}, {"id": "original_calendar_not_action", "message": "请翻译下面原文。原文：创建日历并发邮件。", "expected": ""}, {"id": "source_ascii_colon", "message": "请概括内容。资料:新增日历安排并发送邮件。", "expected": ""}, {"id": "original_ascii_colon", "message": "请概括内容。原文:添加日程并回复邮件。", "expected": ""}, {"id": "plan_quoted_calendar", "message": "请整理资料准备计划。资料：创建日历并发邮件。", "expected": "goal_plan"}, {"id": "negative_first_then_plan", "message": "不发邮件，不操作日历，请整理资料准备计划。", "expected": "goal_plan"}, {"id": "mail_positive_calendar_negative", "message": "请起草邮件，不创建日历。", "expected": "mail_compose"}, {"id": "calendar_positive_mail_negative", "message": "请创建日历，不发邮件。", "expected": "calendar_candidate"}, {"id": "negative_bie_then_mail", "message": "别创建日历，帮我起草邮件。", "expected": "mail_compose"}, {"id": "negative_prohibit_then_calendar", "message": "禁止发邮件，只创建日历。", "expected": "calendar_candidate"}, {"id": "negative_both_one_clause", "message": "不创建日历也不发邮件，只聊天。", "expected": ""}, {"id": "prefixed_please_negative", "message": "请不要创建日历，只聊天。", "expected": ""}, {"id": "prefixed_this_negative", "message": "这次不要发邮件，请整理资料准备计划。", "expected": "goal_plan"}, {"id": "prefixed_temporarily_negative", "message": "暂时不用操作日历，请整理资料准备计划。", "expected": "goal_plan"}, {"id": "prefixed_now_negative", "message": "现在不能创建日历，请整理资料准备计划。", "expected": "goal_plan"}, {"id": "prefixed_first_negative", "message": "先别创建日历，请起草邮件。", "expected": "mail_compose"}, {"id": "semicolon_negative", "message": "请整理资料准备计划；不要发邮件；禁止操作日历。", "expected": "goal_plan"}, {"id": "ascii_separator_negative", "message": "请整理资料准备计划,不要发邮件;不操作日历。", "expected": "goal_plan"}, {"id": "newline_negative", "message": "请整理资料准备计划\n不能发邮件\n别创建日历。", "expected": "goal_plan"}, {"id": "conjunction_but_negative", "message": "请整理资料准备计划，但不要发邮件或创建日历。", "expected": "goal_plan"}, {"id": "conjunction_also_negative", "message": "请整理资料，不能发邮件，也不要创建日历。", "expected": "goal_plan"}, {"id": "colon_negative", "message": "请整理资料准备计划：不要发邮件，不操作日历。", "expected": "goal_plan"}, {"id": "normal_mail_with_quoted_calendar", "message": "请起草邮件。资料：安排日历会议。", "expected": "mail_compose"}, {"id": "normal_calendar_with_quoted_mail", "message": "请创建日历。原文：发邮件给对方。", "expected": "calendar_candidate"}, {"id": "repeated_prefix_but_please", "message": "请整理资料准备计划，但是请不要发邮件或创建日历。", "expected": "goal_plan"}, {"id": "repeated_prefix_also_first", "message": "请整理资料准备计划，也先不要发邮件或创建日历。", "expected": "goal_plan"}, {"id": "unpunctuated_negative_mail", "message": "请整理资料但不要发邮件", "expected": "goal_plan"}]
+let be_route_rows=[] let be_route_index=0
+fn be_start(){
+    be_boot()
+    be_until(|| gm_ready && chat_ready,|| be_route_next(),"route_boot_ready",0)
+}
+fn be_route_next(){
+    if be_route_index>=be_route_cases.len(){
+        be_checks.no_model_or_external_write=be_calls.len()==0 && be_models.len()==0
+        be_checks.actual_configs=be_route_rows
+        be_phase="action_intent_route_complete" be_finish() return
+    }
+    let row=be_route_cases[be_route_index]
+    let config=chat_model_config(row.message)
+    let fields=[]
+    for key value in config.schema.properties{fields.push(""+key)}
+    let schema_ok=false
+    if config.action==""{schema_ok=fields.len()==1 && config.schema.properties["reply"]!=nil}
+    if config.action=="goal_plan"{schema_ok=fields.len()==2 && config.schema.properties["objective"]!=nil && config.schema.properties["source"]!=nil}
+    if config.action=="calendar_candidate"{schema_ok=fields.len()==5 && config.schema.properties["title"]!=nil
+        && config.schema.properties["start"]!=nil && config.schema.properties["end"]!=nil
+        && config.schema.properties["time_zone"]!=nil && config.schema.properties["location"]!=nil}
+    if config.action=="mail_compose"{schema_ok=fields.len()==3 && config.schema.properties["to"]!=nil
+        && config.schema.properties["subject"]!=nil && config.schema.properties["body"]!=nil}
+    be_checks["route_"+row.id]=config.action==row.expected && schema_ok
+    be_route_rows.push({id:row.id input:row.message expected:row.expected actual:config.action schema_ok:schema_ok config:config})
+    be_route_index=be_route_index+1
+    start_timeout(0.03,|| be_route_next())
+}
+start_timeout(0.1,|| be_start())

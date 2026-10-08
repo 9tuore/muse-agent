@@ -1,5 +1,11 @@
 # Business 真实聊天交接
 
+## Post-window helper r2：DRY_RUN PASS，仍未集成
+
+实际捕获源 `66790986b82a1a95c6c6b589720209b3df9af4a6869a60838ba767ce75be9197`，已包含中英冒号、但是/但分句（先但是再但）及重复否定前缀。参考card-host `46a4d16d...`。官方VM编译成功max_chunk28.763ms（预算未变），实际config action/schema **32/32检查通过**：原29项全部通过，追加“但是请不要”“也先不要”“请整理资料但不要发邮件”均goal_plan。31路由+1无模型/外部调用检查。
+
+与r1 readable对比478函数仅chat_action_intent变化；config/send_chat/muse_model_request原字节不变。`ACTION_INTENT_POST_WINDOW_R2_RESULTS.json`、`chat_action_intent_r2.splash`及`.local-state/action-intent-post-window-r2/route/`保存结果。r1三个FAIL及原报告原样保留；本次不改主源码、生产资料或冻结rc16 bundle，不冒称rc16/最终Shell/真实模型通过。仅business文件提交，不push，进程结束，8661空闲。
+
 ## Post-window chat_action_intent 未集成修补：FAIL
 
 实际readable源 `cd8bdf7831fc9a8307abc2479e5c4a2bd56a80733aa7cbcb7d4f06c450108e14`；参考card-host `46a4d16d...`。官方VM完成编译并实际调用生产chat_model_config，29检查26通过（28路由case，25路由正确、28返回schema正确、无模型/外部调用检查通过），不是Python镜像逻辑。

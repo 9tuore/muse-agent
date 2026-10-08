@@ -106,3 +106,8 @@ python3 official_muse/rc/7h-20261008/business/run_matrix.py \
 ## Post-window 否定分句路由修补：FAIL（未集成）
 
 `chat_action_intent.splash` 实际调用 readable cd8bdf78源的chat_model_config，官方参考Host46a4d16d；28路由25正确，28返回schema正确，加无调用检查合计26/29。`但不要`、`也不要`和冒号分句三变体误选动作，见 `ACTION_INTENT_POST_WINDOW_RESULTS.json`，失败保留。未改主源码，未替换冻结rc16 bundle，未声称最终Shell或模型全链验收。
+
+
+## Post-window helper r2 重验：DRY_RUN PASS（仍未集成）
+
+`chat_action_intent_r2.splash`/`ACTION_INTENT_POST_WINDOW_R2_RESULTS.json`：readable66790986源，参考46a4d16d Host；原29检查+3追加变体共32/32，含无标点“请整理资料但不要发邮件”返回goal_plan。官方VM编译并实际config action/schema，不是Python镜像；r1三个失败报告及原始日志保持。未改冻结rc16 bundle或主源码，未称真实模型/最终Shell验收。
