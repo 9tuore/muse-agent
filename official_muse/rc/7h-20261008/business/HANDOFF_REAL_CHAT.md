@@ -1,5 +1,13 @@
 # Business 真实聊天交接
 
+## rc17 compact 同候选链补证（2026-10-09）
+
+**Scoped DRY_RUN PASS：30/30**。源 `90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc`；参考card-host `46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe`。原chain.splash 20/20，原restart.splash新进程10/10；PID332→714，旧进程退出后才启动，seed goals字节绑定已核对。
+
+rc17对rc15：315 Calendar/core/gm/schedule/storage/mail函数全部原字节；仅3个聊天函数变化、新增路由helper。与storage-shape旧候选比较，有授权查询/授权请求/mail_watch_boot三处差异，failure/recovery probe与合成be_boot未调用这些直接入口；恢复、UNKNOWN、receipt、settlement实际函数仍同字节。复用旧候选6故障场景、4组新进程恢复和rc15代表恢复/授权证据，全部保留原candidate/Host身份，不改称rc17重跑。未发现受路由修改影响的失败contract，无额外窄测需要。
+
+`RC17_CHAIN_RESULTS.json`保存具体断言、SHA、PID、315函数字节审计及旧证据身份；`.local-state/route-rc17-chain-r1/`保存原始日志/状态。旧预算ERROR和未集成r1路由FAIL保留。业务侧无真实模型/邮件/EventKit，无可见UI或最终ShellHost验收；Root的Shell同候选全链是独立证据，不能与参考Host合并身份。只business文件提交，不push，测试结束，8661空闲。
+
 ## Post-window helper r2：DRY_RUN PASS，仍未集成
 
 实际捕获源 `66790986b82a1a95c6c6b589720209b3df9af4a6869a60838ba767ce75be9197`，已包含中英冒号、但是/但分句（先但是再但）及重复否定前缀。参考card-host `46a4d16d...`。官方VM编译成功max_chunk28.763ms（预算未变），实际config action/schema **32/32检查通过**：原29项全部通过，追加“但是请不要”“也先不要”“请整理资料但不要发邮件”均goal_plan。31路由+1无模型/外部调用检查。

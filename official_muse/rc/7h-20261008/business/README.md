@@ -111,3 +111,8 @@ python3 official_muse/rc/7h-20261008/business/run_matrix.py \
 ## Post-window helper r2 重验：DRY_RUN PASS（仍未集成）
 
 `chat_action_intent_r2.splash`/`ACTION_INTENT_POST_WINDOW_R2_RESULTS.json`：readable66790986源，参考46a4d16d Host；原29检查+3追加变体共32/32，含无标点“请整理资料但不要发邮件”返回goal_plan。官方VM编译并实际config action/schema，不是Python镜像；r1三个失败报告及原始日志保持。未改冻结rc16 bundle或主源码，未称真实模型/最终Shell验收。
+
+
+## rc17 compact 原链/重启（2026-10-09）
+
+`RC17_CHAIN_RESULTS.json`：90351cba源、参考46a4d16d card-host，原chain20/20+原restart独立新进程10/10。315业务/存储/Memory函数与rc15逐字节相同；复用UNKNOWN/settlement故障证据时保留各自旧候选及Host，旧预算ERROR不撤销。不声称本business任务运行了最终ShellHost或真实服务。
