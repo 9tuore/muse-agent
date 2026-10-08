@@ -1,0 +1,99 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+   Compiling serde_derive v1.0.229
+   Compiling serde v1.0.229
+   Compiling octosense-app-policy v0.1.0 (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/official_muse/rc/7h-20261008/phone/.local-state/sdk/app-hub/crates/app-policy)
+    Finished `release` profile [optimized] target(s) in 30.36s
+     Running unittests src/lib.rs (official_muse/rc/7h-20261008/phone/.local-state/cargo-target/release/deps/octosense_app_policy-42a00767eb2f569a)
+
+running 14 tests
+test bundle::tests::a_symlink_is_refused_rather_than_followed ... ok
+test bundle::tests::changing_any_content_changes_the_digest ... ok
+test bundle::tests::moving_content_between_files_changes_the_digest ... ok
+test bundle::tests::the_manifest_itself_is_not_part_of_the_digest ... ok
+test entry::tests::a_script_app_gets_its_program_with_the_asset_origin_filled_in ... ok
+test listing::tests::a_complete_listing_parses ... ok
+test listing::tests::a_glance_app_is_told_as_showing_cards_that_open_only_it ... ok
+test listing::tests::a_model_app_is_told_its_inputs_go_to_your_ai_provider ... ok
+test listing::tests::a_privacy_policy_must_be_https_and_assets_must_stay_in_the_bundle ... ok
+test listing::tests::the_closed_lists_are_enforced ... ok
+test listing::tests::the_privacy_summary_comes_from_the_manifest_not_the_listing ... ok
+test listing::tests::unknown_fields_are_refused ... ok
+test services::tests::a_prefix_or_a_near_name_is_not_a_service ... ok
+test services::tests::every_service_name_is_a_known_capability_and_has_words ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/admission.rs (official_muse/rc/7h-20261008/phone/.local-state/cargo-target/release/deps/admission-47f81c17055dc772)
+
+running 31 tests
+test a_changed_bundle_is_refused_before_anything_else ... ok
+test a_directory_bundle_is_admitted_by_its_precomputed_digest ... ok
+test a_foreign_schema_is_refused ... ok
+test a_host_may_not_be_a_wildcard_a_url_a_port_or_a_scheme ... ok
+test a_quota_above_the_hosts_ceiling_is_clamped_not_granted ... ok
+test a_signature_without_a_verifier_is_refused_rather_than_ignored ... ok
+test a_smaller_quota_is_honoured ... ok
+test an_agent_may_only_use_tools_the_host_offers_contained_apps ... ok
+test an_agents_budget_is_clamped_like_any_other_quota ... ok
+test an_assistant_prefix_or_invented_service_is_refused ... ok
+test an_id_may_not_navigate_the_filesystem ... ok
+test an_unknown_capability_is_refused ... ok
+test an_unknown_field_is_refused_so_a_newer_manifest_cannot_run_under_looser_rules ... ok
+test an_unsigned_bundle_is_refused_when_the_host_requires_signing ... ok
+test calendar_requires_an_explicit_capability ... ok
+test each_published_assistant_service_is_admitted_by_its_exact_name ... ok
+test every_agent_session_carries_the_app_it_acts_for ... ok
+test full_access_is_not_expressible_in_a_manifest ... ok
+test glance_is_its_own_capability_and_implies_nothing_else ... ok
+test hosts_without_the_capability_are_a_refused_manifest_not_a_silent_grant ... ok
+test matrix_services_are_exact_and_reading_does_not_grant_sending ... ok
+test model_is_its_own_capability_and_implies_nothing_else ... ok
+test nothing_is_granted_by_default ... ok
+test only_listed_hosts_are_reachable ... ok
+test prompting_is_a_capability_of_its_own ... ok
+test reading_assistant_history_does_not_grant_starting_a_turn ... ok
+test the_agents_workspace_is_the_apps_own_jail_and_nothing_else_is_readable ... ok
+test the_isolate_and_the_session_come_from_the_same_declaration ... ok
+test the_jail_is_one_directory_per_app ... ok
+test the_net_capability_without_hosts_reaches_nothing_and_gets_no_network_module ... ok
+test the_store_says_what_a_service_grant_allows ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/agent_bundle.rs (official_muse/rc/7h-20261008/phone/.local-state/cargo-target/release/deps/agent_bundle-16a9cd1f4a9a5eff)
+
+running 22 tests
+test a_contained_app_confirms_only_the_tools_it_implements_itself ... ok
+test a_destructive_background_tool_is_allowed_but_always_waits_for_approval ... ok
+test a_local_only_app_may_not_share_a_tool_that_returns_private_data ... ok
+test a_manifest_written_before_the_agent_additions_signs_the_same_way ... ok
+test a_native_modules_tools_json_loads_with_the_same_checks ... ok
+test a_tool_without_risk_or_with_an_unknown_field_is_refused ... ok
+test a_tools_input_must_be_an_object ... ok
+test agent_files_without_an_agent_are_refused_but_tools_alone_are_not ... ok
+test agent_md_must_be_declared_text_and_small ... ok
+test an_app_whose_short_id_the_broker_cannot_name_may_not_declare_tools ... ok
+test an_app_without_agent_or_tools_has_no_agent_bundle ... ok
+test background_requires_triggers_and_triggers_are_well_formed ... ok
+test confirm_is_declared_per_tool_and_defaults_to_the_host ... ok
+test every_tool_is_in_the_apps_namespace ... ok
+test load_refuses_a_bundle_changed_after_stamping ... ok
+test model_needs_and_tiers_are_closed_vocabularies ... ok
+test schemas_are_a_small_checked_subset ... ok
+test skills_are_declared_data_only_and_use_only_the_apps_tools ... ok
+test the_news_example_loads_as_an_agent_bundle ... ok
+test the_policy_carries_the_model_background_and_triggers ... ok
+test the_store_says_what_the_agent_and_its_tools_may_do ... ok
+test tools_colliding_as_broker_names_or_declared_twice_are_refused ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+   Doc-tests octosense_app_policy
+
+running 1 test
+test crates/app-policy/src/lib.rs - (line 14) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
