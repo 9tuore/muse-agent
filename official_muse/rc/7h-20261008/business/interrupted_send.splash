@@ -1,0 +1,25 @@
+let be_checkpoint=nil
+fn be_interrupt_start(){
+    be_checkpoint=fs.read("chain-checkpoint.json").parse_json()
+    be_goal=be_checkpoint.goal be_event=be_checkpoint.event be_boot() calendar_boot()
+    mail_draft_last_state=fs.read("mail-draft.json") mail_draft=mail_draft_last_state.parse_json()
+    be_until(|| gm_ready && chat_ready,|| be_interrupt_send(),"interrupt_ready",0)
+}
+fn be_interrupt_send(){
+    mail_compose_from_calendar(be_goal)
+    ui.mail_to.set_text("sender@example.invalid") ui.mail_subject.set_text(be_test_id+" 中断测试")
+    ui.mail_body.set_text(be_test_id+"：这封合成发送将在回调前被终止，不表示邮件投递。")
+    mail_edit() mail_preview() be_hold_send=true mail_send_confirmed()
+    be_until(|| be_send_callbacks.len()==1,|| be_interrupt_report(),"interrupt_dispatched",0)
+}
+fn be_interrupt_report(){
+    let raw=fs.read("mail-draft.json").parse_json()
+    be_checks.interruption_preserves_inflight_journal=raw.status=="sending"
+        && actions[core_action_index(mail_draft.request_id)].status=="in_flight" && be_count("mail.send")==1
+    be_checks.no_delivery_claim_before_callback=raw.verified_at==0 && raw.verified_id=="" && be_sent.len()==0
+    fs.write("failure-checkpoint.json",{case: "interrupted_send" request: mail_draft.request_id
+        goals: fs.read("goals.json") draft: fs.read("mail-draft.json")}.to_json())
+    // The Python runner now terminates this process without delivering the held response.
+    be_finish()
+}
+start_timeout(0.1,|| be_interrupt_start())

@@ -1,0 +1,35 @@
+let be_checkpoint=nil let be_old_session=""
+fn be_restart(){
+    be_checkpoint=fs.read("chain-checkpoint.json").parse_json()
+    be_goal=be_checkpoint.goal be_event=be_checkpoint.event
+    be_boot() calendar_boot()
+    let raw=fs.read("mail-draft.json") mail_draft_last_state=raw mail_draft=raw.parse_json()
+    be_until(|| gm_ready && chat_ready,|| be_restored(),"restart_ready",0)
+}
+fn be_restored(){
+    be_checks.restart_goal_bytes=fs.read("goals.json")==be_checkpoint.goals
+    be_checks.restart_calendar_bytes=fs.read("calendar-state.json")==be_checkpoint.calendar
+    be_checks.restart_memory_bytes=fs.read("memory.json")==be_checkpoint.memory
+    be_checks.restart_draft_bytes=fs.read("mail-draft.json")==be_checkpoint.draft
+    be_checks.restart_activity_bytes=fs.read("activity.json")==be_checkpoint.activity
+    be_checks.restart_completed_records=goals.len()==1 && goals[0].status=="completed"
+        && runs.len()==3 && actions.len()==3 && mail_draft.status=="verified"
+    calendar_confirm_action() mail_send_confirmed()
+    be_checks.restart_does_not_replay_external_writes=be_count("calendar.create")==0
+        && be_count("calendar.update")==0 && be_count("calendar.delete")==0 && be_count("mail.send")==0
+    be_old_session=chat_selected_id chat_new_session()
+    be_until(|| chat_selected_id!=be_old_session && messages.len()==0,|| be_recall(),"empty_new_session",0)
+}
+fn be_recall(){
+    gm_set_focus("合成验收项目","本人")
+    let context=gm_context(be_test_id+" 安排时间",chat_selected_id,be_goal)
+    be_checks.new_session_global_recall=context.hits.len()>0 && context.text.search("16:00")>=0
+        && context.text.search("test-event")>=0
+    be_checks.bounded_recall=context.text.len()<=2200 && context.hits.len()<=6
+    gm_set_focus("另一个项目","老师")
+    let foreign=gm_context(be_test_id,chat_selected_id,"")
+    be_checks.unrelated_scope_does_not_leak=foreign.text.search("test-event")<0
+    be_checks.recall_observation={new_session: chat_selected_id prior_session: be_old_session context: context foreign: foreign}
+    be_phase="restart_and_recall" be_finish()
+}
+start_timeout(0.1,|| be_restart())

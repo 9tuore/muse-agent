@@ -1,0 +1,131 @@
+let be_case="__CASE__" let be_checkpoint=nil let be_request="" let be_payload=nil
+let be_before_memory="" let be_before_candidate="" let be_before_action=nil
+fn be_failure_start(){
+    be_checkpoint=fs.read("chain-checkpoint.json").parse_json()
+    be_goal=be_checkpoint.goal be_event=be_checkpoint.event be_boot() calendar_boot()
+    mail_draft_last_state=fs.read("mail-draft.json") mail_draft=mail_draft_last_state.parse_json()
+    be_until(|| gm_ready && chat_ready,|| be_failure_choose(),"failure_ready",0)
+}
+fn be_failure_choose(){
+    if be_case=="ambiguous_matter" {
+        let next=be_clone(calendar_links[0]) next.goal_id="another-matter" calendar_links.push(next)
+        let message=be_message("ambiguous","2030-06-12T17:00:00+08:00","2030-06-12T17:30:00+08:00","<second-mail@example.invalid>")
+        be_checks.ambiguous_reference_not_guessed=schedule_match_original("test-account",message)==""
+        be_checks.ambiguous_no_external_write=be_calls.len()==0
+        be_finish() return
+    }
+    if be_case=="storage_failure" {
+        be_before_memory=fs.read("memory.json") be_fault_path="memory.json"
+        let saved=gm_save("合成更正=不得落盘","fact","user","synthetic_failure",chat_selected_id,
+            "合成验收项目","本人","test-account")
+        be_checks.storage_failure_rejected=!saved && be_fault_hits==1
+        be_checks.storage_failure_preserves_disk=fs.read("memory.json")==be_before_memory
+        be_checks.storage_failure_restores_memory=core_last_memory==be_before_memory
+        be_checks.storage_failure_no_external_write=be_calls.len()==0
+        be_finish() return
+    }
+    if be_case.search("delete_")==0 {be_failure_delete() return}
+    if be_case=="mail_accepted_receipt_failure" {be_failure_mail() return}
+    mail_selected=be_message("failure-replan","2030-06-12T17:00:00+08:00","2030-06-12T17:30:00+08:00","<second-mail@example.invalid>")
+    mail_selected.body="事项ID："+be_goal+"；改到2030-06-12T17:00:00+08:00至2030-06-12T17:30:00+08:00，时长不变。"
+    schedule_replan_original(be_goal,"test-account",mail_selected,nil)
+    be_until(|| be_models.len()==1 && !calendar_pending,|| be_failure_model(),"failure_replan",0)
+}
+fn be_failure_model(){
+    if be_case=="late_model" {
+        be_before_candidate=calendar_links[0].candidate.to_json()
+        be_checks.revoke_saved=core_cancel_goal(be_goal)
+        be_models[0]({is_ok: true data: {output: be_output("2030-06-12T17:00:00+08:00","2030-06-12T17:30:00+08:00")}})
+        be_checks.late_model_cannot_revive_cancelled_goal=goals[0].status=="cancelled"
+            && calendar_links[0].candidate.to_json()==be_before_candidate && be_count("calendar.update")==0
+        be_finish() return
+    }
+    if be_case=="malformed_model" {
+        be_before_candidate=calendar_links[0].candidate.to_json()
+        be_models[0]({is_ok: false error: "model_format_error: Synthetic invalid structured output"})
+        be_checks.malformed_model_rejected_without_action=calendar_links[0].active_generation==nil
+            && calendar_links[0].candidate.to_json()==be_before_candidate && be_count("calendar.update")==0
+        be_checks.malformed_model_shows_recoverable_error=calendar_error!=""
+        be_finish() return
+    }
+    be_models[0]({is_ok: true data: {output: be_output("2030-06-12T17:00:00+08:00","2030-06-12T17:30:00+08:00")}})
+    calendar_calendar_id="test-calendar" calendar_check_conflicts()
+    be_until(|| !calendar_pending,|| be_failure_preconditions(),"failure_conflicts",0)
+}
+fn be_failure_preconditions(){
+    calendar_preview_action() be_checks.failure_fresh_preview=calendar_preview!=""
+    be_hold_get=true calendar_confirm_action()
+    be_until(|| be_gets.len()==1,|| be_failure_release(),"failure_precondition_get",0)
+}
+fn be_failure_release(){
+    if be_case=="external_version" {be_event.version="externally-modified-v3"}
+    if be_case=="revoked_approval" {calendar_approval_revision=calendar_approval_revision+1}
+    be_hold_get=false be_gets[0]({is_ok: true data: {found: true event: be_clone(be_event)}})
+    be_until(|| !calendar_pending,|| be_failure_assert_precondition(),"failure_precondition_end",0)
+}
+fn be_failure_assert_precondition(){
+    be_checks.precondition_change_does_not_write=be_count("calendar.update")==0 && be_count("calendar.create")==0
+    be_checks.precondition_change_invalidates_preview=calendar_preview=="" && calendar_error!=""
+    be_finish()
+}
+fn be_failure_delete(){
+    calendar_selected_goal="" calendar_selected_event=be_clone(be_event) calendar_operation="delete"
+    ui.calendar_delete_id.set_text(be_test_id)
+    calendar_preview_action()
+    be_request=calendar_request_id be_payload=calendar_action_payload(be_request)
+    be_checks.delete_preview_valid=calendar_preview!=""
+    if be_case=="delete_receipt_failure" {be_fail_on_get="calendar-state.json"}
+    if be_case=="delete_accept_failure" {be_fail_on_calendar_write="goals.json"}
+    if be_case=="delete_unknown" {be_calendar_unknown=true}
+    calendar_confirm_action()
+    be_until(|| be_count("calendar.delete")==1 && !calendar_pending,|| be_failure_delete_observe(),"delete_failure",0)
+}
+fn be_failure_delete_observe(){
+    let ai=core_action_index(be_request)
+    be_before_action=be_clone(actions[ai])
+    be_checks.delete_only_once_before_recovery=be_count("calendar.delete")==1 && be_event==nil
+    if be_case=="delete_receipt_failure" {
+        let disk=fs.read("calendar-state.json").parse_json() let found=false
+        for receipt in disk.receipts {if receipt.request_id==be_request {found=true}}
+        be_checks.accepted_verified_but_receipt_not_persisted=actions[ai].status=="verified" && !found && be_fault_hits==1
+    }
+    if be_case=="delete_accept_failure" {be_checks.accept_save_failed_action_guarded=actions[ai].status=="in_flight" && be_fault_hits==1}
+    if be_case=="delete_unknown" {be_checks.unknown_outcome_is_not_success=actions[ai].status=="unknown" && calendar_error!=""}
+    be_fault_path="" be_fail_on_get="" be_fail_on_calendar_write=""
+    calendar_preview_action() calendar_confirm_action()
+    be_checks.delete_duplicate_attempt_blocked=be_count("calendar.delete")==1
+    // Existing production readback helper must resume accounting after the I/O fault.
+    // It only reads the exact originally approved id; no delete is dispatched here.
+    calendar_readback_deleted(be_request,be_payload,be_payload.event_id)
+    be_until(|| !calendar_pending,|| be_failure_delete_recovered(),"delete_recovery",0)
+}
+fn be_failure_delete_recovered(){
+    let found=false let disk=fs.read("calendar-state.json").parse_json()
+    for receipt in disk.receipts {if receipt.request_id==be_request && receipt.status=="verified" {found=true}}
+    be_checks.delete_readonly_recovery_persists_receipt=found && actions[core_action_index(be_request)].status=="verified"
+    be_checks.delete_recovery_no_replay=be_count("calendar.delete")==1
+    fs.write("failure-checkpoint.json",{case: be_case request: be_request action: be_before_action payload: be_payload
+        event: be_event goals: fs.read("goals.json") draft: fs.read("mail-draft.json")}.to_json())
+    be_finish()
+}
+fn be_failure_mail(){
+    mail_compose_from_calendar(be_goal)
+    ui.mail_to.set_text("sender@example.invalid") ui.mail_subject.set_text(be_test_id+" 回执故障")
+    ui.mail_body.set_text(be_test_id+" 合成回执保存故障，仅一次。")
+    mail_edit() mail_preview() be_fail_on_send="mail-draft.json"
+    mail_send_confirmed()
+    be_until(|| !mail_sending && be_count("mail.send")==1,|| be_failure_mail_observe(),"mail_receipt_failure",0)
+}
+fn be_failure_mail_observe(){
+    be_request=mail_draft.request_id
+    let raw=fs.read("mail-draft.json").parse_json()
+    be_checks.accepted_mail_draft_not_claimed_delivered=mail_draft.status=="accepted" && raw.status=="sending"
+        && actions[core_action_index(be_request)].status=="in_flight" && be_fault_hits==1
+    be_fault_path="" be_fail_on_send=""
+    mail_send_confirmed()
+    be_checks.accepted_mail_does_not_replay=be_count("mail.send")==1
+    fs.write("failure-checkpoint.json",{case: be_case request: be_request goals: fs.read("goals.json")
+        draft: fs.read("mail-draft.json") recipient: fs.read("synthetic-recipient.json")}.to_json())
+    be_finish()
+}
+start_timeout(0.1,|| be_failure_start())

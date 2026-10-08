@@ -1,0 +1,99 @@
+fn be_start(){
+    be_boot()
+    be_until(|| gm_ready && chat_ready,|| be_source(),"boot_ready",0)
+}
+fn be_source(){
+    be_checks.preference_saved=gm_save("普通约定时长=30分钟","preference","user","duration",chat_selected_id,
+        "合成验收项目","本人","test-account")
+    mail_selected=be_message("first-mail","2030-06-12T15:00:00+08:00","2030-06-12T15:30:00+08:00","")
+    mail_link_calendar() be_goal=selected_id
+    be_until(|| be_models.len()==1 && !mail_calendar_link_pending,|| be_candidate(),"mail_source",0)
+}
+fn be_candidate(){
+    let li=calendar_link_index(be_goal)
+    be_checks.first_mail_goal_and_source_bound=goals.len()==1 && li>=0 && goals[0].mail_source.message_id=="first-mail"
+        && calendar_links[li].source_id==goals[0].mail_source.source_id && calendar_links[li].account_id=="test-account"
+    be_checks.relevant_memory_in_model_input=be_model_inputs[0].input.related_memory.search("30分钟")>=0
+    be_models[0]({is_ok: true data: {output: be_output("2030-06-12T15:00:00+08:00","2030-06-12T15:30:00+08:00")}})
+    be_until(|| calendar_links[li].active_generation==nil,|| be_preview(),"model_candidate",0)
+}
+fn be_preview(){
+    calendar_calendar_id="test-calendar" calendar_check_conflicts()
+    be_until(|| !calendar_pending,|| be_approve(),"conflicts",0)
+}
+fn be_approve(){
+    calendar_preview_action()
+    be_checks.candidate_waits_confirmation=calendar_preview!="" && actions.len()==0 && be_count("calendar.create")==0
+    calendar_confirm_action()
+    be_until(|| !calendar_pending && calendar_links[calendar_link_index(be_goal)].status=="verified",|| be_created(),"created_persisted",0)
+}
+fn be_created(){
+    let li=calendar_link_index(be_goal)
+    let artifact=fs.read(goals[core_goal_index(be_goal)].result_path).parse_json()
+    be_checks.create_same_goal_independent_get=be_count("calendar.create")==1 && be_count("calendar.get")==1
+        && calendar_links[li].event_id=="test-event" && artifact.event_id=="test-event"
+        && artifact.version=="v1" && actions[0].status=="verified" && runs[0].status=="completed"
+    be_checks.create_result_memory_exists=core_memory_index("memory:result:"+runs[0].id,"test-account")>=0
+    calendar_confirm_action()
+    be_checks.create_duplicate_confirmation_no_write=be_count("calendar.create")==1
+    mail_selected=be_message("second-mail","2030-06-12T16:00:00+08:00","2030-06-12T16:30:00+08:00","<first-mail@example.invalid>")
+    mail_selected.body="事项ID："+be_goal+"；改到2030-06-12T16:00:00+08:00至2030-06-12T16:30:00+08:00，时长不变。"
+    be_checks.second_mail_matches_same_matter=schedule_match_original("test-account",mail_selected)==be_goal
+    schedule_replan_original(be_goal,"test-account",mail_selected,nil)
+    be_until(|| be_models.len()==2 && !calendar_pending,|| be_update_candidate(),"replan_source",0)
+}
+fn be_update_candidate(){
+    be_checks.replan_one_goal_one_event=goals.len()==1 && calendar_links.len()==1 && goals[0].version==2
+        && calendar_links[0].operation=="update" && calendar_links[0].event_id=="test-event"
+        && calendar_links[0].history.len()==1 && calendar_links[0].history[0].message_id=="first-mail"
+    be_models[1]({is_ok: true data: {output: be_output("2030-06-12T16:00:00+08:00","2030-06-12T16:30:00+08:00")}})
+    calendar_calendar_id="test-calendar" calendar_check_conflicts()
+    be_until(|| !calendar_pending,|| be_update_preview(),"update_conflicts",0)
+}
+fn be_update_preview(){
+    calendar_preview_action()
+    be_checks.update_waits_fresh_confirmation=calendar_preview!="" && be_count("calendar.update")==0
+    calendar_confirm_action()
+    be_until(|| !calendar_pending && calendar_links[0].status=="verified",|| be_updated(),"updated_persisted",0)
+}
+fn be_updated(){
+    let artifact=fs.read(goals[0].result_path).parse_json()
+    be_checks.update_same_event_and_independent_get=be_count("calendar.create")==1 && be_count("calendar.update")==1
+        && be_event.id=="test-event" && be_event.version=="v2" && be_event.start=="2030-06-12T16:00:00+08:00"
+        && artifact.event_id=="test-event" && artifact.version=="v2" && actions[1].status=="verified"
+        && be_count("calendar.get")>=3 && be_event.notes=="Keep synthetic metadata"
+    calendar_confirm_action()
+    be_checks.update_duplicate_confirmation_no_write=be_count("calendar.update")==1
+    mail_compose_from_calendar(be_goal)
+    ui.mail_to.set_text("sender@example.invalid") ui.mail_subject.set_text(be_test_id+" 确认")
+    ui.mail_body.set_text(be_test_id+"：已核对原约定改到2030-06-12 16:00至16:30，合成会议室。")
+    mail_edit() mail_preview()
+    be_checks.reply_requires_separate_confirmation=mail_draft.status=="waiting_user" && be_count("mail.send")==0
+    mail_send_confirmed()
+    be_until(|| !mail_sending && mail_draft.status=="accepted",|| be_reply_accepted(),"reply_accepted",0)
+}
+fn be_reply_accepted(){
+    be_checks.acceptance_not_delivery=mail_draft.status=="accepted" && mail_draft.verified_at==0
+        && actions[actions.len()-1].status=="accepted" && be_count("mail.send")==1
+    business_request("mail.message",{account: "test-account" message: "recipient-copy-0"},fn(r){
+        be_checks.synthetic_recipient_exact_readback=r.is_ok && r.data.id=="recipient-copy-0"
+            && r.data.subject==mail_draft.subject && r.data.body==mail_draft.body && r.data.to==mail_draft.to
+        if !be_checks.synthetic_recipient_exact_readback {be_finish() return}
+        // Deliberately simulated user confirmation after synthetic recipient readback.
+        // This is not live SMTP/IMAP evidence and not an automatic production verifier.
+        ui.mail_test_id.set_text(be_test_id) mail_verify_received()
+        be_until(|| !mail_verifying && mail_draft.status=="verified" && goals[0].status=="completed",|| be_final(),"reply_result",0)
+    })
+}
+fn be_final(){
+    be_checks.reply_linked_result_and_memory=runs[runs.len()-1].status=="completed"
+        && core_memory_index("memory:result:"+runs[runs.len()-1].id,"test-account")>=0
+        && fs.read(goals[0].result_path).parse_json().event_id=="test-event"
+    be_checks.scope_rejects_other_account=!gm_account_allowed("ungranted-account")
+    be_checks.external_write_counts=be_count("calendar.create")==1 && be_count("calendar.update")==1 && be_count("mail.send")==1
+    fs.write("chain-checkpoint.json",{goal: be_goal event: be_event goals: fs.read("goals.json")
+        calendar: fs.read("calendar-state.json") memory: fs.read("memory.json") draft: fs.read("mail-draft.json")
+        activity: fs.read("activity.json") chat: fs.read("chat-sessions.json")}.to_json())
+    be_phase="chain_complete" be_finish()
+}
+start_timeout(0.1,|| be_start())

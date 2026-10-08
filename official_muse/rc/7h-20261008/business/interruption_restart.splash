@@ -1,0 +1,24 @@
+let be_failure_checkpoint=nil
+fn be_interruption_restart(){
+    be_failure_checkpoint=fs.read("failure-checkpoint.json").parse_json()
+    be_boot() calendar_boot()
+    be_until(|| gm_ready && chat_ready,|| be_interruption_restore(),"interruption_restart_ready",0)
+}
+fn be_interruption_restore(){
+    mail_watch.enabled=false
+    // Actual production boot restoration, including sending -> unknown conversion.
+    boot_restore("")
+    be_until(|| mail_draft.status=="unknown",|| be_interruption_assert(),"interruption_unknown",0)
+}
+fn be_interruption_assert(){
+    let ai=core_action_index(be_failure_checkpoint.request)
+    let raw=fs.read("mail-draft.json").parse_json()
+    be_checks.new_process_marks_lost_callback_unknown=ai>=0 && actions[ai].status=="unknown"
+        && mail_draft.status=="unknown" && raw.status=="unknown"
+    be_checks.unknown_is_not_delivery=mail_draft.verified_at==0 && actions[ai].status!="verified"
+    mail_send_confirmed()
+    be_checks.interrupted_send_is_not_replayed=be_count("mail.send")==0
+    be_checks.only_accounts_lookup_allowed=be_calls.len()==0 || (be_calls.len()==1 && be_calls[0].service=="mail.accounts")
+    be_finish()
+}
+start_timeout(0.1,|| be_interruption_restart())
