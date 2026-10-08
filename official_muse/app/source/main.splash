@@ -7260,9 +7260,8 @@ fn chat_new_session(){
     }
     let now = time_now()
     let id = "chat:" + floor(now) + "-" + random_u32()
-    chat_sessions.push({id: id title: "新对话" created_at: now updated_at: now messages: [] proposals: [] focus_project: "" focus_owner: "" goal_id: ""})
+    chat_sessions.push({id: id title: "新对话" created_at: now updated_at: now messages: [] proposals: [] focus_project: gm_project focus_owner: gm_owner goal_id: ""})
     chat_selected_id = id
-    gm_set_focus("","")
     messages = []
     if !chat_save() { chat_restore() redraw() return false }
     ui_error = ""
@@ -7791,6 +7790,15 @@ fn chat_mail_followup_message(message){
 fn send_chat(){
     let message = ui.goal_input.text().trim()
     if message == "" { ui_error = "请输入消息。" redraw() return }
+    if gm_project == "" || gm_owner == "" {
+        for reference in ["这个项目","本项目","当前项目"] {
+            if message.search(reference) >= 0 {
+                chat_focus_open = true
+                ui_error = "请先选择项目与归属，再检索这项资料。"
+                redraw() return
+            }
+        }
+    }
     if chat_request_index(chat_selected_id) >= 0 { return }
     if !chat_ready { ui_error = "对话记录不可写，暂不能发送。" redraw() return }
     if message.len() > 1200 { ui_error = "消息过长，请缩短后重试。" redraw() return }
