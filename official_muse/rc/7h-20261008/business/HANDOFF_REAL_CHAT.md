@@ -1,5 +1,23 @@
 # Business 真实聊天交接
 
+## r3 最新结果（2026-10-09）
+
+**PARTIAL：r3 在参考 card-host 的 scoped DRY_RUN 通过；最终 Shell Host 未验。** 仅 business 文件修改，不 push。
+
+- 最终源：`cef7d576b2de31e5c22a813e70e68370ff0ddd043ef1bbcd57acae75eb81b546`。
+- 实测 card-host：`46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe`。
+- 最终 Shell：`276b2b688b759e2d0e026a6999118e25f857bb21ebf23c93cea2d24b03daf638`，不能与参考 Host 混称。
+- 实际 VM 异步授权 6/6：status pending 两次点击不提前发请求；稍后 status 回调发一次；inflight 重复点击不增加请求；授权回调清旗并刷新状态。生产函数原样，transport 回调合成。
+- r3 完整合成链 20/20、独立新进程重启/召回 10/10。
+- linked_memory_failure 停止/新进程恢复 3+12/15，PID13148→13211；22/22 独立磁盘检查。仅精确 calendar.get，无写重放，原 artifact/receipt/Memory SHA、Activity 与重复恢复稳定均核对。
+- 合计 r3 51/51 VM +22/22 独立磁盘检查。r2 另30/30链/重启通过，未覆盖 paused mail_watch_boot 专项。
+
+证据 `RESULT_COMPONENT_R3_RESULTS.json`；原始 `.local-state/result-component-r3-final-r1/`。未重跑未影响的18变体。首个授权 probe 漏启动 timer，未执行断言，保留 ERROR 后仅修 probe 重跑；r2 source-only 缺 manifest 初次失败也保留。Shell `--help` 实际启动 PID11311并取 News，已停止；现有 runner 验证接口为 card-host，最终 Shell 不计本轮通过。旧预算 ERROR 不撤销。
+
+边界：真实 VM/fs/timers；合成 Mail/Calendar/Model，隐藏最小测试控件，无本轮真实系统CRUD/外发/推理或可见 UI 验收。Final Shell同版完整链仍需总控收口。测试已结束，8661空闲。
+
+## 前次 cceeaa 证据（保留）
+
 ## 结果
 
 仅业务DRY_RUN完成；源码/主bundle/生产数据未改。测试工具提交 `ad460d68`，报告提交见本文件所属commit，未push。

@@ -89,3 +89,10 @@ python3 official_muse/rc/7h-20261008/business/run_matrix.py \
 
 `run_recovery_restarts.py` 串行执行4对；参数与 `run_matrix.py` 一致，并增加 `--seed <本候选chain/state>`，输出目录必须新建。`--stop-after-fault` 在真实存储故障检查点结束测试进程，恢复用独立的 `recovery_restart.splash` 新进程；不是同进程再次调用 boot。
 原始首轮错误、单独重试和故障/重启对均在各自 `.local-state/storage-shape-*` 新目录保留，公开报告保存原 summary/log SHA 与每项布尔断言。不安装、不发信、不模型实调，不以 DRY_RUN 代替 LIVE。
+
+
+## r3 授权顺序与候选再绑定（2026-10-09）
+
+见 `RESULT_COMPONENT_R3_RESULTS.json` 与 `HANDOFF_REAL_CHAT.md`。最终源 cef7d576... 在参考 card-host 46a4d16d...：授权异步6/6、链20/20、重启10/10、代表性关联Memory失败后独立新进程恢复15/15及磁盘22/22。最终 Shell 276b2b68... 另列 NOT_RUN；不把参考Host替代为最终Host。保留首个授权probe漏启动timer的ERROR以及全部旧预算失败证据。
+
+`calendar_access_order.splash` 使用真实VM定时器延后合成status/access回调；生产授权函数未改。transport新增默认关闭的回调暂存开关，不改变旧场景默认行为。`run_recovery_restarts.py --case linked_memory_failure` 可只运行代表性pair；不提供case时仍为原四组。

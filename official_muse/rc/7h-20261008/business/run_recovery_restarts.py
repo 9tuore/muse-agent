@@ -71,7 +71,8 @@ def main(a):
     out=a.out.resolve();assert out.is_relative_to(HERE);out.mkdir(parents=True,exist_ok=False)
     source=a.source_bundle.resolve();expected=sha(source/'main.splash')
     rows=[]
-    for case in ['linked_memory_failure','linked_result_failure','delete_receipt_failure','delete_accept_failure']:
+    cases=a.case or ['linked_memory_failure','linked_result_failure','delete_receipt_failure','delete_accept_failure']
+    for case in cases:
         pair={ 'case':case }
         fault=out/(case+'-fault');recovery=out/(case+'-restart')
         for label,probe,target,seed in [('fault','failure.splash',fault,a.seed.resolve()),('restart','recovery_restart.splash',recovery,fault/'state')]:
@@ -93,10 +94,11 @@ def main(a):
         rows.append(pair)
         (out/'aggregate.json').write_text(json.dumps(dict(source_sha256=expected,pairs=rows,external_service_calls=0,real_model_inference=False),ensure_ascii=False,indent=2)+'\n')
         print(case,pair['status'],pair.get('independent_disk_audit',{}).get('failed',pair.get('audit_error')),flush=True)
-    return 0 if len(rows)==4 and all(r['status']=='DRY_RUN_PASS' for r in rows) else 1
+    return 0 if len(rows)==len(cases) and all(r['status']=='DRY_RUN_PASS' for r in rows) else 1
 
 if __name__=='__main__':
     p=argparse.ArgumentParser()
     for n in ['source-bundle','host','host-cwd','seed','out']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--port',type=int,default=8661)
+    p.add_argument('--case',action='append',choices=['linked_memory_failure','linked_result_failure','delete_receipt_failure','delete_accept_failure'])
     raise SystemExit(main(p.parse_args()))

@@ -3,6 +3,7 @@ let be_checks = {} let be_calls = [] let be_models = [] let be_model_inputs = []
 let be_event = nil let be_sent = [] let be_forbidden = [] let be_goal = ""
 let be_hold_get = false let be_gets = [] let be_hold_list = false let be_lists = []
 let be_hold_send = false let be_send_callbacks = [] let be_external_changed = false
+let be_hold_status=false let be_status_callbacks=[] let be_hold_access=false let be_access_callbacks=[]
 let be_wait_count = 0 let be_phase = "boot"
 let be_fail_on_get = "" let be_fail_on_send = ""
 let be_fail_on_written_get = ""
@@ -14,7 +15,8 @@ fn business_request(service,args,cb){
     be_calls.push({service: service payload: be_clone(args)})
     if service == "mail.accounts" {cb({is_ok: true data: [{id: "test-account" address: "self@example.invalid"}]}) return}
     if service == "model.complete" {be_models.push(cb) be_model_inputs.push(be_clone(args)) return}
-    if service == "calendar.status" {cb({is_ok: true data: {permission: "full_access" calendars: [{id: "test-calendar" title: "Test" writable: true}]}}) return}
+    if service == "calendar.status" {if be_hold_status {be_status_callbacks.push(cb) return} cb({is_ok: true data: {permission: "full_access" calendars: [{id: "test-calendar" title: "Test" writable: true}]}}) return}
+    if service == "calendar.request_access" && be_hold_access {be_access_callbacks.push(cb) return}
     if service == "calendar.list" {
         if be_hold_list {be_lists.push(cb) return}
         let rows=[]

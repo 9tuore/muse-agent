@@ -1,0 +1,38 @@
+// Actual VM/timers and unchanged production permission functions; synthetic callbacks only.
+fn be_start(){
+    be_boot()
+    be_until(|| gm_ready && chat_ready,|| be_status_pending(),"boot_ready",0)
+}
+fn be_status_pending(){
+    calendar_permission="not_determined" calendar_pending=false
+    be_hold_status=true be_hold_access=true
+    calendar_status_load(false)
+    calendar_request_access() calendar_request_access()
+    be_checks.pending_status_queues_without_access=calendar_pending && calendar_access_queued
+        && !calendar_access_inflight && be_count("calendar.status")==1 && be_count("calendar.request_access")==0
+        && be_status_callbacks.len()==1
+    start_timeout(0.03,|| be_deliver_status())
+}
+fn be_deliver_status(){
+    be_status_callbacks[0]({is_ok:true data:{permission:"not_determined" calendars:[]}})
+    be_checks.status_callback_dispatches_exactly_once=!calendar_access_queued && calendar_access_inflight
+        && calendar_pending && be_count("calendar.request_access")==1 && be_access_callbacks.len()==1
+    calendar_request_access() calendar_request_access()
+    be_checks.repeated_inflight_clicks_do_not_duplicate=calendar_access_inflight
+        && be_count("calendar.request_access")==1 && be_access_callbacks.len()==1 && !calendar_access_queued
+    start_timeout(0.03,|| be_deliver_access())
+}
+fn be_deliver_access(){
+    be_hold_status=false
+    be_access_callbacks[0]({is_ok:true data:{permission:"full_access"}})
+    be_checks.access_completion_clears_flags_and_refreshes=!calendar_pending && !calendar_access_inflight
+        && !calendar_access_queued && calendar_permission=="full_access"
+        && be_count("calendar.status")==2 && be_count("calendar.request_access")==1
+    calendar_request_access()
+    be_checks.granted_permission_no_new_request=be_count("calendar.request_access")==1
+    be_checks.no_business_writes=be_count("calendar.create")==0 && be_count("calendar.update")==0
+        && be_count("calendar.delete")==0 && be_count("mail.send")==0 && be_count("model.complete")==0
+    be_phase="permission_order_complete" be_finish()
+}
+
+start_timeout(0.05,|| be_start())
