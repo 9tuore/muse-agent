@@ -1,3 +1,17 @@
+# Transparent compression checkpoint - 2026-10-09T03:18:27.831132+08:00
+
+SPACE_RECOVERY_PARTIAL_RESOURCE_BLOCKED. No build or emulator restarted.
+
+Verified local ditto supports --hfsCompression/--noclone. The raw-log pilot saved no blocks and was not replaced; the rlib pilot saved36864 bytes with identical SHA/size/mode. Batch audited370 files and atomically replaced369 only after full SHA/size/mode/uid/gid/mtime checks, nlink=1, no symlink parents, no open lsof handles, and positive st_blocks savings. One no-benefit file retained; no copy/verification failures. All369 replaced files were independently rehashed and their sizes/modes verified again after the controlled stop. No dependencies, sources, unique evidence or original bytes were deleted.
+
+Batch block savings1425551360 bytes plus pilot36864. Data free changed218083328 ->1674952704 bytes (actual observed gain1456869376, includes concurrent filesystem activity). Remaining eligible1108 files occupy286113792 bytes; even zero blocks for all of them gives1961066496, belowData2GB and insufficient APK/AVD headroom. Therefore stopped own compressor while a verified lsof child checked an own file. One unreplaced temporary copy was compared with its retained original, then only the temp was removed. Original preserved. No cargo/rustc/java/emulator/ditto process observed afterward.
+
+Policyown10.5GB/Data2GB unchanged. Home APK is still NOT_COMPLETED_OR_SIGNED; Android AppHub/Muse runtime NOT_RUN; original seven-hour PARTIAL counts unchanged. Shared read-only Cargo cache, hardlinks, other workspaces and user data untouched. Per-item receipt hfs-compression-items.jsonl; summary hfs-compression-summary.json; pilots hfs-compression-pilot.json/hfs-compression-rlib-pilot.json.
+
+Resume existing locked offline runner only after Data2GB plus packaging/emulator headroom are available; then APK digest/signature/liboctos.so checks and own AVD install/runtime verification. Current resource recovery cannot safely complete those steps.
+
+---
+
 # Post-window continuation - 2026-10-09T03:03:18.108900+08:00
 
 Overall PARTIAL_RESOURCE_BLOCKED. These results are excluded from the ended seven-hour pass counts; original report remains verbatim in REPORT_7H_FINAL.md and the section below.

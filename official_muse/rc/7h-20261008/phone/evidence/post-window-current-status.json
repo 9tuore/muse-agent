@@ -53,5 +53,39 @@
   "rc16_android": "NOT_TESTED",
   "physical_device": "DEVICE_NOT_TESTED",
   "next": "Data free >=2000000000 and enough own10.5GB headroom before existing locked offline runner; do not remove compile deps still required by runner",
-  "scope": "No deletion or writes in original project/shared SDK/production data; accidental history read only, corrected before mutation"
+  "scope": "No deletion or writes in original project/shared SDK/production data; accidental history read only, corrected before mutation",
+  "transparent_compression_checkpoint": {
+    "timestamp": "2026-10-09T03:18:27.831132+08:00",
+    "overall": "SPACE_RECOVERY_PARTIAL_RESOURCE_BLOCKED",
+    "method": "ditto --hfsCompression --noclone, full SHA/size/mode/uid/gid/mtime and no-symlink/hardlink/open-handle checks; atomic replacement only with saved blocks",
+    "audited_files": 370,
+    "compressed_files": 369,
+    "no_saving_or_skipped": 1,
+    "failures": 0,
+    "saved_blocks_bytes": 1425551360,
+    "pilot_saved_blocks_bytes": 36864,
+    "data_free_before": 218083328,
+    "data_free_after": 1674952704,
+    "actual_data_free_delta": 1456869376,
+    "remaining_eligible_count": 1108,
+    "remaining_blocks_bytes": 286113792,
+    "absolute_best_case_free": 1961066496,
+    "stop_reason": "Even zero blocks for all remaining eligible files cannot provide Data2GB plus APK/AVD headroom. Stopped own compressor at verified lsof child boundary; dependencies/unique evidence original bytes retained; no rebuild",
+    "temp_recovery": [
+      {
+        "temp": ".local-state/tools/rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/x86_64-linux-android/lib/libtest-7f09e3e099e157c2.rmeta.hfs-task-tmp",
+        "original": ".local-state/tools/rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/x86_64-linux-android/lib/libtest-7f09e3e099e157c2.rmeta",
+        "sha256": "4909d7fd390c01831f14e710e7cbaea6d0821604bcdac4215d3f8c14dd14b258",
+        "original_retained": true,
+        "temp_removed": true
+      }
+    ],
+    "all_replaced_items_final_sha_size_mode_reverified": true,
+    "shared_readonly_cache_and_hardlinks_untouched": true,
+    "resource_policy": "own10.5GB/Data2GB unchanged",
+    "apk": "NOT_COMPLETED_OR_SIGNED",
+    "muse_android_runtime": "NOT_RUN"
+  },
+  "latest_data_free_bytes": 1674952704,
+  "latest_overall": "SPACE_RECOVERY_PARTIAL_RESOURCE_BLOCKED"
 }
