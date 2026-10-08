@@ -1,17 +1,3 @@
-# Post-window continuation - 2026-10-09T03:03:18.108900+08:00
-
-Overall PARTIAL_RESOURCE_BLOCKED. These results are excluded from the ended seven-hour pass counts; original report remains verbatim in REPORT_7H_FINAL.md and the section below.
-
-- Calendar target-OS patch compiled successfully through Home in r5/r6. Android Calendar remains unavailable.
-- Home native Rust build finished in r5 (11m38s), again in r6 (49.02s). Real x86_64 Android liboctosense_home.so is retained at official_muse/rc/7h-20261008/phone/.local-state/android-target/x86_64-linux-android/release/liboctosense_home.so; SHA256 8c52e1d7746bc1cbedc88e53902fe88079fe0ec832b614f84f2d2dae7474456f. This is native compilation, not a complete installable APK or runtime success.
-- r5 exited241 at own10599292928/free2494001152 bytes, above own10.5GB limit. Only unused own SDK command-line tools and AArch64 Rust std were removed after no-open-file checks (311066624 bytes); sources/downloads/x86 std/artifacts retained.
-- Existing locked offline runner r6 exited241 at own10174619648/free233742336 bytes: total Data free fell below2GB. Both failure logs and stop receipts retained. No active build/emulator was observed after exit.
-- Partial unaligned APK has five entries, no liboctos.so, and no completed signing/alignment. No usable Home APK; no kernel startup, AppHub/Muse Card/Chat/Memory, rc16 or physical-phone runtime proof.
-
-Do not restart until Data free>=2GB and own10.5GB has packaging headroom. Resume the same runner/cache, then APK/signature/kernel digest and own AVD. No shared cleanup, user data, permissions, contacts, fees or public release. Evidence: post-window-current-status.json, post-window-home-native-elf.txt, home-x86-build-r5/r6.log, home-build-resource-stop-r5/r6.json, post-window-unused-tools-cleanup.json.
-
----
-
 <!-- PHONE_STATUS_CURRENT_START -->
 # Final seven-hour Phone status - 2026-10-09T02:43:44.146610+08:00
 

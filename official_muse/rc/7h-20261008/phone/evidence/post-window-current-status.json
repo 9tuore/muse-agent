@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-10-09T03:03:18.108900+08:00",
+  "overall": "PARTIAL_RESOURCE_BLOCKED",
+  "original_7h_snapshot_preserved": true,
+  "excluded_from_7h_pass_count": true,
+  "branch": "codex/muse-7h-reliability-phone-20261008",
+  "original_snapshot_commit": "ec51bd60",
+  "calendar_target_os_fix": "NATIVE_COMPILE_VERIFIED_IN_HOME_R5_R6",
+  "android_calendar": "MISSING_CAPABILITY",
+  "home_native": {
+    "status": "COMPILE_AND_ELF_PASS",
+    "path": "official_muse/rc/7h-20261008/phone/.local-state/android-target/x86_64-linux-android/release/liboctosense_home.so",
+    "bytes": 289712864,
+    "sha256": "8c52e1d7746bc1cbedc88e53902fe88079fe0ec832b614f84f2d2dae7474456f",
+    "file": "official_muse/rc/7h-20261008/phone/.local-state/android-target/x86_64-linux-android/release/liboctosense_home.so: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, not stripped"
+  },
+  "home_apk": "NOT_COMPLETED_OR_SIGNED",
+  "partial_apk": {
+    "path": "official_muse/rc/7h-20261008/phone/.local-state/android-target/makepad-android-apk/octosense_home/apk/octo_sense.unaligned.apk",
+    "entries": [
+      "AndroidManifest.xml",
+      "classes.dex",
+      "res/drawable/makepad_launch_background.xml",
+      "res/menu/context_menu.xml",
+      "resources.arsc"
+    ],
+    "has_kernel": false
+  },
+  "r5": {
+    "exit": 241,
+    "finished_rust": "11m38s",
+    "stop": {
+      "own_bytes": 10599292928,
+      "free_bytes": 2494001152,
+      "reason": "authorized resource boundary"
+    }
+  },
+  "r6": {
+    "exit": 241,
+    "finished_rust": "49.02s",
+    "stop": {
+      "own_bytes": 10174619648,
+      "free_bytes": 233742336,
+      "reason": "authorized resource boundary"
+    }
+  },
+  "own_unused_tools_removed_bytes": 311066624,
+  "data_free_bytes": 247660544,
+  "processes": "No cargo/rustc/java/emulator observed after r6 exit",
+  "kernel": "BUILD_AND_ELF_PASS_RETAINED",
+  "bridge": "PRIOR_BUILD_AND_EMULATOR_UI_PASS_AVD_REINSTALL_REQUIRED",
+  "muse_card_chat_memory": "NOT_RUN",
+  "rc16_android": "NOT_TESTED",
+  "physical_device": "DEVICE_NOT_TESTED",
+  "next": "Data free >=2000000000 and enough own10.5GB headroom before existing locked offline runner; do not remove compile deps still required by runner",
+  "scope": "No deletion or writes in original project/shared SDK/production data; accidental history read only, corrected before mutation"
+}
