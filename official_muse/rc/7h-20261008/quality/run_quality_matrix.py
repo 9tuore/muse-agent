@@ -11,7 +11,26 @@ QUALITY = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT/'official_muse/phase2/tests'))
 sys.path.insert(0, str(ROOT/'official_muse/ui_memory/tests'))
 from remote import Remote
-from visual_capture import navigate
+
+def navigate(remote,page):
+    """Scroll real sidebar in small steps; avoid overshooting short clipped rows."""
+    area=remote.find('shortcuts')['r'];x,y,w,h=area
+    remote.scroll(int(x+w/2),int(y+h/2),-1000);time.sleep(.25)
+    for scan in range(2):
+        for _ in range(12):
+            widgets=remote.widgets()
+            target=next((v for v in widgets if v.get('ty')=='Button' and v.get('t')==page),None)
+            if target and target['r'][2]>=2 and target['r'][3]>=24:
+                return remote.click(page)
+            dy=-40 if target and target['r'][1]<=y+1 else 40
+            remote.scroll(int(x+w/2),int(y+h/2),dy);time.sleep(.2)
+        # Scan the entire existing list before toggling More: it may already
+        # be expanded and the requested page merely below the current viewport.
+        if scan==0 and page in ['操作记录','能力授权','设置']:
+            remote.click('更多')
+            remote.scroll(int(x+w/2),int(y+h/2),-1000);time.sleep(.25)
+        else:break
+    raise AssertionError('Visible sidebar entry unreachable after bounded two-direction scroll: '+page)
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
@@ -88,8 +107,14 @@ def main():
         # frame/placeholder alone is never counted as a successful launch.
         words=[w.get('t','') for w in remote.widgets() if w.get('ty')=='Label']
         assert any('当前项目' in t or t=='对话' for t in words), 'Meaningful Muse content missing'
+        assert selected['messages'][-1]['text'] in words, 'Latest stored chat history did not render'
+        run['nonempty_chat_history_rendered']=True
         remote.set_text('goal_input','冷启动合成输入检查');assert remote.find('goal_input')['val']=='冷启动合成输入检查';remote.set_text('goal_input','')
         run['first_interactive_seconds']=time.monotonic()-started
+        if m.get('expected_goal_title'):
+            remote.wait_for(m['expected_goal_title'],15)
+            remote.wait_for('将处理 2 条资料，保存并重新读取结果。',15)
+            run['nonempty_goal_card_rendered']=True
         observed_counts={}
         for filename,keys in [('chat-sessions.json',['sessions']),('goals.json',['goals','runs','actions']),('memory.json',['claims','sources','forget']),('calendar-state.json',['links','receipts','local_states'])]:
             value=json.loads((jail/filename).read_text());observed_counts[filename]=array_counts(value,keys)

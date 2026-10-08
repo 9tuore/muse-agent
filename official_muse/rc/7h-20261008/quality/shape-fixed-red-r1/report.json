@@ -1,0 +1,127 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.27-quality-shapefixeda",
+  "code_commit": "9495432ad97b3a0b66b0e411f3fe1e2687edea76",
+  "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "budget_evidence": "Pinned Host binary unchanged; no claimed numeric callback budget from legacy runner",
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": null,
+      "runs": 0,
+      "actions": 0
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "chat-sessions.backup.json": "ca67e3eb256d0ee92c1acfcbae2b55c131cc1b117b4287a90bc08499d95c6da6",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "a87d781bc3dffad2b1e79c0e3bbdf66e759d4270718b4acfd1524a18e40e9183",
+    "goals.backup.json": null,
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "cold": [
+    {
+      "index": 1,
+      "pass": true,
+      "first_content_seconds": 18.460099737,
+      "selected_focus_restored": true,
+      "first_interactive_seconds": 18.958318697000003,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": null,
+          "runs": 0,
+          "actions": 0
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 347 ms · phase=Actions detail=0 · samples=1 · ticks=1/expected=2 · top frames: 1x Actions: makepad_script::tokenizer::ScriptTokenizer::tokenize+0x889 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::map::view::script_mod+0x86e (octosense) ← makepad_widgets::widgets_mod+0x7ef (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) ← makepad_widgets::splash::SplashRef::set_text+0x6b (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=484257 chunks=120 total_ms=99.248 max_chunk_ms=3.237"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 22.501350645000002,
+      "pid": 14552
+    }
+  ],
+  "reopen": [],
+  "restart": [],
+  "requested_counts": {
+    "cold": 1,
+    "reopen": 0,
+    "restart": 0
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "cold_pass": 1,
+  "reopen_pass": 0,
+  "restart_pass": 0
+}

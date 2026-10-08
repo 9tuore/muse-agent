@@ -1,0 +1,79 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.27-quality-shapefixedb",
+  "code_commit": "9495432ad97b3a0b66b0e411f3fe1e2687edea76",
+  "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "budget_evidence": "Pinned Host binary unchanged; no claimed numeric callback budget from legacy runner",
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 1,
+      "runs": 1,
+      "actions": 1
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "chat-sessions.backup.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "goals.backup.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "cold": [
+    {
+      "index": 1,
+      "pass": false,
+      "error": "visible widget missing: 当前项目 · 合成验收项目  /  个人",
+      "seconds": 36.320524495,
+      "capture_error": "HTTP Error 404: Not Found"
+    }
+  ],
+  "reopen": [],
+  "restart": [],
+  "requested_counts": {
+    "cold": 10,
+    "reopen": 5,
+    "restart": 0
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "stopped_after_failure": true
+}

@@ -1,0 +1,388 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.27-quality-shapefixedb",
+  "code_commit": "9495432ad97b3a0b66b0e411f3fe1e2687edea76",
+  "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "budget_evidence": "Pinned Host binary unchanged; no claimed numeric callback budget from legacy runner",
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 1,
+      "runs": 1,
+      "actions": 1
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "chat-sessions.backup.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "goals.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "goals.backup.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8"
+  },
+  "cold": [
+    {
+      "index": 1,
+      "pass": true,
+      "first_content_seconds": 10.402183285,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 10.879519651999999,
+      "nonempty_goal_card_rendered": true,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 426 ms · phase=widget-draw detail=0 · samples=3 · ticks=3/expected=3 · top frames: 1x widget-draw: _platform_memmove$VARIANT$Haswell+0x133 (libsystem_platform.dylib) ← makepad_widgets::fab_controls::script_mod+0x546 (octosense) ← makepad_widgets::widgets_mod+0x697 (octosense) ← _RINvNtCsfV1fogaGtha_18makepad_script_std2vm7with_vmNCNCNvMs_NtCsfHdtRvWNvi1_15makepad_widgets6splashNtBW_6Splash27eval_styled_body_with_applys_00uEBY_+0x50f (octosense) ← _RINvNtCsfHdtRvWNvi1_15makepad_widgets12widget_async22with_isolate_installeduNCINvXs2_B2_NtNtCsbjwPLTgOt8d_16makepad_platform2cx2CxNtB2_13CxSplashVmExt25with_script_vm_id_trusteduNCNCNvMs_NtB4_6splashNtB2Z_6Splash27eval_styled_body_with_applys_00E0EB4_+0x19b (octosense) ← _RINvXs2_NtCsfHdtRvWNvi1_15makepad_widgets12widget_asyncNtNtCsbjwPLTgOt8d_16makepad_platform2cx2CxNtB6_13CxSplashVmExt25with_script_vm_id_trusteduNCNCNvMs_NtB8_6splashNtB2s_6Splash27eval_styled_body_with_applys_00EB8_+0x49 (octosense) ← makepad_widgets::widget_async::contain_isolate_panic::<makepad_widgets::splash::Splash::eval_styled_body_with_apply::{closure:#1}>+0xb0 (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0xb0a (octosense) | 1x present: mach_msg2_trap+0xa (libsystem_kernel.dylib) ← io_connect_method+0x196 (IOKit) ← IOConnectCallMethod+0xf8 (IOKit) ← IOAccelResourceCreate+0x8b (IOAccelerator) ← -[MTLIOAccelResource initWithDevice:remoteStorageResource:options:args:argsSize:]+0x225 (MetalOld.dylib) ← -[MTLIOAccelResource initWithDevice:options:args:argsSize:]+0x24 (MetalOld.dylib) ← -[MTLIOAccelTexture initWithDevice:descriptor:sysMemSize:sysMemRowBytes:vidMemSize:vidMemRowBytes:args:argsSize:]+0x8d (MetalOld.dylib) ← AppleIntelHD5000GraphicsMTLDriver+0x111cf [0x2e0bb21cf] | 1x native-event: makepad_script::heap::ScriptHeap::mark+0x9a3 (octosense) ← makepad_script::vm::ScriptVm::gc+0x20 (octosense) ← makepad_script_std::vm::with_vm::<makepad_platform::cx::Cx::cocoa_event_callback::{closure:#14}, ()>+0x123 (octosense) ← makepad_platform::cx::Cx::with_vm::<(), makepad_platform::cx::Cx::cocoa_event_callback::{closure:#14}>+0x44 (octosense) ← makepad_platform::cx::Cx::cocoa_event_callback+0x3690 (octosense) ← makepad_platform::cx::Cx::event_loop::{closure:#0}+0x89 (octosense) ← makepad_platform::os::apple::macos::macos_app::MacosApp::do_callback+0x98 (octosense) ← makepad_platform::os::apple::macos::macos_app::MacosApp::send_timer_received+0x238 (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=484257 chunks=120 total_ms=72.744 max_chunk_ms=3.643"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 13.279589954999999,
+      "pid": 19444
+    },
+    {
+      "index": 2,
+      "pass": true,
+      "first_content_seconds": 10.072347438999998,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 10.624356109999997,
+      "nonempty_goal_card_rendered": true,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=484257 chunks=120 total_ms=62.259 max_chunk_ms=3.434"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 14.251392382999999,
+      "pid": 19627,
+      "raw_snapshot_sha256": "833cfb5a10d569701949af098909fba82781b832b1fbb5840bb90e36773386b2"
+    },
+    {
+      "index": 3,
+      "pass": true,
+      "first_content_seconds": 11.655698768999997,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 12.199385677999999,
+      "nonempty_goal_card_rendered": true,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 685 ms · phase=widget-draw detail=0 · samples=6 · ticks=6/expected=7 · top frames: 1x widget-draw: pthread_mutex_unlock+0x5c (libsystem_pthread.dylib) ← makepad_live_id::live_id::LiveId::from_str_with_lut+0x26a (octosense) ← makepad_script::tokenizer::ScriptTokenizer::emit_identifier+0x2b (octosense) ← makepad_script::tokenizer::ScriptTokenizer::tokenize+0x2cc2 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x293 (octosense) ← makepad_widgets::theme_desktop_light::script_mod+0x350 (octosense) ← makepad_widgets::theme_mod+0x6f (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x1d5 (octosense) | 1x widget-draw: makepad_script::parser::ScriptParser::parse+0x149 (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x2d1 (octosense) ← makepad_widgets::slider::script_mod+0x3cd (octosense) ← makepad_widgets::widgets_mod+0x677 (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense) ← <makepad_widgets::splash::Splash as makepad_widgets::widget::Widget>::set_text+0xd8 (octosense) ← makepad_widgets::widget::WidgetRef::set_text+0x2b (octosense) | 1x widget-draw: _platform_bzero$VARIANT$Haswell+0x73 (libsystem_platform.dylib) ← hashbrown::raw::RawTableInner::fallible_with_capacity::<alloc::alloc::Global>+0x174 (octosense) ← makepad_script::value_map::ValueMap::<makepad_script::value::ScriptValue, makepad_script::object::ScriptMapValue>::insert+0xb5 (octosense) ← makepad_script::object::ScriptObjectData::map_insert+0x18c (octosense) ← makepad_script::heap::ScriptHeap::set_value_shallow+0x2e9 (octosense) ← makepad_script::heap::ScriptHeap::set_value+0x17b4 (octosense) ← makepad_script::vm::ScriptVm::handle_assign_field+0xa3 (octosense) ← makepad_script::vm::ScriptVm::run_core+0x3a3d (octosense) | 1x widget-draw: large_malloc+0xeb (libsystem_malloc.dylib) ← szone_malloc_should_clear+0xf1 (libsystem_malloc.dylib) ← szone_realloc+0x32e (libsystem_malloc.dylib) ← _malloc_zone_realloc+0x68 (libsystem_malloc.dylib) ← _realloc+0x13b (libsystem_malloc.dylib) ← alloc::raw_vec::RawVecInner::finish_grow+0x61 (octosense) ← alloc::raw_vec::RawVec::<makepad_script::gen_index::GenSlot::<core::option::Option::<makepad_script::handle::ScriptHandleData>>>::grow_one+0x3f (octosense) ← makepad_script::tokenizer::ScriptTokenizer::emit_identifier+0x141 (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=484257 chunks=120 total_ms=89.668 max_chunk_ms=4.674"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 14.740416322000002,
+      "pid": 19823,
+      "raw_snapshot_sha256": "31fbdd2199dcec29eb9efa9e46324750b09d01400aa93eb5c5dcf165fd2f584f"
+    },
+    {
+      "index": 4,
+      "pass": true,
+      "first_content_seconds": 10.312843637,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 10.829163432000001,
+      "nonempty_goal_card_rendered": true,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=484257 chunks=120 total_ms=78.734 max_chunk_ms=3.652"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 14.187218947999995,
+      "pid": 20013,
+      "raw_snapshot_sha256": "4808a30f154b70866637323fad4ff96878dee47289ae5a968f711daab76daac8"
+    },
+    {
+      "index": 5,
+      "pass": true,
+      "first_content_seconds": 10.457330613000003,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 11.15696071,
+      "nonempty_goal_card_rendered": true,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": true,
+        "邮箱": true,
+        "日历": true,
+        "能力授权": true,
+        "设置": true,
+        "对话": true
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=484257 chunks=120 total_ms=74.440 max_chunk_ms=3.035"
+      ],
+      "protected_state_equal": true,
+      "model_ledger_equal": true,
+      "seconds": 15.43697912999999,
+      "pid": 20196,
+      "raw_snapshot_sha256": "8e0898437683f500fff9bdbf908a97070590418daf112c03df11c6df817ecb4f"
+    },
+    {
+      "index": 6,
+      "pass": false,
+      "first_content_seconds": 12.324188985999996,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 13.086005571000001,
+      "nonempty_goal_card_rendered": true,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "error": "visible widget missing after scroll: 日历",
+      "seconds": 14.590202022
+    }
+  ],
+  "reopen": [],
+  "restart": [],
+  "requested_counts": {
+    "cold": 10,
+    "reopen": 5,
+    "restart": 0
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "stopped_after_failure": true
+}

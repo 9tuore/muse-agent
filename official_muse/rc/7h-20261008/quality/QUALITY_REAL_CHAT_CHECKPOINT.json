@@ -1,0 +1,44 @@
+{
+  "status": "PARTIAL_NOT_READY",
+  "candidate_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+  "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+  "storage_variants_pass": 8,
+  "cold10_reopen5": "FAIL_INCOMPLETE_REAL_SOURCE_PREPARATION_BUDGET_ERROR",
+  "runtime_errors": [
+    "[I] .sources/makepad/widgets/src/splash.rs:492:13 - splash: source preparation failed at 227355 of 484257 bytes",
+    "[I] .sources/makepad/widgets/src/splash.rs:495:35 - splash: .sources/octoscript-makepad/crates/octoscript-widgets/src/kit_shared.rs:26:52: script time budget exceeded (.sources/makepad/platform/script/src/vm.rs:916)"
+  ],
+  "official_cli_gate": "PASS_STRUCTURAL_ONLY",
+  "calendar_minimal": {
+    "status": {
+      "method": "calendar.status",
+      "dispatch_number": 1,
+      "dispatched_at": 1791472505.069891,
+      "callback": true,
+      "completed_at": 1791472507.373656,
+      "is_ok": true,
+      "permission": "not_determined",
+      "error": ""
+    },
+    "request": {
+      "method": "calendar.request_access",
+      "dispatch_number": 2,
+      "dispatched_at": 1791472637.930029,
+      "callback": true,
+      "completed_at": 1791472640.047011,
+      "is_ok": true,
+      "permission": "not_determined",
+      "error": ""
+    },
+    "callback_seconds": 2.1169819831848145,
+    "permission_granted": false,
+    "popup_appearance": "NOT_OBSERVED_BY_SUPPORTED_CAPTURE",
+    "system_allow_clicked": false,
+    "crud_calls": 0,
+    "request_attempts": 1
+  },
+  "product_source_changes": 0,
+  "root_ports_touched": [],
+  "secrets_searched": false,
+  "final_release_gate": "AWAIT_ROOT_NEW_FREEZE"
+}

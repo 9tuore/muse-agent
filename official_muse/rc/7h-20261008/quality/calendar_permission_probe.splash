@@ -1,0 +1,30 @@
+// Dedicated real HostService diagnostic. No watcher, model, CRUD or secrets.
+let probe_pending = false
+let probe_count = 0
+fn probe(method){
+    if probe_pending { return }
+    probe_pending = true
+    probe_count = probe_count + 1
+    let number = probe_count
+    let record = {method: method dispatch_number: number dispatched_at: time_now() callback: false}
+    fs.write("calendar-permission-probe.json",record.to_json())
+    ui.probe_status.set_text("已实际分发："+method+"；等待宿主回调。")
+    host.request(method,{},fn(answer){
+        probe_pending = false
+        let permission = ""
+        let error = ""
+        if answer.is_ok && answer.data != nil && answer.data.permission != nil { permission = answer.data.permission }
+        if !answer.is_ok { error = answer.error }
+        fs.write("calendar-permission-probe.json",{method: method dispatch_number: number
+            dispatched_at: record.dispatched_at callback: true completed_at: time_now()
+            is_ok: answer.is_ok permission: permission error: error}.to_json())
+        ui.probe_status.set_text("宿主回调："+method+"；实际权限："+permission+"；错误："+error)
+    })
+}
+SolidView{width: Fill height: Fill flow: Down padding: 24 spacing: 16 draw_bg.color: #x222326
+    Label{width: Fill text: "日历授权最小诊断（不执行日历写入）" draw_text.color: #xe9eaee draw_text.wrap: Words}
+    probe_status := Label{width: Fill text: "尚未调用宿主。" draw_text.color: #xe9eaee draw_text.wrap: Words}
+    ButtonFlat{text: "只读：查询当前日历权限" on_click: ||probe("calendar.status")}
+    Label{width: Fill text: "下一按钮仅供本人操作：会请求系统弹窗。是否授权由本人选择。" draw_text.color: #x979ca5 draw_text.wrap: Words}
+    ButtonFlat{text: "本人点击：请求完整日历访问" on_click: ||probe("calendar.request_access")}
+}

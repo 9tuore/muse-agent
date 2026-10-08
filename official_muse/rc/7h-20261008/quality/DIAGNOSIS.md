@@ -31,3 +31,13 @@ Official App Hub78dfda5f source242Git blobs matched official commit tree; archiv
 Root received exact errors and a minimal recommendation: native root/array/type checks plus required render fields; corrupt files must fail closed or recover the intact backup without overwriting the originals. Quality does not modify the core implementation.
 
 Pinned L0 dependency5991dfae source33Git blobs match official tree `c4c531f5`; provenance is recorded in `OFFICIAL_CLI_BUILD.json` alongside App Hub provenance. The rebuilt CLI's dependency resolution remains explicitly separate from the historical binary.
+
+## Real-chat continuation on cceeaa009
+
+Eight real visible Shell storage variants passed: prior bad shape/tail now fail closed without overwriting originals; valid nonempty Goal and intact shape/Run/Action backups restore a visible real card; corrupt Run/Action stores are refused with a clear error and no execute button. Same16sessions/256messages/64claims/65sources. `TASK_VARIANTS_SUMMARY.json` binds actual snapshots/reports. Local synthetic source has no live credentials and no model or external action was submitted.
+
+10cold+5reopen is **FAIL/incomplete**. Matrixr1 got5cold successes then a navigation-driver clipping failure; actual Calendar became reachable with40px scroll. Matrixr2 then exposed an already-expanded More toggle mistake; bounded scan-before-toggle driver fixed and actual five-page navigation passed. Both driver failures remain. Matrixr3 cold01 had a **real runtime failure**: source preparation at227355/484257 bytes, kit_shared.rs script time budget exceeded(vm.rs:916), no content/input. No raising of deadlines/budgets and no passing-by-retry claim. Root needs to fix/freeze a new candidate before final matrix. Source/Host SHA in `QUALITY_REAL_CHAT_CHECKPOINT.json`.
+
+Verified official CLI stamp/check/scan PASS in `official-gate-shape-r1`, not independent publication review or Calendar-extension acceptance.
+
+Independent minimal actual Calendar HostService probe (sameHost, no product watcher/guard) returned status not_determined and request_access callback after2.117s with is_ok=true, not_determined, no error. Thus request dispatch occurs but grant remains absent. No popup proof, no automated system Allow, no Calendar CRUD. Source/UI/actual callback evidence in `calendar-minimal-live-r1`; native bridge ignores granted bool. This excludes simply assuming product pending-click logic is the cause. Full handoff in `HANDOFF_REAL_CHAT.md`.
