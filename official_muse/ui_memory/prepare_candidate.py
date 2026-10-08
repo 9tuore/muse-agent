@@ -65,7 +65,7 @@ def main():
  command(['scan',bundle,'--packet',out/'review-packet.json','--publisher-key',identity],out/'scan.txt')
  catalog=json.loads((mirror/'catalog.json').read_text());cert=catalog['key']['anchor_certificate']
  head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
- command(['publish',bundle,'--catalog',mirror/'catalog.json','--key',working,'--anchor-cert',cert,
+ command(['publish',bundle,'--catalog',mirror/'catalog.json','--anchor',ANCHOR,'--key',working,'--anchor-cert',cert,
           '--publisher','muse-local-rehearsal','--publisher-key',identity,'--repo','local-rehearsal','--commit',head,'--out',mirror],out/'publish.txt')
  command(['verify',mirror/'catalog.json','--anchor',ANCHOR],out/'verify.txt')
  private=out/'private';private.mkdir()
