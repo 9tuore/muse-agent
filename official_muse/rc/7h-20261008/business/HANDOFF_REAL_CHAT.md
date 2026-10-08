@@ -1,5 +1,13 @@
 # Business 真实聊天交接
 
+## rc16 焦点窄验（2026-10-09）
+
+**DRY_RUN PASS（参考 card-host）**。源 `dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4`；Host仍 `46a4d16d...`。
+
+477函数核对只有 chat_new_session/send_chat 改动，475函数原样，两函数外全部源码字节相同。真实VM 21/21 +独立磁盘8/8：新Chat继承项目/归属但messages/proposals/goal为空，旧Chat与Memory保持；同项目两归属合成资料以运行时观察的Memory ID验证检索不混用，返回旧Chat恢复原焦点；三个项目指代×缺项目/缺归属/两者缺失，九次实际send_chat均不开模型并保留输入/记录/requests。
+
+第一probe 19/20：切回旧Chat后updated_at随chat_save更新，使全对象早期快照比较失败。已把拦截基线移到选择后，另加旧内容字段保留检查；生产函数未改，首FAIL留存。`FOCUS_R2_RESULTS.json`与`.local-state/focus-r2-r1/`含证据。最小TextInput、redraw/set_page等stub如runner摘要，无可见UI/真实Qwen/最终Shell证明。rc15链与恢复51+22仍绑定cef7d576原身份，不复跑、不改标rc16。
+
 ## r3 最新结果（2026-10-09）
 
 **PARTIAL：r3 在参考 card-host 的 scoped DRY_RUN 通过；最终 Shell Host 未验。** 仅 business 文件修改，不 push。

@@ -96,3 +96,8 @@ python3 official_muse/rc/7h-20261008/business/run_matrix.py \
 见 `RESULT_COMPONENT_R3_RESULTS.json` 与 `HANDOFF_REAL_CHAT.md`。最终源 cef7d576... 在参考 card-host 46a4d16d...：授权异步6/6、链20/20、重启10/10、代表性关联Memory失败后独立新进程恢复15/15及磁盘22/22。最终 Shell 276b2b68... 另列 NOT_RUN；不把参考Host替代为最终Host。保留首个授权probe漏启动timer的ERROR以及全部旧预算失败证据。
 
 `calendar_access_order.splash` 使用真实VM定时器延后合成status/access回调；生产授权函数未改。transport新增默认关闭的回调暂存开关，不改变旧场景默认行为。`run_recovery_restarts.py --case linked_memory_failure` 可只运行代表性pair；不提供case时仍为原四组。
+
+
+## rc16 新Chat焦点窄验（2026-10-09）
+
+`chat_focus_scope.splash`、`FOCUS_R2_RESULTS.json`：dd2ce025源，参考46a4d16d Host，21/21 VM+8/8独立磁盘；先生成两归属合成资料再按实际Memory ID检索，非固定模型答案。477生产函数中只2函数改动、其余源码字节相同，rc15链/恢复证据保留原身份。首probe19/20失败来自对选择前updated_at快照的比较，修正基线并新增旧内容保留检查后通过；旧FAIL未删。

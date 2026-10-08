@@ -1,0 +1,99 @@
+// Actual VM/storage and unchanged focus functions. Synthetic memories are input fixtures, not answers.
+let be_old_id="" let be_old_json="" let be_memory_bytes="" let be_memory_json=""
+let be_owner_a="" let be_owner_b="" let be_project="" let be_value_a="" let be_value_b=""
+let be_id_a="" let be_id_b="" let be_new_id=""
+fn be_hit(context,id){for hit in context.hits{if hit.id==id{return true}} return false}
+fn be_start(){
+    be_boot()
+    be_until(|| gm_ready && chat_ready,|| be_seed_focus(),"focus_boot_ready",0)
+}
+fn be_seed_focus(){
+    let nonce=""+random_u32()
+    be_project="合成焦点项目"+nonce be_owner_a="归属甲"+nonce be_owner_b="归属乙"+nonce
+    be_value_a="海鸥暗号甲"+nonce be_value_b="河狸暗号乙"+nonce
+    be_old_id=chat_selected_id
+    ui.session_focus_project.set_text(be_project) ui.session_focus_owner.set_text(be_owner_a)
+    chat_focus_save()
+    messages.push({role:"user" text:be_value_a state:"success" at:time_now() project:be_project owner:be_owner_a})
+    messages.push({role:"assistant" text:"合成历史记录" state:"success" at:time_now() project:be_project owner:be_owner_a})
+    be_checks.old_chat_saved=chat_save()
+    be_checks.owner_a_memory_saved=gm_save(be_value_a,"fact","暗号","value",be_old_id,be_project,be_owner_a,"test-account")
+    be_checks.owner_b_memory_saved=gm_save(be_value_b,"fact","暗号","value",be_old_id,be_project,be_owner_b,"test-account")
+    for entry in memory{
+        if entry.document.payload.value==be_value_a{be_id_a=entry.document.id}
+        if entry.document.payload.value==be_value_b{be_id_b=entry.document.id}
+    }
+    be_checks.observed_distinct_memory_ids=be_id_a!="" && be_id_b!="" && be_id_a!=be_id_b
+    be_old_json=chat_sessions[chat_session_index(be_old_id)].to_json()
+    be_memory_bytes=fs.read("memory.json") be_memory_json=memory.to_json()
+    be_checks.new_chat_created=chat_new_session()
+    be_new_id=chat_selected_id
+    start_timeout(0.03,|| be_check_new())
+}
+fn be_check_new(){
+    let i=chat_session_index(be_new_id)
+    be_checks.new_session_inherits_focus=be_new_id!=be_old_id && gm_project==be_project && gm_owner==be_owner_a
+        && chat_sessions[i].focus_project==be_project && chat_sessions[i].focus_owner==be_owner_a
+    be_checks.new_session_empty_content=messages.len()==0 && chat_sessions[i].messages.len()==0
+        && chat_sessions[i].proposals.len()==0 && chat_sessions[i].goal_id==""
+    be_checks.old_session_unchanged=chat_sessions[chat_session_index(be_old_id)].to_json()==be_old_json
+    be_checks.global_memory_unchanged=fs.read("memory.json")==be_memory_bytes && memory.to_json()==be_memory_json
+    let own=gm_context("暗号",be_new_id,"")
+    be_checks.new_chat_recalls_observed_owner_a=be_hit(own,be_id_a) && !be_hit(own,be_id_b)
+        && own.text.search(be_value_a)>=0 && own.text.search(be_value_b)<0
+    let persisted=fs.read("chat-sessions.json").parse_json()
+    let found=false
+    for session in persisted.sessions{
+        if session.id==be_new_id{found=session.focus_project==be_project && session.focus_owner==be_owner_a
+            && session.messages.len()==0 && session.proposals.len()==0 && session.goal_id==""}
+    }
+    be_checks.inherited_focus_independent_disk_readback=found && persisted.selected_id==be_new_id
+    ui.session_focus_project.set_text(be_project) ui.session_focus_owner.set_text(be_owner_b)
+    chat_focus_save()
+    let other=gm_context("暗号",be_new_id,"")
+    be_checks.owner_switch_does_not_mix_prior_scope=gm_owner==be_owner_b && be_hit(other,be_id_b)
+        && !be_hit(other,be_id_a) && other.text.search(be_value_b)>=0 && other.text.search(be_value_a)<0
+    be_checks.old_owner_history_excluded=!chat_history_scope_current(chat_sessions[chat_session_index(be_old_id)].messages[0])
+    be_checks.scope_switch_keeps_old_chat_and_memory=chat_sessions[chat_session_index(be_old_id)].to_json()==be_old_json
+        && fs.read("memory.json")==be_memory_bytes && memory.to_json()==be_memory_json
+    be_checks.old_session_selects_its_own_focus=chat_select_session(be_old_id) && gm_project==be_project && gm_owner==be_owner_a
+        && messages.to_json()==chat_sessions[chat_session_index(be_old_id)].messages.to_json()
+    let restored=gm_context("暗号",be_old_id,"")
+    be_checks.return_to_old_owner_retrieves_only_its_memory=be_hit(restored,be_id_a) && !be_hit(restored,be_id_b)
+    chat_select_session(be_new_id)
+    be_block_references()
+}
+fn be_block_references(){
+    let before_models=be_count("model.complete")
+    let before_messages=messages.to_json() let before_chat=fs.read("chat-sessions.json")
+    let before_requests=chat_requests.to_json()
+    let before_old=chat_sessions[chat_session_index(be_old_id)].to_json()
+    let original=be_old_json.parse_json() let current=chat_sessions[chat_session_index(be_old_id)]
+    be_checks.old_chat_content_survives_selection=current.messages.to_json()==original.messages.to_json()
+        && current.proposals.to_json()==original.proposals.to_json() && current.goal_id==original.goal_id
+        && current.focus_project==original.focus_project && current.focus_owner==original.focus_owner
+    let refs=["这个项目","本项目","当前项目"]
+    let blocked=true let preserved=true
+    for reference in refs{
+        for missing in 3{
+            let project=be_project let owner=be_owner_b
+            if missing==0{project=""} if missing==1{owner=""} if missing==2{project="" owner=""}
+            gm_set_focus(project,owner) chat_focus_open=false
+            let input=reference+"的暗号是什么？"
+            ui.goal_input.set_text(input) send_chat()
+            if !chat_focus_open||be_count("model.complete")!=before_models||be_models.len()!=0{blocked=false}
+            if ui.goal_input.text()!=input||messages.to_json()!=before_messages
+                ||fs.read("chat-sessions.json")!=before_chat||chat_requests.to_json()!=before_requests{preserved=false}
+        }
+    }
+    be_checks.all_three_references_missing_project_or_owner_block_model=blocked
+    be_checks.blocked_input_history_and_requests_preserved=preserved
+    be_checks.blocked_reference_keeps_memory_and_prior_chat=fs.read("memory.json")==be_memory_bytes
+        && chat_sessions[chat_session_index(be_old_id)].to_json()==before_old
+    be_checks.no_external_business_writes=be_count("mail.send")==0 && be_count("calendar.create")==0
+        && be_count("calendar.update")==0 && be_count("calendar.delete")==0
+    be_checks.scope_observation={project:be_project owner_a:be_owner_a owner_b:be_owner_b memory_a:be_id_a memory_b:be_id_b
+        prior_session:be_old_id new_session:be_new_id}
+    be_phase="chat_focus_scope_complete" be_finish()
+}
+start_timeout(0.1,|| be_start())
