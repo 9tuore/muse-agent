@@ -169,7 +169,9 @@ def main():
     info = dict(CFBundleIdentifier='org.xinghai.muse.tmall.rc10', CFBundleExecutable='muse-launcher',
                 CFBundleName='Muse', CFBundleDisplayName='Muse', CFBundlePackageType='APPL',
                 CFBundleShortVersionString='0.3.27', CFBundleVersion='10',
-                CFBundleDevelopmentRegion='zh_CN', LSMinimumSystemVersion='14.0', LSUIElement=True)
+                CFBundleDevelopmentRegion='zh_CN', LSMinimumSystemVersion='14.0', LSUIElement=True,
+                NSCalendarsUsageDescription='Muse 在你授权后读取系统日历，在确认后安排或修改事件并读回核对。',
+                NSCalendarsFullAccessUsageDescription='Muse 在你授权后读取系统日历，在确认后安排或修改事件并读回核对。')
     (contents / 'Info.plist').write_bytes(plistlib.dumps(info))
     run('/usr/bin/codesign', '--force', '--sign', '-', app)
     run('/usr/bin/codesign', '--verify', '--deep', '--strict', app)

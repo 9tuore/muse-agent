@@ -204,6 +204,7 @@ def main():
             'CFBundleVersion': VERSION.split('-')[0], 'CFBundleShortVersionString': VERSION.split('-')[0],
             'CFBundleDevelopmentRegion': 'zh_CN', 'CFBundleLocalizations': ['zh_CN'],
             'LSMinimumSystemVersion': '13.3', 'LSUIElement': True,
+            'NSCalendarsUsageDescription': '在你授权和确认后，Muse 读取或操作本机测试日历并核对结果。',
             'NSCalendarsFullAccessUsageDescription': '在你授权和确认后，Muse 读取或操作本机测试日历并核对结果。'}
     (APP / 'Contents/Info.plist').write_bytes(plistlib.dumps(info))
     checks.append(run(['codesign', '--force', '--sign', '-', APP]))
