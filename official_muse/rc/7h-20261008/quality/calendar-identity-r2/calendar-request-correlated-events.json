@@ -1,0 +1,80 @@
+[
+  {
+    "raw_record_index": 1026,
+    "timestamp": "2026-10-08 23:50:09.418319+0800",
+    "process_id": 465,
+    "message": "REQUEST: tccd_uid=501, sender_pid=534, sender_uid=501, sender_auid=501, function=TCCAccessRequest, msgID=534.280"
+  },
+  {
+    "raw_record_index": 1027,
+    "timestamp": "2026-10-08 23:50:09.418511+0800",
+    "process_id": 465,
+    "message": "REQUEST_MSG: msgID=534.280, msg={\n\tTCCD_MSG_MESSAGE_OPTION_REQUEST_PROMPT_CLIENT_DICT_KEY=<data: 0x7fbe22904f20>: { length = 158 bytes, contents = 0x62706c6973743030d101025f10326b5443434e6f74696669... }\n\tservice=\"kTCCServiceCalendar\"\n\tTCCD_MSG_SPI_VERSION=2 (0x2)\n\tfunction=\"TCCAccessRequest\"\n\tTCCD_MSG_REQUEST_TYPE_KEY=0 (0x0)\n\tTCC_MSG_REQUEST_AUTHORIZATION_SUBJECT_CREDENTIAL_DICTIONARY_KEY={\n\t\tTCCD_MSG_CREDENTIAL_AUTHENTICATOR_TYPE_KEY=1 (0x1)\n\t\tTCCD_MSG_CREDENTIAL_AUTHENTICATOR_AUDIT_TOKEN_KEY={pid:50602, auid:501, euid:501}\n\t}\n\tTCCD_MSG_MESSAGE_OPTION_REQUEST_USAGE_STRING_POLICY_KEY=0 (0x0)\n\tTCCD_MSG_MESSAGE_OPTION_REQUEST_PROMPT_POLICY_KEY=0 (0x0)\n\tdesired_auth_value=2 (0x2)\n\tTCCD_MSG_ID=\"534.280\"\n}"
+  },
+  {
+    "raw_record_index": 1029,
+    "timestamp": "2026-10-08 23:50:09.419038+0800",
+    "process_id": 465,
+    "message": "AUTHREQ_CTX: msgID=534.280, function=TCCAccessRequest, service=kTCCServiceCalendar, preflight=no, query=1, client_dict=(null), daemon_dict=<private>"
+  },
+  {
+    "raw_record_index": 1030,
+    "timestamp": "2026-10-08 23:50:09.419150+0800",
+    "process_id": 465,
+    "message": "AUTHREQ_ATTRIBUTION: msgID=534.280, attribution={accessing={TCCDProcess: identifier=dev.makepad.octosense.musecleanroom.local, pid=50602, auid=501, euid=501, binary_path=/Users/mima0000/Desktop/Muse-最新交付/01-正式参赛版/Muse-最终参赛交付-0.3.27-rc10/Muse.app/Contents/Resources/OctoSense Host.app/Contents/MacOS/octosense}, requesting={TCCDProcess: identifier=com.apple.calaccessd, pid=534, auid=501, euid=501, binary_path=/System/Library/PrivateFrameworks/CalendarDaemon.framework/Support/calaccessd}, },"
+  },
+  {
+    "raw_record_index": 1036,
+    "timestamp": "2026-10-08 23:50:09.429249+0800",
+    "process_id": 465,
+    "message": "AUTHREQ_SUBJECT: msgID=534.280, subject=org.xinghai.muse.tmall.rc10,"
+  },
+  {
+    "raw_record_index": 1047,
+    "timestamp": "2026-10-08 23:50:09.442884+0800",
+    "process_id": 465,
+    "message": "AUTHREQ_PROMPTING: msgID=534.280, service=kTCCServiceCalendar, subject=Sub:{org.xinghai.muse.tmall.rc10}Resp:{TCCDProcess: identifier=dev.makepad.octosense.musecleanroom.local, pid=50602, auid=501, euid=501, binary_path=/Users/mima0000/Desktop/Muse-最新交付/01-正式参赛版/Muse-最终参赛交付-0.3.27-rc10/Muse.app/Contents/Resources/OctoSense Host.app/Contents/MacOS/octosense},"
+  },
+  {
+    "raw_record_index": 1048,
+    "timestamp": "2026-10-08 23:50:09.442977+0800",
+    "process_id": 465,
+    "message": "got authorization choices for staged prompting request: legacy SPI: 0 service: <private> currentAuth: 1 desiredAuth: 2"
+  },
+  {
+    "raw_record_index": 1052,
+    "timestamp": "2026-10-08 23:50:09.443281+0800",
+    "process_id": 465,
+    "message": "found auth specifc usage key: NSCalendarsFullAccessUsageDescription for desired auth: 2"
+  },
+  {
+    "raw_record_index": 1054,
+    "timestamp": "2026-10-08 23:50:09.445372+0800",
+    "process_id": 465,
+    "message": "No usage string found (key:NSCalendarsUsageDescription) for client[50602] in bundle:<private>"
+  },
+  {
+    "raw_record_index": 1055,
+    "timestamp": "2026-10-08 23:50:09.445421+0800",
+    "process_id": 465,
+    "message": "Usage key:NSCalendarsUsageDescription service sdk version: 0xa0e00;  client[50602](<private>) sdk version: 0xf0200"
+  },
+  {
+    "raw_record_index": 1056,
+    "timestamp": "2026-10-08 23:50:09.445545+0800",
+    "process_id": 465,
+    "message": "Refusing authorization request for service kTCCServiceCalendar and subject Sub:{org.xinghai.muse.tmall.rc10}Resp:{TCCDProcess: identifier=dev.makepad.octosense.musecleanroom.local, pid=50602, auid=501, euid=501, binary_path=/Users/mima0000/Desktop/Muse-最新交付/01-正式参赛版/Muse-最终参赛交付-0.3.27-rc10/Muse.app/Contents/Resources/OctoSense Host.app/Contents/MacOS/octosense} without NSCalendarsUsageDescription key"
+  },
+  {
+    "raw_record_index": 1057,
+    "timestamp": "2026-10-08 23:50:09.445596+0800",
+    "process_id": 465,
+    "message": "AUTHREQ_RESULT: msgID=534.280, authValue=0, authReason=8, authVersion=2, error=(null),"
+  },
+  {
+    "raw_record_index": 1059,
+    "timestamp": "2026-10-08 23:50:09.446125+0800",
+    "process_id": 465,
+    "message": "REPLY: (501) function=TCCAccessRequest, msgID=534.280"
+  }
+]
