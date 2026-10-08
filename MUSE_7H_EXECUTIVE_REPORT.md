@@ -108,3 +108,9 @@ rc16最终Shell用已确认的本地Qwen且没有云端fallback，完成一次�
 02:43截止观察：Phone已在自身SDK准备[最小目标OS补丁](official_muse/rc/7h-20261008/phone/patches/calendar-build-target-os.patch)，改读CARGO_CFG_TARGET_OS；没有修改冻结桌面SDK/Host。Home尚未重新构建成功，NOT_BUILT结论保持。截止后只允许完成已有记录/本地提交，不启动新一轮构建。
 
 Home r4真实构建日志报 `octosense-calendar-service` 编译 `src/eventkit.m` 的 `-fobjc-arc` 不支持 Android runtime。已只读核对实际build.rs：`#[cfg(target_os = "macos")]`在构建脚本中判断的是执行构建的宿主，而当前目标是Android；服务lib.rs已有非macOS unavailable分支。最小修复应按Cargo提供的目标OS控制EventKit编译/链接，只在Phone隔离SDK交补丁，不新增Android日历或修改冻结桌面载荷。失败日志 `phone/evidence/home-x86-build-r4.log`保留。本报告观察时尚未取得修后APK成功证据，具体补丁、构建最终退出码与截止状态以[Phone报告](official_muse/rc/7h-20261008/phone/REPORT.md)为准。
+
+## 截止后续跑：APK与意图路由
+
+Phone r7 APK已实际构建并验签，内含原始内核，约240.5MB，Home/Bridge签名一致；证据和提交13611f48见phone/REPORT.md。模拟器启动前被自动6GB数据分区所需空间拦住，Home内核/AppHub/Muse运行仍未通过。真实设备仍DEVICE_NOT_TESTED。
+
+最终rc16真实Shell一次性任务输入“整理资料并准备计划，不发邮件，不操作日历”错误返回日期询问；失败见source-component-r1/live-goal-plan-probe.json（620e3196）。Root仅在readable source添加否定分句过滤，冻结rc16 bundle及既有通过证据不变。第一轮实际官方VM 26/29通过，三个转折/冒号否定失败（8fc758dd），已据此最小补齐，二轮实际官方VM 32/32通过（f22632c9），生产函数返回action/schema已核对；尚未集成候选，不能称rc16修复完成或全链通过。

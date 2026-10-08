@@ -27,3 +27,5 @@ PARTIAL。rc16/dd2ce025、Host276b2b68；可见单轮冷10+重开5通过，官�
 ## Important Boundaries
 
 旧rc10源码/安装/生产保护；历史误清分发副本另有清单。新包未换机全链；上游Calendar未接受，不能宣称全过。
+
+截止后路由修补：readable source忽略明确否定分句，第一轮26/29、第二轮32/32实际官方VM通过；r1失败保留。冻结rc16 bundle未更新，需候选集成与真实Shell Goal回归。Phone r7 APK构建验签完成（13611f48），模拟器启动仍需解决官方数据分区空间要求，非Android运行PASS。
