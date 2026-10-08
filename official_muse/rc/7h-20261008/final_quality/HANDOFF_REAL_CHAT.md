@@ -1,3 +1,15 @@
+# LATEST RC16 COMPLETE — 2026-10-09T02:08:44+08:00
+
+**PASS_SINGLE_ROUND_10_COLD_5_REOPEN**. New rc16 dd2ce025 / unchanged Host276b2b68, one new matrix10/10cold+5/5reopen, no retry. Cold PIDs51168,51801,52235,52640,53056,53454,53837,54250,54640,55064;5reopens all55064. Actual screenshots/input/history/Goal/Memory/all core pages verified. Core bytes equal original seed; ledger unchanged; legal Activity increments checked separately. Full loaded bundle exact Root signedr9; independent signed official gate PASS. Max prepchunk17.288ms; no budget/VM errors. OwnPID55064 quit,8494closed. DEVICE_NOT_TESTED. Root owns specific newChat project/model variant acceptance; no Quality model/external writes/grants. Authoritative REPORT_RC16.md, FINAL_SUMMARY_RC16.json, checkpoint-rc16.json and final-rc16-cold10-reopen5-r1/report.json. Default checkpoint.json now points to rc16; original rc15 checkpoint preserved byte-for-byte at checkpoint-rc15.json. Earlier rc15 reports/failures remain original identity. Only owned paths written; no messages/new chats/subagents/push. Read this first after compaction; older completed phases below are history.
+
+---
+
+# LATEST RC16 ACTIVE — new Root freeze
+
+Root authorized new10cold+5reopen from rc16 dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4, unchanged Host276b2b688b759e2d0e026a6999118e25f857bb21ebf23c93cea2d24b03daf638. Source/build-bundle/Root signed candidate record independently verified, version0.3.27-rc16. Own synthetic seed/profile only; do not copy Root PRIVATE_AUTHORIZED_CLONE accounts. preparing independent local-model-only runtime. rc15 evidence below remains rc15 only and cannot count as rc16 acceptance. Only final_quality writable,8494owned, no model/external writes/system grants/messages/subagents. Root owns new Chat/project recall special cases. Deadline02:43.
+
+---
+
 # LATEST FINAL COMPLETE — 2026-10-09T01:38:44+08:00
 
 **PASS_WITH_TWO_DRIVER_SUPPLEMENT_RUNS**. Same final rc15 source cef7d576 / Host276b2b68:10 accepted distinct cold PIDs +5 accepted app reopen checks.11cold/6reopen attempts in r6+r7; two final driver failures retained false and replaced by onecold/onereopen supplement, not single15/15. Full REPORT.md, FINAL_SUMMARY.json and FINAL_EVIDENCE_CHECK.json authoritative. Core bytes equal original seed; ledger unchanged. Authorized Activity-only permission log increments validated separately, all-file equality is false. Loaded bundle exact Root final signed bundle; official-signed-rc15-r4 check/scan PASS. No accepted budget/VM errors. Own PID29339 stopped;8494closed independently. DEVICE_NOT_TESTED. No source/SDK/Host/production changes, paid model, external writes, permission requests, messages or push. Only final_quality owned paths committed. Read this section first after compaction; do not resume older phases below.
@@ -33,3 +45,7 @@ Independent exact signed Root bundle check+scan PASS: official-signed-rc15-r4/re
 R6 progress: 4/4 completed cold passed. PID replacement, visible page content/history/card/Memory, core bytes+ledger and valid Activity-only increments checked; no budget/VM errors so far. Final cef7d576 restore closure unchanged; storage-reuse-final.json. Independent exact signed gate PASS official-signed-rc15-r4. Still running10+5, not yet final complete.
 
 Final evidence commit3019a8ef5c62078a96f063eace491d89bde4f22c independently verified to contain only final_quality paths. No push.
+
+RC16 independent official signed check/scan PASS, bundle byte equality verified (official-signed-rc16-r1/report.json). Final storage restore call closure unchanged (storage-reuse-rc16.json); changed send_chat/chat_new_session new-project behavior explicitly Root-owned. Matrix final-rc16-cold10-reopen5-r1 RUNNING on dd2ce025/276b2b68 with original synthetic seed.
+
+RC16 progress6/6 completed full cold checks PASS, no retries so far. Current authoritative checkpoint-rc16.json and final-rc16-cold10-reopen5-r1/report.json; rc15 checkpoint/report remain historical. Still RUNNING, not final.

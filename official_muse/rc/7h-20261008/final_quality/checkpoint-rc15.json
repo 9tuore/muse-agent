@@ -1,0 +1,91 @@
+{
+  "status": "PASS_WITH_TWO_DRIVER_SUPPLEMENT_RUNS",
+  "source_sha256": "cef7d576b2de31e5c22a813e70e68370ff0ddd043ef1bbcd57acae75eb81b546",
+  "seed_counts": {
+    "sessions": 16,
+    "messages": 256,
+    "claims": 64,
+    "sources": 65,
+    "goals": 1,
+    "failed_runs": 1,
+    "failed_actions": 1
+  },
+  "seed_files_sha256": {
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "chat-sessions.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "goals.backup.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "goals.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "activity.backup.json": "5730ba21d1bad8e058ffcfab63bb77597eb5345aa9eddb18a036d8b23413adbe",
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8",
+    "chat-sessions.backup.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "activity.json": "ffdd271e04e50e08f83212b96f8fe97c84f609b6f051b6249eb6d4ae93a66bcf",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9"
+  },
+  "old_budget_failure": "../quality/shape-nonempty-cold10-reopen5-r3/report.json",
+  "port": 8494,
+  "device": "DEVICE_NOT_TESTED",
+  "host_status": "VERIFIED_ROOT_FINAL_FREEZE",
+  "official_structural_gate": {
+    "status": "PASS_UNSIGNED_COPY_ONLY",
+    "report": "official-structural-rc15-r3/report.json"
+  },
+  "driver_syntax": "PASS",
+  "host_sha256": "276b2b688b759e2d0e026a6999118e25f857bb21ebf23c93cea2d24b03daf638",
+  "final_requested_counts": {
+    "cold": 10,
+    "reopen": 5
+  },
+  "final_matrix": "final-rc15-cold10-reopen5-r6/report.json",
+  "driver_failures": [
+    "driver-failures-r1.json",
+    "driver-failures-r2.json",
+    "driver-failures-r3.json"
+  ],
+  "persistence_note": "Activity automatic permission observation writes detected; strict all-files persistence remains separately enforced, core state and ledger reported independently.",
+  "official_signed_gate": {
+    "status": "PASS",
+    "report": "official-signed-rc15-r4/report.json",
+    "bundle_unchanged": true
+  },
+  "official_unsigned_structural_gate": {
+    "status": "PASS",
+    "report": "official-structural-rc15-r3/report.json"
+  },
+  "activity_policy": "Root authorized legitimate calendar permission log increments; exact original prefix, allowed additions and backup prefix checked. All core bytes and model ledger must be exact.",
+  "completed_cold": 11,
+  "cold_pass": 10,
+  "completed_reopen": 6,
+  "reopen_pass": 5,
+  "storage_reuse": "storage-reuse-final.json",
+  "completed_at": "2026-10-09T01:38:44+08:00",
+  "accepted_counts": {
+    "cold": 10,
+    "reopen": 5
+  },
+  "attempted_counts": {
+    "cold": 11,
+    "reopen": 6
+  },
+  "summary": "FINAL_SUMMARY.json",
+  "report": "REPORT.md",
+  "evidence_check": "FINAL_EVIDENCE_CHECK.json",
+  "cleanup": {
+    "pid": 29339,
+    "port": 8494,
+    "port_closed": true,
+    "quit_outcome": "response",
+    "seconds": 0.22108144100000002
+  },
+  "single_uninterrupted_15_of_15": false,
+  "strict_all_persistent_files_unchanged": false,
+  "final_supplement": "final-rc15-supplement-r7/report.json",
+  "final_gate": "official-signed-rc15-r4/report.json",
+  "historical_invalid_input_gate": {
+    "status": "FAIL_RC15_SIGNED_INPUT",
+    "report": "official-gate-rc15-r2/report.json"
+  },
+  "evidence_commit": "3019a8ef5c62078a96f063eace491d89bde4f22c",
+  "commit_owned_paths_only": true
+}
