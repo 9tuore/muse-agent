@@ -15,13 +15,16 @@ Separate live and isolated evidence. Default real-mail limit is 20; Root owns th
 ## Real-chat handoff (latest user instruction)
 
 The user explicitly replaced sub-agents with existing real Codex chats. Child
-agents were interrupted; no more child agents may be started. All three calls
-use `thinking=low`, with each chat's configured model preserved.
+agents were interrupted; no more child agents may be started. Each real chat keeps its configured model. Reasoning rises only when observed output needs it.
 
-- Quality: `01a0d3b6-2ecb-7f33-a5e0-201dfb33c0e0` (local), port 8494.
-- Business: `01a0fc7a-bfc0-7bd3-b0c8-860d8a5ed3d9` (local).
-- Phone: `01a105ce-9313-74b1-abe3-abb7e7e47a3d` (local).
+- Final quality: `01a11c66-4ced-7bc3-afc9-d13421301a46` (local), port8494, medium, owns `final_quality/**`. Old quality delegation ended after context drift; its evidence stays retained.
+- Business: `01a0fc7a-bfc0-7bd3-b0c8-860d8a5ed3d9` (local), low, port8661.
+- Phone: `01a105ce-9313-74b1-abe3-abb7e7e47a3d` (local), medium.
 
 Directory ownership and test boundaries above stay in force. Each chat writes
 its checkpoint to its own `HANDOFF_REAL_CHAT.md`; Root observes files and
 compact thread status. No orchestrator reply messages are needed.
+
+## Final candidate freeze
+
+2026-10-09 01:04: source cef7d576b2de31e5c22a813e70e68370ff0ddd043ef1bbcd57acae75eb81b546, version0.3.27-rc15; Host276b2b688b759e2d0e026a6999118e25f857bb21ebf23c93cea2d24b03daf638. Source-preparation chunk1024 bytes, existing64ms budgets retained. All final runs bind these hashes; old passing evidence is identified by its original hash. Root8492 and user8765 remain protected from collaborators.
