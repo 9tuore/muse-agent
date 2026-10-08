@@ -19,12 +19,16 @@ agents were interrupted; no more child agents may be started. Each real chat kee
 
 - Final quality: `01a11c66-4ced-7bc3-afc9-d13421301a46` (local), port8494, medium, owns `final_quality/**`. Old quality delegation ended after context drift; its evidence stays retained.
 - Business: `01a0fc7a-bfc0-7bd3-b0c8-860d8a5ed3d9` (local), low, port8661.
-- Phone: `01a105ce-9313-74b1-abe3-abb7e7e47a3d` (local), medium.
+- Phone: `01a105ce-9313-74b1-abe3-abb7e7e47a3d` (local), high after observed resource/build failures; earlier low and medium retained in checkpoints.
 
 Directory ownership and test boundaries above stay in force. Each chat writes
 its checkpoint to its own `HANDOFF_REAL_CHAT.md`; Root observes files and
 compact thread status. No orchestrator reply messages are needed.
 
-## Final candidate freeze
+## Historical rc15 candidate freeze
 
 2026-10-09 01:04: source cef7d576b2de31e5c22a813e70e68370ff0ddd043ef1bbcd57acae75eb81b546, version0.3.27-rc15; Host276b2b688b759e2d0e026a6999118e25f857bb21ebf23c93cea2d24b03daf638. Source-preparation chunk1024 bytes, existing64ms budgets retained. All final runs bind these hashes; old passing evidence is identified by its original hash. Root8492 and user8765 remain protected from collaborators.
+
+## Final rc16 freeze and integration
+
+Final version0.3.27-rc16, compact dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4, readable7fcc94e1b7d3d1a63968bcdc990abf15c2a59208b79d39badf40b4ae91f644d4, same Host276b2b68. Rootr9 signed six-file bundle equals tracked official_muse/app/bundle. FinalQuality single-round10cold+5reopen and official signed Gate passed. Business rc16 scope checks use referencecard-host and retain rc15 chain/recovery identity. No more main/SDK/bundle edits after this freeze; only owned Phone results, packaging and final handoff/report. Root8492 stays open, user8765 stays protected. External full chain remains incomplete for actual credential/system-grant reasons; never upgrade it based on synthetic tests.

@@ -1,4 +1,18 @@
-## 本轮旧运行版本清理
+## 2026-10-09 七小时收口（当前）
+
+隔离分支 `codex/muse-7h-reliability-phone-20261008`，最终 `0.3.27-rc16` 业务/载荷提交 `fce42f30`，compact dd2ce025 / Host276b2b68。真实可见最终Shell单轮10次完整冷启动+5次重开全过，满16对话/256消息/64记忆与任务不清空，输入读回及七页检查通过；冷启动14.46–17.67秒，中位15.45。64ms预算未加，只把源码准备分片4096改1024。独立signed hub check/scan PASS。
+
+新Chat继承当前项目/归属；真实官方model.complete/Qwen检索、显式选中记忆更正读回、新Chat更正召回及完整Host重启后的记忆召回通过。遗忘主存储deleted/value空/tombstone已验证，模型语义探针中断未标通过。恢复/结算/防重复production-function DRY_RUN保留参考Host及原版本身份，不冒充外部全链。
+
+Calendar真实系统缺少外层用途字符串已修，修后进入AUTHREQ_PROMPTING，用户未完成系统grant，最终not_determined。新隔离规范邮箱目录缺Keychain登录，唯一发送UNKNOWN，后续同步“账号密码缺失，请重新登录”；未重发、没有本轮Calendar CRUD。同最终真实Mail→Calendar→Reply仍未完成，总体PARTIAL。
+
+Android真实官方内核已产出，Bridge构建及模拟器设置页通过；Home截至报告初稿仍编译，最终状态以phone/REPORT.md为准。实体DEVICE_NOT_TESTED，无AndroidCalendar。新本地复现包build/7h-delivery-r1/Muse.app内置既有基础Qwen，验签/资源检查通过，未做新接收Mac全链。完整证据和缺项见根目录MUSE_7H_EXECUTIVE_REPORT.md。仅本地提交，无push/旧Tag/发布。
+
+旧rc10源码/bundle哈希未变、旧安装和生产不动；独立聊天误恢复历史旧分发清理另有清单，不能称整个旧worktree无变化。真实聊天协作替代子代理，主界面唯一写入者；phone构建推理逐步提高到high。
+
+---
+
+## 本轮旧运行版本清理（历史）
 
 旧包/重复原生运行副本和缓存已删除，最新rc10 ZIP/启动器/核心SHA保持，当前Host保留。私有删除清单不提交。见official_muse/rc/packaging/cleanup-20261006-r2/REPORT.md；源码、用户数据、旧失败证据与dirty baseline保持。
 

@@ -1,43 +1,29 @@
-# 本轮清理接续
-
-旧版本二进制/ZIP及重复模型已清；保留当前rc10交付、运行Host和相关工具。源码、用户数据、历史测试证据、Git历史、旧Tag及dirty baseline未删除。详细量与验证见official_muse/rc/packaging/cleanup-20261006-r2/CLEANUP_RESULT.json。
-
-# 2026-10-06 23:10 Muse rc10 接续
-
-代码已在现有最终参赛分支收口。详见 official_muse/rc/final-contest-20261006-r1/FINAL_REPORT.md。正常静止重启六文件和外部动作一致；真实改期、回信及新空白对话记忆有证据。完整同一候选受model日预算阻塞，删除后回执仍有脚本预算问题，状态PARTIAL。未修改旧独立安装包与生产资料。
-
 # Handoff
 
 ## Task
 
-参赛离线模型打包与GOSIM/参赛中文使用教程。Root；codex/tmall-submission，核心rc51/6b46c3c8不变。
+七小时可靠性/Phone，隔离分支codex/muse-7h-reliability-phone-20261008，基线5126afc4；Root独占主源码。
 
 ## Result
 
-交付包/入门教程通过范围核验；产品总体PARTIAL。最终参赛ZIP以桌面Muse-Tmall-Delivery.json为准。GOSIM492,370,211字节，旧内载荷不变。
+PARTIAL。rc16/dd2ce025、Host276b2b68；可见单轮冷10+重开5通过，官方signed check/scan通过。新Chat继承焦点，真实Qwen更正记忆及重启召回通过。
 
 ## Changed
 
-原生入口复用：Qwen2.5-0.5B Q4_0/llama.cpp自动本机配置、整包验签、生命周期/正常安装；精确allowlist与500MB硬门槛。docs使用教程和参赛md/html；GOSIM外层加教程。
+严格存储恢复、分段结算、共享结果组件、日历申请排队、项目焦点；原64ms预算不变，源码准备分片1024；外层补Calendar用途字符串。内置基础Qwen复现包已生成并验签/资源检查。
 
 ## Tests
 
-真实AppHub安装6 SHA一致；4次官方model.complete/usage，重开自然两题通过。短格式1/2、旧Qwen3 0/2及驱动首次竞争失败保留。已有合成Provider配置字节保持；22模型文件锁、ZIP全还原/验签/五入口检查PASS，最终身份见记录。
+2026-10-09：final_quality/FINAL_SUMMARY_RC16.json；source-component-r1/live-model-memory-rc16.json。参考Host DRY_RUN与真实Shell分开。完整报告MUSE_7H_EXECUTIVE_REPORT.md。
 
 ## Commit
 
-教程10784ccf；原生模型781feb7a；后续包装/远端回执见桌面交付记录。只普通同步包装分支，main/Tag不动。
+业务/载荷fce42f30；报告本地后续提交，未push/改Tag/发布。
 
 ## Remaining
 
-基本模型有限，原冷启动、第二strong、同最终外部整链、接收Mac等未补证。无付费或外部写入。旧76MB包/492MB旧ZIP保留；旧安装/生产/dirty baseline保护。
+新规范邮箱目录缺登录，1次UNKNOWN未重发；Calendar not_determined，本轮无CRUD/外部全链。Home结果见phone/REPORT.md，实体DEVICE_NOT_TESTED。
 
-## 23:18 交付追加
+## Important Boundaries
 
-ZIP 为489,595,070字节（489.60 MB），SHA256：000b2815c6072d2b8033bea42ddc608b91c307a38f11bc53299b67f8391efbd8。814文件独立解压一致，基础离线模型与宿主文件一致，五项入口/失败保护测试通过。没有复制私人账号或运行数据库。
-
-本人追加授权后，仅隔离测试profile的官方model ledger日token限制调整为200,000，原day/apps调用计数和100,211 token使用记录保留；未改脚本执行预算。此配置不会消除已有业务缺项，不改变PARTIAL结论。
-
-GitHub main/新Tag已推送5d6e6d16。App Hub已提交issues/112，待维护者审核，未上架。
-
-命名更正：所有当前文件中的错误赛事称呼已清除；桌面教程和启动器同步更正，旧历史与核心bundle不改。
+旧rc10源码/安装/生产保护；历史误清分发副本另有清单。新包未换机全链；上游Calendar未接受，不能宣称全过。
