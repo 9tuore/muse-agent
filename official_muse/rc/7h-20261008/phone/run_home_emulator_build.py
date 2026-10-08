@@ -20,7 +20,7 @@ env.update(LANG="en_US.UTF-8", LC_ALL="en_US.UTF-8",
     CARGO_TARGET_DIR=str(state / "android-target"), CARGO_HOME=str(state / "cargo-home"),
     CARGO_BUILD_JOBS="2", CARGO_PROFILE_RELEASE_DEBUG="0",
     CARGO_PROFILE_RELEASE_INCREMENTAL="false", CARGO_PROFILE_RELEASE_OPT_LEVEL="1")
-kernel = state / "android-target/x86_64-linux-android/release/octos"
+kernel = state / "kernel-artifacts/octos-x86_64"
 if not kernel.is_file():
     raise SystemExit("Required official locked octos kernel is not built; refusing kernel-free Home")
 env["MAKEPAD_ANDROID_EXTRA_LIBS"] = "liboctos.so=" + str(kernel)
