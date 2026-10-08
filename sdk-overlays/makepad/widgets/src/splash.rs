@@ -457,7 +457,7 @@ impl Splash {
         let Some(mut pending) = self.source_preparation.take() else { return; };
         // Leave more headroom inside the unchanged 64ms isolate deadline.
         // Preparation still executes no application code until all chunks parse.
-        let mut end = (pending.offset + 4_096).min(pending.code.len());
+        let mut end = (pending.offset + 1_024).min(pending.code.len());
         while !pending.code.is_char_boundary(end) { end -= 1; }
         if end < pending.code.len() {
             if let Some(newline) = pending.code[pending.offset..end].rfind('\n') {
