@@ -93,4 +93,6 @@ rc16/r9 又完成一次真实只读同步与技术详情展开，仍准确返回
 
 ## 截止前 Phone 新失败（02:42 北京时间）
 
+02:43截止观察：Phone已在自身SDK准备[最小目标OS补丁](official_muse/rc/7h-20261008/phone/patches/calendar-build-target-os.patch)，改读CARGO_CFG_TARGET_OS；没有修改冻结桌面SDK/Host。Home尚未重新构建成功，NOT_BUILT结论保持。截止后只允许完成已有记录/本地提交，不启动新一轮构建。
+
 Home r4真实构建日志报 `octosense-calendar-service` 编译 `src/eventkit.m` 的 `-fobjc-arc` 不支持 Android runtime。已只读核对实际build.rs：`#[cfg(target_os = "macos")]`在构建脚本中判断的是执行构建的宿主，而当前目标是Android；服务lib.rs已有非macOS unavailable分支。最小修复应按Cargo提供的目标OS控制EventKit编译/链接，只在Phone隔离SDK交补丁，不新增Android日历或修改冻结桌面载荷。失败日志 `phone/evidence/home-x86-build-r4.log`保留。本报告观察时尚未取得修后APK成功证据，具体补丁、构建最终退出码与截止状态以[Phone报告](official_muse/rc/7h-20261008/phone/REPORT.md)为准。
