@@ -97,6 +97,8 @@ Phone原生Home后续编译通过，目标OS补丁已生效；r5/r6因自身10.5
 
 Root进一步对无打开句柄的旧Quality副本做透明压缩：公开已跟踪文件释放15,478,784字节块；闲置合成runtime释放346,300,416字节块，逐项原SHA/大小/模式保持，原路径仍可正常读。私有runtime逐项清单位于ignored目录，只提交公开概要，不把运行资料上Git。另仅清理已完成独立CLI的生成rmeta/rlib/o/a缓存172,048,384字节；source/lock/CLI和失败证据保持，CLI SHA仍为d60570a5，清理后实际catalog verify通过。Data恢复到约2.18GB，但不能假定已足够完整APK/模拟器峰值。
 
+随后对2004份内容、mode、owner及xattrs相同的旧fixture图片使用APFS写时复制，原路径、原始SHA/大小/mtime/属性全检查一致；[概要](official_muse/rc/7h-20261008/packaging/image-clones-summary.json)记录Data观察约2.35GB（并发其他进程存在，不能把全局变化全部算作本脚本收益）。FinalQuality透明压缩36份文本证据另释放8,941,568字节，提交6ca26f5a。Phone保留原ELF并制作标准strip-unneeded派生物，尚未据此取得APK/runtime PASS；仍按实际峰值和2GB底线推进。
+
 持续目标恢复后，Phone以已保存缓存进行离线重建，原失败/截止PARTIAL继续保留；已有目标OS补丁提交`ec51bd60`。后续APK与模拟器结果以Phone实时证据为准，不回填进七小时完成数量。
 
 rc16最终Shell用已确认的本地Qwen且没有云端fallback，完成一次新空Chat遗忘后提问。实际检索未引用已deleted/value空的辰帆记录，仍保持遗忘；但模型把剩余“重启记忆代号暮塔62”当作报告代号，并把项目名中的“七小时”当作碰面时长。判定 **RETRIEVAL_PASS_SEMANTIC_FAIL**，原回答及实际引用保存于[post-forget-followup.json](official_muse/rc/7h-20261008/source-component-r1/post-forget-followup.json)。不将这个基础模型误答归为遗忘存储恢复失败，也不宣称问答准确性通过。探针首次误取DSL wrapper字段导致KeyError，模型调用前终止；核对document/payload结构后再执行，前失败记录保留。
