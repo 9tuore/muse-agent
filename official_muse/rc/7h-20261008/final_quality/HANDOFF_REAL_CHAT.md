@@ -49,3 +49,5 @@ Final evidence commit3019a8ef5c62078a96f063eace491d89bde4f22c independently veri
 RC16 independent official signed check/scan PASS, bundle byte equality verified (official-signed-rc16-r1/report.json). Final storage restore call closure unchanged (storage-reuse-rc16.json); changed send_chat/chat_new_session new-project behavior explicitly Root-owned. Matrix final-rc16-cold10-reopen5-r1 RUNNING on dd2ce025/276b2b68 with original synthetic seed.
 
 RC16 progress6/6 completed full cold checks PASS, no retries so far. Current authoritative checkpoint-rc16.json and final-rc16-cold10-reopen5-r1/report.json; rc15 checkpoint/report remain historical. Still RUNNING, not final.
+
+RC16 evidence commit2b9a07e8538dba733f740a4fadabbeddfaee5e48 verified owned-path-only. Original rc15 checkpoint independently compared to be0c4e5a and preserved exactly. Final identity check FINAL_IDENTITY_CHECK_RC16.json verifies complete loaded/signed bundle file sets and SHA equality. No push.
