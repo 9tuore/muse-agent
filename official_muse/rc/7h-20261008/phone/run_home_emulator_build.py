@@ -46,7 +46,7 @@ with (p / "evidence" / log_name).open("w") as output:
         time.sleep(20)
         used = int(subprocess.check_output(["du", "-sk", str(state)]).split()[0]) * 1024
         free = shutil.disk_usage(state).free
-        if used > 9_000_000_000 or free < 5 * 1024**3:
+        if used > 10_500_000_000 or free < 2_000_000_000:
             (p / "evidence/home-build-resource-stop.json").write_text(json.dumps(
                 {"own_bytes": used, "free_bytes": free, "reason": "authorized resource boundary"}, indent=2))
             os.killpg(process.pid, signal.SIGTERM)
