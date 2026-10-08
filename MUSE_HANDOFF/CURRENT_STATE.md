@@ -1,5 +1,7 @@
 ## 2026-10-09 七小时收口（当前）
 
+窗口后续测：原生Android Home编译通过，但APK因磁盘底线停线，现通过保留字节的透明压缩及自有已完成CLI生成缓存清理恢复约2.18GB，Phone继续核对打包峰值；未取得APK/模拟器PASS。rc16新空Chat遗忘复测实际排除已遗忘Memory引用，但基础Qwen误用剩余记忆和项目名回答，判RETRIEVAL_PASS_SEMANTIC_FAIL，原答保留。七小时原PARTIAL结果不回填。
+
 隔离分支 `codex/muse-7h-reliability-phone-20261008`，最终 `0.3.27-rc16` 业务/载荷提交 `fce42f30`，compact dd2ce025 / Host276b2b68。真实可见最终Shell单轮10次完整冷启动+5次重开全过，满16对话/256消息/64记忆与任务不清空，输入读回及七页检查通过；冷启动14.46–17.67秒，中位15.45。64ms预算未加，只把源码准备分片4096改1024。独立signed hub check/scan PASS。
 
 新Chat继承当前项目/归属；真实官方model.complete/Qwen检索、显式选中记忆更正读回、新Chat更正召回及完整Host重启后的记忆召回通过。遗忘主存储deleted/value空/tombstone已验证，模型语义探针中断未标通过。恢复/结算/防重复production-function DRY_RUN保留参考Host及原版本身份，不冒充外部全链。

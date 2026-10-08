@@ -91,9 +91,11 @@ rc16/r9 又完成一次真实只读同步与技术详情展开，仍准确返回
 3. 按Phone截止实际结果补Home APK/模拟器AppHub→Muse验证；实体设备仍单独标DEVICE_NOT_TESTED，AndroidCalendar宿主能力未实现。
 4. 短主题自然纠正、更强独立第二模型、上游Calendar准入及新接收Mac仍为独立未通过项，不提高总评。
 
-## 截止前 Phone 新失败（02:42 北京时间）
-
 ## 窗口后续测（与七小时结果分开）
+
+Phone原生Home后续编译通过，目标OS补丁已生效；r5/r6因自身10.5GB或Data2GB底线停线，不能把原生ELF当作已签名APK。Phone已透明压缩369个自身文件，释放约1.43GB，所有原字节/模式/大小复核一致，提交`b988e491`；仍需APK和模拟器证据。
+
+Root进一步对无打开句柄的旧Quality副本做透明压缩：公开已跟踪文件释放15,478,784字节块；闲置合成runtime释放346,300,416字节块，逐项原SHA/大小/模式保持，原路径仍可正常读。私有runtime逐项清单位于ignored目录，只提交公开概要，不把运行资料上Git。另仅清理已完成独立CLI的生成rmeta/rlib/o/a缓存172,048,384字节；source/lock/CLI和失败证据保持，CLI SHA仍为d60570a5，清理后实际catalog verify通过。Data恢复到约2.18GB，但不能假定已足够完整APK/模拟器峰值。
 
 持续目标恢复后，Phone以已保存缓存进行离线重建，原失败/截止PARTIAL继续保留；已有目标OS补丁提交`ec51bd60`。后续APK与模拟器结果以Phone实时证据为准，不回填进七小时完成数量。
 

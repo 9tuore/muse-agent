@@ -31,4 +31,6 @@ compact thread status. No orchestrator reply messages are needed.
 
 ## Final rc16 freeze and integration
 
+Post-window storage recovery: legacy Quality delegation has ended; Root alone may transparently compress its idle tracked public `quality/**` evidence with SHA/mode/size checks, preserving paths and raw bytes. FinalQuality owns its separate `final_quality/**` compression; Phone owns its separate caches. No source changes or repeated PASS counts arise from filesystem compression.
+
 Final version0.3.27-rc16, compact dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4, readable7fcc94e1b7d3d1a63968bcdc990abf15c2a59208b79d39badf40b4ae91f644d4, same Host276b2b68. Rootr9 signed six-file bundle equals tracked official_muse/app/bundle. FinalQuality single-round10cold+5reopen and official signed Gate passed. Business rc16 scope checks use referencecard-host and retain rc15 chain/recovery identity. No more main/SDK/bundle edits after this freeze; only owned Phone results, packaging and final handoff/report. Root8492 stays open, user8765 stays protected. External full chain remains incomplete for actual credential/system-grant reasons; never upgrade it based on synthetic tests.
