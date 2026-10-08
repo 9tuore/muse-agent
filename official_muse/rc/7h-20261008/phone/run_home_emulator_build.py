@@ -30,7 +30,7 @@ env["MUSE_PHONE_VALIDATION_ANCHOR"] = public["public_keys"]["anchor"]
 env["PATH"] = str(tools / "bin") + os.pathsep + env["PATH"]
 command = [str(tools / "bin/cargo-makepad"), "makepad", "android",
     "--sdk-path=" + str(tools / "android-sdk"), "--abi=x86_64",
-    "--package-name=dev.makepad.octosense",
+    "--package-name=dev.makepad.octosense", "--min-sdk-version=33",
     "build", "-p", "octosense-home", "--release", "--locked", "--offline"]
 if "--online" in sys.argv:
     command.remove("--offline")
