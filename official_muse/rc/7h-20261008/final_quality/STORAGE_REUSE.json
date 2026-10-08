@@ -1,0 +1,97 @@
+{
+  "status": "REUSED_UNCHANGED_STORAGE_FUNCTIONS_NOT_NEW_HOST_RERUN",
+  "unchanged_restore_closure": true,
+  "old_cases": [
+    {
+      "case": "shape-fixed-red-r1",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "bad_store_fail_closed",
+      "interactive_seconds": 18.958318697000003,
+      "snapshot_sha256": "adb5f7147cf4f2811c21e0f7fdd1974827386d201a7ebc3d6d3b5cdc9e61ee8a",
+      "report": "shape-fixed-red-r1/report.json"
+    },
+    {
+      "case": "shape-fixed-tail-r1",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "bad_store_fail_closed",
+      "interactive_seconds": 11.573529251,
+      "snapshot_sha256": "7e094c22b4452e38493e5fc26945877f2c57e52805217a4119eef71d7b867fc4",
+      "report": "shape-fixed-tail-r1/report.json"
+    },
+    {
+      "case": "shape-valid-task-r2",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "nonempty_goal_recovered",
+      "interactive_seconds": 10.851158626,
+      "snapshot_sha256": "2f73ee28a88a7dc69fdb95bceb36ce3f842c865735a8be8d22b1f1ff2051bc73",
+      "report": "shape-valid-task-r2/report.json"
+    },
+    {
+      "case": "shape-backup-r1",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "nonempty_goal_recovered",
+      "interactive_seconds": 10.776313584,
+      "snapshot_sha256": "7b96eda97d082619e0727487489293f3bb4cfc1e8c2fd9060c9f5774a126446a",
+      "report": "shape-backup-r1/report.json"
+    },
+    {
+      "case": "shape-bad-run-r1",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "bad_store_fail_closed",
+      "interactive_seconds": 10.932729852,
+      "snapshot_sha256": "3897885e2942c2b88d7778e37c887e031a97283ad5598a263ac2e28def16bdde",
+      "report": "shape-bad-run-r1/report.json"
+    },
+    {
+      "case": "shape-bad-action-r1",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "bad_store_fail_closed",
+      "interactive_seconds": 10.844835872,
+      "snapshot_sha256": "b02d0ea8c4289dacdfbef3e03fa050bfa9a23a92cf452a5bf738a5f12c95e42e",
+      "report": "shape-bad-action-r1/report.json"
+    },
+    {
+      "case": "shape-run-backup-r1",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "nonempty_goal_recovered",
+      "interactive_seconds": 11.184621602,
+      "snapshot_sha256": "fac406cc5557a20564a3b2967d763a8b1819d9bc477c03055a981ad4c1e8973b",
+      "report": "shape-run-backup-r1/report.json"
+    },
+    {
+      "case": "shape-action-backup-r1",
+      "source_sha256": "cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78",
+      "host_sha256": "1d7d1674ab7f7d076b301ad033a65ac77f01ea58e414a375930ec87e0372e2d3",
+      "pass_": true,
+      "ui": "nonempty_goal_recovered",
+      "interactive_seconds": 12.892439937,
+      "snapshot_sha256": "971c5c51c10aa9f1ca542f9278d885c4bbc3601d9fb6d06859cef0e47323ad9f",
+      "report": "shape-action-backup-r1/report.json"
+    }
+  ],
+  "limits": [
+    "These were actual visible old Host tests, not new Host final passes.",
+    "Frozen source changes mail_watch_boot and ResultContent/render composition; final visible 10+5 remains required.",
+    "Structural Gate is separate from upstream Calendar extension acceptance."
+  ],
+  "failure_evidence_preserved": [
+    "../quality/shape-nonempty-cold10-reopen5-r1",
+    "../quality/shape-nonempty-cold10-reopen5-r2",
+    "../quality/shape-nonempty-cold10-reopen5-r3"
+  ],
+  "device_status": "DEVICE_NOT_TESTED"
+}
