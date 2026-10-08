@@ -120,3 +120,9 @@ Phone r7 APK已实际构建并验签，内含原始内核，约240.5MB，Home/Br
 修补集成于新私有候选0.3.27-rc17，compact SHA90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc，Host仍276b2b68；本地stamp/sign/check/scan/publish/verify通过，仅本地演练。实际可见Shell以免费Qwen生成任务候选与模型建议，批准一次后结果写入并独立读回；完整Host退出重启后completed保留、runs/actions原样、结果SHA一致。证据source-component-r1/live-route-rc17.json及真实窗口PNG。原rc16通过矩阵不转移为rc17全矩阵。模型将两条资料合并为一个items元素，原事实保留但计数显示1条；不宣称两条结构提取通过。中心聊天仍保留先前候选回执，右侧真实结果卡已成功。没有新增外发或系统日历写入。
 
 同一rc17重启后的新会话真实Qwen回答“蓝色文件，白色文件”，实际引用memory:result:run:1791492736-3020186196及对应source:result来源；项目/归属继承一致。该来源DSL保留“用户输入资料摘录（未核事实）”，没有把用户资料伪装成外部事实。live-route-rc17.json补齐跨会话检查PASS；仅证明这次合成Goal结果的跨会话检索，不覆盖Mail/Calendar真实闭环或此前遗忘后语义失败。
+
+### rc17合成闭环和宿主贡献复核
+
+业务真实聊天提交51786ad8，rc17 compact90351cba在参考card-host46a4d16d实际VM以合成transport完成chain20/20、新进程restart10/10；RC17_CHAIN_RESULTS.json保留候选/Host身份。315个Calendar/core/Memory/schedule/storage/Mail函数与已测版本逐字节相同，因此复用旧故障合同证据而非假称rc17重新测试。真实ShellHost276b与参考Host的差异明确保留，不能据此推导SMTP/EventKit成功。
+
+Root复核Phone最小installed-discovery宿主补丁SHA与PATCH_IDENTITY一致、实际原始Rust日志存在：基线3PASS/5FAIL、修后13PASS，policy22+doc1PASS，失败证据保留。host-contribution-recheck.json记录证据摘要。官方未接受补丁；Android运行仍NOT_RUN/实体DEVICE_NOT_TESTED。模拟器官方要求7,730,941,133空闲字节，最新Root实际约4.87GB，未重试同参数或越过资源限制。

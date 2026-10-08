@@ -907,3 +907,7 @@ ZIP 为489,595,070字节（489.60 MB），SHA256：000b2815c6072d2b8033bea42ddc6
 23:29收口：正式候选rc10字节不变，允许清单完成分发清理；六个仅在入口出现定义的函数仍被fixture调用，未盲删。App Hub issues/112已提交审核，main/新Tag已同步；PARTIAL门槛未改。详见STABILITY_RELEASE_SCOPE.md。
 
 命名更正：当前仓库和交付材料统一采用Muse参赛版名称；产品逻辑、旧Tag和生产资料保持。全文与交付包检查记录随本轮提交。
+
+## 截止后rc17增量补证
+
+路由修补已在新私有rc17(90351cba)集成，实际Shell Goal模型建议/批准/存储/readback/重启/新会话结果Memory引用通过；合成transport链20+新进程重启10项通过，参考Host46a4与Shell276b区分。冻结rc16及原七小时PARTIAL不改。局限：两资料合并为一条items，真实Mail缺登录/Calendar未决定，1UNKNOWN不重发；手机r7APK验签通过，官方模拟器分区空间不足，实体未测。最小Host补丁及原始Rust测试已复核，未宣称上游接受。无push/Tag/发布/新费用。
