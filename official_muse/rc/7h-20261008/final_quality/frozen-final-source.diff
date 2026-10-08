@@ -1,0 +1,572 @@
+--- cceeaa009
++++ cef7d576
+@@ -131,6 +131,8 @@
+ let calendar_events=[]
+ let calendar_selected_event=nil
+ let calendar_pending=false
++let calendar_access_queued=false
++let calendar_access_inflight=false
+ let calendar_error=""
+ let calendar_notice="请先查看宿主日历授权状态。"
+ let calendar_draft={title:"" start:"" end:"" time_zone:"Asia/Shanghai" location:""}
+@@ -750,6 +752,10 @@
+ calendar_error="读取系统日历状态失败："+r.error
+ }
+ redraw()
++if calendar_access_queued{
++calendar_access_queued=false
++calendar_request_access()
++}
+ })
+ }
+ 
+@@ -766,13 +772,23 @@
+ }
+ 
+ fn calendar_request_access(){
+-if!calendar_enabled()||calendar_pending||(calendar_permission!="not_determined"&&calendar_permission!="write_only"){return}
++if!calendar_enabled()||calendar_access_inflight||(calendar_permission!="not_determined"&&calendar_permission!="write_only"){return}
++
++
++if calendar_pending{
++calendar_access_queued=true
++calendar_notice="正在读取权限状态，完成后会打开系统访问请求。"
++return
++}
++calendar_access_queued=false
++calendar_access_inflight=true
+ calendar_pending=true
+ calendar_error=""
+ calendar_notice="等待本人在 macOS 系统弹窗中决定完整日历访问。"
+ redraw()
+ host.request("calendar.request_access",{},fn(r){
+ calendar_pending=false
++calendar_access_inflight=false
+ if r.is_ok&&r.data!=nil{
+ calendar_permission=r.data.permission
+ calendar_access_attempted=calendar_permission=="write_only"
+@@ -3416,6 +3432,8 @@
+ mail_watch_save()
+ mail_watch_schedule()
+ mail_watch_poll()
++
++if!mail_watch.enabled{mail_accounts_load()}
+ let current=mail_watch_current()
+ if mail_watch.enabled&&current!=nil{mail_watch_read_body(current.key)}
+ }
+@@ -9070,6 +9088,173 @@
+ let Primary=ButtonFlat{height:36
+ draw_bg+:{color:blue color_hover:#x589cff color_down:#x2778e9}
+ draw_text+:{color:#xffffff color_hover:#xffffff color_down:#xffffff}}
++
++let ResultContent=ScrollYView{width:Fill height:Fill flow:Down spacing:9 on_render: ||{
++if mail_watch.enabled&&mail_watch_failed{
++RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
++Label{width:Fill text:"邮箱暂时无法同步" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:14}
++Label{width:Fill text:"请检查邮箱连接。Muse 会自动重试，已有来信仍保留。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
++Secondary{text:"检查邮箱连接" on_click: ||set_page("Mail")}
++}
++}
++
++if mail_watch_current()!=nil{
++Label{text:"来信提醒" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:16}}
++if technical_open{Label{width:Fill text:mail_watch_notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
++if mail_watch_pending()>1{Label{text:"待处理 · "+mail_watch_pending()draw_text.color:muted draw_text.text_style.font_size:12}}
++let alert=mail_watch_current()
++if alert==nil{Label{width:Fill text:"暂无待处理新来信。选择不予回复不会发送邮件。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
++if alert!=nil{
++RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:8 new_batch:true draw_bg.color:panel draw_bg.border_radius:12
++Label{width:Fill text:alert.sender draw_text.color:ink draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:13}}
++Label{width:Fill text:mail_watch_subject(alert.subject)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
++if technical_open{Label{width:Fill text:"收信时间 · "+alert.date draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
++if alert.to_json().search("\"source_body\":")>=0{
++let body=alert.source_body
++if body.trim()==""{body="（这封邮件没有文字正文）"}
++if mail_original_open==alert.key{
++ScrollYView{width:Fill height:"clamp(64px,22cqh,220px)" flow:Down
++Label{width:Fill text:body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
++}
++Secondary{text:"收起原邮件" on_click: ||{mail_original_open="";mail_watch_refresh()}}
++}else{
++Label{width:Fill text:mail_body_preview(body)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
++if body.to_chars().len()>60{Secondary{text:"展开原邮件全文" on_click: ||{mail_original_open=alert.key;mail_watch_refresh()}}}
++}
++}else{
++Label{width:Fill text:"正在读取正文，或正文尚未加载。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
++Secondary{text:"重新读取正文" on_click: ||mail_watch_read_body(alert.key)}
++if alert.to_json().search("\"body_error\":")>=0&&alert.body_error!=""{Label{width:Fill text:alert.body_error draw_text.color:#xff9c94 draw_text.wrap:Words}}
++}
++if alert["calendar_result"]!=nil{
++Label{width:Fill text:calendar_alert_time(alert)draw_text.color:ink draw_text.wrap:Words}
++if alert["goal_id"]!=nil&&calendar_observation_note(alert.goal_id)!=""{Label{width:Fill text:calendar_observation_note(alert.goal_id)draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
++Label{width:Fill text:"下一步：检查回复后确认发送。" draw_text.color:muted draw_text.wrap:Words}
++}
++if alert["analysis"]!=nil{
++Label{width:Fill text:alert.analysis.summary draw_text.color:ink draw_text.wrap:Words}
++if alert.analysis.question!=""{Label{width:Fill text:alert.analysis.question draw_text.color:blue draw_text.wrap:Words}}
++if alert.analysis.kind=="appointment"||alert.analysis.kind=="reschedule"{
++Secondary{text:"处理这次约定" on_click: ||mail_analysis_calendar(alert.key)}
++}
++}
++if alert.status=="new"{
++Secondary{text:"回复这封邮件" on_click: ||mail_watch_reply(alert.key)}
++}
++if alert.status=="new"||alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"{
++Secondary{text:"不予回复" on_click: ||mail_watch_dismiss(alert.key)}
++}
++if alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"{
++Label{width:Fill text:"你想怎么回复？" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:13}
++mail_reply_intent:=TextInput{width:Fill height:90 text:alert.intent empty_text:"写下你的决定，或直接写回复正文" on_change: |text|mail_watch_intent(alert.key,text)}
++if!mail_pending&& !mail_model_pending&& !mail_sending&&alert.status=="intent"{Primary{text:"按我的意思起草回复" on_click: ||mail_watch_generate(alert.key)}}
++if mail_pending||mail_model_pending||mail_sending{Label{width:Fill text:"正在处理，请等待；不会自动发送。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
++}
++if!mail_pending&& !mail_model_pending&& !mail_sending&&(alert.status=="new"||alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"){
++Secondary{text:"自己写回复（不调用 AI）" on_click: ||mail_watch_manual(alert.key)}
++}
++let draft=mail_watch_draft(alert.key)
++if draft!=nil&&(alert.status=="draft_ready"||alert.status=="waiting_user"||(alert.status=="intent"&&draft.body!="")){
++Label{width:Fill text:"回复草稿" draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
++let account=mail_watch_account(draft.account)
++if account!=nil{Label{width:Fill text:"发送账号 · "+account.address draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
++Label{width:Fill text:"收件人 · "+draft.to draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
++Label{width:Fill text:"主题 · "+mail_watch_subject(draft.subject)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
++mail_reply_body:=TextInput{width:Fill height:142 is_multiline:true text:draft.body
++on_change: |text|mail_watch_edit_body(alert.key,text)}
++if!mail_pending&& !mail_model_pending&& !mail_sending{
++if alert.status!="intent"{Primary{text:"确认发送" on_click: ||mail_watch_send(alert.key,draft)}}
++Secondary{text:"重新起草" on_click: ||mail_watch_again(alert.key)}
++if draft["proposed"]!=nil{
++Label{width:Fill text:"新稿 · 当前正文尚未替换" draw_text.color:blue draw_text.wrap:Words}
++Label{width:Fill text:draft.proposed.body draw_text.color:ink draw_text.wrap:Words}
++Secondary{text:"采用新稿" on_click: ||mail_watch_adopt_proposed(alert.key,draft.proposed)}
++}
++}
++}
++if alert.status=="sending"{Label{width:Fill text:"正在发送，禁止重复提交。" draw_text.color:blue draw_text.wrap:Words draw_text.text_style.font_size:12}}
++if technical_open&&alert.status=="accepted"{Label{width:Fill text:"发送服务已受理 · 待核对收件" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
++if alert.status=="unknown"{Label{width:Fill text:"发送结果尚未确认，请在收件端核对。为避免重复发信，本卡片不提供重发。" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:12}}
++if mail_draft.incoming_key==alert.key&&mail_error!=""{Label{width:Fill text:mail_error draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:11}}
++if mail_reply_error!=""{Label{width:Fill text:mail_reply_error draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:11}}
++}
++}
++for pending in mail_watch.alerts{
++if pending.status!="dismissed"&&pending.status!="accepted"&&pending.status!="verified"
++&&(alert==nil||pending.key!=alert.key){
++Secondary{width:Fill text:"查看来信 · "+pending.sender+" · "+mail_watch_subject(pending.subject)on_click: ||mail_watch_select(pending.key)}
++}
++}
++Label{visible:false width:Fill text:"Muse 与 OctoSense 保持运行时自动查看新邮件；关闭应用后停止。首次启用记录基线，不重复提醒历史邮件。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
++}
++if true{
++let session_index=chat_session_index(chat_selected_id)
++if session_index>=0&&gm_has(chat_sessions[session_index],"proposals"){
++for card in chat_sessions[session_index].proposals{
++if card.state=="candidate"&&chat_card_scope_current(chat_sessions[session_index],card){
++RoundedView{width:Fill height:Fit flow:Down padding:14 spacing:7 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
++Label{width:Fill text:chat_proposal_name(card.action)draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
++if card.action=="mail_compose"{
++Label{width:Fill text:"收件人："+card.payload.to+"\n主题："+card.payload.subject draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
++Label{width:Fill text:card.payload.body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
++}
++if card.action=="calendar_candidate"{
++Label{width:Fill text:card.payload.title+"\n"+card.payload.start+" → "+card.payload.end+"\n"+card.payload.time_zone draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
++}
++if card.action=="goal_plan"{Label{width:Fill text:card.payload.objective draw_text.color:ink draw_text.wrap:Words}}
++Primary{text:"打开并核对" on_click: ||chat_apply_proposal(card.id)}
++Secondary{text:"暂不处理" on_click: ||chat_dismiss_proposal(card.id)}
++}
++}
++}
++}
++if!chat_shows_goal()&&mail_watch_current()==nil&&ui_error==""&&calendar_preview==""{
++Label{width:Fill text:"结果会出现在这里。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
++}
++if chat_shows_goal()&& !task_history_readonly(task)&& !task.archived&&task.status!="cancelled"{
++RoundedView{width:Fill height:Fit flow:Down padding:14 spacing:7 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
++Label{width:Fill text:task.goal draw_text.color:ink draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:15}}
++Label{text:status_name(task.status)draw_text.color:blue draw_text.text_style.font_size:12}
++if task.status=="planned"&& !is_calendar_goal(task){
++let card_goal_id=task.id let card_revision=task.version
++Label{width:Fill text:"将处理 "+task.items.len()+" 条资料，保存并重新读取结果。" draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
++if task.model_summary!=""{Label{width:Fill text:task.model_summary draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}}
++Primary{text:"确认执行这个计划" on_click: ||approve_plan_card(card_goal_id,card_revision)}
++}
++if task.status=="running"{Label{width:Fill text:"正在继续执行，完成后在这里给你结果。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
++if result!=nil&&task.status=="completed"{
++if!is_calendar_goal(task){
++Label{width:Fill text:"已完成：整理 "+result.count+" 条资料。" draw_text.color:green draw_text.wrap:Words draw_text.text_style.font_size:14}
++for item in result.items{Label{width:Fill text:"• "+item.text draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}}
++Label{width:Fill text:"关键动作：保存结果、独立读回核对。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
++}
++if is_calendar_goal(task){
++Label{width:Fill text:calendar_result_line(task.id,result)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
++if calendar_observation_note(task.id)!=""{Label{width:Fill text:calendar_observation_note(task.id)draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
++Label{width:Fill text:"已写入系统日历并独立读回核对。" draw_text.color:green draw_text.wrap:Words draw_text.text_style.font_size:12}
++}
++}
++Secondary{text:"查看任务详情" on_click: ||select_goal(task.id)}
++if technical_open{Label{width:Fill text:"计划版本 "+task.version+" · "+task.result_path draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:10}}
++}
++}
++if calendar_preview!=""{
++RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
++Label{width:Fill text:"请核对日程："+calendar_draft.title draw_text.color:ink draw_text.wrap:Words}
++Label{width:Fill text:calendar_draft.start+" → "+calendar_draft.end+"\n"+calendar_draft.time_zone+" · "+calendar_draft.location draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
++Secondary{text:"打开日程确认" on_click: ||set_page("Calendar")}
++}
++}
++if ui_error!=""{
++RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
++Label{text:"需要处理" draw_text.color:#xff9c94 draw_text.text_style.font_size:13}
++Label{width:Fill text:ui_error draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
++}
++}
++if technical_open{Label{width:Fill text:notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
++if chat_shows_goal()||mail_watch_current()!=nil||ui_error!=""{Secondary{text:"详细信息" on_click: ||technical_toggle()}}
++}
++}}
+ SolidView{width:Fill height:Fill flow:Right container_id:@muse_shell draw_bg.color:paper
+ main_mount:=SolidView{width:Fill height:Fill flow:Right draw_bg.color:paper on_render: ||{
+ left_rail:=View{visible:false width:36 height:Fill flow:Down padding:2 spacing:8
+@@ -9938,172 +10123,7 @@
+ 
+ Secondary{text:"收起" width:48 on_click: ||right_column_toggle()}
+ }
+-right_content:=ScrollYView{width:Fill height:Fill flow:Down spacing:9 on_render: ||{
+-if mail_watch.enabled&&mail_watch_failed{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:"邮箱暂时无法同步" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:14}
+-Label{width:Fill text:"请检查邮箱连接。Muse 会自动重试，已有来信仍保留。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Secondary{text:"检查邮箱连接" on_click: ||set_page("Mail")}
+-}
+-}
+-
+-if mail_watch_current()!=nil{
+-Label{text:"来信提醒" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:16}}
+-if technical_open{Label{width:Fill text:mail_watch_notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if mail_watch_pending()>1{Label{text:"待处理 · "+mail_watch_pending()draw_text.color:muted draw_text.text_style.font_size:12}}
+-let alert=mail_watch_current()
+-if alert==nil{Label{width:Fill text:"暂无待处理新来信。选择不予回复不会发送邮件。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if alert!=nil{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:8 new_batch:true draw_bg.color:panel draw_bg.border_radius:12
+-Label{width:Fill text:alert.sender draw_text.color:ink draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:13}}
+-Label{width:Fill text:mail_watch_subject(alert.subject)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if technical_open{Label{width:Fill text:"收信时间 · "+alert.date draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if alert.to_json().search("\"source_body\":")>=0{
+-let body=alert.source_body
+-if body.trim()==""{body="（这封邮件没有文字正文）"}
+-if mail_original_open==alert.key{
+-ScrollYView{width:Fill height:"clamp(64px,22cqh,220px)" flow:Down
+-Label{width:Fill text:body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-}
+-Secondary{text:"收起原邮件" on_click: ||{mail_original_open="";mail_watch_refresh()}}
+-}else{
+-Label{width:Fill text:mail_body_preview(body)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if body.to_chars().len()>60{Secondary{text:"展开原邮件全文" on_click: ||{mail_original_open=alert.key;mail_watch_refresh()}}}
+-}
+-}else{
+-Label{width:Fill text:"正在读取正文，或正文尚未加载。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Secondary{text:"重新读取正文" on_click: ||mail_watch_read_body(alert.key)}
+-if alert.to_json().search("\"body_error\":")>=0&&alert.body_error!=""{Label{width:Fill text:alert.body_error draw_text.color:#xff9c94 draw_text.wrap:Words}}
+-}
+-if alert["calendar_result"]!=nil{
+-Label{width:Fill text:calendar_alert_time(alert)draw_text.color:ink draw_text.wrap:Words}
+-if alert["goal_id"]!=nil&&calendar_observation_note(alert.goal_id)!=""{Label{width:Fill text:calendar_observation_note(alert.goal_id)draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-Label{width:Fill text:"下一步：检查回复后确认发送。" draw_text.color:muted draw_text.wrap:Words}
+-}
+-if alert["analysis"]!=nil{
+-Label{width:Fill text:alert.analysis.summary draw_text.color:ink draw_text.wrap:Words}
+-if alert.analysis.question!=""{Label{width:Fill text:alert.analysis.question draw_text.color:blue draw_text.wrap:Words}}
+-if alert.analysis.kind=="appointment"||alert.analysis.kind=="reschedule"{
+-Secondary{text:"处理这次约定" on_click: ||mail_analysis_calendar(alert.key)}
+-}
+-}
+-if alert.status=="new"{
+-Secondary{text:"回复这封邮件" on_click: ||mail_watch_reply(alert.key)}
+-}
+-if alert.status=="new"||alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"{
+-Secondary{text:"不予回复" on_click: ||mail_watch_dismiss(alert.key)}
+-}
+-if alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"{
+-Label{width:Fill text:"你想怎么回复？" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:13}
+-mail_reply_intent:=TextInput{width:Fill height:90 text:alert.intent empty_text:"写下你的决定，或直接写回复正文" on_change: ||mail_watch_intent(alert.key,ui.mail_reply_intent.text())}
+-if!mail_pending&& !mail_model_pending&& !mail_sending&&alert.status=="intent"{Primary{text:"按我的意思起草回复" on_click: ||mail_watch_generate(alert.key)}}
+-if mail_pending||mail_model_pending||mail_sending{Label{width:Fill text:"正在处理，请等待；不会自动发送。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-}
+-if!mail_pending&& !mail_model_pending&& !mail_sending&&(alert.status=="new"||alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"){
+-Secondary{text:"自己写回复（不调用 AI）" on_click: ||mail_watch_manual(alert.key)}
+-}
+-let draft=mail_watch_draft(alert.key)
+-if draft!=nil&&(alert.status=="draft_ready"||alert.status=="waiting_user"||(alert.status=="intent"&&draft.body!="")){
+-Label{width:Fill text:"回复草稿" draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-let account=mail_watch_account(draft.account)
+-if account!=nil{Label{width:Fill text:"发送账号 · "+account.address draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-Label{width:Fill text:"收件人 · "+draft.to draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Label{width:Fill text:"主题 · "+mail_watch_subject(draft.subject)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-mail_reply_body:=TextInput{width:Fill height:142 is_multiline:true text:draft.body
+-on_change: ||mail_watch_edit_body(alert.key,ui.mail_reply_body.text())}
+-if!mail_pending&& !mail_model_pending&& !mail_sending{
+-if alert.status!="intent"{Primary{text:"确认发送" on_click: ||mail_watch_send(alert.key,draft)}}
+-Secondary{text:"重新起草" on_click: ||mail_watch_again(alert.key)}
+-if draft["proposed"]!=nil{
+-Label{width:Fill text:"新稿 · 当前正文尚未替换" draw_text.color:blue draw_text.wrap:Words}
+-Label{width:Fill text:draft.proposed.body draw_text.color:ink draw_text.wrap:Words}
+-Secondary{text:"采用新稿" on_click: ||mail_watch_adopt_proposed(alert.key,draft.proposed)}
+-}
+-}
+-}
+-if alert.status=="sending"{Label{width:Fill text:"正在发送，禁止重复提交。" draw_text.color:blue draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if technical_open&&alert.status=="accepted"{Label{width:Fill text:"发送服务已受理 · 待核对收件" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if alert.status=="unknown"{Label{width:Fill text:"发送结果尚未确认，请在收件端核对。为避免重复发信，本卡片不提供重发。" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if mail_draft.incoming_key==alert.key&&mail_error!=""{Label{width:Fill text:mail_error draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if mail_reply_error!=""{Label{width:Fill text:mail_reply_error draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-}
+-}
+-for pending in mail_watch.alerts{
+-if pending.status!="dismissed"&&pending.status!="accepted"&&pending.status!="verified"
+-&&(alert==nil||pending.key!=alert.key){
+-Secondary{width:Fill text:"查看来信 · "+pending.sender+" · "+mail_watch_subject(pending.subject)on_click: ||mail_watch_select(pending.key)}
+-}
+-}
+-Label{visible:false width:Fill text:"Muse 与 OctoSense 保持运行时自动查看新邮件；关闭应用后停止。首次启用记录基线，不重复提醒历史邮件。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
+-}
+-if true{
+-let session_index=chat_session_index(chat_selected_id)
+-if session_index>=0&&gm_has(chat_sessions[session_index],"proposals"){
+-for card in chat_sessions[session_index].proposals{
+-if card.state=="candidate"&&chat_card_scope_current(chat_sessions[session_index],card){
+-RoundedView{width:Fill height:Fit flow:Down padding:14 spacing:7 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:chat_proposal_name(card.action)draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+-if card.action=="mail_compose"{
+-Label{width:Fill text:"收件人："+card.payload.to+"\n主题："+card.payload.subject draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Label{width:Fill text:card.payload.body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-}
+-if card.action=="calendar_candidate"{
+-Label{width:Fill text:card.payload.title+"\n"+card.payload.start+" → "+card.payload.end+"\n"+card.payload.time_zone draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-if card.action=="goal_plan"{Label{width:Fill text:card.payload.objective draw_text.color:ink draw_text.wrap:Words}}
+-Primary{text:"打开并核对" on_click: ||chat_apply_proposal(card.id)}
+-Secondary{text:"暂不处理" on_click: ||chat_dismiss_proposal(card.id)}
+-}
+-}
+-}
+-}
+-if!chat_shows_goal()&&mail_watch_current()==nil&&ui_error==""&&calendar_preview==""{
+-Label{width:Fill text:"结果会出现在这里。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-if chat_shows_goal()&& !task_history_readonly(task)&& !task.archived&&task.status!="cancelled"{
+-RoundedView{width:Fill height:Fit flow:Down padding:14 spacing:7 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:task.goal draw_text.color:ink draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:15}}
+-Label{text:status_name(task.status)draw_text.color:blue draw_text.text_style.font_size:12}
+-if task.status=="planned"&& !is_calendar_goal(task){
+-let card_goal_id=task.id let card_revision=task.version
+-Label{width:Fill text:"将处理 "+task.items.len()+" 条资料，保存并重新读取结果。" draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if task.model_summary!=""{Label{width:Fill text:task.model_summary draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}}
+-Primary{text:"确认执行这个计划" on_click: ||approve_plan_card(card_goal_id,card_revision)}
+-}
+-if task.status=="running"{Label{width:Fill text:"正在继续执行，完成后在这里给你结果。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if result!=nil&&task.status=="completed"{
+-if!is_calendar_goal(task){
+-Label{width:Fill text:"已完成：整理 "+result.count+" 条资料。" draw_text.color:green draw_text.wrap:Words draw_text.text_style.font_size:14}
+-for item in result.items{Label{width:Fill text:"• "+item.text draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}}
+-Label{width:Fill text:"关键动作：保存结果、独立读回核对。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
+-}
+-if is_calendar_goal(task){
+-Label{width:Fill text:calendar_result_line(task.id,result)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if calendar_observation_note(task.id)!=""{Label{width:Fill text:calendar_observation_note(task.id)draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-Label{width:Fill text:"已写入系统日历并独立读回核对。" draw_text.color:green draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-}
+-Secondary{text:"查看任务详情" on_click: ||select_goal(task.id)}
+-if technical_open{Label{width:Fill text:"计划版本 "+task.version+" · "+task.result_path draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:10}}
+-}
+-}
+-if calendar_preview!=""{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:"请核对日程："+calendar_draft.title draw_text.color:ink draw_text.wrap:Words}
+-Label{width:Fill text:calendar_draft.start+" → "+calendar_draft.end+"\n"+calendar_draft.time_zone+" · "+calendar_draft.location draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Secondary{text:"打开日程确认" on_click: ||set_page("Calendar")}
+-}
+-}
+-if ui_error!=""{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{text:"需要处理" draw_text.color:#xff9c94 draw_text.text_style.font_size:13}
+-Label{width:Fill text:ui_error draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-}
+-if technical_open{Label{width:Fill text:notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if chat_shows_goal()||mail_watch_current()!=nil||ui_error!=""{Secondary{text:"详细信息" on_click: ||technical_toggle()}}
+-}
+-}}
++right_content:=ResultContent{}
+ }
+ right_page:=SolidView{visible:false width:Fill height:Fill flow:Down padding:10 spacing:8 draw_bg.color:paper
+ View{width:Fill height:Fit flow:Right spacing:5
+@@ -10112,166 +10132,7 @@
+ Secondary{text:"能力" width:64 on_click: ||right_choose("能力")}
+ Secondary{text:"结果" width:64 on_click: ||right_choose("结果")}
+ }
+-right_page_content:=ScrollYView{width:Fill height:Fill flow:Down spacing:9 on_render: ||{
+-if mail_watch.enabled&&mail_watch_failed{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:"邮箱暂时无法同步" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:14}
+-Label{width:Fill text:"请检查邮箱连接。Muse 会自动重试，已有来信仍保留。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Secondary{text:"检查邮箱连接" on_click: ||set_page("Mail")}
+-}
+-}
+-
+-if mail_watch_current()!=nil{
+-Label{text:"来信提醒" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:16}}
+-if technical_open{Label{width:Fill text:mail_watch_notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if mail_watch_pending()>1{Label{text:"待处理 · "+mail_watch_pending()draw_text.color:muted draw_text.text_style.font_size:12}}
+-let alert=mail_watch_current()
+-if alert==nil{Label{width:Fill text:"暂无待处理新来信。选择不予回复不会发送邮件。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if alert!=nil{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:8 new_batch:true draw_bg.color:panel draw_bg.border_radius:12
+-Label{width:Fill text:alert.sender draw_text.color:ink draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:13}}
+-Label{width:Fill text:mail_watch_subject(alert.subject)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if technical_open{Label{width:Fill text:"收信时间 · "+alert.date draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if alert.to_json().search("\"source_body\":")>=0{
+-let body=alert.source_body
+-if body.trim()==""{body="（这封邮件没有文字正文）"}
+-if mail_original_open==alert.key{
+-ScrollYView{width:Fill height:"clamp(64px,22cqh,220px)" flow:Down
+-Label{width:Fill text:body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-}
+-Secondary{text:"收起原邮件" on_click: ||{mail_original_open="";mail_watch_refresh()}}
+-}else{
+-Label{width:Fill text:mail_body_preview(body)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if body.to_chars().len()>60{Secondary{text:"展开原邮件全文" on_click: ||{mail_original_open=alert.key;mail_watch_refresh()}}}
+-}
+-}else{
+-Label{width:Fill text:"正在读取正文，或正文尚未加载。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Secondary{text:"重新读取正文" on_click: ||mail_watch_read_body(alert.key)}
+-if alert.to_json().search("\"body_error\":")>=0&&alert.body_error!=""{Label{width:Fill text:alert.body_error draw_text.color:#xff9c94 draw_text.wrap:Words}}
+-}
+-if alert["calendar_result"]!=nil{
+-Label{width:Fill text:calendar_alert_time(alert)draw_text.color:ink draw_text.wrap:Words}
+-if alert["goal_id"]!=nil&&calendar_observation_note(alert.goal_id)!=""{Label{width:Fill text:calendar_observation_note(alert.goal_id)draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-Label{width:Fill text:"下一步：检查回复后确认发送。" draw_text.color:muted draw_text.wrap:Words}
+-}
+-if alert["analysis"]!=nil{
+-Label{width:Fill text:alert.analysis.summary draw_text.color:ink draw_text.wrap:Words}
+-if alert.analysis.question!=""{Label{width:Fill text:alert.analysis.question draw_text.color:blue draw_text.wrap:Words}}
+-if alert.analysis.kind=="appointment"||alert.analysis.kind=="reschedule"{
+-Secondary{text:"处理这次约定" on_click: ||mail_analysis_calendar(alert.key)}
+-}
+-}
+-if alert.status=="new"{
+-Secondary{text:"回复这封邮件" on_click: ||mail_watch_reply(alert.key)}
+-}
+-if alert.status=="new"||alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"{
+-Secondary{text:"不予回复" on_click: ||mail_watch_dismiss(alert.key)}
+-}
+-if alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"{
+-Label{width:Fill text:"你想怎么回复？" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:13}
+-mail_reply_intent_page:=TextInput{width:Fill height:90 text:alert.intent empty_text:"写下你的决定，或直接写回复正文" on_change: ||mail_watch_intent(alert.key,ui.mail_reply_intent_page.text())}
+-if!mail_pending&& !mail_model_pending&& !mail_sending&&alert.status=="intent"{Primary{text:"按我的意思起草回复" on_click: ||mail_watch_generate(alert.key)}}
+-if mail_pending||mail_model_pending||mail_sending{Label{width:Fill text:"正在处理，请等待；不会自动发送。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-}
+-if!mail_pending&& !mail_model_pending&& !mail_sending&&(alert.status=="new"||alert.status=="intent"||alert.status=="draft_ready"||alert.status=="waiting_user"){
+-Secondary{text:"自己写回复（不调用 AI）" on_click: ||mail_watch_manual(alert.key)}
+-}
+-let draft=mail_watch_draft(alert.key)
+-if draft!=nil&&(alert.status=="draft_ready"||alert.status=="waiting_user"||(alert.status=="intent"&&draft.body!="")){
+-Label{width:Fill text:"回复草稿" draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-let account=mail_watch_account(draft.account)
+-if account!=nil{Label{width:Fill text:"发送账号 · "+account.address draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-Label{width:Fill text:"收件人 · "+draft.to draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Label{width:Fill text:"主题 · "+mail_watch_subject(draft.subject)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-mail_reply_body_page:=TextInput{width:Fill height:142 is_multiline:true text:draft.body
+-on_change: ||mail_watch_edit_body(alert.key,ui.mail_reply_body_page.text())}
+-if!mail_pending&& !mail_model_pending&& !mail_sending{
+-if alert.status!="intent"{Primary{text:"确认发送" on_click: ||mail_watch_send(alert.key,draft)}}
+-Secondary{text:"重新起草" on_click: ||mail_watch_again(alert.key)}
+-if draft["proposed"]!=nil{
+-Label{width:Fill text:"新稿 · 当前正文尚未替换" draw_text.color:blue draw_text.wrap:Words}
+-Label{width:Fill text:draft.proposed.body draw_text.color:ink draw_text.wrap:Words}
+-Secondary{text:"采用新稿" on_click: ||mail_watch_adopt_proposed(alert.key,draft.proposed)}
+-}
+-}
+-}
+-if alert.status=="sending"{Label{width:Fill text:"正在发送，禁止重复提交。" draw_text.color:blue draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if technical_open&&alert.status=="accepted"{Label{width:Fill text:"发送服务已受理 · 待核对收件" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if alert.status=="unknown"{Label{width:Fill text:"发送结果尚未确认，请在收件端核对。为避免重复发信，本卡片不提供重发。" draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if mail_draft.incoming_key==alert.key&&mail_error!=""{Label{width:Fill text:mail_error draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if mail_reply_error!=""{Label{width:Fill text:mail_reply_error draw_text.color:#xff9c94 draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-}
+-}
+-Label{visible:false width:Fill text:"Muse 与 OctoSense 保持运行时自动查看新邮件；关闭应用后停止。首次启用记录基线，不重复提醒历史邮件。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
+-}
+-if true{
+-let session_index=chat_session_index(chat_selected_id)
+-if session_index>=0&&gm_has(chat_sessions[session_index],"proposals"){
+-for card in chat_sessions[session_index].proposals{
+-if card.state=="candidate"&&chat_card_scope_current(chat_sessions[session_index],card){
+-RoundedView{width:Fill height:Fit flow:Down padding:14 spacing:7 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:chat_proposal_name(card.action)draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+-if card.action=="mail_compose"{
+-Label{width:Fill text:"收件人："+card.payload.to+"\n主题："+card.payload.subject draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Label{width:Fill text:card.payload.body draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-}
+-if card.action=="calendar_candidate"{
+-Label{width:Fill text:card.payload.title+"\n"+card.payload.start+" → "+card.payload.end+"\n"+card.payload.time_zone draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-if card.action=="goal_plan"{Label{width:Fill text:card.payload.objective draw_text.color:ink draw_text.wrap:Words}}
+-Primary{text:"打开并核对" on_click: ||chat_apply_proposal(card.id)}
+-Secondary{text:"暂不处理" on_click: ||chat_dismiss_proposal(card.id)}
+-}
+-}
+-}
+-}
+-if!chat_shows_goal()&&mail_watch_current()==nil&&ui_error==""&&calendar_preview==""{
+-Label{width:Fill text:"结果会出现在这里。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-if chat_shows_goal()&& !task_history_readonly(task)&& !task.archived&&task.status!="cancelled"{
+-RoundedView{width:Fill height:Fit flow:Down padding:14 spacing:7 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:task.goal draw_text.color:ink draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:15}}
+-Label{text:status_name(task.status)draw_text.color:blue draw_text.text_style.font_size:12}
+-if task.status=="planned"&& !is_calendar_goal(task){
+-let card_goal_id=task.id let card_revision=task.version
+-Label{width:Fill text:"将处理 "+task.items.len()+" 条资料，保存并重新读取结果。" draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if task.model_summary!=""{Label{width:Fill text:task.model_summary draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}}
+-Primary{text:"确认执行这个计划" on_click: ||approve_plan_card(card_goal_id,card_revision)}
+-}
+-if task.status=="running"{Label{width:Fill text:"正在继续执行，完成后在这里给你结果。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
+-if result!=nil&&task.status=="completed"{
+-if!is_calendar_goal(task){
+-Label{width:Fill text:"已完成：整理 "+result.count+" 条资料。" draw_text.color:green draw_text.wrap:Words draw_text.text_style.font_size:14}
+-for item in result.items{Label{width:Fill text:"• "+item.text draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}}
+-Label{width:Fill text:"关键动作：保存结果、独立读回核对。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}
+-}
+-if is_calendar_goal(task){
+-Label{width:Fill text:calendar_result_line(task.id,result)draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+-if calendar_observation_note(task.id)!=""{Label{width:Fill text:calendar_observation_note(task.id)draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-Label{width:Fill text:"已写入系统日历并独立读回核对。" draw_text.color:green draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-}
+-Secondary{text:"查看任务详情" on_click: ||select_goal(task.id)}
+-if technical_open{Label{width:Fill text:"计划版本 "+task.version+" · "+task.result_path draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:10}}
+-}
+-}
+-if calendar_preview!=""{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{width:Fill text:"请核对日程："+calendar_draft.title draw_text.color:ink draw_text.wrap:Words}
+-Label{width:Fill text:calendar_draft.start+" → "+calendar_draft.end+"\n"+calendar_draft.time_zone+" · "+calendar_draft.location draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-Secondary{text:"打开日程确认" on_click: ||set_page("Calendar")}
+-}
+-}
+-if ui_error!=""{
+-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:panel draw_bg.border_radius:10
+-Label{text:"需要处理" draw_text.color:#xff9c94 draw_text.text_style.font_size:13}
+-Label{width:Fill text:ui_error draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:12}
+-}
+-}
+-if technical_open{Label{width:Fill text:notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:11}}
+-if chat_shows_goal()||mail_watch_current()!=nil||ui_error!=""{Secondary{text:"详细信息" on_click: ||technical_toggle()}}
++right_page_content:=ResultContent{}
+ }
+ }}
+ }
+-}}
+-}

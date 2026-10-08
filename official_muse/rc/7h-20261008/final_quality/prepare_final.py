@@ -4,18 +4,18 @@ import argparse, hashlib, importlib.util, json, shutil, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[4]
 Q=Path(__file__).resolve().parent
-SHA='ca09088fe78311ec4b40ce64b8bd65762bf5bec6f5716cabda728d53e82c78a0'
+SHA='cef7d576b2de31e5c22a813e70e68370ff0ddd043ef1bbcd57acae75eb81b546'
 OLD=Path('/Users/mima0000/.codex/worktrees/muse-rc-finalization/Agent APP黑客松')
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
  p=argparse.ArgumentParser();p.add_argument('--host-app',type=Path,required=True);p.add_argument('--host-sha',required=True);p.add_argument('--name',default='final-r1');a=p.parse_args()
  assert sha(a.host_app/'Contents/MacOS/octosense')==a.host_sha
- source=ROOT/'build/7h-result-component-r2/compact/main.splash';assert sha(source)==SHA
+ source=ROOT/'build/7h-result-component-r3/compact/main.splash';assert sha(source)==SHA
  out=Q/'runtime'/a.name;bundle=Q/'runtime'/(a.name+'-bundle');assert not out.exists() and not bundle.exists()
  # Only known synthetic bundle assets and exact frozen source are copied.
- shutil.copytree(Q.parent/'quality/runtime/shape-valid-task-r1/bundle',bundle)
+ shutil.copytree(ROOT/'build/7h-live-bundle-r7',bundle)
  shutil.copyfile(source,bundle/'main.splash')
- m=json.loads((bundle/'manifest.json').read_text());m['version']='0.3.27-finalquality-'+a.name;(bundle/'manifest.json').write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n')
+ m=json.loads((bundle/'manifest.json').read_text());assert m['version']=='0.3.27-rc15';(bundle/'manifest.json').write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n')
  spec=importlib.util.spec_from_file_location('prep_final',ROOT/'official_muse/ui_memory/prepare_candidate.py');mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
  mod.HUB=OLD/'official_muse/rc/packaging/.local-state/tools/hub'
  mod.BASE_MIRROR=OLD/'official_muse/app/build/ui-memory-20261003/final-contest-0327-rc10-r1/mirror'

@@ -1,6 +1,6 @@
 {
-  "status": "PREPARED_NOT_RUN_NEW_HOST",
-  "source_sha256": "ca09088fe78311ec4b40ce64b8bd65762bf5bec6f5716cabda728d53e82c78a0",
+  "status": "PASS_WITH_TWO_DRIVER_SUPPLEMENT_RUNS",
+  "source_sha256": "cef7d576b2de31e5c22a813e70e68370ff0ddd043ef1bbcd57acae75eb81b546",
   "seed_counts": {
     "sessions": 16,
     "messages": 256,
@@ -26,11 +26,64 @@
   "old_budget_failure": "../quality/shape-nonempty-cold10-reopen5-r3/report.json",
   "port": 8494,
   "device": "DEVICE_NOT_TESTED",
-  "host_status": "WAITING_FOR_ROOT_FREEZE",
+  "host_status": "VERIFIED_ROOT_FINAL_FREEZE",
   "official_structural_gate": {
-    "status": "PASS",
-    "report": "official-gate-r1/report.json",
-    "upstream_calendar_extension_acceptance": false
+    "status": "PASS_UNSIGNED_COPY_ONLY",
+    "report": "official-structural-rc15-r3/report.json"
   },
-  "driver_syntax": "PASS"
+  "driver_syntax": "PASS",
+  "host_sha256": "276b2b688b759e2d0e026a6999118e25f857bb21ebf23c93cea2d24b03daf638",
+  "final_requested_counts": {
+    "cold": 10,
+    "reopen": 5
+  },
+  "final_matrix": "final-rc15-cold10-reopen5-r6/report.json",
+  "driver_failures": [
+    "driver-failures-r1.json",
+    "driver-failures-r2.json",
+    "driver-failures-r3.json"
+  ],
+  "persistence_note": "Activity automatic permission observation writes detected; strict all-files persistence remains separately enforced, core state and ledger reported independently.",
+  "official_signed_gate": {
+    "status": "PASS",
+    "report": "official-signed-rc15-r4/report.json",
+    "bundle_unchanged": true
+  },
+  "official_unsigned_structural_gate": {
+    "status": "PASS",
+    "report": "official-structural-rc15-r3/report.json"
+  },
+  "activity_policy": "Root authorized legitimate calendar permission log increments; exact original prefix, allowed additions and backup prefix checked. All core bytes and model ledger must be exact.",
+  "completed_cold": 11,
+  "cold_pass": 10,
+  "completed_reopen": 6,
+  "reopen_pass": 5,
+  "storage_reuse": "storage-reuse-final.json",
+  "completed_at": "2026-10-09T01:38:44+08:00",
+  "accepted_counts": {
+    "cold": 10,
+    "reopen": 5
+  },
+  "attempted_counts": {
+    "cold": 11,
+    "reopen": 6
+  },
+  "summary": "FINAL_SUMMARY.json",
+  "report": "REPORT.md",
+  "evidence_check": "FINAL_EVIDENCE_CHECK.json",
+  "cleanup": {
+    "pid": 29339,
+    "port": 8494,
+    "port_closed": true,
+    "quit_outcome": "response",
+    "seconds": 0.22108144100000002
+  },
+  "single_uninterrupted_15_of_15": false,
+  "strict_all_persistent_files_unchanged": false,
+  "final_supplement": "final-rc15-supplement-r7/report.json",
+  "final_gate": "official-signed-rc15-r4/report.json",
+  "historical_invalid_input_gate": {
+    "status": "FAIL_RC15_SIGNED_INPUT",
+    "report": "official-gate-rc15-r2/report.json"
+  }
 }

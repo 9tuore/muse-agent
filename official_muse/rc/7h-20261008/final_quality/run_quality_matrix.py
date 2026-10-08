@@ -28,8 +28,17 @@ def navigate(remote,page):
         # be expanded and the requested page merely below the current viewport.
         if scan==0 and page in ['操作记录','能力授权','设置']:
             remote.click('更多')
+            time.sleep(.3)
             remote.scroll(int(x+w/2),int(y+h/2),-1000);time.sleep(.25)
         else:break
+    if page in ['操作记录','能力授权','设置']:
+        widgets=remote.widgets()
+        if not any(v.get('ty')=='Button' and v.get('t') in ['操作记录','能力授权','设置'] for v in widgets):
+            remote.click('更多');time.sleep(.3)
+            for _ in range(12):
+                widgets=remote.widgets();target=next((v for v in widgets if v.get('ty')=='Button' and v.get('t')==page),None)
+                if target and target['r'][2]>=2 and target['r'][3]>=24:return remote.click(page)
+                remote.scroll(int(x+w/2),int(y+h/2),-40 if target and target['r'][1]<=y+1 else 40);time.sleep(.2)
     raise AssertionError('Visible sidebar entry unreachable after bounded two-direction scroll: '+page)
 
 def sha(path):
@@ -59,6 +68,7 @@ def main():
         if file.is_file(): protected.append(file.relative_to(jail).as_posix())
     before={n:sha(jail/n) for n in protected}
     ledger=private/'apps/.host/model/ledger.json';ledger_before=sha(ledger)
+    activity_before=json.loads((jail/'activity.json').read_text())
     seeded_counts={}
     for filename,keys in [('chat-sessions.json',['sessions']),('goals.json',['goals','runs','actions']),('memory.json',['claims','sources','forget']),('calendar-state.json',['links','receipts','local_states']),('mail-watch.json',['accounts','alerts'])]:
         if (jail/filename).is_file():
@@ -107,7 +117,8 @@ def main():
         # frame/placeholder alone is never counted as a successful launch.
         words=[w.get('t','') for w in remote.widgets() if w.get('ty')=='Label']
         assert any('当前项目' in t or t=='对话' for t in words), 'Meaningful Muse content missing'
-        assert selected['messages'][-1]['text'] in words, 'Latest stored chat history did not render'
+        history_label=remote.wait_for(selected['messages'][-1]['text'],20)
+        assert history_label.get('ty')=='Label' and history_label.get('t')==selected['messages'][-1]['text'], 'Latest stored chat history did not render'
         run['nonempty_chat_history_rendered']=True
         remote.set_text('goal_input','冷启动合成输入检查');assert remote.find('goal_input')['val']=='冷启动合成输入检查';remote.set_text('goal_input','')
         run['first_interactive_seconds']=time.monotonic()-started
@@ -129,11 +140,23 @@ def main():
                 remote.wait_for('汇报先给结论，再列三项重点',15)
                 run['nonempty_memory_rendered']=True
                 remote.shot(d/'memory-visible.png')
-            anchors={'记忆':'memory_body','邮箱':'mail_list_body','日历':'calendar_panel','操作记录':'activity_body','能力授权':'capabilities_body','设置':'设置与关于','对话':'goal_input'}
-            content=remote.wait_for(anchors[page],15)
+            if page=='对话':
+                remote.wait_for('goal_input',15)
+                remote.wait_for(selected['messages'][-1]['text'],20)
+                title={'t':'对话'}
+            else:
+                title=remote.wait_for('page_title',15)
+                expected_title='能力与授权' if page=='能力授权' else page
+                deadline=time.monotonic()+15
+                while title['t']!=expected_title and time.monotonic()<deadline:
+                    time.sleep(.1);title=remote.find('page_title')
+                assert title['t']==expected_title, 'Navigation did not change actual page title: '+page
+            content=remote.wait_for('central_main',15)
             assert content['r'][2]>=2 and content['r'][3]>=2, 'Core page content clipped: '+page
-            pages[page]={'visible':True,'content_anchor':anchors[page],'rect':content['r']}
-            if run['index']==1: remote.shot(d/(anchors[page]+'-visible.png'))
+            words_on_page=[w.get('t','') for w in remote.widgets() if w.get('ty')=='Label' and w['r'][0]>=content['r'][0] and w['r'][0]<content['r'][0]+content['r'][2] and w['r'][1]>=262]
+            assert words_on_page, 'Core page has no visible body labels: '+page
+            pages[page]={'visible':True,'actual_page_title':title['t'],'content_rect':content['r'],'body_labels':words_on_page}
+            if run['index']==1: remote.shot(d/('page-'+str(len(pages))+'-visible.png'))
         run['pages']=pages;run['input_editable']=True
         logs=json.loads(remote.request('/log',since=log_since))['l']
         errors=[x for x in logs if 'budget exceeded' in x or 'source preparation failed' in x or 'no root view' in x]
@@ -143,8 +166,16 @@ def main():
         run['changed_protected_files']={n:{'before':digest,'after':sha(jail/n)} for n,digest in before.items() if sha(jail/n)!=digest}
         run['protected_state_equal']=not run['changed_protected_files']
         run['model_ledger_equal']=sha(ledger)==ledger_before
-        assert run['protected_state_equal'] and run['model_ledger_equal']
-        run['seconds']=time.monotonic()-started;run['pid']=json.loads(remote.request('/s'))['pid'];run['pass']=True
+        run['core_state_equal']=not any(n not in ['activity.json','activity.backup.json'] for n in run['changed_protected_files'])
+        activity_now=json.loads((jail/'activity.json').read_text())
+        additions=activity_now[len(activity_before):]
+        run['activity_additions']=additions
+        run['activity_increment_valid']=activity_now[:len(activity_before)]==activity_before and all(e.get('kind')=='calendar permission' and e.get('detail','').startswith('EventKit 权限 · ') and all(e.get(k,'')=='' for k in ['goal_id','run_id','request_id','account_scope']) for e in additions)
+        backup_now=json.loads((jail/'activity.backup.json').read_text())
+        run['activity_backup_valid']=activity_now[:len(backup_now)]==backup_now
+        run['functional_checks_pass']=run['core_state_equal'] and run['model_ledger_equal'] and run['activity_increment_valid'] and run['activity_backup_valid']
+        run['strict_persistence_pass']=run['protected_state_equal'] and run['model_ledger_equal']
+        run['seconds']=time.monotonic()-started;run['pid']=json.loads(remote.request('/s'))['pid'];run['pass']=run['functional_checks_pass']
     save()
     def stop_on_failure(run):
         if a.fail_fast and not run['pass']:
@@ -153,9 +184,10 @@ def main():
         run={'index':i+1,'pass':False};report['cold'].append(run);d=a.out/f'cold-{i+1:02d}';d.mkdir();t=time.monotonic()
         try:
             command=[sys.executable,str(QUALITY/'launch_quality.py'),'--candidate',str(c),'--port',str(a.port)]
-            if i:command.append('--restart')
+            if i or (c/'launched-by-final-quality.json').exists():command.append('--restart')
             prior_pid=report['cold'][-2].get('pid') if i else None
             proc=subprocess.run(command,text=True,capture_output=True,timeout=60);(d/'launch.txt').write_text(proc.stdout+proc.stderr);assert proc.returncode==0
+            (c/'launched-by-final-quality.json').write_text(json.dumps({'port':a.port,'host_sha256':m['host_sha256']}))
             remote.click('打开');inspect(run,t)
             if prior_pid is not None: assert run['pid']!=prior_pid, 'Cold launch reused Shell PID'
         except Exception as e:
