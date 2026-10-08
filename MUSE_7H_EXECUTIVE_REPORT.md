@@ -53,7 +53,7 @@
 | 同最终 Mail→Calendar→Reply 全链 | **未通过** | mailbox 新规范目录需要原生登录，Calendar需要系统权限；不能把 DRY_RUN/旧候选通过拼接为本轮全过 |
 | Phone 内核 | BUILD PASS | 官方锁定 c608384d、api/git/ast/no-default；x86_64 Android ELF161,277,512 bytes，SHA32987f43… |
 | Bridge | BUILD + EMULATOR UI PASS | prototype/lint89tasks、实际 APK 验签/安装、真实设置页；初次System UI ANR与Wait恢复记录均保留 |
-| Home / Muse Android | 截止前以 Phone 最终报告为准 | 当前 Home r4 正在编译，尚无 APK 验证；未把内核或 Bridge 通过当作 Muse 全链通过 |
+| Home / Muse Android | **NOT_BUILT / BUILD_FAILED，02:42观察** | r4在Android目标错误编译macOS EventKit，`-fobjc-arc`失败；修复/截止状态见Phone报告。无APK验签、安装或Muse全链证据；不由内核/Bridge通过升级 |
 | 实体手机 | **DEVICE_NOT_TESTED** | 未连接；没有刷ROM、清用户手机数据、系统分区或安全配置变更 |
 | 正式上游 Calendar/发布 | 未完成 | 本地扩展 Gate 是结构/权限校验，不等于上游原版已接受；未提交发布/App Hub正式申请 |
 
@@ -90,3 +90,7 @@ rc16/r9 又完成一次真实只读同步与技术详情展开，仍准确返回
 2. 以同一最终rc16完成限定资源真实 Mail→Memory→Model→Calendar→Reply→Restart，记录收件端独立核验与事件ID并只清理本轮事件。
 3. 按Phone截止实际结果补Home APK/模拟器AppHub→Muse验证；实体设备仍单独标DEVICE_NOT_TESTED，AndroidCalendar宿主能力未实现。
 4. 短主题自然纠正、更强独立第二模型、上游Calendar准入及新接收Mac仍为独立未通过项，不提高总评。
+
+## 截止前 Phone 新失败（02:42 北京时间）
+
+Home r4真实构建日志报 `octosense-calendar-service` 编译 `src/eventkit.m` 的 `-fobjc-arc` 不支持 Android runtime。已只读核对实际build.rs：`#[cfg(target_os = "macos")]`在构建脚本中判断的是执行构建的宿主，而当前目标是Android；服务lib.rs已有非macOS unavailable分支。最小修复应按Cargo提供的目标OS控制EventKit编译/链接，只在Phone隔离SDK交补丁，不新增Android日历或修改冻结桌面载荷。失败日志 `phone/evidence/home-x86-build-r4.log`保留。本报告观察时尚未取得修后APK成功证据，具体补丁、构建最终退出码与截止状态以[Phone报告](official_muse/rc/7h-20261008/phone/REPORT.md)为准。

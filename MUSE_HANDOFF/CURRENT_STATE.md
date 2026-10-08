@@ -6,7 +6,7 @@
 
 Calendar真实系统缺少外层用途字符串已修，修后进入AUTHREQ_PROMPTING，用户未完成系统grant，最终not_determined。新隔离规范邮箱目录缺Keychain登录，唯一发送UNKNOWN，后续同步“账号密码缺失，请重新登录”；未重发、没有本轮Calendar CRUD。同最终真实Mail→Calendar→Reply仍未完成，总体PARTIAL。
 
-Android真实官方内核已产出，Bridge构建及模拟器设置页通过；Home截至报告初稿仍编译，最终状态以phone/REPORT.md为准。实体DEVICE_NOT_TESTED，无AndroidCalendar。新本地复现包build/7h-delivery-r1/Muse.app内置既有基础Qwen，验签/资源检查通过，未做新接收Mac全链。完整证据和缺项见根目录MUSE_7H_EXECUTIVE_REPORT.md。仅本地提交，无push/旧Tag/发布。
+Android真实官方内核已产出，Bridge构建及模拟器设置页通过；Home截至02:42因build.rs误用宿主macOS条件而在Android编译EventKit失败，无APK，最小目标条件修复与截止状态以phone/REPORT.md为准。实体DEVICE_NOT_TESTED，无AndroidCalendar。新本地复现包build/7h-delivery-r1/Muse.app内置既有基础Qwen，验签/资源检查通过，未做新接收Mac全链。完整证据和缺项见根目录MUSE_7H_EXECUTIVE_REPORT.md。仅本地提交，无push/旧Tag/发布。
 
 旧rc10源码/bundle哈希未变、旧安装和生产不动；独立聊天误恢复历史旧分发清理另有清单，不能称整个旧worktree无变化。真实聊天协作替代子代理，主界面唯一写入者；phone构建推理逐步提高到high。
 
