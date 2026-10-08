@@ -47,3 +47,9 @@ Root候选已现场定位：当前工作区build/7h-storage-shape-r1/compact/mai
 Private mirror exec58919监听127.0.0.1:8571。最小候选Host patch仅自身SDKphone/src/main.rs的install_ext：Android-only compile-time MUSE_PHONE_VALIDATION_HUB/ANCHOR明确测试配置，原默认不变，所有签名Gate保持；补丁phone-validation-hub-env.patch。Home runner读public validation JSON、强制kernel产物及liboctos.so打包。Patch未被上游接受、尚未实际Home编译/运行通过，绝不能分发此fixture-anchor APK当正式包。
 
 为构建资源，先pause，后官方emu kill正常退出模拟器exec26271（exit0），已安装Bridge与AVD数据保留。须Home产物完成后重启同AVD，再实际AppHub安装/启动/Muse Card Chat Memory验证。ADB5041可保持。当前Data可用约6.69GB，自身约7.5GB，resource monitor仍own9GB/Data5GiB；若停线，只清自身可重建缓存，禁止旧清理/其他目录。
+
+## 00:00 resource stop checkpoint
+
+Kernel r3 actually compiled through tokio, ring, aws-lc-sys; previous missing-core failure is fixed by own phone-rustc explicit sysroot. Session71755 exited241 (SIGTERM resource guard), not a compiler success/failure. Receipt kernel-build-resource-stop.json: own8232087552 bytes, free5364944896 bytes, below5GiB. CMake3.31.6 prepare session43761 exit0, official published SHA330b9514f5112e5ed4fb08b8b05803b776fd9b539a6ae12927d14dcc0ee2ba8d verified, own CLI/modules only. Keep sources/downloads/evidence; no cleanup. Root own build competes for remaining storage; wait for it to release own rebuildable cache before r4. Candidate cceeaa remains historical test input, not final freeze; Root newer0db6d4 candidate not yet frozen. No Home/kernel artifact success claimed.
+
+Resource recovered to ~6.4GB; resumed locked offline kernel r4, active exec11359. Do not duplicate. aws-lc-sys advanced to aws-lc-rs and gix dependencies, no missing-core failure. CMake CLI preparation complete. Await actual artifact before Home.
