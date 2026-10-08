@@ -1,0 +1,67 @@
+// A separate card-host process reads only the failed process's persisted journal.
+let be_recovery_checkpoint=nil let be_recovery_request=""
+let be_recovery_artifact="" let be_recovery_files={}
+fn be_recovery_restart(){
+    be_recovery_checkpoint=fs.read("failure-checkpoint.json").parse_json()
+    be_goal=be_recovery_checkpoint.goal be_recovery_request=be_recovery_checkpoint.request
+    be_event=be_recovery_checkpoint.event
+    be_boot() calendar_boot()
+    be_until(|| gm_ready && chat_ready,|| be_recovery_start(),"fault_restart_ready",0)
+}
+fn be_recovery_start(){
+    let ai=core_action_index(be_recovery_request)
+    be_checks.restart_original_action_restored=ai>=0
+    if be_recovery_checkpoint.case=="delete_accept_failure" {
+        be_checks.restart_lost_acceptance_is_unknown=ai>=0 && actions[ai].status=="unknown"
+    }
+    if be_recovery_checkpoint.case.search("delete_")==0 {calendar_reconcile_delete(be_recovery_request)}
+    else {
+        be_checks.restart_link_still_unsettled=calendar_reconcile_available(be_goal)
+        calendar_reconcile_verified(be_goal)
+    }
+    be_until(|| !calendar_pending,|| be_recovery_assert(),"fault_restart_reconcile",0)
+}
+fn be_recovery_assert(){
+    let ai=core_action_index(be_recovery_request)
+    be_checks.restart_original_action_verified=ai>=0 && actions[ai].status=="verified"
+    be_checks.restart_only_independent_reads=be_count("calendar.get")>=1 && be_count("calendar.create")==0
+        && be_count("calendar.update")==0 && be_count("calendar.delete")==0
+        && be_count("mail.send")==0 && be_count("model.complete")==0
+    if be_recovery_checkpoint.case.search("delete_")==0 {
+        let settled=false
+        for receipt in calendar_receipts {
+            if receipt.request_id==be_recovery_request && receipt.status=="verified" && receipt["persisted"]==true {settled=true}
+        }
+        be_checks.restart_delete_receipt_settled=settled && be_event==nil
+    } else {
+        let li=calendar_link_index(be_goal) let gi=core_goal_index(be_goal)
+        be_checks.restart_link_settled=li>=0 && calendar_links[li]["settled_request_id"]==be_recovery_request
+        be_checks.restart_result_memory_saved=core_memory_index("memory:result:"+be_recovery_checkpoint.run_id,"test-account")>=0
+        be_checks.restart_completed_run_retained=runs[core_run_index(be_recovery_checkpoint.run_id)].status=="completed"
+            && goals[gi].status=="completed"
+        be_checks.restart_artifact_available=fs.exists(goals[gi].result_path)
+        if fs.exists(goals[gi].result_path) {be_recovery_artifact=fs.read(goals[gi].result_path)}
+        be_checks.restart_original_artifact_bytes_retained=be_recovery_checkpoint.artifact==""
+            || be_recovery_checkpoint.artifact==be_recovery_artifact
+    }
+    for path in ["goals.json","memory.json","activity.json","calendar-state.json"] {be_recovery_files[path]=fs.read(path)}
+    if be_recovery_checkpoint.case.search("delete_")==0 {calendar_reconcile_delete(be_recovery_request)}
+    else {calendar_reconcile_verified(be_goal)}
+    be_until(|| !calendar_pending,|| be_recovery_double(),"fault_restart_double_reconcile",0)
+}
+fn be_recovery_double(){
+    let unchanged=true
+    for path in ["goals.json","memory.json","activity.json","calendar-state.json"] {
+        if fs.read(path)!=be_recovery_files[path] {unchanged=false}
+    }
+    be_checks.restart_second_reconcile_keeps_all_records=unchanged
+    be_checks.restart_second_reconcile_no_mutation=be_count("calendar.create")==0 && be_count("calendar.update")==0
+        && be_count("calendar.delete")==0 && be_count("mail.send")==0
+    if be_recovery_checkpoint.case.search("linked_")==0 {
+        let gi=core_goal_index(be_goal)
+        be_checks.restart_second_reconcile_artifact_bytes_stable=fs.exists(goals[gi].result_path)
+            && fs.read(goals[gi].result_path)==be_recovery_artifact
+    }
+    be_finish()
+}
+start_timeout(0.1,|| be_recovery_restart())

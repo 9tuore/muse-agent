@@ -95,6 +95,7 @@ def execute(args):
     # must precede production storage_write; ordinary transport functions follow.
     fault_controls = 'let be_fault_path="" let be_fault_hits=0\n' + "let be_use_delete_reconcile=" + str(args.delete_reconcile).lower() + "\n"
     fault_controls += "let be_require_settlement=" + str(args.require_settlement).lower() + "\n"
+    fault_controls += "let be_stop_after_fault=" + str(args.stop_after_fault).lower() + "\n"
     instrumented = fault_controls + prefix + common.read_text() + probe_text + widget
     assert "host.request(" not in instrumented, "No real service dispatch can remain"
     (bundle / "main.splash").write_text(instrumented)
@@ -119,12 +120,14 @@ def execute(args):
     summary = {
         "kind": "DRY_RUN_PRODUCTION_FUNCTIONS", "status": "RUNNING",
         "source_sha256": sha(snapshot / "main.splash"), "host_sha256": sha(host),
+        "runner_sha256": sha(Path(__file__)),
         "probe_sha256": sha(args.probe), "transport_sha256": sha(common), "executed_sha256": sha(bundle / "main.splash"),
         "production_functions": len(original), "retained_functions": len(retained),
         "substitutions": sorted(changed), "all_other_functions_byte_equal": True,
         "storage_fault_injection": args.fault_storage, "case": args.case,
         "delete_reconcile_entry": args.delete_reconcile,
         "settlement_contract_required": args.require_settlement,
+        "stop_after_fault": args.stop_after_fault,
         "external_service_calls": 0, "real_model_inference": False,
         "seed_hashes": seed_hashes, "budget": "Unchanged official VM/script budgets",
         "boundary": "Synthetic Host responses and minimal widgets; real official VM, timers and jailed storage. No OS EventKit, SMTP delivery or paid model evidence.",
@@ -136,6 +139,7 @@ def execute(args):
             proc = subprocess.Popen([str(host), "--bundle", str(bundle), "--app-data", str(state),
                                      "--allow-unsigned", "--stamp", "--size", "600x700"],
                                     cwd=host_cwd, env=env, stdout=log, stderr=log)
+            summary.update(host_pid=proc.pid, host_started_epoch=time.time())
             report = state / "muse-goals/probe.json"
             deadline = time.monotonic() + args.timeout
             while not report.exists():
@@ -163,6 +167,7 @@ def execute(args):
             try: proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 proc.kill(); proc.wait()
+            summary.update(host_exit_code=proc.returncode, host_stopped_epoch=time.time())
     summary["runtime_log_sha256"] = sha(log_path)
     (out / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps({name: summary.get(name) for name in ("status", "checks", "passed", "failed", "error")}, ensure_ascii=False))
@@ -186,4 +191,6 @@ if __name__ == "__main__":
                         help="Test the verified new production calendar_reconcile_delete(request_id) entry")
     parser.add_argument("--require-settlement", action="store_true",
                         help="Require candidate settled_request_id and repeat-recovery stability")
+    parser.add_argument("--stop-after-fault", action="store_true",
+                        help="Terminate at the captured persistence fault for a real new-process recovery probe")
     raise SystemExit(execute(parser.parse_args()))

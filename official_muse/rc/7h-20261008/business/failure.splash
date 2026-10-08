@@ -74,6 +74,11 @@ fn be_failure_linked_observe(){
     be_checks.linked_no_result_memory_before_recovery=core_memory_index("memory:result:"+id,"test-account")<0
     be_before_action={run_status: runs[core_run_index(id)].status link_status: calendar_links[li].status}
     if fs.exists(goals[0].result_path) {be_before_artifact=fs.read(goals[0].result_path)}
+    if be_stop_after_fault {
+        fs.write("failure-checkpoint.json",{case: be_case goal: be_goal run_id: id request: actions[actions.len()-1].id
+            event: be_event artifact: be_before_artifact local_observation: be_before_action}.to_json())
+        be_finish() return
+    }
     be_fault_path="" be_fail_on_written_get=""
     calendar_reconcile_verified(be_goal)
     be_until(|| !calendar_pending,|| be_failure_linked_recovered(),"linked_recovery",0)
@@ -140,6 +145,7 @@ fn be_failure_delete_observe(){
     }
     if be_case=="delete_accept_failure" {be_checks.accept_save_failed_action_guarded=actions[ai].status=="in_flight" && be_fault_hits==1}
     if be_case=="delete_unknown" {be_checks.unknown_outcome_is_not_success=actions[ai].status=="unknown" && calendar_error!=""}
+    if be_stop_after_fault {be_failure_delete_finish() return}
     be_fault_path="" be_fail_on_get="" be_fail_on_calendar_write=""
     if be_case=="delete_unknown_still_present" {
         // The uncertain transport outcome could also mean no server mutation.
@@ -188,7 +194,7 @@ fn be_failure_delete_double(){
     be_failure_delete_finish()
 }
 fn be_failure_delete_finish(){
-    fs.write("failure-checkpoint.json",{case: be_case request: be_request action: be_before_action payload: be_payload
+    fs.write("failure-checkpoint.json",{case: be_case request: be_request goal: be_goal action: be_before_action payload: be_payload
         event: be_event goals: fs.read("goals.json") draft: fs.read("mail-draft.json")}.to_json())
     be_finish()
 }
