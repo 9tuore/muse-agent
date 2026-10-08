@@ -31,3 +31,5 @@ Root newest authorization: legal Activity permission-log increments checked sepa
 Independent exact signed Root bundle check+scan PASS: official-signed-rc15-r4/report.json; manifest3fb5b111, no stamp, bundle unchanged. r5 selector failure at final Chat return: this final product intentionally hides Chat header page_title. Actual screenshot/log show healthy input/history, no budget/VM errors. r6 uses Chat input+exact history and actual titles for remaining pages. Failed r5 evidence retained.
 
 R6 progress: 4/4 completed cold passed. PID replacement, visible page content/history/card/Memory, core bytes+ledger and valid Activity-only increments checked; no budget/VM errors so far. Final cef7d576 restore closure unchanged; storage-reuse-final.json. Independent exact signed gate PASS official-signed-rc15-r4. Still running10+5, not yet final complete.
+
+Final evidence commit3019a8ef5c62078a96f063eace491d89bde4f22c independently verified to contain only final_quality paths. No push.
