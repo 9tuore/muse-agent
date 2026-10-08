@@ -1,5 +1,9 @@
 # Real-chat quality checkpoint
 
+**LATEST 2026-10-09 00:43 task anchor corrected:** Seven-hour Quality remains active; only quality/** writable. Root dispatch00:28 wrapper repro was the current task. After compaction, this chat mistakenly reactivated the historical UI-parity prompt, opened standalone0.3.1 and prepared an isolated UI patch. Root corrected the anchor; that branch of work is STOPPED, never integrated. No shared main/SDK/Host/package edits. Details: `ui-parity-20261009/COMPACTION_DRIFT.md`. Do not resume historical UI work.
+
+**Wrapper r3 final:** exactly one request completed120.324359s, is_ok=false, permission empty, native timeout. TCC actual ownPID82773 chain proves AUTHREQ_PROMPTING + found usage string for outerrc14; grant/full_access NOT VERIFIED. Final evidence `calendar-wrapper-r3/final-observation.json` and REPORT.md. No repeat request, no Allow/CRUD/TCC DB. Probe retained for Root-coordinated cleanup. Await Root's explicit final source and new Host SHA before10cold+5reopen visibleShell; do not rerun ccee. Root protects8492; user8765 untouched. Deadline02:43 Beijing.
+
 2026-10-08 22:55 Asia/Shanghai. Working only in quality; no subagents or messages to other chats. Owner worktree and branch confirmed. 8494 was free; only own quality Shell subsequently started. Root 8492 / user 8765 untouched.
 
 Frozen candidate located at `build/7h-storage-shape-r1/compact` (not under official_muse/app/build). Main SHA `cceeaa009f029c951d8e0a61a8a1cf0ac91802746868d2f38d3de892a889be78` confirmed. Product source untouched.
