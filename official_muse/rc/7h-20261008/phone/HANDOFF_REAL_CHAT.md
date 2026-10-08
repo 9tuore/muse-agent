@@ -9,3 +9,21 @@
 ## 上下文恢复意外范围
 
 前一轮错误恢复历史清理任务，在原项目 main 创建 7fbda978，非 Phone 成果。删除 rc-finalization 隔离 build 中 1475 个旧 bundle pack 副本；保留 rc10，未删生产数据/源码/日志。清单：/Users/mima0000/Documents/ChatGPT/Agent APP黑客松/evidence/muse-old-bundle-cleanup-20261008.json；交接：同仓库 MUSE_HANDOFF/HANDOFF_DISK_CLEANUP_20261008.md。删除不回滚，不再延续。压缩后先读本文件。
+
+## 23:14 接续检查点
+
+真实固定 OctoSense Git fetch 成功，HEAD 7f962547cd8035ed2bb05962cf7824d8aa33e3a3；2301文件 Git blob 对比，28处为既有 SDK覆层差异，未还原或修改。identity JSON 明列差异，不能叫原版干净树。framework setup --check --no-hub PASS。Home contracts export 实际 24 tasks UP-TO-DATE、BUILD SUCCESSFUL，UTF-8修复前失败日志保留。
+
+进行中：rustup x86_64-linux-android 安装（exec session 93362，勿重复）；AVD创建 r4（8120）。本机 load average 曾278，进程很慢。模拟器37.2.12校验过官方archive但avdmanager未识别缺package.xml，从Google已固定repository XML转换本地metadata，r2/r3语法问题失败保留，r4重试。尚未启动模拟器，尚未运行Home构建。build脚本 run_home_emulator_build.py 已准备，等std下载完成再执行，不含octos kernel跨编译步骤，最终需单列kernel缺项。
+
+自身可重建重复框架缓存仅删除9565个逐字节相同文件399877785 bytes，差异原件保留，详见 duplicate-framework-cache-cleanup.json。未再执行旧版清理。
+
+## 23:20 模拟器已启动
+
+AVD r4创建PASS；Google官方37.2.12 remotePackage metadata转localPackage后SDK识别成功，之前r2/r3 XML失败保留。emulator exec session26271，PID31235，端口5580；独立ADB端口5041、仅emulator-5580。sys.boot_completed实际返回1。Bridge prototype安装实际Success，dumpsys已确认包及Activity；开机未完成时首次am start Error type3保留，完成开机后r2重试。没有授予系统权限。
+
+Home脚本沿用官方dev.makepad.octosense包名，匹配Bridge签名/包身份；新增构建资源门槛，own>9,000,000,000 bytes或Data free<5GiB时停止自身进程组。Gradle无人运行后清理自身caches/8.11.1的241664000 bytes，保留modules-2下载。x86_64 std下载仍在exec93362，约24MB。Home构建尚未启动。
+
+23:21视觉纠正：Bridge am start r2实际Status ok，但随后截图bridge-emulator-r2.png显示System UI ANR对话框，不能称Bridge页面视觉PASS。选择Wait，不授予权限、不关闭或清数据。需要恢复后复核。
+
+23:22恢复后截图bridge-emulator-after-wait.png已实际查看，显示OctoSense System Bridge设置页、Notification access Not enabled。仅Bridge页面显示PASS；Home/AppHub/Muse未验。脚本使用Release opt-level=1/debug=0/incremental=false的模拟器开发候选构建设置，非正式发布包。
