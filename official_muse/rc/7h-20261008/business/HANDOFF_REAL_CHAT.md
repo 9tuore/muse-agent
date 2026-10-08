@@ -1,5 +1,18 @@
 # Business 真实聊天交接
 
+## Post-window chat_action_intent 未集成修补：FAIL
+
+实际readable源 `cd8bdf7831fc9a8307abc2479e5c4a2bd56a80733aa7cbcb7d4f06c450108e14`；参考card-host `46a4d16d...`。官方VM完成编译并实际调用生产chat_model_config，29检查26通过（28路由case，25路由正确、28返回schema正确、无模型/外部调用检查通过），不是Python镜像逻辑。
+
+三个失败（期望goal_plan）：
+- “请整理资料准备计划，但不要发邮件或创建日历。” → calendar_candidate。
+- “请整理资料，不能发邮件，也不要创建日历。” → calendar_candidate。
+- “请整理资料准备计划：不要发邮件，不操作日历。” → mail_compose。
+
+原因定位：分句只包含逗号/句号/分号/换行，不包含冒号；否定前缀不识别但/也。正常goal_plan、禁止日历只聊天、正常日历/mail、资料/原文中动作词及其余混合否定通过。未改主源码，失败全部保留，rc16 bundle未集成，不改标rc16通过。
+
+`chat_action_intent.splash`与`ACTION_INTENT_POST_WINDOW_RESULTS.json`；原始`.local-state/action-intent-post-window-r1/route/`。readable对readable比较：只chat_model_config改动、新增chat_action_intent，send_chat/muse_model_request原字节相同；模型原输入不变仅有静态证据，本轮没有模型请求。全部进程结束，8661释放；仅business测试文件提交，不push。
+
 ## rc16 焦点窄验（2026-10-09）
 
 **DRY_RUN PASS（参考 card-host）**。源 `dd2ce02517f8c7ab6c4dea9e10b017d27281bd49dcf94cf7d0fb1f7b41d5a9a4`；Host仍 `46a4d16d...`。

@@ -101,3 +101,8 @@ python3 official_muse/rc/7h-20261008/business/run_matrix.py \
 ## rc16 新Chat焦点窄验（2026-10-09）
 
 `chat_focus_scope.splash`、`FOCUS_R2_RESULTS.json`：dd2ce025源，参考46a4d16d Host，21/21 VM+8/8独立磁盘；先生成两归属合成资料再按实际Memory ID检索，非固定模型答案。477生产函数中只2函数改动、其余源码字节相同，rc15链/恢复证据保留原身份。首probe19/20失败来自对选择前updated_at快照的比较，修正基线并新增旧内容保留检查后通过；旧FAIL未删。
+
+
+## Post-window 否定分句路由修补：FAIL（未集成）
+
+`chat_action_intent.splash` 实际调用 readable cd8bdf78源的chat_model_config，官方参考Host46a4d16d；28路由25正确，28返回schema正确，加无调用检查合计26/29。`但不要`、`也不要`和冒号分句三变体误选动作，见 `ACTION_INTENT_POST_WINDOW_RESULTS.json`，失败保留。未改主源码，未替换冻结rc16 bundle，未声称最终Shell或模型全链验收。
