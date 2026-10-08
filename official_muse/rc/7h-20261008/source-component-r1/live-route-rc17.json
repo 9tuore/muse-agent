@@ -1,0 +1,239 @@
+{
+  "candidate": "0.3.27-rc17",
+  "source_sha256": "90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc",
+  "phase": "post-window",
+  "external_writes": 0,
+  "observed": [
+    {
+      "type": "Button",
+      "id": "source",
+      "text": "在线目录"
+    },
+    {
+      "type": "Button",
+      "id": "refresh",
+      "text": ""
+    },
+    {
+      "type": "Button",
+      "id": "action",
+      "text": "打开"
+    },
+    {
+      "type": "Button",
+      "id": "apps",
+      "text": "应用"
+    },
+    {
+      "type": "Button",
+      "id": "search_tab",
+      "text": "搜索"
+    },
+    {
+      "type": "Button",
+      "id": "library",
+      "text": "已安装"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "当前项目 · 七小时合成验收  /  个人"
+    },
+    {
+      "type": "Button",
+      "id": "1",
+      "text": "切换"
+    },
+    {
+      "type": "Button",
+      "id": "-",
+      "text": "↑ 更早的 1 条"
+    },
+    {
+      "type": "Button",
+      "id": "1",
+      "text": "回到最新"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "Muse"
+    },
+    {
+      "type": "Label",
+      "id": "1",
+      "text": "候选已准备，请核对右侧内容。尚未执行外部操作。"
+    },
+    {
+      "type": "Button",
+      "id": "send_button",
+      "text": "发送"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "结果"
+    },
+    {
+      "type": "Button",
+      "id": "1",
+      "text": "收起"
+    },
+    {
+      "type": "Label",
+      "id": "-",
+      "text": "本次任务计划"
+    },
+    {
+      "type": "Label",
+      "id": "1",
+      "text": "整理蓝色文件和白色文件的资料并准备计划"
+    },
+    {
+      "type": "Button",
+      "id": "2",
+      "text": "打开并核对"
+    },
+    {
+      "type": "Button",
+      "id": "3",
+      "text": "暂不处理"
+    },
+    {
+      "type": "Label",
+      "id": "1",
+      "text": "结果会出现在这里。"
+    }
+  ],
+  "goal": {
+    "archived": false,
+    "schema": 1,
+    "id": "1791492608-3969759074",
+    "version": 1,
+    "goal": "整理蓝色文件和白色文件的资料并准备计划",
+    "project_id": "七小时合成验收",
+    "owner_id": "个人",
+    "source": "资料甲是蓝色文件，资料乙是白色文件。",
+    "items": [
+      "资料甲是蓝色文件，资料乙是白色文件。"
+    ],
+    "status": "completed",
+    "approved_at": 1791492779.499263,
+    "model_summary": "整理蓝色文件和白色文件的资料并准备计划，不凭空生成私人事实。",
+    "result_path": "results/result-1791492608-3969759074.json",
+    "updated_at": 1791492779.623511,
+    "goal_spec": {
+      "schema_version": "muse.goal/0.1",
+      "goal_id": "1791492608-3969759074",
+      "revision": 1,
+      "title": "整理蓝色文件和白色文件的资料并准备计划",
+      "objective": "整理蓝色文件和白色文件的资料并准备计划",
+      "priority": "normal",
+      "deadline": null,
+      "timezone": "UTC",
+      "triggers": [
+        {
+          "kind": "event",
+          "topic": "user.message",
+          "source_ref": "muse.ui"
+        }
+      ],
+      "context_refs": [
+        {
+          "ref": "ui.source_input",
+          "purpose": "用户在当前任务输入的资料"
+        }
+      ],
+      "steps": [
+        {
+          "id": "write-result",
+          "capability": "storage.write",
+          "args": {
+            "path": "results/result-1791492608-3969759074.json"
+          },
+          "input_refs": [
+            "ui.source_input"
+          ]
+        }
+      ],
+      "permissions": {
+        "capabilities": [
+          "storage.write"
+        ],
+        "resource_refs": [
+          "results/result-1791492608-3969759074.json"
+        ],
+        "send_message": "deny",
+        "send_rule_ref": null,
+        "cloud_context": "none"
+      },
+      "budget": {
+        "period": "goal",
+        "money": {
+          "mode": "capped",
+          "currency": "CNY",
+          "amount": 0
+        },
+        "max_model_tokens": 0,
+        "max_searches": 0,
+        "max_run_seconds": 60
+      },
+      "verification": [
+        {
+          "type": "file_content",
+          "target_ref": "results/result-1791492608-3969759074.json",
+          "expected": {
+            "task_id": "1791492608-3969759074"
+          }
+        }
+      ],
+      "notify": {
+        "on_major_update": false,
+        "on_need_decision": true,
+        "on_complete": true
+      },
+      "failure_policy": {
+        "max_retries": 1,
+        "escalate": true
+      }
+    }
+  },
+  "runs": [
+    {
+      "id": "run:1791492736-3020186196",
+      "goal_id": "1791492608-3969759074",
+      "plan_revision": 1,
+      "request_id": "goal-1791492736-3531386152",
+      "status": "completed",
+      "started_at": 1791492779.499268,
+      "finished_at": 1791492779.623555,
+      "result_path": "results/result-1791492608-3969759074.json"
+    }
+  ],
+  "actions": [],
+  "result": {
+    "schema": 1,
+    "task_id": "1791492608-3969759074",
+    "goal": "整理蓝色文件和白色文件的资料并准备计划",
+    "source": "用户在 Muse 官方界面输入",
+    "source_text": "资料甲是蓝色文件，资料乙是白色文件。",
+    "count": 1,
+    "items": [
+      {
+        "number": 1,
+        "text": "资料甲是蓝色文件，资料乙是白色文件。"
+      }
+    ],
+    "model_summary": "整理蓝色文件和白色文件的资料并准备计划，不凭空生成私人事实。",
+    "created_at": 1791492779.564969
+  },
+  "result_sha256": "ba942538370bedab870a1a02f199f3cd81ef33939d6f4ec82d5296268aaea196",
+  "driver_failure": "Approval label moved below viewport; first lookup failed before input. Right-side confirmation used once.",
+  "restart": {
+    "completed_retained": true,
+    "runs_unchanged": true,
+    "actions_unchanged": true,
+    "result_sha_unchanged": true
+  },
+  "status": "LIVE_GOAL_PASS"
+}

@@ -114,3 +114,7 @@ Home r4真实构建日志报 `octosense-calendar-service` 编译 `src/eventkit.m
 Phone r7 APK已实际构建并验签，内含原始内核，约240.5MB，Home/Bridge签名一致；证据和提交13611f48见phone/REPORT.md。模拟器启动前被自动6GB数据分区所需空间拦住，Home内核/AppHub/Muse运行仍未通过。真实设备仍DEVICE_NOT_TESTED。
 
 最终rc16真实Shell一次性任务输入“整理资料并准备计划，不发邮件，不操作日历”错误返回日期询问；失败见source-component-r1/live-goal-plan-probe.json（620e3196）。Root仅在readable source添加否定分句过滤，冻结rc16 bundle及既有通过证据不变。第一轮实际官方VM 26/29通过，三个转折/冒号否定失败（8fc758dd），已据此最小补齐，二轮实际官方VM 32/32通过（f22632c9），生产函数返回action/schema已核对；尚未集成候选，不能称rc16修复完成或全链通过。
+
+### 隔离rc17真实Goal回归
+
+修补集成于新私有候选0.3.27-rc17，compact SHA90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc，Host仍276b2b68；本地stamp/sign/check/scan/publish/verify通过，仅本地演练。实际可见Shell以免费Qwen生成任务候选与模型建议，批准一次后结果写入并独立读回；完整Host退出重启后completed保留、runs/actions原样、结果SHA一致。证据source-component-r1/live-route-rc17.json及真实窗口PNG。原rc16通过矩阵不转移为rc17全矩阵。模型将两条资料合并为一个items元素，原事实保留但计数显示1条；不宣称两条结构提取通过。中心聊天仍保留先前候选回执，右侧真实结果卡已成功。没有新增外发或系统日历写入。
