@@ -1,0 +1,36 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :contracts:preBuild UP-TO-DATE
+> Task :contracts:preReleaseBuild UP-TO-DATE
+> Task :contracts:compileReleaseAidl UP-TO-DATE
+> Task :contracts:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :contracts:mergeReleaseNativeLibs NO-SOURCE
+> Task :contracts:stripReleaseDebugSymbols NO-SOURCE
+> Task :contracts:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :contracts:generateReleaseResValues UP-TO-DATE
+> Task :contracts:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :contracts:generateReleaseResources UP-TO-DATE
+> Task :contracts:packageReleaseResources UP-TO-DATE
+> Task :contracts:parseReleaseLocalResources UP-TO-DATE
+> Task :contracts:generateReleaseRFile UP-TO-DATE
+> Task :contracts:extractReleaseAnnotations UP-TO-DATE
+> Task :contracts:mergeReleaseShaders UP-TO-DATE
+> Task :contracts:compileReleaseShaders NO-SOURCE
+> Task :contracts:generateReleaseAssets UP-TO-DATE
+> Task :contracts:mergeReleaseAssets UP-TO-DATE
+> Task :contracts:javaPreCompileRelease UP-TO-DATE
+> Task :contracts:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :contracts:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :contracts:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :contracts:prepareLintJarForPublish UP-TO-DATE
+> Task :contracts:prepareReleaseArtProfile UP-TO-DATE
+> Task :contracts:processReleaseManifest UP-TO-DATE
+> Task :contracts:processReleaseJavaRes NO-SOURCE
+> Task :contracts:mergeReleaseJavaResource UP-TO-DATE
+> Task :contracts:syncReleaseLibJars UP-TO-DATE
+> Task :contracts:writeReleaseAarMetadata UP-TO-DATE
+> Task :contracts:bundleReleaseAar UP-TO-DATE
+> Task :contracts:exportHomeContracts UP-TO-DATE
+
+BUILD SUCCESSFUL in 3m
+24 actionable tasks: 24 up-to-date
