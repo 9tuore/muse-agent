@@ -106,3 +106,20 @@ tools: Hub review allows no own tool file at that stage. That exact preserved-ID
 path still needs actual signed admission, consent and `octos.*` execution tests.
 Neither a guessed relay API nor system impersonation is an acceptable substitute.
 See the coverage report and `CALENDAR_STATIC_EVIDENCE.json` for source-bound detail.
+
+## Night unit 1 — namespace compatibility feedback prepared
+
+The original Hub policy/contract code was actually compiled and exercised in a
+small single-job harness, with **1 test passed** (`night-repros/namespace.log`).
+No source/Gate rule was changed; this is actual policy-method execution, not native
+Host or full admission acceptance. Original source inventory:
+`night-policy-sources.json`. Prepare script: `night-repros/prepare_policy.py`.
+
+Fresh GitHub searches and current-main blob comparisons are captured in
+`night-dedup.json` and `night-main-refresh.json`. Namespace/Calendar policy sources
+still match pinned blobs. Search is targeted, not exhaustive.
+`feedback/namespace-body.md` supplies an English feature-request body: legal ID
+versus tools namespace is intended policy with an unresolved identity-preserving
+upgrade path, not a fabricated Gate bug. Existing submission #112 is referenced.
+Root owns public posting; **ISSUE_OPENED remains NO**. This unit adds reproducible
+policy evidence but does not resolve the own-tools migration blocker.

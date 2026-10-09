@@ -183,3 +183,27 @@ through actual `octos.*`, consent and shared `events/add_event/notify`; capture
 model choice and readback. For full changed/cancelled scheduling semantics, report
 the built-in shareability limitation explicitly rather than silently switching
 back to `device_calendar`. B publishes no issue and alters no production source.
+
+## Night unit 1 — executed official policy reproduction
+
+Night instruction attachment was read in full. B remains limited to these two
+reports and `research/native-agent`; latest built-in Calendar choice overrides
+the attachment's older device-calendar suggestion. Root owns production and
+public feedback. Deadline is 2026-10-10 07:00 Asia/Shanghai, not an execution claim.
+
+The original policy/contract crate sources at pinned Hub commit were fetched
+(25 files, 223285 bytes, blob/SHA256 inventory `night-policy-sources.json`). A
+harness changes only Cargo dependency selection to avoid optional GUI resolution;
+**official Rust source is unmodified**. Actual `AppManifest::parse`,
+`ToolManifest::parse`, `ToolManifest::check` and `validate` were executed.
+`namespace.log`: **1 passed, 0 failed**, legal-ID parse accepted and official
+namespace refusal reproduced; legal namespace control passed. Native Gate,
+installation/Host/model remain NOT_TESTED. This supersedes the earlier static-only
+status for this specific policy unit, not the overall Agent coverage result.
+
+Reproduction: run `prepare_policy.py`, then `cargo test --offline --manifest-path
+.local-state/night-policy/Cargo.toml -p octosense-app-policy --test muse_namespace
+--jobs 1 -- --nocapture`. Cache-source URLs/hashes are in the inventory. Test input
+uses this B manifest and three read-only prototype declarations; no production
+writes or external calls. Official main `agent.rs` blob was freshly rechecked and
+unchanged. Feedback body: `feedback/namespace-body.md`, classified feature request.
