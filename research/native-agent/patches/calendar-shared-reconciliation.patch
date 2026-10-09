@@ -1,0 +1,136 @@
+--- a/apps/calendar/host-service/src/lib.rs
++++ b/apps/calendar/host-service/src/lib.rs
+@@ -276,6 +276,7 @@
+     };
+     match method {
+         "view" => ui::view(host_dir, args, now),
++        "get_event" => get_event(host_dir, args),
+         "update_event" => {
+             let mut result = ui::update(host_dir,args)?;
+             let event: Event = serde_json::from_value(result["event"].clone()).expect("saved event");
+@@ -407,6 +408,22 @@
+     }
+ }
+ 
++/// Exact saved-record lookup; never turn unreadable/corrupt storage into absence.
++fn get_event(host_dir: &Path, args: &Value) -> Result<Value, String> {
++    let id = bounded(text(args, "id"), 64, "An event id")?;
++    if id.is_empty() { return Err("Give the saved event id.".into()); }
++    let events: Vec<Event> = match std::fs::read(store_path(host_dir)) {
++        Ok(bytes) => serde_json::from_slice(&bytes)
++            .map_err(|e| format!("Calendar cannot read its saved events: {e}"))?,
++        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Vec::new(),
++        Err(e) => return Err(format!("Calendar cannot read its saved events: {e}")),
++    };
++    Ok(match events.into_iter().find(|event| event.id == id) {
++        Some(event) => json!({"found":true,"event":event}),
++        None => json!({"found":false,"event":{}}),
++    })
++}
++
+ /// The service the Card runner (and the agent's tools) call.
+ pub struct CalendarService;
+ 
+@@ -538,3 +555,35 @@
+         let _ = std::fs::remove_dir_all(&d);
+     }
+ }
++
++#[cfg(test)]
++mod reconciliation_tests {
++    use super::*;
++#[test]
++fn exact_readback_update_stale_refusal_delete_and_absence() {
++    let dir=std::env::temp_dir().join(format!("muse-calendar-patch-chain-{}",std::process::id()));let _=std::fs::remove_dir_all(&dir);
++    let now=parse_time("2026-10-09T09:00").unwrap();
++    let absent=handle(APP,"get_event",&json!({"id":"absent"}),&dir,now,None).unwrap();assert_eq!(absent["found"],false);
++    let args=json!({"title":"Synthetic delivery","start":"2026-10-10T09:00","timezone":"Asia/Shanghai","request_id":"synthetic-patch-one"});
++    let add=handle(APP,"add_event",&args,&dir,now,None).unwrap();let id=add["id"].clone();
++    let first=handle(APP,"get_event",&json!({"id":id}),&dir,now,None).unwrap();assert_eq!(first["found"],true);assert_eq!(first["event"]["request_id"],args["request_id"]);
++    let update=json!({"id":id,"expected":first["event"],"title":"Synthetic moved","start":"2026-10-10T10:00","timezone":"Asia/Shanghai"});
++    let saved=handle(APP,"update_event",&update,&dir,now,None).unwrap();assert_eq!(saved["event"]["id"],id);
++    assert!(handle(APP,"update_event",&update,&dir,now,None).unwrap_err().contains("changed elsewhere"));
++    let read=handle(APP,"get_event",&json!({"id":id}),&dir,now,None).unwrap();assert_eq!(read["event"],saved["event"]);
++    handle(APP,"remove_event",&json!({"id":id,"expected":read["event"]}),&dir,now,None).unwrap();
++    assert_eq!(handle(APP,"get_event",&json!({"id":id}),&dir,now,None).unwrap()["found"],false);
++    std::fs::remove_dir_all(dir).unwrap();
++}
++#[test]
++fn exact_query_beyond_list_cap_and_corrupt_store_never_absent() {
++    let dir=std::env::temp_dir().join(format!("muse-calendar-patch-bounds-{}",std::process::id()));let _=std::fs::remove_dir_all(&dir);std::fs::create_dir_all(dir.join("calendar")).unwrap();
++    let events:Vec<Event>=(0..201).map(|i|Event{id:format!("ev-{i:03}"),title:"Synthetic".into(),start:"2026-10-10T09:00".into(),end:None,location:String::new(),notes:String::new(),request_id:String::new(),timezone:String::new()}).collect();
++    let path=dir.join("calendar/events.json");std::fs::write(&path,serde_json::to_vec(&events).unwrap()).unwrap();let now=parse_time("2026-10-09T09:00").unwrap();
++    let list=handle(APP,"events",&json!({"limit":200}),&dir,now,None).unwrap();assert_eq!(list["events"].as_array().unwrap().len(),200);assert!(!list["events"].as_array().unwrap().iter().any(|e|e["id"]=="ev-200"));
++    let exact=handle(APP,"get_event",&json!({"id":"ev-200"}),&dir,now,None).unwrap();assert_eq!(exact["found"],true);
++    std::fs::write(path,b"not json").unwrap();assert!(handle(APP,"get_event",&json!({"id":"absent"}),&dir,now,None).is_err());
++    assert!(handle(APP,"get_event",&json!({"id":""}),&dir,now,None).is_err());std::fs::remove_dir_all(dir).unwrap();
++}
++
++}
+--- a/apps/calendar/bundle/tools.json
++++ b/apps/calendar/bundle/tools.json
+@@ -44,6 +44,44 @@
+       "shareable": true
+     },
+     {
++      "name": "calendar.get_event",
++      "description": "Read one saved local Calendar event by exact id, including an explicit absence result. Unreadable storage is an error, never absence.",
++      "input_schema": {
++        "type": "object",
++        "properties": {
++          "id": {
++            "type": "string",
++            "minLength": 1,
++            "maxLength": 64
++          }
++        },
++        "required": [
++          "id"
++        ],
++        "additionalProperties": false
++      },
++      "output_schema": {
++        "type": "object",
++        "properties": {
++          "found": {
++            "type": "boolean"
++          },
++          "event": {
++            "type": "object"
++          }
++        },
++        "required": [
++          "found",
++          "event"
++        ],
++        "additionalProperties": false
++      },
++      "risk": "read",
++      "implemented_by": "host-service",
++      "shareable": true,
++      "private_data": true
++    },
++    {
+       "name": "calendar.add_event",
+       "description": "Add an event to the person's calendar. start (and end) are local times like 2026-10-02T15:00, or a date like 2026-10-02 for the whole day. Answers the new event's id. For retries supply the same stable request_id and exact event fields; it reuses the saved event. Changed fields with that key are refused instead of duplicating it. This is OctoSense local storage, not Google Calendar sync. Supply timezone (IANA, e.g. America/Los_Angeles) to preserve the event wall time independently of device settings. Missing timezone uses device local time. Do not guess an unspecified end.",
+       "input_schema": {
+@@ -170,7 +208,8 @@
+       },
+       "risk": "act",
+       "background": true,
+-      "implemented_by": "host-service"
++      "implemented_by": "host-service",
++      "shareable": true
+     },
+     {
+       "name": "calendar.remove_event",
+@@ -203,7 +242,8 @@
+       "risk": "destructive",
+       "confirm": "host",
+       "background": true,
+-      "implemented_by": "host-service"
++      "implemented_by": "host-service",
++      "shareable": true
+     },
+     {
+       "name": "calendar.notify",

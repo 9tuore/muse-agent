@@ -207,3 +207,45 @@ Reproduction: run `prepare_policy.py`, then `cargo test --offline --manifest-pat
 uses this B manifest and three read-only prototype declarations; no production
 writes or external calls. Official main `agent.rs` blob was freshly rechecked and
 unchanged. Feedback body: `feedback/namespace-body.md`, classified feature request.
+
+## Night unit 2 — executed Calendar reproduction and proposed patch
+
+Source main blobs for Calendar tools/service remain unchanged from the fixed
+commit. The latest choice remains built-in `os.calendar`; no EventKit/device
+adapter enters the default route. A tiny harness removes only the Host service
+registration/import adapter and compiles the original handler, owner guard,
+UI/card/persistence logic and original tests. Four original relay methods are
+byte-extracted into a minimal Catalog containing their two required data fields;
+this is isolated logic, **not** the full native relay/consent runtime.
+
+Baseline results: 7 original upstream tests + 2 boundary tests passed. Explicit
+cross-app grants cannot overcome absent shareable flags, developer mode still
+cannot invent sharing, own-app calls are positive controls, and ungranted callers
+are negative controls. Actual service rejects direct Muse identity. Missing get
+method errors, and a filtered empty list can coexist with a stored event.
+
+Proposed local patch `patches/calendar-shared-reconciliation.patch` adds no Gate,
+identity alias or runtime. It marks existing update/delete descriptors shareable,
+retains delete's destructive/host-confirm flags and existing stale-update check,
+and proposes read-only `calendar.get_event` for exact-ID saved-state readback.
+Unreadable/corrupt store fails visibly; absence is only an explicit query result.
+The patch includes two upstream regression tests. Final results: **9 core tests
+(7 existing + 2 new), 1 relay policy test, 1 original Hub tool-policy test passed**.
+Patch applies to fixed source and applied descriptors equal the tested candidate.
+This demonstrates pure-service/descriptor behavior, not actual native approval,
+installation, Account consent, model tool choice or real scheduling acceptance.
+
+An initial offline Calendar command failed to resolve chrono-tz 0.10.4; its log
+is preserved. A serial online retry downloaded public crate dependencies and ran
+tests successfully. No Host/GUI, private event store or paid model was used.
+Exact prepare/test commands and limits: `night-repros/README.md`. Raw success,
+initial error logs and lockfiles are committed. The prototype remains unadmitted;
+this does not raise B native Agent coverage above 0/16.
+
+Contained conversation boundary: the original `contained.rs` documents merged
+person/system history for one `card.<app id>` peer scoped by Host account. Its
+parser accepts only text/trigger/from for a turn, empty args for open/history/
+interrupt, and rejects arbitrary session/account/project keys. **There is no
+proven per-Muse-project conversation isolation**. Root reports isolation tests
+only and is keeping this path out of formal Chat pending evidence. This B unit
+does not submit a third issue or claim a new isolation mechanism.

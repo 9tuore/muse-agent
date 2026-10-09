@@ -1,9 +1,8 @@
 # Muse upstream contribution audit — B branch
 
-**No new upstream defect sufficiently verified; no public issue or PR submitted.**
+**Namespace feature request #182 is OPEN (posted by Root); Calendar feature request and local patch are prepared. No upstream change is accepted.**
 This task provides compatibility evidence and deduplication for Root's decision.
-Current instructions prohibit public posting. No SDK implementation is changed,
-no patch is prepared for submission, and nothing is pushed.
+Current instructions prohibit public posting. Production SDK implementation is unchanged. The later night section records local proposed patches; nothing is pushed.
 
 ## Fixed source evidence
 
@@ -62,7 +61,7 @@ ID and reports BLOCKED. Root owns the migration decision.
 
 Delivered: coverage matrix, verified upstream inventory, dedup snapshots,
 three unintegrated read-only tool proposals and reproducible static evidence.
-`ISSUE_OPENED=NO`, `PATCH_PREPARED=NO`, `PR_SUBMITTED=NO`, `PUSHED=NO`.
+Original audit snapshot: `ISSUE_OPENED=NO`, `PATCH_PREPARED=NO`, `PR_SUBMITTED=NO`, `PUSHED=NO`. The night status below supersedes the first two.
 
 Root's A adapter/real-VM work is separate. The latest user direction uses the
 official Shell Calendar service, not a private production bridge. After identity
@@ -123,3 +122,56 @@ versus tools namespace is intended policy with an unresolved identity-preserving
 upgrade path, not a fabricated Gate bug. Existing submission #112 is referenced.
 Root owns public posting; **ISSUE_OPENED remains NO**. This unit adds reproducible
 policy evidence but does not resolve the own-tools migration blocker.
+
+## Night unit 2 — actual tests, patch and publication handoff
+
+Namespace compatibility feedback was publicly posted by Root as
+[App Hub #182](https://github.com/OctoSense-org/OctoSense-App-Hub/issues/182).
+Status: **OPEN, not accepted**. B did not create it or any duplicate. Captured
+issue response: `feedback/namespace-issue-182.json`. The additional portable
+synthetic namespace fixture passed one actual original-policy test. A proposed
+regression-test-only patch is `patches/namespace-compatibility-regression.patch`;
+it records current behavior and modifies no Gate or naming rule. It does not
+implement a solution or authorize renaming.
+
+Calendar feature-request English body: `feedback/calendar-body.md`. Fresh scoped
+searches/related PR details are in `night-calendar-dedup.json`,
+`night-calendar-related.json` and `night-dedup.json`; #267/#382/#411 are merged
+related work, not evidence that cross-app update sharing already exists. Current
+Calendar tool/service blobs were compared to main and are unchanged. This is
+still a sharing/readback **feature request** if owner-only policy is intentional.
+Root decides on public submission; B has not posted it.
+
+Proposed patch `patches/calendar-shared-reconciliation.patch` changes only the
+built-in Calendar descriptors/handler and adds regression tests. Sharing update/
+delete retains explicit grants, owning executor, existing account/consent and
+approval routes; delete remains destructive/host-confirmed, and update retains
+expected old-record checks. New exact-ID readback distinguishes missing record
+from malformed/unreadable storage. No Gate edit or system impersonation.
+
+Executed evidence (all low-resource, serial, one Cargo job; no Host/model):
+
+| Unit | Actual result | Scope |
+|---|---|---|
+| Original namespace methods, current fixture | 1/1 passed | Unmodified official policy/contract Rust |
+| Portable namespace fixture | 1/1 passed | Regression patch; existing refusal, not a fix |
+| Original Calendar core | 7 upstream + 2 boundary tests passed | Host registration adapter excluded; original algorithms preserved |
+| Final patched Calendar core | 9 core + 1 relay policy test passed | Same-ID update, stale refusal, readback, delete/absence, list cap, corrupt store, grant/owner controls |
+| Proposed descriptors | 1/1 passed | Actual unmodified `ToolManifest::validate`; not native Gate |
+| Both patch applications | PASS | Fixed original source; tested/applied descriptors identical |
+
+The initial offline dependency error is preserved; public dependency download
+resolved it. Earlier intermediate patch tests (7 + 3) are retained separately;
+final patch (9 + 1) includes the two service tests in upstream source. No counters
+combine these repeated runs into full-chain evidence. `night-repros/README.md`
+contains commands, source inventories, extraction boundaries and lockfile notes.
+
+Current contribution states: namespace `ISSUE_OPENED_BY_ROOT=YES (#182 OPEN)`;
+Calendar `BODY_READY=YES`, `PATCH_PREPARED=YES`, `PURE_CORE_TESTED=YES`,
+`NATIVE_HOST_TESTED=NO`, `ISSUE_OPENED_BY_B=NO`, `PR_SUBMITTED=NO`, `PUSHED=NO`.
+No official acceptance, version release or model-selected production chain is
+claimed. Root receives these local artifacts for the second feedback decision.
+
+The contained Agent uses merged app/account person/system conversation history,
+not a caller-defined project session. This API boundary is recorded in coverage;
+no third issue/patch is proposed without a distinct real reproduction and dedup.

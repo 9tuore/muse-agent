@@ -1,0 +1,50 @@
+ Downloading crates ...
+  Downloaded phf_shared v0.12.1
+  Downloaded phf v0.12.1
+  Downloaded chrono-tz v0.10.4
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling autocfg v1.5.1
+   Compiling num-traits v0.2.19
+   Compiling core-foundation-sys v0.8.7
+   Compiling siphasher v1.0.3
+   Compiling phf_shared v0.12.1
+   Compiling iana-time-zone v0.1.65
+   Compiling syn v3.0.6
+   Compiling chrono-tz v0.10.4
+   Compiling serde_derive v1.0.229
+   Compiling chrono v0.4.45
+   Compiling phf v0.12.1
+   Compiling serde v1.0.229
+   Compiling calendar-core-repro v0.0.0 (/Users/mima0000/.codex/worktrees/muse-semifinal-b-20261009/Agent APP黑客松/.local-state/night-calendar)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 42s
+     Running unittests src/lib.rs (.local-state/night-policy/target/debug/deps/calendar_core_repro-acebc0402d62c674)
+
+running 7 tests
+test tests::named_timezone_rejects_missing_and_ambiguous_daylight_saving_times ... ok
+test tests::times_read_as_people_and_models_write_them ... ok
+test tests::a_delivery_retains_its_timezone_and_retries_do_not_duplicate_it ... ok
+test tests::cards_are_the_fixed_cards_filled_from_the_events ... ok
+test tests::events_are_kept_listed_soonest_first_and_removed ... ok
+test cards::tests::retry_edit_dismiss_restart_and_delete_use_one_saved_event ... ok
+test ui::tests::booking_marks_the_day_and_navigation_selects_the_same_event ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running /Users/mima0000/.codex/worktrees/muse-semifinal-b-20261009/Agent APP黑客松/research/native-agent/night-repros/calendar.rs (.local-state/night-policy/target/debug/deps/calendar_boundaries-a7d1fba6f62ea4dc)
+
+running 2 tests
+EXPLICIT_GRANT_STILL_BLOCKED=calendar.update_event
+EXPLICIT_GRANT_STILL_BLOCKED=calendar.remove_event
+test explicit_grants_cannot_share_owner_only_update_or_delete ... ok
+DIRECT_MUSE_SERVICE=REFUSED; GET_METHOD=UNAVAILABLE; FILTERED_ABSENCE_NOT_DELETION=CONFIRMED
+test owner_service_and_precise_missing_query_boundaries ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests calendar_core_repro
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,30 @@
+   Compiling calendar-core-repro v0.0.0 (/Users/mima0000/.codex/worktrees/muse-semifinal-b-20261009/Agent APP黑客松/.local-state/night-calendar-patched)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.84s
+     Running unittests src/lib.rs (.local-state/night-policy/target/debug/deps/calendar_core_repro-acebc0402d62c674)
+
+running 9 tests
+test cards::tests::retry_edit_dismiss_restart_and_delete_use_one_saved_event ... ok
+test reconciliation_tests::exact_query_beyond_list_cap_and_corrupt_store_never_absent ... ok
+test reconciliation_tests::exact_readback_update_stale_refusal_delete_and_absence ... ok
+test tests::a_delivery_retains_its_timezone_and_retries_do_not_duplicate_it ... ok
+test tests::cards_are_the_fixed_cards_filled_from_the_events ... ok
+test tests::events_are_kept_listed_soonest_first_and_removed ... ok
+test tests::named_timezone_rejects_missing_and_ambiguous_daylight_saving_times ... ok
+test tests::times_read_as_people_and_models_write_them ... ok
+test ui::tests::booking_marks_the_day_and_navigation_selects_the_same_event ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running /Users/mima0000/.codex/worktrees/muse-semifinal-b-20261009/Agent APP黑客松/research/native-agent/night-repros/calendar_patch.rs (.local-state/night-policy/target/debug/deps/calendar_patch-2e0e17751a1946f8)
+
+running 1 test
+test shared_patch_keeps_grants_owner_boundary_and_destructive_confirmation ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests calendar_core_repro
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
