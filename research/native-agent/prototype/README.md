@@ -10,7 +10,7 @@ Run from this worktree root:
 python3 research/native-agent/verify_static.py
 ```
 
-The script checks the current production entry, the 14 cached pinned upstream
+The script checks the current production entry, the 21 cached pinned upstream
 Git blobs/SHA256s, declared read-only flags, production helper/global definitions,
 and the official namespace predicate. It writes `../STATIC_EVIDENCE.json` and
 `../namespace-policy-excerpt.txt`. Cache input is intentionally ignored; exact

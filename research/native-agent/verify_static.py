@@ -65,6 +65,41 @@ assert 'mod.app_tools.' not in main
 assert not (ROOT / 'bundle/tools.json').exists()
 assert not (ROOT / 'bundle/AGENT.md').exists()
 assert manifest['agent'] is None
+calendar_root = CACHE / 'OctoSense/apps/calendar'
+calendar_tools = json.loads((calendar_root / 'bundle/tools.json').read_text())['tools']
+calendar_service = (calendar_root / 'host-service/src/lib.rs').read_text()
+calendar_ui = (calendar_root / 'host-service/src/ui.rs').read_text()
+relay = (CACHE / 'OctoSense/crates/shell/src/host_tools/relay.rs').read_text()
+calendar_names = {t['name'] for t in calendar_tools}
+shared = sorted(t['name'] for t in calendar_tools if t.get('shareable', False))
+assert shared == ['calendar.add_event', 'calendar.events', 'calendar.notify']
+assert 'calendar.get' not in calendar_names
+assert '"get" =>' not in calendar_service
+assert 'if app != APP' in calendar_service and 'pub const APP: &str = "os.calendar";' in calendar_service
+assert '"update_event" => {' in calendar_service and 'ui::update(host_dir,args)?' in calendar_service
+assert 'pub fn update(' in calendar_ui and 'if *event != expected' in calendar_ui
+assert 'Self::shareable(entry) &&' in relay and 'consent_pending' in relay
+contained = (CACHE / 'OctoSense/crates/ai-host/src/contained.rs').read_text()
+octos_services = ['octos.session.open', 'octos.session.history', 'octos.turn.start', 'octos.turn.interrupt']
+for service in octos_services:
+    assert service in contained
+assert '"octos.turn.start" => &["text", "trigger", "from"]' in contained
+assert 's.contains(&call.service)' in contained and 'ContainedGate::Consent' in contained
+assert 'Ok(None) => Vec::new()' in policy
+
+calendar_evidence = {
+    'kind': 'STATIC_ONLY', 'owner': 'os.calendar', 'storage': '<host_dir>/calendar/events.json',
+    'tools': [{'name': t['name'], 'risk': t['risk'], 'shareable': t.get('shareable', False),
+               'confirm': t.get('confirm'), 'implemented_by': t['implemented_by']} for t in calendar_tools],
+    'cross_app_shareable': shared, 'direct_muse_service_access': 'REFUSED_BY_OWNER_CHECK',
+    'update_implemented': True, 'update_cross_app_shareable': False,
+    'get_tool_declared': False, 'readback': 'calendar.events then exact ID/fields comparison; not an execution receipt',
+    'list_limit_max': 200, 'live_relay': 'NOT_TESTED', 'model_choice': 'NOT_TESTED',
+    'device_calendar': 'ISOLATED_RESEARCH_NOT_DEFAULT_PRODUCT_ROUTE',
+    'splash_app_agent_services': octos_services, 'octos_runtime': 'NOT_TESTED',
+    'own_namespace_gate_applies_to': 'Muse-owned tools.json; no-file outbound Agent is separate untested path',
+}
+(OUT / 'CALENDAR_STATIC_EVIDENCE.json').write_text(json.dumps(calendar_evidence, indent=2) + '\n')
 report = {
     'kind': 'STATIC_ONLY', 'branch': subprocess.check_output(['git', 'branch', '--show-current'], cwd=ROOT, text=True).strip(),
     'source_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
@@ -76,7 +111,7 @@ report = {
     'upstream_blobs_verified': len(verified), 'prototype_helpers_verified': helpers,
     'prototype_globals_verified': globals_, 'prototype_declarations': len(tools),
     'prototype_static_checks': 'PASS', 'splash_vm': 'NOT_RUN', 'model_tool_selection': 'NOT_TESTED',
-    'installed_target_host_abi': 'UNKNOWN_NOT_TESTED', 'external_actions': 'NONE',
+    'installed_target_host_abi': 'UNKNOWN_NOT_TESTED', 'external_actions': 'NONE', 'calendar_static_checks': 'PASS',
 }
 (OUT / 'STATIC_EVIDENCE.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
 print(json.dumps(report, ensure_ascii=False, indent=2))

@@ -49,7 +49,7 @@ mail/calendar business acceptance and does not replace old test evidence.
 ## Official contract and two independent gates
 
 Pinned upstream: OctoSense `3a4d1e1e557750eac69b412f34d36021306ea654` and
-App Hub `18cd41d91b326db199fbed4129484a9ba1a8c63d`. Fourteen targeted files were
+App Hub `18cd41d91b326db199fbed4129484a9ba1a8c63d`. Twenty-one targeted files were
 checked against Git blob SHA1 and SHA256, recorded in
 `research/native-agent/upstream-sources.json`; no whole SDK was downloaded.
 
@@ -82,7 +82,7 @@ six and never promote missing/unknown receipts to success. The proposal avoids
 memory retrieval trace writes. It has no external/model request or production
 mutation, and no declaration is admitted or counted as covered.
 
-Static checks PASS: 14 upstream blobs, JSON declarations, seven real helper
+Static checks PASS: 21 upstream blobs, JSON declarations, seven real helper
 functions, eleven real globals and absence of prohibited side-effect calls.
 A draft reference to nonexistent `core_goals_ready` was corrected to actual
 `core_storage_ready` plus `gm_ready` before recording the evidence. This is symbol
@@ -101,3 +101,85 @@ Root's eventual frozen bundle and actual admitted Host.
 Reproduce: `python3 research/native-agent/verify_static.py` from B worktree root.
 Recorded result: `research/native-agent/STATIC_EVIDENCE.json`.
 No model call, provider operation, account permission, public issue or push occurred.
+
+## Built-in Calendar follow-up — latest user direction
+
+**Default production direction is now the official built-in `os.calendar`.**
+`device_calendar` is a separate OS-calendar adapter retained by Root as isolated
+research; Root reports 22 synthetic real-VM protocol checks, which B did not run.
+It must not enter the default product route or be called built-in Calendar proof.
+No private production bridge or impersonated system ID is proposed.
+
+Six more targeted Calendar/relay files plus the contained Octos service were
+fetched at the same fixed OctoSense commit and Git-blob verified: total **21**
+source files. `research/native-agent/CALENDAR_STATIC_EVIDENCE.json` records the
+actual six Calendar descriptors and source checks.
+
+| Actual declared tool | Risk | Shareable to another app | What source proves |
+|---|---|---|---|
+| `calendar.events` | read | yes | Read/filter stored events; limit defaults 50, maximum 200 |
+| `calendar.add_event` | act | yes | Save local event; stable request_id reuses an exact retry and rejects conflicting reuse |
+| `calendar.notify` | act | yes | Publish Calendar-owned saved-event/card notification; not an alarm or invitation |
+| `calendar.update_event` | act | no: field absent | Actual update implementation exists, requires exact `expected` record; unavailable as cross-app shared tool |
+| `calendar.remove_event` | destructive, confirm host | no: field absent | Actual delete exists for owner; another app does not gain it by requesting it |
+| `calendar.agenda` | act | no: field absent | Owner's agenda card; not a cross-app shared endpoint |
+
+There is **no `calendar.get` descriptor or get handler** in the fixed inspected
+service. `calendar.events` is the available readback route: read matching range,
+find exact returned ID and compare saved fields/timezone/request_id. The list has
+no ID filter/pagination descriptor and caps at 200; absence from a bounded/filtered
+list is not proof of deletion or nonexistence. `ui::view` supplies owner UI state,
+not a declared shareable get tool. `ui::update` really finds the ID, deserializes
+`expected`, compares it to stored state, writes the changed event and returns it;
+that return is distinct from a later read. No live mutation/readback was run here.
+
+Events live in `<host_dir>/calendar/events.json`, shared by Calendar UI and tools.
+They are local OctoSense records; do not claim OS Calendar/Google synchronization,
+mail invitation delivery or scheduled alarm. The source header omits update from
+its method table, but the actual match handler and `ui.rs` implement it; neither a
+header table nor a database path was used as proof of missing/present behavior.
+
+### Exact app-to-Calendar route and authorization
+
+1. A reviewed Muse manifest's `agent.tools` requests the named external tools,
+   e.g. `calendar.events`, `calendar.add_event`, `calendar.notify`. This is a
+   proposed declaration change only; B has not changed/sealed/admitted the bundle.
+2. `script_apps::from_bundle` treats dotted generic tools as external requests;
+   `install` maps them to their owner and registers per-tool relay grants.
+   `calendar.*` is owned/executed by `os.calendar`.
+3. Relay `Catalog::may_call` requires the owner descriptor's `shareable == true`
+   and caller grant for cross-app calls. Call-time checks also enforce signed
+   admission, user's app-Agent consent, account state and argument schema. Tools
+   remain subject to Agent profile and host approval routing; a declaration,
+   supplied text or developer override is not production authorization evidence.
+4. Calendar's executor invokes its Host service using `os.calendar` identity.
+   Its service explicitly refuses any other app ID. Muse's direct
+   `host.request("calendar.*")` is not the cross-app relay and is refused.
+
+The official Splash-to-own-Agent entry **exists** in
+`crates/ai-host/src/contained.rs`: declare each exact capability
+`octos.session.open`, `octos.turn.start`, `octos.session.history`,
+`octos.turn.interrupt`, then invoke with the existing `host.request` API.
+Open/history/interrupt accept empty objects. Start accepts nonempty bounded
+`text` and optional `trigger`/`from` only. Unknown keys are refused. This targets
+Muse's own Host-owned `card.muse-goals` peer; it does not open arbitrary Calendar
+sessions. Input can ask Muse's Agent to use its granted Calendar tools. App
+calls cannot choose provider/session/profile, grant tools or approve writes;
+user first-use consent and Host tool-calling configuration are prerequisites.
+History supplies results; the contained service does not push streaming events
+to Splash. It checks both consent and exact manifest service declaration.
+
+**Two blockers must not be conflated:** Muse's own `tools.json` still fails the
+hyphen namespace predicate. Hub review checks that predicate when an own tools
+file exists; it accepts the absence of that file at that step. Thus this rule
+alone does not demonstrate that an outbound-only Muse Agent requesting existing
+shared Calendar tools is impossible. Its admission/live Octos/model path remains
+NOT_TESTED. In contrast, cross-app update/delete is unavailable in this pinned
+Calendar tool set because the descriptors are not shareable. No custom tool loop,
+identity rename, direct service bypass or delete/recreate workaround is added.
+
+Required follow-up for Root: test a signed outbound-only Agent with preserved ID
+through actual `octos.*`, consent and shared `events/add_event/notify`; capture
+model choice and readback. For full changed/cancelled scheduling semantics, report
+the built-in shareability limitation explicitly rather than silently switching
+back to `device_calendar`. B publishes no issue and alters no production source.

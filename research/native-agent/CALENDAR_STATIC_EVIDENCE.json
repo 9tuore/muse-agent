@@ -1,0 +1,71 @@
+{
+  "kind": "STATIC_ONLY",
+  "owner": "os.calendar",
+  "storage": "<host_dir>/calendar/events.json",
+  "tools": [
+    {
+      "name": "calendar.events",
+      "risk": "read",
+      "shareable": true,
+      "confirm": null,
+      "implemented_by": "host-service"
+    },
+    {
+      "name": "calendar.add_event",
+      "risk": "act",
+      "shareable": true,
+      "confirm": null,
+      "implemented_by": "host-service"
+    },
+    {
+      "name": "calendar.update_event",
+      "risk": "act",
+      "shareable": false,
+      "confirm": null,
+      "implemented_by": "host-service"
+    },
+    {
+      "name": "calendar.remove_event",
+      "risk": "destructive",
+      "shareable": false,
+      "confirm": "host",
+      "implemented_by": "host-service"
+    },
+    {
+      "name": "calendar.notify",
+      "risk": "act",
+      "shareable": true,
+      "confirm": null,
+      "implemented_by": "host-service"
+    },
+    {
+      "name": "calendar.agenda",
+      "risk": "act",
+      "shareable": false,
+      "confirm": null,
+      "implemented_by": "host-service"
+    }
+  ],
+  "cross_app_shareable": [
+    "calendar.add_event",
+    "calendar.events",
+    "calendar.notify"
+  ],
+  "direct_muse_service_access": "REFUSED_BY_OWNER_CHECK",
+  "update_implemented": true,
+  "update_cross_app_shareable": false,
+  "get_tool_declared": false,
+  "readback": "calendar.events then exact ID/fields comparison; not an execution receipt",
+  "list_limit_max": 200,
+  "live_relay": "NOT_TESTED",
+  "model_choice": "NOT_TESTED",
+  "device_calendar": "ISOLATED_RESEARCH_NOT_DEFAULT_PRODUCT_ROUTE",
+  "splash_app_agent_services": [
+    "octos.session.open",
+    "octos.session.history",
+    "octos.turn.start",
+    "octos.turn.interrupt"
+  ],
+  "octos_runtime": "NOT_TESTED",
+  "own_namespace_gate_applies_to": "Muse-owned tools.json; no-file outbound Agent is separate untested path"
+}

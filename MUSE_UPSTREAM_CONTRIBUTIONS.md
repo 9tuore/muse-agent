@@ -8,7 +8,7 @@ no patch is prepared for submission, and nothing is pushed.
 ## Fixed source evidence
 
 OctoSense `3a4d1e1e557750eac69b412f34d36021306ea654`, App Hub
-`18cd41d91b326db199fbed4129484a9ba1a8c63d`. Fourteen narrowly fetched files have
+`18cd41d91b326db199fbed4129484a9ba1a8c63d`. Twenty-one narrowly fetched files have
 Git blob SHA1 and SHA256 checks recorded in
 `research/native-agent/upstream-sources.json`. The implementation includes
 script tool admission/dispatch, the App Hub VM binding, bounded JSON serialization
@@ -71,3 +71,38 @@ bundle, actual VM invocation/refusals, and model-selected calls with account,
 consent and receipt checks. If that exposes a minimal reproducible upstream
 failure, check related items again before Root decides on a public contribution.
 B does not open a duplicate issue for an already implemented API.
+
+## Built-in Calendar follow-up
+
+The latest explicit choice is **official built-in Calendar**. Root's existing
+`device_calendar` work stays isolated research, not the default production route.
+This follow-up reads the pinned built-in bundle descriptors, owner service,
+`ui.rs`, relay and contained Octos service. Total verified inventory is **21**
+files. It does not run Calendar or export/modify its store.
+
+Actual source findings, not table-name inference:
+
+- `events`, `add_event`, `notify` explicitly have `shareable:true`.
+- `update_event` exists and calls `ui::update`: exact-ID lookup, `expected` old
+  record comparison, save and returned event. It lacks `shareable`.
+- `remove_event` exists, `risk:destructive`, `confirm:host`, but lacks `shareable`.
+- No declared `calendar.get` or get handler exists in this inspected service.
+  Readback uses bounded `calendar.events`; omitted records are not delete proof.
+- Calendar service accepts only `os.calendar`; relay makes the owner execute a
+  granted shared tool. Other app IDs cannot call the underlying service directly.
+- An official Splash App-Agent chat route does exist: exact declared `octos.*`
+  services through `host.request`, with consent and Host-owned approval handling.
+  Muse does not need a hand-built model/tool loop to reach that route.
+
+The missing cross-app update/delete sharing is a **verified current compatibility
+limitation**, not yet an upstream defect: policy may intentionally restrict it.
+No native failure test or product requirement decision proving a policy bug is
+provided, and no duplicate public issue is opened. Root should report the limit
+for changed/cancelled scheduling before declaring the official-only chain complete.
+
+The `muse-goals` namespace blocker applies to declaring Muse-owned `tools.json`.
+It is not proof that an outbound-only Agent cannot request other apps' shared
+tools: Hub review allows no own tool file at that stage. That exact preserved-ID
+path still needs actual signed admission, consent and `octos.*` execution tests.
+Neither a guessed relay API nor system impersonation is an acceptable substitute.
+See the coverage report and `CALENDAR_STATIC_EVIDENCE.json` for source-bound detail.
