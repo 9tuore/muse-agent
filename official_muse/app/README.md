@@ -1,15 +1,7 @@
-# Muse 脚本应用
+# Muse 可读源码与兼容入口
 
-这是 Muse 的实际 OctoSense / App Hub 应用开发目录。
+唯一应用包位于仓库根目录 [bundle/](../../bundle/)。本目录的 `bundle` 是相对 symlink `../../bundle`，指向同一个目录；兼容既有调用路径，不保留第二份包。
 
-**入口：[bundle/main.splash](bundle/main.splash)。源码语言：OctoScript / Splash。**
+可读业务源码仍在 [source/main.splash](source/main.splash)，本轮 B 线未修改它。迁移基线为实际活动 **0.3.27-rc17** compact 包，六个文件与资源按原字节迁移，包含现有本地 rehearsal 签名；后续发布需要单独审查新版本、可编辑源和官方 GitHub publisher 流程。
 
-`bundle/` 是 App Hub 应用包，包含主程序、`manifest.json`、`listing.json`、图标与展示截图。构建脚本、测试、旧桌面版和 Rust 宿主源码放在包外。不要把仓库根部的 Python 桌面程序当作当前参赛入口。
-
-开发遵循本目录的 [AGENTS.md](AGENTS.md) 和[官方脚本 API](https://github.com/OctoSense-org/OctoScript-App-Design-Flow/blob/main/docs/SCRIPT-API.md)。当前能力包括 storage、model、mail、calendar、glance，其中 calendar 依赖本地宿主扩展；原版准入与本地扩展验证须分别报告。
-
-本地修改后按现有构建流程生成候选、重新 stamp/sign/check，再从该候选验证。当前候选 0.3.26-rc49 的二十项回归尚未全部完成，不能将开发 Gate 通过当作正式提交或全链通过。
-
-完整源码分类、官方格式和未完成的准入项见 [../README.md](../README.md)。
-
-可读开发源码在`source/main.splash`；`bundle/main.splash`为同token的实际compact版本。日历局部修复验收见根目录MUSE_CALENDAR_REPAIR_REPORT.md。
+开发规则仍见 [AGENTS.md](AGENTS.md)，根目录布局与当前验证边界见 [复赛发布布局](../../docs/semifinal-release-layout.md)。历史报告保留其固定版本与源路径；当前日历能力仍依赖配套宿主扩展，不视为原版容器验收。

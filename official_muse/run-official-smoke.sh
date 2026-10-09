@@ -17,7 +17,7 @@ set -u
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 APP_DIR="$HERE/app"
-BUNDLE="$APP_DIR/bundle"
+BUNDLE="$HERE/../bundle"
 WS="${MUSE_OFFICIAL_WS:-$HOME/.codex/worktrees/muse-official-migration/official-ws}"
 PORT="${1:-8241}"
 

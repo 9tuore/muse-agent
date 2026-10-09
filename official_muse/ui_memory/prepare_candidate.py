@@ -46,7 +46,7 @@ def main():
  p.add_argument('--base-mirror',type=Path,default=BASE_MIRROR)
  p.add_argument('--model-port',type=int,default=8080)
  p.add_argument('--authorized-profile',type=Path,help='Existing private home/apps profile to clone read-only for real acceptance')
- p.add_argument('--source-bundle',type=Path,default=ROOT/'official_muse/app/bundle')
+ p.add_argument('--source-bundle',type=Path,default=ROOT/'bundle')
  a=p.parse_args();out=a.out.resolve()
  if a.authorized_profile and not (a.clone_host_profile or a.authorized_model_only):raise RuntimeError('--authorized-profile requires an authorized clone mode')
  if a.authorized_model_only and not a.authorized_profile:raise RuntimeError('--authorized-model-only requires --authorized-profile')

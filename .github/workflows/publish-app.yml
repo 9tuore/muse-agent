@@ -1,0 +1,28 @@
+name: Muse release preflight (manual draft)
+
+# Review-only draft. Official publisher-github-v1 proofs require a tag-push
+# workflow identity; workflow_dispatch is not that release/signing flow.
+# No tag/push trigger, attestation, secret, write token or publication job.
+'on':
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      # Exact checkout pin from the observed official App Flow publishing template.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Check canonical bundle and preserve its bytes
+        run: python3 scripts/check_release_layout.py --out build/release-layout.json
+      - name: Record pending publisher review
+        run: |
+          echo 'This manual draft validates layout only; no release or App Hub admission.'
+          echo 'Reviewed App Hub pin: 18cd41d91b326db199fbed4129484a9ba1a8c63d'
+          echo 'See docs/semifinal-release-layout.md for the official tag-push signing stages.'

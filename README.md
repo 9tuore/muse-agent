@@ -1,6 +1,8 @@
-## 当前交付：0.3.27-rc10
+## 当前开发基线：0.3.27-rc17（复赛整改）
 
-窄范围授权的新约定可自动安排，改期和发信仍单独确认。[本轮实测与缺项](official_muse/rc/final-contest-20261006-r1/FINAL_REPORT.md)。完整状态PARTIAL；App Hub审核状态以提交issue为准。
+唯一应用包在根目录 [bundle/](bundle/)，本轮从实际活动 rc17 包按字节迁移，`main.splash` SHA-256 为 `90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc`。旧 `official_muse/app/bundle` 是同目录的相对 symlink；可读源码仍在原位置。
+
+当前整体状态仍为 PARTIAL。本轮只整改目录与发布前检查，不新增业务验收或公开发布。[复赛布局与发布边界](docs/semifinal-release-layout.md)。旧 [rc10 实测与缺项](official_muse/rc/final-contest-20261006-r1/FINAL_REPORT.md) 保留历史版本身份。
 
 # Muse · 让记忆推动行动
 
@@ -42,14 +44,14 @@
 
 | 路径 | 内容 |
 | --- | --- |
-| [official_muse/app/bundle/](official_muse/app/bundle/) | 官方应用入口、manifest、listing 与资源 |
+| [bundle/](bundle/) | 唯一官方应用入口、manifest、listing 与资源；旧路径为兼容别名 |
 | [official_muse/app/source/main.splash](official_muse/app/source/main.splash) | 可读的 Splash 主界面与应用逻辑 |
 | `official_muse/global_memory.splash` | 记忆 DSL 与相关检索 |
 | `official_muse/incoming_mail.splash`、`scheduling.splash` | 来信处理、安排与改期 |
 | [dependencies.lock.json](dependencies.lock.json)、[sdk-overlays/](sdk-overlays/) | 官方 SDK 固定来源及配套扩展 |
 | [scripts/bootstrap_sdk.py](scripts/bootstrap_sdk.py) | 依赖恢复与逐文件核对 |
 
-当前候选版本：**0.3.26-rc51**。运行包提供原生启动器、基础离线模型与首次配置流程；也可在官方 Host 设置中配置模型与账号。
+布局迁移基线：**0.3.27-rc17**。日历仍依赖配套 Host 扩展；A 线后续业务整改不属于本轮目录迁移验收。
 
 ## 源码构建
 
@@ -63,7 +65,15 @@ cargo build --locked --release -p octosense --bin octosense --no-default-feature
 python3 tools/package_calendar_candidate.py --release --output ../../build/Muse-OctoSense.app
 ```
 
-交付包包含完整冻结公开源码、依赖来源、配套宿主和许可证。**完整运行与源码 ZIP 为 492.36MB**，使用 macOS 自带工具展开；接收环境为 Intel Mac / macOS 14 或更新版本。
+以上命令构建既有配套 Shell；本轮未重建或运行 Host。应用提交入口是根 `bundle/`，构建输出、模型和本地资料都在包外。既有 ZIP 与验收记录保留各自历史版本，不代表这次复赛发布。
+
+## 发布前检查
+
+```sh
+python3 scripts/check_release_layout.py
+```
+
+`.github/workflows/publish-app.yml` 目前仅手动触发只读布局检查。正式 GitHub publisher 证明要求官方 tag-push 流程；现有本地 rehearsal 签名按原字节保留，尚不能作为该流程的可编辑发布源。审查步骤与未完成项见 [发布布局说明](docs/semifinal-release-layout.md)。
 
 ## 新手使用教程
 
