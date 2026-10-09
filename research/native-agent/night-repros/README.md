@@ -21,6 +21,7 @@ cargo test --offline --manifest-path .local-state/night-policy/Cargo.toml -p oct
 python3 research/native-agent/night-repros/prepare_calendar.py
 CARGO_TARGET_DIR="$PWD/.local-state/night-policy/target" cargo test --offline --manifest-path .local-state/night-calendar/Cargo.toml --jobs 1 -- --nocapture --test-threads=1
 python3 research/native-agent/night-repros/prepare_calendar_patch.py
+cargo generate-lockfile --offline --manifest-path .local-state/night-calendar-patched/Cargo.toml
 CARGO_TARGET_DIR="$PWD/.local-state/night-policy/target" cargo test --offline --manifest-path .local-state/night-calendar-patched/Cargo.toml --jobs 1 -- --nocapture --test-threads=1
 cargo test --offline --manifest-path .local-state/night-policy/Cargo.toml -p octosense-app-policy --test calendar_schema --jobs 1 -- --nocapture
 ```
@@ -68,3 +69,21 @@ do not check signatures, native Host admission, granted Calendar dispatch or a
 real model. The fixture entry is deliberately not an executable app. No new
 runtime, production identity or Gate behavior is supplied. Two new tool names
 are declarations only, as documented in the prototype README.
+
+## Review revision and package separation
+
+The added Rust helper/tests were manually expanded into readable blocks. Installed
+rustfmt was missing (`formatting-tool.log`), not reported as a formatting pass.
+Original and proposed Calendar harnesses now use distinct Cargo package names,
+with a shared Rust library name for the test imports. After preparation, regenerate
+the proposed harness lockfile offline; `calendar-proposed-Cargo.lock` records it.
+`calendar-review-patch.log` listed only 7 core tests and is insufficient revised
+candidate evidence. `calendar-review-patch-distinct.log` lists the expected 9 core
++ 1 policy tests, all passed. Baseline `calendar-review-baseline.log` lists 7+2;
+descriptor `calendar-review-schema.log` lists 1 passed. No logs were deleted.
+
+`check_calendar_patch.py` was executed and compares applied two-file upstream
+source/descriptors to the exact tested core with only the Host adapter excluded.
+`calendar-review-patch-check.json` records its result and patch SHA256. Upstream
+root/apps AGENTS require full workspace, shipped offer/grant and native/cold-start
+checks plus bilingual docs; those remain pending outside this isolated proposal.

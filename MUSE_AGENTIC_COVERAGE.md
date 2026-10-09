@@ -281,3 +281,19 @@ history and rejects arbitrary caller session keys, but that alone is not an
 executed two-project leakage/isolation reproduction. No third feature request
 or claim of a project-isolation bug is made by this unit. A third public item
 would require a distinct executed reproduction, configuration checks and dedup.
+
+## Calendar review-code revision boundary
+
+The Calendar patch's added helper/tests now use readable Rust blocks. The exact
+two-file candidate was re-tested: original core 7+2, patched distinct-package core
+9+1, original Hub descriptor policy 1 passed; application/core correspondence
+checks passed. `calendar-review-patch.log` omits two new names and is retained as
+insufficient evidence; corrected `calendar-review-patch-distinct.log` lists them.
+Rustfmt is not installed, so only manual formatting/actual compilation is claimed.
+
+Official `apps/AGENTS.md` intentionally confines update to Calendar UI/own Agent.
+Sharing it is a policy-change proposal under #427, still OPEN, not accepted. The
+current narrow lib.rs/tools.json patch does not complete official shipped admission
+offer/caller grants, bilingual docs, cold-start or native approval/model tests.
+Those are required integration follow-ups for Root/maintainers; this is reviewable
+isolated implementation, not native Agent coverage. No other tools were expanded.

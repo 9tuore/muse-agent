@@ -202,3 +202,42 @@ with Root until actual Host tests establish the behavior.
 
 Current public tracking: #182 OPEN, #427 OPEN; accepted fixes NONE. B posting NONE,
 upstream PR NONE, production patch installation NONE, push NONE.
+
+## Calendar implementation review revision
+
+Latest user authorization permits supplying self-written code to official review;
+Root remains the public submitter. This unit normalizes only added Rust helpers/
+tests and regenerates the same two-file Calendar proposal. English follow-up
+summary is `feedback/calendar-submission-summary.md`, for existing #427, not a
+third issue. #427 was read again: OPEN, no accepted implementation or installed
+patch. No B issue/PR/push occurred.
+
+Official root and apps AGENTS were fetched, blob/SHA256 verified and read;
+`night-contribution-guidance.json` records them. The apps rules explicitly retain
+update for Calendar UI/own Agent rather than new Mail/system grants. This confirms
+**intentional owner-only policy**, so the patch must be reviewed as a sharing
+policy change, not a missing-permission bug. They also require coordinated caller
+grants/admission offer, bilingual docs, actual cold-process/Shell and official
+workspace/service tests. No applicable CONTRIBUTING.md or Calendar rustfmt config
+appeared in the fixed tree. Current user scope keeps the proposal to lib.rs and
+tools.json; the remaining official integration/doc checks are NOT_RUN/PENDING,
+not waived or silently claimed complete.
+
+Revalidation after formatting: original baseline 7+2 passed; final distinct-package
+candidate 9 core+1 policy passed; original Hub descriptor validator 1 passed;
+git apply/scope/core correspondence passed. The preliminary patched rerun exited
+0 but listed only 7 core tests, omitting the two new names. It is insufficient
+candidate evidence and retained in `calendar-review-patch.log`. Original/patched
+harness package names now differ, avoiding shared-target ambiguity; corrected
+`calendar-review-patch-distinct.log` explicitly includes both new tests. No missing
+or repeated tests are counted as acceptance. Rustfmt was unavailable; its error
+is preserved and the added code was formatted manually.
+
+Patch SHA256: `e5545d88382f689faf99d050f0053c4bdf7a99486dc07384195314880f1a4d9b`.
+Executable application/scope check: `night-repros/check_calendar_patch.py`;
+receipt `calendar-review-patch-check.json`. It compares the applied upstream core
+and descriptors to the tested candidate, with Host adapter exclusion explicit.
+The upstream patch still changes only `apps/calendar/host-service/src/lib.rs` and
+`apps/calendar/bundle/tools.json`; no Gate/identity/runtime changes. Full Host,
+native approval/model choice remain NOT_TESTED. Other tool proposals were not
+expanded in this revision.

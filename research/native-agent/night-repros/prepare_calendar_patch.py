@@ -7,23 +7,7 @@ PATCH=ROOT/'.local-state/night-calendar-patched'
 BASE=ROOT/'.local-state/night-calendar'
 shutil.copytree(BASE,PATCH,dirs_exist_ok=True)
 source=(OFF/'apps/calendar/host-service/src/lib.rs').read_text()
-helper='''/// Exact saved-record lookup; never turn unreadable/corrupt storage into absence.
-fn get_event(host_dir: &Path, args: &Value) -> Result<Value, String> {
-    let id = bounded(text(args, "id"), 64, "An event id")?;
-    if id.is_empty() { return Err("Give the saved event id.".into()); }
-    let events: Vec<Event> = match std::fs::read(store_path(host_dir)) {
-        Ok(bytes) => serde_json::from_slice(&bytes)
-            .map_err(|e| format!("Calendar cannot read its saved events: {e}"))?,
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Vec::new(),
-        Err(e) => return Err(format!("Calendar cannot read its saved events: {e}")),
-    };
-    Ok(match events.into_iter().find(|event| event.id == id) {
-        Some(event) => json!({"found":true,"event":event}),
-        None => json!({"found":false,"event":{}}),
-    })
-}
-
-'''
+helper = (ROOT/'research/native-agent/night-repros/upstream_get_event.rs').read_text() + '\n'
 anchor='/// The service the Card runner (and the agent\'s tools) call.'
 assert source.count(anchor)==1
 patched=source.replace(anchor,helper+anchor).replace('"view" => ui::view(host_dir, args, now),','"view" => ui::view(host_dir, args, now),\n        "get_event" => get_event(host_dir, args),')
@@ -46,7 +30,8 @@ newraw=json.dumps(tools,indent=2)+'\n';(PATCH/'tools.json').write_text(newraw)
 patch=''.join(difflib.unified_diff(source.splitlines(True),patched.splitlines(True),fromfile='a/apps/calendar/host-service/src/lib.rs',tofile='b/apps/calendar/host-service/src/lib.rs'))
 patch+=''.join(difflib.unified_diff(raw.splitlines(True),newraw.splitlines(True),fromfile='a/'+tools_path,tofile='b/'+tools_path))
 (ROOT/'research/native-agent/patches/calendar-shared-reconciliation.patch').write_text(patch)
-man=(PATCH/'Cargo.toml').read_text();man=man[:man.index('[[test]]')]+'''[[test]]
+man=(PATCH/'Cargo.toml').read_text().replace('name = "calendar-core-repro"', 'name = "calendar-core-proposed"', 1)
+man=man[:man.index('[[test]]')]+'[lib]\nname="calendar_core_repro"\n'+'''[[test]]
 name="calendar_patch"
 path='''+repr(str(ROOT/'research/native-agent/night-repros/calendar_patch.rs'))+'\n';(PATCH/'Cargo.toml').write_text(man)
 print('Proposed patch prepared; no upstream/production files changed')
