@@ -1,0 +1,13 @@
+   Compiling octosense-app-policy v0.1.0 (/Users/mima0000/.codex/worktrees/muse-semifinal-b-20261009/Agent APP黑客松/.local-state/night-policy/crates/app-policy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.40s
+     Running /Users/mima0000/.codex/worktrees/muse-semifinal-b-20261009/Agent APP黑客松/research/native-agent/night-repros/five_tools.rs (.local-state/night-policy/target/debug/deps/five_tools-cac11301330d5cd3)
+
+running 3 tests
+test declarations_shape_control_does_not_rename_the_app ... ok
+test five_owned_tools_are_refused_before_agent_loading ... FIVE_OWNED_TOOLS=BLOCKED id=muse-goals reason=the namespace "muse-goals" (a module id, or the last segment of an app id) must be [a-z0-9_]{1,24} to declare tools
+ok
+test unchanged_id_outbound_agent_loads_but_not_own_reads_or_runtime ... OUTBOUND_ONLY_AGENT_LOADER=PASS id=muse-goals own_tools=0 native_host=NOT_TESTED
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

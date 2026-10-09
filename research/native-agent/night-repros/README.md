@@ -52,3 +52,19 @@ Proposed patches under `../patches` affect Calendar source/descriptors/tests and
 add a namespace regression test only. No Gate edit, production integration,
 identity rename, upstream public submission or accepted version is implied.
 Root decides whether to post the two prepared English feature-request bodies.
+
+## Five-tool / unchanged-ID loader boundary
+
+```sh
+python3 research/native-agent/night-repros/prepare_policy.py
+cargo test --offline --manifest-path .local-state/night-policy/Cargo.toml -p octosense-app-policy --test five_tools --jobs 1 -- --nocapture --test-threads=1
+```
+
+`five-tools.log`: 3 tests passed in actual unmodified official policy/contract.
+`AgentBundle::load` checks real digest + review on synthetic temporary fixtures;
+five own tools are refused, descriptor-shape control validates a cloned unrelated
+namespace, and outbound-only same-ID Agent loads with zero own tools. These tests
+do not check signatures, native Host admission, granted Calendar dispatch or a
+real model. The fixture entry is deliberately not an executable app. No new
+runtime, production identity or Gate behavior is supplied. Two new tool names
+are declarations only, as documented in the prototype README.

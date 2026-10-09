@@ -249,3 +249,35 @@ interrupt, and rejects arbitrary session/account/project keys. **There is no
 proven per-Muse-project conversation isolation**. Root reports isolation tests
 only and is keeping this path out of formal Chat pending evidence. This B unit
 does not submit a third issue or claim a new isolation mechanism.
+
+## Night unit 3 — five owned reads / preserved-ID loader boundary
+
+`prototype/five-tools.proposed.json` describes five scoped reads: memory.search,
+pending.list, receipt.get, transaction.get and followup.inspect. The original
+three research handlers remain unexecuted; transaction/followup are **declaration
+proposals without handlers**. This is not five implemented tools or model coverage.
+Follow-up output is proposed stored state, not inferred permission or success.
+
+Actual official `AgentBundle::load` was exercised with synthetic temporary,
+digest-bound fixtures using unchanged `muse-goals` ID. **Three tests passed**:
+
+- Five own-tool declarations are refused by the actual review/loader namespace
+  check, before any Host or model execution.
+- Descriptor shapes pass a pure validator control using a cloned unrelated
+  namespace. This is a control only; no Muse ID/name/production storage is changed.
+- An outbound-only Agent with no own tools loads under the same `muse-goals` ID;
+  its tool_names are calendar.events/add_event/notify and ask_user_question.
+  It has zero Muse-owned reads. Digest/review loading does not prove signature
+  admission, native Host consent, actual Calendar dispatch or model choice.
+
+Evidence `night-repros/five-tools.log`, executable `five_tools.rs`, commands in
+`night-repros/README.md`. Entry fixture deliberately contains no executable UI;
+no new Runtime or model loop is created. Real model-selected own-tool prototype
+remains **BLOCKED** under the current identity policy; Root owns the independent
+contained/outbound work. Agent coverage of B production remains 0/16.
+
+Project-scoped history remains **NOT_TESTED**. Source shows merged app/account
+history and rejects arbitrary caller session keys, but that alone is not an
+executed two-project leakage/isolation reproduction. No third feature request
+or claim of a project-isolation bug is made by this unit. A third public item
+would require a distinct executed reproduction, configuration checks and dedup.

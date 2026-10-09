@@ -1,0 +1,266 @@
+{
+  "schema": 1,
+  "tools": [
+    {
+      "name": "muse-goals.memory.search",
+      "description": "Read up to six existing accessible memory claims in the currently selected project and owner. Never save, correct, forget or call a model.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "owner",
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "risk": "read",
+      "background": false,
+      "shareable": false,
+      "private_data": true,
+      "implemented_by": "app"
+    },
+    {
+      "name": "muse-goals.pending.list",
+      "description": "Read up to six unfinished mail-linked matters in the currently selected account/project/owner. Excludes unscoped legacy records.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "owner"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "risk": "read",
+      "background": false,
+      "shareable": false,
+      "private_data": true,
+      "implemented_by": "app"
+    },
+    {
+      "name": "muse-goals.receipt.get",
+      "description": "Read one original action and an existing Calendar receipt. Accepted, unknown and absent receipts are not verified delivery.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "owner",
+          "request_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "action_status": {
+            "type": "string"
+          },
+          "receipt_status": {
+            "type": "string"
+          },
+          "persisted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "found",
+          "request_id",
+          "action_status",
+          "receipt_status",
+          "persisted"
+        ],
+        "additionalProperties": false
+      },
+      "risk": "read",
+      "background": false,
+      "shareable": false,
+      "private_data": true,
+      "implemented_by": "app"
+    },
+    {
+      "name": "muse-goals.transaction.get",
+      "description": "Proposed: read one scoped mail-linked transaction by exact goal_id; never mutate it.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "goal_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "owner",
+          "goal_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "goal": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "found",
+          "goal"
+        ],
+        "additionalProperties": false
+      },
+      "risk": "read",
+      "background": false,
+      "shareable": false,
+      "private_data": true,
+      "implemented_by": "app"
+    },
+    {
+      "name": "muse-goals.followup.inspect",
+      "description": "Proposed: read stored goal/action statuses for follow-up; never infer approval or verified external completion.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "goal_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "owner",
+          "goal_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "state": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "found",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "risk": "read",
+      "background": false,
+      "shareable": false,
+      "private_data": true,
+      "implemented_by": "app"
+    }
+  ]
+}

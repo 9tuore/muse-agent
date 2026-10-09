@@ -1,6 +1,6 @@
 # Muse upstream contribution audit — B branch
 
-**Namespace feature request #182 is OPEN (posted by Root); Calendar feature request and local patch are prepared. No upstream change is accepted.**
+**Namespace #182 and Calendar #427 are OPEN (posted by Root); local patches remain unsubmitted/uninstalled. No upstream change is accepted.**
 This task provides compatibility evidence and deduplication for Root's decision.
 Current instructions prohibit public posting. Production SDK implementation is unchanged. The later night section records local proposed patches; nothing is pushed.
 
@@ -175,3 +175,30 @@ claimed. Root receives these local artifacts for the second feedback decision.
 The contained Agent uses merged app/account person/system conversation history,
 not a caller-defined project session. This API boundary is recorded in coverage;
 no third issue/patch is proposed without a distinct real reproduction and dedup.
+
+## Night unit 3 — Calendar publication and five-tool probe
+
+Root published the reviewed Calendar feature request as
+[OctoSense #427](https://github.com/OctoSense-org/OctoSense/issues/427).
+B re-read the issue: **OPEN, not accepted**, captured in
+`feedback/calendar-issue-427.json`. The patch is still local: **no PR, no install,
+no official release/adoption**. Do not duplicate #427. Root reports two public
+items used this night (#182 and #427); one remaining is not permission to invent
+another report without evidence.
+
+Three actual official loader tests (`night-repros/five-tools.log`) now distinguish
+five Muse-owned interface proposals from the same-ID outbound-only Agent path.
+Owned tools are refused by original `AgentBundle::load`; outbound-only fixture
+loads without owned tools. Synthetic digest/review checks are not native signed
+admission, model choice or actual service consent. No Gate, source, production
+ID or Runtime is patched for this unit. Two additional proposed tools are not
+implemented, and none is represented as model-selected or executed.
+
+The existing namespace request #182 covers this owned-tool blocker. The loader
+probe is new evidence, not a separate issue. Project-scoped context has only source
+boundary evidence in B; no two-project runtime reproduction was executed here,
+so no third issue/body/patch is prepared. Keep the formal Chat separation decision
+with Root until actual Host tests establish the behavior.
+
+Current public tracking: #182 OPEN, #427 OPEN; accepted fixes NONE. B posting NONE,
+upstream PR NONE, production patch installation NONE, push NONE.

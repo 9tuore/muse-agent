@@ -35,6 +35,6 @@ name="muse_namespace"
 path='''+repr(str(ROOT/'research/native-agent/night-repros/namespace.rs'))+'\n')
 print('25 official source checks PASS; no source edits')
 
-for name in ['namespace_portable', 'calendar_schema']:
+for name in ['namespace_portable', 'calendar_schema', 'five_tools']:
     with (BUILD/'crates/app-policy/Cargo.toml').open('a') as f:
         f.write('\n[[test]]\nname="'+name+'"\npath='+repr(str(ROOT/'research/native-agent/night-repros'/(name+'.rs')))+'\n')
