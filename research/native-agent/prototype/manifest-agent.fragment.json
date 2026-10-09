@@ -1,0 +1,20 @@
+{
+  "id": "muse-goals",
+  "requires": [
+    "script-tools-v1"
+  ],
+  "agent": {
+    "profile": "read-only",
+    "tools": [],
+    "max_iterations": 3,
+    "token_budget": 4096,
+    "model": {
+      "needs": [
+        "tool_calling"
+      ],
+      "tier": "fast"
+    },
+    "background": false,
+    "instructions": "AGENT.md"
+  }
+}

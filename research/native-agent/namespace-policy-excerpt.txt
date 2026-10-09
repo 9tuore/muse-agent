@@ -1,0 +1,16 @@
+Pinned Hub 18cd41d91b326db199fbed4129484a9ba1a8c63d
+crates/app-policy/src/agent.rs; Git blob verified by inventory
+63: pub const MAX_NAMESPACE: usize = 24;
+325:     pub fn validate(&self, namespace: &str, host: ToolHost, local_only: bool) -> Vec<Issue> {
+326:         let mut issues = Vec::new();
+327:         if namespace.is_empty()
+328:             || namespace.len() > MAX_NAMESPACE
+329:             || !namespace.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+330:         {
+331:             issues.push(Issue::refuse(
+332:                 "tools",
+333:                 format!(
+334:                     "the namespace {namespace:?} (a module id, or the last segment of an app id) must be [a-z0-9_]{{1,{MAX_NAMESPACE}}} to declare tools"
+335:                 ),
+336:             ));
+337:         }

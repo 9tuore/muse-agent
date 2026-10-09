@@ -1,0 +1,64 @@
+// Unintegrated proposal only: current muse-goals tools namespace is BLOCKED.
+// Requires the existing rc17 production bindings/functions and the real host ABI.
+// No new app ID, alternate service, model transport or persisted mutation.
+fn research_goal_scope(goal, account, args){
+    return gm_has(goal,"project_id") && gm_has(goal,"owner_id")
+        && goal.project_id==args.project && goal.owner_id==args.owner
+        && gm_has(goal,"mail_source") && goal.mail_source!=nil
+        && gm_has(goal.mail_source,"account_id") && goal.mail_source.account_id==account
+}
+fn research_memory_query(args, account){
+    let items=[]
+    for entry in memory{
+        let doc=entry.document
+        if items.len()<6 && gm_entry_access(entry) && doc["scope"].account==account
+            && gm_field(doc,"project_id","")==args.project && gm_field(doc,"owner_id","")==args.owner
+            && gm_score(entry,args.query,"","")>0{
+            items.push({id:doc.id revision:doc.revision value:doc.payload.value source_ids:doc.payload.source_ids})
+        }
+    }
+    return {items:items}
+}
+fn research_pending_query(args, account){
+    let items=[]
+    for goal in goals{
+        if items.len()<6 && research_goal_scope(goal,account,args) && !goal.archived
+            && goal.status!="completed" && goal.status!="cancelled"{
+            items.push({id:goal.id revision:goal.version status:goal.status objective:goal.goal})
+        }
+    }
+    return {items:items}
+}
+fn research_receipt_query(args, account){
+    let result={found:false request_id:args.request_id action_status:"" receipt_status:"" persisted:false}
+    let ai=core_action_index(args.request_id)
+    if ai<0{return result}
+    let action=actions[ai] let gi=core_goal_index(action.goal_id)
+    if gi<0 || !research_goal_scope(goals[gi],account,args){return result}
+    result.found=true result.action_status=action.status
+    for receipt in calendar_receipts{
+        if receipt.request_id==args.request_id{
+            result.receipt_status=receipt.status
+            if gm_has(receipt,"persisted"){result.persisted=receipt.persisted}
+        }
+    }
+    return result
+}
+fn app_tool(name, call_id){
+    let request=mod.app_tools.request(call_id)
+    if request==nil{return}
+    let args=request.args let context=request.context
+    if context.app!="muse-goals" || context.call_id!=call_id || context.account==""
+        || !gm_enabled || !core_memory_ready || !core_storage_ready || !gm_ready
+        || !gm_account_allowed(context.account) || gm_project=="" || gm_owner==""
+        || args.project!=gm_project || args.owner!=gm_owner{
+        mod.app_tools.fail(call_id,"scope_unavailable: select the authorized account, project and owner") return
+    }
+    if name=="muse-goals.memory.search"{
+        mod.app_tools.complete(call_id,research_memory_query(args,context.account))
+    }else if name=="muse-goals.pending.list"{
+        mod.app_tools.complete(call_id,research_pending_query(args,context.account))
+    }else if name=="muse-goals.receipt.get"{
+        mod.app_tools.complete(call_id,research_receipt_query(args,context.account))
+    }else{mod.app_tools.fail(call_id,"Unknown read-only research tool")}
+}
