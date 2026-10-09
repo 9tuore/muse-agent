@@ -153,7 +153,15 @@ def main():
                 assert title['t']==expected_title, 'Navigation did not change actual page title: '+page
             content=remote.wait_for('central_main',15)
             assert content['r'][2]>=2 and content['r'][3]>=2, 'Core page content clipped: '+page
-            words_on_page=[w.get('t','') for w in remote.widgets() if w.get('ty')=='Label' and w['r'][0]>=content['r'][0] and w['r'][0]<content['r'][0]+content['r'][2] and w['r'][1]>=262]
+            # Title updates before the dynamic Splash body finishes rendering.
+            # Require the same body evidence, with visible geometry, within the
+            # existing page readiness deadline instead of sampling one frame.
+            body_deadline=time.monotonic()+15
+            words_on_page=[]
+            while time.monotonic()<body_deadline:
+                words_on_page=[w.get('t','') for w in remote.widgets() if w.get('ty')=='Label' and w['r'][0]>=content['r'][0] and w['r'][0]<content['r'][0]+content['r'][2] and w['r'][1]>=262 and w['r'][2]>=2 and w['r'][3]>=2]
+                if words_on_page:break
+                time.sleep(.1)
             assert words_on_page, 'Core page has no visible body labels: '+page
             pages[page]={'visible':True,'actual_page_title':title['t'],'content_rect':content['r'],'body_labels':words_on_page}
             if run['index']==1: remote.shot(d/('page-'+str(len(pages))+'-visible.png'))

@@ -1,0 +1,1123 @@
+{
+  "kind": "SHELL_LIVE_SYNTHETIC_FULL_PROCESS_COLD_AND_APP_REOPEN",
+  "version": "0.3.27-rc17",
+  "code_commit": "9b247c892ee61cf3100560453c5b8496e9061fd3",
+  "source_sha256": "90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc",
+  "host_sha256": "276b2b688b759e2d0e026a6999118e25f857bb21ebf23c93cea2d24b03daf638",
+  "budget_evidence": "Pinned Host binary unchanged; no claimed numeric callback budget from legacy runner",
+  "seeded_record_counts": {
+    "chat-sessions.json": {
+      "sessions": 16
+    },
+    "goals.json": {
+      "goals": 1,
+      "runs": 1,
+      "actions": 1
+    },
+    "memory.json": {
+      "claims": 64,
+      "sources": 65,
+      "forget": 0
+    },
+    "calendar-state.json": {
+      "links": 0,
+      "receipts": 0,
+      "local_states": 0
+    },
+    "mail-watch.json": {
+      "accounts": 1,
+      "alerts": 0
+    },
+    "chat_message_count": 256,
+    "mail_baseline": [
+      {
+        "id": "synthetic-unconnected-account",
+        "ready": true,
+        "seen": 64
+      }
+    ]
+  },
+  "protected_files_sha256": {
+    "chat-sessions.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "chat-sessions.backup.json": "61b630a2d4fae1b38e816d4ab3f9cf745043a53791b7502041c01dd6daea92bf",
+    "calendar-state.json": "26c90acd98f33a1f61262b4af9f4fda783f80cee11d8ec1b348c39dca1f5322f",
+    "calendar-state.backup.json": null,
+    "activity.json": "84bbe543f9f4712fda8b69f89e9ca14aafea0c6f81ed2f3f2f76de5824bec088",
+    "activity.backup.json": "39d8ab825fab13fc2a73ea00439a6e45b59373430d18fb66a40b156e805aa9e8",
+    "goals.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "goals.backup.json": "8162f7194518ae0610db978098e76e369f064dff6f3ce679f7eec0fd04d269da",
+    "memory.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "memory.backup.json": "913f686a6f6528b29af76679a7d6ebd816e57b5b4b5857339e672508c73afde9",
+    "mail-draft.json": null,
+    "mail-draft.backup.json": null,
+    "mail-draft-archive.json": null,
+    "mail-watch.json": "66f2cae9f66954b04c824bfed6c30fd19aa6f088efd6be5bfdd9ad50770d4469",
+    "global-memory-settings.json": "0239d997f4c7bdccd6a361df56d747c795e80dfa951c533aeb5aa804a41729d8",
+    "results/result-1791492608-3969759074.json": "ba942538370bedab870a1a02f199f3cd81ef33939d6f4ec82d5296268aaea196"
+  },
+  "cold": [
+    {
+      "index": 1,
+      "pass": true,
+      "first_content_seconds": 17.461621961,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 18.365772477,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": {
+          "visible": true,
+          "actual_page_title": "记忆",
+          "content_rect": [
+            302,
+            134,
+            522,
+            479
+          ],
+          "body_labels": [
+            "全局记忆",
+            "相关记忆可跨对话使用。",
+            "第 1 / 8 页 · 64 条",
+            "汇报先给结论，再列三项重点",
+            "未指定项目 · local",
+            "时间 · 2026-10-05T00:00:00Z",
+            "来源 · 用户资料"
+          ]
+        },
+        "邮箱": {
+          "visible": true,
+          "actual_page_title": "邮箱",
+          "content_rect": [
+            302,
+            134,
+            522,
+            479
+          ],
+          "body_labels": [
+            "收件箱",
+            "尚无已授权邮箱。连接时由 OctoSense 宿主面板接收凭据。"
+          ]
+        },
+        "日历": {
+          "visible": true,
+          "actual_page_title": "日历",
+          "content_rect": [
+            302,
+            134,
+            522,
+            479
+          ],
+          "body_labels": [
+            "系统日历",
+            "实际系统权限 · 未知或宿主不可用",
+            "宿主日历服务状态不可用，查询与写入均已停止。",
+            "正在等待宿主响应…"
+          ]
+        },
+        "操作记录": {
+          "visible": true,
+          "actual_page_title": "操作记录",
+          "content_rect": [
+            302,
+            134,
+            522,
+            479
+          ],
+          "body_labels": [
+            "操作记录"
+          ]
+        },
+        "能力授权": {
+          "visible": true,
+          "actual_page_title": "能力与授权",
+          "content_rect": [
+            302,
+            134,
+            522,
+            479
+          ],
+          "body_labels": [
+            "能力与授权",
+            "应用中心的能力授权、系统权限和账号状态分别检查；应用获授能力不等于服务已就绪。",
+            "glance",
+            "应用能力 · 已授予（应用中心）",
+            "模型",
+            "应用能力 · 已授予（应用中心）"
+          ]
+        },
+        "设置": {
+          "visible": true,
+          "actual_page_title": "设置",
+          "content_rect": [
+            302,
+            134,
+            522,
+            479
+          ],
+          "body_labels": [
+            "邮箱",
+            "自动分析需要把已授权来信交给你在 OctoSense 配置的模型，遵守宿主费用限制；发信和改日历仍单独确认。",
+            "日历"
+          ]
+        },
+        "对话": {
+          "visible": true,
+          "actual_page_title": "对话",
+          "content_rect": [
+            302,
+            134,
+            522,
+            479
+          ],
+          "body_labels": [
+            "Muse",
+            "合成历史 15/15。history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-"
+          ]
+        }
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=472707 chunks=482 total_ms=388.544 max_chunk_ms=29.573"
+      ],
+      "changed_protected_files": {
+        "activity.json": {
+          "before": "84bbe543f9f4712fda8b69f89e9ca14aafea0c6f81ed2f3f2f76de5824bec088",
+          "after": "994a3219a626540385533f0441663a3281cab7b0de7b66f2f6e7562e58f1d556"
+        },
+        "activity.backup.json": {
+          "before": "39d8ab825fab13fc2a73ea00439a6e45b59373430d18fb66a40b156e805aa9e8",
+          "after": "84bbe543f9f4712fda8b69f89e9ca14aafea0c6f81ed2f3f2f76de5824bec088"
+        }
+      },
+      "protected_state_equal": false,
+      "model_ledger_equal": true,
+      "core_state_equal": true,
+      "activity_additions": [
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556210.216863,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        }
+      ],
+      "activity_increment_valid": true,
+      "activity_backup_valid": true,
+      "functional_checks_pass": true,
+      "strict_persistence_pass": false,
+      "seconds": 55.207723345999995,
+      "pid": 35468
+    },
+    {
+      "index": 2,
+      "pass": true,
+      "first_content_seconds": 15.172731065,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 15.690737789000003,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": {
+          "visible": true,
+          "actual_page_title": "记忆",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "全局记忆",
+            "相关记忆可跨对话使用。",
+            "第 1 / 8 页 · 64 条",
+            "汇报先给结论，再列三项重点",
+            "未指定项目 · local",
+            "时间 · 2026-10-05T00:00:00Z",
+            "来源 · 用户资料"
+          ]
+        },
+        "邮箱": {
+          "visible": true,
+          "actual_page_title": "邮箱",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "收件箱",
+            "尚无已授权邮箱。连接时由 OctoSense 宿主面板接收凭据。"
+          ]
+        },
+        "日历": {
+          "visible": true,
+          "actual_page_title": "日历",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "系统日历",
+            "实际系统权限 · 未知或宿主不可用",
+            "宿主日历服务状态不可用，查询与写入均已停止。",
+            "正在等待宿主响应…"
+          ]
+        },
+        "操作记录": {
+          "visible": true,
+          "actual_page_title": "操作记录",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "操作记录"
+          ]
+        },
+        "能力授权": {
+          "visible": true,
+          "actual_page_title": "能力与授权",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "能力与授权",
+            "应用中心的能力授权、系统权限和账号状态分别检查；应用获授能力不等于服务已就绪。",
+            "glance",
+            "应用能力 · 已授予（应用中心）",
+            "模型",
+            "应用能力 · 已授予（应用中心）",
+            "存储"
+          ]
+        },
+        "设置": {
+          "visible": true,
+          "actual_page_title": "设置",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "邮箱",
+            "自动分析需要把已授权来信交给你在 OctoSense 配置的模型，遵守宿主费用限制；发信和改日历仍单独确认。",
+            "日历"
+          ]
+        },
+        "对话": {
+          "visible": true,
+          "actual_page_title": "对话",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "Muse",
+            "合成历史 15/15。history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-"
+          ]
+        }
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 451 ms · phase=Actions detail=0 · samples=3 · ticks=3/expected=3 · top frames: 1x Actions: _platform_memmove$VARIANT$Haswell+0x164 (libsystem_platform.dylib) ← szone_realloc+0x36f (libsystem_malloc.dylib) ← _malloc_zone_realloc+0x68 (libsystem_malloc.dylib) ← _realloc+0x13b (libsystem_malloc.dylib) ← alloc::raw_vec::RawVecInner::finish_grow+0x61 (octosense) ← alloc::raw_vec::RawVec::<makepad_script::gen_index::GenSlot::<core::option::Option::<makepad_script::handle::ScriptHandleData>>>::grow_one+0x3f (octosense) ← makepad_script::tokenizer::ScriptTokenizer::emit_separator+0x214 (octosense) ← makepad_script::tokenizer::ScriptTokenizer::tokenize+0x27c4 (octosense) | 1x Actions: sha2::sha512::x86_avx2::compress+0x552 (octosense) ← ed25519_dalek::verifying::RCompute::<sha2::Sha512>::compute+0x266 (octosense) ← <ed25519_dalek::verifying::VerifyingKey as signature::verifier::Verifier::<ed25519::Signature>>::verify+0x106 (octosense) ← octosense_app_hub::signing::verify_catalog+0x68d (octosense) ← octosense_app_hub::client::Store::accept_catalog+0xde (octosense) ← <octosense_appstore::cardapp::CardAppView as makepad_widgets::widget::Widget>::handle_event+0x6b6 (octosense) ← makepad_widgets::widget::WidgetRef::handle_event+0x2b (octosense) ← makepad_widgets::widget_async::with_isolate::<makepad_platform::cx::Cx, (), <octosense_app_hub_app::card_host::HostedHubCard as makepad_widgets::widget::Widget>::handle_event::{closure:#1}>+0x60 (octosense) | 1x Actions: makepad_script::vm::ScriptVm::handle_use+0x296 (octosense) ← makepad_script::vm::ScriptVm::run_core+0x2f9e (octosense) ← makepad_script::vm::ScriptVm::run_root+0x22d (octosense) ← makepad_script::vm::ScriptVm::eval_with_source+0x386 (octosense) ← makepad_widgets::callout_tooltip::script_mod+0x360 (octosense) ← makepad_widgets::widgets_mod+0x75f (octosense) ← <makepad_platform::cx::Cx as makepad_widgets::widget_async::CxSplashVmExt>::alloc_splash_vm_with_network+0x86f (octosense) ← makepad_widgets::splash::Splash::eval_styled_body_with_apply+0x94 (octosense)",
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=472707 chunks=482 total_ms=187.030 max_chunk_ms=36.693"
+      ],
+      "changed_protected_files": {
+        "activity.json": {
+          "before": "84bbe543f9f4712fda8b69f89e9ca14aafea0c6f81ed2f3f2f76de5824bec088",
+          "after": "fcbbbf5b86f02ecb5968fe49e3b7f442f8d5fd4b9d99bdcd5de5e3b2465e86d6"
+        },
+        "activity.backup.json": {
+          "before": "39d8ab825fab13fc2a73ea00439a6e45b59373430d18fb66a40b156e805aa9e8",
+          "after": "994a3219a626540385533f0441663a3281cab7b0de7b66f2f6e7562e58f1d556"
+        }
+      },
+      "protected_state_equal": false,
+      "model_ledger_equal": true,
+      "core_state_equal": true,
+      "activity_additions": [
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556210.216863,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556260.289196,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        }
+      ],
+      "activity_increment_valid": true,
+      "activity_backup_valid": true,
+      "functional_checks_pass": true,
+      "strict_persistence_pass": false,
+      "seconds": 27.744694484,
+      "pid": 37399,
+      "raw_snapshot_sha256": "bdf68fec8fa629f6d3c79c4cc405002a6d48ab519a81d80aeaa3f32afec2e70e"
+    },
+    {
+      "index": 3,
+      "pass": true,
+      "first_content_seconds": 13.486629262000008,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 13.959058788000007,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": {
+          "visible": true,
+          "actual_page_title": "记忆",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "全局记忆",
+            "相关记忆可跨对话使用。",
+            "第 1 / 8 页 · 64 条",
+            "汇报先给结论，再列三项重点",
+            "未指定项目 · local",
+            "时间 · 2026-10-05T00:00:00Z",
+            "来源 · 用户资料"
+          ]
+        },
+        "邮箱": {
+          "visible": true,
+          "actual_page_title": "邮箱",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "收件箱",
+            "尚无已授权邮箱。连接时由 OctoSense 宿主面板接收凭据。"
+          ]
+        },
+        "日历": {
+          "visible": true,
+          "actual_page_title": "日历",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "系统日历",
+            "实际系统权限 · 未知或宿主不可用",
+            "宿主日历服务状态不可用，查询与写入均已停止。",
+            "正在等待宿主响应…"
+          ]
+        },
+        "操作记录": {
+          "visible": true,
+          "actual_page_title": "操作记录",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "操作记录"
+          ]
+        },
+        "能力授权": {
+          "visible": true,
+          "actual_page_title": "能力与授权",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "能力与授权",
+            "应用中心的能力授权、系统权限和账号状态分别检查；应用获授能力不等于服务已就绪。",
+            "glance",
+            "应用能力 · 已授予（应用中心）",
+            "模型",
+            "应用能力 · 已授予（应用中心）",
+            "存储"
+          ]
+        },
+        "设置": {
+          "visible": true,
+          "actual_page_title": "设置",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "邮箱",
+            "自动分析需要把已授权来信交给你在 OctoSense 配置的模型，遵守宿主费用限制；发信和改日历仍单独确认。",
+            "日历"
+          ]
+        },
+        "对话": {
+          "visible": true,
+          "actual_page_title": "对话",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "Muse",
+            "合成历史 15/15。history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-"
+          ]
+        }
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=472707 chunks=482 total_ms=138.013 max_chunk_ms=10.728"
+      ],
+      "changed_protected_files": {
+        "activity.json": {
+          "before": "84bbe543f9f4712fda8b69f89e9ca14aafea0c6f81ed2f3f2f76de5824bec088",
+          "after": "024a693a7a535b6398e58adba03b7ac76234bb4a34255709502b774c4b933bfc"
+        },
+        "activity.backup.json": {
+          "before": "39d8ab825fab13fc2a73ea00439a6e45b59373430d18fb66a40b156e805aa9e8",
+          "after": "fcbbbf5b86f02ecb5968fe49e3b7f442f8d5fd4b9d99bdcd5de5e3b2465e86d6"
+        }
+      },
+      "protected_state_equal": false,
+      "model_ledger_equal": true,
+      "core_state_equal": true,
+      "activity_additions": [
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556210.216863,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556260.289196,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556287.444882,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        }
+      ],
+      "activity_increment_valid": true,
+      "activity_backup_valid": true,
+      "functional_checks_pass": true,
+      "strict_persistence_pass": false,
+      "seconds": 25.339848618000005,
+      "pid": 38522,
+      "raw_snapshot_sha256": "db2a1ef0f2ff6bf431e38c26c01606e317786eefacc572a12fa5742f193d1400"
+    },
+    {
+      "index": 4,
+      "pass": true,
+      "first_content_seconds": 13.663892822999998,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 14.169420635999998,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": {
+          "visible": true,
+          "actual_page_title": "记忆",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "全局记忆",
+            "相关记忆可跨对话使用。",
+            "第 1 / 8 页 · 64 条",
+            "汇报先给结论，再列三项重点",
+            "未指定项目 · local",
+            "时间 · 2026-10-05T00:00:00Z",
+            "来源 · 用户资料"
+          ]
+        },
+        "邮箱": {
+          "visible": true,
+          "actual_page_title": "邮箱",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "收件箱",
+            "尚无已授权邮箱。连接时由 OctoSense 宿主面板接收凭据。"
+          ]
+        },
+        "日历": {
+          "visible": true,
+          "actual_page_title": "日历",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "系统日历",
+            "实际系统权限 · 未知或宿主不可用",
+            "宿主日历服务状态不可用，查询与写入均已停止。",
+            "正在等待宿主响应…"
+          ]
+        },
+        "操作记录": {
+          "visible": true,
+          "actual_page_title": "操作记录",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "操作记录"
+          ]
+        },
+        "能力授权": {
+          "visible": true,
+          "actual_page_title": "能力与授权",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "能力与授权",
+            "应用中心的能力授权、系统权限和账号状态分别检查；应用获授能力不等于服务已就绪。",
+            "glance",
+            "应用能力 · 已授予（应用中心）",
+            "模型",
+            "应用能力 · 已授予（应用中心）",
+            "存储"
+          ]
+        },
+        "设置": {
+          "visible": true,
+          "actual_page_title": "设置",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "邮箱",
+            "自动分析需要把已授权来信交给你在 OctoSense 配置的模型，遵守宿主费用限制；发信和改日历仍单独确认。",
+            "日历"
+          ]
+        },
+        "对话": {
+          "visible": true,
+          "actual_page_title": "对话",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "Muse",
+            "合成历史 15/15。history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-"
+          ]
+        }
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=472707 chunks=482 total_ms=131.007 max_chunk_ms=5.544"
+      ],
+      "changed_protected_files": {
+        "activity.json": {
+          "before": "84bbe543f9f4712fda8b69f89e9ca14aafea0c6f81ed2f3f2f76de5824bec088",
+          "after": "5e70588eeb3dfc6b603897781188a10dfaa40c0f0a3911f85720d2bc72c6beda"
+        },
+        "activity.backup.json": {
+          "before": "39d8ab825fab13fc2a73ea00439a6e45b59373430d18fb66a40b156e805aa9e8",
+          "after": "024a693a7a535b6398e58adba03b7ac76234bb4a34255709502b774c4b933bfc"
+        }
+      },
+      "protected_state_equal": false,
+      "model_ledger_equal": true,
+      "core_state_equal": true,
+      "activity_additions": [
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556210.216863,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556260.289196,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556287.444882,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556315.01987,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        }
+      ],
+      "activity_increment_valid": true,
+      "activity_backup_valid": true,
+      "functional_checks_pass": true,
+      "strict_persistence_pass": false,
+      "seconds": 27.133804100999996,
+      "pid": 39548,
+      "raw_snapshot_sha256": "592d4675c5726ec3964ab97c346e42b5155a58d2daf775d036b71a7ac695efb6"
+    },
+    {
+      "index": 5,
+      "pass": true,
+      "first_content_seconds": 13.093925106,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 13.585743873000013,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "pages": {
+        "记忆": {
+          "visible": true,
+          "actual_page_title": "记忆",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "全局记忆",
+            "相关记忆可跨对话使用。",
+            "第 1 / 8 页 · 64 条",
+            "汇报先给结论，再列三项重点",
+            "未指定项目 · local",
+            "时间 · 2026-10-05T00:00:00Z",
+            "来源 · 用户资料"
+          ]
+        },
+        "邮箱": {
+          "visible": true,
+          "actual_page_title": "邮箱",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "收件箱",
+            "尚无已授权邮箱。连接时由 OctoSense 宿主面板接收凭据。"
+          ]
+        },
+        "日历": {
+          "visible": true,
+          "actual_page_title": "日历",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "系统日历",
+            "实际系统权限 · 未知或宿主不可用",
+            "宿主日历服务状态不可用，查询与写入均已停止。",
+            "正在等待宿主响应…"
+          ]
+        },
+        "操作记录": {
+          "visible": true,
+          "actual_page_title": "操作记录",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "操作记录"
+          ]
+        },
+        "能力授权": {
+          "visible": true,
+          "actual_page_title": "能力与授权",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "能力与授权",
+            "应用中心的能力授权、系统权限和账号状态分别检查；应用获授能力不等于服务已就绪。",
+            "glance",
+            "应用能力 · 已授予（应用中心）",
+            "模型",
+            "应用能力 · 已授予（应用中心）",
+            "存储"
+          ]
+        },
+        "设置": {
+          "visible": true,
+          "actual_page_title": "设置",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "邮箱",
+            "自动分析需要把已授权来信交给你在 OctoSense 配置的模型，遵守宿主费用限制；发信和改日历仍单独确认。",
+            "日历"
+          ]
+        },
+        "对话": {
+          "visible": true,
+          "actual_page_title": "对话",
+          "content_rect": [
+            302,
+            134,
+            522,
+            480
+          ],
+          "body_labels": [
+            "Muse",
+            "合成历史 15/15。history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-history-content-"
+          ]
+        }
+      },
+      "input_editable": true,
+      "startup_log": [
+        "[I] .sources/makepad/widgets/src/splash.rs:507:9 - [SPLASH_COMPILE] bytes=472707 chunks=482 total_ms=137.102 max_chunk_ms=4.033"
+      ],
+      "changed_protected_files": {
+        "activity.json": {
+          "before": "84bbe543f9f4712fda8b69f89e9ca14aafea0c6f81ed2f3f2f76de5824bec088",
+          "after": "47b194870850b10970fe93be161c8e5e8346135528adb7057f0b1f7c9eb95a3a"
+        },
+        "activity.backup.json": {
+          "before": "39d8ab825fab13fc2a73ea00439a6e45b59373430d18fb66a40b156e805aa9e8",
+          "after": "5e70588eeb3dfc6b603897781188a10dfaa40c0f0a3911f85720d2bc72c6beda"
+        }
+      },
+      "protected_state_equal": false,
+      "model_ledger_equal": true,
+      "core_state_equal": true,
+      "activity_additions": [
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556210.216863,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556260.289196,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556287.444882,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556315.01987,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        },
+        {
+          "kind": "calendar permission",
+          "detail": "EventKit 权限 · 尚未决定",
+          "at": 1791556342.057559,
+          "goal_id": "",
+          "run_id": "",
+          "request_id": "",
+          "account_scope": ""
+        }
+      ],
+      "activity_increment_valid": true,
+      "activity_backup_valid": true,
+      "functional_checks_pass": true,
+      "strict_persistence_pass": false,
+      "seconds": 25.099676754,
+      "pid": 40656,
+      "raw_snapshot_sha256": "0571fa03737bf4de9643d9a8e785e197c176ae89f30a9fedf1ab11f30319dd5e"
+    },
+    {
+      "index": 6,
+      "pass": false,
+      "first_content_seconds": 15.360573942000002,
+      "selected_focus_restored": true,
+      "nonempty_chat_history_rendered": true,
+      "first_interactive_seconds": 16.30524704999999,
+      "record_counts": {
+        "chat-sessions.json": {
+          "sessions": 16
+        },
+        "goals.json": {
+          "goals": 1,
+          "runs": 1,
+          "actions": 1
+        },
+        "memory.json": {
+          "claims": 64,
+          "sources": 65,
+          "forget": 0
+        },
+        "calendar-state.json": {
+          "links": 0,
+          "receipts": 0,
+          "local_states": 0
+        },
+        "mail_baseline": [
+          {
+            "id": "synthetic-unconnected-account",
+            "ready": true,
+            "seen": 64
+          }
+        ],
+        "chat_message_count": 256
+      },
+      "nonempty_memory_rendered": true,
+      "error": "Core page has no visible body labels: 操作记录",
+      "seconds": 27.138259465000004
+    }
+  ],
+  "reopen": [],
+  "restart": [],
+  "requested_counts": {
+    "cold": 20,
+    "reopen": 0,
+    "restart": 0
+  },
+  "computer_restart": "NOT_TESTED_REQUIRES_USER",
+  "scope": "Synthetic app state; no paid model/backend semantics or real external chain acceptance. Cold means a new Shell process, not clearing OS filesystem caches. Restart means additional explicit Shell process replacements after app-reopen tests.",
+  "evidence_storage": {
+    "snapshots": "First per mode and failures raw; other success snapshots retain all fields except exact source text referenced by SHA",
+    "pngs": "First per mode and every failure",
+    "checks": "All original page, edit, state, ledger and runtime checks unchanged"
+  },
+  "stopped_after_failure": true
+}
