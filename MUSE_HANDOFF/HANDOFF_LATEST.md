@@ -1,35 +1,22 @@
 # Handoff
 
 ## Task
-
-七小时可靠性/Phone，隔离分支codex/muse-7h-reliability-phone-20261008，基线5126afc4；Root独占主源码。
+MUSE-NIGHT-001 官方接口整改；A 独立分支 codex/muse-semifinal-a-20261009，基线9b247c89。
 
 ## Result
-
-PARTIAL。rc16/dd2ce025、Host276b2b68；可见单轮冷10+重开5通过，官方signed check/scan通过。新Chat继承焦点，真实Qwen更正记忆及重启召回通过。
+PARTIAL。活动rc17未覆盖，rc18可读源准备中。
 
 ## Changed
-
-严格存储恢复、分段结算、共享结果组件、日历申请排队、项目焦点；原64ms预算不变，源码准备分片1024；外层补Calendar用途字符串。内置基础Qwen复现包已生成并验签/资源检查。
+Mail compose/review/status与宿主版本绑定；内置Calendar方向固定，私有桥隔离；接口矩阵与合成验证。
 
 ## Tests
-
-2026-10-09：final_quality/FINAL_SUMMARY_RC16.json；source-component-r1/live-model-memory-rc16.json。参考Host DRY_RUN与真实Shell分开。完整报告MUSE_7H_EXECUTIVE_REPORT.md。
+10月9日参考官方Splash VM：Mail协议11/11 FIXTURE_PASS；独立device研究22/22，3轮精度失败保留。evidence在official_muse/semifinal/evidence。
 
 ## Commit
-
-业务/载荷fce42f30；报告本地后续提交，未push/改Tag/发布。
+本地小步提交，未push。
 
 ## Remaining
-
-新规范邮箱目录缺登录，1次UNKNOWN未重发；Calendar not_determined，本轮无CRUD/外部全链。Home结果见phone/REPORT.md，实体DEVICE_NOT_TESTED。
+新Host下载与构建、官方准入、Agent真实工具选择、可信手势发信、20次同候选冷启动、回执重启。B负责经核实缺口与补丁，Root负责公开Issue。
 
 ## Important Boundaries
-
-旧rc10源码/安装/生产保护；历史误清分发副本另有清单。新包未换机全链；上游Calendar未接受，不能宣称全过。
-
-截止后路由修补：readable source忽略明确否定分句，第一轮26/29、第二轮32/32实际官方VM通过；r1失败保留。冻结rc16 bundle未更新，需候选集成与真实Shell Goal回归。Phone r7 APK构建验签完成（13611f48），模拟器启动仍需解决官方数据分区空间要求，非Android运行PASS。
-
-rc17私有集成90351cba已通过真实Shell Goal候选→模型建议→一次批准→存储→独立读回→完整重启，runs/actions与结果SHA不变。模型合并两资料为1items，事实保留，计数结构仍有差异。未推广为完整rc17回归，rc16包保持。
-
-rc17同候选重启后新会话正确召回蓝/白文件，实际结果Memory/source引用和项目归属匹配，证据live-route-rc17.json。真实邮件/日历及Android运行门槛未解除。
+合成协议不代表SMTP/日历/原生确认成功；用户选择内置日历，OS研究不进入默认；不改旧安装/生产/Tag。

@@ -1,0 +1,344 @@
+--- a/official_muse/app/source/main.splash
++++ b/official_muse/app/source/main.splash
+@@ -159,6 +159,7 @@
+ let calendar_loaded = {calendar_id: "" start: "" end: "" truncated: true}
+ let official_discovery_done = false
+ let official_discovery = {methods: [] runtime_features: {}}
++let calendar_device_selections = []
+ 
+ fn is_calendar_goal(goal){
+     if goal == nil { return false }
+@@ -447,22 +448,194 @@
+ }
+ 
+ fn calendar_enabled(){
+-    // Built-in Calendar is SYSTEM_APP_ONLY; use the official Agent relay.
+-    // No private EventKit bridge or direct os.calendar identity is permitted.
++    for capability in host.capabilities() { if capability == "device_calendar" { return true } }
+     return false
+ }
+ 
+ // Only the official Shell adapter performs OS operations. The calendar.* names
+ // below are historical Muse journal identities, never Host service fallbacks.
++fn calendar_device_handle(id){
++    for selection in calendar_device_selections {
++        if selection.calendar_id == id {
++            for cal in calendar_calendars {
++                if cal.id == id && cal["account"] == selection.account { return selection.handle }
++            }
++        }
++    }
++    return ""
++}
+ 
+ // Shader floor uses f32. Apply it only to bounded civil-time components,
+ // never epoch milliseconds (which otherwise drift by seconds).
+-
+-
+-
++fn calendar_device_ms(value){
++    let epoch = calendar_iso_epoch(value)
++    if epoch == nil { return nil }
++    let day = page_time_floor(epoch / 86400)
++    let second = page_time_floor(epoch - day * 86400)
++    let fraction = "000" let parts = value.split(".")
++    if parts.len() == 2 {
++        let digits = parts[1].split("Z")[0].split("+")[0].split("-")[0].to_chars()
++        let chars = "".to_chars() let zero = "0".to_chars()[0]
++        for i in 3 { if i < digits.len() { chars.push(digits[i]) } else { chars.push(zero) } }
++        fraction = chars.to_string()
++    }
++    return day * 86400000 + second * 1000 + fraction.to_f64()
++}
++
++fn calendar_device_iso(ms){
++    let epoch = ms / 1000
++    let day = page_time_floor(epoch / 86400)
++    let second = page_time_floor(epoch - day * 86400)
++    let fraction = ms - day * 86400000 - second * 1000
++    let value = core_utc_iso(epoch)
++    if fraction == 0 { return value }
++    let digits = "" + fraction
++    if fraction < 100 { digits = "0" + digits }
++    if fraction < 10 { digits = "0" + digits }
++    return value.split("Z")[0] + "." + digits + "Z"
++}
++
++fn calendar_device_event(event,id){
++    if !event.is_object() || !event["id"].is_string() || event.id == ""
++        || !event["revision"].is_string() || event.revision == ""
++        || !event["start_ms"].is_number() || !event["end_ms"].is_number()
++        || event.end_ms <= event.start_ms || !event["title"].is_string()
++        || !event["timezone"].is_string() || !event["location"].is_string()
++        || !event["notes"].is_string() || !event["all_day"].is_bool()
++        || !event["recurring"].is_bool() || !event["has_attendees"].is_bool() { return nil }
++    return {id: event.id calendar_id: id version: event.revision title: event.title
++        start: calendar_device_iso(event.start_ms) end: calendar_device_iso(event.end_ms)
++        time_zone: event.timezone location: event.location notes: event.notes
++        all_day: event.all_day recurring: event.recurring has_attendees: event.has_attendees}
++}
++
++fn calendar_device_status(callback){
++    host.request("device_calendar.permission.status",{},fn(r){
++        if !r.is_ok || !r.data.is_object() || !r.data["supported"].is_bool()
++            || !r.data["app_consent"].is_bool() || !r.data["os_permission"].is_string() {
++            callback({is_ok: false error: "官方 Shell 未返回有效系统日历状态。"}) return
++        }
++        let permission = "unavailable"
++        if r.data.supported {
++            permission = r.data.os_permission
++            if permission == "granted" { permission = "full_access" }
++            if !r.data.app_consent { permission = "not_determined" }
++        }
++        if permission != "full_access" { callback({is_ok: true data: {permission: permission calendars: []}}) return }
++        host.request("device_calendar.calendars.list",{},fn(list){
++            if !list.is_ok || !list.data.is_object() || !list.data["calendars"].is_array()
++                || list.data.calendars.len() > 64 { callback({is_ok: false error: "官方系统日历列表未能读取。"}) return }
++            let calendars = []
++            for cal in list.data.calendars {
++                if !cal.is_object() || !cal["id"].is_string() || cal.id == ""
++                    || !cal["account"].is_string() || !cal["name"].is_string()
++                    || !cal["account_name"].is_string() || !cal["writable"].is_bool() {
++                    callback({is_ok: false error: "官方日历返回了无效账号或日历标识。"}) return
++                }
++                calendars.push({id: cal.id title: cal.name account: cal.account account_name: cal.account_name writable: cal.writable})
++            }
++            callback({is_ok: true data: {permission: "full_access" calendars: calendars}})
++        })
++    })
++}
+ 
+ fn muse_calendar_request(method,payload,callback){
+-    callback({is_ok: false error: "官方内置日历需要通过已授权的 Calendar 共享工具执行；当前联动接入尚未完成。"})
++    if method == "calendar.status" {
++        official_discover(|| {
++            for required in ["permission.status","permission.request","calendars.list","calendars.select",
++                "events.list","events.get","events.create","events.update","events.delete"] {
++                if !official_method_available("device_calendar." + required) {
++                    callback({is_ok: false error: "当前 Shell 缺少官方系统日历接口，请更新官方宿主。"}) return
++                }
++            }
++            calendar_device_status(callback)
++        })
++        return
++    }
++    if method == "calendar.request_access" {
++        host.request("device_calendar.permission.request",{},fn(r){
++            if !r.is_ok { callback(r) return }
++            calendar_device_status(callback)
++        })
++        return
++    }
++    let handle = calendar_device_handle(payload.calendar_id)
++    if handle == "" { callback({is_ok: false error: "请在日历页通过官方窗口确认选择目标日历。"}) return }
++    let args = {handle: handle}
++    let official = ""
++    if method == "calendar.list" {
++        let start = calendar_iso_epoch(payload.start) let end = calendar_iso_epoch(payload.end)
++        if start == nil || end == nil { callback({is_ok: false error: "查询日期无效。"}) return }
++        official = "device_calendar.events.list"
++        args.start_ms = calendar_device_ms(payload.start) args.end_ms = calendar_device_ms(payload.end) args.limit = payload.limit
++    } else if method == "calendar.get" {
++        official = "device_calendar.events.get" args.event_id = payload.event_id
++    } else if method == "calendar.create" || method == "calendar.update" || method == "calendar.delete" {
++        official = "device_calendar.events." + method.split(".")[1]
++        let draft = payload
++        if method != "calendar.create" {
++            if calendar_selected_event == nil || calendar_selected_event.id != payload.event_id
++                || calendar_selected_event.calendar_id != payload.calendar_id
++                || calendar_selected_event.version != payload.expected_version {
++                callback({is_ok: false error: "原事件版本已变化，请重新读取。"}) return
++            }
++            args.event_id = payload.event_id args.revision = payload.expected_version
++            draft = calendar_selected_event.to_json().parse_json()
++            if method == "calendar.update" { for key in ["title","start","end","time_zone","location"] { if payload.changes[key] != nil { draft[key] = payload.changes[key] } } }
++        }
++        if method != "calendar.delete" {
++            let start = calendar_iso_epoch(draft.start) let end = calendar_iso_epoch(draft.end)
++            if start == nil || end == nil { callback({is_ok: false error: "候选日期无效。"}) return }
++            let notes = "" let all_day = false
++            if draft["notes"].is_string() { notes = draft.notes }
++            if draft["all_day"].is_bool() { all_day = draft.all_day }
++            args.event = {title: draft.title start_ms: calendar_device_ms(draft.start) end_ms: calendar_device_ms(draft.end)
++                timezone: draft.time_zone location: draft.location notes: notes all_day: all_day}
++        }
++    } else { callback({is_ok: false error: "不支持的日历动作。"}) return }
++    host.request(official,args,fn(r){
++        if !r.is_ok {
++            // Only the documented macOS missing-event result means absence.
++            // Permission, invalid-handle and transport errors never mean deleted.
++            if method == "calendar.get" && r.error == "event_missing: Event no longer exists" {
++                callback({is_ok: true data: {found: false}}) return
++            }
++            if r.error.is_string() && r.error.search("invalid_handle:") == 0 {
++                let selections = []
++                for selection in calendar_device_selections { if selection.calendar_id != payload.calendar_id { selections.push(selection) } }
++                calendar_device_selections = selections
++                calendar_save()
++            }
++            callback(r) return
++        }
++        if !r.data.is_object() { callback({is_ok: false error: "官方日历返回格式无效。"}) return }
++        if method == "calendar.list" {
++            if !r.data["events"].is_array() || r.data.events.len() > payload.limit || !r.data["truncated"].is_bool() {
++                callback({is_ok: false error: "官方日历查询未返回完整结果。"}) return
++            }
++            let events = []
++            for event in r.data.events {
++                let converted = calendar_device_event(event,payload.calendar_id)
++                if converted == nil { callback({is_ok: false error: "官方事件格式无效。"}) return }
++                events.push(converted)
++            }
++            callback({is_ok: true data: {events: events truncated: r.data.truncated}}) return
++        }
++        if method == "calendar.delete" {
++            if r.data["deleted"] != true || r.data["event_id"] != payload.event_id { callback({is_ok: false error: "删除收据未绑定原事件。"}) return }
++            callback({is_ok: true data: {deleted: true event_id: payload.event_id version: payload.expected_version}}) return
++        }
++        let native = r.data
++        if method != "calendar.get" {
++            if r.data["saved"] != true { callback({is_ok: false error: "官方宿主未确认保存。"}) return }
++            native = r.data["event"]
++        }
++        let event = calendar_device_event(native,payload.calendar_id)
++        if event == nil || (method != "calendar.create" && event.id != payload.event_id) {
++            callback({is_ok: false error: "系统事件标识或格式与请求不符。"}) return
++        }
++        callback({is_ok: true data: {found: true event: event event_id: event.id version: event.version}})
++    })
+ }
+ 
+ fn calendar_sync_invalidate(){
+@@ -608,6 +781,17 @@
+ fn calendar_state_valid(saved){
+     if !gm_object(saved) || saved.schema != 1 || !gm_array(saved.links) || !gm_array(saved.receipts)
+         || saved.links.len() > 32 || saved.receipts.len() > 128 { return false }
++    if gm_has(saved,"device_selections") {
++        if !gm_array(saved.device_selections) || saved.device_selections.len() > 16 { return false }
++        let ids = []
++        for selection in saved.device_selections {
++            if !gm_object(selection) || !gm_string(selection["calendar_id"],1024) || selection.calendar_id == ""
++                || !gm_string(selection["account"],1024) || !gm_string(selection["handle"],64)
++                || selection.handle == "" { return false }
++            for id in ids { if id == selection.calendar_id { return false } }
++            ids.push(selection.calendar_id)
++        }
++    }
+     if gm_has(saved,"local_states") {
+         if !gm_array(saved.local_states) || saved.local_states.len() > 128 { return false }
+         let keys = []
+@@ -642,6 +826,8 @@
+     calendar_receipts = saved.receipts
+     calendar_local_states = []
+     if gm_has(saved,"local_states") { calendar_local_states = saved.local_states }
++    calendar_device_selections = []
++    if gm_has(saved,"device_selections") { calendar_device_selections = saved.device_selections }
+     calendar_last_state = saved.to_json()
+     let changed = false
+     for i in calendar_links.len() {
+@@ -661,11 +847,13 @@
+ }
+ 
+ fn calendar_restore(){
+-    if calendar_last_state == "" { calendar_links = [] calendar_receipts = [] calendar_local_states = [] return }
++    if calendar_last_state == "" { calendar_links = [] calendar_receipts = [] calendar_local_states = [] calendar_device_selections = [] return }
+     let saved = calendar_last_state.parse_json()
+     if saved != nil {
+         calendar_links = saved.links calendar_receipts = saved.receipts calendar_local_states = []
+         if gm_has(saved,"local_states") { calendar_local_states = saved.local_states }
++        calendar_device_selections = []
++        if gm_has(saved,"device_selections") { calendar_device_selections = saved.device_selections }
+     }
+ }
+ 
+@@ -675,7 +863,8 @@
+         calendar_error = "日历关联记录达到本地容量上限。"
+         return false
+     }
+-    let serialized = {schema: 1 links: calendar_links receipts: calendar_receipts local_states: calendar_local_states}.to_json()
++    let serialized = {schema: 1 links: calendar_links receipts: calendar_receipts local_states: calendar_local_states device_selections: calendar_device_selections}.to_json()
++    if !calendar_state_valid(serialized.parse_json()) { calendar_error = "日历选择或关联记录无效，未覆盖原记录。" return false }
+     if serialized.len() > 900000 { calendar_error = "日历关联记录接近 1 MiB 上限。" return false }
+     if calendar_last_state != "" {
+         let backup_error = storage_write("calendar-state.backup.json",calendar_last_state)
+@@ -741,7 +930,7 @@
+ fn calendar_status_load(silent){
+     if !calendar_enabled() {
+         calendar_permission = "unavailable"
+-        calendar_error = "已选择 OctoSense 内置日历。当前 Muse 联动需完成官方共享工具接入；旧系统日历关联记录仍保留。"
++        calendar_error = "请使用支持 device_calendar 的官方 Shell，并授予应用日历能力。"
+         redraw()
+         return
+     }
+@@ -836,6 +1025,24 @@
+ 
+ fn calendar_select_calendar(id){
+     if calendar_pending { return }
++    if calendar_device_handle(id) == "" {
++        calendar_pending = true calendar_error = "" calendar_notice = "请在官方窗口确认日历与账号。" redraw()
++        host.request("device_calendar.calendars.select",{calendar_id: id},fn(r){
++            calendar_pending = false
++            if !r.is_ok || !r.data.is_object() || !gm_string(r.data["handle"],64) || r.data.handle == ""
++                || !r.data["calendar"].is_object() || r.data.calendar["id"] != id
++                || !r.data.calendar["account"].is_string() {
++                calendar_error = "官方日历选择未完成；未保存新选择。" redraw() return
++            }
++            let selections = []
++            for selection in calendar_device_selections { if selection.calendar_id != id { selections.push(selection) } }
++            selections.push({calendar_id: id account: r.data.calendar.account handle: r.data.handle})
++            calendar_device_selections = selections
++            if !calendar_save() { redraw() return }
++            calendar_select_calendar(id)
++        })
++        return
++    }
+     calendar_calendar_id = id
+     calendar_events = []
+     calendar_loaded = {calendar_id: "" start: "" end: "" truncated: true}
+@@ -1027,6 +1234,10 @@
+     if calendar_permission != "full_access" { return "系统未授予完整日历读写权限。" }
+     if calendar_pending { return "请等待当前日历操作结束。" }
+     if payload.calendar_id == "" { return "请先选择目标日历。" }
++    if calendar_device_handle(payload.calendar_id) == "" { return "请在官方窗口确认选择目标日历。" }
++    if calendar_operation != "create" && calendar_selected_event != nil
++        && (calendar_selected_event["recurring"] == true || calendar_selected_event["has_attendees"] == true
++            || calendar_selected_event["all_day"] == true) { return "重复事项、邀请或全天事项在当前编辑器中只读。" }
+     let writable = false
+     for cal in calendar_calendars { if cal.id == payload.calendar_id && cal.writable { writable = true } }
+     if !writable { return "选定日历不可写或不在当前授权列表中。" }
+@@ -1984,7 +2195,7 @@
+ }
+ 
+ fn calendar_auto_allow(){
+-    ui_error = "内置 Calendar 联动接入尚未完成；不启用旧系统日历自动写入。" redraw()
++    ui_error = "官方系统日历写入需要在宿主窗口确认；来信仍会自动生成候选。" redraw()
+ }
+ 
+ fn calendar_auto_pause(){
+@@ -7017,7 +7228,7 @@
+     if calendar_pending { return "检查中 · 正在等待宿主" }
+     if calendar_permission != "full_access" { return "受阻· 需要完整访问" }
+     if calendar_calendars.len() == 0 { return "受阻· 无可用日历" }
+-    if calendar_calendar_id == "" { return "部分可用· 尚未在官方窗口选择日历" }
++    if calendar_calendar_id == "" || calendar_device_handle(calendar_calendar_id) == "" { return "部分可用· 尚未在官方窗口选择日历" }
+     if calendar_error != "" { return "部分可用· 当前有错误，请查看日历页面" }
+     return "就绪· 已获完整权限并列出可用日历；系统写入仍需单独批准与读回"
+ }
+@@ -9754,7 +9965,7 @@
+                 Label{text: "日历" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 15}}
+                 Label{width: Fill text: calendar_permission_text() draw_text.color: muted draw_text.wrap: Words}
+                 Secondary{text: "管理系统日历" on_click: || set_page("Calendar")}
+-                Label{width: Fill text: "日历来源 · OctoSense 内置 Calendar。联动通过官方 App Agent 与授权共享工具执行；接入中的功能暂不执行。" draw_text.color: muted draw_text.wrap: Words}
++                Label{width: Fill text: "新来信自动生成日程候选；写入、改期和删除通过官方日历窗口确认。" draw_text.color: muted draw_text.wrap: Words}
+                 Label{text: "外观与模型" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 15}}
+                 Label{width: Fill text: "Muse 当前为深色外观。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                 Label{width: Fill text: "模型由 OctoSense 的“AI 模型设置”管理；此处只读。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+@@ -9787,7 +9998,7 @@
+ 
+                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
+                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
+-                    Label{text: "Muse · 0.3.27-rc18" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
++                    Label{text: "Muse · 0.3.26-rc45" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}

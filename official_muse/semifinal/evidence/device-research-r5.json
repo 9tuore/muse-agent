@@ -1,0 +1,189 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FIXTURE_PASS",
+  "source_sha256": "c15b54cd16b851a82e6355d92a7278de5b1b9c30b170c516c0c2c9e20e1a391d",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "runner_sha256": "8a6f8bf8b4b08808953107a25d42ec26cd71d0efc71d69a9e4fcd072c0a00665",
+  "probe_sha256": "f51d922489caad76fe696da3278fdc8cd14750a26dc4bc7895a3fa20abb7be1e",
+  "executed_sha256": "6a3e240ccd841e2e6d4635942d68506c09f84448c03ca695811949dbfd127dfa",
+  "substitutions": [
+    "calendar_enabled",
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [],
+  "checks": {
+    "update_uses_native_revision": true,
+    "list_maps_revision_and_notes": true,
+    "subsecond_roundtrip": true,
+    "selection_persisted": true,
+    "stale_version_stops_before_host": true,
+    "documented_absence_only": true,
+    "unsupported_no_fallback": true,
+    "native_cancel_preserves_text": true,
+    "no_legacy_host_calls": true,
+    "query_uses_scoped_handle": true,
+    "readonly_reconciliation": true,
+    "write_receipt_maps_id_revision": true,
+    "partial_update_preserves_fields": true,
+    "unknown_not_retried": true,
+    "status_maps_official_grants": true,
+    "host_compose_identity_persisted": true,
+    "permission_error_is_not_deleted": true,
+    "consent_separate_from_os_grant": true,
+    "accepted_not_delivery": true,
+    "review_binds_host_revision": true,
+    "selected_handles_restore": true,
+    "query_uses_epoch_milliseconds": true
+  },
+  "calls": [
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "device_calendar.permission.status",
+      "args": {}
+    },
+    {
+      "method": "device_calendar.calendars.list",
+      "args": {}
+    },
+    {
+      "method": "device_calendar.calendars.select",
+      "args": {
+        "calendar_id": "synthetic-calendar"
+      }
+    },
+    {
+      "method": "device_calendar.events.list",
+      "args": {
+        "handle": "synthetic-handle",
+        "start_ms": 1791698400000,
+        "end_ms": 1791705600000,
+        "limit": 100
+      }
+    },
+    {
+      "method": "device_calendar.events.update",
+      "args": {
+        "handle": "synthetic-handle",
+        "event_id": "synthetic-event",
+        "revision": "revision-1",
+        "event": {
+          "title": "Synthetic meeting",
+          "start_ms": 1791705600000,
+          "end_ms": 1791707400000,
+          "timezone": "Asia/Shanghai",
+          "location": "synthetic",
+          "notes": "preserve these notes",
+          "all_day": false
+        }
+      }
+    },
+    {
+      "method": "device_calendar.events.get",
+      "args": {
+        "handle": "synthetic-handle",
+        "event_id": "synthetic-event"
+      }
+    },
+    {
+      "method": "device_calendar.events.get",
+      "args": {
+        "handle": "synthetic-handle",
+        "event_id": "synthetic-event"
+      }
+    },
+    {
+      "method": "device_calendar.permission.status",
+      "args": {}
+    },
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-mail",
+        "compose_id": "compose-synthetic"
+      }
+    }
+  ],
+  "observations": {
+    "millisecond_iso": "2026-10-11T06:00:00.123Z",
+    "millisecond_roundtrip": 1791698400123,
+    "input_milliseconds": 1791698400123
+  },
+  "runtime_errors": [],
+  "runtime_log_sha256": "3ad79fb7329a28cff004811098bcb800c264a09d0c2ad2934fdf08ed01c215ea"
+}

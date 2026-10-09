@@ -1,3 +1,15 @@
+## 2026-10-09 夜间官方接口整改（当前）
+
+MUSE-NIGHT-001，截止北京时间10月10日07:00。在隔离 A 分支从 rc17 接续，活动根 bundle 仍 90351cba / 770,540 字节，旧安装/数据保持。B 真实聊天审计提交已集成；不是新子代理。
+
+rc18 可读源准备中：发送切换官方 compose→可信 review_send，持久化 compose ID/revision；UNKNOWN 只读 compose_status，不回退 mail.send；取消保留正文。真实参考 Splash VM 的 11 项合成协议验证通过，零外部/付费调用。新版 Shell 真实发送、前台确认和收件均待补，不标全链 PASS。
+
+用户最终选择官方内置 os.calendar；旧私有 EventKit 桥在新候选阻止，原关联/回执不删。官方共享查询/创建/提醒已有，跨应用 update/remove 未开放；Agent relay 接入未完成。device_calendar 22 项原型只是研究，三轮精度失败保留。
+
+当前总体 PARTIAL。新版官方源码完整下载首次网络 CANCEL，失败归档，HTTP/1.1 重试中。没有 push、Tag 或正式发布。入口 OFFICIAL_API_MIGRATION_MATRIX.md、official_muse/semifinal/README.md；接续先核 source/bundle 版本和新 Host pin，不能用旧 Gate 证明新 API。
+
+---
+
 ## 2026-10-09 七小时收口（当前）
 
 窗口后续测：原生Android Home编译通过，但APK因磁盘底线停线，现通过保留字节的透明压缩及自有已完成CLI生成缓存清理恢复约2.18GB，Phone继续核对打包峰值；未取得APK/模拟器PASS。rc16新空Chat遗忘复测实际排除已遗忘Memory引用，但基础Qwen误用剩余记忆和项目名回答，判RETRIEVAL_PASS_SEMANTIC_FAIL，原答保留。七小时原PARTIAL结果不回填。

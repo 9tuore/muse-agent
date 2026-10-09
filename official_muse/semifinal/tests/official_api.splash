@@ -1,0 +1,177 @@
+// Synthetic official protocol responses, never native approval or real delivery.
+let probe_checks = {} let probe_calls = [] let probe_observed = {} let probe_mode = "" let probe_compose = nil
+let probe_native = {id: "synthetic-event" revision: "revision-1" title: "Synthetic meeting"
+    start_ms: 1791698400000 end_ms: 1791700200000 timezone: "Asia/Shanghai"
+    location: "synthetic" notes: "preserve these notes" all_day: false recurring: false has_attendees: false}
+fn probe_transport(method,args,cb){
+    probe_calls.push({method: method args: args.to_json().parse_json()})
+    if method == "runtime.list" {
+        if probe_mode == "discovery_error" { cb({is_ok: false error: "Synthetic transient discovery error"}) return }
+        let methods = []
+        for name in ["device_calendar.permission.status","device_calendar.permission.request","device_calendar.calendars.list",
+            "device_calendar.calendars.select","device_calendar.events.list","device_calendar.events.get","device_calendar.events.create",
+            "device_calendar.events.update","device_calendar.events.delete","mail.compose","mail.compose_status","mail.review_send"] {
+            methods.push({implemented: true supported: true descriptor: {name: name version: 1}})
+        }
+        if probe_mode == "unsupported" { methods = [] }
+        cb({is_ok: true data: {schema: 1 methods: methods runtime_features: {}}}) return
+    }
+    if method == "device_calendar.permission.status" {
+        cb({is_ok: true data: {supported: true app_consent: probe_mode != "needs_auth" os_permission: "granted"}}) return
+    }
+    if method == "device_calendar.calendars.list" {
+        cb({is_ok: true data: {calendars: [{id: "synthetic-calendar" account: "synthetic-account" name: "Synthetic" account_name: "Fixture" writable: true}]}}) return
+    }
+    if method == "device_calendar.calendars.select" {
+        cb({is_ok: true data: {handle: "synthetic-handle" calendar: {id: args.calendar_id account: "synthetic-account"}}}) return
+    }
+    if method == "device_calendar.events.list" {
+        cb({is_ok: true data: {events: [probe_native] truncated: false}}) return
+    }
+    if method == "device_calendar.events.get" {
+        if probe_mode == "missing" { cb({is_ok: false error: "event_missing: Event no longer exists"}) return }
+        if probe_mode == "get_error" { cb({is_ok: false error: "authorization_required: consent revoked"}) return }
+        if probe_mode == "invalid_handle" { cb({is_ok: false error: "invalid_handle: Select a calendar"}) return }
+        cb({is_ok: true data: probe_native}) return
+    }
+    if method == "device_calendar.events.create" || method == "device_calendar.events.update" {
+        let event = args.event.to_json().parse_json()
+        event.id = "synthetic-event" event.revision = "revision-2" event.recurring = false event.has_attendees = false
+        cb({is_ok: true data: {saved: true event: event}}) return
+    }
+    if method == "device_calendar.events.delete" { cb({is_ok: true data: {deleted: true event_id: args.event_id}}) return }
+    if method == "mail.compose" {
+        probe_compose = args.to_json().parse_json()
+        probe_compose.compose_id = "compose-synthetic" probe_compose.revision = 1 probe_compose.status = "draft"
+        cb({is_ok: true data: probe_compose}) return
+    }
+    if method == "mail.review_send" {
+        if probe_mode == "cancel_mail" { cb({is_ok: false error: "Review cancelled; nothing was sent"}) return }
+        if probe_mode == "unknown_mail" { cb({is_ok: false error: "Submission status: outcome_unknown"}) return }
+        probe_compose.status = "accepted"
+        cb({is_ok: true data: {accepted: true status: "accepted" compose_id: args.compose_id revision: args.expected_revision operation_id: "synthetic-op"}}) return
+    }
+    if method == "mail.compose_status" { cb({is_ok: true data: probe_compose}) return }
+    probe_checks.unexpected_service = false
+    cb({is_ok: false error: "Synthetic transport refuses unexpected method"})
+}
+fn probe_count(method){let count=0 for call in probe_calls {if call.method==method {count=count+1}} return count}
+fn probe_last(){return probe_calls[probe_calls.len()-1]}
+fn probe_finish(){
+    probe_checks.no_legacy_host_calls = probe_count("calendar.status") == 0 && probe_count("calendar.create") == 0 && probe_count("mail.send") == 0
+    fs.write("probe.json",{checks: probe_checks calls: probe_calls observations: probe_observed}.to_json())
+}
+fn probe_start(){
+    calendar_ready = true core_boot_goals() core_boot_activity() core_boot_memory()
+    if "__SUITE__" == "production" {
+        probe_checks.internal_calendar_not_private_bridge = !calendar_enabled()
+        muse_calendar_request("calendar.create",{},fn(r){probe_checks.calendar_blocked_without_relay = !r.is_ok && probe_count("device_calendar.events.create") == 0})
+        probe_mode = "discovery_error"
+        official_discover(fn(){
+            probe_checks.discovery_error_not_cached = !official_discovery_done && !official_method_available("mail.compose")
+            probe_mode = ""
+            official_discover(fn(){
+                probe_checks.discovery_recovers = official_discovery_done && official_method_available("mail.compose")
+                start_timeout(0.04,|| probe_mail("accepted"))
+            })
+        }) return
+    }
+    muse_calendar_request("calendar.status",{},fn(r){
+        probe_checks.status_maps_official_grants = r.is_ok && r.data.permission == "full_access" && r.data.calendars[0].id == "synthetic-calendar"
+        calendar_permission = r.data.permission calendar_calendars = r.data.calendars
+        calendar_select_calendar("synthetic-calendar")
+        start_timeout(0.04,|| probe_calendar())
+    })
+}
+fn probe_calendar(){
+    probe_observed.millisecond_iso = calendar_device_iso(1791698400123)
+    probe_observed.millisecond_roundtrip = calendar_device_ms(probe_observed.millisecond_iso)
+    probe_observed.input_milliseconds = calendar_device_ms("2026-10-11T14:00:00.12345+08:00")
+    probe_checks.subsecond_roundtrip = calendar_device_ms(calendar_device_iso(1791698400123)) == 1791698400123
+        && calendar_device_ms("2026-10-11T14:00:00.12345+08:00") == 1791698400123
+    probe_checks.selection_persisted = calendar_device_handle("synthetic-calendar") == "synthetic-handle"
+        && storage_read("calendar-state.json").parse_json().device_selections[0].handle == "synthetic-handle"
+    let query = {calendar_id: "synthetic-calendar" start: "2026-10-11T14:00:00+08:00" end: "2026-10-11T16:00:00+08:00" limit: 100}
+    muse_calendar_request("calendar.list",query,fn(r){
+        probe_checks.list_maps_revision_and_notes = r.is_ok && r.data.events[0].version == "revision-1" && r.data.events[0].notes == probe_native.notes
+        let args = probe_last().args
+        probe_checks.query_uses_scoped_handle = args.handle == "synthetic-handle" && args["calendar_id"] == nil && args.limit == 100
+        probe_checks.query_uses_epoch_milliseconds = args.start_ms == calendar_iso_epoch(query.start) * 1000 && args.end_ms == calendar_iso_epoch(query.end) * 1000
+        calendar_selected_event = r.data.events[0]
+        start_timeout(0.04,|| probe_update())
+    })
+}
+fn probe_update(){
+    let payload = {calendar_id: "synthetic-calendar" event_id: "synthetic-event" expected_version: "revision-1"
+        request_id: "synthetic-update" changes: {start: "2026-10-11T16:00:00+08:00" end: "2026-10-11T16:30:00+08:00"}}
+    muse_calendar_request("calendar.update",payload,fn(r){
+        let args = probe_last().args
+        probe_checks.partial_update_preserves_fields = args.event.title == probe_native.title && args.event.notes == probe_native.notes
+            && args.event.timezone == probe_native.timezone && args.event.location == probe_native.location
+        probe_checks.update_uses_native_revision = args.revision == "revision-1" && args.event_id == "synthetic-event" && args["request_id"] == nil
+        probe_checks.write_receipt_maps_id_revision = r.is_ok && r.data.event_id == "synthetic-event" && r.data.version == "revision-2"
+        payload.expected_version = "stale"
+        let before = probe_count("device_calendar.events.update")
+        muse_calendar_request("calendar.update",payload,fn(stale){probe_checks.stale_version_stops_before_host = !stale.is_ok && probe_count("device_calendar.events.update") == before})
+        start_timeout(0.04,|| probe_absence())
+    })
+}
+fn probe_absence(){
+    let payload = {calendar_id: "synthetic-calendar" event_id: "synthetic-event"}
+    probe_mode = "missing"
+    muse_calendar_request("calendar.get",payload,fn(r){probe_checks.documented_absence_only = r.is_ok && r.data.found == false})
+    probe_mode = "get_error"
+    muse_calendar_request("calendar.get",payload,fn(r){probe_checks.permission_error_is_not_deleted = !r.is_ok})
+    probe_mode = "needs_auth"
+    muse_calendar_request("calendar.status",{},fn(r){probe_checks.consent_separate_from_os_grant = r.is_ok && r.data.permission == "not_determined" && r.data.calendars.len() == 0})
+    probe_mode = "unsupported" official_discovery_done = false
+    muse_calendar_request("calendar.status",{},fn(r){probe_checks.unsupported_no_fallback = !r.is_ok})
+    probe_mode = "" official_discovery_done = false
+    official_discover(|| start_timeout(0.04,|| probe_mail("accepted")))
+}
+fn probe_mail(mode){
+    probe_mode = "" if mode == "cancel" {probe_mode="cancel_mail"} if mode == "unknown" {probe_mode="unknown_mail"}
+    let snapshot = {account: "synthetic-mail" to: "test@example.invalid" subject: "Synthetic" body: "Synthetic body"}
+    mail_account = {id: snapshot.account}
+    mail_draft = {account: snapshot.account to: snapshot.to subject: snapshot.subject body: snapshot.body status: "sending"
+        preview: snapshot.to_json() attempt: snapshot.to_json() request_id: "synthetic-mail-" + mode
+        accepted_at: 0 verified_at: 0 verified_id: "" link_goal_id: "" link_run_id: "" incoming_key: ""}
+    core_begin_action("","",0,"mail.send",snapshot.account,mail_draft.request_id,mail_draft.preview)
+    mail_sending = true
+    let context = {request_id: mail_draft.request_id payload: snapshot.to_json() snapshot: snapshot goal_id: "" run_id: ""}
+    mail_compose_before_review(context)
+    probe_wait_mail(mode,0)
+}
+fn probe_wait_mail(mode,tries){
+    if mail_sending {
+        if tries > 50 { probe_checks.mail_settles = false probe_finish() return }
+        start_timeout(0.04,|| probe_wait_mail(mode,tries+1)) return
+    }
+    let ai = core_action_index(mail_draft.request_id)
+    if mode == "accepted" {
+        probe_checks.host_compose_identity_persisted = mail_draft.host_compose_id == "compose-synthetic"
+            && storage_read("mail-draft.json").parse_json().host_revision == 1
+        probe_checks.review_binds_host_revision = probe_last().method == "mail.review_send" && probe_last().args.expected_revision == 1
+        probe_checks.accepted_not_delivery = mail_draft.status == "accepted" && actions[ai].status == "accepted" && mail_draft.verified_at == 0
+        start_timeout(0.04,|| probe_mail("cancel")) return
+    }
+    if mode == "cancel" {
+        probe_checks.native_cancel_preserves_text = mail_draft.status == "DRAFT" && mail_draft.body == "Synthetic body" && actions[ai].status == "failed"
+        start_timeout(0.04,|| probe_mail("unknown")) return
+    }
+    probe_checks.unknown_not_retried = mail_draft.status == "unknown" && actions[ai].status == "unknown" && probe_count("mail.review_send") == 3
+    probe_compose.status = "accepted" mail_draft.status = "unknown"
+    mail_check_host_status()
+    start_timeout(0.4,|| probe_mail_reconciled())
+}
+fn probe_mail_reconciled(){
+    probe_checks.readonly_reconciliation = mail_draft.status == "accepted" && probe_count("mail.compose_status") == 1
+        && probe_count("mail.review_send") == 3 && mail_draft.verified_at == 0
+    if "__SUITE__" == "device-research" {
+        let prior = calendar_device_selections.to_json()
+        calendar_device_selections = [] calendar_boot()
+        probe_checks.selected_handles_restore = calendar_device_selections.to_json() == prior
+    }
+    probe_finish()
+}
+start_timeout(0.05,|| probe_start())

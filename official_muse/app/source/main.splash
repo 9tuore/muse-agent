@@ -157,6 +157,8 @@ let calendar_cursor = ""
 let calendar_day_focus = ""
 let calendar_form_open = false
 let calendar_loaded = {calendar_id: "" start: "" end: "" truncated: true}
+let official_discovery_done = false
+let official_discovery = {methods: [] runtime_features: {}}
 
 fn is_calendar_goal(goal){
     if goal == nil { return false }
@@ -424,9 +426,36 @@ fn page_mail_readiness(enabled,account_id,connection_verified){
 }
 // END UI_PAGE_ADAPTERS
 
-fn calendar_enabled(){
-    for capability in host.capabilities() { if capability == "calendar" { return true } }
+fn official_method_available(name){
+    for method in official_discovery.methods {
+        if method.is_object() && method["implemented"] == true && method["supported"] == true
+            && method["descriptor"].is_object() && method.descriptor["name"] == name
+            && method.descriptor["version"].is_number() && method.descriptor.version >= 1 { return true }
+    }
     return false
+}
+
+fn official_discover(callback){
+    if official_discovery_done { callback() return }
+    host.request("runtime.list",{},fn(r){
+        if r.is_ok && r.data.is_object() && r.data["schema"] == 1
+            && r.data["methods"].is_array() && r.data.methods.len() <= 1000
+            && r.data["runtime_features"].is_object() {
+            official_discovery = r.data official_discovery_done = true
+        }
+        callback()
+    })
+}
+
+fn calendar_enabled(){
+    // Built-in Calendar is SYSTEM_APP_ONLY; use the official Agent relay.
+    // No private EventKit bridge or direct os.calendar identity is permitted.
+    return false
+}
+
+// calendar.* below are historical journal identities, not private Host calls.
+fn muse_calendar_request(method,payload,callback){
+    callback({is_ok: false error: "官方内置日历需要通过已授权的 Calendar 共享工具执行；当前联动接入尚未完成。"})
 }
 
 fn calendar_sync_invalidate(){
@@ -705,16 +734,16 @@ fn calendar_select_link(goal_id){
 fn calendar_status_load(silent){
     if !calendar_enabled() {
         calendar_permission = "unavailable"
-        calendar_error = "当前应用未获 日历能力授权；原版宿主没有此服务。"
+        calendar_error = "已选择 OctoSense 内置日历。当前 Muse 联动需完成官方共享工具接入；旧系统日历关联记录仍保留。"
         redraw()
         return
     }
     if calendar_pending { return }
     let previous_permission = calendar_permission
     calendar_pending = true
-    if !silent { calendar_notice = "正在查询宿主 EventKit 授权与日历列表。" }
+    if !silent { calendar_notice = "正在查询官方系统日历授权与日历列表。" }
     redraw()
-    host.request("calendar.status",{},fn(r){
+    muse_calendar_request("calendar.status",{},fn(r){
         calendar_pending = false
         if r.is_ok && r.data != nil && r.data.permission != nil {
             calendar_permission = r.data.permission
@@ -737,7 +766,7 @@ fn calendar_status_load(silent){
                 calendar_preview = ""
             }
             if calendar_logged_permission != calendar_permission && core_activity_ready {
-                let detail = "EventKit 权限 · " + calendar_permission_text()
+                let detail = "官方系统日历权限 · " + calendar_permission_text()
                 if core_record_event("calendar permission",detail,"","","","") {
                     calendar_logged_permission = calendar_permission
                 } else { calendar_error = "权限已读取，但 Activity 写入失败：" + core_error }
@@ -786,7 +815,7 @@ fn calendar_request_access(){
     calendar_error = ""
     calendar_notice = "等待本人在 macOS 系统弹窗中决定完整日历访问。"
     redraw()
-    host.request("calendar.request_access",{},fn(r){
+    muse_calendar_request("calendar.request_access",{},fn(r){
         calendar_pending = false
         calendar_access_inflight = false
         if r.is_ok && r.data != nil {
@@ -913,7 +942,7 @@ fn calendar_list_events(){
     calendar_window_start = start calendar_window_end = end calendar_pending = true
     calendar_notice = "正在读取选定日历与范围内的真实系统事件。"
     redraw()
-    host.request("calendar.list",{calendar_id: requested_calendar start: start end: end limit: 100},fn(r){
+    muse_calendar_request("calendar.list",{calendar_id: requested_calendar start: start end: end limit: 100},fn(r){
         if calendar_calendar_id != requested_calendar || ui.calendar_range_start.text().trim() != start
             || ui.calendar_range_end.text().trim() != end { calendar_pending = false redraw() return }
         let valid = r.is_ok && r.data.is_object() && r.data["events"].is_array() && r.data.events.len() <= 100 && r.data["truncated"].is_bool()
@@ -944,7 +973,7 @@ fn calendar_list_events(){
             redraw() return
         }
         // Absence may mean an external move beyond the requested range. Read only the original exact ID once.
-        host.request("calendar.get",{calendar_id: requested_calendar event_id: requested_event},fn(g){
+        muse_calendar_request("calendar.get",{calendar_id: requested_calendar event_id: requested_event},fn(g){
             calendar_pending = false
             if calendar_calendar_id != requested_calendar || ui.calendar_range_start.text().trim() != start
                 || ui.calendar_range_end.text().trim() != end
@@ -1028,7 +1057,7 @@ fn calendar_check_conflicts(){
     calendar_notice = "仅检查选中日历、候选起止范围内的系统事件。"
     redraw()
     let key = payload.to_json()
-    host.request("calendar.list",{calendar_id: payload.calendar_id start: payload.start end: payload.end limit: 100},fn(r){
+    muse_calendar_request("calendar.list",{calendar_id: payload.calendar_id start: payload.start end: payload.end limit: 100},fn(r){
         calendar_pending = false
         if calendar_draft_payload().to_json() != key { redraw() return }
         if !r.is_ok || r.data == nil || !r.data["events"].is_array() {
@@ -1218,7 +1247,7 @@ fn calendar_readback_written(request_id,goal_id,run_id,service,payload,event_id,
     let action_i = core_action_index(request_id)
     if action_i < 0 { calendar_pending = false calendar_error = "读回动作不存在，请对账。" redraw() return }
     let action_payload = actions[action_i].payload_json
-    host.request("calendar.get",{calendar_id: payload.calendar_id event_id: event_id},fn(r){
+    muse_calendar_request("calendar.get",{calendar_id: payload.calendar_id event_id: event_id},fn(r){
         calendar_pending = false
         if !r.is_ok || r.data == nil || r.data.found != true || r.data.event == nil {
             calendar_error = "写入请求已受理，但独立系统读回失败；不可重复提交。"
@@ -1329,7 +1358,7 @@ fn calendar_readback_deleted(request_id,payload,event_id){
         calendar_pending = false calendar_error = "原删除动作绑定不一致，请对账。" redraw() return
     }
     let action_payload = actions[action_i].payload_json
-    host.request("calendar.get",{calendar_id: payload.calendar_id event_id: event_id},fn(r){
+    muse_calendar_request("calendar.get",{calendar_id: payload.calendar_id event_id: event_id},fn(r){
         calendar_pending = false
         if !r.is_ok || r.data == nil {
             calendar_error = "删除请求已受理，但独立查询失败；不能把错误当作不存在。"
@@ -1709,7 +1738,7 @@ fn calendar_refresh_range(context,payload){
     if !calendar_approval_current(context) { calendar_stale_approval(context,"候选或目标版本已变化。",false) return }
     if context.operation == "delete" { calendar_execute_approved(context,payload) return }
     let candidate = calendar_draft_payload()
-    host.request("calendar.list",{calendar_id: candidate.calendar_id start: candidate.start end: candidate.end limit: 100},fn(r){
+    muse_calendar_request("calendar.list",{calendar_id: candidate.calendar_id start: candidate.start end: candidate.end limit: 100},fn(r){
         if !calendar_approval_current(context) { calendar_stale_approval(context,"复查期间候选或目标已变化。",false) return }
         if !r.is_ok || r.data == nil || !r.data["events"].is_array() || r.data.truncated {
             calendar_stale_approval(context,"批准前范围复查失败或截断，未执行系统写入。",false)
@@ -1735,7 +1764,7 @@ fn calendar_refresh_range(context,payload){
 
 fn calendar_refresh_event(context,payload){
     if context.operation == "create" { calendar_refresh_range(context,payload) return }
-    host.request("calendar.get",{calendar_id: payload.calendar_id event_id: payload.event_id},fn(r){
+    muse_calendar_request("calendar.get",{calendar_id: payload.calendar_id event_id: payload.event_id},fn(r){
         if !calendar_approval_current(context) { calendar_stale_approval(context,"事件复查期间候选已变化。",false) return }
         if !r.is_ok || r.data == nil || r.data.event == nil
             || r.data.event.id != payload.event_id || r.data.event.calendar_id != payload.calendar_id
@@ -1755,7 +1784,7 @@ fn calendar_refresh_preconditions(context,payload){
         return
     }
     redraw()
-    host.request("calendar.status",{},fn(r){
+    muse_calendar_request("calendar.status",{},fn(r){
         if !calendar_approval_current(context) { calendar_stale_approval(context,"权限复查期间候选或目标已变化。",false) return }
         if !r.is_ok || r.data == nil || r.data.permission != "full_access" || r.data.calendars == nil {
             calendar_stale_approval(context,"当前系统日历授权不可读写。",true)
@@ -1864,7 +1893,7 @@ fn calendar_dispatch_approved(context,payload,goal_id,run_id){
     redraw()
     let original = nil
     if operation == "update" { original = calendar_selected_event.to_json().parse_json() }
-    host.request(service,payload,fn(r){
+    muse_calendar_request(service,payload,fn(r){
         if !r.is_ok || r.data == nil {
             calendar_pending = false
             core_finish_action(request_id,"unknown")
@@ -1948,21 +1977,7 @@ fn calendar_auto_valid(grant){
 }
 
 fn calendar_auto_allow(){
-    if mail_account == nil || !gm_account_allowed(mail_account.id) || gm_project == "" || gm_owner == ""
-        || calendar_permission != "full_access" || calendar_calendar_id == "" {
-        ui_error = "请先连接邮箱、选择当前项目，并在日历页选择可写日历。" redraw() return
-    }
-    let name = ""
-    for cal in calendar_calendars { if cal.id == calendar_calendar_id && cal.writable { name = cal.title } }
-    if name == "" { ui_error = "所选日历不可写，未开启自动安排。" redraw() return }
-    calendar_auto = {enabled: true grant_id: "auto-calendar-" + floor(time_now()) + "-" + random_u32()
-        account_id: mail_account.id calendar_id: calendar_calendar_id calendar_name: name
-        project: gm_project owner: gm_owner granted_at: time_now()}
-    mail_watch.calendar_auto = calendar_auto.to_json().parse_json()
-    mail_analysis.enabled = true mail_analysis.permitted = true
-    mail_watch.analysis_settings = mail_analysis.to_json().parse_json()
-    if !mail_watch_save() { calendar_auto.enabled = false mail_analysis.permitted = false redraw() return }
-    ui_error = "" redraw()
+    ui_error = "内置 Calendar 联动接入尚未完成；不启用旧系统日历自动写入。" redraw()
 }
 
 fn calendar_auto_pause(){
@@ -1987,15 +2002,8 @@ fn calendar_auto_scope(alert){
 }
 
 fn calendar_auto_link_allowed(goal_id){
-    let li = calendar_link_index(goal_id) let gi = core_goal_index(goal_id)
-    if li < 0 || gi < 0 || !calendar_auto.enabled || !mail_analysis.enabled || !mail_analysis.permitted
-        || calendar_links[li]["auto_grant"] != calendar_auto.grant_id
-        || calendar_links[li].account_id != calendar_auto.account_id || !gm_account_allowed(calendar_auto.account_id)
-        || calendar_links[li].calendar_id != calendar_auto.calendar_id
-        || goals[gi].project_id != calendar_auto.project || goals[gi].owner_id != calendar_auto.owner
-        || goals[gi].archived || calendar_links[li]["operation"] == "update"
-        || calendar_links[li].event_id != "" || calendar_links[li]["original_event"] != nil { return false }
-    return true
+    // Historical grants are retained; official device_calendar writes are foreground-only.
+    return false
 }
 
 fn calendar_auto_context_current(context){
@@ -2546,7 +2554,7 @@ fn schedule_find_slots(relax_soft){
     if binding == "" { calendar_error = "事项来源已失效或账号不在授权范围，请重新核对。" redraw() return }
     let refs = calendar_context_refs.to_json().parse_json()
     calendar_pending = true
-    host.request("calendar.list",{calendar_id: candidate.calendar_id start: policy.search_start end: policy.search_end limit: 100},fn(r){
+    muse_calendar_request("calendar.list",{calendar_id: candidate.calendar_id start: policy.search_start end: policy.search_end limit: 100},fn(r){
         calendar_pending = false
         if goal_id != calendar_selected_goal || revision != calendar_candidate_revision
             || key != calendar_draft_payload().to_json() || binding != schedule_slot_context(goal_id)
@@ -2608,7 +2616,7 @@ fn schedule_replan_original(goal_id,account,message,confirmation){
         confirmation: confirmation link: link goal_binding: goals[gi].to_json() link_binding: calendar_links[li].to_json()
         source_binding: "" claim_binding: ""}
     calendar_pending = true
-    host.request("calendar.get",{calendar_id: link.calendar_id event_id: link.event_id},fn(r){
+    muse_calendar_request("calendar.get",{calendar_id: link.calendar_id event_id: link.event_id},fn(r){
         if !schedule_replan_current(context) { calendar_pending = false calendar_error = "原事项、授权或选中的邮件已变化，请重新选择原约定。" redraw() return }
         if !r.is_ok || r.data == nil || r.data.found != true || r.data.event == nil {
             calendar_pending = false calendar_error = "原事件不存在或无法读取；请核对原事项，不会新建替代事件。" redraw() return
@@ -4022,6 +4030,10 @@ fn mail_draft_valid(draft){
     }
     for key in ["accepted_at","verified_at"] { if !gm_number(draft[key]) { return false } }
     for key in ["link_goal_id","link_event_id","link_run_id","incoming_key"] { if gm_has(draft,key) && !gm_text(draft[key]) { return false } }
+    if gm_has(draft,"host_compose_id") && (!gm_string(draft.host_compose_id,128)
+        || !regex("^compose-[a-zA-Z0-9-]+$","").test(draft.host_compose_id)
+        || !gm_number(draft["host_revision"]) || draft.host_revision < 1
+        || floor(draft.host_revision) != draft.host_revision) { return false }
     if gm_has(draft,"memory_refs") && !chat_refs_valid(draft.memory_refs) { return false }
     return draft.status == "DRAFT" || draft.status == "waiting_user" || draft.status == "sending"
         || draft.status == "accepted" || draft.status == "verified" || draft.status == "unknown" || draft.status == "failed"
@@ -4486,15 +4498,11 @@ fn mail_adopt_proposed(){
 
 fn mail_attach_reply_headers(snapshot){
     let i = mail_watch_alert_index(mail_draft.incoming_key)
-    if i < 0 || mail_watch.alerts[i]["source_message"] == nil { return }
-    let source = mail_watch.alerts[i].source_message
-    let original = source["message_id"]
-    if original == nil || !original.is_string() || original == "" || original.len() > 500 || original.search("\r") >= 0 || original.search("\n") >= 0 { return }
-    let refs = source["references"]
-    if refs == nil || !refs.is_string() { refs = "" }
-    if refs.len() > 1200 || refs.search("\r") >= 0 || refs.search("\n") >= 0 { return }
-    snapshot.in_reply_to = original
-    snapshot.references = (refs + " " + original).trim()
+    if i < 0 || mail_watch.alerts[i].account_id != snapshot.account { return }
+    let message = mail_watch.alerts[i]["message_id"]
+    if !gm_string(message,128) || message == "" { return }
+    // The official Host resolves RFC reply headers from its own mailbox cache.
+    snapshot.folder = "INBOX" snapshot.message = message
 }
 
 fn mail_preview(){
@@ -4630,13 +4638,83 @@ fn mail_send_step(context,phase){
     let action_i = core_action_index(requested_id)
     if action_i < 0 || actions[action_i].status != "in_flight"
         || actions[action_i].payload_json != context.payload { mail_sending = false return }
-    mail_notice = "正在发送这封邮件。"
-    host.request("mail.send",context.snapshot,fn(r){
-        if mail_draft.request_id != requested_id || mail_draft.status != "sending" { return }
-        context.accepted = r.is_ok && r.data != nil && r.data.accepted == true
+    mail_notice = "正在准备官方邮件审阅。"
+    official_discover(|| mail_compose_before_review(context))
+    start_timeout(0.05,|| mail_redraw())
+}
+
+fn mail_review_current(context){
+    let ai = core_action_index(context.request_id)
+    return ai >= 0 && actions[ai].status == "in_flight" && actions[ai].payload_json == context.payload
+        && mail_draft.request_id == context.request_id && mail_draft.status == "sending"
+        && mail_draft.attempt == context.payload && mail_draft.preview == context.payload
+        && mail_account != nil && mail_account.id == context.snapshot.account && chat_reply_context_valid(mail_draft)
+}
+
+fn mail_compose_before_review(context){
+    if !mail_review_current(context) { mail_sending = false return }
+    context.accepted = false context.unsent = false
+    if !official_method_available("mail.compose") || !official_method_available("mail.review_send")
+        || !official_method_available("mail.compose_status") {
+        context.unsent = true context.notice = "当前官方宿主缺少邮件审阅接口；邮件没有提交。请更新 Shell。"
+        start_timeout(0.05,|| mail_send_receipt_step(context,0)) return
+    }
+    // Fresh host identity is minted by mail.compose, never guessed by Muse.
+    host.request("mail.compose",context.snapshot,fn(r){
+        if !mail_review_current(context) { mail_sending = false return }
+        if !r.is_ok || !r.data.is_object() || !gm_string(r.data["compose_id"],128)
+            || !regex("^compose-[a-zA-Z0-9-]+$","").test(r.data.compose_id)
+            || !gm_number(r.data["revision"]) || r.data.revision < 1 || floor(r.data.revision) != r.data.revision
+            || r.data["account"] != context.snapshot.account || r.data["to"] != context.snapshot.to
+            || r.data["subject"] != context.snapshot.subject || r.data["body"] != context.snapshot.body {
+            context.unsent = true context.notice = "官方草稿未能保存或字段不一致；没有调用发送审阅。"
+            start_timeout(0.05,|| mail_send_receipt_step(context,0)) return
+        }
+        context.compose_id = r.data.compose_id context.host_revision = r.data.revision
+        mail_draft.host_compose_id = context.compose_id mail_draft.host_revision = context.host_revision
+        // A restart/uncertain review can now query the exact host-owned composer.
+        if !mail_save() { mail_sending = false return }
+        start_timeout(0.05,|| mail_review_host(context))
+    })
+}
+
+fn mail_review_host(context){
+    if !mail_review_current(context) || mail_draft["host_compose_id"] != context.compose_id
+        || mail_draft["host_revision"] != context.host_revision { mail_sending = false return }
+    let args = context.snapshot.to_json().parse_json()
+    args.compose_id = context.compose_id args.expected_revision = context.host_revision
+    mail_notice = "请在官方邮件窗口核对并确认发送。" mail_redraw()
+    host.request("mail.review_send",args,fn(r){
+        if mail_draft.request_id != context.request_id || mail_draft.status != "sending" { return }
+        context.accepted = r.is_ok && r.data.is_object() && r.data["accepted"] == true
+            && r.data["status"] == "accepted" && r.data["compose_id"] == context.compose_id
+            && r.data["revision"] == context.host_revision && gm_string(r.data["operation_id"],128)
+            && r.data.operation_id != ""
+        context.unsent = !r.is_ok && r.error == "Review cancelled; nothing was sent"
+        if context.unsent { context.notice = "已取消发送，正文仍保留。" }
         start_timeout(0.05,|| mail_send_receipt_step(context,0))
     })
-    start_timeout(0.05,|| mail_redraw())
+}
+
+fn mail_check_host_status(){
+    if mail_sending || mail_pending || mail_account == nil || mail_account.id != mail_draft.account
+        || mail_draft.status != "unknown" || !gm_string(mail_draft["host_compose_id"],128) { return }
+    let requested = mail_draft.request_id let compose = mail_draft.host_compose_id
+    mail_pending = true mail_notice = "正在只读核对原发送记录，不会重发。" mail_redraw()
+    host.request("mail.compose_status",{account: mail_draft.account compose_id: compose},fn(r){
+        mail_pending = false
+        if mail_draft.request_id != requested || mail_draft.status != "unknown" || mail_draft["host_compose_id"] != compose { return }
+        let snapshot = mail_draft.attempt.parse_json()
+        if !r.is_ok || !r.data.is_object() || snapshot == nil || r.data["compose_id"] != compose
+            || r.data["account"] != snapshot.account || r.data["revision"] != mail_draft.host_revision
+            || r.data["to"] != snapshot.to || r.data["subject"] != snapshot.subject || r.data["body"] != snapshot.body {
+            mail_error = "原宿主记录无法核对，保留待核对状态；不会重发。" mail_redraw() return
+        }
+        if r.data["status"] != "accepted" { mail_notice = "原记录尚未确认受理；继续保留，不自动重发。" mail_redraw() return }
+        let context = {request_id: requested goal_id: mail_draft.link_goal_id run_id: mail_draft.link_run_id
+            snapshot: snapshot accepted: true unsent: false}
+        start_timeout(0.05,|| mail_send_receipt_step(context,0))
+    })
 }
 
 fn mail_send_receipt_step(context,phase){
@@ -4644,10 +4722,13 @@ fn mail_send_receipt_step(context,phase){
     if phase == 0 {
         mail_draft.status = "unknown"
         if context.accepted { mail_draft.status = "accepted" mail_draft.accepted_at = time_now() }
+        if context["unsent"] == true { mail_draft.status = "DRAFT" mail_draft.attempt = "" mail_draft.preview = "" }
         if !mail_save() { mail_sending = false return }
     }
     if phase == 1 {
-        if !core_finish_action(context.request_id,mail_draft.status) {
+        let status = mail_draft.status
+        if context["unsent"] == true { status = "failed" }
+        if !core_finish_action(context.request_id,status) {
             mail_sending = false mail_error = "邮件回执尚未完整保存，请核对；不会重复发送。"
             start_timeout(0.05,|| mail_redraw()) return
         }
@@ -4655,11 +4736,13 @@ fn mail_send_receipt_step(context,phase){
     if phase == 2 {
         let kind = "error" let detail = "邮件发送结果未知，禁止自动重发。"
         if context.accepted { kind = "MAIL_ACCEPTED" detail = "新邮件已获宿主 SMTP 服务受理；收件端未核验。" }
+        if context["unsent"] == true { kind = "MAIL_NOT_SENT" detail = context.notice }
         core_record_event(kind,detail,context.goal_id,context.run_id,context.request_id,context.snapshot.account)
     }
     if phase < 3 { start_timeout(0.05,|| mail_send_receipt_step(context,phase+1)) return }
     mail_sending = false
     if context.accepted { mail_notice = "邮箱服务已受理；收件端投递尚未核验。" }
+    else if context["unsent"] == true { mail_error = "" mail_notice = context.notice }
     else { mail_error = "发送结果未知，请人工核对收件端；不会自动重发。" }
     mail_redraw()
 }
@@ -6892,7 +6975,7 @@ fn capability_name(value){
     if value == "model" { return "模型" }
     if value == "storage" { return "存储" }
     if value == "mail" { return "邮箱" }
-    if value == "calendar" { return "日历" }
+    if value == "calendar" || value == "device_calendar" { return "日历" }
     return value
 }
 
@@ -6927,7 +7010,7 @@ fn calendar_service_text(){
     if calendar_pending { return "检查中 · 正在等待宿主" }
     if calendar_permission != "full_access" { return "受阻· 需要完整访问" }
     if calendar_calendars.len() == 0 { return "受阻· 无可用日历" }
-    if calendar_calendar_id == "" { return "部分可用· 尚未选择日历" }
+    if calendar_calendar_id == "" { return "部分可用· 尚未在官方窗口选择日历" }
     if calendar_error != "" { return "部分可用· 当前有错误，请查看日历页面" }
     return "就绪· 已获完整权限并列出可用日历；系统写入仍需单独批准与读回"
 }
@@ -9664,13 +9747,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                 Label{text: "日历" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 15}}
                 Label{width: Fill text: calendar_permission_text() draw_text.color: muted draw_text.wrap: Words}
                 Secondary{text: "管理系统日历" on_click: || set_page("Calendar")}
-                if calendar_auto.enabled {
-                    Label{width: Fill text: "来信自动安排 · " + calendar_auto.project + " / " + calendar_auto.owner + " → " + calendar_auto.calendar_name draw_text.color: ink draw_text.wrap: Words}
-                    Secondary{text: "暂停来信自动安排" on_click: || calendar_auto_pause()}
-                } else {
-                    Label{width: Fill text: "一次授权后，分析此邮箱的新来信，将当前项目中明确、无冲突的约定加入所选日历；信息不全、改期、删除和发回复仍先询问。" draw_text.color: muted draw_text.wrap: Words}
-                    Secondary{text: "授权当前邮箱与项目自动安排到所选日历" on_click: || calendar_auto_allow()}
-                }
+                Label{width: Fill text: "日历来源 · OctoSense 内置 Calendar。联动通过官方 App Agent 与授权共享工具执行；接入中的功能暂不执行。" draw_text.color: muted draw_text.wrap: Words}
                 Label{text: "外观与模型" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 15}}
                 Label{width: Fill text: "Muse 当前为深色外观。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                 Label{width: Fill text: "模型由 OctoSense 的“AI 模型设置”管理；此处只读。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
@@ -9703,7 +9780,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
 
                 Label{text: "设置与关于" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
                 SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 7 draw_bg.color: panel
-                    Label{text: "Muse · 0.3.26-rc45" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
+                    Label{text: "Muse · 0.3.27-rc18" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 14}}
                     Label{width: Fill text: "模型与预算 · 只读，由 OctoSense 的 AI 模型设置 管理；宿主接口未提供配置读取和保存。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "存储 · 应用隔离空间。对话、目标与结果仅写入本应用空间。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     Label{width: Fill text: "能力授权请查看左侧页面；权限只读，由应用中心管理。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
@@ -9790,6 +9867,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                     if mail_draft.status == "accepted" { Label{width: Fill text: "宿主 SMTP 服务已受理；收件端尚未独立核验。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_draft.status == "verified" { Label{width: Fill text: "已记录本人独立收件端核验声明。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_draft.status == "unknown" { Label{width: Fill text: "上次发送结果未知，不会自动重发。请人工核对收件端。" draw_text.color: #xff9c94 draw_text.wrap: Words draw_text.text_style.font_size: 12} }
+                    if mail_draft.status == "unknown" && mail_draft["host_compose_id"] != nil { Secondary{text: "核对原发送记录" on_click: || mail_check_host_status()} }
                     if mail_draft.status == "unknown" || mail_draft.status == "accepted" { Secondary{text: "保留待核对记录，另写不同的邮件" on_click: || mail_keep_pending()} }
                     if mail_draft.status == "accepted" {
                         Label{width: Fill text: "仅在你确实从独立收件端找到这封测试邮件后，输入邮件中的测试 ID 并记录核验。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
