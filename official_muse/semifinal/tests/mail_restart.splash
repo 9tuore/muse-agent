@@ -1,0 +1,89 @@
+// Synthetic host protocol. A second real VM reads the first VM's jailed files.
+let restart_checks = {} let restart_calls = [] let restart_snapshot = nil
+let restart_case = "__CASE__"
+fn restart_transport(method,args,cb){
+    restart_calls.push({method: method args: args.to_json().parse_json()})
+    if method == "runtime.list" {
+        let methods = []
+        for name in ["mail.compose","mail.compose_status","mail.review_send"] {
+            methods.push({implemented: true supported: true descriptor: {name: name version: 1}})
+        }
+        cb({is_ok: true data: {schema: 1 methods: methods runtime_features: {}}}) return
+    }
+    if method == "mail.accounts" {cb({is_ok: true data: []}) return}
+    if method == "mail.compose" {
+        let saved = args.to_json().parse_json()
+        saved.compose_id = "compose-interrupted" saved.revision = 1 saved.status = "draft"
+        cb({is_ok: true data: saved}) return
+    }
+    if method == "mail.review_send" {
+        // Deliberately lose the callback after the native review request starts.
+        restart_checks.prepared_persisted = mail_draft.host_compose_id == "compose-interrupted"
+            && storage_read("mail-draft.json").parse_json().host_revision == 1
+        restart_checks.first_review_exact = args.compose_id == "compose-interrupted" && args.expected_revision == 1
+        restart_finish() return
+    }
+    if method == "mail.compose_status" {
+        if restart_case == "host_error" {cb({is_ok: false error: "Synthetic authorization_required"}) return}
+        let receipt = restart_snapshot.to_json().parse_json()
+        receipt.compose_id = "compose-interrupted" receipt.revision = 1 receipt.status = "accepted"
+        if restart_case == "wrong_revision" {receipt.revision = 2}
+        if restart_case == "wrong_account" {receipt.account = "another-synthetic-account"}
+        if restart_case == "wrong_body" {receipt.body = "Changed synthetic body"}
+        if restart_case == "still_draft" {receipt.status = "draft"}
+        cb({is_ok: true data: receipt}) return
+    }
+    restart_checks.unexpected_host_method = false
+    cb({is_ok: false error: "Synthetic transport rejects this method"})
+}
+fn restart_count(method){let n=0 for call in restart_calls {if call.method==method {n=n+1}} return n}
+fn restart_finish(){
+    fs.write("restart-probe.json",{checks: restart_checks calls: restart_calls
+        draft: mail_draft action_count: actions.len()}.to_json())
+}
+fn restart_begin(){
+    core_boot_goals() core_boot_activity() core_boot_memory()
+    if restart_case == "prepare" {
+        restart_snapshot = {account: "synthetic-account" to: "self@example.invalid" subject: "Synthetic restart" body: "Synthetic original body"}
+        mail_account = {id: restart_snapshot.account}
+        mail_draft = {account: restart_snapshot.account to: restart_snapshot.to subject: restart_snapshot.subject body: restart_snapshot.body
+            status: "sending" preview: restart_snapshot.to_json() attempt: restart_snapshot.to_json()
+            request_id: "mail-synthetic-interrupted" accepted_at: 0 verified_at: 0 verified_id: ""
+            link_goal_id: "" link_event_id: "" link_run_id: "" incoming_key: ""}
+        restart_checks.first_action_persisted = core_begin_action("","",0,"mail.send",restart_snapshot.account,mail_draft.request_id,mail_draft.preview)
+        mail_sending = true
+        let context = {request_id: mail_draft.request_id payload: mail_draft.preview snapshot: restart_snapshot goal_id: "" run_id: ""}
+        official_discover(|| mail_compose_before_review(context)) return
+    }
+    boot_restore("")
+    start_timeout(0.25,|| restart_restored())
+}
+fn restart_restored(){
+    let ai = core_action_index("mail-synthetic-interrupted")
+    restart_checks.interrupted_action_unknown = ai >= 0 && actions[ai].status == "unknown"
+    restart_checks.interrupted_draft_unknown = mail_draft.status == "unknown" && mail_draft_writable
+    restart_checks.host_identity_restored = mail_draft.host_compose_id == "compose-interrupted" && mail_draft.host_revision == 1
+    restart_checks.original_text_restored = ui.mail_body.text() == "Synthetic original body" && mail_draft.body == ui.mail_body.text()
+    restart_checks.zero_replay_on_boot = restart_count("mail.review_send") == 0 && restart_count("mail.compose") == 0
+    restart_checks.same_payload_still_blocked = mail_payload_pending(mail_draft.attempt)
+    mail_account = {id: mail_draft.account}
+    mail_send_confirmed()
+    restart_checks.direct_send_guard = restart_count("mail.review_send") == 0 && actions.len() == 1
+    restart_snapshot = mail_draft.attempt.parse_json()
+    mail_check_host_status()
+    start_timeout(0.4,|| restart_reconciled())
+}
+fn restart_reconciled(){
+    let ai = core_action_index("mail-synthetic-interrupted")
+    restart_checks.only_readonly_reconciliation = restart_count("mail.compose_status") == 1
+        && restart_count("mail.review_send") == 0 && restart_count("mail.compose") == 0
+    if restart_case == "accepted" {
+        restart_checks.reconciled_receipt = mail_draft.status == "accepted" && actions[ai].status == "accepted"
+    } else {
+        restart_checks.unmatched_receipt_not_adopted = mail_draft.status == "unknown" && actions[ai].status == "unknown"
+    }
+    restart_checks.no_delivery_claim = mail_draft.verified_at == 0 && mail_draft.verified_id == ""
+    restart_checks.still_single_action = actions.len() == 1
+    restart_finish()
+}
+start_timeout(0.05,|| restart_begin())

@@ -1,0 +1,420 @@
+{
+  "kind": "TWO_REAL_VM_PROCESS_RESTART_SYNTHETIC_OFFICIAL_PROTOCOL",
+  "status": "FAIL",
+  "source_sha256": "0fb74c8d265971894899bbf471708406699eec7e3185daf9008b773eb41eeba7",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "probe_sha256": "dc61afd7ad002f1d3827873bffadb614cf8cd08a198740ebe8e30888ab174172",
+  "runner_sha256": "4a3c8b4db1885129a01aeb6b4c24389d175aa937ea9841e033b6e8731d0d6c49",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "cases": [
+    {
+      "case": "prepare",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "52dea1f9b388e279d6e67010689cdb6dd411982f6b2026353762079a1c23a1e3",
+      "pid": 56059,
+      "checks": {
+        "first_action_persisted": true,
+        "prepared_persisted": true,
+        "first_review_exact": true
+      },
+      "calls": [
+        {
+          "method": "runtime.list",
+          "args": {}
+        },
+        {
+          "method": "mail.compose",
+          "args": {
+            "account": "synthetic-account",
+            "to": "self@example.invalid",
+            "subject": "Synthetic restart",
+            "body": "Synthetic original body"
+          }
+        },
+        {
+          "method": "mail.review_send",
+          "args": {
+            "account": "synthetic-account",
+            "to": "self@example.invalid",
+            "subject": "Synthetic restart",
+            "body": "Synthetic original body",
+            "compose_id": "compose-interrupted",
+            "expected_revision": 1
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "host_revision": 1,
+        "verified_id": "",
+        "status": "sending",
+        "incoming_key": "",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "account": "synthetic-account",
+        "link_run_id": "",
+        "to": "self@example.invalid",
+        "accepted_at": 0,
+        "link_event_id": "",
+        "host_compose_id": "compose-interrupted",
+        "subject": "Synthetic restart",
+        "verified_at": 0,
+        "link_goal_id": "",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "request_id": "mail-synthetic-interrupted"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "2958b8b4bcf8c3bf4ea14620e716d8a4fecaa61fb3b9dcdda5fe55739cd3c981"
+    },
+    {
+      "case": "accepted",
+      "status": "FAIL",
+      "executed_sha256": "e2fb6970d9ef0459bd51051920cd22b4cd5b5d3c4b5c34032775478e33376e8e",
+      "pid": 56234,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "reconciled_receipt": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 1791559031.030272,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "accepted",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140589179270144:3512:8 - widget 'right_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ],
+      "runtime_log_sha256": "cb13416d560ca792fb8a4e8b5a9fde4ccd8ca2fee4e790d569a345c0021f1e63"
+    },
+    {
+      "case": "wrong_revision",
+      "status": "FAIL",
+      "executed_sha256": "2e3b2a2b8b9bf41b5e10835fa808cb7bf6cbdab2de901ac5cb8b2ffbc0495a3d",
+      "pid": 56428,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140196943855616:3512:8 - widget 'right_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ],
+      "runtime_log_sha256": "1355cc25f10abd589e16c55444c50d037ee7ae7be7d16e1fe890676c048cc523"
+    },
+    {
+      "case": "wrong_account",
+      "status": "FAIL",
+      "executed_sha256": "daf6518455d78afbb8c266c60f1c5c54e541253772a7d8e732302fc2a22d8251",
+      "pid": 56608,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140701157661696:3512:8 - widget 'right_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ],
+      "runtime_log_sha256": "639b82f43f5b384f14c9e3119e7c2c22ba698f7941792a3108dd7be8d56d94c0"
+    },
+    {
+      "case": "wrong_body",
+      "status": "FAIL",
+      "executed_sha256": "24c4716166324ee8cbd1fcfe5a3e8d4b4edde3c21620f6c42d6dc661ea494d88",
+      "pid": 56774,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140170050321408:3512:8 - widget 'right_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ],
+      "runtime_log_sha256": "e370d997ff115576d30951faf608710044796a66f3e2e154bafc3a41c7d8f143"
+    },
+    {
+      "case": "still_draft",
+      "status": "FAIL",
+      "executed_sha256": "880136e1dd0487a83455df59f46e0b55c3aba26574e9157cb2f358de94680f03",
+      "pid": 57054,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140353367033344:3512:8 - widget 'right_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ],
+      "runtime_log_sha256": "d2299151a387efdb04ac2221e6f14c75593e8f2a5614341ee5f9e57b64c22469"
+    },
+    {
+      "case": "host_error",
+      "status": "FAIL",
+      "executed_sha256": "5adc1e6731042abd2eb03be3d07432589a3a1e1c96c63efb71fc2e26a961d1b9",
+      "pid": 57301,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140356873453568:3512:8 - widget 'right_content' not found in tree (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1315)"
+      ],
+      "runtime_log_sha256": "970504d00237648b4951cf9e7fdc476b64f7f77276560d337c42e2452e258aa6"
+    }
+  ],
+  "boundary": "Real jailed storage/process recovery, mocked Host replies. Not native review, admission, SMTP or delivery acceptance."
+}

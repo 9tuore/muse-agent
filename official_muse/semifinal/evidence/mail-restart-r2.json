@@ -1,0 +1,420 @@
+{
+  "kind": "TWO_REAL_VM_PROCESS_RESTART_SYNTHETIC_OFFICIAL_PROTOCOL",
+  "status": "FAIL",
+  "source_sha256": "c13a81f2a2a7316aaa1de5e55675c2661c7ca03a2a7342ebe0f12d4625d82990",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "probe_sha256": "dc61afd7ad002f1d3827873bffadb614cf8cd08a198740ebe8e30888ab174172",
+  "runner_sha256": "8c23ffad674f65e535cd6e17d191fbb6be8d54d19f568945eeb8c61c504e65a2",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "cases": [
+    {
+      "case": "prepare",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "11d5d79a507a8ed8f03433c4df78542aee86daa8ff3c8809f3fcfe97abc20dab",
+      "pid": 79436,
+      "checks": {
+        "first_action_persisted": true,
+        "prepared_persisted": true,
+        "first_review_exact": true
+      },
+      "calls": [
+        {
+          "method": "runtime.list",
+          "args": {}
+        },
+        {
+          "method": "mail.compose",
+          "args": {
+            "account": "synthetic-account",
+            "to": "self@example.invalid",
+            "subject": "Synthetic restart",
+            "body": "Synthetic original body"
+          }
+        },
+        {
+          "method": "mail.review_send",
+          "args": {
+            "account": "synthetic-account",
+            "to": "self@example.invalid",
+            "subject": "Synthetic restart",
+            "body": "Synthetic original body",
+            "compose_id": "compose-interrupted",
+            "expected_revision": 1
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "host_revision": 1,
+        "verified_id": "",
+        "status": "sending",
+        "incoming_key": "",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "account": "synthetic-account",
+        "link_run_id": "",
+        "to": "self@example.invalid",
+        "accepted_at": 0,
+        "link_event_id": "",
+        "host_compose_id": "compose-interrupted",
+        "subject": "Synthetic restart",
+        "verified_at": 0,
+        "link_goal_id": "",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "request_id": "mail-synthetic-interrupted"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "2a02c0385634c09ce9ee48342c88bb018399c56813380a4b9cbc5b19f6331e92"
+    },
+    {
+      "case": "accepted",
+      "status": "FAIL",
+      "executed_sha256": "b636638cef5a7bd1b50b6437fd4ca4e356746b61f45de008b98196cc0abd342e",
+      "pid": 79565,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "reconciled_receipt": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 1791559419.841731,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "accepted",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140607826782208:3512:29 - widget method render not found for uid WidgetUid(37) (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1456)"
+      ],
+      "runtime_log_sha256": "8d91574575c51eb8a944c970584152a322df8d5e06d6846083ea828f9f37f7a1"
+    },
+    {
+      "case": "wrong_revision",
+      "status": "FAIL",
+      "executed_sha256": "e3bb5ac8b698b73f7764e7638d513e41659a4d7ca4c1691b135cab68eb7ba74f",
+      "pid": 79688,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140325869704192:3512:29 - widget method render not found for uid WidgetUid(37) (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1456)"
+      ],
+      "runtime_log_sha256": "0a320cd54e1dd33b0698bf719c65858af398e96b0f752cb1a19c7210ced7884b"
+    },
+    {
+      "case": "wrong_account",
+      "status": "FAIL",
+      "executed_sha256": "52c40c9f4c71e867f6ae3ced93702372d2ff6c983773c4ffb8cac1fc35ef0dfb",
+      "pid": 79817,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140555834601472:3512:29 - widget method render not found for uid WidgetUid(37) (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1456)"
+      ],
+      "runtime_log_sha256": "fe60eb6abeaecdeab8706d9ef4753bb9ae248d587a144989fce2dfddda7b8196"
+    },
+    {
+      "case": "wrong_body",
+      "status": "FAIL",
+      "executed_sha256": "87a725f9cec6cd67e3f208e056bc4ec32aa8815c90e838656853d8d8ff9350f5",
+      "pid": 79962,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140293530050048:3512:29 - widget method render not found for uid WidgetUid(37) (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1456)"
+      ],
+      "runtime_log_sha256": "063123ea6e257bf258badf44779555f13d34c36d04478e5b098d20e9385bb50c"
+    },
+    {
+      "case": "still_draft",
+      "status": "FAIL",
+      "executed_sha256": "a4e55a91d16ffcf0876c73bedb9cd6cd128380012964eac6a31ffcaf507b5b81",
+      "pid": 80112,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140197683051008:3512:29 - widget method render not found for uid WidgetUid(37) (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1456)"
+      ],
+      "runtime_log_sha256": "09aab74638e48edcf2d2e2c5bc85aa20d1e0eb3da9f589ccd8f7e382454c0167"
+    },
+    {
+      "case": "host_error",
+      "status": "FAIL",
+      "executed_sha256": "e0b6ae123d188ee95d485c631d7ed02d5a5338ded7fe18cdaddccc2d6de41119",
+      "pid": 80232,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [
+        "[E] splash:140501115068928:3512:29 - widget method render not found for uid WidgetUid(37) (/Users/mima0000/.codex/worktrees/muse-7h-reliability-phone/Agent APP黑客松/vendor/makepad/widgets/src/widget_async.rs:1456)"
+      ],
+      "runtime_log_sha256": "b68702c2a678047eaa1f8660d8ea95113beac3acfd0e21261667c1e1ebefaf1e"
+    }
+  ],
+  "boundary": "Real jailed storage/process recovery, mocked Host replies. Not native review, admission, SMTP or delivery acceptance."
+}
