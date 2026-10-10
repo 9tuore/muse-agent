@@ -14,7 +14,7 @@
 | 内置日历改期/删除/精确不存在核验 | 历史原事件关联、去重与 UNKNOWN 记录保留 | 官方存在 `calendar.update_event / calendar.remove_event`；无 calendar.get | update/remove 当前未 shareable；普通 Muse Agent 无跨应用调用路径；events 有 200 条上限，无分页保证 | 官方 relay 策略及可信批准 | 接口缺项，高 | 准备最小复现和上游反馈；禁止删除重建冒充改期，禁止空列表冒充删除核验 |
 | 官方系统日历研究（不在默认运行链） | `research/official-device-calendar/adapter.patch` | `device_calendar.*@1`，契约 1.10.0 | 最新 Shell 源码包含适配器；当前参考 Host 未实现验证；区别于内置 Calendar | device_calendar、平台适配器、OS grant、scoped handle/revision | 独立研究 | 真实 Splash VM 22 项 fixture 通过；保留三次时间精度失败；按用户决定不启用、不替代内置日历 |
 | 模型 | `muse_model_request` → `model.complete` | `model.complete` | 已有官方模型调用；具体后端由宿主配置，不等于 Octos Agent | model、官方 provider 配置/预算 | 无新模型代理，中 | 保留调用与错误，模型说完成不代替工具核验 |
-| App Agent/工具 | rc17 agent:null；B 隔离原型；正式 Chat 仍使用原 model.complete | `octos.session.open/history / octos.turn.start/interrupt`；AGENT.md / script-tools / `app_tools.dispatch@1` | contained.rs 有普通 Splash 入口；Host 自持 card.muse-goals；自有 tools.json 受短 ID namespace 禁止连字符的限制；无自有工具可先申请共享工具 | 明确 octos 服务声明、agent.tools、原生 consent、signed admission | 缺少真正工具选择，高 | B 审计已集成；不改存储身份；未做真实模型工具选择前为 NOT_TESTED |
+| App Agent/工具 | rc17 agent:null；隔离原型；正式 Chat 仍使用原 model.complete | `octos.session.open/history / octos.turn.start/interrupt`；AGENT.md / script-tools / `app_tools.dispatch@1` | contained.rs有普通入口；自有工具受namespace限制。无自有工具的原型最新原生Gate仍因calendar.events不在商店默认offered_tools拒绝；空工具对照通过，不能作为业务候选 | 明确octos服务、agent.tools、原生consent及合法工具offer/签名准入 | 官方工具准入阻塞，高 | 已补#182 comment6095096789；不改system身份/放宽Gate。覆盖0/16，BLOCKED_NATIVE_GATE，无真实模型工具选择 |
 | 存储 | `storage_write/storage_read` → 官方 jailed `fs.write/read/exists/mkdir/sha256[_file]` | 官方 Splash filesystem jail，非任意系统路径 | 当前 VM 真实使用；原子性由现有日志/备份/读回补偿 | storage、应用 jail | Muse 的动作/恢复日志必须保留，中 | 不直接访问 Host 私有目录；写、读回、重启按同一包验证 |
 | 全局记忆 | `gm_*` 检索、冲突、更正、遗忘，写入上述 jail | 使用官方存储和 model；DSL/授权归属是 Muse 业务 | 已实现，语义质量依后端；不能视作基础设施重复 | 当前项目/归属/账号授权过滤 | 不重复，中 | 保留来源、上下文上限与跨会话检索，禁止整库灌入 |
 | 提醒 | `muse_notify` → `glance.publish` | `glance.publish` | 官方能力；系统通知具体平台另验 | glance | 无重复，低 | 保留有效结果卡，失败不假通知成功 |
@@ -41,3 +41,9 @@ Mail 迁移后真实参考 Splash VM 的 synthetic Host 协议共 11 项通过�
 - [App Hub #182](https://github.com/OctoSense-org/OctoSense-App-Hub/issues/182) 请求连字符应用身份与自有工具namespace兼容；[OctoSense #427](https://github.com/OctoSense-org/OctoSense/issues/427) 请求共享改期/删除及精确读回。已向后者[公开提交实现代码](https://github.com/OctoSense-org/OctoSense/issues/427#issuecomment-6083645335)，两文件补丁SHA `e5545d88382f689faf99d050f0053c4bdf7a99486dc07384195314880f1a4d9b`；相关文件在rc2与原审计源码blob一致。原核心7+2、补丁9+1、原Hub schema1均为隔离实际测试，完整Host/原生批准/调用方admission未验证。owner-only限制是官方明示策略，扩共享为维护者审阅的政策提案，未接受或安装。
 
 官方依据：[系统日历源码说明](https://github.com/OctoSense-org/OctoSense/blob/3a4d1e1e557750eac69b412f34d36021306ea654/crates/shell/src/device_calendar/README.md)、[公开 Host API](https://github.com/OctoSense-org/OctoSense-App-Hub/blob/18cd41d91b326db199fbed4129484a9ba1a8c63d/docs/HOST-API.md)、[官方 Mail Service](https://github.com/OctoSense-org/OctoSense/blob/3a4d1e1e557750eac69b412f34d36021306ea654/apps/mail/host-service/src/lib.rs)。
+
+## 2026-10-10 截止核对
+
+研究源5e2e84fe及r4包未安装。最新官方Hub95e4831单独锁定构建通过，r4正确digest的unsigned结构Gate通过，scan生成7问；正式publisher准入、reviewer和新Shell运行均未通过。Desktop精确rc.2源码/framework准备通过，但依赖归档仍不完整、下载已超时停止，未使用部分归档，未安装升级。
+
+普通开发分支同步超时、远端ref404；未同步，不动main/Tag。新Host未就绪时真实Mail/native确认和内置Calendar relay仍缺，旧配套全链不能计入本候选。Phone只完成旧rc16配套Home资源修补与真实模拟器启动/重启，细节MUSE_PHONE_RESUME_REPORT.md，不代表升级官方运行环境。

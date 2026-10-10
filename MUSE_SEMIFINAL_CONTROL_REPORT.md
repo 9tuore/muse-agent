@@ -1,6 +1,12 @@
 # Muse 复赛中央总控检查点
 
-2026-10-10 14:15，北京时间；**PARTIAL**，17:00截止。完整夜间结果见 `MUSE_OVERNIGHT_20261010_REPORT.md`；任务不能删减，见 `MUSE_NIGHT_TASK_LEDGER.md`。
+2026-10-10 17:00前收口，北京时间；**PARTIAL**。完整夜间结果见 `MUSE_OVERNIGHT_20261010_REPORT.md`；任务不能删减，见 `MUSE_NIGHT_TASK_LEDGER.md`。代码/Phone证据检查点efce444a，后续仅文档收口。owned模拟器和夜间心跳已停止，新增真实外发/日历写入/付费均0。
+
+最新原生Hub锁定构建与rc18研究r4 unsigned结构Gate通过；scan7问只是材料，未正式准入/发布。Desktop新Intel环境依赖网络失败，尚未升级。contained Agent实际Gate因未offer calendar.events而拒绝，正式覆盖0/16，不能把loader或fixture成功计作原生工具执行。
+
+Phone单函数目录解析修补已解决旧配套Home缺资源崩溃：第三次APK构建/资源核对/验签通过，API35两次Home冷启动和force-stop恢复有真实截图。仍不是rc18/Kernel/Bridge/手机Muse全链，实体DEVICE_NOT_TESTED。#458已补实际运行comment6095819625供审阅，未被接受。
+
+官方内置Calendar relay/共享写入与精确读回、原生Mail审阅、同最终外部链及新候选20次仍缺。行动链仍隔离，未合正式候选。普通开发分支同步超时且远端ref404，未同步；main与旧Tag不动。
 
 ## 评审四项整改
 

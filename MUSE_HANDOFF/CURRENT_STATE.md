@@ -1,3 +1,15 @@
+## 2026-10-10 17:00前最终收口
+
+PARTIAL。本轮实现/Phone证据efce444a，后续只更新报告；根rc17载荷90351cba/770540字节、生产、旧安装及主工作区137项未提交改动保护。16:00已冻结大改，owned测试模拟器已停止，muse-07-00心跳已删除。新增真实邮件、日历写入、付费调用均0。
+
+官方Hub锁定构建及rc18研究r4 unsigned结构Gate已过，scan7问仅材料；新Desktop Intel环境未构建/安装。原生Agent工具offer实际拒绝calendar.events，覆盖0/16。官方内置Calendar未完成合法relay，共享更新/删除/精确读回提案未接受。P0三处已复现修复并保留失败；Mail19/双VM7、Calendar恢复10、MemoryDSL62/元数据两VM91通过。rc17基线20次不能移作rc18证明。
+
+Phone旧配套Home缺主题资源修复后，APK/native身份/签名通过，两次API35原生Home冷启动、一次force-stop恢复通过；无Kernel/Bridge/手机Muse或实体证明。模拟器按截止主动停止，子进程exit-6保留，不称自然无错误退出。详情MUSE_PHONE_RESUME_REPORT.md。行动链隔离266f9c66，未合A；明色/事项切换缺。
+
+已反馈#182/#427/#458及补实现/真实证据，未被官方接受。普通开发分支push超时、远端404，同步未成功，main/旧Tag/正式发布不动。下一步按MUSE_HANDOFF/HANDOFF_LATEST.md与MUSE_NIGHT_TASK_LEDGER.md，不删除缺项或复用旧门槛假通过。
+
+---
+
 ## 2026-10-10 原生 Agent 准入补验
 
 最新原生Hub95e4831拒绝隔离原型请求calendar.events，原因是商店默认offered_tools不含它；空工具对照通过、kernel shell对照拒绝，旧listing错误保留。没有改准入或身份；原生覆盖仍0/16、prototype BLOCKED_NATIVE_GATE。源码表明当前AppStore也用默认清单，系统额外offer只供system app。已在AppHub #182 comment6095096789询问正规路径，未接受。现有model.complete和稳定根bundle不改。

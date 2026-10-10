@@ -1,5 +1,17 @@
 # Muse upstream contribution audit — B branch
 
+## 2026-10-10 final local checkpoint
+
+Three new public issues are used: App Hub #182, OctoSense #427 and #458. No fourth issue, accepted fix, formal release or upstream merge is claimed. The same-ID outbound prototype is also refused by the actual current Hub: calendar.events is absent from the store's default offered_tools. Empty-tools control passes; kernel-shell control is refused. Source confirms AppStore uses default HostLimits and system offer expansion is system-only. Evidence was appended to [#182 comment6095096789](https://github.com/OctoSense-org/OctoSense-App-Hub/issues/182#issuecomment-6095096789). No admission policy or production identity was bypassed.
+
+The Android dependency-directory parser patch now has actual packaging and runtime evidence. Old r7 Home failed with missing bundled themes; the single-function repair passes six real Rust/path variants (old code fails four). After restoring the retained same-baseline Java compatibility layer, the APK build passes, the theme asset is included, native libraries are identical to r7, and apksigner verifies it. API35 Home rendered on two cold launches and after force-stop recovery, with location denied/cancelled and no positive permission grant. [#458 comment6095819625](https://github.com/OctoSense-org/OctoSense/issues/458#issuecomment-6095819625) supplies this result with scope boundaries. It is retained rc16 Home, not current Desktop, Kernel/Bridge/Muse full-chain or physical-device acceptance. All initial failures remain.
+
+The previously submitted Calendar implementation in #427 comment6083645335 remains a policy proposal. Owner-only update/remove, exact readback and lawful store tool offers are unresolved. Ordinary development branch push timed out and the remote ref returned404; no sync success is claimed, and main/tags remain untouched. Local Phone checkpoint efce444a; final reports in MUSE_OVERNIGHT_20261010_REPORT.md and MUSE_PHONE_RESUME_REPORT.md.
+
+---
+
+Earlier audit and test history follows.
+
 **Namespace #182, Calendar #427 and Android packaging #458 are submitted for review; no acceptance is claimed.** Root has posted the tested Calendar patch in #427 comment6083645335; it is not accepted or installed.
 This report retains B's earlier audit scope and later night updates. The earlier B assignment prohibited B from public posting; the user subsequently authorized Root's narrowly verified technical feedback. No formal release or upstream acceptance is claimed. Current upstream status was checked again on 2026-10-10.
 
