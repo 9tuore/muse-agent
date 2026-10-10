@@ -19,6 +19,7 @@ def main():
     parser.add_argument('--retained-state', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--emulator-state', type=Path, required=True)
+    parser.add_argument('--trim-finished-rust-cache', action='store_true')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     state = args.retained_state.resolve(strict=True)
@@ -46,15 +47,34 @@ def main():
     command = [str(tool), 'makepad', 'android', '--sdk-path=' + str(tools / 'android-sdk'),
                '--abi=x86_64', '--package-name=dev.makepad.octosense', '--min-sdk-version=33',
                'build', '-p', 'octosense-home', '--release', '--locked', '--offline']
-    assert allocated(state) + allocated(emulator) + 1_300_000_000 < 10_500_000_000
+    native = state / 'android-target/x86_64-linux-android/release/liboctosense_home.so'
+    if args.trim_finished_rust_cache:
+        assert native.is_file()
+    reserve = 200_000_000 if args.trim_finished_rust_cache else 1_300_000_000
+    assert allocated(state) + allocated(emulator) + reserve < 10_500_000_000
     assert shutil.disk_usage(state).free > 3_300_000_000
     out.mkdir(parents=True)
     with (out / 'build.log').open('w') as log:
         child = subprocess.Popen(command, cwd=state / 'sdk/octosense/phone', env=env,
                                  stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         print('Owned package build PID:', child.pid, flush=True)
+        trimmed = False
         while child.poll() is None:
             time.sleep(10)
+            # The official tool prints this only after rust_build has returned.
+            # Keep final/native shared libraries; packaging also searches deps
+            # for .so files. Only finished compiler caches are expendable.
+            if args.trim_finished_rust_cache and not trimmed and 'Building APK (package=' in (out / 'build.log').read_text():
+                removed = []
+                for release in ('release', 'x86_64-linux-android/release'):
+                    for path in (state / 'android-target' / release / 'deps').glob('*'):
+                        if path.is_file() and not path.is_symlink() and path.suffix in ('.rlib', '.rmeta', '.d'):
+                            removed.append({'path': str(path), 'size': path.stat().st_size})
+                            path.unlink()
+                (out / 'finished-cache-trim.json').write_text(json.dumps(
+                    {'removed': removed, 'final_native_preserved': native.is_file(),
+                     'stage': 'After official rust_build, before APK packaging'}, indent=2) + '\n')
+                trimmed = True
             used = allocated(state) + allocated(emulator)
             free = shutil.disk_usage(state).free
             if used > 10_500_000_000 or free < 2_000_000_000:

@@ -1,0 +1,753 @@
+diff --git a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadActivity.java b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadActivity.java
+index c6e70c6f..ede68f2e 100644
+--- a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadActivity.java
++++ b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadActivity.java
+@@ -370,7 +370,7 @@ class MakepadSystemInsets {
+     static void report(View view, WindowInsets insets) {
+         float density = view.getResources().getDisplayMetrics().density;
+         MakepadSystemInsets i = MakepadSystemInsets.from(view, insets, density);
+-        MakepadNative.surfaceOnSafeAreaInsets(i.top, i.right, i.bottom, i.left);
++        MakepadNative.surfaceOnSafeAreaInsets(i.top, i.right, i.bottom, i.left, density);
+     }
+ }
+ 
+@@ -386,6 +386,24 @@ class MakepadSurface
+ {
+     // IME InputConnection for handling composition text
+     private MakepadInputConnection mInputConnection;
++    // Whether Rust currently owns a text editor, including IME start/restart.
++    private boolean mImeTextActive;
++    private long mEditorSession;
++    private long mInputConnectionEpoch;
++    private long mOptimisticEditSequence;
++    void acceptedEditorOperation(long sequence) {mOptimisticEditSequence=sequence;}
++    long editorSession() { return mEditorSession; }
++    long connectionEpoch() { return mInputConnectionEpoch; }
++    void retireInputConnection() {
++        // Every handle for the current editor retires together, including
++        // an earlier onCreateInputConnection result still held by the IME.
++        mInputConnectionEpoch++;
++        if(mInputConnection!=null) mInputConnection.closeConnection();
++    }
++    boolean applyingEditorState;
++
++
++    void setImeTextActive(boolean active) { mImeTextActive = active; }
+ 
+     // Shared Editable buffer for IME - this is the source of truth for Java side
+     private SpannableStringBuilder mEditable = new SpannableStringBuilder();
+@@ -427,7 +445,8 @@ class MakepadSurface
+     private int mAutocapitalize = AUTOCAP_SENTENCES;
+     private int mAutocorrect = AUTOCORRECT_DEFAULT;
+     private int mReturnKeyType = RETURN_KEY_DEFAULT;
+-    private boolean mIsMultiline = true;
++    // Match Rust TextInputConfig::default(), avoiding a needless first-focus restart.
++    private boolean mIsMultiline = false;
+     private boolean mIsSecure = false;
+ 
+     // Package-private getters for MakepadInputConnection to access shared state
+@@ -549,6 +568,7 @@ class MakepadSurface
+             }
+         }
+ 
++        if (actionMasked==MotionEvent.ACTION_DOWN || actionMasked==MotionEvent.ACTION_UP || actionMasked==MotionEvent.ACTION_CANCEL) MakepadNative.beginInput();
+         MakepadNative.surfaceOnTouch(event);
+         return retval;
+     }
+@@ -614,6 +634,27 @@ class MakepadSurface
+     @SuppressWarnings("deprecation")
+     @Override
+     public boolean onKey(View v, int keyCode, KeyEvent event) {
++        // Surface key events can interleave with InputConnection edits during
++        // IME start/restart. Keep both paths in the same Editable: a later full
++        // IME snapshot must not overwrite separately delivered Rust characters.
++        if (mImeTextActive) {
++            // Hardware events can precede Android’s replacement IC after
++            // resume/restart. A provisional connection carries ordered edits;
++            // stale IME-held connections remain retired.
++            if(mInputConnection==null || !mInputConnection.ownsEditor()) {
++                mInputConnection=new MakepadInputConnection(this,true);
++            }
++            if ((event.getAction() == KeyEvent.ACTION_DOWN || event.getAction() == KeyEvent.ACTION_UP)
++                    && (keyCode == KeyEvent.KEYCODE_DEL || keyCode == KeyEvent.KEYCODE_FORWARD_DEL
++                    || keyCode == KeyEvent.KEYCODE_ENTER || mInputConnection.isTextKey(event))) {
++                return mInputConnection.sendKeyEvent(event);
++            }
++            if (event.getAction() == KeyEvent.ACTION_MULTIPLE && event.getCharacters() != null) {
++                return mInputConnection.commitText(event.getCharacters(), 1);
++            }
++        }
++
++        MakepadNative.beginInput();
+         if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode != 0) {
+             int metaState = event.getMetaState();
+             boolean isRepeat = event.getRepeatCount() > 0;
+@@ -625,7 +666,11 @@ class MakepadSurface
+             MakepadNative.surfaceOnKeyUp(keyCode, metaState);
+         }
+ 
+-        if (event.getAction() == KeyEvent.ACTION_UP || event.getAction() == KeyEvent.ACTION_MULTIPLE) {
++        // Match MakepadInputConnection.sendKeyEvent: insert text on DOWN only.
++        // Android can switch the receiving path between DOWN and UP when the
++        // IME starts or restarts. Inserting on UP here duplicated (or lost) a
++        // key whose other edge was handled by the input connection.
++        if (event.getAction() == KeyEvent.ACTION_DOWN || event.getAction() == KeyEvent.ACTION_MULTIPLE) {
+             int character = event.getUnicodeChar();
+             if (character == 0) {
+                 String characters = event.getCharacters();
+@@ -822,23 +867,39 @@ class MakepadSurface
+     }
+ 
+     // Called from Rust to update text state (for programmatic changes, not IME input)
+-    public void updateImeTextState(String fullText, int selStart, int selEnd,
++    public void updateImeTextState(long throughSequence,long session,boolean active,String fullText, int selStart, int selEnd,
+                                    int composingStart, int composingEnd) {
+-        String currentText = mEditable.toString();
+-        boolean textChanged = !currentText.equals(fullText);
+-
+-        // ECHO PREVENTION: Check if this is Rust echoing back text we recently sent.
+-        // This happens because:
+-        //   1. Java sends text to Rust via onImeTextStateChanged
+-        //   2. Rust widget processes it and updates internal state
+-        //   3. Rust may sync state back via SyncImeState -> updateImeTextState
+-        //   4. Without this check, we'd overwrite fresh IME state with stale echo
+-        if (textChanged && mInputConnection != null) {
+-            if (mInputConnection.wasRecentlySentToRust(fullText)) {
+-                return;  // Stale echo - ignore to prevent rollback
++        if (session<mEditorSession) return;
++        if (session!=mEditorSession) {
++            boolean initial=mEditorSession==0 && session==1;
++            mEditorSession=session;
++            if (mInputConnection!=null) {
++                if (initial) mInputConnection.bindInitialSession(session);
++                else {
++                    InputMethodManager imm=(InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
++                    if(imm!=null) imm.restartInput(this);
++                }
+             }
+         }
+-
++        if (!active) {
++            // No editor has existed in session0. An initial empty observation
++            // must not close Android's pre-focus input connections.
++            if(session!=0) retireInputConnection();
++            mImeTextActive=false;
++            mEditable.clear();
++            BaseInputConnection.removeComposingSpans(mEditable);
++            Selection.setSelection(mEditable,0);
++            return;
++        }
++        // Newer optimistic edits are already in the Rust input queue. Their
++        // canonical reply will include them; an older clear/selection cannot
++        // overwrite the Java Editable in the meantime.
++        if (throughSequence<mOptimisticEditSequence) return;
++        mImeTextActive = true;
++        String currentText = mEditable.toString();
++        boolean textChanged = !currentText.equals(fullText);
++        applyingEditorState=true;
++        try {
+         // Clamp selection
+         int textLen = textChanged ? fullText.length() : currentText.length();
+         selStart = Math.max(0, Math.min(selStart, textLen));
+@@ -861,13 +922,6 @@ class MakepadSurface
+                 mInputConnection.setComposingRegion(composingStart, composingEnd);
+             }
+ 
+-            // ECHO PREVENTION: Clear the sent buffer after applying Rust's authoritative
+-            // state update. This ensures the next text we send to Rust won't be incorrectly
+-            // detected as an echo. Only clear here, NOT in recordSentToRust().
+-            if (mInputConnection != null) {
+-                mInputConnection.clearRecentSentBuffer();
+-            }
+-
+             // Notify IME of text change without restarting input
+             // restartInput() destroys composition state and causes IME flicker;
+             // updateExtractedText() + updateSelection() is the lightweight alternative
+@@ -906,6 +960,7 @@ class MakepadSurface
+                 }
+             }
+         }
++        } finally { applyingEditorState=false; }
+     }
+ 
+     public Surface getNativeSurface() {
+@@ -1114,6 +1169,7 @@ public class MakepadActivity
+     private FrameLayout mRootLayout;
+     private FrameLayout mApplicationOverlay;
+     private ApplicationExtension mApplicationExtension;
++    private boolean mApplicationTouchBlocked;
+ 
+     /** Optional app Java client. Implementations enqueue blocking work on workers. */
+     public interface ApplicationExtension {
+@@ -1124,6 +1180,26 @@ public class MakepadActivity
+         void onDestroy();
+         default boolean onActivityResult(int requestCode, int resultCode, Intent data) { return false; }
+         default boolean onBackPressed() { return false; }
++        /** The extension owns Android 13+ Back through its system dispatcher. */
++        default boolean usesSystemBackCallback() { return false; }
++        /** Runs before native views or the renderer receive a touch. */
++        default boolean filterTouchEvent(MotionEvent event) { return true; }
++    }
++
++    @Override public boolean dispatchTouchEvent(MotionEvent event) {
++        if (mApplicationExtension != null && !mApplicationExtension.filterTouchEvent(event)) {
++            if (!mApplicationTouchBlocked) {
++                // Cancel any press already delivered before an overlay appeared.
++                MotionEvent cancel = MotionEvent.obtain(event);
++                cancel.setAction(MotionEvent.ACTION_CANCEL);
++                super.dispatchTouchEvent(cancel);
++                cancel.recycle();
++            }
++            mApplicationTouchBlocked = true;
++            return true;
++        }
++        mApplicationTouchBlocked = false;
++        return super.dispatchTouchEvent(event);
+     }
+ 
+     private void createApplicationExtension() {
+@@ -1590,6 +1666,26 @@ public class MakepadActivity
+         MakepadNative.activityOnStart();
+     }
+ 
++    @Override
++    public void onConfigurationChanged(android.content.res.Configuration configuration) {
++        super.onConfigurationChanged(configuration);
++        if (mSuperseded) return;
++        float density = getResources().getDisplayMetrics().density;
++        MakepadNative.onDisplayDensity(density);
++        int handleSize = Math.max(24, Math.round(density * 24.0f));
++        if (handleSize != mSelectionHandleSizePx) {
++            mSelectionHandleSizePx = handleSize;
++            if (mSelectionHandleStart != null)
++                mSelectionHandleStart.setLayoutParams(new FrameLayout.LayoutParams(handleSize, handleSize));
++            if (mSelectionHandleEnd != null)
++                mSelectionHandleEnd.setLayoutParams(new FrameLayout.LayoutParams(handleSize, handleSize));
++        }
++        if (view != null) {
++            MakepadSystemInsets.report(view, view.getRootWindowInsets());
++            view.requestApplyInsets();
++        }
++    }
++
+     @Override
+     protected void onResume() {
+         super.onResume();
+@@ -1616,6 +1712,7 @@ public class MakepadActivity
+         if (mQrScanning) closeQrScanner("interrupted");
+         prepareSurfaceSnapshotOverlayForPause();
+         super.onPause();
++        if(view!=null) view.retireInputConnection();
+         MakepadNative.activityOnPause();
+         if (mApplicationExtension != null) mApplicationExtension.onPause();
+         stopGpsLocationUpdates();
+@@ -1716,6 +1813,12 @@ public class MakepadActivity
+     // key (BACK included) and forwards it to Rust, so onBackPressed never runs.
+     @Override
+     public boolean dispatchKeyEvent(KeyEvent event) {
++        // System Back invokes the registered callback separately. Forwarding
++        // its compatibility key to the surface would navigate twice.
++        if (android.os.Build.VERSION.SDK_INT >= 33 && event.getKeyCode() == KeyEvent.KEYCODE_BACK
++                && mApplicationExtension != null && mApplicationExtension.usesSystemBackCallback()) {
++            return true;
++        }
+         if (mQrScanning && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+             if (event.getAction() == KeyEvent.ACTION_UP) closeQrScanner("cancelled");
+             return true;
+@@ -1726,6 +1829,7 @@ public class MakepadActivity
+     @Override
+     @SuppressWarnings("deprecation")
+     public void onBackPressed() {
++        if (mQrScanning) { closeQrScanner("cancelled"); return; }
+         if (mApplicationExtension != null && mApplicationExtension.onBackPressed()) return;
+         super.onBackPressed();
+         MakepadNative.onBackPressed();
+@@ -2603,6 +2707,7 @@ public class MakepadActivity
+         runOnUiThread(new Runnable() {
+             @Override
+             public void run() {
++                if (view != null) view.setImeTextActive(show);
+                 if (show) {
+                     if (view == null || view.getInputMode() == MakepadSurface.INPUT_MODE_NONE) {
+                         return;
+@@ -2647,17 +2752,16 @@ public class MakepadActivity
+         });
+     }
+ 
+-    // Update IME text state for programmatic changes - called from Rust
+-    // Note: This should only be called for programmatic text changes (e.g., clear button),
+-    // NOT during normal IME input (which flows Java to Rust via onImeTextStateChanged)
+-    public void updateImeTextState(final String fullText, final int selStart, final int selEnd,
++    // Canonical editor acknowledgement, including programmatic changes.
++    // Sequence counts applied operations, never merely received queue markers.
++    public void updateImeTextState(final long throughSequence, final long session, final boolean active, final String fullText, final int selStart, final int selEnd,
+                                    final int composingStart, final int composingEnd) {
+         runOnUiThread(new Runnable() {
+             @Override
+             public void run() {
+                 if (view != null) {
+                     view.updateImeTextState(
+-                        fullText,
++                        throughSequence, session, active, fullText,
+                         selStart,
+                         selEnd,
+                         composingStart,
+@@ -3021,16 +3125,19 @@ public class MakepadActivity
+ 
+                 if (action == MotionEvent.ACTION_DOWN) {
+                     setSelectionHandlePosition(v, absX, absY);
++                    MakepadNative.beginInput();
+                     MakepadNative.onSelectionHandleDrag(handleKind, SELECTION_DRAG_BEGIN, absX, absY, event.getEventTime());
+                     return true;
+                 }
+                 if (action == MotionEvent.ACTION_MOVE) {
+                     setSelectionHandlePosition(v, absX, absY);
++                    MakepadNative.beginInput();
+                     MakepadNative.onSelectionHandleDrag(handleKind, SELECTION_DRAG_MOVE, absX, absY, event.getEventTime());
+                     return true;
+                 }
+                 if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                     setSelectionHandlePosition(v, absX, absY);
++                    MakepadNative.beginInput();
+                     MakepadNative.onSelectionHandleDrag(handleKind, SELECTION_DRAG_END, absX, absY, event.getEventTime());
+                     return true;
+                 }
+diff --git a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadInputConnection.java b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadInputConnection.java
+index 10f38031..4df27905 100644
+--- a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadInputConnection.java
++++ b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadInputConnection.java
+@@ -7,6 +7,7 @@ import android.os.Bundle;
+ import android.os.Build;
+ import android.text.Editable;
+ import android.text.Selection;
++import android.text.SpannableStringBuilder;
+ import android.text.TextUtils;
+ import android.view.KeyEvent;
+ import android.view.inputmethod.BaseInputConnection;
+@@ -31,6 +32,35 @@ import android.view.inputmethod.TextSnapshot;
+ public class MakepadInputConnection extends BaseInputConnection {
+     // Reference to surface for accessing shared state
+     private MakepadSurface mSurface;
++    private long mEditorSession;
++    private final long mConnectionEpoch;
++    private boolean mClosed, mHardwareEdit;
++    private int mSuppressOperations;
++    private final Editable mRetiredEditable = new SpannableStringBuilder();
++    boolean ownsEditor() {
++        if (mClosed || mConnectionEpoch != mSurface.connectionEpoch()) return false;
++        long currentSession = mSurface.editorSession();
++        // Android may query onCreateInputConnection more than once before
++        // focus and keep an earlier returned handle. All open handles for the
++        // same editor session remain valid; the last Java pointer is not IME
++        // ownership. Only the first active editor can adopt pre-focus handles.
++        // A closed handle or one that missed that first session never revives
++        // for a later field, including for reads or editor actions.
++        if (mEditorSession == 0 && currentSession == 1) {
++            mEditorSession = currentSession;
++        }
++        return mEditorSession == currentSession;
++    }
++    void bindInitialSession(long session) { if(!mClosed && mEditorSession==0 && session==1) mEditorSession=session; }
++    private boolean sendEdit(int kind,String text,int start,int end,int cursor) {
++        if(mSuppressOperations>0 || mSurface.applyingEditorState) return true;
++        if(!ownsEditor()) return false;
++        long sequence=MakepadNative.beginInput();
++        mSurface.acceptedEditorOperation(sequence);
++        MakepadNative.onImeOperation(sequence,mEditorSession,mHardwareEdit,kind,text,start,end,cursor);
++        return true;
++    }
++
+ 
+     // Batch edit nesting count
+     private int mBatchEditNestCount = 0;
+@@ -40,22 +70,12 @@ public class MakepadInputConnection extends BaseInputConnection {
+     int mExtractedTextToken = 0;
+     // For cursor updates
+     private int mCursorUpdateMode = 0;
+-    // Echo prevention: Track last text sent to Rust to detect stale echoes
+-    private String mLastSentText = null;
+ 
+     public MakepadInputConnection(MakepadSurface surface, boolean fullEditor) {
+         super(surface, fullEditor);
+         mSurface = surface;
+-    }
+-
+-    // Check if text was recently sent to Rust
+-    boolean wasRecentlySentToRust(String text) {
+-        return text.equals(mLastSentText);
+-    }
+-
+-    // Record text as sent to Rust
+-    private void recordSentToRust(String text) {
+-        mLastSentText = text;
++        mEditorSession=surface.editorSession();
++        mConnectionEpoch=surface.connectionEpoch();
+     }
+ 
+     private int clampIndex(int index, int length) {
+@@ -90,7 +110,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+             throw new IllegalArgumentException("beforeLength and afterLength must be non-negative");
+         }
+ 
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+         int textLength = editable.length();
+         int selStart = selectionStart(editable);
+         int selEnd = selectionEnd(editable);
+@@ -117,7 +137,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+         notifyRustOfTextState();
+     }
+ 
+-    private boolean isTextKey(KeyEvent event) {
++    boolean isTextKey(KeyEvent event) {
+         return event.getUnicodeChar() != 0
+             && !event.isCtrlPressed()
+             && !event.isAltPressed();
+@@ -134,17 +154,12 @@ public class MakepadInputConnection extends BaseInputConnection {
+             || keyCode == KeyEvent.KEYCODE_PAGE_DOWN;
+     }
+ 
+-    // Clear sent buffer (e.g., after applying genuine Rust update)
+-    void clearRecentSentBuffer() {
+-        mLastSentText = null;
+-    }
+-
+     // Filter input based on input mode to prevent invalid characters (e.g., emojis in numeric fields)
+     private CharSequence filterInput(CharSequence text) {
+         if (text == null || text.length() == 0) return text;
+ 
+         int inputMode = mSurface.getInputMode();
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+ 
+         switch (inputMode) {
+             case MakepadSurface.INPUT_MODE_ASCII:
+@@ -189,15 +204,18 @@ public class MakepadInputConnection extends BaseInputConnection {
+         }
+     }
+ 
+-    // Return the shared Editable from surface - this is the key change!
+-    // BaseInputConnection methods operate on this Editable automatically
++    // An obsolete InputConnection must never read another editor’s buffer.
++    // Canonical updates may use the retiring connection to apply spans while
++    // Android creates its replacement; IME queries always see an empty editor.
+     @Override
+     public Editable getEditable() {
+-        return mSurface.getEditable();
++        return mSurface.applyingEditorState || ownsEditor()
++            ? mSurface.getEditable() : mRetiredEditable;
+     }
+ 
+     @Override
+     public boolean beginBatchEdit() {
++        if (!ownsEditor()) return false;
+         mBatchEditNestCount++;
+         return true;
+     }
+@@ -219,7 +237,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+     public ExtractedText getExtractedText(ExtractedTextRequest request, int flags) {
+         if (request == null) return null;
+ 
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+ 
+         // Remember request if monitoring
+         if ((flags & InputConnection.GET_EXTRACTED_TEXT_MONITOR) != 0) {
+@@ -240,7 +258,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean setComposingRegion(int start, int end) {
+-        Editable editable = mSurface.getEditable();
++        if(!sendEdit(7,"",start,end,0)) return false;
++        Editable editable = getEditable();
+         int textLength = editable.length();
+         start = clampIndex(start, textLength);
+         end = clampIndex(end, textLength);
+@@ -258,6 +277,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean requestCursorUpdates(int cursorUpdateMode) {
++        if (!ownsEditor()) return false;
+         mCursorUpdateMode = cursorUpdateMode;
+ 
+         if ((cursorUpdateMode & InputConnection.CURSOR_UPDATE_IMMEDIATE) != 0) {
+@@ -273,19 +293,19 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public int getCursorCapsMode(int reqModes) {
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+         int cursor = clampIndex(Selection.getSelectionEnd(editable), editable.length());
+         return TextUtils.getCapsMode(editable, cursor, reqModes);
+     }
+ 
+     private void sendCursorUpdate() {
+-        if (mCursorUpdateMode == 0) return;
++        if (mCursorUpdateMode == 0 || !ownsEditor()) return;
+ 
+         InputMethodManager imm = (InputMethodManager)
+             mSurface.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+         if (imm == null) return;
+ 
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+ 
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+             CursorAnchorInfo.Builder builder = new CursorAnchorInfo.Builder();
+@@ -299,11 +319,12 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     // Notify IME of current cursor and composition state
+     void notifyImeOfSelectionUpdate() {
++        if (!ownsEditor()) return;
+         InputMethodManager imm = (InputMethodManager)
+             mSurface.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+         if (imm == null) return;
+ 
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+         int selStart = Selection.getSelectionStart(editable);
+         int selEnd = Selection.getSelectionEnd(editable);
+         int compStart = BaseInputConnection.getComposingSpanStart(editable);
+@@ -323,27 +344,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     // Notify Rust of current text state
+     private void notifyRustOfTextState() {
+-        Editable editable = mSurface.getEditable();
+-        String fullText = editable.toString();
+-        int textLength = editable.length();
+-        int selStart = clampIndex(Selection.getSelectionStart(editable), textLength);
+-        int selEnd = clampIndex(Selection.getSelectionEnd(editable), textLength);
+-        int compStart = BaseInputConnection.getComposingSpanStart(editable);
+-        int compEnd = BaseInputConnection.getComposingSpanEnd(editable);
+-        if (compStart < 0 || compEnd < 0) {
+-            compStart = -1;
+-            compEnd = -1;
+-        } else {
+-            compStart = clampIndex(compStart, textLength);
+-            compEnd = clampIndex(compEnd, textLength);
+-        }
+-
+-        // ECHO PREVENTION: Record text before sending to Rust so we can detect
+-        // if Rust echoes it back via updateImeTextState(). See architecture comment
+-        // at class definition for full explanation.
+-        recordSentToRust(fullText);
+-
+-        MakepadNative.onImeTextStateChanged(fullText, selStart, selEnd, compStart, compEnd);
++        // Explicit operations are sent before each optimistic local mutation.
++        // This notification remains for IME selection/cursor batching only.
+     }
+ 
+     @Override
+@@ -371,7 +373,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public TextSnapshot takeSnapshot() {
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+         SurroundingText surroundingText = new SurroundingText(
+             editable.toString(),
+             selectionStartRaw(editable),
+@@ -406,6 +408,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+             return true;
+         }
+ 
++        if(!sendEdit(2,filtered.toString(),0,0,newCursorPosition)) return false;
++
+         // Let BaseInputConnection handle the Editable manipulation
+         boolean result = super.setComposingText(filtered, newCursorPosition);
+ 
+@@ -432,6 +436,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+             return true;
+         }
+ 
++        if(!sendEdit(1,filtered.toString(),0,0,newCursorPosition)) return false;
++
+         // Let BaseInputConnection handle the Editable manipulation
+         boolean result = super.commitText(filtered, newCursorPosition);
+ 
+@@ -454,17 +460,20 @@ public class MakepadInputConnection extends BaseInputConnection {
+             CharSequence text,
+             int newCursorPosition,
+             TextAttribute textAttribute) {
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+         int textLength = editable.length();
+         start = clampIndex(start, textLength);
+         end = clampIndex(end, textLength);
++        if(!sendEdit(8,text==null?"":text.toString(),start,end,newCursorPosition)) return false;
+         beginBatchEdit();
++        mSuppressOperations++;
+         boolean result;
+         try {
+             finishComposingText();
+             setSelection(Math.min(start, end), Math.max(start, end));
+             result = commitText(text, newCursorPosition);
+         } finally {
++            mSuppressOperations--;
+             endBatchEdit();
+         }
+         return result;
+@@ -472,7 +481,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean finishComposingText() {
+-        Editable editable = mSurface.getEditable();
++        if(!sendEdit(3,"",0,0,0)) return false;
++        Editable editable = getEditable();
+         boolean hadComposition = BaseInputConnection.getComposingSpanStart(editable) >= 0;
+ 
+         // Let BaseInputConnection clear the composing spans
+@@ -489,7 +499,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean deleteSurroundingText(int beforeLength, int afterLength) {
+-        Editable editable = mSurface.getEditable();
++        if(!sendEdit(4,"",beforeLength,afterLength,0)) return false;
++        Editable editable = getEditable();
+         int start = selectionStart(editable);
+         int end = selectionEnd(editable);
+ 
+@@ -533,7 +544,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean deleteSurroundingTextInCodePoints(int beforeLength, int afterLength) {
+-        Editable editable = mSurface.getEditable();
++        if(!sendEdit(5,"",beforeLength,afterLength,0)) return false;
++        Editable editable = getEditable();
+         int start = selectionStart(editable);
+         int end = selectionEnd(editable);
+ 
+@@ -610,7 +622,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean setSelection(int start, int end) {
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+         int textLength = editable.length();
+         start = clampIndex(start, textLength);
+         end = clampIndex(end, textLength);
+@@ -633,6 +645,8 @@ public class MakepadInputConnection extends BaseInputConnection {
+             return true;  // Already there, no notifications needed
+         }
+ 
++        if(!sendEdit(6,"",start,end,0)) return false;
++
+         // Let BaseInputConnection handle selection on Editable
+         boolean result = super.setSelection(start, end);
+         if (clearsComposition) {
+@@ -646,11 +660,12 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean performContextMenuAction(int id) {
+-        Editable editable = mSurface.getEditable();
++        Editable editable = getEditable();
+         int start = selectionStart(editable);
+         int end = selectionEnd(editable);
+ 
+         if (id == android.R.id.selectAll) {
++            if(!sendEdit(9,"",0,0,0)) return false;
+             Selection.setSelection(editable, 0, editable.length());
+             notifyStateChanged();
+             return true;
+@@ -745,11 +760,22 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public void closeConnection() {
++        mClosed=true;
+         super.closeConnection();
+     }
+ 
+     @Override
+     public boolean sendKeyEvent(KeyEvent event) {
++        if(!ownsEditor()) return false;
++        boolean previous=mHardwareEdit;mHardwareEdit=true;
++        boolean deletion=event.getAction()==KeyEvent.ACTION_DOWN && (event.getKeyCode()==KeyEvent.KEYCODE_DEL||event.getKeyCode()==KeyEvent.KEYCODE_FORWARD_DEL);
++        boolean suppressed=false;
++        try {
++            if(deletion) { if(!sendEdit(event.getKeyCode()==KeyEvent.KEYCODE_DEL?11:12,"",0,0,0)) return false; mSuppressOperations++;suppressed=true; }
++            return handleKeyEvent(event);
++        } finally {if(suppressed) mSuppressOperations--;mHardwareEdit=previous;}
++    }
++    private boolean handleKeyEvent(KeyEvent event) {
+         // Intercept DELETE key events and translate to deleteSurroundingTextInCodePoints()
+         // This is needed for Samsung keyboard delete which uses sendKeyEvent() instead of deleteSurroundingText()
+         // sendKeyEvent() dispatches to View asynchronously, which causes sync issues with Samsung
+@@ -759,6 +785,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+         int action = event.getAction();
+         int keyCode = event.getKeyCode();
+         if (isNavigationKey(keyCode)) {
++            MakepadNative.beginInput();
+             int metaState = event.getMetaState();
+             if (action == KeyEvent.ACTION_DOWN) {
+                 MakepadNative.surfaceOnKeyDown(keyCode, metaState, event.getRepeatCount() > 0);
+@@ -778,7 +805,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+         }
+ 
+         if (action == KeyEvent.ACTION_DOWN) {
+-            Editable editable = mSurface.getEditable();
++            Editable editable = getEditable();
+ 
+             if (keyCode == KeyEvent.KEYCODE_DEL) {
+                 // Check if there's a selection to delete
+@@ -830,6 +857,7 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+     @Override
+     public boolean performEditorAction(int actionCode) {
++        if (!ownsEditor() || actionCode<0 || actionCode>7) return false;
+         // Handle editor actions (Done, Go, Search, Send, Next)
+         // These are triggered when user presses the action button on the soft keyboard
+ 
+@@ -854,8 +882,6 @@ public class MakepadInputConnection extends BaseInputConnection {
+ 
+         // Notify Rust about the editor action
+         // For single-line inputs, this should trigger TextInputAction::Returned
+-        MakepadNative.onImeEditorAction(actionCode);
+-
+-        return true;
++        return sendEdit(13,"",actionCode,0,0);
+     }
+ }
+diff --git a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadNative.java b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadNative.java
+index a63e3864..daecd850 100644
+--- a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadNative.java
++++ b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadNative.java
+@@ -32,7 +32,8 @@ public class MakepadNative {
+     public native static void surfaceOnCharacter(int character);
+     public native static void surfaceOnResizeTextIME(int keyboard_height, boolean is_open);
+     public native static void surfaceOnPhysicalKeyboardChanged(boolean connected);
+-    public native static void surfaceOnSafeAreaInsets(float top, float right, float bottom, float left);
++    public native static void surfaceOnSafeAreaInsets(float top, float right, float bottom, float left, float density);
++    public native static void onDisplayDensity(float density);
+ 
+     // networking
+     public native static void onHttpResponse(long id, long metadata_id, int status_code, String headers, byte[] body);
+@@ -48,19 +49,16 @@ public class MakepadNative {
+     // selection handles
+     public native static void onSelectionHandleDrag(int handle, int phase, float x, float y, long timeMillis);
+ 
+-    // IME events - unified text state notification (Java→Rust)
+-    // Called when IME changes text (composition, commit, delete, selection change)
+-    public native static void onImeTextStateChanged(
+-        String fullText,
+-        int selectionStart,
+-        int selectionEnd,
+-        int composingStart,
+-        int composingEnd
+-    );
+-
+-    // IME editor action (for single-line inputs: Done, Go, Search, etc.)
+-    // Called when user presses the action button on the soft keyboard
+-    public native static void onImeEditorAction(int actionCode);
++    private static long inputSequence;
++    static synchronized long beginInput() {
++        long sequence=++inputSequence;
++        onInputSequence(sequence);
++        return sequence;
++    }
++    static synchronized long latestInputSequence() { return inputSequence; }
++    private static native void onInputSequence(long sequence);
++    static native void onImeOperation(long sequence,long session,boolean hardware,
++        int kind,String text,int start,int end,int cursor);
+ 
+     // Native floating chat composer (an Android view floating over the GL
+     // surface) submitted its text — user tapped send or pressed IME "Send".
