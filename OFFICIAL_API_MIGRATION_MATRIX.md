@@ -37,7 +37,7 @@ Mail 迁移后真实参考 Splash VM 的 synthetic Host 协议共 11 项通过�
 
 - Mail 两独立真实参考 VM 进程的中断持久化/恢复及六种只读对账变体通过（7/7），见 `evidence/mail-restart-r3.json`。原生Host、真实外发和收件未补。r1/r2测试支架动态View报错均保留FAIL。
 - rc17稳定基线20次完整进程冷启动通过；新rc18与行动链仍未合并，不算最终候选通过。
-- 今日正式发布 `desktop-v0.1.0-rc.2` 源 `4ccf8e068399b1da139771a9ed94cef05fa6ae60`。Mac公开成品仅arm64，本机Intel，当前未更新。源码获取连续网络失败，按用户要求保留稳定环境并转其他验证。
+- 今日正式发布 `desktop-v0.1.0-rc.2` 源 `4ccf8e068399b1da139771a9ed94cef05fa6ae60`。Mac公开成品仅arm64，本机Intel，当前未安装升级。前轮源码获取网络失败保留；13:13核对精确Tag已完整checkout、status干净，官方setup锁定framework完成，Cargo全功能图仍下载外部锁定依赖。稳定环境保留。
 - [App Hub #182](https://github.com/OctoSense-org/OctoSense-App-Hub/issues/182) 请求连字符应用身份与自有工具namespace兼容；[OctoSense #427](https://github.com/OctoSense-org/OctoSense/issues/427) 请求共享改期/删除及精确读回。已向后者[公开提交实现代码](https://github.com/OctoSense-org/OctoSense/issues/427#issuecomment-6083645335)，两文件补丁SHA `e5545d88382f689faf99d050f0053c4bdf7a99486dc07384195314880f1a4d9b`；相关文件在rc2与原审计源码blob一致。原核心7+2、补丁9+1、原Hub schema1均为隔离实际测试，完整Host/原生批准/调用方admission未验证。owner-only限制是官方明示策略，扩共享为维护者审阅的政策提案，未接受或安装。
 
 官方依据：[系统日历源码说明](https://github.com/OctoSense-org/OctoSense/blob/3a4d1e1e557750eac69b412f34d36021306ea654/crates/shell/src/device_calendar/README.md)、[公开 Host API](https://github.com/OctoSense-org/OctoSense-App-Hub/blob/18cd41d91b326db199fbed4129484a9ba1a8c63d/docs/HOST-API.md)、[官方 Mail Service](https://github.com/OctoSense-org/OctoSense/blob/3a4d1e1e557750eac69b412f34d36021306ea654/apps/mail/host-service/src/lib.rs)。

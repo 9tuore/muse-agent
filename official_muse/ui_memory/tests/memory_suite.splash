@@ -17,12 +17,15 @@ fn memory_stage_one(){
     let entries = gm_entries("星舟")
     mid = entries[0].document.id
     ctx = gm_context("星舟项目推进器","B","")
+    mr.M02_unfocused_hidden = ctx.text.search("蓝色推进器") < 0
+    gm_set_focus("星舟","用户")
+    ctx = gm_context("星舟项目推进器","B","")
     mr.M02_fact_source = ctx.hits.len() == 1 && ctx.hits[0].source_ids.len() == 1 && ctx.text.search("蓝色推进器") >= 0
     gm_pin(mid,true,"local")
     gm_set_focus("月桥","用户")
     ctx = gm_context("月桥项目汇报","B","")
     mr.M03_focus = ctx.text.search("蓝色推进器") < 0 && ctx.text.search("三项重点") >= 0
-    gm_set_focus("","")
+    gm_set_focus("星舟","用户")
     let result_M04_corrected = gm_correct(mid,"星舟项目使用银色推进器","local","B")
     mr.M04_corrected = result_M04_corrected
     ctx = gm_context("星舟项目推进器","A","")
@@ -70,11 +73,14 @@ fn memory_stage_two(){
 }
 fn memory_auth(){
     let ctx = {}
-    let result_M07_account_denied = !gm_save("另一账号秘密测试代号","fact","账号","代号","A","","","private-account")
+    let result_M07_account_denied = !gm_save("另一账号秘密测试代号","fact","账号","代号","A","天文","用户","private-account")
     mr.M07_account_denied = result_M07_account_denied
     gm_set_accounts(["private-account"])
-    let result_M07_account_saved = gm_save("另一账号授权测试代号","fact","账号","代号","A","","","private-account")
+    mr.M07_missing_scope_denied = !gm_save("另一账号授权测试代号","fact","账号","代号","A","","","private-account")
+    let result_M07_account_saved = gm_save("另一账号授权测试代号","fact","账号","代号","A","天文","用户","private-account")
     mr.M07_account_saved = result_M07_account_saved
+    gm_set_focus("天文","用户")
+    mr.M07_account_visible_when_authorized = gm_context("账号授权测试代号","B","").text.search("另一账号授权测试代号") >= 0
     gm_set_accounts([])
     ctx = gm_context("账号授权测试代号","B","")
     let result_M07_account_hidden = ctx.text.search("另一账号授权测试代号") < 0 && gm_export().search("另一账号授权测试代号") < 0
@@ -98,6 +104,7 @@ fn memory_auth(){
 }
 fn memory_conflict(){
     let ctx = {}
+    gm_set_focus("天文","用户")
     let result_conflict_saved = gm_save("晓岚拥有一台紫色望远镜","fact","晓岚","资产","D","天文","用户","local")
     mr.conflict_saved = result_conflict_saved
     ctx = gm_context("晓岚望远镜","B","")

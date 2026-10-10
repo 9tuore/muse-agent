@@ -1,8 +1,7 @@
 # Muse upstream contribution audit — B branch
 
-**Namespace #182 and Calendar #427 are OPEN (posted by Root); local patches remain unsubmitted/uninstalled. No upstream change is accepted.**
-This task provides compatibility evidence and deduplication for Root's decision.
-Current instructions prohibit public posting. Production SDK implementation is unchanged. The later night section records local proposed patches; nothing is pushed.
+**Namespace #182 and Calendar #427 are OPEN. Root has posted the tested Calendar patch in #427 comment6083645335 for review; it is not accepted or installed.**
+This report retains B's earlier audit scope and later night updates. The earlier B assignment prohibited B from public posting; the user subsequently authorized Root's narrowly verified technical feedback. No formal release or upstream acceptance is claimed. Current upstream status was checked again on 2026-10-10.
 
 ## Fixed source evidence
 
