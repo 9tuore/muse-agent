@@ -1,0 +1,41 @@
+{
+  "state": "SIGNED_STORE_FIXTURE_PASS_NOT_LIVE_RELAY",
+  "recorded_at": "2026-10-11T04:17:45.927412+08:00",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--release",
+    "-p",
+    "octosense-app-hub",
+    "--test",
+    "per_app_offer",
+    "--",
+    "--test-threads=1"
+  ],
+  "observed_exit": 0,
+  "passed": 10,
+  "failed": 0,
+  "tests": [
+    "default_is_closed_and_one_app_offer_does_not_extend_another",
+    "enabled_offer_does_not_bypass_bundle_digest",
+    "exact_offer_cannot_admit_a_second_requested_tool",
+    "exact_shared_set_replacement_does_not_leak_or_accumulate_tools",
+    "host_offer_does_not_grant_a_tool_absent_from_the_manifest",
+    "offer_refuses_unverified_publisher_and_unsigned_manifests",
+    "revoke_rechecks_installed_and_already_prepared_launches",
+    "shared_offer_revocation_reaches_clone_staging_independent_and_fresh_store",
+    "signed_catalog_withdrawal_still_blocks_installed_and_prepared_release",
+    "unknown_and_reserved_ids_never_receive_an_offer"
+  ],
+  "log_sha256": "eff02eaa7335c2c78cccab1fa3bdf4c43c3b87ab935a1807c6a21ed8c879a21f",
+  "test_binary_sha256": "74ce0068f32495728b3fe597c08dbf695e7b71676c37adf20044de341ea9fa2e",
+  "sdk_pin": "4ccf8e068399b1da139771a9ed94cef05fa6ae60",
+  "hub_pin": "95e4831afca7227b640f075b252c04355bb63865",
+  "local_reviewed_host_offer_patch": true,
+  "upstream_accepted": false,
+  "native_consent": false,
+  "live_calendar_relay": false,
+  "mail_delivery": false
+}

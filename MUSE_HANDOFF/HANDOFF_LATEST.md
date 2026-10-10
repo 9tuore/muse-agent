@@ -1,5 +1,14 @@
 # Muse 接续检查点：2026-10-11 03:55
 
+## 最新现场：2026-10-11 04:18
+
+- 开发分支 HEAD `6ced0e8ae6a465f10d65292cea644fb409ce55c9`，04:03:23 已独立读取远端同 SHA；main `5126afc4`未动。
+- 完整SDK上下文的配套 Host offer 审阅补丁：真实 signed Store fixture **10/10、exit0**，含撤销、跨应用、摘要和签名拒绝；不是本人 consent、live Relay或上游接受。结果 `official_muse/semifinal/evidence/native-full-shell-r1/host-offer-test-result.json`。
+- r5四topic只读trace保存失败：第3帧 remote/gseq 404，已保留capture-failure和完整shell.log；前一帧readback完成，upload计数无starved/refusals仍不证明像素正常。
+- 当前唯一Cargo会话96438：隔离r6有界gpu.items诊断编译，原Metal baseline47db4d10备份在build/runtime-closure-metal-items-r1；仅一次窗口draw item采样，默认关闭、最多48项，无cache/权限/业务改动。编译尚未完成，正式版未晋级。大构建期间不跑GUI验收。
+- Native首次可信确认、正式Muse→内置Calendar Relay及真实Mail仍HUMAN_REQUIRED/BLOCKED；本段真实外发/Calendar写入/模型调用均为0。旧PID503/Host276b2b68、根rc17/90351cba保留。磁盘约7.3GiB，已净清4,956,504,064字节可重建无占用缓存。07:00冻结，08:00截止。
+
+
 ## Task
 NIGHT-002完整Host、官方内置Calendar、Mail原生审阅、共享DSL与Native路线验证。07:00冻结/08:00截止。
 
