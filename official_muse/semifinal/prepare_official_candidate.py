@@ -9,6 +9,8 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -26,9 +28,10 @@ def main():
     if manifest['id'] != 'muse-goals' or manifest.get('agent') is not None:
         raise RuntimeError('Unexpected active identity or Agent declaration; do not change scope silently')
     output.mkdir(parents=True, exist_ok=False)
+    readable = output / 'readable-bundle'
     bundle = output / 'bundle'
-    shutil.copytree(base, bundle)
-    shutil.copyfile(source, bundle / 'main.splash')
+    shutil.copytree(base, readable)
+    shutil.copyfile(source, readable / 'main.splash')
     manifest['version'] = '0.3.27-rc18'
     # The current official contract requires this field even before stamping.
     manifest['integrity'] = {'bundle_blake3': ''}
@@ -42,9 +45,18 @@ def main():
     required = api.setdefault('required', {})
     for method in ('runtime.list', 'mail.compose', 'mail.compose_status', 'mail.review_send'):
         required[method] = 1
-    (bundle / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+    (readable / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+    # Use the existing release transform. The readable source stays available;
+    # never change Host budgets or discard persisted user state to boot.
+    transformed = subprocess.run([sys.executable,
+        str(ROOT / 'official_muse/ui_memory/compact_bundle.py'),
+        '--source', str(readable), '--out', str(bundle)],
+        capture_output=True, text=True, check=True)
+    transform = json.loads(transformed.stdout)
     record = {'id': manifest['id'], 'version': manifest['version'],
               'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+              'artifact_sha256': hashlib.sha256((bundle / 'main.splash').read_bytes()).hexdigest(),
+              'source_transform': transform,
               'required': required, 'capabilities': manifest['capabilities'],
               'status': 'PREPARED_NOT_ADMITTED',
               'boundary': 'Root rc17 unchanged; new official Host/native consent/full chain remain unverified'}

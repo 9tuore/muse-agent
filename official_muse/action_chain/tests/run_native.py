@@ -34,6 +34,9 @@ def main():
     p.add_argument('--host', required=True, type=Path)
     p.add_argument('--host-cwd', required=True, type=Path)
     p.add_argument('--fixture', required=True, type=Path)
+    p.add_argument('--source', type=Path, help='Explicit frozen source artifact; defaults to readable production source')
+    p.add_argument('--bundle', type=Path, help='Explicit candidate manifest/assets; defaults to the fixture bundle')
+    p.add_argument('--sizes', nargs='+', default=['1100x740', '412x892', '990x539', '1200x420', '1100x740'])
     p.add_argument('--out', required=True, type=Path)
     p.add_argument('--port', type=int, default=8659)
     a = p.parse_args()
@@ -44,16 +47,18 @@ def main():
     with socket.socket() as s:
         assert s.connect_ex(('127.0.0.1', a.port)) != 0
     out.mkdir(parents=True)
-    for name in ('home', 'state', 'bundle'):
+    for name in ('home', 'state'):
         shutil.copytree(fixture / name, out / name)
-    source = ROOT / 'official_muse/app/source/main.splash'
+    shutil.copytree((a.bundle or fixture / 'bundle').resolve(strict=True), out / 'bundle')
+    source = (a.source or (a.bundle / 'main.splash' if a.bundle else ROOT / 'official_muse/app/source/main.splash')).resolve(strict=True)
     (out / 'bundle/main.splash').write_bytes(source.read_bytes())
     mpath = out / 'bundle/manifest.json'
     manifest = json.loads(mpath.read_text()); manifest['integrity'] = {}
     mpath.write_text(json.dumps(manifest) + '\n')
     report = {'kind': 'REAL_VISIBLE_REFERENCE_NATIVE_UI_SYNTHETIC_STORED_STATE',
               'status': 'ERROR', 'source_sha256': digest(source), 'host_sha256': digest(a.host),
-              'cases': [], 'boundary': 'Old reference host; no actual mail/model/calendar execution or new Host admission.'}
+              'manifest_before_stamp_sha256': digest(mpath),
+              'cases': [], 'boundary': 'Explicit reference Host identified by SHA; no actual mail/model/calendar execution, installed Shell admission or Agent grant.'}
     action_path = out / 'state/muse-goals/goals.json'
     before = action_digest(action_path)
     remote = Remote(a.port)
@@ -69,7 +74,7 @@ def main():
         (out / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
 
     try:
-        for number, size in enumerate(('1100x740', '412x892', '990x539', '1200x420', '1100x740')):
+        for number, size in enumerate(a.sizes):
             case = {'requested_size': size, 'restart': number > 0, 'checks': {}}
             report['cases'].append(case)
             log = out / f'runtime-{number}.log'
@@ -145,7 +150,7 @@ def main():
                     except Exception: proc.terminate()
                     try: proc.wait(timeout=5)
                     except subprocess.TimeoutExpired: proc.kill(); proc.wait()
-            case['runtime_errors'] = [line for line in log.read_text().splitlines() if '[E]' in line]
+            case['runtime_errors'] = [line for line in log.read_text().splitlines() if '[E]' in line or 'script time budget exceeded' in line]
             case['checks']['no_runtime_errors'] = not case['runtime_errors']
             save()
             print(json.dumps({'size': size, 'checks': case['checks']}), flush=True)

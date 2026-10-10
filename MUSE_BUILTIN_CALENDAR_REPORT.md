@@ -53,4 +53,8 @@ python3 official_muse/semifinal/tests/run_builtin_calendar.py \
 
 ## 下一步
 
-向已有 #427 / #182 补充本轮编译、可见UI、存储故障和策略证据，请维护者确认商店应用的宿主offer及共享修改/删除正式路径。未经正式准入和同候选真实Relay/审批/读回，不移除行动链的“受阻”，不宣称自动日历闭环。
+已在 [#427评论6096907245](https://github.com/OctoSense-org/OctoSense/issues/427#issuecomment-6096907245) 提交本轮编译、真实可见UI、存储故障、策略检查及三文件补丁。独立API读回与提交正文完全一致，见 `official_muse/semifinal/evidence/pivot-startup-20261010/calendar-feedback-readback.json`；没有收到维护者接受。#182已有商店offer缺口反馈，不重复建Issue。
+
+优化新版参考Host SHA `8d13132a` 用可读617031字节源码时，首窗口通过、第二次仍触发64ms超时；原失败保留。现有compact变换后491529字节，官方tokenizer/parser证明104281词法项/换行边界、97443指令一致；五个可见窗口通过。带新正式Host API要求的rc18 manifest则被宿主兼容检查拒绝，只加载717字节拒绝卡，没有执行Muse源码。这是另一项Host服务注册缺口，不能与解析预算混淆。
+
+2026-10-10 21:10起按本人新授权用三条真实聊天分攻日历、邮箱与稳定性。日历专项独占 `official_muse/semifinal/calendar_integration/`，验证正规商店offer/逐工具grant/Calendar代理委派，不改系统身份检查。未经正式准入和同候选真实Relay/审批/读回，不移除行动链的“受阻”，不宣称自动日历闭环。
