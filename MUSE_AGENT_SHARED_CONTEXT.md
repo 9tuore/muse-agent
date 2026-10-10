@@ -1,3 +1,17 @@
+## NIGHT-002 最新核对：2026-10-11 05:50（北京时间）
+
+状态：PARTIAL，开发分支 `codex/muse-pivot-20261010`。本地 `070fd447`；最近独立远端核对为 `68bc0c5f`（05:38），后两单元等待下一次同步，不能说最新已同步。main5126afc4、根rc17/90351cba、稳定PID503/Host276b2b68及生产资料未动。
+
+- Calendar完整SDK服务10项、Shell精确契约/冷Mail装载/授予路由3项已实跑通过；首轮默认Host编码错误断言的FAIL完整保留并以test-only修正。新增精确get标记private_data:true，与events一致，原compiled loader重查1项通过，不增加grant。
+- 官方Mail原六项组件fixture通过；新版中文QQ登录只改signin raw UI，去用户名、完整地址绑定、授权码指引、手填服务器保护。真实reference可见412×892和990×539各14项通过、正常退出；受管reference显示密码输入保护，不是原生宿主登录或真实授权码输入证明。中央已实看两图。
+- UNKNOWN原双进程核心恢复通过但历史缺前提保持PARTIAL；补充明确synthetic.retention输入的两个独立进程60622/60625完整fixture通过、zero transport，不能冒称已赚得真实Calendar核验。
+- 完整隔离Desktop r7唯一Cargo30783正在构建，源码保留原Metal、不带r5/r6诊断。7相关文件fresh patch replay字节一致，仅PREPARED_NOT_BUILT；新目录没有声称构建成功。当前不与Cargo并行GUI。
+- 下一步：r7真实owner Calendar正常UI和固定System events有界回读；缺权限/可信本人确认立即HUMAN_REQUIRED、不伪造grant。新精确get不在现有System grant，权威get/删除缺席与正式Muse Agent Relay仍BLOCKED。合成测试只限定已批准MUSE-N002-20261011-A 合成联调。
+- Memory/共享DSL/行动链开发源2253的此前reference范围保留，正式根包未晋级；Native只声明events只读，首次本人consent未完成；T18及同最终候选20次未达可测门槛。Phone DEVICE_NOT_TESTED。当前真实外发、日历写入、模型回合均0。
+- 07:00冻结/08:00停止不变，满盘可清inactive重建cache/已核验重复产物；已净清4.96GB，当前约5.7GiB。不清活动target、模型、源码、用户资料、稳定包或唯一失败。
+
+以下为保留的历史记录；各版本证据不能拼接为同候选全链PASS。
+
 ## 最新现场：2026-10-11 04:54
 
 - 开发分支 HEAD `1a456b682f15bc02a8df69b7eebfd3e69623c3f3`，04:22独立远端同SHA，main `5126afc4`未动。
