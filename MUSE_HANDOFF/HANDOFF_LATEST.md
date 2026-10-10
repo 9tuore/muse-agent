@@ -16,4 +16,4 @@ PARTIAL。新reference Host78ab9efc真实VM：Memory+view68/68、Task/plan23/23�
 完整Host构建/启动、独立Native ID的真实Relay和consent、Mail审阅、精确Calendar写/读回/同ID修改/恢复；旧Task focus fixture同步假设要修复测试而非业务。只有核心冻结/T18实际准备后才同候选最终20次。无新外发/付费/Calendar写入成功证明，可信本人缺失HUMAN_REQUIRED。
 
 ## Git / Protection
-HEAD59209a3e已普通推开发分支且独立远端SHA一致；后续DSL/报告修改尚待提交。main/旧Tag/正式发布不动。primary137dirty、两历史dirty、rc17/root摘要90351cba/旧Host276b2b68保留。已清无占用debug incremental净2.8GB，receipt保留；继续缺盘仅清可重建和核验重复产物。
+HEADaec355db已通过非强制Git对象API同步开发分支，tree/commit/远端SHA一致；普通CLI网络失败保留。共享DSL已提交，后续测试适配/原型/报告修改仍待提交。main/旧Tag/正式发布不动。primary137dirty、两历史dirty、rc17/root摘要90351cba/旧Host276b2b68保留。已清无占用debug incremental净2.8GB，receipt保留；继续缺盘仅清可重建和核验重复产物。

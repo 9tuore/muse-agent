@@ -1,0 +1,23 @@
+--- a/official_muse/ui_memory/tests/regression_task_focus.splash
++++ b/official_muse/ui_memory/tests/regression_task_focus.splash
+@@ -6,7 +6,10 @@
+     if text == "" { return [] }
+     let parts = text.split("）：")
+     if parts.len() != 2 { return nil }
+-    return parts[1].parse_json()
++    let envelope = parts[1].parse_json()
++    if envelope == nil || envelope.schema_version != "muse.view/1" || envelope.kind != "task_context"
++        || !envelope.read_only || envelope.tool_authority || !gm_array(envelope["records"]) { return nil }
++    return envelope.records
+ }
+ fn focus_repeat(n){ let s = "" for i in n { s = s + "x" } return s }
+ fn focus_latest_wire(){
+@@ -132,7 +135,7 @@
+     for i in messages.len() { messages[i].project = gm_project messages[i].owner = gm_owner }
+     chat_save()
+     text = chat_task_focus(id) items = focus_items(text)
+-    focus_checks.serialized_focus_1600_byte_bound = items.to_json().len() <= 1600
++    focus_checks.serialized_focus_1600_byte_bound = text.split("）：")[1].len() <= 1600
+     fs.write("focus-boundary.json",{focus: text payload_bytes: items.to_json().len()
+         injection_bytes: text.len() latest_body_bytes: chat_sessions[si].proposals[2].payload.body.len()}.to_json())
+     chat_sessions[si].proposals[2].payload.body = focus_repeat(1200)

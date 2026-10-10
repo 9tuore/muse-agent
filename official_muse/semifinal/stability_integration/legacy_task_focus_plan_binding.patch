@@ -1,0 +1,46 @@
+--- a/official_muse/ui_memory/tests/regression_task_focus.splash
++++ b/official_muse/ui_memory/tests/regression_task_focus.splash
+@@ -59,16 +59,30 @@
+         injected: chat_task_focus(id).search(value) >= 0})
+     })
+ }
++fn focus_wait_goal(id,left,callback){
++    let si = chat_session_index(focus_goal_session) let gi = core_goal_index(id)
++    if gm_string(id,200) && id != "" && si >= 0 && gi >= 0
++        && chat_sessions[si].goal_id == id && goals[gi].status == "planned" { callback(true) return }
++    if !gm_string(id,200) || id == "" || left == 0 {
++        focus_checks.plan_binding_ready = false callback(false) return
++    }
++    start_timeout(0.03,|| focus_wait_goal(id,left-1,callback))
++}
+ fn probe(){
+     fixture_seed() chat_boot() gm_boot() gm_set_focus("合成验收","个人")
+     chat_sessions[chat_session_index(chat_selected_id)].focus_project = gm_project
+     chat_sessions[chat_session_index(chat_selected_id)].focus_owner = gm_owner
+     focus_goal_session = chat_selected_id
+-    ui.goal_input.set_text("FOCUS_GOAL_A") ui.source_input.set_text("ORBIT isolated input") make_plan()
+-    focus_goal_id = task.id let path = task.result_path
+-    let run = core_start_run(task.id,1,"focus-local-approved")
+-    fs.mkdir("results") fs.write(path,{task_id: task.id count: 1 items: [{text: "FOCUS_RAW_NOT_TO_PROMPT"}]}.to_json())
+-    let done = core_finish_run(task.id,run,"completed",path)
++    ui.goal_input.set_text("FOCUS_GOAL_A") ui.source_input.set_text("ORBIT isolated input") focus_goal_id = make_plan()
++    focus_wait_goal(focus_goal_id,100,fn(bound){
++    if !bound {
++        focus_checks.linked_goal_independent_count = false focus_checks.session_isolation = false
++        focus_checks.request_original_session_focus = false start_timeout(0.03,|| focus_revision()) return
++    }
++    let path = goals[core_goal_index(focus_goal_id)].result_path
++    let run = core_start_run(focus_goal_id,1,"focus-local-approved")
++    fs.mkdir("results") fs.write(path,{task_id: focus_goal_id count: 1 items: [{text: "FOCUS_RAW_NOT_TO_PROMPT"}]}.to_json())
++    let done = core_finish_run(focus_goal_id,run,"completed",path)
+     let text = chat_task_focus(focus_goal_session)
+     let items = focus_items(text)
+     focus_checks.linked_goal_independent_count = done && items.len() == 1 && items[0].id == focus_goal_id
+@@ -99,6 +113,7 @@
+     fixture_queue[models]({is_ok: true data: {output: {reply: "合成结果状态"}}})
+     fixture_accounts_deferred = false
+     start_timeout(0.03,|| focus_revision())
++    })
+     })
+     })
+ }
