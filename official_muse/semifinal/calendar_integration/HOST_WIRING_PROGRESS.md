@@ -100,6 +100,24 @@ CARGO_BUILD_JOBS=1 cargo test --offline --manifest-path build/calendar-shared-st
 
 本开发单元已整理，交中央审查与小步提交；本任务不运行Git/Cargo/GUI、不外发、不扩大测试或Calendar策略。
 
+## 完整backend中央编译通过与最小import修正
+
+中央实际完整backend offline cargo check已结束，报告exit0；现场 `build/calendar-shared-host-wiring-r2/host-check-r1.log` 明确 Finished dev profile，耗时9m17s（557秒）。此前Cargo source/cache解析失败保留，已由中央补齐实际固定33dea2f1对象后进入并完成真实编译；不能继续把最新backend状态写成解析失败，也不能把它当源码版本不匹配。
+
+该次只检查AppStore/nativeHub库。日志说明 `OCTOSENSE_SYSTEM_APPS is not set: building with no system apps`；无完整Shell、Calendar owner系统pack、GUI、consent、Relay或CRUD运行证据，正式链路仍BLOCKED。
+
+本次生成器引入的 `catalog.rs` 顶层HostLimits import在生产路径已不使用，但现有cfg(test)模块仍使用它。只将它从顶层移到现有tests模块的AppManifest/MANIFEST_FILE import列表；不删测试所需符号、不改测试标准、不处理原unused_mut。相同两行修改同步到r2准备副本及prepare_host_wiring.py。
+
+修正前审阅补丁ab5d、所有本次patch涉及的已验证Hub源码、Cargo.toml/lock、原编译日志及metadata已保存到 `build/calendar-host-check-r1-verified-snapshot/`；`IDENTITY.json`记录各文件SHA。源/log原始证明保留，不把import修改后的源码直接标记为已通过旧check。
+
+最新累计Hub补丁SHA：`baa26e8563c69ab8ef2e7d21d85b57204c6b14d8b4e2a6f8118faa1c503cb743`。Desktop补丁未变。`HOST_CHECK_IMPORT_FIX_RESULT.json`记录旧/新patch及catalog源码SHA。旧10项Store代码/标准不变；无需增加或重跑重复测试。
+
+**中央仍需incremental check**：复用同一r2目录、原target及原完整backend命令，独立记录host-check-r2.log，确认本次新增unused import消失。该修正尚未运行Cargo或新的apply-check（本任务未运行Git），不能直接称新补丁编译通过。Relay只读清单保持，不扩展策略或GUI工作。
+
 ## 中央后续：22:15开始完整backend检查
 
 原五crates解析失败和三crates 10/10记录保持。中央确认本地固定33dea2f1 Git commit对象存在、checkout干净，从同一官方固定checkout补入Cargo git缓存，没有更改SDK源码或正式安装。重试AppStore/nativeHub的offline cargo check已进入实际编译，结果待记录；此前Store-only JSON是22:14时点快照，不代表完整backend最新结果。Desktop Shell仍未编译，正式consent/Relay/CRUD未测试。
+
+## 中央增量检查：22:30
+
+移除生产unused import并保留test import后的相同补丁，中央实跑offline+locked cargo check --lib --tests：exit0，72秒。AppStore/nativeHub库及现有测试源码均完成类型检查；这次没有运行这些测试。Store真实10项执行证明保持；无完整Shell或真实consent/Relay/CRUD证明。新补丁SHA baa26e85，原log/源码已冻结保留。

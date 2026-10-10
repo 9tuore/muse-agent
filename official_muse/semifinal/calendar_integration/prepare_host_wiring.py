@@ -126,6 +126,9 @@ pub fn host_store(anchor: &str, root: &std::path::Path) -> Store {
     edit('hub', card, 'use octosense_app_hub::Store;\n', '')
     edit('hub', card, 'use octosense_app_policy::HostLimits;\n', '')
     catalog = 'crates/app-hub-app/src/catalog.rs'
+    edit('hub', catalog, 'use octosense_app_policy::HostLimits;\n', '')
+    edit('hub', catalog, '    use octosense_app_policy::{AppManifest, MANIFEST_FILE};',
+         '    use octosense_app_policy::{AppManifest, HostLimits, MANIFEST_FILE};')
     edit('hub', catalog, 'Store::new(&anchor, &root, HostLimits::default()).with_host_api_versions(octosense_appstore::host_api::available_versions())', 'octosense_appstore::host_store(&anchor, &root)')
     edit('hub', catalog, 'octosense_app_policy::policy::resolve(&entry.manifest, &HostLimits::default())\n                    .ok()?;', 'self.store.resolve_offered_policy(&listing.app_id).ok()?;')
     edit('hub', catalog, 'octosense_app_policy::policy::resolve(&entry.manifest, &HostLimits::default())?;', 'self.store.resolve_offered_policy(&consent.app_id)?;')

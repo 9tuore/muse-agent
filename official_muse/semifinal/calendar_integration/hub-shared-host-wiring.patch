@@ -180,7 +180,15 @@
                  // on trust.
 --- a/crates/app-hub-app/src/catalog.rs
 +++ b/crates/app-hub-app/src/catalog.rs
-@@ -161,7 +161,7 @@
+@@ -1,7 +1,6 @@
+ //! Verified live catalog and a deliberately separate built-in app preview.
+ 
+ use octosense_app_hub::{Availability, Listing, Store};
+-use octosense_app_policy::HostLimits;
+ use octosense_appstore::source::{CatalogChannel, Origin};
+ use std::collections::BTreeMap;
+ use std::path::{Path, PathBuf};
+@@ -161,7 +160,7 @@
          configured_channel: Option<CatalogChannel>,
      ) -> Self {
          let selected = select_channel(configured_channel, &root);
@@ -189,7 +197,7 @@
          let recovery_warning = selected.as_ref().err().cloned().or_else(|| recover_installations(&root).err());
          let channel = selected.ok();
          if let Some(channel) = channel { store = channel.configure(store); }
-@@ -339,8 +339,7 @@
+@@ -339,8 +338,7 @@
                  EntryStatus::Available | EntryStatus::UpdateAvailable
              ) {
              self.store.entry(&listing.app_id).and_then(|entry| {
@@ -199,7 +207,7 @@
                  Some(InstallConsent {
                      app_id: listing.app_id.clone(),
                      version: listing.version.clone(),
-@@ -456,7 +455,7 @@
+@@ -456,7 +454,7 @@
              return Err("This app changed after the permissions were shown. Review its details and confirm again.".into());
          }
          octosense_appstore::host_api::check_manifest(&entry.manifest)?;
@@ -208,6 +216,15 @@
          Ok(())
      }
  
+@@ -683,7 +681,7 @@
+ mod tests {
+     use super::*;
+     use octosense_app_hub::{Catalog, HubKey, Source, Status};
+-    use octosense_app_policy::{AppManifest, MANIFEST_FILE};
++    use octosense_app_policy::{AppManifest, HostLimits, MANIFEST_FILE};
+     use std::sync::atomic::{AtomicU64, Ordering};
+ 
+     struct Fixture {
 --- /dev/null
 +++ b/crates/app-hub/tests/per_app_offer.rs
 @@ -0,0 +1,190 @@

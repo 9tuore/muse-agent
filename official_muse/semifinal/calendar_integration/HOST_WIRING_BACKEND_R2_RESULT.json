@@ -1,0 +1,21 @@
+{
+  "time_utc": "2026-10-10T14:32:36.476196+00:00",
+  "status": "PASS_LIBRARY_AND_TEST_COMPILE_ONLY",
+  "exit_code": 0,
+  "duration_seconds": 72,
+  "offline": true,
+  "locked": true,
+  "command": "CARGO_BUILD_JOBS=1 cargo check --offline --locked --manifest-path build/calendar-shared-host-wiring-r2/Cargo.toml --target-dir build/official-hub-rc2-target -p octosense-appstore -p octosense-app-hub-app --lib --tests --no-default-features",
+  "checksums": {
+    "Cargo.toml": "cf14737c9cd99861f8417aa1c352527c33fdd251cbe323922a31339ee90dc028",
+    "Cargo.lock": "4188875eda98c3f1963e3e6d681f5cbb1d28e43b88c0427d23f9c9bc1ad3f77b",
+    "crates/appstore/src/lib.rs": "07b1069fd9fe1bdfeda37a23771197ec91cc2bdfdc5d8ceb4f5ac40fa601ff67",
+    "crates/appstore/src/cardapp.rs": "dff0e936fac2baa5300ced14f89d5ce44bd19115da69900665ce830486f9f38e",
+    "crates/app-hub-app/src/catalog.rs": "0163ef82fad149b4e88cf03eeb68cf0c2e1d810bff19640bdf1965a7cf4145b3",
+    "host-check-r2.log": "24594a78ca847950cdbce188101f4781b2efbf62c8ded722db537000b331a37b"
+  },
+  "hub_patch_sha256": "baa26e8563c69ab8ef2e7d21d85b57204c6b14d8b4e2a6f8118faa1c503cb743",
+  "obsolete_import_removed": true,
+  "system_apps": "NOT_CONFIGURED",
+  "boundary": "Typechecked libraries and existing tests. No tests executed here. Full Shell/consent/Relay/Muse Calendar CRUD not verified."
+}

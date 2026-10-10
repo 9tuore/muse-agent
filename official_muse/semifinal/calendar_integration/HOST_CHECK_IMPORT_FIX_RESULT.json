@@ -1,0 +1,16 @@
+{
+  "kind": "HOST_CHECK_R1_IMPORT_FIX",
+  "central_check_before_fix": {
+    "exit_code_reported": 0,
+    "compile_seconds": 557,
+    "source_snapshot": "build/calendar-host-check-r1-verified-snapshot"
+  },
+  "old_hub_patch_sha256": "ab5d34fc44398500440a30dadaf0b6bc9e1bfa03a036ff8f2745b0f3f97de8a9",
+  "new_hub_patch_sha256": "baa26e8563c69ab8ef2e7d21d85b57204c6b14d8b4e2a6f8118faa1c503cb743",
+  "catalog_source_after_fix_sha256": "0163ef82fad149b4e88cf03eeb68cf0c2e1d810bff19640bdf1965a7cf4145b3",
+  "change": "Move HostLimits import from production scope to existing cfg(test) import list",
+  "incremental_check": "PASS_LIBRARY_AND_TEST_SOURCE_COMPILE",
+  "shell_relay_consent_crud": "BLOCKED",
+  "incremental_check_pre_execution": "NOT_RUN_CENTRAL_REQUIRED",
+  "central_result": "HOST_WIRING_BACKEND_R2_RESULT.json"
+}

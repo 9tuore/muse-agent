@@ -1,0 +1,19 @@
+{
+  "time_utc": "2026-10-10T14:26:52.690272+00:00",
+  "status": "PASS_BACKEND_COMPILE_ONLY",
+  "exit_code": 0,
+  "command": "CARGO_BUILD_JOBS=1 cargo check --offline --manifest-path build/calendar-shared-host-wiring-r2/Cargo.toml --target-dir build/official-hub-rc2-target -p octosense-appstore -p octosense-app-hub-app --no-default-features",
+  "duration_seconds": 557,
+  "locked_flag": false,
+  "system_apps": "NOT_CONFIGURED_IN_THIS_COMPONENT_BUILD",
+  "checksums": {
+    "Cargo.toml": "cf14737c9cd99861f8417aa1c352527c33fdd251cbe323922a31339ee90dc028",
+    "Cargo.lock": "4188875eda98c3f1963e3e6d681f5cbb1d28e43b88c0427d23f9c9bc1ad3f77b",
+    "crates/app-hub/src/client.rs": "41bface270d15c2aaeb46f1fbc0019524850ee7c418498c2c4878ea13c97379d",
+    "crates/appstore/src/lib.rs": "07b1069fd9fe1bdfeda37a23771197ec91cc2bdfdc5d8ceb4f5ac40fa601ff67",
+    "crates/appstore/src/cardapp.rs": "dff0e936fac2baa5300ced14f89d5ce44bd19115da69900665ce830486f9f38e",
+    "crates/app-hub-app/src/catalog.rs": "330be630641af818d05f87aab855359cd7ec4544e731f8444f48c7743f9f9828",
+    "host-check-r1.log": "250d05bffd448659564578e27726678a166797deadde193962cc014a113bf73b"
+  },
+  "boundary": "AppStore/CardApp/native Hub libraries compiled. Full Shell, system-app registration, user consent, Relay and Muse Calendar CRUD not exercised."
+}
