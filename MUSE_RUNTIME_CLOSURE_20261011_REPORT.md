@@ -1,3 +1,68 @@
+# NIGHT-002 本轮交付汇总 / 2026-10-11 06:41
+
+**总体 PARTIAL。** 截止仍为08:00北京时间；07:00后仅验证、严重回归处理与交接。不将独立组件、reference或owner UI的成功拼接为正式Muse全链。
+
+| 必答项 | 本轮实际结果 |
+|---|---|
+| 1. 完整Host是否构建并运行 | PASS（构建/owner运行范围）。r8 release exit0，真实Calendar窗口三进程及只读诊断进程运行；实际Octos Agent回合尚未通过。 |
+| 2. 官方还是配套环境 | 基于官方SDK4ccf8e06/Hub95e4831的隔离待审配套；未覆盖旧安装，不称官方原版已接受。 |
+| 3. Muse自己身份调用Calendar | BLOCKED/HUMAN_REQUIRED。首次独立Native consent未由本人完成，正式Muse Relay及模型工具选择没有证据。 |
+| 4. 日历四类操作 | 普通os.calendar owner窗口创建、同ID改期、二步删除与两次真实重启完成；固定System events全字段有界读回。精确get NOT_GRANTED，按ID权威不存在仍BLOCKED。 |
+| 5. Mail到哪一步 | 六组件fixture有效；原生中文QQ登录UI八项及合成遮码、滚动、取消实际通过。新宿主真实账号登录、compose/status、本人原生审阅和真实投递未完成，HUMAN_REQUIRED。 |
+| 6. 行动链同候选 | PARTIAL。开发源2253中已有只读投影、失效/冲突、事项切换、明暗/窄窗口、共享DSL与reference恢复证据；未在获准的完整Host Muse候选中完成联动。 |
+| 7. 根Bundle晋级 | 未晋级，0.3.27-rc17、agent:null；main.splash SHA90351cba…、472628字节。稳定保底不覆盖。 |
+| 8. 最终20次 | NOT_TESTED。自身身份Relay、官方Mail与同候选集成门槛未满足；不拿旧rc17批次抵新候选。 |
+| 9. GitHub | 开发分支f43aa420f9203142b073e0526313a44049a71908正常推送并独立API读回一致；后续文档提交须再次同步。main5126afc4、旧Tag、Hub发布不动。 |
+| 10. 本人下一步 | 新隔离Native app的首次consent及官方模型设置；新宿主QQ授权码登录；官方Mail前台审阅。不复制生产凭据或伪造可信手势，系统要求须本人真实操作。 |
+
+## 候选身份与真正取得的突破
+
+- Host `build/runtime-closure-full-shell-r1/artifacts/octosense-r8`，SHA **baf55d24c3245ca858e68b9776d7f470558d619c65edc4ce288ceb90c8a276b7**，124126536字节；release耗时204.443秒、exit0。编译前后输入指纹8d8f910d…相等、effective lock5b58c5f5…；标准Metal恢复，不带Cache2/Gauss诊断绕过。
+- 相邻官方固定Kernel revision b0759a57719fd35b3a2da1c5d969bc67538ed516，SHA9c3d4b947a9f90f19acfabad0f90cc891525751d418cb333e6e1d83220c4fb0a；实际build/stage成功。receipt绑定和启动不代表Agent执行已验收。
+- `calendar-system-read-cold-load.patch` 26267dc6…只在既有测试read入口用原admitted懒加载登记os.calendar，固定System授权不增。三项full SDK精确测试各1/1；真实诊断8项匹配：events可读、limit0拒绝、get仍not_granted、四类写工具预检拒绝。fresh准备副本九文件与canonical字节一致，但该副本未另行构建，不宣称独立全环境复现。
+- 唯一授权事件 `MUSE-N002-20261011-A 合成联调` / **ev-1791700320125**：10月12日15:00–15:30改16:00–16:30、Asia/Shanghai、Muse synthetic acceptance。正常owner UI操作和独立目标日期events读回，三个进程83319/83760/83859都remote quit/exit0，无记录到的运行错误。删除已清理，最后重启查询为空。只是有界缺席，不是权威get不存在。
+- r8-r1视觉哨兵超时、r8-r2底部notes未滚动而不可见，均Save前停止/0写/独立空列表；失败保留。最小runner修复仅原pane正常有限滚动，Save/修改/删除各单次，不重发UNKNOWN。
+
+## 证据入口与复跑
+
+精简公开证据在 `official_muse/semifinal/evidence/native-full-shell-r1/`：
+
+- `desktop-r8-build-result.json`、`calendar-r8-system-read-result.json`、`calendar-r8-patch-replay-result.json`。
+- `calendar-r8-owner/result.json`、`visual-review.json`、`preserved-failures.json`及三张真实OS截图。中央实际看全部九张OS图；最后默认10月11日的启动截图不证明10月12日缺席，目标日结果只来自实际有界query。
+- `native-mail-sheet/result.json`及三张OS图：中文、无用户名、QQ授权码说明、993/465、遮码与滚动可达。仅UI_READONLY_PASS_NOT_LOGIN。
+- `night-002-candidate-identity.json`绑定活动包、开发源、完整Host、锁、Kernel和未过门槛。
+
+原始逐文件指纹、工具结果、日志、退出和PNG保留 ignored `build/runtime-closure-*`；没有上传私人profile/凭据/邮件。准确复跑步骤在 `calendar_integration/OWNER_UI_ACCEPTANCE_RUNNER_STEPS.md`、`SYSTEM_READ_DIAGNOSTICS_STEPS.md`、`NATIVE_READONLY_ACCEPTANCE.md`与Mail的 `LIVE_REVIEW_ACCEPTANCE_STEPS.md`。只复跑新且经授权事项；已完成且清理的唯一事项不能盲目重复创建。
+
+## Memory / DSL / UNKNOWN / 发布与手机
+
+- 开发源2253/compact493不改现有真实存储、授权范围和修订语义。muse.view/1对Memory、一次性Task与行动链是只读薄投影，read_only=true、tool_authority=false；不给DSL发送或系统写入权，不造第二Store。reference实跑Memory68、Task23、FS9/特殊3、旧Task13；行动链DSL三尺寸各9；原失败保留。只是相应版本reference，不是新Host端到端。
+- UNKNOWN原双进程恢复/防重核心通过但缺已核验历史前提保持PARTIAL；补充明确synthetic.retention输入两个进程字段保留通过，zero transport。不冒称历史是本轮真实Calendar成功。
+- 发布布局已修AGENT.md/合法素材与旧alias分离，9单元通过；日志检查10合成单元及原失败证据回验可独立复跑。正式签名、publisher/Hub准入未完成；不发布、不触发Tag。
+- Phone已有独立APK/模拟器技术成果，实体设备 **DEVICE_NOT_TESTED**，不阻塞桌面。
+- 旧Host503/276b2b68、活动根包rc17/90351cba、生产资料及primary未提交工作保留。本夜净清4,956,504,064字节inactive重建缓存；当前无需新清理，低空间时自动清可核验重建产物。真实SMTP、付费模型及模拟Person均0。
+
+## 上游反馈
+
+已按已有授权向原#427集中补充一次完整Desktop运行证据：[comment6102964455](https://github.com/OctoSense-org/OctoSense/issues/427#issuecomment-6102964455)。不是重复Issue；明确owner结果、调试read冷加载与自身Muse Relay/准入仍缺的边界。独立读回原文核对后保存upstream-r8-feedback-result.json；不称维护者已接受。
+
+## 下一轮只三项
+
+1. 本人完成独立Native consent与官方模型设置，取得own-ID→Octos→Relay→Calendar events实际工具调用；拒绝/撤销/错误调用方验证也要同候选。
+2. 用新宿主本人QQ登录完成compose/status、原生review_send取消/发送和独立收件；先做唯一指定合成邮件，UNKNOWN只读对账。
+3. 合法业务接通后将薄Calendar适配与行动链/共享DSL合入同一Muse候选；真实核心回归后再晋级根包、锁身份、跑最终20次。
+
+以下保留本轮历史记录；历史状态以本页最新结果为准。
+
+## 最新接续：2026-10-11 06:20
+
+- 开发分支 `77ac01762d87689bf8fd1a6afa918f9a9474d025` 已正常非force push，独立远端相同；main `5126afc4`不动。
+- 完整Desktop r7已真正release构建，SHA `50d545c2…`、124129360字节，输入 `e6057d96…` 编译前后一致，原Metal无诊断绕过。原生Mail中文登录sheet实际8项与无效合成授权码圆点、底部滚动、返回取消通过；中央看OS图，进程73069 quit0/迟到错误0。仅UI_READONLY，不是真实QQ登录、SMTP或Person。
+- 内置Calendar r7 owner日期网格真实可见，显式System聊天显示NoProvider；events在工具声明预检查拒绝，零写。r1目录准备/r2读帧/r3缺声明/r4NoProvider证据全留，不能说Calendar已CRUD/MuseRelay通过。
+- ZC01+B真实聊天只读评审通过极小隔离调试冷加载提案：仅os.calendar沿原admitted lazy-load，保留read过滤、System固定grant、准入/schema/Relay；get grant不增，正式身份不变。唯一pipeline26499正串行新针对测试和Desktop r8构建，未宣布成功。fresh准备副本九个相关文件字节匹配，仍PREPARED_NOT_BUILT。
+- 旧Host503/276b2b68、根rc17/90351cba及生产未改；真实SMTP、日历写入、新付费模型本段均0。行动链/Memory/DSL参考证据维持原范围；Native本人consent、正式Muse Relay、T18及最终20次仍缺。磁盘约5.2GiB；自动清理授权有效，只清可重建inactive缓存/核验重复产物。
+- 07:00冻结、08:00截止不变；后续测试、同步与阻塞以新增实际结果覆盖本检查点，不拼接旧PASS。
+
 ## NIGHT-002 最新核对：2026-10-11 05:50（北京时间）
 
 状态：PARTIAL，开发分支 `codex/muse-pivot-20261010`。本地 `070fd447`；最近独立远端核对为 `68bc0c5f`（05:38），后两单元等待下一次同步，不能说最新已同步。main5126afc4、根rc17/90351cba、稳定PID503/Host276b2b68及生产资料未动。

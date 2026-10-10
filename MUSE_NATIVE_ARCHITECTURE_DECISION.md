@@ -1,3 +1,15 @@
+## 最新决策依据 / 2026-10-11 06:41
+
+完整Intel Desktop r8已真正构建并可见运行；内置Calendar owner真实CRUD/同ID恢复及有界System events读回已完成，正式Muse自身Agent Relay和首次本人consent仍缺。get仍NOT_GRANTED，没有按ID权威不存在；新Rust原型还不具备正式迁移的全部条件。因此保留纯OctoScript正式路线A、隔离Rust原型B与待审配套补丁；不改muse-goals正式ID、不覆盖rc17。r8真实构建与owner成功解决了“完整宿主尚未取得”及owner能力验证的一部分，不等于合法共享调用已解决。具体SHA/命令/资源开销见NIGHT-002总报告和night-002-candidate-identity.json。需要本人consent、正式工具准入和同候选业务后才能决定迁移；不按理论可行宣称10月13日前必然完成。
+
+## 2026-10-11 06:24 补充证据与决策
+
+保留A正式OctoScript/旧稳定Host，B继续隔离，暂不正式迁移。r7完整Intel Desktop实际构建SHA50d545c2/124129360字节，source inputs e6057d96前后一致；未改Metal缓存、身份/权限。原生中文Mail signin sheet实际只读验收通过，Calendar owner实际可见，但fresh System session显示NoProvider，r7 read诊断不冷加载声明，0日历写入。
+
+中央已按两个真实聊天只读评审在隔离SDK准备极小read调试冷加载；三项完整SDK exact测试均1pass0failed，证明不增System grant、跨应用仍授权及namespace owner约束保留。r8 Desktop仍在构建，不称live Relay通过。该改动只提前加载官方已有Calendar声明/executor/manifest配置，不增加get grant、不启动模型，不解决正式Muse store工具准入或Native Person consent。
+
+当前还缺真实Muse身份调用、可信本人consent与完整Mail审阅/T18。没有稳态内存、峰值或基线性能对照，不宣称更轻、更准确；不能将原生窗口/组件fixture替换为最终业务证据。07:00冻结、08:00交付；若正式准入仍受阻，交可复用原型和补丁，不覆盖rc17或生产。
+
 # Muse Native 架构决策 / NIGHT-002
 
 2026-10-11，阶段结论：**保留正式OctoScript版本，隔离验证Rust Native原型；尚不建议正式迁移。** 07:00冻结大改，08:00交付。比赛允许组合路线来自用户本轮明确说明；官方接入边界以下以锁定SDK真实代码为准，不能解释成免权限。

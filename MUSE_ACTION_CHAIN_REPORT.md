@@ -1,3 +1,15 @@
+## 最新集成边界 / 2026-10-11 06:41
+
+行动链与muse.view/1的开发源2253/reference证据保持，活动根rc17尚未晋级。r8已取得真实内置Calendar owner创建/同ID改期/重启/删除及有界回读，但该runner没有写Muse事项或Memory，也未执行正式Muse Agent Relay。因此不能把外部owner日志伪装为正式行动链已核验节点。精确get/权威缺席与本人consent仍缺；MVP展示和真实业务同候选集成保持PARTIAL。60–90秒方案可复用，只演示最终实际支持部分。
+
+## NIGHT-002补充 / 2026-10-11 06:20
+
+r7完整Host已真正构建并看到Calendar owner、中文Mail宿主sheet；这些窗口不是新Shell中的Muse行动链验收。开发源2253/compact493保持只读muse.view/1，原三尺寸/重启合成窗口与UNKNOWN核心恢复范围不变；r3保留历史测试仅明确synthetic input，没有增加真实核验动作。根rc17未晋级，Muse Relay/T18/最终20次仍缺。Git77ac0176已正常同步独立远端同SHA。r8仅在隔离读调试入口提前执行官方既有Calendar懒加载，不改变链权限或业务语义，尚在构建。
+
+## NIGHT-002 补充 / 2026-10-11 05:14
+
+当前开发源2253/compact493与活动rc17仍分离。完整Shell原r3于04:44已有真实可见内置Calendar owner窗口，早期空白失败保持，不能把它算成新Shell中的Muse行动链UI验证。共享DSL、三尺寸reference合成窗口与只读投影边界保持；UNKNOWN两进程核心恢复新增通过但已核验历史前提缺失。没有新的执行权、轮询或模型调用。Git开发分支9a94914e已正常同步并独立核对，正式MuseRelay/T18/最终20次仍未完成。
+
 # Muse 行动链集成记录
 
 ## NIGHT-002 完整Host边界 / 2026-10-11 03:55

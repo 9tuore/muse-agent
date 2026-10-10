@@ -1,3 +1,11 @@
+## 最新接续：2026-10-11 06:41（北京时间）
+
+状态 **PARTIAL**。开发分支普通push已独立核对 `f43aa420f9203142b073e0526313a44049a71908`，main5126afc4未变。新隔离完整Desktop r8真实release构建、运行；Host SHA baf55d24，Kernel9c3d4b94，SDK4ccf8e06/Hub95e4831，有待审补丁，不是官方安装升级。
+
+内置Calendar owner真实窗口已完成唯一合成事件创建、原ID改期、目标日期System events全字段读回、实际重启、二步删除及再次重启有界缺席，三个进程正常quit0/无错误。精确get仍NOT_GRANTED，权威不存在和正式Muse Agent Relay未通过；不把owner成功当Muse已接通。新原生Mail中文QQ登录UI八检查与遮码/滚动/取消已通过，尚无新账号登录/原生发送批准/SMTP投递。Memory、Task、共享DSL与行动链的reference证据有效，完整同候选集成与根包晋级仍缺。
+
+稳定503/Host276b2b68、根rc17/90351cba、生产及primary dirty保护。本轮真实发信/新付费调用0；测试内置日历事件已清理。T18及最终20次未达到可测门槛。07:00冻结/08:00截止；准确命令、证据和下一步见 MUSE_RUNTIME_CLOSURE_20261011_REPORT.md 与 MUSE_MULTIAGENT_20261011_REPORT.md。磁盘不足自动清inactive可重建缓存/核验重复产物，不删唯一失败。
+
 ## NIGHT-002 最新核对：2026-10-11 05:50（北京时间）
 
 状态：PARTIAL，开发分支 `codex/muse-pivot-20261010`。本地 `070fd447`；最近独立远端核对为 `68bc0c5f`（05:38），后两单元等待下一次同步，不能说最新已同步。main5126afc4、根rc17/90351cba、稳定PID503/Host276b2b68及生产资料未动。

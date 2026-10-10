@@ -1,3 +1,7 @@
+## 最新补充 / 2026-10-11 06:41
+
+完整待审配套Desktop r8实际构建运行，内置os.calendar正常owner UI创建、原ID改期、实际重启、删除已完成，固定System events全字段有界读回与缺席成立。精确get仍NOT_GRANTED、权威不存在及Muse自身Agent Relay未通过；本人首次consent仍HUMAN_REQUIRED。不是EventKit/device_calendar，也未冒用身份、增加System grants或改准入。官方Mail原生中文QQ登录UI通过，真实账号/审阅/投递仍待本人动作。当前证据与完整身份统一见MUSE_RUNTIME_CLOSURE_20261011_REPORT.md；以下旧记录保留，不能拼接为最新全链PASS。
+
 # Muse 官方接口迁移审计
 
 审计基线：Muse `9b247c89` → 布局集成 `062c1028`，`muse-goals / 0.3.27-rc17`。只读源 `official_muse/app/source/main.splash`；活动包为根 `bundle/`，旧路径是相对符号链接。旧 Python 桌面应用不是此 Splash 入口的运行依赖，未按文件名删除。

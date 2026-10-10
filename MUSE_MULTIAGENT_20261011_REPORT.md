@@ -1,32 +1,38 @@
-# NIGHT-002 真实聊天协作与成本记录
+# Muse NIGHT-002 多聊天协作交付 / 2026-10-11
 
-时间窗口：2026-10-10 23:41:52 → 2026-10-11 08:00（北京时间），07:00冻结高风险改动。当前为阶段记录；最终结果以本轮运行报告为准。
+## 总体结果
 
-## 分工与实际分发
+**PARTIAL。** 完整隔离配套Host已真实构建运行，内置Calendar owner真实CRUD与恢复、有界读取取得新证据；自身Muse Agent Relay、首次本人consent、原生Mail真实发信及同一最终候选仍缺。专项全部使用既有真实Codex聊天；没有创建子智能体、没有用空等待或调用次数冒充成果。
 
-没有调用子代理。复用4个已有Codex聊天，不新建另一套执行Runtime；总控独占共享main.splash、候选、Git、所有大型Cargo和窗口自动操作。
+## 实际分工与交付
 
-| 角色 / 真实聊天 | 独占目录 | 分发模型 / 推理 | 当前产出与验证范围 |
-| --- | --- | --- | --- |
-| ZC-01 / 01a125ef-2423-7361-a999-1a52988f7927 | calendar_integration | gpt-6.1-sol；复杂准入high、启动核对medium | Native独立ID原型/3个隔离patch、owner准备、准确Calendar参数修正、Kernel/metadata启动预检；中央已应用旧原型，完整Shell正在编译，真实Relay/Person未通过 |
-| ZC-02 / 01a125ef-37d8-7091-8a9f-7eb5b49eb3d6 | mail_integration | gpt-6.1-sol；协议修订high、证据和文档low | 官方Mail/Memory边界、shared DSL合同、完整Host审计、jailed digest提案；中央实际reference68/23/9/3通过，真实Mail审阅仍HUMAN_REQUIRED |
-| ZC-03 / 01a125ef-45a5-71f2-bad3-e6bc5a00227f | stability_integration | gpt-6.1-sol；UI/fixture适配medium、最终记录low | readonly DSL UI驱动、候选映射、Task23项及旧fixture异步适配；中央可见三尺寸各9项、旧task-focus13项通过，所有失败保留 |
-| ZC-04 / 01a0fc7a-bfc0-7bd3-b0c8-860d8a5ed3d9 | runtime_review | gpt-6.1-sol；复杂权限复核high、单次上游核对low | 独立查出同ID碰撞、指纹不足、陈旧scope方案、FIFO open顺序；中央修复或隔离。02:11完整Issue评论/timeline核对未观察到维护者接受；当前只读复核可选History见证 |
+| 真实聊天 | 文件所有权/交付 | 集成与测试 |
+|---|---|---|
+| ZC-00 当前总控 | A worktree主源、完整SDK/build、准备器、候选/报告、真实GUI/Git同步 | 构建Kernel与Desktop r2–r8；保留失败；r8三full SDK精确测试+8诊断+owner CRUD三个真实进程；不晋级根包。 |
+| ZC-01 01a125ef-2423-7361-a999-1a52988f7927 | calendar_integration原型、字段/owner审计、History/scroll提案、owner与read runner | 由中央审核/串行应用；原型生成器66918555、Calendar契约24cf4e90、读诊断e3d778c8、owner f43aa420等单元。专项未把只读review描述为GUI执行；Person/正式Relay仍缺。 |
+| ZC-02 01a125ef-37d8-7091-8a9f-7eb5b49eb3d6 | mail_integration官方Mail协议/边界审计、真实组件筛选、中文QQ登录提案/原生只读runner、fs摘要 | 共享DSL及摘要aec355db；QQUI070fd447、原生UI77ac0176由中央实际运行和提交；六组件fixture/原生8checks，非真实SMTP。其尚未收口草稿不称已合入。 |
+| ZC-03 01a125ef-45a5-71f2-bad3-e6bc5a00227f | stability_integration旧Task夹具、UNKNOWN与历史缺前提审查、候选映射 | 旧Task13与UNKNOWN核心恢复/明确synthetic.retention通过相应reference；原r2缺前提PARTIAL保留，不冒称真实Calendar历史。 |
+| B 01a0fc7a-bfc0-7bd3-b0c8-860d8a5ed3d9 | 按需只读独立审查；不写A主源/SDK/GUI | 审阅身份/权限补丁、生成器、历史绑定、read cold-loader和最后owner bounded-scroll/results；未发现阻断问题；强调get/absence/Relay/Person边界及UI图独立复核。 |
 
-以上为实际send_message_to_thread提交并接受的模型与thinking参数。总控自身模型由当前聊天设置决定，工具不能替总控切换；不伪造切换结果。
+专项派发明确使用gpt-6.1-sol；简单日志/文档用low，工程接口复核按风险调整，不把模型设置当真实业务成功。大型Rust构建由中央一套串行；专项不与中央同时写canonical target或主源。
 
-## Token与节省措施
+## 真实集成结果
 
-工具未提供这些聊天的输入/输出Token、缓存Token或人民币账单，记为 **NOT_AVAILABLE**，不估造精确用量/节省比例。协作模型成本与Muse实际业务模型预算是不同事项；本阶段没有新增Muse付费模型调用。
+- 完整Host：实际SDK4ccf8e06/Hub95e4831配套r8，SHA baf55d24；build输入8d8f910d一致、Kernel9c3d4b94相邻receipt。完整编译运行不代表实际Octos Agent回合已完成。
+- Calendar：普通owner UI建立ev-1791700320125，原ID改期、独立events字段读回、重启、防重、二步清理。精确get未授权、权威不存在/自身Agent Relay仍未通过。
+- Mail：官方服务六组件fixture与中文QQ登录原生UI8项通过；账号登录/草稿/状态/原生可信审阅与收件投递尚缺。
+- Memory/行动链/共享DSL：开发源2253与compact493保留真实reference证据；read-only投影和状态语义不新建Store/执行权。完整同候选集成仍PARTIAL，根rc17未晋级。
+- final20：未开始，T18等核心门槛未过，旧rc17批次不计新候选。手机DEVICE_NOT_TESTED。
+- 当前可运行入口、全部准确SHA、退出码与截图见NIGHT-002总报告和night-002-candidate-identity.json。稳定503/生产/primary未提交工作原样保护。
 
-实际措施：复用已有聊天；消息只给当前证据路径/摘要和具体边界；小任务降low；异步测试和参数修正用medium，准入/权限风险才high；不要求整库/完整聊天重读；只有总控运行真实VM/UI/Cargo，协作者交精简patch；复用未受影响的旧证据但不拼接新候选PASS；完成后待命，不循环生成同类报告。
+## 成本与效率
 
-## 合并纪律
+环境没有可核对的各聊天输入/输出Token统计，**不报告估算值为实际消耗**。本夜未新增付费模型业务调用。共享索引用于避免重复全仓读取；只有依赖、权限、真实UI及候选关键节点独立review。保留真正失败和有限变体：早期空白/准备错误、原Shell断言/ABI拒绝、读帧404、Calendar声明预检、r8哨兵超时及底部字段不可达。未删失败凑通过，也未对无变更范围重复全链。
 
-每个patch先检查实际文件和接口再应用，执行结果分为静态、组件、VM、可见窗口、完整Shell、模型工具选择、外部动作及独立核验。Git由总控逐单元提交，普通传输失败则保留日志；已用非强制Git对象API核对tree/commit及远端aec355db，main/Tag未动。尚未提交的原型和文档不能称已经同步。
+本夜已净清4,956,504,064字节可重建inactive cache；有空间则不额外删除。用户允许自动低空间清理，唯一失败/模型/用户资料/稳定安装仍保留。
 
-02:41，4f7620f4普通开发分支推送成功，独立远端SHA一致；此前aec的精确对象API失败回退与回执保留。尚未提交原型仍不称已同步。
+## 下一步（三项）
 
-可信Person/原生审阅缺失保持HUMAN_REQUIRED；原型编译、窗口或模型回答都不替代Calendar执行。磁盘不足仅清无占用可重建缓存/核验重复产物并记录释放空间。
-
-03:39现场：完整Desktop r2/r3真实编译，r2 Native/Calendar隔离启动；实际Calendar像素空白，B定点只读审查提出Cache2跨VM候选。中央唯一r5可逆对照在编译，不升级为已修。Native History r2 5/5纯解析与Scroll已编译，真实consent/Relay仍缺。ZC01 medium只修生成器模块遗漏与冻结输出保护；ZC04 low接收诊断状态后待命，未再扩审。两次无占用缓存净清约4.96GB，实际产物核验保留。
+1. 本人完成隔离Native的首次consent及官方模型设置，验证自身身份、工具选取、Calendar owner Relay和拒绝/撤销。
+2. 同宿主本人QQ登录与原生review_send；分开受理、UNKNOWN和独立收到，严禁重发待核实邮件。
+3. 合法业务接通后集成行动链/薄Calendar适配与共享DSL，锁正式候选，真实核心回归后跑20次。
