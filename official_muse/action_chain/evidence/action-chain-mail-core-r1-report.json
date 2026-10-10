@@ -1,0 +1,112 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FIXTURE_PASS",
+  "suite": "production",
+  "source_sha256": "380ebcf535b507ea58588d57493f6c76e4534c317b092f29fdd5584f84f4bace",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "runner_sha256": "79602d6434e72d144ccabd4052d9c78fa5a537689f14b7766b8bfcb553aa4b76",
+  "probe_sha256": "6b35f894716de08b2ec251486091efab5a0d81eb1ad134b19b2e85cf3ad500dd",
+  "executed_sha256": "34cfd1b550d667e1a5b78072debc61e1139a8e019c95ccf3c704a7146cc148fe",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [],
+  "checks": {
+    "internal_calendar_not_private_bridge": true,
+    "calendar_blocked_without_relay": true,
+    "discovery_error_not_cached": true,
+    "discovery_recovers": true,
+    "host_compose_identity_persisted": true,
+    "review_binds_host_revision": true,
+    "accepted_not_delivery": true,
+    "native_cancel_preserves_text": true,
+    "unknown_not_retried": true,
+    "readonly_reconciliation": true,
+    "no_legacy_host_calls": true
+  },
+  "calls": [
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-mail",
+        "compose_id": "compose-synthetic"
+      }
+    }
+  ],
+  "observations": {},
+  "runtime_errors": [],
+  "runtime_log_sha256": "b7f022cb7c61230631000b7e76377a593de86be6e9d7c0ff56df2502a6e2c47c"
+}

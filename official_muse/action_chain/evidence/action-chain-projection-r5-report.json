@@ -1,0 +1,268 @@
+{
+  "kind": "SYNTHETIC_PROJECTION_REAL_VM",
+  "status": "FIXTURE_PASS",
+  "source_sha256": "380ebcf535b507ea58588d57493f6c76e4534c317b092f29fdd5584f84f4bace",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "executed_sha256": "f6aeb234109cc7a2be6b244c3f6d6ca02286f8baa55987188867cd2d751ddf08",
+  "probe_sha256": "8b22a583ad4540227f497076b60ff5ee3cfa6d176f9e5c3734316460fa37e018",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_calls": 0,
+  "boundary": "Synthetic projection states; not real Mail/Calendar/model execution or visible UI acceptance.",
+  "checks": {
+    "other_project_hidden": true,
+    "conflict_visible": true,
+    "same_matter_later_mail": true,
+    "new_mail_keeps_original_result": true,
+    "normal_has_nodes": true,
+    "manual_draft_untouched": true,
+    "corrupt_record_not_success": true,
+    "unreadable_state": true,
+    "mail_addresses_hidden": true,
+    "no_tool_or_model_call": true,
+    "accepted_remains_unverified": true,
+    "empty_state": true,
+    "old_verified_history_retained": true,
+    "other_owner_hidden": true,
+    "user_can_choose_chain": true,
+    "stale_draft_visible": true,
+    "nine_states": true,
+    "pure_projection": true,
+    "no_unproven_success": true,
+    "source_read": true,
+    "changed_memory_invalidated": true,
+    "history_bound": true,
+    "calendar_missing_blocked": true,
+    "revoked_account_hidden": true,
+    "stale_body_untouched": true
+  },
+  "observations": {
+    "normal": {
+      "title": "合成测试 · 项目会议改期",
+      "sources": [
+        "任务记录",
+        "邮件"
+      ],
+      "nodes": [
+        {
+          "title": "事项 · 当前计划",
+          "state": "等你确认",
+          "detail": "版本 2 · 计划不等于执行成功",
+          "record_id": "synthetic-matter",
+          "node_id": "事项 · 当前计划:synthetic-matter:0"
+        },
+        {
+          "title": "来信来源",
+          "state": "已核验",
+          "detail": "合成会议安排",
+          "record_id": "synthetic-mail:message-1",
+          "node_id": "来信来源:synthetic-mail:message-1:1"
+        },
+        {
+          "title": "理解候选",
+          "state": "未执行",
+          "detail": "已有分析记录；不是执行或检索成功证据",
+          "record_id": "synthetic-mail:message-1",
+          "node_id": "理解候选:synthetic-mail:message-1:2"
+        },
+        {
+          "title": "日历能力",
+          "state": "受阻",
+          "detail": "官方内置日历联动尚未接通；历史回执保留，未发起新写入",
+          "record_id": "synthetic-matter",
+          "node_id": "日历能力:synthetic-matter:3"
+        }
+      ],
+      "next": "日历通道受阻。先查看事项与草稿，不能把计划当成完成。",
+      "limited": false
+    },
+    "receipts": {
+      "title": "合成测试 · 项目会议改期",
+      "sources": [
+        "任务记录",
+        "邮件"
+      ],
+      "nodes": [
+        {
+          "title": "事项 · 当前计划",
+          "state": "等你确认",
+          "detail": "版本 2 · 计划不等于执行成功",
+          "record_id": "synthetic-matter",
+          "node_id": "事项 · 当前计划:synthetic-matter:0"
+        },
+        {
+          "title": "来信来源",
+          "state": "已核验",
+          "detail": "合成会议安排",
+          "record_id": "synthetic-mail:message-1",
+          "node_id": "来信来源:synthetic-mail:message-1:1"
+        },
+        {
+          "title": "理解候选",
+          "state": "未执行",
+          "detail": "已有分析记录；不是执行或检索成功证据",
+          "record_id": "synthetic-mail:message-1",
+          "node_id": "理解候选:synthetic-mail:message-1:2"
+        },
+        {
+          "title": "日历能力",
+          "state": "受阻",
+          "detail": "官方内置日历联动尚未接通；历史回执保留，未发起新写入",
+          "record_id": "synthetic-matter",
+          "node_id": "日历能力:synthetic-matter:3"
+        },
+        {
+          "title": "执行记录",
+          "state": "已核验",
+          "detail": "已有动作记录 · calendar.create · 历史版本，事实仍保留",
+          "record_id": "synthetic-verified",
+          "node_id": "执行记录:synthetic-verified:4"
+        },
+        {
+          "title": "执行记录",
+          "state": "待核验",
+          "detail": "已有动作记录 · mail.send · 仅受理，尚未核验",
+          "record_id": "synthetic-accepted",
+          "node_id": "执行记录:synthetic-accepted:5"
+        }
+      ],
+      "next": "核对原记录；结果未确认前不要重复执行。",
+      "limited": false
+    },
+    "stale": {
+      "title": "合成测试 · 项目会议改期",
+      "sources": [
+        "任务记录",
+        "邮件"
+      ],
+      "nodes": [
+        {
+          "title": "事项 · 当前计划",
+          "state": "等你确认",
+          "detail": "版本 2 · 计划不等于执行成功",
+          "record_id": "synthetic-matter",
+          "node_id": "事项 · 当前计划:synthetic-matter:0"
+        },
+        {
+          "title": "来信来源",
+          "state": "已核验",
+          "detail": "合成改期请求",
+          "record_id": "synthetic-mail:message-2",
+          "node_id": "来信来源:synthetic-mail:message-2:1"
+        },
+        {
+          "title": "后续来信",
+          "state": "未执行",
+          "detail": "同一事项有后续来信；旧执行记录继续保留",
+          "record_id": "synthetic-mail:message-2",
+          "node_id": "后续来信:synthetic-mail:message-2:2"
+        },
+        {
+          "title": "日历能力",
+          "state": "受阻",
+          "detail": "官方内置日历联动尚未接通；历史回执保留，未发起新写入",
+          "record_id": "synthetic-matter",
+          "node_id": "日历能力:synthetic-matter:3"
+        },
+        {
+          "title": "执行记录",
+          "state": "已核验",
+          "detail": "已有动作记录 · calendar.create · 历史版本，事实仍保留",
+          "record_id": "synthetic-verified",
+          "node_id": "执行记录:synthetic-verified:4"
+        },
+        {
+          "title": "执行记录",
+          "state": "待核验",
+          "detail": "已有动作记录 · mail.send · 仅受理，尚未核验",
+          "record_id": "synthetic-accepted",
+          "node_id": "执行记录:synthetic-accepted:5"
+        },
+        {
+          "title": "旧回复草稿已失效",
+          "state": "已失效",
+          "detail": "相关记忆或回复意图已变化，需要重新起草",
+          "record_id": "synthetic-draft",
+          "node_id": "旧回复草稿已失效:synthetic-draft:6"
+        }
+      ],
+      "next": "请按新的信息重新起草；原文继续保留，暂不能发送旧方案。",
+      "limited": false
+    },
+    "conflict": {
+      "title": "合成测试 · 项目会议改期",
+      "sources": [
+        "任务记录",
+        "邮件"
+      ],
+      "nodes": [
+        {
+          "title": "事项 · 当前计划",
+          "state": "等你确认",
+          "detail": "版本 2 · 计划不等于执行成功",
+          "record_id": "synthetic-matter",
+          "node_id": "事项 · 当前计划:synthetic-matter:0"
+        },
+        {
+          "title": "来信来源",
+          "state": "已核验",
+          "detail": "合成改期请求",
+          "record_id": "synthetic-mail:message-2",
+          "node_id": "来信来源:synthetic-mail:message-2:1"
+        },
+        {
+          "title": "后续来信",
+          "state": "未执行",
+          "detail": "同一事项有后续来信；旧执行记录继续保留",
+          "record_id": "synthetic-mail:message-2",
+          "node_id": "后续来信:synthetic-mail:message-2:2"
+        },
+        {
+          "title": "日历能力",
+          "state": "受阻",
+          "detail": "官方内置日历联动尚未接通；历史回执保留，未发起新写入",
+          "record_id": "synthetic-matter",
+          "node_id": "日历能力:synthetic-matter:3"
+        },
+        {
+          "title": "执行记录",
+          "state": "已核验",
+          "detail": "已有动作记录 · calendar.create · 历史版本，事实仍保留",
+          "record_id": "synthetic-verified",
+          "node_id": "执行记录:synthetic-verified:4"
+        },
+        {
+          "title": "执行记录",
+          "state": "待核验",
+          "detail": "已有动作记录 · mail.send · 仅受理，尚未核验",
+          "record_id": "synthetic-accepted",
+          "node_id": "执行记录:synthetic-accepted:5"
+        },
+        {
+          "title": "回复草稿",
+          "state": "未执行",
+          "detail": "已有草稿状态；草稿或模型文字不等于已发送",
+          "record_id": "synthetic-draft",
+          "node_id": "回复草稿:synthetic-draft:6"
+        },
+        {
+          "title": "发现时间冲突",
+          "state": "冲突",
+          "detail": "当前查询发现 1 个冲突；未修改其他安排",
+          "record_id": "synthetic-matter",
+          "node_id": "发现时间冲突:synthetic-matter:7"
+        }
+      ],
+      "next": "先核对冲突和候选时间，再进入原确认流程。",
+      "limited": false
+    },
+    "large_history_seconds": 0.00797414779663086
+  },
+  "failed": [],
+  "runtime_errors": [],
+  "runtime_log_sha256": "db1a773d81fae68145cafb0c84a9de57b0998a46f5a78e9d0b597999a1fd2d53"
+}
