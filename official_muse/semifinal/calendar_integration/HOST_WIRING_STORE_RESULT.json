@@ -1,0 +1,111 @@
+{
+  "kind": "REAL_STORE_SHARED_OFFER_SIGNED_FIXTURE",
+  "status": "PASS_STORE_FIXTURE_ONLY",
+  "executed_by": "central_serial_scheduler",
+  "central_reported_exit_code": 0,
+  "log_verified_passed": 10,
+  "log_verified_failed": 0,
+  "build_seconds": 19.76,
+  "test_seconds": 1.41,
+  "verified_at": "2026-10-10T22:14:06.575494+08:00",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "build/calendar-shared-store-only-r1/Cargo.toml",
+    "--target-dir",
+    "build/official-hub-rc2-target",
+    "-p",
+    "octosense-app-hub",
+    "--test",
+    "per_app_offer",
+    "--",
+    "--test-threads=1"
+  ],
+  "environment": {
+    "CARGO_BUILD_JOBS": "1"
+  },
+  "files": {
+    "store_source": {
+      "path": "build/calendar-shared-store-only-r1/crates/app-hub/src/client.rs",
+      "sha256": "41bface270d15c2aaeb46f1fbc0019524850ee7c418498c2c4878ea13c97379d",
+      "bytes": 39423
+    },
+    "hub_exports": {
+      "path": "build/calendar-shared-store-only-r1/crates/app-hub/src/lib.rs",
+      "sha256": "ef42e18045eef5e2943de4f6e4fe895114f9096bf35f78e75a0d4b05583d8d3c",
+      "bytes": 2058
+    },
+    "test_source": {
+      "path": "build/calendar-shared-store-only-r1/crates/app-hub/tests/per_app_offer.rs",
+      "sha256": "6d4f57ecee9aa5842e1ac28d3d050fdf247a085f8ef54f464f2a5cf6aae90776",
+      "bytes": 9732
+    },
+    "lock_after_test": {
+      "path": "build/calendar-shared-store-only-r1/Cargo.lock",
+      "sha256": "96dec86d1a3712c3a63b6365e0b66bbb6d04660f831dc1fc8a2a51bbe3e5abe2",
+      "bytes": 79606
+    },
+    "test_binary": {
+      "path": "build/official-hub-rc2-target/debug/deps/per_app_offer-16540a79e91eb6e9",
+      "sha256": "d78a2c1151f9dd1a09f1b14bf6c65337b9af520a6cd411f21a7962a4b058422a",
+      "bytes": 28864008
+    },
+    "test_log": {
+      "path": "build/calendar-shared-store-only-r1/store-tests.log",
+      "sha256": "c7d49714517cabcbb4da959217e74520836438152718d9f5afb2811493b818c8",
+      "bytes": 1899
+    },
+    "hub_review_patch": {
+      "path": "official_muse/semifinal/calendar_integration/hub-shared-host-wiring.patch",
+      "sha256": "ab5d34fc44398500440a30dadaf0b6bc9e1bfa03a036ff8f2745b0f3f97de8a9",
+      "bytes": 20679
+    },
+    "desktop_review_patch": {
+      "path": "official_muse/semifinal/calendar_integration/desktop-shared-host-wiring.patch",
+      "sha256": "7c1797966c4d9887e1693f0c2676006e711983b762c7c307c38cb6b4fa3d07c9",
+      "bytes": 1850
+    },
+    "full_workspace_resolution_failure_log": {
+      "path": "build/calendar-shared-host-wiring-r2/store-tests.log",
+      "sha256": "671b766317b834feec1d9c6f65e757921d45a8ec7e15ed90e1ad85514eff2c72",
+      "bytes": 674
+    }
+  },
+  "source_sha_matches_preparation_and_full_workspace": {
+    "crates/app-hub/src/client.rs": true,
+    "crates/app-hub/src/lib.rs": true,
+    "crates/app-hub/tests/per_app_offer.rs": true
+  },
+  "patch_sha_matches_preparation": true,
+  "initial_lock_sha256": "96dec86d1a3712c3a63b6365e0b66bbb6d04660f831dc1fc8a2a51bbe3e5abe2",
+  "lock_changed_during_central_run": false,
+  "command_used_locked": false,
+  "tests": [
+    "test default_is_closed_and_one_app_offer_does_not_extend_another ... ok",
+    "test enabled_offer_does_not_bypass_bundle_digest ... ok",
+    "test exact_offer_cannot_admit_a_second_requested_tool ... ok",
+    "test exact_shared_set_replacement_does_not_leak_or_accumulate_tools ... ok",
+    "test host_offer_does_not_grant_a_tool_absent_from_the_manifest ... ok",
+    "test offer_refuses_unverified_publisher_and_unsigned_manifests ... ok",
+    "test revoke_rechecks_installed_and_already_prepared_launches ... ok",
+    "test shared_offer_revocation_reaches_clone_staging_independent_and_fresh_store ... ok",
+    "test signed_catalog_withdrawal_still_blocks_installed_and_prepared_release ... ok",
+    "test unknown_and_reserved_ids_never_receive_an_offer ... ok"
+  ],
+  "boundaries": {
+    "five_crates": "OFFLINE_GIT_SOURCE_CACHE_RESOLUTION_FAILED_BEFORE_COMPILE",
+    "factory_appstore_cardapp_native_hub": "NOT_COMPILED",
+    "shell": "NOT_COMPILED",
+    "real_user_consent": "NOT_TESTED",
+    "relay": "NOT_TESTED",
+    "calendar_crud": "NOT_TESTED",
+    "official_approval": "NOT_GRANTED",
+    "formal_status": "BLOCKED"
+  },
+  "old_failure_preservation": [
+    "build/calendar-per-app-store-r2/test-r1.log",
+    "build/calendar-shared-host-wiring-r2/store-tests.log"
+  ]
+}
