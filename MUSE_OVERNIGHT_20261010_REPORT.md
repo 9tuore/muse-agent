@@ -1,6 +1,6 @@
 # Muse 夜间工程与关机后续跑报告
 
-状态：**PARTIAL / 开发窗口尚未结束**。本检查点为2026-10-10 14:15（北京时间）。用户延长到17:00，16:00冻结大改。电脑关机期间没有运行或测试，不计作持续开发时间。
+状态：**PARTIAL / 开发窗口尚未结束**。2026-10-10关机后续跑检查点；后续新增结果见本页末尾。用户延长到17:00，16:00冻结大改。电脑关机期间没有运行或测试，不计作持续开发时间。
 
 ## 版本与保护
 
@@ -52,3 +52,12 @@ AppHub #182、OctoSense #427仍OPEN。Calendar最小实现补丁已贴#427评论
 
 - 最新官方Hub构建完成、锁未变。rc18研究r4 unsigned结构check通过；scan生成7问，reviewer未跑，正式准入未测。原空integrity字段拒绝与修复后原生Gate证据在evidence/native-hub-rc2，提交4af1f02e。
 - Phone API35新隔离模拟器boot=1、r7 APK安装成功；Home实际崩溃：ThemeCatalog缺mobile-presets.json。packager依赖路径拆空格错误已复现，最新Makepad32d同函数仍相同；单函数补丁Rust检查修前4FAIL、修后6PASS，工具重建中。原日志/截帧保留，不标Home运行通过。
+
+## 2026-10-10 后续补验与恢复
+
+- 本地检查点f9175df8；最新原生Hub95e4831已构建，研究r4正确完整性字段的unsigned结构Gate通过，scan只生成7问，未运行reviewer或正式准入。
+- outbound-only原型原生Gate修正listing后仍因calendar.events不在商店默认offered_tools而拒绝；空工具对照通过、kernel shell对照拒绝。已补AppHub #182 comment6095096789，未放宽Gate或变成系统应用。原生Agent覆盖仍0/16。
+- Phone路径解析补丁已锁定构建通过、Cargo.lock未变；可复现脚本再次得到原函数4FAIL/补丁6PASS。提交OctoSense #458供审阅，未被接受。本夜三条新Issue额度已用完。
+- Home重建r1组合Phone状态达到10515320832字节，10.5GB守护停止，exit -15及日志保留；模拟器续跑预检也被同一上限拒绝。只清两个可重建strip派生副本及本轮无账号的鲜启动AVD镜像缓存，保留原APK/ELF、config、crash日志、截图和缓存哈希清单；实体、旧AVD和生产未变。r2复用编译缓存重试，上限未提高。
+- 普通开发分支同步45秒超时，随后GitHub API核对目标分支404；未同步，不改main或Tag。针对1043个变更路径/823个文本文件的凭据模式与禁止文件扫描无命中；这项扫描不保证全部隐私语义。
+- 16:00停止大改；剩余时间核对APK资源、验签、运行和交接。新候选20次启动及同候选真实外部全链继续保留缺项。
