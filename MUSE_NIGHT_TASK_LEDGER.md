@@ -9,16 +9,16 @@
 | P0 | 保护最新有效基线、旧安装/生产资料/未提交工作/Tag | 活动 rc17 / 90351cba、旧 Host 276b2b68 保留；A/B 隔离，未覆盖安装 |
 | P0 | 同最终候选20次冷启动、非空历史、输入及核心页面 | rc17稳定基线20/20，16对话/256消息/64记忆保留；修正检查器过早采样，前轮失败完整归档。rc18源fa25ccda参考card-host已真实可见窗口验证输入/日历降级/非空16对话256消息64记忆且原数据哈希未变，单次样本RSS约251MiB、CPU0.1%；新官方Host及最终20次仍未验证，不移植基线PASS |
 | P0 | 官方 Mail compose→宿主原生 review_send | 新 rc18 源已接并持久化Host ID/revision；11项参考VM合成协议通过，原生真人审阅/发信未测 |
-| P0 | 取消、UNKNOWN、不重发、重启恢复、精确读回 | 取消审阅的关联Run卡住已复现并修复（64550d00）；16项协议通过，7/7两进程重启变体通过；重启零重发，受理非投递，身份/版本/正文不匹配保持UNKNOWN。修复前3项FAIL及支架错误保留；另发现日历运行中仅凭结果文件误完成，修复前三项FAIL，修复后10/10恢复检查和同源Mail16/16通过；原生新Host仍待测 |
+| P0 | 取消、UNKNOWN、不重发、重启恢复、精确读回 | 取消审阅的关联Run卡住已复现并修复（64550d00）；16项协议通过，7/7两进程重启变体通过；重启零重发，受理非投递，身份/版本/正文不匹配保持UNKNOWN。新候选补runtime权限与host-api-v1/@1必需方法，拒绝ABI2冒充1；19项协议通过，旧缺项证据保留，未准入。修复前3项FAIL及支架错误保留；另发现日历运行中仅凭结果文件误完成，修复前三项FAIL，修复后10/10恢复检查和同源Mail16/16通过；原生新Host仍待测 |
 | P0 | 逐封来信卡、意图起草、手写稿、重复保护 | 保留已有逻辑；回归新候选，外发限QQ本人自发自收20封合成，可信宿主点击不能模拟批准 |
-| P0 | 全局记忆DSL跨会话/项目/归属、更正、遗忘、冲突 | 同rc18源9c0d6c20：91项元数据/真实jailed存储/两进程重启检查通过，62项DSL合成检查通过（跨会话、焦点隔离、账号、纠正、遗忘、冲突）；旧fixture漏设焦点5项FAIL保留，补明确焦点与授权前后正负检查；无真实模型语义提升声明 |
+| P0 | 全局记忆DSL跨会话/项目/归属、更正、遗忘、冲突 | rc18源fa25ccda：91项元数据/真实jailed存储/两进程重启检查通过，62项DSL合成检查通过（跨会话、焦点隔离、账号、纠正、遗忘、冲突）；旧fixture漏设焦点5项FAIL保留，补明确焦点与授权前后正负检查；无真实模型语义提升声明 |
 | P0 | 同候选Mail→Model→Memory→Calendar→Reply→Restart→新Chat | 尚未完成；每步按同候选/Host/源/回执身份记录，受阻改做隔离测试 |
 | P1 | 全部执行接口审计，复用官方model.complete、Storage、Mail | OFFICIAL_API_MIGRATION_MATRIX.md已有；不另造Runtime、私有SMTP/IMAP/模型代理 |
 | P1 | 官方内置os.calendar查询/创建/原事件改期/删除/独立读回 | 已查明共享修改/删除是owner-only策略；精确读回缺口有测试补丁，原生relay未集成；EventKit不作为新候选默认 |
-| P1 | Octos真实Agent工具选择/调用，3–5工具及权限链 | 实际loader测试已执行；muse-goals自有工具命名拒绝，outbound-only loader可过；原生准入/模型调用仍未验证 |
+| P1 | Octos真实Agent工具选择/调用，3–5工具及权限链 | 实际loader测试已执行；muse-goals自有工具命名拒绝，outbound-only loader可过；outbound-only隔离入口15项协议/jailed fs检查通过（无真实Agent准入/模型选择）；合并历史项目隔离未解，正式Chat保留model.complete |
 | P1 | 官方缺口自动反馈并交自写补丁供审阅 | AppHub #182、OctoSense #427已OPEN；两文件Calendar补丁9+1及schema1通过，已公开在#427 comment6083645335供审阅；未接受/未安装；夜间已用2/3条Issue |
-| P1 | 更新官方OctoSense | 今日desktop-v0.1.0-rc.2（4ccf8e0），SDK1.10.0；官方Mac包只有arm64，本机Intel；前轮Git checkout网络失败保留；12:34通过官方API补齐1101个SHA1核验Git blob后精确Tag完整checkout成功、status干净，官方官方setup已完成三套锁定framework；全功能Cargo图检查仍下载锁定外部依赖；尚未构建/安装 |
-| P1 | 运行性能/体积实测及轻量化 | 活动bundle770540字节；新候选未封包，未宣称性能/压缩改善；量启动/RSS/源码/包分别统计 |
+| P1 | 更新官方OctoSense | 今日desktop-v0.1.0-rc.2（4ccf8e0），SDK1.10.0；官方Mac包只有arm64，本机Intel；前轮Git checkout网络失败保留；12:34通过官方API补齐1101个SHA1核验Git blob后精确Tag完整checkout成功、status干净，官方framework setup/--check通过；全功能Cargo图下载在293322763字节停滞12分钟，13:46停止保留证据；最小offline构建缺octoscode固定依赖exit101，官方codeload归档改取中；尚未构建/安装 |
+| P1 | 运行性能/体积实测及轻量化 | 活动bundle770540字节；研究候选r3源5e2e84fe已准备显式Host API要求，未准入/安装/发布；未宣称性能/压缩改善；量启动/RSS/源码/包分别统计 |
 | P1 | 根bundle、官方stamp/check/scan、新发布规范 | 根入口已迁；旧演练签名保持。最新官方Gate/正式发布流程待新Host，旧PASS不移植 |
 | P1 | 行动链MVP-1独立实现/实际原生UI | A已接管独立codex/muse-action-chain-20261009，隔离提交266f9c66，约247行只读MVP，25项状态fixture通过；真实可见原生窗口已完成四种尺寸、展开、原结果切换及一次重启，实际1条既有action记录未变；明色/事务切换未测或未做，未合入A |
 | P2 | 行动链MVP-2失效/冲突/节点详情/切换事项 | 在MVP-1和P0允许时做；无证据标未知，保留历史，不新造业务状态/轮询/审批 |

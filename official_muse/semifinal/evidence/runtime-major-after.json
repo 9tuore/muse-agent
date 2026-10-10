@@ -1,0 +1,145 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FIXTURE_PASS",
+  "suite": "production",
+  "source_sha256": "5e2e84fe51b168fc4966346c9670189d95d314f2a00f50fe1c4fc70b2867906f",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "runner_sha256": "d2d676ae266b8c525900b5366492cc4fff5c718d75d836dadb141f819c9ced37",
+  "probe_sha256": "edda5cbd40b530919c43274f9d052c00c8bb626112386021cb8c6fd18b60421d",
+  "executed_sha256": "5a40361e0c4757325f5b8f17325c4081a7732e25efae5c8f14a9ec81b91c4e40",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [],
+  "checks": {
+    "linked_cancel_setup": true,
+    "native_cancel_preserves_text": true,
+    "discovery_unimplemented_refusal": true,
+    "discovery_platform_refusal": true,
+    "readonly_reconciliation": true,
+    "linked_cancel_persisted": true,
+    "no_legacy_host_calls": true,
+    "linked_cancel_goal_retryable": true,
+    "unknown_not_retried": true,
+    "calendar_blocked_without_relay": true,
+    "discovery_error_not_cached": true,
+    "host_compose_identity_persisted": true,
+    "linked_cancel_run_closed": true,
+    "linked_cancel_handwritten_preserved": true,
+    "discovery_recovers": true,
+    "accepted_not_delivery": true,
+    "discovery_exact_major_version": true,
+    "internal_calendar_not_private_bridge": true,
+    "review_binds_host_revision": true
+  },
+  "calls": [
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-mail",
+        "compose_id": "compose-synthetic"
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Linked synthetic",
+        "body": "Keep handwritten text"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Linked synthetic",
+        "body": "Keep handwritten text",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    }
+  ],
+  "observations": {
+    "linked_cancel": {
+      "run_status": "failed",
+      "goal_status": "failed"
+    }
+  },
+  "runtime_errors": [],
+  "runtime_log_sha256": "83eeaeb2e5135b96cd9636fac2e285bec9ca3486356d8ef7fbbafb27fd181268"
+}

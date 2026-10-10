@@ -430,7 +430,7 @@ fn official_method_available(name){
     for method in official_discovery.methods {
         if method.is_object() && method["implemented"] == true && method["supported"] == true
             && method["descriptor"].is_object() && method.descriptor["name"] == name
-            && method.descriptor["version"].is_number() && method.descriptor.version >= 1 { return true }
+            && method.descriptor["version"].is_number() && method.descriptor.version == 1 { return true }
     }
     return false
 }

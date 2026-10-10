@@ -6,7 +6,7 @@
 
 | 功能 | 当前实现与入口 | 官方对应接口 | 目标宿主状态 / 商店条件 | 权限 | 重复实现 / 风险 | 策略与验收 |
 |---|---|---|---|---|---|---|
-| 能力发现 | 原来只读 `host.capabilities()`，无方法发现 | `runtime.list`、`runtime.describe`，契约 1.10.0 | 新源码支持；旧测试 Host 未证实；须 `host-api-v1` | runtime + manifest 方法声明 | 缺少探测，高 | 实现统一发现；缺描述或不支持即拒绝使用；实际 Host 验证待补 |
+| 能力发现 | 原来只读 `host.capabilities()`，无方法发现 | `runtime.list`、`runtime.describe`，契约 1.10.0 | 新源码支持；旧测试 Host 未证实；须 `host-api-v1` | runtime + manifest 方法声明 | 缺少探测，高 | 实现统一发现，严格ABI1（2不兼容）；候选准备器补runtime与host-api-v1、runtime.list/compose/status/review@1必需声明；当前原生新Host待补 |
 | 邮箱账号/登录 | `mail_accounts_load / mail_add_account / mail_watch_poll` → `host.request` | `mail.accounts / mail.add_account` | 官方已有；账号是否可用单独查询 | mail、本人登录、宿主凭据库 | Muse 无生产 IMAP/SMTP，低 | 保留，不复制凭据、不另写连接器 |
 | 邮箱同步和读信 | `mail_watch_sync / mail_watch_scan / mail_watch_prepare / mail_read_body / mail_open` | `mail.sync / mail.folders / mail.list / mail.message` | 官方已有；需账号授权和同步 | mail、账号 grant | Muse 循环和逐信关联是业务，中 | 保留去重、来源、逐封结果；受理与收件独立核验 |
 | 邮件草稿和发送 | `mail_send_step` 原调用 `mail.send`，本地草稿保留用户原文 | `mail.compose / mail.compose_status / mail.review_send` | 新官方源码支持；RC1 不含新公开 composer；原生 foreground review | mail、账号、宿主真实输入确认 | 旧通道不合适，高 | 切换官方 compose + 宿主审阅，持久化 compose ID/revision；UNKNOWN 只读对账；禁止旧 send 回退 |
@@ -37,7 +37,7 @@ Mail 迁移后真实参考 Splash VM 的 synthetic Host 协议共 11 项通过�
 
 - Mail 两独立真实参考 VM 进程的中断持久化/恢复及六种只读对账变体通过（7/7），见 `evidence/mail-restart-r3.json`。原生Host、真实外发和收件未补。r1/r2测试支架动态View报错均保留FAIL。
 - rc17稳定基线20次完整进程冷启动通过；新rc18与行动链仍未合并，不算最终候选通过。
-- 今日正式发布 `desktop-v0.1.0-rc.2` 源 `4ccf8e068399b1da139771a9ed94cef05fa6ae60`。Mac公开成品仅arm64，本机Intel，当前未安装升级。前轮源码获取网络失败保留；13:13核对精确Tag已完整checkout、status干净，官方setup锁定framework完成，Cargo全功能图仍下载外部锁定依赖。稳定环境保留。
+- 今日正式发布 `desktop-v0.1.0-rc.2` 源 `4ccf8e068399b1da139771a9ed94cef05fa6ae60`。Mac公开成品仅arm64，本机Intel，当前未安装升级。前轮源码获取网络失败保留；13:13核对精确Tag已完整checkout、status干净，官方setup锁定framework完成，全功能图下载停滞，13:46停止；最小offline构建同样缺octoscode，exit101；改取官方固定归档仍在下载。稳定环境保留。
 - [App Hub #182](https://github.com/OctoSense-org/OctoSense-App-Hub/issues/182) 请求连字符应用身份与自有工具namespace兼容；[OctoSense #427](https://github.com/OctoSense-org/OctoSense/issues/427) 请求共享改期/删除及精确读回。已向后者[公开提交实现代码](https://github.com/OctoSense-org/OctoSense/issues/427#issuecomment-6083645335)，两文件补丁SHA `e5545d88382f689faf99d050f0053c4bdf7a99486dc07384195314880f1a4d9b`；相关文件在rc2与原审计源码blob一致。原核心7+2、补丁9+1、原Hub schema1均为隔离实际测试，完整Host/原生批准/调用方admission未验证。owner-only限制是官方明示策略，扩共享为维护者审阅的政策提案，未接受或安装。
 
 官方依据：[系统日历源码说明](https://github.com/OctoSense-org/OctoSense/blob/3a4d1e1e557750eac69b412f34d36021306ea654/crates/shell/src/device_calendar/README.md)、[公开 Host API](https://github.com/OctoSense-org/OctoSense-App-Hub/blob/18cd41d91b326db199fbed4129484a9ba1a8c63d/docs/HOST-API.md)、[官方 Mail Service](https://github.com/OctoSense-org/OctoSense/blob/3a4d1e1e557750eac69b412f34d36021306ea654/apps/mail/host-service/src/lib.rs)。

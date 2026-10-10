@@ -72,6 +72,15 @@ fn probe_start(){
             probe_mode = ""
             official_discover(fn(){
                 probe_checks.discovery_recovers = official_discovery_done && official_method_available("mail.compose")
+                let inventory = official_discovery.to_json().parse_json()
+                official_discovery = {methods:[{implemented:true supported:true descriptor:{name:"mail.compose" version:2}}]}
+                probe_checks.discovery_exact_major_version = !official_method_available("mail.compose")
+                official_discovery.methods[0].descriptor.version = 1
+                official_discovery.methods[0].supported = false
+                probe_checks.discovery_platform_refusal = !official_method_available("mail.compose")
+                official_discovery.methods[0].supported = true official_discovery.methods[0].implemented = false
+                probe_checks.discovery_unimplemented_refusal = !official_method_available("mail.compose")
+                official_discovery = inventory
                 start_timeout(0.04,|| probe_mail("accepted"))
             })
         }) return
