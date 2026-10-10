@@ -1,0 +1,92 @@
+{
+  "status": "FIXTURE_PASS",
+  "scope": "FIXTURE_ONLY; no native Agent admission, model, tool or consent",
+  "source_sha256": "8314ad26ea97f3581cb5e828d8b42dd815034726f6c373a35049e6dbb4ac68ed",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "substitutions": [
+    "Host transport",
+    "agent_render",
+    "root widgets",
+    "fixture manifest agent/capabilities"
+  ],
+  "failed": [],
+  "data": {
+    "checks": {
+      "fresh_idle": true,
+      "request_journal_first": true,
+      "pending_no_duplicate": true,
+      "restored_unknown_blocks_retry": true,
+      "restore_no_replay": true,
+      "stale_callback_ignored": true,
+      "history_is_readonly": true,
+      "stop_not_rollback": true,
+      "stopped_answer_ignored": true,
+      "open_refusal_no_turn": true,
+      "malformed_turn_unknown": true,
+      "answer_not_tool_verification": true,
+      "corrupt_journal_fails_closed": true,
+      "corrupt_file_preserved": true,
+      "no_calendar_or_mail_dispatch": true
+    },
+    "calls": [
+      {
+        "service": "octos.session.open",
+        "args": {}
+      },
+      {
+        "service": "octos.turn.start",
+        "args": {
+          "text": "查询合成测试日历，不写入。",
+          "trigger": "person"
+        }
+      },
+      {
+        "service": "octos.session.history",
+        "args": {}
+      },
+      {
+        "service": "octos.session.open",
+        "args": {}
+      },
+      {
+        "service": "octos.turn.start",
+        "args": {
+          "text": "查询合成测试日历，不写入。",
+          "trigger": "person"
+        }
+      },
+      {
+        "service": "octos.turn.interrupt",
+        "args": {}
+      },
+      {
+        "service": "octos.session.open",
+        "args": {}
+      },
+      {
+        "service": "octos.session.open",
+        "args": {}
+      },
+      {
+        "service": "octos.turn.start",
+        "args": {
+          "text": "查询合成测试日历，不写入。",
+          "trigger": "person"
+        }
+      },
+      {
+        "service": "octos.session.open",
+        "args": {}
+      },
+      {
+        "service": "octos.turn.start",
+        "args": {
+          "text": "查询合成测试日历，不写入。",
+          "trigger": "person"
+        }
+      }
+    ],
+    "fixture_only": true
+  },
+  "runtime_errors": []
+}

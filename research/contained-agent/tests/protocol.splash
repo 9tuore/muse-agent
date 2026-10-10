@@ -1,0 +1,71 @@
+// Synthetic Host replies; these checks do not establish model-selected tools.
+let probe_checks = {}
+let probe_calls = []
+let probe_turn = nil
+let probe_mode = "ready"
+fn probe_request(service,args,callback){
+    probe_calls.push({service:service args:args})
+    if service == "octos.session.open" {
+        if probe_mode == "blocked" { callback({is_ok:false error:"Synthetic consent missing"}) }
+        else { callback({is_ok:true data:{open:true}}) }
+        return
+    }
+    if service == "octos.turn.start" { probe_turn = callback return }
+    if service == "octos.turn.interrupt" { callback({is_ok:true data:{}}) return }
+    if service == "octos.session.history" { callback({is_ok:true data:{messages:[]}}) return }
+    callback({is_ok:false error:"Unrecognized fixture method"})
+}
+fn probe_reset(){
+    agent_generation = agent_generation + 1 agent_pending = false agent_state = "idle"
+    agent_writable = true agent_answer = "" agent_request = "" probe_mode = "ready"
+    ui.agent_input.set_text("查询合成测试日历，不写入。")
+}
+fn probe_start(){
+    agent_restore()
+    probe_checks.fresh_idle = agent_can_start() && probe_calls.len() == 0
+    probe_reset() agent_start()
+    let requested = fs.read("agent-prototype.json").parse_json()
+    probe_checks.request_journal_first = requested.state == "requested" && agent_pending && probe_calls.len() == 2
+    let count = probe_calls.len()
+    agent_start()
+    probe_checks.pending_no_duplicate = probe_calls.len() == count
+    let old_callback = probe_turn
+    agent_pending = false agent_generation = agent_generation + 1
+    agent_restore()
+    probe_checks.restored_unknown_blocks_retry = agent_state == "needs_reconciliation" && !agent_can_start()
+    agent_start()
+    probe_checks.restore_no_replay = probe_calls.len() == count
+    old_callback({is_ok:true data:{text:"Stale synthetic answer" turn_id:"old-turn"}})
+    probe_checks.stale_callback_ignored = agent_answer == "" && agent_state == "needs_reconciliation"
+    agent_history()
+    probe_checks.history_is_readonly = probe_calls[probe_calls.len()-1].service == "octos.session.history"
+        && agent_state == "needs_reconciliation" && !agent_can_start()
+    probe_reset() agent_start()
+    old_callback = probe_turn agent_stop()
+    probe_checks.stop_not_rollback = agent_state == "needs_reconciliation" && !agent_pending
+        && probe_calls[probe_calls.len()-1].service == "octos.turn.interrupt"
+    old_callback({is_ok:true data:{text:"Synthetic tool completed" turn_id:"late-turn"}})
+    probe_checks.stopped_answer_ignored = agent_answer == "" && agent_state == "needs_reconciliation"
+    probe_reset() probe_mode = "blocked" count = probe_calls.len() agent_start()
+    probe_checks.open_refusal_no_turn = agent_state == "blocked" && !agent_pending && probe_calls.len() == count+1
+    probe_reset() agent_start()
+    probe_turn({is_ok:true data:{text:"Claims complete but has no turn id"}})
+    count = probe_calls.len() agent_start()
+    probe_checks.malformed_turn_unknown = agent_state == "unknown" && !agent_can_start() && probe_calls.len() == count
+    probe_reset() agent_start()
+    probe_turn({is_ok:true data:{text:"The model says an event was created" turn_id:"synthetic-turn"}})
+    probe_checks.answer_not_tool_verification = agent_state == "needs_verification"
+        && agent_answer == "The model says an event was created" && !agent_pending
+    agent_state = "idle" agent_answer = ""
+    fs.write("agent-prototype.json","{not-valid-json")
+    agent_restore() count = probe_calls.len() agent_start()
+    probe_checks.corrupt_journal_fails_closed = !agent_writable && !agent_can_start() && probe_calls.len() == count
+    probe_checks.corrupt_file_preserved = fs.read("agent-prototype.json") == "{not-valid-json"
+    probe_checks.no_calendar_or_mail_dispatch = true
+    for call in probe_calls {
+        if call.service != "octos.session.open" && call.service != "octos.session.history"
+            && call.service != "octos.turn.start" && call.service != "octos.turn.interrupt" { probe_checks.no_calendar_or_mail_dispatch = false }
+    }
+    fs.write("probe.json",{checks:probe_checks calls:probe_calls fixture_only:true}.to_json())
+}
+start_timeout(0.05,|| probe_start())

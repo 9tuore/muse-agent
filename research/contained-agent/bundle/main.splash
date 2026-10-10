@@ -1,0 +1,117 @@
+// One official Host-owned peer. Muse neither chooses a provider nor runs tools.
+let agent_pending = false
+let agent_generation = 0
+let agent_state = "idle"
+let agent_notice = "隔离原型：只查询官方内置日历。"
+let agent_answer = ""
+let agent_request = ""
+let agent_writable = true
+
+fn agent_render(){ ui.agent_output.render() ui.agent_actions.render() }
+fn agent_error(reply){
+    if reply["error"].is_string() { return reply.error }
+    return "宿主响应不完整"
+}
+fn agent_known_state(state){
+    return state == "idle" || state == "prepared" || state == "requested" || state == "blocked"
+        || state == "unknown" || state == "needs_reconciliation" || state == "needs_verification"
+}
+fn agent_restore(){
+    if !fs.exists("agent-prototype.json") { return }
+    let saved = fs.read("agent-prototype.json").parse_json()
+    if !saved.is_object() || saved["schema"] != 1 || !saved["request"].is_string()
+        || !saved["state"].is_string() || !saved["answer"].is_string()
+        || !agent_known_state(saved.state) || saved.request.len() > 1200 || saved.answer.len() > 12000 {
+        agent_writable = false agent_notice = "原记录不可读；保留文件并停止新请求。" agent_render() return
+    }
+    agent_request = saved.request agent_state = saved.state agent_answer = saved.answer
+    if agent_state == "requested" || agent_state == "unknown" || agent_state == "needs_reconciliation" {
+        agent_state = "needs_reconciliation"
+        agent_notice = "原请求待核对。只读查看官方记录，不自动重跑。"
+    }
+    agent_render()
+}
+fn agent_can_start(){
+    return agent_writable && !agent_pending && agent_state != "requested"
+        && agent_state != "unknown" && agent_state != "needs_reconciliation"
+}
+fn agent_save(){
+    let raw = {schema: 1 request: agent_request state: agent_state answer: agent_answer}.to_json()
+    if fs.write("agent-prototype.json",raw) != nil || fs.read("agent-prototype.json") != raw {
+        agent_writable = false agent_notice = "记录保存失败，禁止继续新请求。" return false
+    }
+    return true
+}
+fn agent_current(generation){ return agent_pending && agent_generation == generation }
+fn agent_start(){
+    if !agent_can_start() { return }
+    let input = ui.agent_input.text().trim()
+    if input == "" || input.len() > 1200 { agent_notice = "请输入不超过1200字的合成测试请求。" agent_render() return }
+    agent_generation = agent_generation + 1
+    let generation = agent_generation
+    agent_request = input agent_state = "prepared" agent_answer = ""
+    if !agent_save() { agent_render() return }
+    agent_pending = true agent_notice = "正在打开官方 Agent。" agent_render()
+    host.request("octos.session.open",{},fn(opened){
+        if !agent_current(generation) { return }
+        if !opened.is_ok || !opened.data.is_object() || opened.data["open"] != true {
+            agent_pending = false agent_state = "blocked"
+            agent_notice = "官方 Agent 未打开：" + agent_error(opened)
+            agent_save() agent_render() return
+        }
+        agent_state = "requested"
+        if !agent_save() { agent_pending = false agent_render() return }
+        agent_notice = "由 Octos 推理并选择已授权工具。" agent_render()
+        host.request("octos.turn.start",{text: input trigger: "person"},fn(reply){
+            if !agent_current(generation) { return }
+            agent_pending = false
+            if reply.is_ok && reply.data.is_object() && reply.data["text"].is_string()
+                && reply.data["turn_id"].is_string() && reply.data.turn_id.trim() != ""
+                && reply.data.turn_id.len() <= 128 && reply.data.text.len() <= 12000 {
+                agent_answer = reply.data.text agent_state = "needs_verification"
+                agent_notice = "官方回复已返回；工具事实须另核对。"
+            } else {
+                agent_state = "unknown" agent_notice = "官方请求未完整返回；不自动重跑：" + agent_error(reply)
+            }
+            agent_save() agent_render()
+        })
+    })
+}
+fn agent_stop(){
+    if !agent_pending { return }
+    agent_generation = agent_generation + 1
+    agent_pending = false agent_state = "needs_reconciliation"
+    agent_notice = "正在请求官方停止；停止不等于回滚动作。"
+    agent_save() agent_render()
+    host.request("octos.turn.interrupt",{},fn(reply){
+        if !reply.is_ok { agent_notice = "停止结果需核对：" + agent_error(reply) }
+        else { agent_notice = "停止请求已返回。可以只读查看官方记录。" }
+        agent_render()
+    })
+}
+fn agent_history(){
+    if agent_pending { return }
+    let generation = agent_generation
+    host.request("octos.session.history",{},fn(reply){
+        if agent_pending || agent_generation != generation { return }
+        if reply.is_ok && reply.data.is_object() && reply.data["messages"].is_array() {
+            agent_notice = "官方会话记录已读取，共 " + reply.data.messages.len() + " 条；不会据此自动重跑。"
+        } else { agent_notice = "官方记录不可读：" + agent_error(reply) }
+        agent_render()
+    })
+}
+
+start_timeout(0.05,|| agent_restore())
+View{width: Fill height: Fill flow: Down padding: 20 spacing: 12
+    Label{text: "Muse · 官方 Agent 隔离原型"}
+    agent_input := TextInput{width: Fill height: 100}
+    agent_actions := View{width: Fill height: Fit flow: Right spacing: 10 on_render: || {
+        Button{text: "查询" enabled: agent_can_start() on_click: || agent_start()}
+        Button{text: "停止" enabled: agent_pending on_click: || agent_stop()}
+        Button{text: "只读记录" enabled: !agent_pending on_click: || agent_history()}
+    }}
+    agent_output := ScrollYView{width: Fill height: Fill flow: Down spacing: 10 on_render: || {
+        Label{width: Fill text: agent_notice draw_text.wrap: Words}
+        Label{width: Fill text: agent_answer draw_text.wrap: Words}
+    }}
+}

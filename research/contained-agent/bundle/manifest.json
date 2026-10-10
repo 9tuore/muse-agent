@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "id": "muse-goals",
+  "name": "Muse 官方 Agent 隔离原型",
+  "version": "0.3.27-rc18",
+  "capabilities": [
+    "storage",
+    "octos.session.open",
+    "octos.session.history",
+    "octos.turn.start",
+    "octos.turn.interrupt"
+  ],
+  "network": {"hosts": []},
+  "agent": {
+    "profile": "read-only",
+    "tools": ["calendar.events"],
+    "max_iterations": 3,
+    "token_budget": 4096,
+    "model": {"needs": ["tool_calling"], "tier": "fast"},
+    "background": false,
+    "instructions": "AGENT.md"
+  },
+  "integrity": {}
+}
