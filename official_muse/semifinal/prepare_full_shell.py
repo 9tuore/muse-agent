@@ -40,7 +40,7 @@ def apply(root, patch):
     subprocess.run(["git", "apply", str(patch)], cwd=root, check=True)
 
 
-def prepare(out, native_prototype=False):
+def prepare(out, native_prototype=False, calendar_review=False, qq_login_review=False):
     out = out.resolve()
     if not out.is_relative_to(ROOT / "build"):
         raise ValueError("Complete Shell candidates belong in this worktree build/")
@@ -90,6 +90,24 @@ def prepare(out, native_prototype=False):
         for name in ("Cargo.toml", "src/lib.rs", "src/history.rs"):
             if (module / name).read_bytes() != (wiring / "native-prototype" / name).read_bytes():
                 raise ValueError("Native proposal sequence differs from reviewed source: " + name)
+    if calendar_review:
+        for key, relative, expected in (
+            ("calendar_review", "evidence/pivot-builtin-20261010/calendar-review.patch",
+             "f40635f6373dd68ea295f5c1c0bf964c1f044ce14dc268df0931be8a809c2ad8"),
+            ("calendar_tool_contract_test", "evidence/native-full-shell-r1/calendar-tool-contract-test-r2.patch",
+             "3adfe5c450ea71f8587c37bd041773b839b72ecc4241f05fd97045f5b560f4f8"),
+            ("calendar_private_data", "evidence/native-full-shell-r1/calendar-get-private-data.patch",
+             "60a6ba798ee6059bf1f12c712f9fb1b149b4e5caa483b58295c9a5014f622313"),
+        ):
+            patches[key] = ROOT / "official_muse/semifinal" / relative
+            if digest(patches[key]) != expected:
+                raise ValueError("Reviewed Calendar patch changed: " + key)
+            apply(host, patches[key])
+    if qq_login_review:
+        patches["qq_login_review"] = ROOT / "official_muse/semifinal/mail_integration/qq-login-ui-review.patch"
+        if digest(patches["qq_login_review"]) != "0415463dc87bba93b8867d1476f12260ac366eaf7be9a2c9380640d8437d5b25":
+            raise ValueError("Reviewed QQ login patch changed")
+        apply(host, patches["qq_login_review"])
     # Consumer [patch] tables, not a second registry/service implementation.
     cargo = (host / "Cargo.toml").read_text()
     contract_pin = ('octosense-app-contract = { git = "https://github.com/OctoSense-org/OctoSense-App-Hub", '
@@ -122,6 +140,8 @@ def prepare(out, native_prototype=False):
               "system_apps_sha256": digest(host / "desktop/system-apps.json"),
               "default_agent_offers": "EMPTY", "grants_written": False,
               "native_prototype": native_prototype,
+              "calendar_review_proposal": calendar_review,
+              "qq_login_review_proposal": qq_login_review,
               "native_registry_read_grants": ["os.calendar/calendar.events"] if native_prototype else [],
               "kernel": "Locked official binary and receipt still required separately",
               "boundary": "Host proposal only; not upstream accepted, not installed, not runtime or admission evidence"}
@@ -134,5 +154,10 @@ if __name__ == "__main__":
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--native-prototype", action="store_true",
                         help="Include the reviewed independent, read-only Native proposal; never grants consent")
+    parser.add_argument("--calendar-review", action="store_true",
+                        help="Include the companion Calendar proposal and metadata tests; not upstream acceptance or a grant")
+    parser.add_argument("--qq-login-review", action="store_true",
+                        help="Include the Chinese QQ login UI proposal; keeps the Mail protocol and credential boundary")
     args = parser.parse_args()
-    prepare(args.out, native_prototype=args.native_prototype)
+    prepare(args.out, native_prototype=args.native_prototype, calendar_review=args.calendar_review,
+            qq_login_review=args.qq_login_review)

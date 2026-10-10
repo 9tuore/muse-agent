@@ -1,0 +1,97 @@
+--- a/apps/mail/host-service/src/lib.rs
++++ b/apps/mail/host-service/src/lib.rs
+@@ -955,29 +955,29 @@
+ /// the app. What is typed here reaches the service, never the app.
+ fn signin_sheet() -> String {
+     r##"let protocol = "imap"
++let incoming_custom = false
+ fn choose(p){
+     protocol = p
+     ui.imap_on.set_visible(p == "imap")
+     ui.imap_off.set_visible(p != "imap")
+     ui.pop_on.set_visible(p == "pop3")
+     ui.pop_off.set_visible(p != "pop3")
+-    // Swap Gmail's servers for each other; anything typed stays.
+-    let h = ui.pop_host.text()
++    // Only untouched QQ defaults follow the protocol; preserve manual edits.
+     if p == "imap" {
+-        ui.incoming.set_text("Incoming (IMAP, TLS)")
+-        if h == "pop.gmail.com" || h == "" { ui.pop_host.set_text("imap.gmail.com") ui.pop_port.set_text("993") }
++        ui.incoming.set_text("收件服务器（IMAP，TLS）")
++        if !incoming_custom { ui.pop_host.set_text("imap.qq.com") ui.pop_port.set_text("993") }
+     } else {
+-        ui.incoming.set_text("Incoming (POP3, TLS)")
+-        if h == "imap.gmail.com" || h == "" { ui.pop_host.set_text("pop.gmail.com") ui.pop_port.set_text("995") }
++        ui.incoming.set_text("收件服务器（POP3，TLS）")
++        if !incoming_custom { ui.pop_host.set_text("pop.qq.com") ui.pop_port.set_text("995") }
+     }
+ }
+ fn submit(){
+-    ui.status.set_text("Checking the account…")
++    ui.status.set_text("正在验证账号…")
+     host.request("mail.sheet.submit", {
+-        address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
++        address: ui.address.text().trim() username: ui.address.text().trim() password: ui.password.text() protocol: protocol
+         host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
+         smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
+-    }, fn(r){ if r.is_ok { ui.status.set_text("Signed in") } else { ui.status.set_text(r.error) } })
++    }, fn(r){ if r.is_ok { ui.status.set_text("已连接") } else { ui.status.set_text(r.error) } })
+ }
+ fn cancel(){ host.request("mail.sheet.cancel", {}, fn(r){}) }
+ let Field = TextInput{width: Fill height: 40
+@@ -999,36 +999,37 @@
+     ScrollYView{width: Fill height: Fill flow: Down padding: Inset{left: 12 right: 12 top: 24 bottom: 24}
+     RoundedView{width: Fill height: Fit flow: Down spacing: 8 padding: 16 new_batch: true show_bg: true draw_bg.color: #xffffff draw_bg.border_radius: 18.0
+         View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
+-            ButtonFlat{text: "Cancel" height: 40 on_click: || cancel()
++            ButtonFlat{text: "取消" height: 40 on_click: || cancel()
+                 draw_bg +: {color: #x00000000 color_hover: #x0000000a color_down: #x00000014 border_size: 0.0}
+                 draw_text +: {color: #x007aff color_hover: #x007aff color_down: #x007aff text_style +: {font_size: 15}}}
+             View{width: Fill height: 1}
+-            ButtonFlat{text: "Sign in" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
++            ButtonFlat{text: "连接账号" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
+                 draw_bg +: {border_radius: 20.0 color: #x007aff color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
+                 draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff text_style +: {font_size: 15}}}
+         }
+-        Label{width: Fill text: "OctoSense · Add a mail account" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
+-        Label{width: Fill text: "Your password stays with OctoSense. The app that asked only gets your mail." draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
++        Label{width: Fill draw_text.wrap: Words text: "OctoSense · 连接邮箱账号" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
++        Label{width: Fill draw_text.wrap: Words text: "授权码由 OctoSense 宿主保管，不提供给请求连接的应用。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+         status := Label{width: Fill text: "" draw_text.color: #xff3b30 draw_text.text_style.font_size: 12}
+-        Caption{text: "Email address"}
+-        address := Field{empty_text: "you@example.com"}
+-        Caption{text: "Login (if not the address)"}
+-        username := Field{empty_text: "optional"}
+-        Caption{text: "Password or app password"}
+-        password := Field{empty_text: "password" is_password: true}
++        Caption{text: "完整邮箱地址"}
++        address := Field{empty_text: "你的QQ号码@qq.com"}
++        Caption{text: "授权码"}
++        password := Field{empty_text: "请输入邮箱授权码" is_password: true}
++        Label{width: Fill draw_text.wrap: Words text: "QQ 授权码：在 mail.qq.com 登录后进入设置。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
++        Label{width: Fill draw_text.wrap: Words text: "查找 IMAP/SMTP 服务，开启并按页面要求验证、生成授权码。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
++        Label{width: Fill draw_text.wrap: Words text: "入口以当前页面为准；其他邮箱可自定义下方服务器。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+         RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
+-            imap_on := Chosen{text: "IMAP: all folders"}
+-            imap_off := Choice{visible: false text: "IMAP: all folders" on_click: || choose("imap")}
+-            pop_on := Chosen{visible: false text: "POP3: inbox only"}
+-            pop_off := Choice{text: "POP3: inbox only" on_click: || choose("pop3")}
++            imap_on := Chosen{text: "IMAP：全部文件夹"}
++            imap_off := Choice{visible: false text: "IMAP：全部文件夹" on_click: || choose("imap")}
++            pop_on := Chosen{visible: false text: "POP3：仅收件箱"}
++            pop_off := Choice{text: "POP3：仅收件箱" on_click: || choose("pop3")}
+         }
+         View{width: Fill height: Fit flow: Right spacing: 8
+-            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "Incoming (IMAP, TLS)"} pop_host := Field{text: "imap.gmail.com"}}
+-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} pop_port := Field{text: "993"}}
++            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "收件服务器（IMAP，TLS）"} pop_host := Field{text: "imap.qq.com" on_change: |text| { incoming_custom = true }}}
++            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} pop_port := Field{text: "993" on_change: |text| { incoming_custom = true }}}
+         }
+         View{width: Fill height: Fit flow: Right spacing: 8
+-            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "Outgoing (SMTP, TLS)"} smtp_host := Field{text: "smtp.gmail.com"}}
+-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} smtp_port := Field{text: "465"}}
++            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "发件服务器（SMTP，TLS）"} smtp_host := Field{text: "smtp.qq.com"}}
++            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} smtp_port := Field{text: "465"}}
+         }
+     }
+     }
