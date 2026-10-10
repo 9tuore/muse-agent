@@ -1,0 +1,83 @@
+// PROPOSED two-process fixture; same jailed fs, no real Calendar/tool operation.
+// A missing verified-history baseline remains a failed prerequisite, never fake verified.
+let ur_checks = {}
+let ur_goal = "synthetic-unknown-restart-goal"
+let ur_request = "synthetic-unknown-restart-request"
+let ur_marker = "synthetic-unknown-phase.json"
+fn ur_history(){
+    let kept = {actions: [] receipts: [] links: []}
+    for action in actions { if action.status == "verified" { kept.actions.push(action) } }
+    for receipt in calendar_receipts { if receipt.status == "verified" { kept.receipts.push(receipt) } }
+    for link in calendar_links { if link.status == "verified" { kept.links.push(link) } }
+    return kept
+}
+fn ur_report(phase){
+    ur_checks.zero_transport = fixture_calls.len() == 0
+    ur_checks.forbidden_calls = []
+    for call in fixture_calls { ur_checks.forbidden_calls.push(call.service) }
+    ur_checks.phase = phase
+    ur_checks.fixture_boundary = "Synthetic local journal recovery only; no live Calendar/Relay/consent proof"
+    fs.write("probe.json",ur_checks.to_json())
+}
+fn probe(){
+    let second = fs.exists(ur_marker)
+    ur_checks.boot_ready = core_boot_goals() && calendar_boot()
+    if !ur_checks.boot_ready { ur_report("boot_failed") return }
+    if second { ur_resume() return }
+    let history = ur_history()
+    ur_checks.verified_history_available = history.actions.len() > 0 && history.receipts.len() > 0
+    // Central may preload proven synthetic history; this fixture never fabricates it.
+    let goal = {schema: 1 id: ur_goal version: 1 goal: "Synthetic interrupted Calendar"
+        source: "Synthetic source" items: ["Synthetic source"] status: "planned" archived: false
+        approved_at: 0 updated_at: time_now() model_summary: "" result_path: "results/synthetic-unknown.json"}
+    ur_checks.goal_saved = core_add_goal(goal)
+    let run = core_start_run(ur_goal,1,ur_request)
+    ur_checks.run_saved = run != nil
+    if !ur_checks.goal_saved || run == nil { ur_report("phase1_setup_failed") return }
+    let payload = {calendar_id: "synthetic-calendar" title: "Synthetic interrupted Calendar"
+        start: "2026-10-12T15:00:00+08:00" end: "2026-10-12T15:30:00+08:00"
+        time_zone: "Asia/Shanghai" location: "SYNTHETIC_ONLY" request_id: ur_request}
+    ur_checks.action_saved = core_begin_action(ur_goal,run,1,"calendar.create",payload.calendar_id,ur_request,payload.to_json())
+    if !ur_checks.action_saved { ur_report("phase1_action_failed") return }
+    calendar_links.push({goal_id: ur_goal account_id: "synthetic-account" source_id: "synthetic-source"
+        run_id: run request_id: ur_request candidate: payload calendar_id: payload.calendar_id
+        event_id: "" version: "" status: "in_flight" last_error: "" updated_at: time_now()})
+    ur_checks.link_saved = calendar_save()
+    let ai = core_action_index(ur_request) let li = calendar_link_index(ur_goal)
+    let persisted = storage_read("goals.json").parse_json()
+    let calendar = storage_read("calendar-state.json").parse_json()
+    ur_checks.persisted_in_flight = ur_checks.link_saved && ai >= 0 && li >= 0
+        && persisted.actions[ai].status == "in_flight" && calendar.links[li].status == "in_flight"
+    if !ur_checks.persisted_in_flight { ur_report("phase1_persist_failed") return }
+    fs.write(ur_marker,{phase: "saved_in_flight" action: actions[ai] link: calendar_links[li]
+        run_id: run payload: payload history: history verified_history_available: ur_checks.verified_history_available}.to_json())
+    ur_report("phase1_saved_stop_process")
+}
+fn ur_resume(){
+    let before = storage_read(ur_marker).parse_json()
+    ur_checks.phase_marker_valid = before != nil && before.phase == "saved_in_flight"
+    if !ur_checks.phase_marker_valid { ur_report("phase2_marker_failed") return }
+    let ai = core_action_index(ur_request) let li = calendar_link_index(ur_goal)
+    ur_checks.original_records_exist = ai >= 0 && li >= 0
+    if !ur_checks.original_records_exist { ur_report("phase2_records_missing") return }
+    ur_checks.action_unknown = actions[ai].status == "unknown"
+    ur_checks.link_unknown = calendar_links[li].status == "unknown"
+    let action_copy = actions[ai].to_json().parse_json()
+    action_copy.status = before.action.status
+    let link_copy = calendar_links[li].to_json().parse_json()
+    link_copy.status = before.link.status link_copy.last_error = before.link.last_error
+    ur_checks.action_identity_payload_retained = action_copy.to_json() == before.action.to_json()
+    ur_checks.link_identity_payload_retained = link_copy.to_json() == before.link.to_json()
+    ur_checks.verified_history_available = before.verified_history_available
+    ur_checks.verified_history_retained = before.verified_history_available
+        && ur_history().to_json() == before.history.to_json()
+    let goals_before = storage_read("goals.json") let calendar_before = storage_read("calendar-state.json")
+    ur_checks.same_request_rejected = !core_begin_action(ur_goal,before.run_id,1,"calendar.create",
+        before.payload.calendar_id,ur_request,before.action.payload_json)
+    let retry = before.payload.to_json().parse_json() retry.request_id = "synthetic-fresh-request"
+    ur_checks.same_payload_calendar_guard = calendar_prior_attempt("create",retry)
+    ur_checks.rejected_attempt_no_journal_change = storage_read("goals.json") == goals_before
+        && storage_read("calendar-state.json") == calendar_before
+    ur_report("phase2_new_process_recovered")
+}
+start_timeout(0.1,|| probe())
