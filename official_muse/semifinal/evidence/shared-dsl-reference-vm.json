@@ -1,0 +1,54 @@
+{
+  "kind": "ACTUAL_REFERENCE_VM_WITH_SYNTHETIC_TRANSPORT_AND_REAL_JAILED_FS",
+  "source_sha256": "2253e9f00e8a0a57b713c316db2c40d26e5c937beef54703833a52cdee6cb7fa",
+  "host_sha256": "78ab9efce55cb692552a3566e7b579d2e8c304eadfd6b107c51b2efb027e34db",
+  "passed": {
+    "memory_and_view": 68,
+    "task_and_plan": 23,
+    "digest_vectors": 9,
+    "special_file_rejections": 3
+  },
+  "checks": {
+    "memory": true,
+    "task": true,
+    "digest": {
+      "empty": true,
+      "abc": true,
+      "utf8": true,
+      "text_cap": true,
+      "text_over_cap_rejected": true,
+      "nontext_rejected": true,
+      "file_same_bytes": true,
+      "parent_escape_rejected": true,
+      "missing_rejected": true
+    },
+    "special": {
+      "fifo_rejected": true,
+      "directory_rejected": true,
+      "symlink_rejected": true
+    },
+    "file_bytes_mtime_unchanged": true
+  },
+  "paths": {
+    "memory": "build/runtime-closure-dsl-vm-r4/summary.json",
+    "task": "build/runtime-closure-task-dsl-vm-r3/summary.json",
+    "digest": "build/runtime-closure-sha256-vm-r1/report.json",
+    "special": "build/runtime-closure-sha256-special-vm-r1/report.json",
+    "metadata": "build/runtime-closure-sha256-vm-r1/independent-metadata-observation.json"
+  },
+  "evidence_sha256": {
+    "memory": "0912a63819cd15c7ebf5364b98d8c7f15cce8bf1613909ecee57dc755a46d8ed",
+    "task": "8ee2f266f3935d0211d75251fd15924f9945cd9e3b2fdaa132cd6933a00828b1",
+    "digest": "8669067fbcc0b06fe138376cb31b24e7e83ff68fdcf57e6af46edc76f5135701",
+    "special": "d77b1c21ae6ef4db870d90657b37903465c6a1507b680fa509aad3acc3d5ce4d",
+    "metadata": "503ce172ca767567e7581cfe52fe72e92c17b450f5bf658785f8986d5a189044"
+  },
+  "retained_failures": [
+    "build/runtime-closure-dsl-vm-r2",
+    "build/runtime-closure-dsl-vm-r3",
+    "build/runtime-closure-task-dsl-vm-r1",
+    "build/runtime-closure-task-dsl-vm-r2"
+  ],
+  "fixture_correction": "Bare scope literal in new fixture triggered JSON serialization error; adopted existing production record[\"scope\"] construction. All checks retained; production memory behavior not replaced.",
+  "boundary": "Real VM functions/persistence, synthetic data and transport. Not model inference, Mail delivery/native review, complete Shell Calendar Relay, installed candidate or final20."
+}

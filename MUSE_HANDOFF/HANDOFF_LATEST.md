@@ -1,19 +1,19 @@
-# Muse 接续检查点：2026-10-11 00:01
+# Muse 接续检查点：2026-10-11 02:07
 
 ## Task
-NIGHT-002：完整宿主、内置Calendar、Mail审阅、行动链与人/Agent共享DSL。07:00冻结，08:00截止。
+NIGHT-002完整Host、官方内置Calendar、Mail原生审阅、共享DSL与Native路线验证。07:00冻结/08:00截止。
 
 ## Result
-PARTIAL。发布layout 9项和便携日志10项通过；旧实机失败用显式artifact-dir继续核验，缺证据NOT_TESTED。根rc17和旧Host/生产保持。
+PARTIAL。新reference Host78ab9efc真实VM：Memory+view68/68、Task/plan23/23、FS摘要9/9、特殊文件拒绝3/3。行动链DSL可见窗口1100×740/990×539/412×892各9项；actions摘要不变、合成状态恢复正确，公开截图已实际查看。原失败保留；不当作完整Shell、Mail、模型或Agent Calendar Relay。
 
 ## Changed
-scripts/check_release_layout.py、scripts/tests/test_release_layout.py、docs/semifinal-release-layout.md；stability_integration便携fixture及旧失败CLI。主源未变。
+共享main开发源2253e9f0，compact493e9f4b；muse.view/1只读、不赋工具权，授权/Memory含义/执行入口不变。新jailed FS摘要兼容小补丁已真正编译进reference。原Kernel b0759a5 release及官方stage成功SHA9c3d4b94。metadata-r10完整成功1710包，cargo lock c87d9f29，有效输入r2 9f15ae94。源未进入根rc17或旧活动Host。
 
-## Tests
-9+10单元exit0；migration layout PASS/exit0。旧两种失败归档确认exit0，不冒充新Host/业务通过。
-
-## Commit
-本单元提交后查git HEAD；基线15cc5718，当前开发分支codex/muse-pivot-20261010。原两项dirty保护。
+## Running
+中央唯一大型Cargo：fullDesktop offline/locked/release，features app-hub,octos-core,app-muse-native-prototype，session1549、日志build/runtime-closure-full-shell-r1/full-desktop-build-r1.log；target build/official-hub-rc2-target。确切完成/失败需读取实际进程与日志。真实聊天ZC03交最小异步fixture补丁，ZC01准备只读运行检查。不要终止稳定503、并发Cargo或删活动target。
 
 ## Remaining
-完整真实Shell构建/注册、合法Muse Relay、原生Mail、共享DSL接入与同候选最终20。详细实况见MUSE_RUNTIME_CLOSURE_20261011_REPORT.md；心跳muse-dsl截至08:00，主文件与Cargo中央独占，三个真实聊天分别日历/Mail/稳定性。
+完整Host构建/启动、独立Native ID的真实Relay和consent、Mail审阅、精确Calendar写/读回/同ID修改/恢复；旧Task focus fixture同步假设要修复测试而非业务。只有核心冻结/T18实际准备后才同候选最终20次。无新外发/付费/Calendar写入成功证明，可信本人缺失HUMAN_REQUIRED。
+
+## Git / Protection
+HEAD59209a3e已普通推开发分支且独立远端SHA一致；后续DSL/报告修改尚待提交。main/旧Tag/正式发布不动。primary137dirty、两历史dirty、rc17/root摘要90351cba/旧Host276b2b68保留。已清无占用debug incremental净2.8GB，receipt保留；继续缺盘仅清可重建和核验重复产物。

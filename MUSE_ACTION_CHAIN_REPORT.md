@@ -1,5 +1,17 @@
 # Muse 行动链集成记录
 
+## NIGHT-002 增量 / 2026-10-11 02:07
+
+开发源已接共享 `muse.view/1`：行动链、人可展开的 DSL 和模型使用的 Memory/任务上下文采用同一只读封装；`read_only=true`、`tool_authority=false`。保留原授权过滤、冲突、失效、UNKNOWN、原确认入口与持久化含义，不新增执行权、轮询、模型调用或存储。当前事务投影仍最多12个节点。
+
+- 可读 source SHA `2253e9f00e8a0a57b713c316db2c40d26e5c937beef54703833a52cdee6cb7fa`；compact SHA `493e9f4b76fbdbdfef89039911164de6c72ded0f5fc5773987c82bb8e5f96a0d`。官方 tokenizer/parser 等价104622词法项、97762指令、零解析错误，未加预算。
+- 新真实 reference Host SHA `78ab9efce55cb692552a3566e7b579d2e8c304eadfd6b107c51b2efb027e34db`。合成数据下实际 Memory+view 68/68、Task/plan 23/23、摘要9/9、特殊文件拒绝3/3。见 `official_muse/semifinal/evidence/shared-dsl-reference-vm.json`。
+- 实际可见窗口1100×740、990×539、412×892各9项通过，后两次独立进程恢复；核对输入、真实JSON Label、展开/收起、主题、事项切换、原失败/等待状态和原结果。actions 摘要前后同为 `447263f7582d5e99d02eabc43c5b7d72d8c776903ed4e0b168e324abaa36b562`，未触发真实工具。
+- 公开合成截图及报告：`official_muse/semifinal/evidence/shared-dsl-ui/`；中央已实际查看两张截图。r1驱动主题假设失败保留，按克隆布局的实际主题修复驱动，未删除断言。
+- 根活动rc17仍未晋级；以上为开发源、真实reference窗口和合成业务状态验证，不能替代完整新Shell、Mail投递、Agent Calendar Relay、T18或最终20次冷启动。当前没有新完整Host的性能样本，不宣称启动/RSS改进。
+
+以下历史记录保持，前轮源码/Host的通过项不拼接为新候选全链PASS。
+
 ## 身份与边界
 
 2026-10-10 三小时战略调整。开发分支 `codex/muse-pivot-20261010`；正式运行根包仍为 rc17，旧安装、活动 Shell 和生产数据未覆盖。

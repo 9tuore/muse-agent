@@ -1,3 +1,17 @@
+## 2026-10-11 02:07 NIGHT-002 实际进展
+
+共享 DSL 开发源2253e9f0 / compact493e9f4b：新reference78ab9efc实际Memory+view68、Task23、摘要9、特殊文件拒绝3通过；可见UI三尺寸各9项，等待/失败及重启记录保留，actions字节未变，合成截图公开于official_muse/semifinal/evidence/shared-dsl-ui。根活动rc17仍不变，以上不是完整新Host或真实Calendar Relay通过。
+
+官方锁定Kernel b0759a5实际release及stage成功，binary SHA9c3d4b94；完整metadata-r10成功1710包，真实固定源逐blob核验恢复、未删除依赖。完整Desktop release中央正在编译，feature app-hub,octos-core,app-muse-native-prototype，target唯一写入，禁止同时Cargo。旧Task fixture同步队列假设与已有50ms拆分不兼容，失败保留，真实聊天ZC03正在交异步测试适配。最近已同步Commit59209a3e，独立远端一致，后续修改须另提交核对。
+
+自动清无占用debug incremental实际净2.8GB，保留所有关键数据/失败。07:00冻结/08:00停止；真实Mail可信审阅和Calendar本人consent缺失仍HUMAN_REQUIRED。完整任务/缺项见NIGHT报告及HANDOFF_LATEST，不能用旧20次替代新候选。
+
+---
+
+## NIGHT-002 接续：2026-10-11 01:08（北京时间）
+
+PARTIAL。1c169ea8实际同步开发分支，独立远端SHA相同；main/Tag不动。原型用独立muse-native-prototype与fresh home，只读calendar.events声明，隔离应用3patch，尚未运行。官方锁定Kernel正在真实release编译；OctosCode固定源574blob校验通过，Rinx在补齐，完整Shell仍未构建。当前开发源2253e9f0接共享只读muse.view/1，新compact493e9f4b官方Token/指令等价及映射通过；新Memory/Task真实VM缺fs.sha256失败保存。最小官方digest兼容补丁已隔离应用，实际Rust helper及3特殊文件拒绝通过，但VM/完整Shell待测。根rc17/90351cba、旧Host276b2b68/进程503、生产/主工作区dirty和原两项dirty保护。当前三真实聊天全部GPT6.1-sol，中央独占main/bundle/GUI/Cargo/Git。用户允许满盘自动清可重建缓存及核验重复产物；源码/模型/失败/资料/稳定包与活动target保护。07:00冻结，08:00停止，详细见RUNTIME报告和Native决策。
+
 ## NIGHT-002 接续：2026-10-11 00:01（北京时间）
 
 新范围为完整宿主接线＋官方内置Calendar＋Mail审阅＋行动链＋共享DSL。07:00冻结大改、08:00截止；旧Host276b2b68、rc17/90351cba与生产及主工作区dirty保护。先修发布检查：默认正式根布局不依赖旧别名，迁移模式单独验证；官方Agent/Skill合法后缀与逃逸路径检查，9项便携测试通过。日志单元测试改成可独立检出的合成fixture，10项通过；真实旧失败检查仍保留并显式指定artifact-dir，缺证据NOT_TESTED/exit2。未宣称Hub或业务PASS，完整Host尚未构建，新DSL尚未接入。三个真实聊天限定独占目录，中央串行完整构建及主源写入。夜间任务心跳muse-dsl已建立，绝对截止见报告。

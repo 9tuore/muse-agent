@@ -1,0 +1,133 @@
+// SYNTHETIC records and intercepted transport. Production chat_task_focus/dsl_view.
+// Execute only through the central isolated regression_run.run_suite harness.
+let view_checks = {}
+fn view_repeat(n){ let value = "" for i in n { value = value + "x" } return value }
+fn view_parse(text){
+    let parts = text.split("）：")
+    if parts.len() != 2 { return nil }
+    return parts[1].parse_json()
+}
+fn view_reset(){
+    gm_set_focus("synthetic-project","synthetic-owner")
+    gm_set_accounts(["synthetic-account"])
+    goals = [{id: "synthetic-goal" version: 1 status: "unknown" archived: false
+        goal: "SYNTHETIC_CORE_GOAL" project_id: "synthetic-project" owner_id: "synthetic-owner"
+        result_path: "results/synthetic-view.json"}]
+    chat_sessions = [{id: "synthetic-session" goal_id: "synthetic-goal" proposals: []}]
+}
+fn probe(){
+    fixture_seed() gm_boot() view_reset()
+    // Explicit synthetic persistence fixture; fixture_seed only boots memory.
+    fs.write("goals.json",{fixture: "SYNTHETIC_TASK_CONTEXT_SNAPSHOT" goals: goals}.to_json())
+    let calls_before = fixture_calls.len()
+    let stored_before = fs.read("goals.json")
+    fs.mkdir("results")
+    fs.write("results/synthetic-view.json",{task_id: "synthetic-goal" count: 9 items: [{text: "SYNTHETIC_PRIVATE_RAW"}]}.to_json())
+    let receipt_before = fs.read("results/synthetic-view.json")
+    let text = chat_task_focus("synthetic-session")
+    let envelope = view_parse(text)
+    view_checks.task_context_envelope = envelope != nil && envelope.schema_version == "muse.view/1"
+        && envelope.kind == "task_context" && envelope.read_only && !envelope.tool_authority
+        && envelope.records.len() == 1
+    view_checks.unknown_not_completed = envelope != nil && envelope.records[0].status == "unknown"
+        && !gm_has(envelope.records[0],"result_count") && text.search("SYNTHETIC_PRIVATE_RAW") < 0
+    view_checks.json_bound_includes_envelope = envelope != nil && envelope.to_json().len() <= 1600
+    view_checks.other_session_excluded = chat_task_focus("other-session") == ""
+
+    gm_set_focus("other-project","synthetic-owner")
+    view_checks.project_scope_excluded = chat_task_focus("synthetic-session") == ""
+    gm_set_focus("synthetic-project","other-owner")
+    view_checks.owner_scope_excluded = chat_task_focus("synthetic-session") == ""
+    gm_set_focus("synthetic-project","synthetic-owner")
+    goals[0].mail_source = {account_id: "synthetic-account"}
+    view_checks.authorized_account_included = chat_task_focus("synthetic-session") != ""
+    gm_set_accounts([])
+    view_checks.revoked_account_excluded = chat_task_focus("synthetic-session") == ""
+    view_reset()
+    goals[0].archived = true
+    view_checks.archived_goal_excluded = chat_task_focus("synthetic-session") == ""
+    view_reset()
+
+    let steps = []
+    for i in 10 { steps.push({id: "s" + i capability: "synthetic.domain"
+        args: {private_value: "SYNTHETIC_ARGS_NOT_EXPORTED"} tool_authority: true}) }
+    goals[0].goal_spec = {schema_version: "muse.goal/0.1" goal_id: "synthetic-goal" revision: 1 steps: steps}
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    let ordered = envelope != nil && gm_has(envelope.records[0],"plan")
+        && envelope.records[0].plan.steps.len() == 8
+    if ordered {
+        for i in 8 {
+            let step = envelope.records[0].plan.steps[i]
+            if step.id != "s" + i || step.domain_capability != "synthetic.domain" { ordered = false }
+            if gm_has(step,"args") || gm_has(step,"tool_authority") || gm_has(step,"capability") { ordered = false }
+        }
+    }
+    view_checks.max_eight_ordered_step_identities = ordered
+    view_checks.plan_no_new_authority = envelope != nil && envelope.read_only && !envelope.tool_authority
+        && envelope.to_json().search("SYNTHETIC_ARGS_NOT_EXPORTED") < 0
+        && !gm_has(envelope.records[0],"grants") && !gm_has(envelope.records[0],"tool_authority")
+    view_checks.plan_envelope_bound = envelope != nil && envelope.to_json().len() <= 1600
+
+    for i in 10 { goals[0].goal_spec.steps[i].id = view_repeat(160)
+        goals[0].goal_spec.steps[i].capability = view_repeat(160) }
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    view_checks.oversized_optional_plan_keeps_core = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].id == "synthetic-goal" && envelope.records[0].objective == "SYNTHETIC_CORE_GOAL"
+        && envelope.records[0].status == "unknown" && !gm_has(envelope.records[0],"plan")
+        && envelope.to_json().len() <= 1600
+
+    goals[0].status = "completed"
+    text = chat_task_focus("synthetic-session")
+    envelope = view_parse(text)
+    view_checks.completed_count_with_oversized_plan_keeps_core = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].id == "synthetic-goal" && envelope.records[0].objective == "SYNTHETIC_CORE_GOAL"
+        && envelope.records[0].status == "completed" && envelope.records[0].result_count == 9
+        && !gm_has(envelope.records[0],"plan") && text.search("SYNTHETIC_PRIVATE_RAW") < 0
+        && envelope.to_json().len() <= 1600
+
+    view_reset()
+    goals[0].goal_spec = {schema_version: "muse.goal/0.1" goal_id: "synthetic-goal" revision: 1 steps: []}
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    view_checks.empty_steps_do_not_create_valid_plan = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].id == "synthetic-goal" && !gm_has(envelope.records[0],"plan")
+    goals[0].goal_spec = {goal_id: "synthetic-goal" revision: 1 steps: [{id: "s0" capability: "synthetic.domain"}]}
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    view_checks.missing_schema_does_not_create_valid_plan = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].id == "synthetic-goal" && !gm_has(envelope.records[0],"plan")
+
+    goals[0].goal_spec.schema_version = "wrong.goal/1"
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    view_checks.wrong_schema_keeps_core_without_plan = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].id == "synthetic-goal" && envelope.records[0].objective == "SYNTHETIC_CORE_GOAL"
+        && !gm_has(envelope.records[0],"plan")
+    goals[0].goal_spec.schema_version = "muse.goal/0.1"
+    goals[0].goal_spec.goal_id = "other-goal"
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    view_checks.wrong_goal_id_keeps_core_without_plan = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].id == "synthetic-goal" && envelope.records[0].objective == "SYNTHETIC_CORE_GOAL"
+        && !gm_has(envelope.records[0],"plan")
+    goals[0].goal_spec.goal_id = "synthetic-goal"
+    goals[0].goal_spec.revision = 2
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    view_checks.wrong_revision_keeps_core_without_plan = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].id == "synthetic-goal" && envelope.records[0].objective == "SYNTHETIC_CORE_GOAL"
+        && !gm_has(envelope.records[0],"plan")
+
+    view_reset()
+    goals[0].goal = "x"
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    let room = 1600 - envelope.to_json().len() + 1
+    goals[0].goal = view_repeat(room)
+    envelope = view_parse(chat_task_focus("synthetic-session"))
+    view_checks.near_limit_core_retained = envelope != nil && envelope.records.len() == 1
+        && envelope.records[0].objective.len() == room && envelope.to_json().len() == 1600
+    goals[0].goal = view_repeat(room+1)
+    view_checks.oversized_core_not_injected = chat_task_focus("synthetic-session") == ""
+    view_checks.no_transport_calls = fixture_calls.len() == calls_before
+    view_checks.storage_receipts_unchanged = fs.read("goals.json") == stored_before
+        && fs.read("results/synthetic-view.json") == receipt_before
+    view_checks.forbidden_calls = []
+    for i in fixture_calls.len() { if i >= calls_before { view_checks.forbidden_calls.push(fixture_calls[i].service) } }
+    fs.write("probe.json",view_checks.to_json())
+}
+start_timeout(0.1,|| probe())

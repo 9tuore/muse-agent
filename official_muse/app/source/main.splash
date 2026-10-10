@@ -6494,6 +6494,12 @@ fn gm_track_conflicts(hit,conflicts){
 fn gm_context(query,conversation_id,goal_id){
     return gm_context_ranked(query,conversation_id,goal_id,false)
 }
+// Shared human/Agent view. This envelope cannot be imported as a Memory
+// document or submitted as an execution request. Records retain their scope.
+fn dsl_view(kind,records){
+    return {schema_version: "muse.view/1" kind: kind read_only: true
+        tool_authority: false records: records}
+}
 fn gm_context_ranked(query,conversation_id,goal_id,prefer_preferences){
     let found = []
     let conflicts = []
@@ -6528,10 +6534,11 @@ fn gm_context_ranked(query,conversation_id,goal_id,prefer_preferences){
                 if hit.memory_type == "preference" { hit.label = "偏好" }
                 if gm_has(memory[best],"confidence") { hit.confidence = memory[best].confidence }
                 hit.conflicts = gm_hit_conflicts(doc,query,conversation_id,goal_id)
-                let serialized_hit = hit.to_json()
-                let candidate_text = text + "," + serialized_hit
-                if found.len() == 0 { candidate_text = header + "[" + serialized_hit }
-                if found.len() < 6 && candidate_text.len() + 1 <= 2200 && candidate_text.to_chars().len() + 1 <= 2200 {
+                let candidate_hits = []
+                for prior in found { candidate_hits.push(prior) }
+                candidate_hits.push(hit)
+                let candidate_text = header + dsl_view("memory_context",candidate_hits).to_json()
+                if found.len() < 6 && candidate_text.len() <= 2200 && candidate_text.to_chars().len() <= 2200 {
                     found.push(hit)
                     text = candidate_text
                     gm_track_conflicts(hit,conflicts)
@@ -6545,7 +6552,6 @@ fn gm_context_ranked(query,conversation_id,goal_id,prefer_preferences){
     for i in scores.len() {
         if scores[i] > 0 { truncated = true reasons.push({id: memory[i].document.id reason: "hit_limit"}) }
     }
-    if found.len() > 0 { text = text + "]" }
     let ids = []
     for hit in found { ids.push({id: hit.id revision: hit.revision source_ids: hit.source_ids}) }
     let digest = fs.sha256(query)
@@ -8028,7 +8034,7 @@ fn mail_model_request_current(account_id,message_id,incoming_key){
 fn chat_task_focus(session_id){
     let i = chat_session_index(session_id)
     if i < 0 { return "" }
-    let focus = [] let bytes = 2
+    let focus = [] let bytes = dsl_view("task_context",[]).to_json().len()
     let session = chat_sessions[i]
     if gm_has(session,"goal_id") && session.goal_id != "" {
         let gi = core_goal_index(session.goal_id)
@@ -8040,12 +8046,33 @@ fn chat_task_focus(session_id){
             if allowed {
                 let item = {kind: "goal" id: goal.id status: goal.status revision: goal.version}
                 if !gm_retired_text(goal.goal,"local") { item.objective = goal.goal }
+                let plan_metadata = nil
+                // Expose existing plan identities, without exporting private
+                // tool arguments or turning domain capabilities into grants.
+                if gm_object(goal["goal_spec"]) && goal.goal_spec["schema_version"] == "muse.goal/0.1"
+                    && goal.goal_spec["goal_id"] == goal.id && goal.goal_spec["revision"] == goal.version
+                    && gm_array(goal.goal_spec["steps"]) {
+                    let steps = []
+                    for index in min(goal.goal_spec.steps.len(),8) {
+                        let step = goal.goal_spec.steps[index]
+                        if gm_object(step) && gm_string(step["id"],160) && gm_string(step["capability"],160) {
+                            steps.push({id: step.id domain_capability: step.capability})
+                        }
+                    }
+                    if steps.len() > 0 { plan_metadata = {source_schema: goal.goal_spec["schema_version"] steps: steps} }
+                }
                 if goal.status == "completed" && fs.exists(goal.result_path) {
                     let raw = storage_read(goal.result_path)
                     if raw.len() <= 65536 {
                         let stored = raw.parse_json()
                         if stored != nil && stored.task_id == goal.id && gm_has(stored,"count") { item.result_count = stored.count }
                     }
+                }
+                if plan_metadata != nil {
+                    let with_plan = item.to_json().parse_json()
+                    with_plan.plan = plan_metadata
+                    // Optional metadata must not evict the core task or result.
+                    if bytes + with_plan.to_json().len() <= 1600 { item = with_plan }
                 }
                 let size = item.to_json().len()
                 if bytes + size <= 1600 { focus.push(item) bytes = bytes + size }
@@ -8066,7 +8093,7 @@ fn chat_task_focus(session_id){
         }
     }
     if focus.len() == 0 { return "" }
-    return "\n当前会话相关任务资料（候选尚未执行；状态不是新动作权限；不能把草稿或候选说成已发送/已创建）：" + focus.to_json()
+    return "\n当前会话相关任务资料（候选尚未执行；状态不是新动作权限；不能把草稿或候选说成已发送/已创建）：" + dsl_view("task_context",focus).to_json()
 }
 // Refresh grants for every reply/plan. A failed account query permits local records only.
 fn muse_model_request(query,session_id,goal_id,current,args,callback){
@@ -9215,6 +9242,7 @@ let Primary = ButtonFlat{height: 36
 // Read-only, bounded projection of existing records. No I/O or execution calls.
 let ac_tab = "auto"
 let ac_expanded = ""
+let ac_dsl_open = false
 let ac_light = false
 let ac_selected_id = ""
 let ac_selected_chat = ""
@@ -9224,7 +9252,7 @@ fn ac_refresh(){
     if right_open && !right_page_mode { ui.right_content.render() }
     if right_page_mode { ui.right_page_content.render() }
 }
-fn ac_choose(tab){ ac_tab = tab ac_expanded = "" ac_refresh() }
+fn ac_choose(tab){ ac_tab = tab ac_expanded = "" ac_dsl_open = false ac_refresh() }
 fn ac_expand(id){ if ac_expanded == id { ac_expanded = "" } else { ac_expanded = id } ac_refresh() }
 fn ac_appearance_toggle(){ ac_light = !ac_light ui_layout_save() ac_refresh() }
 fn ac_picker_toggle(){ ac_picker_open = !ac_picker_open ac_refresh() }
@@ -9234,7 +9262,7 @@ fn ac_choose_matter(id){
         for index in min(goals.len(),64) { let goal = goals[index] if ac_field(goal,"id") == id && ac_goal_allowed(goal) { allowed = true } }
         if !allowed { return }
     }
-    ac_selected_id = id ac_selected_chat = chat_selected_id ac_picker_open = false ac_expanded = ""
+    ac_selected_id = id ac_selected_chat = chat_selected_id ac_picker_open = false ac_expanded = "" ac_dsl_open = false
     ui_layout_save() ac_refresh()
 }
 fn ac_choices(){
@@ -9504,6 +9532,11 @@ let ResultContent = ScrollYView{width: Fill height: Fill flow: Down spacing: 10 
                 }
             }
         }
+    }
+    Secondary{text: "行动链 DSL（只读）" draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || { ac_dsl_open = !ac_dsl_open ac_refresh() }}
+    if ac_dsl_open {
+        Label{width: Fill text: "当前可见记录的只读投影；不是执行请求、授权或完整历史。" draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
+        Label{width: Fill text: dsl_view("action_chain",[chain]).to_json() draw_text.color: chain_ink draw_text.wrap: Words draw_text.text_style.font_size: 10}
     }
     if chain.limited { Label{width: Fill text: "仅展示最近的关键记录。完整历史仍在事项详情中。" draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
     if chain.nodes.len() > 0 {

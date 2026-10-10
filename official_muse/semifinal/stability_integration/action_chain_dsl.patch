@@ -1,0 +1,40 @@
+--- a/official_muse/app/source/main.splash
++++ b/official_muse/app/source/main.splash
+@@ -9215,6 +9215,7 @@
+ // Read-only, bounded projection of existing records. No I/O or execution calls.
+ let ac_tab = "auto"
+ let ac_expanded = ""
++let ac_dsl_open = false
+ let ac_light = false
+ let ac_selected_id = ""
+ let ac_selected_chat = ""
+@@ -9224,7 +9225,7 @@
+     if right_open && !right_page_mode { ui.right_content.render() }
+     if right_page_mode { ui.right_page_content.render() }
+ }
+-fn ac_choose(tab){ ac_tab = tab ac_expanded = "" ac_refresh() }
++fn ac_choose(tab){ ac_tab = tab ac_expanded = "" ac_dsl_open = false ac_refresh() }
+ fn ac_expand(id){ if ac_expanded == id { ac_expanded = "" } else { ac_expanded = id } ac_refresh() }
+ fn ac_appearance_toggle(){ ac_light = !ac_light ui_layout_save() ac_refresh() }
+ fn ac_picker_toggle(){ ac_picker_open = !ac_picker_open ac_refresh() }
+@@ -9234,7 +9235,7 @@
+         for index in min(goals.len(),64) { let goal = goals[index] if ac_field(goal,"id") == id && ac_goal_allowed(goal) { allowed = true } }
+         if !allowed { return }
+     }
+-    ac_selected_id = id ac_selected_chat = chat_selected_id ac_picker_open = false ac_expanded = ""
++    ac_selected_id = id ac_selected_chat = chat_selected_id ac_picker_open = false ac_expanded = "" ac_dsl_open = false
+     ui_layout_save() ac_refresh()
+ }
+ fn ac_choices(){
+@@ -9504,6 +9505,11 @@
+                 }
+             }
+         }
++    }
++    Secondary{text: "行动链 DSL（只读）" draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || { ac_dsl_open = !ac_dsl_open ac_refresh() }}
++    if ac_dsl_open {
++        Label{width: Fill text: "当前可见记录的只读投影；不是执行请求、授权或完整历史。" draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
++        Label{width: Fill text: chain.to_json() draw_text.color: chain_ink draw_text.wrap: Words draw_text.text_style.font_size: 10}
+     }
+     if chain.limited { Label{width: Fill text: "仅展示最近的关键记录。完整历史仍在事项详情中。" draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
+     if chain.nodes.len() > 0 {

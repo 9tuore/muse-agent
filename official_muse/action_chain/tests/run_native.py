@@ -39,6 +39,7 @@ def main():
     p.add_argument('--sizes', nargs='+', default=['1100x740', '412x892', '990x539', '1200x420', '1100x740'])
     p.add_argument('--out', required=True, type=Path)
     p.add_argument('--port', type=int, default=8659)
+    p.add_argument('--dsl', action='store_true', help='Check read-only action-chain disclosure; no approval/tool input')
     a = p.parse_args()
     out = a.out.resolve()
     assert out.is_relative_to(ROOT / 'build') and not out.exists()
@@ -61,6 +62,8 @@ def main():
               'cases': [], 'boundary': 'Explicit reference Host identified by SHA; no actual mail/model/calendar execution, installed Shell admission or Agent grant.'}
     action_path = out / 'state/muse-goals/goals.json'
     before = action_digest(action_path)
+    layout_path = out / 'state/muse-goals/ui-layout.json'
+    initial_light = layout_path.is_file() and json.loads(layout_path.read_text()).get('chain_light') is True
     remote = Remote(a.port)
 
     def click(text):
@@ -115,8 +118,41 @@ def main():
                     click('行动链')
                     remote.wait_for('事项 · 当前计划', 5)
                     labels = [w.get('t') for w in remote.widgets()]
-                    case['checks']['appearance_restored'] = ('深色' in labels) if number > 0 else ('浅色' in labels)
+                    case['checks']['appearance_restored'] = ('深色' in labels) if number > 0 or initial_light else ('浅色' in labels)
                     remote.shot(out / f'{number}-{size}-chain.png')
+                    if a.dsl:
+                        area_id = 'right_page_content' if int(size.split('x')[0]) <= 740 else 'right_content'
+                        x, y, w, h = remote.find(area_id)['r']
+                        assert w > 2 and h > 20, 'DSL pane is not visible'
+                        sx, sy = int(x+w/2), int(y+h/2)
+                        remote.click_scroll('行动链 DSL（只读）', area_id, attempts=48)
+                        view = None
+                        for _ in range(24):
+                            for widget in remote.widgets():
+                                if widget.get('ty') != 'Label' or widget['r'][2] < 2 or widget['r'][3] < 2:
+                                    continue
+                                try: value = json.loads(widget.get('t', ''))
+                                except (ValueError, TypeError): continue
+                                if isinstance(value, dict) and value.get('kind') == 'action_chain':
+                                    view = value
+                                    label_text = widget["t"]
+                                    break
+                            if view is not None: break
+                            remote.scroll(sx, sy, 80)
+                        assert view is not None, 'No actual action-chain JSON Label after bounded scroll'
+                        records = view.get('records')
+                        valid = (view.get('schema_version') == 'muse.view/1' and view.get('read_only') is True
+                                 and view.get('tool_authority') is False and isinstance(records, list) and len(records) == 1
+                                 and isinstance(records[0], dict) and isinstance(records[0].get('nodes'), list)
+                                 and len(records[0]['nodes']) <= 12)
+                        case['checks']['dsl_read_only_view'] = valid
+                        case['dsl_view'] = view
+                        remote.shot(out / f'{number}-{size}-dsl.png')
+                        assert valid, 'DSL Label violates read-only view contract'
+                        remote.scroll(sx, sy, -10000)
+                        remote.click_scroll('行动链 DSL（只读）', area_id, attempts=48)
+                        assert not any(w.get('ty') == 'Label' and w.get('t') == label_text for w in remote.widgets()), 'DSL did not collapse'
+                        remote.scroll(sx, sy, -10000)
                     labels = [w.get('t') for w in remote.widgets()]
                     waiting = '等你确认' in labels
                     failed = '失败' in labels
@@ -131,7 +167,9 @@ def main():
                     click('查看依据')
                     case['checks']['details_visible'] = any(w.get('t') == '版本 1 · 计划不等于执行成功' for w in remote.widgets())
                     remote.shot(out / f'{number}-{size}-expanded.png')
-                    if number == 0: click('浅色')
+                    if number == 0:
+                        if initial_light: click('深色')
+                        click('浅色')
                     else:
                         click('深色')
                         click('浅色')
@@ -158,7 +196,7 @@ def main():
         report['actions_sha256_after'] = action_digest(action_path)
         report['actions_unchanged'] = before == action_digest(action_path)
         report['status'] = 'PASS_NATIVE_UI_SUBSET' if report['actions_unchanged'] and all(
-            len(c['checks']) == 8 and all(c['checks'].values()) for c in report['cases']) else 'FAIL'
+            len(c['checks']) == (9 if a.dsl else 8) and all(c['checks'].values()) for c in report['cases']) else 'FAIL'
     except Exception as error:
         report['error'] = repr(error)
     save()
