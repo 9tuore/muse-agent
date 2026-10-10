@@ -1,0 +1,297 @@
+--- a/apps/calendar/host-service/src/lib.rs
++++ b/apps/calendar/host-service/src/lib.rs
+@@ -181,12 +181,21 @@
+ 
+ /// The events kept under `host_dir`, soonest first.
+ pub fn load(host_dir: &Path) -> Vec<Event> {
+-    let mut events: Vec<Event> = std::fs::read(store_path(host_dir))
+-        .ok()
+-        .and_then(|b| serde_json::from_slice(&b).ok())
+-        .unwrap_or_default();
++    // Compatibility for existing callers; all tool and UI operations use
++    // the fallible reader below and never treat an unreadable store as empty.
++    load_checked(host_dir).unwrap_or_default()
++}
++
++fn load_checked(host_dir: &Path) -> Result<Vec<Event>, String> {
++    let bytes = match std::fs::read(store_path(host_dir)) {
++        Ok(bytes) => bytes,
++        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
++        Err(error) => return Err(format!("Calendar cannot read its events: {error}")),
++    };
++    let mut events: Vec<Event> = serde_json::from_slice(&bytes)
++        .map_err(|_| "Calendar events are unreadable. Keep the original file and repair it before editing.".to_string())?;
+     events.sort_by_cached_key(|e| (e.local_stamp(false), e.id.clone()));
+-    events
++    Ok(events)
+ }
+ 
+ fn save(host_dir: &Path, events: &[Event]) -> Result<(), String> {
+@@ -282,6 +291,17 @@
+             if let Err(error) = cards::refresh(host_dir,&event,publish) { result["card_warning"] = json!(error); }
+             Ok(result)
+         },
++        "get_event" => {
++            let id = bounded(text(args, "id"), 64, "An event id")?;
++            let request_id = bounded(text(args, "request_id"), 160, "A request id")?;
++            if (id.is_empty() && request_id.is_empty()) || (!id.is_empty() && !request_id.is_empty()) {
++                return Err("Supply exactly one event id or request_id for precise readback.".into());
++            }
++            let matches: Vec<Event> = load_checked(host_dir)?.into_iter()
++                .filter(|event| if id.is_empty() { event.request_id == request_id } else { event.id == id }).collect();
++            if matches.len() > 1 { return Err("Calendar event identity is ambiguous. Keep the records and reconcile them.".into()); }
++            Ok(json!({"found": !matches.is_empty(), "event": matches.first()}))
++        },
+         "events" => {
+             let from = match text(args, "from") {
+                 "" => None,
+@@ -292,7 +312,7 @@
+                 s => Some(stamp(parse_time(s)?)),
+             };
+             let limit = args["limit"].as_u64().unwrap_or(50).clamp(1, 200) as usize;
+-            let events: Vec<Event> = load(host_dir)
++            let events: Vec<Event> = load_checked(host_dir)?
+                 .into_iter()
+                 .filter(|e| from.as_ref().map_or(true, |f| e.local_stamp(true) >= *f))
+                 .filter(|e| to.as_ref().map_or(true, |t| e.local_stamp(false) <= *t))
+@@ -327,7 +347,7 @@
+                 request_id: bounded(text(args, "request_id"), 160, "A request id")?,
+                 timezone,
+             };
+-            let mut events = load(host_dir);
++            let mut events = load_checked(host_dir)?;
+             if !event.request_id.is_empty() {
+                 if let Some(existing) = events.iter().find(|e| e.request_id == event.request_id) {
+                     let mut same = event.clone(); same.id = existing.id.clone();
+@@ -348,7 +368,7 @@
+         }
+         "remove_event" => {
+             let id = text(args, "id");
+-            let mut events = load(host_dir);
++            let mut events = load_checked(host_dir)?;
+             if let Some(expected) = args.get("expected") {
+                 let expected: Event = serde_json::from_value(expected.clone()).map_err(|_| "Read the event before deleting it.")?;
+                 if !events.iter().any(|e| e.id == id && *e == expected) { return Err("This event changed elsewhere. Reload before deleting it.".into()); }
+@@ -366,7 +386,7 @@
+         "notify" => {
+             let priority = args["priority"].as_i64().unwrap_or(70);
+             if !text(args,"event").is_empty() {
+-                let event = load(host_dir).into_iter().find(|e| e.id == text(args,"event")).ok_or("This event is no longer in Calendar.")?;
++                let event = load_checked(host_dir)?.into_iter().find(|e| e.id == text(args,"event")).ok_or("This event is no longer in Calendar.")?;
+                 let card_id = if text(args,"card_id").is_empty() { &event.id } else { text(args,"card_id") };
+                 let publisher = publish.ok_or("This device shows no glance cards.")?;
+                 return cards::publish(host_dir,&event,card_id,priority,chrono::Utc::now().timestamp_millis().max(0) as u64,publisher);
+@@ -384,7 +404,7 @@
+                     (title, day_time, bounded(text(args, "location"), PLACE_MAX, "A place")?, bounded(text(args, "notes"), NOTES_MAX, "Notes")?, id)
+                 }
+                 id => {
+-                    let event = load(host_dir).into_iter().find(|e| e.id == id).ok_or_else(|| format!("There is no event {id:?}."))?;
++                    let event = load_checked(host_dir)?.into_iter().find(|e| e.id == id).ok_or_else(|| format!("There is no event {id:?}."))?;
+                     let (day, time) = day_and_time(&event.start, event.end.as_deref());
+                     let day_time = (day, format!("{time}{}", event.zone_label()));
+                     (event.title, day_time, event.location, event.notes, event.id)
+@@ -400,7 +420,7 @@
+             let days = args["days"].as_i64().unwrap_or(7).clamp(1, 60);
+             let from = stamp(now);
+             let to = stamp(now + Duration::days(days));
+-            let events: Vec<Event> = load(host_dir).into_iter().filter(|e| e.local_stamp(true) >= from && e.local_stamp(false) <= to).collect();
++            let events: Vec<Event> = load_checked(host_dir)?.into_iter().filter(|e| e.local_stamp(true) >= from && e.local_stamp(false) <= to).collect();
+             publish_card(agenda_card_args(&events, days, now))
+         }
+         other => Err(format!("calendar has no method {other:?}")),
+@@ -538,3 +558,69 @@
+         let _ = std::fs::remove_dir_all(&d);
+     }
+ }
++
++#[cfg(test)]
++mod reconciliation_tests {
++use super::*;
++
++fn fixture(tag: &str) -> std::path::PathBuf {
++    let root = std::env::temp_dir().join(format!("muse-calendar-review-{tag}-{}", std::process::id()));
++    let _ = std::fs::remove_dir_all(&root);
++    root
++}
++
++#[test]
++fn exact_readback_reconciles_create_update_and_delete() {
++    let root = fixture("lifecycle");
++    let now = parse_time("2026-10-10T18:00").unwrap();
++    let created = handle(APP, "add_event", &json!({"title":"Synthetic review", "start":"2026-10-11T15:00", "request_id":"synthetic-review"}), &root, now, None).unwrap();
++    let by_request = handle(APP, "get_event", &json!({"request_id":"synthetic-review"}), &root, now, None).unwrap();
++    assert_eq!(by_request["event"]["id"], created["id"]);
++    let snapshot = by_request["event"].clone();
++    let edit = json!({"id":created["id"],"expected":snapshot,"title":"Synthetic review", "start":"2026-10-11T16:00"});
++    handle(APP, "update_event", &edit, &root, now, None).unwrap();
++    assert!(handle(APP, "update_event", &edit, &root, now, None).is_err());
++    let current = handle(APP, "get_event", &json!({"id":created["id"]}), &root, now, None).unwrap();
++    assert_eq!(current["event"]["start"], "2026-10-11T16:00");
++    assert_eq!(current["event"]["request_id"], "synthetic-review");
++    handle(APP, "remove_event", &json!({"id":created["id"],"expected":current["event"]}), &root, now, None).unwrap();
++    let absent = handle(APP, "get_event", &json!({"id":created["id"]}), &root, now, None).unwrap();
++    assert_eq!(absent, json!({"found":false,"event":null}));
++    assert!(handle("muse-goals", "get_event", &json!({"id":created["id"]}), &root, now, None).is_err());
++    std::fs::remove_dir_all(root).unwrap();
++}
++
++#[test]
++fn unreadable_store_never_becomes_empty_or_overwritten() {
++    let root = fixture("corrupt");
++    std::fs::create_dir_all(root.join("calendar")).unwrap();
++    let original = b"{unfinished calendar records";
++    std::fs::write(store_path(&root), original).unwrap();
++    let now = parse_time("2026-10-10T18:00").unwrap();
++    for (method,args) in [
++        ("events",json!({})), ("view",json!({})), ("get_event",json!({"id":"synthetic"})),
++        ("add_event",json!({"title":"Synthetic", "start":"2026-10-11T15:00"})),
++        ("update_event",json!({"id":"synthetic"})), ("remove_event",json!({"id":"synthetic"}))
++    ] {
++        assert!(handle(APP,method,&args,&root,now,None).is_err(), "{method}");
++        assert_eq!(std::fs::read(store_path(&root)).unwrap(),original);
++    }
++    std::fs::remove_dir_all(root).unwrap();
++}
++
++#[test]
++fn exact_lookup_is_independent_of_list_cap_and_rejects_ambiguity() {
++    let root = fixture("cap");
++    let now = parse_time("2026-10-10T18:00").unwrap();
++    let events: Vec<Event> = (0..201).map(|n| Event { id:format!("synthetic-{n:04}"),title:"Synthetic".into(),
++        start:"2026-10-11T15:00".into(),end:None,location:String::new(),notes:String::new(),request_id:format!("request-{n:04}"),timezone:String::new() }).collect();
++    save(&root,&events).unwrap();
++    assert_eq!(handle(APP,"events",&json!({"limit":200}),&root,now,None).unwrap()["events"].as_array().unwrap().len(),200);
++    assert_eq!(handle(APP,"get_event",&json!({"id":"synthetic-0200"}),&root,now,None).unwrap()["event"]["id"],"synthetic-0200");
++    let mut duplicate = events.clone(); duplicate.push(events[0].clone()); save(&root,&duplicate).unwrap();
++    assert!(handle(APP,"get_event",&json!({"request_id":"request-0000"}),&root,now,None).unwrap_err().contains("ambiguous"));
++    assert!(handle(APP,"get_event",&json!({}),&root,now,None).is_err());
++    std::fs::remove_dir_all(root).unwrap();
++}
++
++}
+--- a/apps/calendar/host-service/src/ui.rs
++++ b/apps/calendar/host-service/src/ui.rs
+@@ -9,7 +9,7 @@
+ 
+ /// A trusted shell navigation request. The target must exist in this store.
+ pub fn focus_event(host_dir: &Path, id: &str) -> Result<(), String> {
+-    if !load(host_dir).iter().any(|event| event.id == id) {
++    if !load_checked(host_dir)?.iter().any(|event| event.id == id) {
+         return Err("This event is no longer in Calendar.".into());
+     }
+     FOCUS
+@@ -53,7 +53,7 @@
+ }
+ 
+ pub fn view(host_dir: &Path, args: &Value, now: NaiveDateTime) -> Result<Value, String> {
+-    let events = load(host_dir);
++    let events = load_checked(host_dir)?;
+     let zone = events
+         .iter()
+         .find(|e| !e.timezone.is_empty())
+@@ -137,7 +137,7 @@
+ }
+ 
+ pub fn update(host_dir: &Path, args: &Value) -> Result<Value, String> {
+-    let mut events = load(host_dir);
++    let mut events = load_checked(host_dir)?;
+     let event = events
+         .iter_mut()
+         .find(|e| e.id == text(args, "id"))
+--- a/apps/calendar/bundle/tools.json
++++ b/apps/calendar/bundle/tools.json
+@@ -44,6 +44,48 @@
+       "shareable": true
+     },
+     {
++      "name": "calendar.get_event",
++      "description": "Exact durable readback by one event id or stable request_id, including authoritative absence. Refuses unreadable or ambiguous records. This is the same built-in Calendar store.",
++      "input_schema": {
++        "type": "object",
++        "properties": {
++          "id": {
++            "type": "string",
++            "minLength": 1,
++            "maxLength": 64
++          },
++          "request_id": {
++            "type": "string",
++            "minLength": 1,
++            "maxLength": 160
++          }
++        },
++        "additionalProperties": false
++      },
++      "output_schema": {
++        "type": "object",
++        "properties": {
++          "found": {
++            "type": "boolean"
++          },
++          "event": {
++            "type": [
++              "object",
++              "null"
++            ]
++          }
++        },
++        "required": [
++          "found",
++          "event"
++        ]
++      },
++      "risk": "read",
++      "background": true,
++      "implemented_by": "host-service",
++      "shareable": true
++    },
++    {
+       "name": "calendar.add_event",
+       "description": "Add an event to the person's calendar. start (and end) are local times like 2026-10-02T15:00, or a date like 2026-10-02 for the whole day. Answers the new event's id. For retries supply the same stable request_id and exact event fields; it reuses the saved event. Changed fields with that key are refused instead of duplicating it. This is OctoSense local storage, not Google Calendar sync. Supply timezone (IANA, e.g. America/Los_Angeles) to preserve the event wall time independently of device settings. Missing timezone uses device local time. Do not guess an unspecified end.",
+       "input_schema": {
+@@ -168,9 +210,12 @@
+           "event"
+         ]
+       },
+-      "risk": "act",
+-      "background": true,
+-      "implemented_by": "host-service"
++      "risk": "destructive",
++      "background": true,
++      "implemented_by": "host-service",
++      "shareable": true,
++      "confirm": "host",
++      "auto_approvable": false
+     },
+     {
+       "name": "calendar.remove_event",
+@@ -182,10 +227,14 @@
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 64
+-          }
+-        },
+-        "required": [
+-          "id"
++          },
++          "expected": {
++            "type": "object"
++          }
++        },
++        "required": [
++          "id",
++          "expected"
+         ],
+         "additionalProperties": false
+       },
+@@ -203,7 +252,9 @@
+       "risk": "destructive",
+       "confirm": "host",
+       "background": true,
+-      "implemented_by": "host-service"
++      "implemented_by": "host-service",
++      "shareable": true,
++      "auto_approvable": false
+     },
+     {
+       "name": "calendar.notify",

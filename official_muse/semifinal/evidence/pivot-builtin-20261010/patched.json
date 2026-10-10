@@ -1,0 +1,3126 @@
+{
+  "kind": "OFFICIAL_BUILTIN_CALENDAR_SERVICE_WITH_REAL_APPSTORE",
+  "status": "PASS_OFFICIAL_SERVICE_UNIT",
+  "source_files": {
+    "Cargo.toml": "26dae07c5e153ea3aade010a024d5281de442ae73b246388d7e4c0cb49b8d75a",
+    "resources/agenda.card": "711f3a47c0dbb2e1a6f4c36637c16d29e65f19096536b698560f2d4ae5ec9134",
+    "resources/event.card": "fc555ed9eafb7a35edb9432955e328d1cbd7fee06f2721d95ada3d0abb935e24",
+    "src/cards.rs": "7451afeb00f8cec2ec24a55521d4e38b4de418c367ae103c8e2c1429bb7b81e2",
+    "src/lib.rs": "e046649209692d79364e2d2443eae4aad39400a1cbe6c7cd07c6e7f6814f0f3c",
+    "src/ui.rs": "0f0ae980a87fdf77b092ebc4a9a87708601e5ad2bd39ba0e06ca250a1930d240"
+  },
+  "source_byte_identical": false,
+  "patch_sha256": "f40635f6373dd68ea295f5c1c0bf964c1f044ce14dc268df0931be8a809c2ad8",
+  "sdk_head": "4ccf8e068399b1da139771a9ed94cef05fa6ae60",
+  "hub_head": "95e4831afca7227b640f075b252c04355bb63865",
+  "boundary": "Official service unit tests with actual App Hub library. Not a running Shell UI, Muse tool grant, native approval, or full business chain.",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "<worktree>/build/pivot-builtin-calendar-patched-r5/Cargo.toml",
+    "--target-dir",
+    "<worktree>/build/official-hub-rc2-target",
+    "-p",
+    "octosense-calendar-service",
+    "--",
+    "--test-threads=1"
+  ],
+  "exit_code": 0,
+  "muse-calendar-probe_build_exit": 0,
+  "muse-calendar-probe_sha256": "d6e06acd969245f5461ce5d3ca3d371ac829229b9e0656712b82293de24955ad",
+  "muse-calendar-reference-host_build_exit": 0,
+  "muse-calendar-reference-host_sha256": "9cce0d7fd644623f671a8b943c1286f43d59468b67f392ac840aec8eecb30137",
+  "protocol": {
+    "checks": {
+      "direct_third_party_denied": true,
+      "create_independently_persisted": true,
+      "restart_same_request_no_duplicate": true,
+      "changed_retry_rejected": true,
+      "query_real_store": true,
+      "update_original_id_independently_persisted": true,
+      "stale_update_rejected_after_restart": true,
+      "same_event_in_official_month_day_projection": true,
+      "stale_delete_rejected": true,
+      "delete_independent_read_absence": true,
+      "restart_absence_no_reexecution": true,
+      "budgets_unchanged": true,
+      "default_calendar_offer_denied": true,
+      "digest_tamper_still_denied": true,
+      "identity_preserved": true,
+      "shipping_signature_requirement_preserved": true,
+      "trusted_host_scoped_offer_resolves": true,
+      "unoffered_delete_still_denied": true,
+      "original_contract_accepts_tool_descriptors": true,
+      "shared_mutations_keep_host_confirmation": true
+    },
+    "known_gaps": {
+      "exact_get_event_supported": true,
+      "unknown_reconciles_by_request_id": true,
+      "exact_absence_after_delete": true,
+      "corrupt_store_write_fails_closed": true,
+      "corrupt_store_not_false_absence": true,
+      "corrupt_update_delete_query_refused": true,
+      "exact_lookup_beyond_list_cap": true
+    },
+    "calls": [
+      {
+        "method": "add_event",
+        "caller": "muse-goals",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "error": "calendar is Calendar's own service",
+          "ok": false
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "card_warning": null,
+            "id": "ev-1791657000000",
+            "start": "2026-10-11T15:00"
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "event": {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            },
+            "found": true
+          }
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "event": {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            },
+            "found": true
+          }
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "card_warning": null,
+            "id": "ev-1791657000000",
+            "reused": true,
+            "start": "2026-10-11T15:00"
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T16:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "error": "The event ends before it starts.",
+          "ok": false
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "events",
+        "caller": "os.calendar",
+        "args": {
+          "from": "2026-10-11",
+          "to": "2026-10-12",
+          "limit": 200
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "events": [
+              {
+                "end": "2026-10-11T15:30",
+                "id": "ev-1791657000000",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "update_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T16:00",
+          "end": "2026-10-11T16:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T15:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "card_warning": null,
+            "event": {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "update_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T16:00",
+          "end": "2026-10-11T16:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T15:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "error": "This event changed elsewhere. Reload it before saving your changes.",
+          "ok": false
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "view",
+        "caller": "os.calendar",
+        "args": {
+          "month": "2026-10",
+          "day": "2026-10-11"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "day": "2026-10-11",
+            "day_label": "Sunday, 11 October",
+            "events": [
+              {
+                "end": "2026-10-11T16:30",
+                "id": "ev-1791657000000",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+                "start": "2026-10-11T16:00",
+                "time": "16:00–16:30 CST",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010",
+                "when": "Sun 11 Oct · 16:00–16:30 CST"
+              }
+            ],
+            "fingerprint": "11662908737534558206",
+            "focus_id": "",
+            "focused": null,
+            "month": "2026-10",
+            "month_label": "October 2026",
+            "timezone": "Asia/Shanghai",
+            "today": "2026-10-10",
+            "weeks": [
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-09-28",
+                    "in_month": false,
+                    "label": "28",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-09-29",
+                    "in_month": false,
+                    "label": "29",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-09-30",
+                    "in_month": false,
+                    "label": "30",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-01",
+                    "in_month": true,
+                    "label": "1",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-02",
+                    "in_month": true,
+                    "label": "2",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-03",
+                    "in_month": true,
+                    "label": "3",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-04",
+                    "in_month": true,
+                    "label": "4",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-05",
+                    "in_month": true,
+                    "label": "5",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-06",
+                    "in_month": true,
+                    "label": "6",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-07",
+                    "in_month": true,
+                    "label": "7",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-08",
+                    "in_month": true,
+                    "label": "8",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-09",
+                    "in_month": true,
+                    "label": "9",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-10",
+                    "in_month": true,
+                    "label": "10",
+                    "marked": false,
+                    "selected": false,
+                    "today": true
+                  },
+                  {
+                    "count": 1,
+                    "date": "2026-10-11",
+                    "in_month": true,
+                    "label": "11",
+                    "marked": true,
+                    "selected": true,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-12",
+                    "in_month": true,
+                    "label": "12",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-13",
+                    "in_month": true,
+                    "label": "13",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-14",
+                    "in_month": true,
+                    "label": "14",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-15",
+                    "in_month": true,
+                    "label": "15",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-16",
+                    "in_month": true,
+                    "label": "16",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-17",
+                    "in_month": true,
+                    "label": "17",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-18",
+                    "in_month": true,
+                    "label": "18",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-19",
+                    "in_month": true,
+                    "label": "19",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-20",
+                    "in_month": true,
+                    "label": "20",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-21",
+                    "in_month": true,
+                    "label": "21",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-22",
+                    "in_month": true,
+                    "label": "22",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-23",
+                    "in_month": true,
+                    "label": "23",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-24",
+                    "in_month": true,
+                    "label": "24",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-25",
+                    "in_month": true,
+                    "label": "25",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-26",
+                    "in_month": true,
+                    "label": "26",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-27",
+                    "in_month": true,
+                    "label": "27",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-28",
+                    "in_month": true,
+                    "label": "28",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-29",
+                    "in_month": true,
+                    "label": "29",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-30",
+                    "in_month": true,
+                    "label": "30",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-31",
+                    "in_month": true,
+                    "label": "31",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-01",
+                    "in_month": false,
+                    "label": "1",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-11-02",
+                    "in_month": false,
+                    "label": "2",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-03",
+                    "in_month": false,
+                    "label": "3",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-04",
+                    "in_month": false,
+                    "label": "4",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-05",
+                    "in_month": false,
+                    "label": "5",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-06",
+                    "in_month": false,
+                    "label": "6",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-07",
+                    "in_month": false,
+                    "label": "7",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-08",
+                    "in_month": false,
+                    "label": "8",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "remove_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T15:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "error": "This event changed elsewhere. Reload before deleting it.",
+          "ok": false
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "remove_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T16:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T16:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "removed": true
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": []
+        }
+      },
+      {
+        "method": "events",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": {
+            "events": []
+          }
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "event": null,
+            "found": false
+          }
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "error": "Calendar events are unreadable. Keep the original file and repair it before editing.",
+          "ok": false
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000"
+        },
+        "reply": {
+          "error": "Calendar events are unreadable. Keep the original file and repair it before editing.",
+          "ok": false
+        }
+      },
+      {
+        "method": "update_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T16:00",
+          "end": "2026-10-11T16:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T15:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "error": "Calendar events are unreadable. Keep the original file and repair it before editing.",
+          "ok": false
+        }
+      },
+      {
+        "method": "remove_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T16:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T16:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "error": "Calendar events are unreadable. Keep the original file and repair it before editing.",
+          "ok": false
+        }
+      },
+      {
+        "method": "events",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "error": "Calendar events are unreadable. Keep the original file and repair it before editing.",
+          "ok": false
+        }
+      },
+      {
+        "method": "events",
+        "caller": "os.calendar",
+        "args": {
+          "limit": 200
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "events": [
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0000",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0000",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0001",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0001",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0002",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0002",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0003",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0003",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0004",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0004",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0005",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0005",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0006",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0006",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0007",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0007",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0008",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0008",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0009",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0009",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0010",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0010",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0011",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0011",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0012",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0012",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0013",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0013",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0014",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0014",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0015",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0015",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0016",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0016",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0017",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0017",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0018",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0018",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0019",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0019",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0020",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0020",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0021",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0021",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0022",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0022",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0023",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0023",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0024",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0024",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0025",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0025",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0026",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0026",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0027",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0027",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0028",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0028",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0029",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0029",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0030",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0030",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0031",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0031",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0032",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0032",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0033",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0033",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0034",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0034",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0035",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0035",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0036",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0036",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0037",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0037",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0038",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0038",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0039",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0039",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0040",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0040",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0041",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0041",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0042",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0042",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0043",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0043",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0044",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0044",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0045",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0045",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0046",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0046",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0047",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0047",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0048",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0048",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0049",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0049",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0050",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0050",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0051",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0051",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0052",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0052",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0053",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0053",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0054",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0054",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0055",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0055",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0056",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0056",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0057",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0057",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0058",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0058",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0059",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0059",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0060",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0060",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0061",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0061",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0062",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0062",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0063",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0063",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0064",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0064",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0065",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0065",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0066",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0066",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0067",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0067",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0068",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0068",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0069",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0069",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0070",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0070",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0071",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0071",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0072",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0072",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0073",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0073",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0074",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0074",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0075",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0075",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0076",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0076",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0077",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0077",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0078",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0078",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0079",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0079",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0080",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0080",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0081",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0081",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0082",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0082",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0083",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0083",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0084",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0084",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0085",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0085",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0086",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0086",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0087",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0087",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0088",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0088",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0089",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0089",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0090",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0090",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0091",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0091",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0092",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0092",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0093",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0093",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0094",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0094",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0095",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0095",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0096",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0096",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0097",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0097",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0098",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0098",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0099",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0099",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0100",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0100",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0101",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0101",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0102",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0102",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0103",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0103",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0104",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0104",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0105",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0105",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0106",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0106",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0107",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0107",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0108",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0108",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0109",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0109",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0110",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0110",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0111",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0111",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0112",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0112",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0113",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0113",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0114",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0114",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0115",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0115",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0116",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0116",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0117",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0117",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0118",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0118",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0119",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0119",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0120",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0120",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0121",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0121",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0122",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0122",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0123",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0123",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0124",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0124",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0125",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0125",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0126",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0126",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0127",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0127",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0128",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0128",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0129",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0129",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0130",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0130",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0131",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0131",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0132",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0132",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0133",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0133",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0134",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0134",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0135",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0135",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0136",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0136",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0137",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0137",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0138",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0138",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0139",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0139",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0140",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0140",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0141",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0141",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0142",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0142",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0143",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0143",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0144",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0144",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0145",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0145",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0146",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0146",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0147",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0147",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0148",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0148",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0149",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0149",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0150",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0150",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0151",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0151",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0152",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0152",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0153",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0153",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0154",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0154",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0155",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0155",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0156",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0156",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0157",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0157",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0158",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0158",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0159",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0159",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0160",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0160",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0161",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0161",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0162",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0162",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0163",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0163",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0164",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0164",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0165",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0165",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0166",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0166",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0167",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0167",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0168",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0168",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0169",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0169",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0170",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0170",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0171",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0171",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0172",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0172",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0173",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0173",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0174",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0174",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0175",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0175",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0176",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0176",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0177",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0177",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0178",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0178",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0179",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0179",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0180",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0180",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0181",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0181",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0182",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0182",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0183",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0183",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0184",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0184",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0185",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0185",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0186",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0186",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0187",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0187",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0188",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0188",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0189",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0189",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0190",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0190",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0191",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0191",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0192",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0192",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0193",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0193",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0194",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0194",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0195",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0195",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0196",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0196",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0197",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0197",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0198",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0198",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              },
+              {
+                "end": "2026-10-11T15:30",
+                "id": "synthetic-cap-0199",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "synthetic-cap-request-0199",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "synthetic-cap-0200"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "event": {
+              "end": "2026-10-11T15:30",
+              "id": "synthetic-cap-0200",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "synthetic-cap-request-0200",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            },
+            "found": true
+          }
+        }
+      },
+      {
+        "method": "admission-check",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": {
+            "boundary": "Official policy/digest component only; no installed publisher signature, catalog admission, Shell grant or native confirmation.",
+            "budgets_unchanged": true,
+            "default_calendar_offer_denied": true,
+            "digest_tamper_still_denied": true,
+            "identity_preserved": true,
+            "shipping_signature_requirement_preserved": true,
+            "trusted_host_scoped_offer_resolves": true,
+            "unoffered_delete_still_denied": true
+          }
+        }
+      },
+      {
+        "method": "tools-check",
+        "caller": "os.calendar",
+        "args": {
+          "path": "<worktree>/build/pivot-builtin-calendar-patched-r5/bundle/tools.json"
+        },
+        "reply": {
+          "issues": [
+            "calendar.update_event is destructive and marked background: in a background run it only becomes an approval request, and runs after the person approves",
+            "calendar.remove_event is destructive and marked background: in a background run it only becomes an approval request, and runs after the person approves"
+          ],
+          "ok": true,
+          "value": [
+            {
+              "auto_approvable": true,
+              "name": "calendar.events",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.get_event",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.add_event",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": false,
+              "name": "calendar.update_event",
+              "needs_person": true,
+              "shareable": true
+            },
+            {
+              "auto_approvable": false,
+              "name": "calendar.remove_event",
+              "needs_person": true,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.notify",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.agenda",
+              "needs_person": false,
+              "shareable": false
+            }
+          ]
+        }
+      }
+    ],
+    "external_calls": 0,
+    "binary_sha256": "d6e06acd969245f5461ce5d3ca3d371ac829229b9e0656712b82293de24955ad",
+    "patched": true,
+    "boundary": "Isolated proposed Calendar patch, real store, independent processes and real policy/schema components. No Shell admission, Agent, native confirmation or production data."
+  },
+  "log_sha256": "f6b18b45e74e600f5649c7f4510c2734e4d0bfe47193fe8a4ebe6f47354bfc81"
+}

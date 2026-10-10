@@ -1,0 +1,1024 @@
+{
+  "kind": "OFFICIAL_BUILTIN_CALENDAR_SERVICE_WITH_REAL_APPSTORE",
+  "status": "FAIL_PROTOCOL",
+  "source_files": {
+    "Cargo.toml": "26dae07c5e153ea3aade010a024d5281de442ae73b246388d7e4c0cb49b8d75a",
+    "resources/agenda.card": "711f3a47c0dbb2e1a6f4c36637c16d29e65f19096536b698560f2d4ae5ec9134",
+    "resources/event.card": "fc555ed9eafb7a35edb9432955e328d1cbd7fee06f2721d95ada3d0abb935e24",
+    "src/cards.rs": "7451afeb00f8cec2ec24a55521d4e38b4de418c367ae103c8e2c1429bb7b81e2",
+    "src/lib.rs": "e046649209692d79364e2d2443eae4aad39400a1cbe6c7cd07c6e7f6814f0f3c",
+    "src/ui.rs": "0f0ae980a87fdf77b092ebc4a9a87708601e5ad2bd39ba0e06ca250a1930d240"
+  },
+  "source_byte_identical": false,
+  "patch_sha256": "2455c1a75fea8b3dced30dd7edcac6a50c03d4b7bd5058cff62709e5fde45ade",
+  "sdk_head": "4ccf8e068399b1da139771a9ed94cef05fa6ae60",
+  "hub_head": "95e4831afca7227b640f075b252c04355bb63865",
+  "boundary": "Official service unit tests with actual App Hub library. Not a running Shell UI, Muse tool grant, native approval, or full business chain.",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "<worktree>/build/pivot-builtin-calendar-patched-r2/Cargo.toml",
+    "--target-dir",
+    "<worktree>/build/official-hub-rc2-target",
+    "-p",
+    "octosense-calendar-service",
+    "--",
+    "--test-threads=1"
+  ],
+  "exit_code": 0,
+  "muse-calendar-probe_build_exit": 0,
+  "protocol": {
+    "checks": {
+      "direct_third_party_denied": true,
+      "create_independently_persisted": true,
+      "restart_same_request_no_duplicate": true,
+      "changed_retry_rejected": true,
+      "query_real_store": true,
+      "update_original_id_independently_persisted": true,
+      "stale_update_rejected_after_restart": true,
+      "same_event_in_official_month_day_projection": true,
+      "stale_delete_rejected": true,
+      "delete_independent_read_absence": true,
+      "restart_absence_no_reexecution": true,
+      "budgets_unchanged": true,
+      "default_calendar_offer_denied": true,
+      "digest_tamper_still_denied": true,
+      "identity_preserved": false,
+      "trusted_host_scoped_offer_resolves": false,
+      "unoffered_delete_still_denied": true,
+      "original_contract_accepts_tool_descriptors": true,
+      "shared_mutations_keep_host_confirmation": false
+    },
+    "known_gaps": {
+      "exact_get_event_supported": true,
+      "unknown_reconciles_by_request_id": true,
+      "exact_absence_after_delete": true,
+      "corrupt_store_write_fails_closed": true,
+      "corrupt_store_not_false_absence": true
+    },
+    "calls": [
+      {
+        "method": "add_event",
+        "caller": "muse-goals",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "error": "calendar is Calendar's own service",
+          "ok": false
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "card_warning": null,
+            "id": "ev-1791657000000",
+            "start": "2026-10-11T15:00"
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "event": {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            },
+            "found": true
+          }
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "event": {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            },
+            "found": true
+          }
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "card_warning": null,
+            "id": "ev-1791657000000",
+            "reused": true,
+            "start": "2026-10-11T15:00"
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T16:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "error": "The event ends before it starts.",
+          "ok": false
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T15:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "events",
+        "caller": "os.calendar",
+        "args": {
+          "from": "2026-10-11",
+          "to": "2026-10-12",
+          "limit": 200
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "events": [
+              {
+                "end": "2026-10-11T15:30",
+                "id": "ev-1791657000000",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+                "start": "2026-10-11T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "update_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T16:00",
+          "end": "2026-10-11T16:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T15:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "card_warning": null,
+            "event": {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "update_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T16:00",
+          "end": "2026-10-11T16:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T15:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "error": "This event changed elsewhere. Reload it before saving your changes.",
+          "ok": false
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "view",
+        "caller": "os.calendar",
+        "args": {
+          "month": "2026-10",
+          "day": "2026-10-11"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "day": "2026-10-11",
+            "day_label": "Sunday, 11 October",
+            "events": [
+              {
+                "end": "2026-10-11T16:30",
+                "id": "ev-1791657000000",
+                "location": "Muse synthetic acceptance",
+                "notes": "Synthetic fixture only",
+                "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+                "start": "2026-10-11T16:00",
+                "time": "16:00–16:30 CST",
+                "timezone": "Asia/Shanghai",
+                "title": "MUSE-PIVOT-BUILTIN-20261010",
+                "when": "Sun 11 Oct · 16:00–16:30 CST"
+              }
+            ],
+            "fingerprint": "11662908737534558206",
+            "focus_id": "",
+            "focused": null,
+            "month": "2026-10",
+            "month_label": "October 2026",
+            "timezone": "Asia/Shanghai",
+            "today": "2026-10-10",
+            "weeks": [
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-09-28",
+                    "in_month": false,
+                    "label": "28",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-09-29",
+                    "in_month": false,
+                    "label": "29",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-09-30",
+                    "in_month": false,
+                    "label": "30",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-01",
+                    "in_month": true,
+                    "label": "1",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-02",
+                    "in_month": true,
+                    "label": "2",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-03",
+                    "in_month": true,
+                    "label": "3",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-04",
+                    "in_month": true,
+                    "label": "4",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-05",
+                    "in_month": true,
+                    "label": "5",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-06",
+                    "in_month": true,
+                    "label": "6",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-07",
+                    "in_month": true,
+                    "label": "7",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-08",
+                    "in_month": true,
+                    "label": "8",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-09",
+                    "in_month": true,
+                    "label": "9",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-10",
+                    "in_month": true,
+                    "label": "10",
+                    "marked": false,
+                    "selected": false,
+                    "today": true
+                  },
+                  {
+                    "count": 1,
+                    "date": "2026-10-11",
+                    "in_month": true,
+                    "label": "11",
+                    "marked": true,
+                    "selected": true,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-12",
+                    "in_month": true,
+                    "label": "12",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-13",
+                    "in_month": true,
+                    "label": "13",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-14",
+                    "in_month": true,
+                    "label": "14",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-15",
+                    "in_month": true,
+                    "label": "15",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-16",
+                    "in_month": true,
+                    "label": "16",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-17",
+                    "in_month": true,
+                    "label": "17",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-18",
+                    "in_month": true,
+                    "label": "18",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-19",
+                    "in_month": true,
+                    "label": "19",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-20",
+                    "in_month": true,
+                    "label": "20",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-21",
+                    "in_month": true,
+                    "label": "21",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-22",
+                    "in_month": true,
+                    "label": "22",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-23",
+                    "in_month": true,
+                    "label": "23",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-24",
+                    "in_month": true,
+                    "label": "24",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-25",
+                    "in_month": true,
+                    "label": "25",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-10-26",
+                    "in_month": true,
+                    "label": "26",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-27",
+                    "in_month": true,
+                    "label": "27",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-28",
+                    "in_month": true,
+                    "label": "28",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-29",
+                    "in_month": true,
+                    "label": "29",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-30",
+                    "in_month": true,
+                    "label": "30",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-10-31",
+                    "in_month": true,
+                    "label": "31",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-01",
+                    "in_month": false,
+                    "label": "1",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              },
+              {
+                "days": [
+                  {
+                    "count": 0,
+                    "date": "2026-11-02",
+                    "in_month": false,
+                    "label": "2",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-03",
+                    "in_month": false,
+                    "label": "3",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-04",
+                    "in_month": false,
+                    "label": "4",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-05",
+                    "in_month": false,
+                    "label": "5",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-06",
+                    "in_month": false,
+                    "label": "6",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-07",
+                    "in_month": false,
+                    "label": "7",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  },
+                  {
+                    "count": 0,
+                    "date": "2026-11-08",
+                    "in_month": false,
+                    "label": "8",
+                    "marked": false,
+                    "selected": false,
+                    "today": false
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "method": "remove_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T15:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "error": "This event changed elsewhere. Reload before deleting it.",
+          "ok": false
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": [
+            {
+              "end": "2026-10-11T16:30",
+              "id": "ev-1791657000000",
+              "location": "Muse synthetic acceptance",
+              "notes": "Synthetic fixture only",
+              "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+              "start": "2026-10-11T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-PIVOT-BUILTIN-20261010"
+            }
+          ]
+        }
+      },
+      {
+        "method": "remove_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000",
+          "expected": {
+            "end": "2026-10-11T16:30",
+            "id": "ev-1791657000000",
+            "location": "Muse synthetic acceptance",
+            "notes": "Synthetic fixture only",
+            "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE",
+            "start": "2026-10-11T16:00",
+            "timezone": "Asia/Shanghai",
+            "title": "MUSE-PIVOT-BUILTIN-20261010"
+          }
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "removed": true
+          }
+        }
+      },
+      {
+        "method": "raw-read",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": []
+        }
+      },
+      {
+        "method": "events",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": {
+            "events": []
+          }
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000"
+        },
+        "reply": {
+          "ok": true,
+          "value": {
+            "event": null,
+            "found": false
+          }
+        }
+      },
+      {
+        "method": "add_event",
+        "caller": "os.calendar",
+        "args": {
+          "title": "MUSE-PIVOT-BUILTIN-20261010",
+          "start": "2026-10-11T15:00",
+          "end": "2026-10-11T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Muse synthetic acceptance",
+          "notes": "Synthetic fixture only",
+          "request_id": "MUSE-PIVOT-BUILTIN-20261010-UNIQUE"
+        },
+        "reply": {
+          "error": "Calendar events are unreadable. Keep the original file and repair it before editing.",
+          "ok": false
+        }
+      },
+      {
+        "method": "get_event",
+        "caller": "os.calendar",
+        "args": {
+          "id": "ev-1791657000000"
+        },
+        "reply": {
+          "error": "Calendar events are unreadable. Keep the original file and repair it before editing.",
+          "ok": false
+        }
+      },
+      {
+        "method": "admission-check",
+        "caller": "os.calendar",
+        "args": {},
+        "reply": {
+          "ok": true,
+          "value": {
+            "boundary": "Official policy/digest component only; no installed publisher signature, catalog admission, Shell grant or native confirmation.",
+            "budgets_unchanged": true,
+            "default_calendar_offer_denied": true,
+            "digest_tamper_still_denied": true,
+            "identity_preserved": false,
+            "trusted_host_scoped_offer_resolves": false,
+            "unoffered_delete_still_denied": true
+          }
+        }
+      },
+      {
+        "method": "tools-check",
+        "caller": "os.calendar",
+        "args": {
+          "path": "<worktree>/build/pivot-builtin-calendar-patched-r2/bundle/tools.json"
+        },
+        "reply": {
+          "issues": [
+            "calendar.remove_event is destructive and marked background: in a background run it only becomes an approval request, and runs after the person approves"
+          ],
+          "ok": true,
+          "value": [
+            {
+              "auto_approvable": true,
+              "name": "calendar.events",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.get_event",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.add_event",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": false,
+              "name": "calendar.update_event",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": false,
+              "name": "calendar.remove_event",
+              "needs_person": true,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.notify",
+              "needs_person": false,
+              "shareable": true
+            },
+            {
+              "auto_approvable": true,
+              "name": "calendar.agenda",
+              "needs_person": false,
+              "shareable": false
+            }
+          ]
+        }
+      }
+    ],
+    "external_calls": 0,
+    "binary_sha256": "7a85f4146770a225cd8d9a812a4582707606d2fff41005ba3debdf162fdcfec4",
+    "patched": true,
+    "boundary": "Isolated proposed Calendar patch, real store, independent processes and real policy/schema components. No Shell admission, Agent, native confirmation or production data."
+  },
+  "log_sha256": "0219053478af52cdc1d1b0f791bdd6fe26d378be148c516cb05ccc1f94652348"
+}
