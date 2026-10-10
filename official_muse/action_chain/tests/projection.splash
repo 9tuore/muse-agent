@@ -93,6 +93,19 @@ fn ac_run_policy_suite(){
     ac_checks.changed_memory_invalidated = ac_has(ac_projection(),"关联记忆","已失效")
 
     ac_seed()
+    mail_draft = {account: "synthetic-mail" status: "waiting_user" body: "手写回复原文" link_goal_id: "synthetic-matter"
+        link_event_id: "saved-event" request_id: "synthetic-calendar-reply"}
+    calendar_links = [{goal_id: "synthetic-matter" account_id: "synthetic-mail" status: "verified" event_id: "saved-event"}]
+    ac_checks.unchanged_calendar_confirmation_valid = !ac_has(ac_projection(),"关联日程已变化","已失效")
+    calendar_links[0].status = "candidate"
+    ac_checks.changed_calendar_invalidates_confirmation = ac_has(ac_projection(),"关联日程已变化","已失效")
+    ac_checks.changed_calendar_preserves_hand_text = mail_draft.body == "手写回复原文" && mail_draft.status == "waiting_user"
+    calendar_links[0].status = "verified" calendar_links[0].event_id = "replacement-event"
+    ac_checks.replaced_event_invalidates_confirmation = ac_has(ac_projection(),"关联日程已变化","已失效")
+    mail_draft.status = "verified"
+    ac_checks.sent_history_not_rewritten = !ac_has(ac_projection(),"关联日程已变化","已失效")
+
+    ac_seed()
     goals.push({id: "synthetic-second" goal: "合成测试 · 第二事项" version: 1 project_id: gm_project owner_id: gm_owner status: "unknown"})
     goals.push({id: "synthetic-forbidden" goal: "禁止显示的其他归属" version: 1 project_id: gm_project owner_id: "老师" status: "verified"})
     ac_checks.only_authorized_choices = ac_choices().len() == 2

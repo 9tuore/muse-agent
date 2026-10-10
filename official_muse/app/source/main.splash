@@ -9408,6 +9408,18 @@ fn ac_projection(){
     }
     if gm_object(mail_draft) && ac_field(mail_draft,"link_goal_id") == goal.id
         && gm_account_allowed(ac_field(mail_draft,"account")) {
+        // Project the same Calendar dependency checked by mail_send_confirmed.
+        // A changed event invalidates confirmation, never rewrites hand text.
+        if ac_field(mail_draft,"link_event_id") != "" {
+            let li = calendar_link_index(goal.id)
+            if li < 0 || ac_field(calendar_links[li],"status") != "verified"
+                || ac_field(calendar_links[li],"event_id") != mail_draft.link_event_id {
+                if mail_draft.status == "DRAFT" || mail_draft.status == "waiting_user" {
+                    ac_add(view,"关联日程已变化","stale","原发送确认已失效；保留回复原文，先核对新日程",ac_field(mail_draft,"request_id"))
+                    view.next = "先处理新的日程，再核对回复内容并重新确认发送。"
+                }
+            }
+        }
         let stale = gm_has(mail_draft,"memory_refs") && (!chat_refs_valid(mail_draft.memory_refs) || !chat_reply_context_valid(mail_draft))
         if alert != nil && ac_field(mail_draft,"incoming_key") == ac_field(alert,"key")
             && ac_field(alert,"reply_mode") != "manual" && gm_has(alert,"draft_intent")
