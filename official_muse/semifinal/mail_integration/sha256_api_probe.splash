@@ -1,0 +1,31 @@
+// Central existing run_official_api.py --probe entry. Native fs only.
+// Fixture files remain after completion for independent readback/mtime evidence.
+let digest_checks = {} let digest_calls = []
+fn probe_transport(method,args,cb){
+    digest_calls.push(method)
+    cb({is_ok: false error: "Digest-only fixture forbids host calls"})
+}
+fn digest_vm_begin(){
+    fs.write("digest-abc.txt","abc")
+    fs.write("digest-fixture-ready.json",{file: "digest-abc.txt"}.to_json())
+    start_timeout(3.0,|| digest_vm_vectors())
+}
+fn digest_vm_vectors(){
+digest_checks.empty = fs.sha256("") == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+digest_checks.abc = fs.sha256("abc") == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+digest_checks.utf8 = fs.sha256("中文,unicode\n") == "3eff58d31b537cc950e03455d8e3f218159395b65f786d454ba14df173290051"
+let digest_big = "a"
+for i in 16 { digest_big = digest_big + digest_big }
+digest_checks.text_cap = fs.sha256(digest_big) == "bf718b6f653bebc184e1479f1935b8da974d701b893afcf49e701f3e2f9f9c5a"
+digest_checks.text_over_cap_rejected = try { let unexpected_digest = fs.sha256(digest_big + "a") false } { true }
+digest_checks.nontext_rejected = try { let unexpected_digest = fs.sha256(42) false } { true }
+let digest_before = fs.read("digest-abc.txt")
+let digest_file_hash = fs.sha256_file("digest-abc.txt")
+let digest_after = fs.read("digest-abc.txt")
+digest_checks.file_same_bytes = digest_before == "abc" && digest_after == digest_before && digest_file_hash == fs.sha256("abc")
+digest_checks.parent_escape_rejected = try { let unexpected_digest = fs.sha256_file("../digest-abc.txt") false } { true }
+digest_checks.missing_rejected = try { let unexpected_digest = fs.sha256_file("digest-missing.txt") false } { true }
+    fs.write("probe.json",{checks: digest_checks calls: digest_calls
+        observations: {fixture_file: "digest-abc.txt" no_external_requests: digest_calls.len() == 0}}.to_json())
+}
+start_timeout(0.05,|| digest_vm_begin())

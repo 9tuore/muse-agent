@@ -1,0 +1,52 @@
+{
+  "kind": "RC2_COMPANION_DIGEST_COMPONENT_ONLY",
+  "status": "PASS_COMPONENT_NOT_VM_OR_FULL_SHELL",
+  "identity": {
+    "kind": "ACTUAL_PRODUCTION_HELPERS_EXTRACTED_COMPONENT",
+    "storage_source_sha256": "4480b0f5b3b693dac67142aba2b92ca3233db8b699282213c7572200aa1bb2e7",
+    "digest_source_sha256": "a2212398910edae3206c74117216449aba907fffe116b07ed6a0b46fcdd96f7c",
+    "probe_sha256": "65135cb4abeb4c2c73b27b1685d4bc009661dc05fc79ce693799d238088e456f",
+    "boundary": "Same-source helpers plus official digest implementation. Not full widgets registration, VM jail or full Shell evidence.",
+    "binary_sha256": "1b3cdc742d528f085a88355231afe2aebee0d86a73104e25bf4343f92f6ef723",
+    "compile_exit": 0,
+    "special_file_exit": 0
+  },
+  "special_files": {
+    "status": "PASS_COMPONENT",
+    "binary_sha256": "1b3cdc742d528f085a88355231afe2aebee0d86a73104e25bf4343f92f6ef723",
+    "cases": [
+      {
+        "case": "fifo",
+        "exit_code": 0,
+        "status": "PASS_REJECTED"
+      },
+      {
+        "case": "directory",
+        "exit_code": 0,
+        "status": "PASS_REJECTED"
+      },
+      {
+        "case": "symlink",
+        "exit_code": 0,
+        "status": "PASS_REJECTED"
+      }
+    ],
+    "boundary": "Compiled file_sha256 helper subprocess, not a VM/jail/GUI/Memory/native-Mail acceptance."
+  },
+  "log_sha256": {
+    "regular-file.log": "32c7f6ccdf33f58ccfeaf8ba8da5aa5ac11e1b1abf8e8289a2bc5c274f0cdfd7",
+    "special-file-report.json": "71ac309f646229f2526e38dd51d6d54cddb2178682b1e2f7d19ed6657c0ca733",
+    "identity.json": "ac5c1d390a236f64229140953e2a3166c194a1a92c75e68d4ada6d502001347e"
+  },
+  "patch_sha256": {
+    "fs-sha256-reference.patch": "175724609a14816c8f367fef6f83dd065443ad2b872167fca217fb7786d5acb1",
+    "fs-sha256-full_shell.patch": "e94c06c27326fa1dc0df821bf8a6e1db28c93d9ccbec0c818adb0bf5a61b9371"
+  },
+  "failure_retention": [
+    "build/runtime-closure-sha256-component-r1",
+    "build/runtime-closure-dsl-vm-r2",
+    "build/runtime-closure-task-dsl-vm-r1",
+    "build/runtime-closure-task-dsl-vm-r2"
+  ],
+  "boundary": "Extracted actual production file helpers and original official SHA-256 implementation. Registration, jail, Memory/Task behavior and complete Shell still not verified. No external actions or grants. Pre-open special-file rejection does not remove every path/open race."
+}

@@ -1,0 +1,18 @@
+// Central prepares only synthetic FIFO/directory/symlink in the fresh jail.
+// Signal readiness by writing digest-special-ready.json after native preparation.
+let digest_special_checks = {} let digest_special_calls = [] let digest_special_tries = 0
+fn probe_transport(method,args,cb){digest_special_calls.push(method) cb({is_ok: false error: "Digest-only fixture forbids host calls"})}
+fn digest_special_wait(){
+    fs.write("digest-special-waiting.json",{waiting: true}.to_json())
+    if !fs.exists("digest-special-ready.json") {
+        digest_special_tries = digest_special_tries + 1
+        if digest_special_tries < 100 {start_timeout(0.1,|| digest_special_wait()) return}
+        digest_special_checks.fixture_ready = false
+    } else {
+        digest_special_checks.fifo_rejected = try {let unexpected = fs.sha256_file("digest-fifo") false} {true}
+        digest_special_checks.directory_rejected = try {let unexpected = fs.sha256_file("digest-directory") false} {true}
+        digest_special_checks.symlink_rejected = try {let unexpected = fs.sha256_file("digest-symlink") false} {true}
+    }
+    fs.write("probe.json",{checks: digest_special_checks calls: digest_special_calls observations: {special_file_fixture: true}}.to_json())
+}
+start_timeout(0.05,|| digest_special_wait())

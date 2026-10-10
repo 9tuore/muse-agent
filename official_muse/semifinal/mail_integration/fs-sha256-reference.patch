@@ -1,0 +1,61 @@
+--- a/widgets/src/splash_storage.rs
++++ b/widgets/src/splash_storage.rs
+@@ -238,9 +238,58 @@
+     Ok((root, real))
+ }
+ 
++fn file_sha256(real: &Path) -> Result<String, String> {
++    use std::io::Read;
++    let before = std::fs::symlink_metadata(real).map_err(|_| "file not readable".to_string())?;
++    if !before.is_file() { return Err("not a regular file".to_string()); }
++    let file = std::fs::File::open(real).map_err(|_| "file not readable".to_string())?;
++    let metadata = file.metadata().map_err(|_| "file metadata unavailable".to_string())?;
++    if !metadata.is_file() || metadata.len() > MAX_FILE_BYTES {
++        return Err("digest requires an ordinary file within the storage file cap".to_string());
++    }
++    let mut bytes = Vec::new();
++    file.take(MAX_FILE_BYTES + 1).read_to_end(&mut bytes)
++        .map_err(|_| "file not readable".to_string())?;
++    if bytes.len() as u64 > MAX_FILE_BYTES {
++        return Err("digest file exceeded the storage file cap".to_string());
++    }
++    let digest = crate::makepad_platform::makepad_network::digest::sha256_hash(&bytes);
++    Ok(digest.iter().map(|byte| format!("{byte:02x}")).collect())
++}
++
+ /// Registers the jailed `fs` module into an isolate VM.
+ pub fn script_mod(vm: &mut ScriptVm) {
+     let fs = vm.new_module(id!(fs));
++
++    // Local UTF-8 provenance digest; available only to an already jailed isolate.
++    // No file path, network request, or additional host capability is involved.
++    vm.add_method(fs, id_lut!(sha256), script_args_def!(text = NIL), |vm, args| {
++        if root_for_vm(vm).is_none() {
++            return script_err_io!(vm.trap(), "storage not available in this context");
++        }
++        let text = script_value!(vm, args.text);
++        let digest = vm.string_with(text, |_vm, s| {
++            if s.len() > 65536 { return None; }
++            let bytes = crate::makepad_platform::makepad_network::digest::sha256_hash(s.as_bytes());
++            Some(bytes.iter().map(|byte| format!("{byte:02x}")).collect::<String>())
++        });
++        match digest {
++            Some(Some(value)) => vm.bx.heap.new_string_from_str(&value).into(),
++            _ => script_err_io!(vm.trap(), "sha256 requires UTF-8 text of at most 65536 bytes"),
++        }
++    });
++
++    // Local Muse overlay: digest an existing jailed snapshot using the same
++    // path/symlink checks and per-file cap as storage. No network or new grant.
++    // The provenance text digest above retains its separate 64 KiB input cap.
++    vm.add_method(fs, id_lut!(sha256_file), script_args_def!(path = NIL), |vm, args| {
++        let path = script_value!(vm, args.path);
++        match target(vm, path).and_then(|(_root, real)| file_sha256(&real)) {
++            Ok(value) => vm.bx.heap.new_string_from_str(&value).into(),
++            Err(error) => script_err_io!(vm.trap(), "{}", error),
++        }
++    });
++
+ 
+     vm.add_method(fs, id_lut!(read), script_args_def!(path = NIL), |vm, args| {
+         let path = script_value!(vm, args.path);

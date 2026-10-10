@@ -1,0 +1,57 @@
+{
+  "old_status": "P1_STATIC_REJECTED_BEFORE_APPLY",
+  "reason": "FIFO can block UI because old file helper opens before checking ordinary file metadata",
+  "fifo_reproduced": false,
+  "old_identity": {
+    "status": "PROPOSED_NOT_APPLIED_NOT_COMPILED",
+    "source_overlay_sha256": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+    "targets": {
+      "reference": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/.local-state/hub-contract-sdk/makepad/widgets/src/splash_storage.rs",
+        "before_sha256": "a0f15e96e7fd5c990ab010fa9dce6d1d2c7d4c7dff32390cf26cf1fed217e7cf",
+        "proposed_sha256": "bc80e229fbc7433523f06068fcef0b4f5423a1820f15736626d68bdedd5ae442",
+        "patch_sha256": "3c025d1f2d98281cb8025857d218ec955e0129c2d49686d21cc5f8f3d5c10cf3",
+        "dependency_change": false
+      },
+      "full_shell": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/.local-state/official-rc2-source/.sources/makepad/widgets/src/splash_storage.rs",
+        "before_sha256": "10abcdcc3ebfce676689dc1c157d253c6a98055014e1935575eee3864303b4c6",
+        "proposed_sha256": "fa20a490c9d338a57777c4f405c92725aa7eaaa0dd3f2830f184bd48dc76b5b0",
+        "patch_sha256": "84fbfe55f620b1dcbfc381b226350c57776169ca281a384f393e8d8b919236e1",
+        "dependency_change": false
+      }
+    }
+  },
+  "new_identity": {
+    "status": "PROPOSED_NOT_APPLIED_NOT_COMPILED",
+    "source_overlay_sha256": "6667288e2a5170fa27d1efc005d71830ca302a7f7b572da2141ad81286b9443e",
+    "targets": {
+      "reference": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/.local-state/hub-contract-sdk/makepad/widgets/src/splash_storage.rs",
+        "before_sha256": "a0f15e96e7fd5c990ab010fa9dce6d1d2c7d4c7dff32390cf26cf1fed217e7cf",
+        "proposed_sha256": "76b39193c66b88850634dbe8515797ba4582966a6d89a41c5893768cc5f673c2",
+        "patch_sha256": "175724609a14816c8f367fef6f83dd065443ad2b872167fca217fb7786d5acb1",
+        "dependency_change": false,
+        "special_file_guard": "symlink_metadata before open + fd metadata after open",
+        "race_free": false
+      },
+      "full_shell": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/.local-state/official-rc2-source/.sources/makepad/widgets/src/splash_storage.rs",
+        "before_sha256": "10abcdcc3ebfce676689dc1c157d253c6a98055014e1935575eee3864303b4c6",
+        "proposed_sha256": "4480b0f5b3b693dac67142aba2b92ca3233db8b699282213c7572200aa1bb2e7",
+        "patch_sha256": "e94c06c27326fa1dc0df821bf8a6e1db28c93d9ccbec0c818adb0bf5a61b9371",
+        "dependency_change": false,
+        "special_file_guard": "reuse read_storage_bytes/open_storage_file",
+        "race_free": false
+      }
+    }
+  },
+  "archived_files": {
+    "fs-sha256-reference.patch.unsafe-r1": "3c025d1f2d98281cb8025857d218ec955e0129c2d49686d21cc5f8f3d5c10cf3",
+    "fs-sha256-full_shell.patch.unsafe-r1": "84fbfe55f620b1dcbfc381b226350c57776169ca281a384f393e8d8b919236e1",
+    "sha256_patch_identity.json.unsafe-r1": "904902c3ac080271e4f5d562a3f48d4c3e888125cf2fbb57bfea9134cafd8762",
+    "prepare_sha256_patch.py.unsafe-r1": "9d7e6eee59a5ade2f1cb0911655f92c897f114aacc6c316f63d38f069ec336bb"
+  },
+  "new_status": "STATIC_GUARDS_CHECKED_NOT_APPLIED_NOT_COMPILED",
+  "boundary": "Review finding and static patch assertions only; external timeout component tests handed to central, not run."
+}
