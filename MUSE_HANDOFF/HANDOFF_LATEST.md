@@ -1,3 +1,11 @@
+## 最新现场：2026-10-11 04:54
+
+- 开发分支 HEAD `1a456b682f15bc02a8df69b7eebfd3e69623c3f3`，04:22独立远端同SHA，main `5126afc4`未动。
+- 官方Mail完整SDK组件6项精确fixture实际全通过（04:43结束）；UNKNOWN不重试、重启保护、编辑失效、修订/CAS和原生审阅边界均有日志。Fake/Test/FileVault与合成传输，不是QQ投递/Keychain/真人批准。公开回执mail-component-test-result.json。
+- 04:44原r3/8008ec14的内置Calendar真实OS窗口和Metal截图均已实看日期网格，未使用r5绕过/r6日志/MAKEPAD_NO_GAUSS。r6第二轮也可见，但早期r2/r3/r5和首轮r6空白全部保留，根因与稳定复现尚未解决；不再把诊断当修复。公开calendar-visible-smoke-result.json。
+- UNKNOWN两独立reference进程49562/49567，同一合成jail：in_flight恢复unknown、ID/载荷保留、同ID拒绝及同载荷Calendar守卫、无journal变化/transport均通过，干净退出；完整fixture仍PARTIAL_MISSING_VERIFIED_HISTORY，不把缺历史当PASS。源2253/reference78ab，显式rc17 fixture manifest，不是rc18准入；r1 required Mail ABI拒绝失败保留。runner补最终日志重扫/forced退出失败分类。
+- 当前大型Cargo和owned GUI均已结束；稳定503保留。真实外发、Calendar写入、新付费模型为0。Native可信本人consent、正式Muse Relay、完整Mail实机、T18/最终20次仍HUMAN_REQUIRED/BLOCKED。07:00冻结/08:00截止，余项继续按真实证据推进。
+
 # Muse 接续检查点：2026-10-11 03:55
 
 ## 最新现场：2026-10-11 04:18

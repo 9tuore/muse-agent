@@ -11,8 +11,8 @@
 | 创建/原ID修改/删/精确读回 | 配套Calendar组件提案有历史证据；正式Muse Relay未验收 | Native迁移不会自动解决原版get缺失和update/delete owner-only；目前原型仅events只读 |
 | Mail | 现有compose/review_send/status受控协议保留 | 完整Shell同一MailService与前台native审阅；不能用Agent或聊天批准代替可信本人动作 |
 | Memory / 行动链 | 保留真实存储/授权检索/只读状态投影 | 保留OctoScript业务；原型不复制数据库、不建立第二Runtime |
-| Intel构建 | 旧配套Host仍有效 | 完整Desktop r2/r3已实际release编译成功；隔离Shell启动并注册官方服务，但Calendar正文渲染失败，尚不能迁入正式候选 |
-| 成本/性能 | rc17为旧稳定基线，新源尚未同候选验收 | 没有完整新Host RSS/CPU/启动样本，不能宣称更轻或更准确 |
+| Intel构建 | 旧配套Host仍有效 | 完整Desktop r2/r3已实际release编译成功；r3最新真实Calendar owner截图可见，早期空白仍保留，正式Relay/本人批准仍缺，尚不能迁入正式候选 |
+| 成本/性能 | rc17为旧稳定基线，新源尚未同候选验收 | 仅有短启动时进程采样，非稳态/峰值/基线对照，不能宣称更轻或更准确 |
 
 ## 已实际取得的证据
 
@@ -27,7 +27,7 @@
 
 ## 未完成的最小运行验证
 
-1. 完整Desktop已构建/隔离启动，但实际OS窗口与Metal三帧截图均显示Calendar正文空白；可见验收失败。只读审查发现跨VM函数缓存候选，正在独立可逆诊断，根因尚未证实。
+1. 完整Desktop已构建/隔离启动；04:44原r3在ready-layout后OS/Metal真实截图可见，r6第二轮也可见。早期r2/r3/r5及首轮r6空白保持失败，未证明缓存绕过或诊断修复，也未完成稳定性验收。
 2. 独立Native ID的真实本人consent，以及注入服务、own-ID peer、owner声明/executor的冷启动证据。
 3. 实际Agent选择calendar.events，并以Relay/工具回执证明读取，不以模型回合结束当成功。
 4. 拒绝/撤销consent、无grant与owner-only工具仍拒绝。
@@ -36,6 +36,8 @@
 
 Native中文、History严格ID与可选结果见证、垂直滚动已编译进r3；纯History解析器5/5通过，不替代实际AppModule History或工具回执。r2 first-use consent未点击Allow，真实服务注入及Agent调用仍HUMAN_REQUIRED。原型只有events只读grant，不能借此执行create/update/delete。
 
+03:52单点诊断结果：r5实际编译成功（89d1bc5d），与r3相同条件/新资料目录均89控件、无Script错误且正文空白；OS与Metal截图一致。r5记录4次相同函数缓存键对应不同生成代码，但绕过未修正文，不能据此称黑屏根因。Metal已恢复47db4d10原字节，r3/r5冻结二进制及失败证据保留。新的原生迁移仍不建议晋级。
+
 ## 决策与交付风险
 
 当前只允许继续隔离原型。普通Hub资源后缀不允许原生执行文件；B的正式交付需要配套Shell源码、补丁、锁定依赖、构建和真实运行证据，以及明确维护者/比赛提交路径。不能把本地扩展通过写成官方接受。
@@ -43,3 +45,5 @@ Native中文、History严格ID与可选结果见证、垂直滚动已编译进r3
 本轮仍保留rc17安装、Host276b2b68及纯OctoScript成果，根活动包不晋级。共享DSL与行动链以只读投影接入现有业务，不改变Memory含义或执行权。10月13日前能否形成可复现原生版本，取决于上述构建、合法准入与同候选验收实际完成，当前不能承诺PASS。
 
 证据与最小原型：official_muse/semifinal/calendar_integration/；独立审查：official_muse/semifinal/runtime_review/；当前构建与来源回执：ignored build/runtime-closure-full-shell-r1/、build/runtime-closure-kernel-r1/。
+
+2026-10-11 04:54补证：官方Mail 6项精确组件fixture和signed Hostoffer10项通过；Native可信Person、Store准入、真实Relay与SMTP仍缺。两独立reference进程UNKNOWN核心恢复通过，verified-history前提缺失保持PARTIAL。新的可见Calendar owner烟测不改变本轮保留A、隔离B的决策。

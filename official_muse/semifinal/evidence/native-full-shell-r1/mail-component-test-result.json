@@ -1,0 +1,146 @@
+{
+  "kind": "OFFICIAL_MAIL_COMPONENT_FIXTURE_NOT_DELIVERY",
+  "time": "2026-10-11T04:31:21.835685+08:00",
+  "source_hashes": {
+    "apps/mail/host-service/src/lib.rs": "5b9bbd082d7df01b9068bf1c830c30ff4f3d35ba31f182a387bea071fb2fc50e",
+    "apps/mail/host-service/src/drafts.rs": "1b8dc404dd90a23e8ce59c4c5147dda9ca154a0900fa9f49cba70e852a039987",
+    "apps/mail/host-service/src/public_review.rs": "68b77eb1d9a0438f8e20e7ad333a7c8d3dcfb412733f99fc8fb2309418bdc292",
+    "apps/mail/host-service/src/vault.rs": "35d1fffc17d086dab55fdc87c2424ed3e42df5a5732eef5c0b18cc7509c6c91a",
+    "Cargo.lock": "5b58c5f5a89da1faa9de75e48d9d90d8bc6eb81365360e3a71eeaebdef27d68c"
+  },
+  "real_network": false,
+  "system_keychain": false,
+  "native_person_confirmed": false,
+  "results": [
+    {
+      "filter": "drafts::tests::unknown_error_and_restart_are_not_automatic_retries",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-mail-service",
+        "--lib",
+        "drafts::tests::unknown_error_and_restart_are_not_automatic_retries",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "exact_one_pass": true,
+      "seconds": 737.5429991630001,
+      "log_sha256": "415b457335d56e288d7a2e258c1d6343019f5a0eb68ec30a495075d0e403115e"
+    },
+    {
+      "filter": "drafts::tests::edited_public_composer_invalidates_review_and_exact_snapshot_sends_once",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-mail-service",
+        "--lib",
+        "drafts::tests::edited_public_composer_invalidates_review_and_exact_snapshot_sends_once",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "exact_one_pass": true,
+      "seconds": 3.050242733999994,
+      "log_sha256": "a66e9fcfde6650298ff2a31dae5e4dd0c098481991357377ac782d1500b07ae0"
+    },
+    {
+      "filter": "drafts::tests::public_review_rechecks_grant_expiry_and_preserves_uncertain_outcome",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-mail-service",
+        "--lib",
+        "drafts::tests::public_review_rechecks_grant_expiry_and_preserves_uncertain_outcome",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "exact_one_pass": true,
+      "seconds": 3.0455121620000227,
+      "log_sha256": "9b06684e7527c93e226d83b7c98fe1b133ba8ea89ab1c82f5c08dc790bb2d48b"
+    },
+    {
+      "filter": "drafts::tests::composer_returns_host_identity_and_cas_preserves_thread_binding",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-mail-service",
+        "--lib",
+        "drafts::tests::composer_returns_host_identity_and_cas_preserves_thread_binding",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "exact_one_pass": true,
+      "seconds": 2.7965992419999566,
+      "log_sha256": "23ab766d1687d59173f62fb58a50b91dfa6a34bd8cd3ed58a121b20a3dcd89f0"
+    },
+    {
+      "filter": "public_review::tests::discovery_distinguishes_staging_from_physical_review_and_hides_sheet_controls",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-mail-service",
+        "--lib",
+        "public_review::tests::discovery_distinguishes_staging_from_physical_review_and_hides_sheet_controls",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "exact_one_pass": true,
+      "seconds": 3.299811782000006,
+      "log_sha256": "ba016d218ec6a0eb08d14c4cea948fcb6f87ad6df7594342e303f7f21145331f"
+    },
+    {
+      "filter": "tests::an_app_signs_in_reads_without_the_password_and_cannot_bypass_send_review",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-mail-service",
+        "--lib",
+        "tests::an_app_signs_in_reads_without_the_password_and_cannot_bypass_send_review",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "exact_one_pass": true,
+      "seconds": 3.1104910560000008,
+      "log_sha256": "fd64b34c3b86b0bf12a83c168c60c83460e7f58da72bbc6a89d72ed880df9078"
+    }
+  ],
+  "status": "SIX_COMPONENT_FIXTURES_PASS",
+  "finished_at": "2026-10-11T04:43:54.681592+08:00",
+  "verified_at": "2026-10-11T04:51:52.880135+08:00",
+  "boundary": "Official Mail component tests with Fake/Test/FileVault and synthetic transport in the pinned complete SDK. No real SMTP, system Keychain, physical Person review, inbox delivery or Muse full-chain acceptance."
+}
