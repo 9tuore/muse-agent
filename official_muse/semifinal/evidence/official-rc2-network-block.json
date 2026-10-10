@@ -1,0 +1,31 @@
+{
+  "status": "BUILD_BLOCKED",
+  "desktop_tag": "desktop-v0.1.0-rc.2",
+  "source": "4ccf8e068399b1da139771a9ed94cef05fa6ae60",
+  "framework_setup_check": "PASS",
+  "host_built": false,
+  "host_installed": false,
+  "attempts": [
+    {
+      "name": "full_graph",
+      "result": "INTERRUPTED_NETWORK_STALL",
+      "bytes": 293322763,
+      "unchanged_minutes": 12,
+      "stopped_at": "2026-10-10T13:46:10+08:00"
+    },
+    {
+      "name": "minimal_offline",
+      "exit": 101,
+      "reason": "Pinned octoscode-module checkout absent; offline refused"
+    },
+    {
+      "name": "codeload_archive",
+      "exit": 28,
+      "bytes": 72167452,
+      "timeout_seconds": 600,
+      "result": "INCOMPLETE_ARCHIVE_NOT_USED"
+    }
+  ],
+  "lock_modified": false,
+  "production_modified": false
+}

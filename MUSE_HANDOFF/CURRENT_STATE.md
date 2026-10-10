@@ -1,3 +1,13 @@
+## 2026-10-10 14:51 昨夜任务续跑检查点
+
+稳定rc17根bundle和旧安装未覆盖；rc18研究源5e2e84fe。4af1f02e修正候选完整性必需字段后，原生最新官方Hub结构check通过，scan生成7问材料（reviewer未运行）；正式准入/新Shell/全链仍未通过。Hub源95e4831，锁与framework未变；旧空字段拒绝证据保留。
+
+Phone历史r7 APK当前SHA70a318d1核对一致，新独立API35模拟器已实际boot、安装成功；首次Home真实崩溃ThemeCatalog缺mobile-presets.json。定位官方packager按空格切依赖路径漏资源，最新32d6415f同一函数仍相同；实际Rust回归修前4FAIL/修后6PASS，隔离单函数补丁构建中，尚未标Home运行通过。没有授予真实系统权限、发信、日历写入或付费调用。
+
+完整缺项与所有任务见MUSE_NIGHT_TASK_LEDGER.md / MUSE_OVERNIGHT_20261010_REPORT.md。16:00冻结大改，17:00停止并交接，不用子代理。行动链仍隔离266f9c66，未合A。关机时没有持续测试。
+
+---
+
 ## 2026-10-10 14:00 昨夜任务优先续跑
 
 A实现ae342fc4修复日历中断仅凭结果文件误完成，三项修复前FAIL保留，修复后10项恢复检查通过；源fa25ccda同源Mail16项+7种两VM恢复、Memory DSL62项+91项元数据两VM恢复通过。真实可见参考窗口输入/降级与非空资料哈希通过，截图归档。新source5e2e84fe再修ABI2被当作1的问题，前FAIL保留，19项协议通过；候选准备器补runtime权限及host-api-v1/必需@1方法，根rc17不变。官方rc2源码/framework准备完成，完整依赖下载停滞已保留停止；最小offline构建缺octoscode，未安装；官方固定归档下载中。隔离Agent15项协议通过但无真实模型选择/准入，未接正式Chat。行动链独立266f9c66未合入。17:00收口、16:00冻结大改，所有任务与缺项仍在MUSE_NIGHT_TASK_LEDGER.md。
