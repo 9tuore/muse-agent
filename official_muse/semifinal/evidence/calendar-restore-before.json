@@ -1,0 +1,44 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FAIL",
+  "suite": "calendar-restore",
+  "source_sha256": "9c0d6c20a3a086c0d53f9967ad3d2a0c5f01004785642185b0068f7affb698e3",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "runner_sha256": "d2d676ae266b8c525900b5366492cc4fff5c718d75d836dadb141f819c9ced37",
+  "probe_sha256": "ace2c78a262bbc6bbc1230dc6f0a9f666a2d37495ffa2bf26d6162a8578b7a20",
+  "executed_sha256": "b26126b8fd64366297d0d45868cc5440d7b5e76871cf38d4eb71653e646f6e96",
+  "substitutions": [
+    "mail_watch_boot",
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [
+    "file_alone_not_completed",
+    "file_alone_not_shown_as_result",
+    "chat_does_not_promote_unverified_file"
+  ],
+  "checks": {
+    "boot_ready": true,
+    "run_setup": true,
+    "file_written": true,
+    "file_alone_not_completed": false,
+    "file_alone_not_shown_as_result": false,
+    "file_preserved": true,
+    "chat_does_not_promote_unverified_file": false,
+    "completed_history_stays_completed": true,
+    "completed_history_restores": true,
+    "zero_external_requests": true
+  },
+  "calls": [],
+  "observations": {
+    "fixture_only": true,
+    "no_real_calendar_write": true,
+    "run_id": "run:1791609472-3368368182"
+  },
+  "runtime_errors": [],
+  "runtime_log_sha256": "b137ad3944b124541cfdfa808f8ccb98e668748b41828b66466adab2f45bf52a"
+}

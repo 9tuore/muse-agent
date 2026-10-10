@@ -698,7 +698,7 @@ fn calendar_select_link(goal_id){
     if task != nil && task["project_id"] == gm_project && task["owner_id"] == gm_owner { chat_bind_goal(goal_id) }
     if task != nil && fs.exists(task.result_path) {
         let stored = storage_read(task.result_path).parse_json()
-        if stored != nil && stored.task_id == task.id { result = stored }
+        if stored != nil && stored.task_id == task.id && task.status == "completed" { result = stored }
     }
     calendar_selected_goal = goal_id
     calendar_form_open = true
@@ -7014,7 +7014,7 @@ fn mail_service_text(){
 }
 
 fn calendar_service_text(){
-    if !calendar_enabled() { return "受阻· 应用未获日历能力" }
+    if !calendar_enabled() { return "待接通 · 官方内置日历共享工具" }
     if calendar_pending { return "检查中 · 正在等待宿主" }
     if calendar_permission != "full_access" { return "受阻· 需要完整访问" }
     if calendar_calendars.len() == 0 { return "受阻· 无可用日历" }
@@ -7392,7 +7392,8 @@ fn chat_restore_goal_view(){
     result = nil
     if task != nil && fs.exists(task.result_path) {
         let stored = storage_read(task.result_path).parse_json()
-        if stored != nil && stored.task_id == task.id { result = stored }
+        if stored != nil && stored.task_id == task.id
+            && (!is_calendar_goal(task) || task.status == "completed") { result = stored }
     }
 }
 fn chat_shows_goal(){
@@ -8775,7 +8776,11 @@ fn boot_restore(boot_error){
         if fs.exists(task.result_path) {
             let restored_text = storage_read(task.result_path)
             let restored = restored_text.parse_json()
-            if restored != nil && restored.task_id == task.id {
+            // An interrupted calendar write must use the existing read-only
+            // reconciliation path. A local result file alone is not evidence
+            // that the external operation and its receipt were verified.
+            if restored != nil && restored.task_id == task.id
+                && (!is_calendar_goal(task) || task.status == "completed") {
                 if task.status == "running" {
                     let run_id = core_running_run(task.id)
                     if run_id != "" && !is_calendar_goal(task) && !task_history_readonly(task) {
@@ -8783,10 +8788,6 @@ fn boot_restore(boot_error){
                         let revision = task.version
                         let path = task.result_path
                         start_timeout(0.05, || finalize_result(goal_id,run_id,revision,path,restored_text,true))
-                    }
-                    if run_id != "" && is_calendar_goal(task) {
-                        result = restored
-                        core_finish_run(task.id,run_id,"completed",task.result_path)
                     }
                 } else {
                     result = restored
@@ -9894,13 +9895,12 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
             }
         }
         calendar_editor := ScrollYView{visible: false width: Fill height: Fill flow: Down spacing: 8
-            Label{text: "系统日历" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
-            Label{visible: false width: Fill text: "仅使用宿主 EventKit 与实际授权。候选时间必须写成带偏移的绝对时间；保存后独立 get 读回。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
+            Label{text: "官方内置日历" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
             calendar_panel := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
                 if !calendar_enabled() {
                     SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 5 draw_bg.color: panel
-                        Label{text: "日历服务尚不可用" draw_text.color: #xff9c94 draw_text.text_style: theme.font_bold{font_size: 14}}
-                        Label{width: Fill text: "当前应用未获 日历能力授权。原版宿主无此服务；本地扩展须经过 应用中心 准入与本人系统授权。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        Label{text: "官方日历联动待接通" draw_text.color: #xff9c94 draw_text.text_style: theme.font_bold{font_size: 14}}
+                        Label{width: Fill text: "使用 OctoSense 内置日历。共享工具联动尚未完成，当前不会创建或修改安排；历史记录继续保留。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     }
                 }
                 if calendar_enabled() {

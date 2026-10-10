@@ -1,24 +1,22 @@
 # Handoff
 
 ## Task
-MUSE-NIGHT-001 官方接口整改；A 独立分支 codex/muse-semifinal-a-20261009，基线9b247c89。
-
-10月10日12:14关机恢复后，用户明确延长到今天北京时间17:00，16:00冻结大改。当前A实现提交64550d00（本轮记忆验证提交另见git log），稳定数据和代码未回退。关机期间无持续测试。自动化已按新截止更新。B确认停写，A已接管行动链独立工作树唯一写入权；不是新子代理。
+接续MUSE-NIGHT-001，A独立分支codex/muse-semifinal-a-20261009；用户延长到10月10日17:00，16:00冻结大改。关机期间未测试；不用子代理。
 
 ## Result
-PARTIAL。活动rc17未覆盖，rc18可读源准备中。
+PARTIAL。根bundle仍为稳定rc17；rc18研究源fa25ccda未安装。
 
 ## Changed
-Mail compose/review/status与宿主版本绑定；内置Calendar方向固定，私有桥隔离；接口矩阵与合成验证。
+64550d00修复邮件取消审阅后关联Run卡住；本轮修复日历中断恢复仅凭产物文件误完成。Memory fixture补明确焦点及授权正负检查，旧失败保留。官方内置日历缺口已反馈，私有桥隔离。
 
 ## Tests
-10月9日参考官方Splash VM：Mail取消关联Run的P0修复前3项失败保留；修复后协议16/16 FIXTURE_PASS；两VM进程中断/恢复7/7变体通过，Memory元数据重启91项和DSL62项通过（真实jailed文件系统，合成数据，无模型/外部动作），r1/r2支架错误FAIL保留。rc17稳定基线20/20真实Shell冷启动，16对话/256消息/64记忆保留；不作为rc18最终候选PASS。独立device研究22/22，3轮精度失败保留。evidence在official_muse/semifinal/evidence。原始冷启动捕获保存在ignored build/semifinal-cold-baseline-raw，有逐文件SHA清单。
+rc17真实Shell冷启动20/20。当前fa25源：Mail协议16/16、日历恢复10/10及原生可见窗口输入/降级/非空数据哈希通过；Memory前一源9c0：元数据恢复91项、DSL62项。全部外部协议为合成，不算投递或新Host全链。失败原样保留。
 
 ## Commit
-本地小步提交，未push。
+本地64550d00、229f7b40及本轮恢复提交见git log；未push。
 
 ## Remaining
-新Host下载与构建、官方准入、Agent真实工具选择、可信手势发信、新候选20次冷启动和全链。rc2官方Mac成品arm64，本机Intel；前轮网络失败保留；12:34官方Tag完整源码已获取，SHA核验/status干净，官方setup锁定framework已完成，Cargo全功能图下载外部锁定依赖中，尚未构建或安装。A在行动链隔离树有只读MVP与fixture，状态fixture已通过，原生可见节点/连接线/展开/旧结果切换通过；隔离提交266f9c66已完成四种尺寸及一次重启；明色未测/事务切换未做，未合入。#182/#427已公开，#427 comment6083645335含实际两文件代码补丁；未接受或安装。完整清单MUSE_NIGHT_TASK_LEDGER.md，新截止17:00。
+官方rc2精确Tag源码/framework已准备，Cargo图外部依赖下载中，未构建/安装；官方准入、Octos真实选择、宿主真人审阅、内置Calendar relay、最终20次与全链待验证。行动链隔离266f9c66已做25项fixture/四尺寸/一次重启，未合入，明色与事务切换缺项。#182/#427 OPEN，Calendar补丁评论已公开但未接受。完整清单MUSE_NIGHT_TASK_LEDGER.md。
 
 ## Important Boundaries
-合成协议不代表SMTP/日历/原生确认成功；用户选择内置日历，OS研究不进入默认；不改旧安装/生产/Tag。
+不覆盖旧安装/生产/Tag；同候选事实分开。缺可信手势转隔离，不模拟批准。

@@ -1,0 +1,56 @@
+// Synthetic recovery fixture: a result file alone is not a verified system write.
+let probe_checks = {}
+let probe_calls = []
+let restore_goal_id = "synthetic-restore-calendar"
+let restore_run_id = ""
+let restore_path = "results/synthetic-restore-calendar.json"
+fn probe_transport(service,args,callback){
+    probe_calls.push(service)
+    callback({is_ok:false error:"Recovery fixture forbids Host operations"})
+}
+fn probe_start(){
+    probe_checks.boot_ready = core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot()
+    gm_set_focus("synthetic-project","synthetic-owner")
+    let goal = {schema:1 id:restore_goal_id version:1 goal:"Synthetic calendar recovery" source:"Synthetic source"
+        items:["Synthetic source"] project_id:"synthetic-project" owner_id:"synthetic-owner"
+        status:"planned" approved_at:0 model_summary:"" kind:"calendar" archived:false
+        result_path:restore_path updated_at:time_now()
+        goal_spec:calendar_goal_spec(restore_goal_id,1,"Synthetic calendar recovery",restore_path)}
+    let added = core_add_goal(goal)
+    restore_run_id = core_start_run(restore_goal_id,1,"synthetic-restore-request")
+    probe_checks.run_setup = added && restore_run_id != nil
+    if restore_run_id == nil { probe_finish() return }
+    fs.mkdir("results")
+    let artifact = {schema:1 task_id:restore_goal_id run_id:"different-run" request_id:"different-request"
+        calendar_id:"synthetic-calendar" event_id:"unproven-event" title:"Unproven synthetic result"}
+    let raw = artifact.to_json()
+    probe_checks.file_written = storage_write(restore_path,raw) == nil && storage_read(restore_path) == raw
+    result = nil
+    boot_restore("")
+    probe_checks.file_alone_not_completed = runs[core_run_index(restore_run_id)].status == "running"
+        && goals[core_goal_index(restore_goal_id)].status == "running"
+    probe_checks.file_alone_not_shown_as_result = result == nil
+    probe_checks.file_preserved = storage_read(restore_path) == raw
+    chat_ready = true chat_selected_id = "synthetic-chat"
+    chat_sessions = [{id:chat_selected_id goal_id:restore_goal_id}]
+    result = nil
+    chat_restore_goal_view()
+    probe_checks.chat_does_not_promote_unverified_file = result == nil
+    // A genuinely persisted completed state is distinct from an interrupted
+    // run. This synthetic fixture records that state through the existing core.
+    if runs[core_run_index(restore_run_id)].status == "running" {
+        core_finish_run(restore_goal_id,restore_run_id,"completed",restore_path)
+    }
+    result = nil
+    boot_restore("")
+    probe_checks.completed_history_stays_completed = runs[core_run_index(restore_run_id)].status == "completed"
+        && goals[core_goal_index(restore_goal_id)].status == "completed"
+    probe_checks.completed_history_restores = result != nil && result.task_id == restore_goal_id
+    probe_checks.zero_external_requests = probe_calls.len() == 0
+    probe_finish()
+}
+fn probe_finish(){
+    fs.write("probe.json",{checks:probe_checks calls:probe_calls observations:{fixture_only:true
+        no_real_calendar_write:true run_id:restore_run_id}}.to_json())
+}
+start_timeout(0.05,|| probe_start())

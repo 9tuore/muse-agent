@@ -30,7 +30,7 @@ def main():
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--port', type=int, default=8658)
     p.add_argument('--source', type=Path, help='Explicit frozen research source; default is production readable source')
-    p.add_argument('--suite', choices=['production', 'device-research'], default='production')
+    p.add_argument('--suite', choices=['production', 'device-research', 'calendar-restore'], default='production')
     a = p.parse_args()
     host = a.host.resolve(strict=True)
     assert not host.is_relative_to(Path('/Applications'))
@@ -57,12 +57,16 @@ def main():
     }
     if a.suite == 'device-research':
         replacements['calendar_enabled'] = 'fn calendar_enabled(){return true}'
+    if a.suite == 'calendar-restore':
+        # Independent inbox startup is covered by Mail tests. Keep actual boot
+        # result recovery and chat binding; this fixture sends no Host request.
+        replacements['mail_watch_boot'] = 'fn mail_watch_boot(){}'
     for name, body in replacements.items():
         prefix = replace_function(prefix, name, body)
     after = functions_in(prefix)
     changed = [n for n in before if before[n] != after[n].replace('probe_transport(', 'host.request(')]
     assert sorted(changed) == sorted(replacements)
-    probe = Path(__file__).with_name('official_api.splash')
+    probe = Path(__file__).with_name('calendar_restore.splash' if a.suite == 'calendar-restore' else 'official_api.splash')
     widget = WIDGET.replace('    Label{text:', '''    mail_to := TextInput{width: Fill}
     mail_subject := TextInput{width: Fill}
     mail_body := TextInput{width: Fill}
