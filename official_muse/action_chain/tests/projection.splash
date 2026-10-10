@@ -1,0 +1,136 @@
+// All records here are synthetic. Test the real read-only projection functions.
+let ac_checks = {} let ac_fixture_calls = 0 let ac_observations = {}
+fn ac_fixture_transport(method,args,cb){ ac_fixture_calls = ac_fixture_calls + 1 cb({is_ok: false error: "No external fixture service"}) }
+fn ac_seed(){
+    ac_selected_id = "" ac_selected_chat = "" ac_picker_open = false ac_light = false
+    core_storage_ready = true core_activity_ready = true core_memory_ready = true gm_ready = true
+    gm_project = "合成项目" gm_owner = "个人" gm_accounts = ["local","synthetic-mail"]
+    chat_selected_id = "synthetic-chat" page = "Chat"
+    chat_sessions = [{id: chat_selected_id focus_project: gm_project focus_owner: gm_owner goal_id: "synthetic-matter"}]
+    goals = [{id: "synthetic-matter" goal: "合成测试 · 项目会议改期" version: 2
+        project_id: gm_project owner_id: gm_owner status: "planned"
+        mail_source: {account_id: "synthetic-mail" message_id: "message-1"} items: [{kind: "calendar"}]}]
+    task = goals[0] runs = [] actions = [] memory = [] memory_sources = [] activity = []
+    mail_accounts = [{id: "synthetic-mail"}]
+    mail_watch = {enabled: false accounts: [] alerts: [{key: "synthetic-mail:message-1" account_id: "synthetic-mail"
+        goal_id: "synthetic-matter" subject: "合成会议安排" source_body: "合成会议变更" status: "new"
+        analysis_state: "ready" analysis: {} intent: "拒绝" draft_intent: "可以" reply_mode: "ai"}]}
+    mail_draft = {account: "" status: "DRAFT" link_goal_id: ""}
+    calendar_links = [] calendar_receipts = [] calendar_conflicts = [] calendar_selected_goal = ""
+}
+fn ac_has(view,title,state){
+    for node in view.nodes { if node.title == title && node.state == state { return true } }
+    return false
+}
+fn ac_snapshot(){
+    return {goals: goals runs: runs actions: actions memory: memory memory_sources: memory_sources activity: activity
+        calendar_links: calendar_links calendar_receipts: calendar_receipts mail_watch: mail_watch mail_draft: mail_draft}.to_json()
+}
+fn ac_run_suite(){
+    let states = [{state: "idle" text: "未执行"},{state: "running" text: "进行中"},{state: "verified" text: "已核验"}
+        {state: "waiting_user" text: "等你确认"},{state: "blocked" text: "受阻"},{state: "conflict" text: "冲突"}
+        {state: "stale" text: "已失效"},{state: "failed" text: "失败"},{state: "unknown" text: "待核验"}]
+    let valid = true
+    for row in states { if ac_state(row.state) != row.text { valid = false } }
+    ac_checks.nine_states = valid
+    ac_checks.no_unproven_success = ac_state("accepted") == "待核验" && ac_state("completed") == "待核验"
+        && ac_state("unexpected") == "待核验"
+    ac_seed()
+    ac_tab = "auto"
+    ac_checks.new_mail_keeps_original_result = !ac_show_chain()
+    ac_tab = "chain"
+    ac_checks.user_can_choose_chain = ac_show_chain()
+    let before = ac_snapshot() let view = ac_projection()
+    ac_checks.normal_has_nodes = view.nodes.len() > 0
+    ac_checks.source_read = ac_has(view,"来信来源","已核验")
+    ac_checks.calendar_missing_blocked = ac_has(view,"日历能力","受阻")
+    ac_checks.pure_projection = before == ac_snapshot() && ac_fixture_calls == 0
+    ac_checks.mail_addresses_hidden = ac_text("person@example.invalid") == "邮箱信息（已脱敏）"
+    ac_observations.normal = view
+
+    actions = [{id: "synthetic-verified" goal_id: "synthetic-matter" status: "verified" service: "calendar.create" plan_revision: 1}
+        {id: "synthetic-accepted" goal_id: "synthetic-matter" status: "accepted" service: "mail.send" plan_revision: 2}]
+    view = ac_projection()
+    ac_checks.old_verified_history_retained = ac_has(view,"执行记录","已核验")
+    ac_checks.accepted_remains_unverified = ac_has(view,"执行记录","待核验")
+    ac_observations.receipts = view
+
+    mail_watch.alerts.push({key: "synthetic-mail:message-2" account_id: "synthetic-mail" goal_id: "synthetic-matter"
+        subject: "合成改期请求" source_body: "后续新信息" status: "intent" intent: "拒绝" draft_intent: "可以" reply_mode: "ai"})
+    view = ac_projection()
+    ac_checks.same_matter_later_mail = ac_has(view,"后续来信","未执行") && view.title == ac_observations.normal.title
+    mail_draft = {account: "synthetic-mail" status: "DRAFT" body: "可以，没问题" link_goal_id: "synthetic-matter"
+        incoming_key: "synthetic-mail:message-2" request_id: "synthetic-draft"}
+    let old_body = mail_draft.body
+    view = ac_projection()
+    ac_checks.stale_draft_visible = ac_has(view,"旧回复草稿已失效","已失效")
+    ac_checks.stale_body_untouched = mail_draft.body == old_body
+    ac_observations.stale = view
+    mail_watch.alerts[1].reply_mode = "manual"
+    view = ac_projection()
+    ac_checks.manual_draft_untouched = !ac_has(view,"旧回复草稿已失效","已失效") && mail_draft.body == old_body
+    calendar_selected_goal = "synthetic-matter" calendar_conflicts = [{id: "synthetic-conflict"}]
+    view = ac_projection()
+    ac_checks.conflict_visible = ac_has(view,"发现时间冲突","冲突")
+    ac_observations.conflict = view
+    start_timeout(0.01,|| ac_run_policy_suite())
+}
+fn ac_run_policy_suite(){
+    ac_seed() gm_accounts = ["local"]
+    ac_checks.revoked_account_hidden = ac_projection().nodes.len() == 0
+    ac_seed() gm_project = "另一个项目"
+    ac_checks.other_project_hidden = ac_projection().nodes.len() == 0
+    ac_seed() goals[0].owner_id = "老师"
+    ac_checks.other_owner_hidden = ac_projection().nodes.len() == 0
+    ac_seed() chat_sessions = []
+    ac_checks.empty_state = ac_projection().nodes.len() == 0
+    ac_seed() goals[0].version = "corrupt"
+    ac_checks.corrupt_record_not_success = ac_projection().nodes.len() == 0 && ac_projection().title == "事项记录不完整"
+    ac_seed() core_storage_ready = false
+    ac_checks.unreadable_state = ac_projection().nodes.len() == 0 && ac_projection().title == "记录尚不可读"
+    ac_seed() calendar_links = [{goal_id: "synthetic-matter" account_id: "synthetic-mail" status: "candidate"
+        memory_refs: [{id: "missing-memory" account: "local" revision: 1 source_ids: ["missing-source"]}]}]
+    ac_checks.changed_memory_invalidated = ac_has(ac_projection(),"关联记忆","已失效")
+
+    ac_seed()
+    goals.push({id: "synthetic-second" goal: "合成测试 · 第二事项" version: 1 project_id: gm_project owner_id: gm_owner status: "unknown"})
+    goals.push({id: "synthetic-forbidden" goal: "禁止显示的其他归属" version: 1 project_id: gm_project owner_id: "老师" status: "verified"})
+    ac_checks.only_authorized_choices = ac_choices().len() == 2
+    ac_selected_id = "synthetic-second" ac_selected_chat = chat_selected_id
+    ac_checks.matter_switch = ac_current_goal().id == "synthetic-second" && ac_projection().title == "合成测试 · 第二事项"
+    ac_selected_id = "synthetic-forbidden"
+    ac_checks.forbidden_selection_hidden = ac_current_goal() == nil
+    ac_selected_id = "synthetic-second" ac_selected_chat = "another-chat"
+    ac_checks.switch_stays_in_current_chat = ac_current_goal().id == "synthetic-matter"
+    ac_selected_chat = chat_selected_id
+    right_open = false right_page_mode = false
+    let ledger = ac_snapshot()
+    ac_choose_matter("synthetic-second")
+    ac_light = true ui_layout_save()
+    ac_selected_id = "" ac_selected_chat = "" ac_light = false
+    ui_layout_boot()
+    ac_checks.selection_appearance_restore = ac_selected_id == "synthetic-second" && ac_selected_chat == chat_selected_id && ac_light
+    ac_checks.ui_preferences_do_not_change_business = ledger == ac_snapshot()
+    ac_choose_matter("")
+    ac_checks.follow_current_chat = ac_current_goal().id == "synthetic-matter"
+
+    ac_seed()
+    start_timeout(0.01,|| ac_history_seed(0))
+}
+fn ac_history_seed(start){
+    // Fixture construction has the same callback limit as the production app.
+    // Preserve 10,000 rows; prepare them across bounded callbacks.
+    for i in 1000 { actions.push({id: "synthetic-history-" + (start+i) goal_id: "synthetic-matter" status: "unknown" service: "mail.send" plan_revision: 1}) }
+    if start+1000 < 10000 { start_timeout(0.01,|| ac_history_seed(start+1000)) return }
+    start_timeout(0.01,|| ac_history_measure())
+}
+fn ac_history_measure(){
+    let started = time_now()
+    let view = nil
+    for i in 10 { view = ac_projection() }
+    ac_observations.large_history_seconds = time_now() - started
+    ac_checks.history_bound = actions.len() == 10000 && view.nodes.len() <= 12 && view.limited
+    ac_checks.no_tool_or_model_call = ac_fixture_calls == 0
+    fs.write("ac-probe.json",{kind: "SYNTHETIC_PROJECTION_REAL_VM" checks: ac_checks observations: ac_observations}.to_json())
+}
+start_timeout(0.1,|| ac_run_suite())

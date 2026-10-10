@@ -8610,10 +8610,15 @@ fn ui_layout_boot(){
         && (saved["sidebar_open"] == true || saved["sidebar_open"] == false)
         && (saved["right_open"] == true || saved["right_open"] == false) {
         sidebar_open = saved.sidebar_open right_open = saved.right_open
+        if saved["chain_light"] == true { ac_light = true }
+        if gm_string(saved["chain_matter"],200) && gm_string(saved["chain_chat"],200) {
+            ac_selected_id = saved.chain_matter ac_selected_chat = saved.chain_chat
+        }
     } else { ui_error = "界面偏好不可读，已保留原文件并使用默认布局。" }
 }
 fn ui_layout_save(){
-    let raw = {schema: 1 sidebar_open: sidebar_open right_open: right_open}.to_json()
+    let raw = {schema: 1 sidebar_open: sidebar_open right_open: right_open
+        chain_light: ac_light chain_matter: ac_selected_id chain_chat: ac_selected_chat}.to_json()
     if storage_write("ui-layout.json",raw) != nil || storage_read("ui-layout.json") != raw { ui_error = "界面偏好保存失败。" }
 }
 fn sidebar_toggle(){ sidebar_open = !sidebar_open ui_layout_save() redraw() }
@@ -9206,8 +9211,297 @@ let Secondary = ButtonFlat{height: 32
 let Primary = ButtonFlat{height: 36
     draw_bg +: {color: blue color_hover: #x589cff color_down: #x2778e9}
     draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
+// BEGIN ACTION_CHAIN_PROJECTION
+// Read-only, bounded projection of existing records. No I/O or execution calls.
+let ac_tab = "auto"
+let ac_expanded = ""
+let ac_light = false
+let ac_selected_id = ""
+let ac_selected_chat = ""
+let ac_picker_open = false
+fn ac_show_chain(){ return ac_tab == "chain" || (ac_tab == "auto" && mail_watch_pending() == 0) }
+fn ac_refresh(){
+    if right_open && !right_page_mode { ui.right_content.render() }
+    if right_page_mode { ui.right_page_content.render() }
+}
+fn ac_choose(tab){ ac_tab = tab ac_expanded = "" ac_refresh() }
+fn ac_expand(id){ if ac_expanded == id { ac_expanded = "" } else { ac_expanded = id } ac_refresh() }
+fn ac_appearance_toggle(){ ac_light = !ac_light ui_layout_save() ac_refresh() }
+fn ac_picker_toggle(){ ac_picker_open = !ac_picker_open ac_refresh() }
+fn ac_choose_matter(id){
+    if id != "" {
+        let allowed = false
+        for index in min(goals.len(),64) { let goal = goals[index] if ac_field(goal,"id") == id && ac_goal_allowed(goal) { allowed = true } }
+        if !allowed { return }
+    }
+    ac_selected_id = id ac_selected_chat = chat_selected_id ac_picker_open = false ac_expanded = ""
+    ui_layout_save() ac_refresh()
+}
+fn ac_choices(){
+    let choices = []
+    if !core_storage_ready || !gm_ready || !gm_array(goals) { return choices }
+    for offset in min(goals.len(),64) {
+        let goal = goals[goals.len()-1-offset]
+        if choices.len() < 8 && ac_goal_allowed(goal) { choices.push({id: goal.id title: ac_text(ac_field(goal,"goal"))}) }
+    }
+    return choices
+}
+fn ac_text(value){
+    if !gm_string(value,20000) { return "" }
+    if value.search("@") >= 0 { return "邮箱信息（已脱敏）" }
+    let chars = value.to_chars() let out = "".to_chars()
+    for i in min(chars.len(),100) { out.push(chars[i]) }
+    if chars.len() > 100 { return out.to_string() + "…" }
+    return out.to_string()
+}
+fn ac_field(record,key){
+    if !gm_object(record) || !gm_string(record[key],2000) { return "" }
+    return record[key]
+}
+fn ac_sources(sources){
+    let text = ""
+    for source in sources { if text != "" { text = text + " · " } text = text + source }
+    return text
+}
+fn ac_state(status){
+    if status == "verified" { return "已核验" }
+    if status == "running" || status == "in_flight" || status == "sending" { return "进行中" }
+    if status == "planned" || status == "waiting_user" || status == "prepared" { return "等你确认" }
+    if status == "blocked" || status == "paused" || status == "unavailable" { return "受阻" }
+    if status == "conflict" { return "冲突" }
+    if status == "stale" || status == "superseded" { return "已失效" }
+    if status == "failed" || status == "error" { return "失败" }
+    if status == "accepted" || status == "unknown" || status == "completed" { return "待核验" }
+    if status == "new" || status == "DRAFT" || status == "candidate" || status == "editing" || status == "idle" { return "未执行" }
+    return "待核验"
+}
+fn ac_goal_allowed(goal){
+    if !gm_object(goal) || gm_project == "" || gm_owner == "" { return false }
+    if ac_field(goal,"project_id") != gm_project || ac_field(goal,"owner_id") != gm_owner { return false }
+    if gm_object(goal["mail_source"]) {
+        let account = ac_field(goal.mail_source,"account_id")
+        return account != "" && gm_account_allowed(account) && mail_watch_account(account) != nil
+    }
+    return gm_account_allowed("local")
+}
+fn ac_current_goal(){
+    if !core_storage_ready || !gm_ready || !gm_array(goals) || !gm_array(chat_sessions) { return nil }
+    let id = ""
+    for index in min(chat_sessions.len(),16) {
+        let session = chat_sessions[index]
+        if gm_object(session) && ac_field(session,"id") == chat_selected_id
+            && ac_field(session,"focus_project") == gm_project && ac_field(session,"focus_owner") == gm_owner {
+            id = ac_field(session,"goal_id")
+        }
+    }
+    if page == "Goal Detail" && gm_object(task) { id = ac_field(task,"id") }
+    if ac_selected_chat == chat_selected_id && ac_selected_id != "" { id = ac_selected_id }
+    for index in min(goals.len(),64) { let goal = goals[index] if gm_object(goal) && ac_field(goal,"id") == id && ac_goal_allowed(goal) { return goal } }
+    return nil
+}
+fn ac_alert_allowed(alert,goal){
+    if !gm_object(alert) || !ac_goal_allowed(goal) || !gm_object(goal["mail_source"]) { return false }
+    if ac_field(alert,"account_id") != ac_field(goal.mail_source,"account_id") { return false }
+    return ac_field(alert,"goal_id") == goal.id
+        || ac_field(alert,"key") == goal.mail_source.account_id + ":" + ac_field(goal.mail_source,"message_id")
+}
+fn ac_current_alert(){
+    let goal = ac_current_goal()
+    if !gm_object(mail_watch) || !gm_array(mail_watch["alerts"]) { return nil }
+    for offset in min(mail_watch.alerts.len(),32) {
+        let alert = mail_watch.alerts[mail_watch.alerts.len()-1-offset]
+        if ac_alert_allowed(alert,goal) && ac_field(alert,"status") != "dismissed" { return alert }
+    }
+    return nil
+}
+fn ac_alert_count(){
+    let count = 0 let goal = ac_current_goal()
+    if !gm_object(mail_watch) || !gm_array(mail_watch["alerts"]) { return 0 }
+    for offset in min(mail_watch.alerts.len(),32) {
+        if ac_alert_allowed(mail_watch.alerts[mail_watch.alerts.len()-1-offset],goal) { count = count + 1 }
+    }
+    return count
+}
+fn ac_add(view,title,status,detail,id){
+    if view.nodes.len() >= 12 { view.limited = true return }
+    view.nodes.push({title: title state: ac_state(status) detail: ac_text(detail) record_id: id
+        node_id: title + ":" + id + ":" + view.nodes.len()})
+}
+fn ac_projection(){
+    let view = {title: "当前会话尚未关联事项" sources: [] nodes: [] next: "关联事项后，已有来源、计划和回执会显示在这里。" limited: false}
+    if !core_storage_ready || !gm_ready {
+        view.title = "记录尚不可读" view.next = "受阻 · 等待记录恢复；未执行新操作。" return view
+    }
+    let goal = ac_current_goal()
+    if goal == nil { return view }
+    if !gm_number(goal["version"]) || !gm_string(goal["goal"],4000) || ac_field(goal,"id") == "" {
+        view.title = "事项记录不完整" view.next = "原记录已保留；无法据此展示执行成功。" return view
+    }
+    view.title = ac_text(goal.goal)
+    view.sources.push("任务记录")
+    if ac_field(goal,"status") == "planned" { view.next = "查看现有计划，核对后再确认执行。" }
+    if view.next == "关联事项后，已有来源、计划和回执会显示在这里。" { view.next = "查看事项详情或原结果卡；本链只展示已有记录。" }
+    ac_add(view,"事项 · 当前计划",ac_field(goal,"status"),"版本 " + goal.version + " · 计划不等于执行成功",goal.id)
+    let alert = ac_current_alert()
+    if alert != nil {
+        view.sources.push("邮件")
+        let state = "new"
+        if gm_string(alert["source_body"],20000) { state = "verified" }
+        ac_add(view,"来信来源",state,ac_field(alert,"subject"),ac_field(alert,"key"))
+        if ac_alert_count() > 1 { ac_add(view,"后续来信","new","同一事项有后续来信；旧执行记录继续保留",ac_field(alert,"key")) }
+        if gm_object(alert["analysis"]) {
+            let state = "new"
+            if ac_field(alert,"analysis_state") == "running" { state = "running" }
+            ac_add(view,"理解候选",state,"已有分析记录；不是执行或检索成功证据",ac_field(alert,"key"))
+        }
+    }
+    if gm_array(calendar_links) {
+        for offset in min(calendar_links.len(),32) {
+            let link = calendar_links[calendar_links.len()-1-offset]
+            if gm_object(link) && ac_field(link,"goal_id") == goal.id
+                && gm_account_allowed(ac_field(link,"account_id")) {
+                view.sources.push("日历")
+                ac_add(view,"日历关联",ac_field(link,"status"),"已有日历关联记录；当前可用性不代表历史结果",goal.id)
+                if ac_field(link,"last_error") != "" {
+                    ac_add(view,"日程需重新核对","unknown",ac_field(link,"last_error"),goal.id)
+                }
+                if gm_array(link["memory_refs"]) && link.memory_refs.len() > 0 {
+                    view.sources.push("全局记忆")
+                    let state = "stale"
+                    if chat_refs_valid(link.memory_refs) && chat_reply_context_valid({memory_refs: link.memory_refs}) { state = "verified" }
+                    ac_add(view,"关联记忆",state,"记录中的相关记忆共 " + link.memory_refs.len() + " 条；不展示整库",goal.id)
+                }
+            }
+        }
+    }
+    if !calendar_enabled() && is_calendar_goal(goal) {
+        ac_add(view,"日历能力","blocked","官方内置日历联动尚未接通；历史回执保留，未发起新写入",goal.id)
+        view.next = "日历通道受阻。先查看事项与草稿，不能把计划当成完成。"
+    }
+    if gm_array(calendar_receipts) {
+        let count = 0
+        for offset in min(calendar_receipts.len(),64) {
+            let receipt = calendar_receipts[calendar_receipts.len()-1-offset]
+            if count < 2 && gm_object(receipt) && ac_field(receipt,"goal_id") == goal.id {
+                ac_add(view,"独立读回回执",ac_field(receipt,"status"),"已有收据 · " + ac_field(receipt,"service"),ac_field(receipt,"request_id"))
+                count = count + 1
+            }
+        }
+        if calendar_receipts.len() > 64 { view.limited = true }
+    }
+    if gm_array(actions) {
+        let matching = []
+        for offset in min(actions.len(),64) {
+            let action = actions[actions.len()-1-offset]
+            if gm_object(action) && ac_field(action,"goal_id") == goal.id {
+                if matching.len() < 4 { matching.push(action) } else { view.limited = true }
+            }
+        }
+        for offset in matching.len() {
+            let action = matching[matching.len()-1-offset]
+            let detail = "已有动作记录 · " + ac_field(action,"service")
+            if action["plan_revision"] != goal.version { detail = detail + " · 历史版本，事实仍保留" }
+            if ac_field(action,"status") == "accepted" || ac_field(action,"status") == "unknown" { detail = detail + " · 仅受理，尚未核验" view.next = "核对原记录；结果未确认前不要重复执行。" }
+            ac_add(view,"执行记录",ac_field(action,"status"),detail,ac_field(action,"id"))
+        }
+        if actions.len() > 64 { view.limited = true }
+    }
+    if gm_object(mail_draft) && ac_field(mail_draft,"link_goal_id") == goal.id
+        && gm_account_allowed(ac_field(mail_draft,"account")) {
+        let stale = gm_has(mail_draft,"memory_refs") && (!chat_refs_valid(mail_draft.memory_refs) || !chat_reply_context_valid(mail_draft))
+        if alert != nil && ac_field(mail_draft,"incoming_key") == ac_field(alert,"key")
+            && ac_field(alert,"reply_mode") != "manual" && gm_has(alert,"draft_intent")
+            && (alert.draft_intent != alert.intent || !mail_reply_matches(alert.intent,ac_field(mail_draft,"body"))) { stale = true }
+        if stale && (mail_draft.status == "DRAFT" || mail_draft.status == "waiting_user") {
+            ac_add(view,"旧回复草稿已失效","stale","相关记忆或回复意图已变化，需要重新起草",ac_field(mail_draft,"request_id"))
+            view.next = "请按新的信息重新起草；原文继续保留，暂不能发送旧方案。"
+        } else {
+            ac_add(view,"回复草稿",ac_field(mail_draft,"status"),"已有草稿状态；草稿或模型文字不等于已发送",ac_field(mail_draft,"request_id"))
+        }
+    }
+    if gm_array(activity) && core_activity_ready {
+        let count = 0
+        for offset in min(activity.len(),64) {
+            let item = activity[activity.len()-1-offset]
+            if count < 2 && gm_object(item) && ac_field(item,"goal_id") == goal.id && ac_field(item,"kind") == "STALE_APPROVAL" {
+                ac_add(view,"旧确认已失效","stale",ac_field(item,"detail"),ac_field(item,"request_id"))
+                count = count + 1
+            }
+        }
+        if activity.len() > 64 { view.limited = true }
+    }
+    if gm_array(calendar_conflicts) && calendar_selected_goal == goal.id && calendar_conflicts.len() > 0 {
+        ac_add(view,"发现时间冲突","conflict","当前查询发现 " + calendar_conflicts.len() + " 个冲突；未修改其他安排",goal.id)
+        view.next = "先核对冲突和候选时间，再进入原确认流程。"
+    }
+    return view
+}
+// END ACTION_CHAIN_PROJECTION
+
 // One native component renders the same result stream in the rail and narrow page.
-let ResultContent = ScrollYView{width: Fill height: Fill flow: Down spacing: 9 on_render: || {
+let ResultContent = ScrollYView{width: Fill height: Fill flow: Down spacing: 10 on_render: || {
+    let results_title = "来信与结果"
+    if mail_watch_pending() > 0 { results_title = "来信 · " + mail_watch_pending() }
+    View{width: Fill height: 32 flow: Right spacing: 6
+        Secondary{text: "行动链" width: Fill draw_text.color: blue on_click: || ac_choose("chain")}
+        Secondary{text: results_title width: Fill on_click: || ac_choose("results")}
+    }
+    if ac_show_chain() {
+    let chain = ac_projection()
+    let chain_ink = ink let chain_muted = muted let chain_panel = panel let chain_paper = paper
+    let appearance = "浅色"
+    if ac_light { chain_ink = #x25272c chain_muted = #x626974 chain_panel = #xffffff chain_paper = #xf1f3f6 appearance = "深色" }
+    RoundedView{width: Fill height: Fit flow: Down padding: 12 spacing: 10 new_batch: true draw_bg.color: chain_paper draw_bg.border_radius: 10
+    View{width: Fill height: 32 flow: Right spacing: 4
+        Secondary{text: "切换事项" width: Fill draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || ac_picker_toggle()}
+        Secondary{text: appearance width: 55 draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || ac_appearance_toggle()}
+    }
+    if ac_picker_open {
+        Secondary{text: "跟随当前对话" width: Fill draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || ac_choose_matter("")}
+        for choice in ac_choices() {
+            Secondary{text: choice.title width: Fill draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || ac_choose_matter(choice.id)}
+        }
+    }
+    Label{width: Fill text: chain.title draw_text.color: chain_ink draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 16}}
+    if chain.nodes.len() == 0 {
+        Label{width: Fill text: chain.next draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+    }
+    for index in chain.nodes.len() {
+        let node = chain.nodes[index]
+        let color = chain_muted
+        if node.state == "已核验" { color = green }
+        if node.state == "进行中" || node.state == "等你确认" { color = blue }
+        if node.state == "失败" || node.state == "冲突" { color = #xe07b72 }
+        if ac_light {
+            if node.state == "已核验" { color = #x267446 }
+            if node.state == "进行中" || node.state == "等你确认" { color = #x215aba }
+            if node.state == "失败" || node.state == "冲突" { color = #xac3c32 }
+        }
+        View{width: Fill height: Fit flow: Right spacing: 10
+            View{width: 12 height: Fit flow: Down spacing: 5 padding: Inset{top: 12} align: Align{x: 0.5 y: 0}
+                RoundedView{width: 8 height: 8 draw_bg.color: color draw_bg.border_radius: 4}
+                if index < chain.nodes.len()-1 { SolidView{width: 1 height: 80 draw_bg.color: chain_muted} }
+            }
+            RoundedView{width: Fill height: Fit flow: Down padding: 10 spacing: 5 new_batch: true draw_bg.color: chain_panel draw_bg.border_radius: 10
+                Label{width: Fill text: node.title draw_text.color: chain_ink draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 13}}
+                Label{text: node.state draw_text.color: color draw_text.text_style.font_size: 11}
+                Secondary{text: "查看依据" height: 26 draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || ac_expand(node.node_id)}
+                if ac_expanded == node.node_id {
+                    Label{width: Fill text: node.detail draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
+                    Label{width: Fill text: "记录 · " + ac_text(node.record_id) draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 10}
+                }
+            }
+        }
+    }
+    if chain.limited { Label{width: Fill text: "仅展示最近的关键记录。完整历史仍在事项详情中。" draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
+    if chain.nodes.len() > 0 {
+        Label{text: "下一步" draw_text.color: chain_ink draw_text.text_style: theme.font_bold{font_size: 13}}
+        Label{width: Fill text: chain.next draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+        Label{width: Fill text: "关联来源 · " + ac_sources(chain.sources) draw_text.color: chain_muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
+        Secondary{text: "查看事项与确认" draw_text +: {color: chain_ink color_hover: chain_ink color_down: chain_ink} on_click: || { let goal = ac_current_goal() if goal != nil { select_goal(goal.id) } }}
+    }
+    }
+    } else {
             if mail_watch.enabled && mail_watch_failed {
                 RoundedView{width: Fill height: Fit flow: Down padding: 12 spacing: 6 new_batch: true draw_bg.color: panel draw_bg.border_radius: 10
                     Label{width: Fill text: "邮箱暂时无法同步" draw_text.color: #xff9c94 draw_text.wrap: Words draw_text.text_style.font_size: 14}
@@ -9372,7 +9666,8 @@ let ResultContent = ScrollYView{width: Fill height: Fill flow: Down spacing: 9 o
                 if technical_open { Label{width: Fill text: notice draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
                 if chat_shows_goal() || mail_watch_current() != nil || ui_error != "" { Secondary{text: "详细信息" on_click: || technical_toggle()} }
             }
-        }}
+            }
+}}
 SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg.color: paper
     main_mount := SolidView{width: Fill height: Fill flow: Right draw_bg.color: paper on_render: || {
     left_rail := View{visible: false width: 36 height: Fill flow: Down padding: 2 spacing: 8
