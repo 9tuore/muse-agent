@@ -16,14 +16,14 @@
 | P1 | 全部执行接口审计，复用官方model.complete、Storage、Mail | OFFICIAL_API_MIGRATION_MATRIX.md已有；不另造Runtime、私有SMTP/IMAP/模型代理 |
 | P1 | 官方内置os.calendar查询/创建/原事件改期/删除/独立读回 | 已查明共享修改/删除是owner-only策略；精确读回缺口有测试补丁，原生relay未集成；EventKit不作为新候选默认 |
 | P1 | Octos真实Agent工具选择/调用，3–5工具及权限链 | 实际loader测试已执行；muse-goals自有工具命名拒绝，outbound-only loader可过；outbound-only隔离入口15项协议/jailed fs检查通过；最新原生Hub Gate修正listing后仍拒绝calendar.events，不在商店默认offered_tools，空工具对照通过/kernel shell拒绝（无真实Agent准入/模型选择）；合并历史项目隔离未解，正式Chat保留model.complete |
-| P1 | 官方缺口自动反馈并交自写补丁供审阅 | AppHub #182、OctoSense #427已OPEN；两文件Calendar补丁9+1及schema1通过，已公开在#427 comment6083645335供审阅；未接受/未安装；商店outbound工具准入新缺口已补#182 comment6095096789，未接受；夜间已用2/3条Issue |
+| P1 | 官方缺口自动反馈并交自写补丁供审阅 | AppHub #182、OctoSense #427已OPEN；两文件Calendar补丁9+1及schema1通过，已公开在#427 comment6083645335供审阅；未接受/未安装；商店outbound工具准入新缺口已补#182 comment6095096789，未接受；Phone打包缺陷已提交#458供审阅；夜间已用3/3条Issue |
 | P1 | 更新官方OctoSense | 今日desktop-v0.1.0-rc.2（4ccf8e0），SDK1.10.0；官方Mac包只有arm64，本机Intel；前轮Git checkout网络失败保留；12:34通过官方API补齐1101个SHA1核验Git blob后精确Tag完整checkout成功、status干净，官方framework setup/--check通过；全功能Cargo图下载在293322763字节停滞12分钟，13:46停止保留证据；最小offline构建缺octoscode固定依赖exit101，官方codeload归档14:04超时exit28（72167452字节、不完整未使用）；尚未构建/安装。独立官方Hub锁定online构建已完成exit0/8m24，SHA875a8055；offline缺zerocopy失败保留，不算桌面Shell升级 |
 | P1 | 运行性能/体积实测及轻量化 | 活动bundle770540字节；研究候选r3源5e2e84fe已准备显式Host API要求，未准入/安装/发布；未宣称性能/压缩改善；量启动/RSS/源码/包分别统计 |
 | P1 | 根bundle、官方stamp/check/scan、新发布规范 | 根入口已迁；旧演练签名保持。4af1f02e修正digest必需字段后最新原生Hub结构check PASS、scan生成7问材料/reviewer未跑，正式新Host准入未测；不移植旧PASS |
 | P1 | 行动链MVP-1独立实现/实际原生UI | A已接管独立codex/muse-action-chain-20261009，隔离提交266f9c66，约247行只读MVP，25项状态fixture通过；真实可见原生窗口已完成四种尺寸、展开、原结果切换及一次重启，实际1条既有action记录未变；明色/事务切换未测或未做，未合入A |
 | P2 | 行动链MVP-2失效/冲突/节点详情/切换事项 | 在MVP-1和P0允许时做；无证据标未知，保留历史，不新造业务状态/轮询/审批 |
 | P1 | 行动链测试与60–90秒演示方案 | 要测真实状态映射、同事项更新/失效、能力缺失、恢复、窄/明暗、空/损坏、历史渲染；实录只展示实际能力 |
-| P1 | 手机源码/构建/模拟器/官方兼容 | 核对后续r7已构建Home APK并验签（240541954字节/70a318d1），旧七小时截止报告不改；新独立API35模拟器boot/安装r7成功；首次Home缺主题资源崩溃，packager空格路径解析已复现4FAIL/补丁6PASS，隔离构建中，Home运行仍FAIL；真设备DEVICE_NOT_TESTED，不刷ROM/改安全配置 |
+| P1 | 手机源码/构建/模拟器/官方兼容 | 核对后续r7已构建Home APK并验签（240541954字节/70a318d1），旧七小时截止报告不改；新独立API35模拟器boot/安装r7成功；首次Home缺主题资源崩溃，packager空格路径解析已复现4FAIL/补丁6PASS，官方packager隔离锁定构建通过，Home完整重建中，Home运行仍FAIL；#458已提交供审阅。模拟器一小时守护正常退出；真设备DEVICE_NOT_TESTED，不刷ROM/改安全配置 |
 | P1 | 本地小步提交/授权开发分支同步/交接 | 不force、不动旧Tag、不擅自正式Hub/复赛发布；公开前排除私人资料/凭据 |
 | P0 | 无人值守续跑和最终真实报告 | 旧07:00截止后恢复心跳不自动继续开发；用户重新授权到17:00，自动化已更新。16:00冻结大改，17:00写准确报告并停；电脑关机导致中断，未宣称整夜连续运行 |
 | P0 | 费用、权限、磁盘 | 不扩大现有模型预算；缺真人授权标HUMAN_REQUIRED并转其他项。12:14磁盘约29GiB，机器刚重启、负载较高，大构建串行。原冷启动捕获原样归档到ignored build，有SHA清单，未删除证据；用户资料保持 |

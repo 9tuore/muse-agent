@@ -1,0 +1,49 @@
+
+running 6 tests
+test duplicate_with_proc_macro_marker ... FAILED
+test nonexistent_source_stays_unresolved ... ok
+test normal_source_path ... FAILED
+test parentheses_inside_source_path ... FAILED
+test registry_crate_stays_unresolved ... ok
+test space_and_unicode_source_path ... FAILED
+
+failures:
+
+---- duplicate_with_proc_macro_marker stdout ----
+
+thread 'duplicate_with_proc_macro_marker' (269371) panicked at /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before-tests.rs:36:5:
+assertion `left == right` failed
+  left: Some(("octosense-shell", None))
+ right: Some(("octosense-shell", Some("/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before/fixtures/macro source/shell")))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- normal_source_path stdout ----
+
+thread 'normal_source_path' (269373) panicked at /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before-tests.rs:36:5:
+assertion `left == right` failed
+  left: Some(("octosense-shell", None))
+ right: Some(("octosense-shell", Some("/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before/fixtures/plain/shell")))
+
+---- parentheses_inside_source_path stdout ----
+
+thread 'parentheses_inside_source_path' (269374) panicked at /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before-tests.rs:36:5:
+assertion `left == right` failed
+  left: Some(("octosense-shell", None))
+ right: Some(("octosense-shell", Some("/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before/fixtures/build (candidate)/shell")))
+
+---- space_and_unicode_source_path stdout ----
+
+thread 'space_and_unicode_source_path' (269376) panicked at /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before-tests.rs:36:5:
+assertion `left == right` failed
+  left: Some(("octosense-shell", None))
+ right: Some(("octosense-shell", Some("/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/phone-resource-parser-r1/before/fixtures/Agent APP黑客松/shell")))
+
+
+failures:
+    duplicate_with_proc_macro_marker
+    normal_source_path
+    parentheses_inside_source_path
+    space_and_unicode_source_path
+
+test result: FAILED. 2 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

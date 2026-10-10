@@ -1,0 +1,76 @@
+{
+  "kind": "ACTUAL_RUST_FUNCTION_REGRESSION",
+  "cases": 6,
+  "results": [
+    {
+      "variant": "before",
+      "exit": 101,
+      "summary": "test result: FAILED. 2 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "variant": "after",
+      "exit": 0,
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    }
+  ],
+  "scope": "Extracted actual before/after packager function; not whole APK/runtime pass",
+  "identity": {
+    "source_commit": "bf318136a375c4d1fb7ee10e13e27336b6d98744",
+    "latest_function_identical_at": "32d6415fb7476345ad36ee4f98d6f844d1f07fd2",
+    "lock_sha256": "c5371d6ed3a0bf38cec727b320fd7699bdb6d52c36b1b5796481138f83192724",
+    "only_modified": "tools/cargo_makepad/src/utils.rs",
+    "scope": "Packager only; original native APK libraries and runtime pins remain fixed"
+  },
+  "source_phone_commit": "7f962547cd8035ed2bb05962cf7824d8aa33e3a3",
+  "tool_build": {
+    "exit": 0,
+    "elapsed": "3m21s",
+    "sha256": "a6a585b7d445ae240781d207f8b311bac89b9ffd02c72d1960f01ee942dd6836",
+    "cargo_lock_sha256": "c5371d6ed3a0bf38cec727b320fd7699bdb6d52c36b1b5796481138f83192724"
+  },
+  "first_tool_build": {
+    "exit": 101,
+    "mode": "offline",
+    "reason": "missing libdeflater index entry",
+    "retained": true
+  },
+  "rustfmt": "NOT_RUN: component is not installed; no format PASS",
+  "home_after_patch": "REBUILD_IN_PROGRESS: no Home launch PASS yet",
+  "external_operations": 0,
+  "sdk_preexisting_status": [
+    " M Cargo.lock",
+    " M Cargo.toml",
+    " M apps/ai-providers/bundle/main.splash",
+    " M apps/ai-providers/bundle/manifest.json",
+    " M apps/ai-providers/host-service/examples/model_complete_live.rs",
+    " M apps/ai-providers/host-service/src/complete/mod.rs",
+    " M apps/ai-providers/host-service/src/complete/wire.rs",
+    " M apps/ai-providers/host-service/src/lib.rs",
+    " M apps/ai-providers/host-service/src/sheets.rs",
+    " M apps/ai-providers/host-service/tests/complete.rs",
+    " D apps/appcard/docs/ohos-evidence/install-rejection.log",
+    " M apps/mail/host-service/src/imap.rs",
+    " M apps/mail/host-service/src/lib.rs",
+    " M apps/mail/host-service/src/network.rs",
+    " M apps/mail/host-service/src/vault.rs",
+    " M crates/ai-host/src/toolbox_peers.rs",
+    " M crates/shell/Cargo.toml",
+    " M crates/shell/resources/startup.splash",
+    " M crates/shell/src/apps.rs",
+    " M crates/shell/src/binds.rs",
+    " M crates/shell/src/desk.rs",
+    " M crates/shell/src/desktop.rs",
+    " M crates/shell/src/host.rs",
+    " M crates/shell/src/run_view.rs",
+    " M crates/shell/src/shell/bar.rs",
+    " M crates/shell/src/shell/launcher.rs",
+    " M crates/shell/src/shell/menu.rs",
+    " M native-apps.json",
+    " M phone/src/main.rs",
+    "?? apps/calendar/",
+    "?? tools/package_calendar_candidate.py"
+  ],
+  "sdk_is_unmodified_official": false,
+  "night_external_operations": 0,
+  "upstream_issue": "https://github.com/OctoSense-org/OctoSense/issues/458"
+}

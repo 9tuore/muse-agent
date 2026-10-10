@@ -1,0 +1,43 @@
+diff --git a/tools/cargo_makepad/src/utils.rs b/tools/cargo_makepad/src/utils.rs
+index cc55c8e1..2798f909 100644
+--- a/tools/cargo_makepad/src/utils.rs
++++ b/tools/cargo_makepad/src/utils.rs
+@@ -209,25 +209,22 @@ fn parse_version_code_accepts_int_and_auto() {
+ 
+ pub fn extract_dependency_paths(line: &str) -> Option<(String, Option<PathBuf>)> {
+     let dependency_output_start = line.find(|c: char| c.is_alphanumeric())?;
+-    let dependency_output = &line[dependency_output_start..];
+-
+-    let mut tokens = dependency_output.split(' ');
+-    if let Some(name) = tokens.next() {
+-        for token in tokens.collect::<Vec<&str>>() {
+-            if token == "(*)" || token == "(proc-macro)" {
+-                continue;
+-            }
+-            if token.starts_with('(') {
+-                let path = token[1..token.len() - 1].to_owned();
+-                let path = Path::new(&path);
+-                if path.is_dir() {
+-                    return Some((name.to_string(), Some(path.into())));
+-                }
++    let dependency_output = line[dependency_output_start..].trim_end();
++    let dependency_output = dependency_output.strip_suffix(" (*)").unwrap_or(dependency_output);
++    let name = dependency_output.split_whitespace().next()?.to_string();
++
++    // Cargo prints a local source as one parenthesized path. Spaces and
++    // parentheses inside that path are valid filesystem characters.
++    if let Some(end) = dependency_output.rfind(')') {
++        for (start, _) in dependency_output.match_indices('(') {
++            if start >= end { continue; }
++            let path = Path::new(&dependency_output[start + 1..end]);
++            if path.is_dir() {
++                return Some((name, Some(path.into())));
+             }
+         }
+-        return Some((name.to_string(), None));
+     }
+-    None
++    Some((name, None))
+ }
+ 
+ pub fn get_crate_dir(build_crate: &str) -> Result<PathBuf, String> {
