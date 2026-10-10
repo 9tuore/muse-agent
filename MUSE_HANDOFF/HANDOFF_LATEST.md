@@ -1,19 +1,19 @@
-# Muse 接续检查点：2026-10-10 22:37
+# Muse 接续检查点：2026-10-11 00:01
 
 ## Task
-ZC-00继续A分支codex/muse-pivot-20261010；三条真实聊天分工，禁止子代理。保护旧Host、活动rc17、生产和主工作区137项dirty。
+NIGHT-002：完整宿主、内置Calendar、Mail审阅、行动链与人/Agent共享DSL。07:00冻结，08:00截止。
 
 ## Result
-PARTIAL。GitHub本人workflow授权完成，c3b65950普通推送及34de7f10官方API同SHA非强制快进均独立核对。日历Store10项执行通过；AppStore/nativeHub库557秒编译、库与测试源码72秒locked检查通过。正式Shell/consent/Relay/CRUD未验证。
+PARTIAL。发布layout 9项和便携日志10项通过；旧实机失败用显式artifact-dir继续核验，缺证据NOT_TESTED。根rc17和旧Host/生产保持。
 
 ## Changed
-calendar_integration：默认关闭的共享offer、五入口factory、撤销及测试/补丁；只读Relay清单。官方Mail审阅准备保持；主业务源未变。
+scripts/check_release_layout.py、scripts/tests/test_release_layout.py、docs/semifinal-release-layout.md；stability_integration便携fixture及旧失败CLI。主源未变。
 
 ## Tests
-真实Store签名fixture10/10；两次backend check exit0。原离线失败与源码快照保留。Mail新原生宿主依赖下载阻塞；行动链37项及compact五窗口为前单元证据，未拼成全链。
+9+10单元exit0；migration layout PASS/exit0。旧两种失败归档确认exit0，不冒充新Host/业务通过。
 
 ## Commit
-34de7f10测试及4a60e390接线验证。4a60e390已独立核对远端；后续文档同步见PIVOT/evidence；main/旧Tag不动。
+本单元提交后查git HEAD；基线15cc5718，当前开发分支codex/muse-pivot-20261010。原两项dirty保护。
 
 ## Remaining
-完整合法Relay、真实Mail原生审阅、同候选外部闭环与最终20次。新增真实外部动作/付费0。缺可信本人输入时HUMAN_REQUIRED，不绕过；Git缓存修复不是官方升级完成。
+完整真实Shell构建/注册、合法Muse Relay、原生Mail、共享DSL接入与同候选最终20。详细实况见MUSE_RUNTIME_CLOSURE_20261011_REPORT.md；心跳muse-dsl截至08:00，主文件与Cargo中央独占，三个真实聊天分别日历/Mail/稳定性。

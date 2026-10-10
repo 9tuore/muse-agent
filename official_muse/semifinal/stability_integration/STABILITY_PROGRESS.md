@@ -34,3 +34,17 @@ For five cases pass all five logs. Report/log count mismatch is a failure. Exit 
 Classification distinguishes COMPATIBILITY_REFUSAL (explicit log text), SCRIPT_TIME_BUDGET_EXCEEDED, OTHER_RUNTIME_ERROR, ARTIFACT_SHA_MISMATCH, PAYLOAD_NOT_OBSERVED, PAYLOAD_EVALUATED_WITHOUT_VIEW and failed/incomplete harness. Old 717-byte log has no rejection text, so automated classification is PAYLOAD_NOT_OBSERVED; earlier exact offline refusal reconstruction supplies its diagnosis separately. Milliseconds are absent in timeout logs: matching historical Host source widget_async.rs:458-459 sets 64ms, but a new Host must have its own budget identity checked. Likewise eval logs do not contain SHA; checker explicitly limits byte-count evidence instead of asserting cryptographic executed identity.
 
 No GUI/cargo/20-run, shared-file edits or Git operation performed for this addition.
+
+## Portable clean-checkout correction — NIGHT-002
+
+All test_check_host_log.py inputs are now explicitly SYNTHETIC. The two build-dependent tests were replaced with portable parser fixtures; real preserved evidence is checked only by new check_failure_artifacts.py --artifact-dir --expected. No old failure evidence or earlier report entry removed.
+
+Verification: copied only the three Python files into an empty temporary directory outside repository/build, ran unittest discovery: 10/10 OK, 0.007s, exit 0. Missing artifact directory: NOT_TESTED, exit 2 (not skipped/pass). Synthetic loaded-view artifact without expected timeout: FAIL_EXPECTED_FAILURE_NOT_FOUND, exit 1, covered by unit test. Explicit original refusal and timeout directories each returned PASS_PRESERVED_FAILURE_CHECK, exit 0; this means the old failure was found, not a new live success.
+
+Commands from repository root:
+```sh
+python3 -B -m unittest discover -s official_muse/semifinal/stability_integration -p test_check_host_log.py -v
+python3 -B official_muse/semifinal/stability_integration/check_failure_artifacts.py --artifact-dir build/pivot-candidate-compact-ui-r1 --expected refusal
+python3 -B official_muse/semifinal/stability_integration/check_failure_artifacts.py --artifact-dir build/pivot-action-rc2-native-r1 --expected timeout
+```
+Artifact checker requires bundle/main.splash and runtime-0.log; missing/unreadable evidence emits NOT_TESTED and exit 2. Refusal check recognizes preserved 717-byte non-payload evaluation without timeout, but does not invent the unlogged API rejection reason. Caller remains responsible for supplied artifact provenance. No GUI, cargo, Git, shared files or new runtime run.

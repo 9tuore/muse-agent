@@ -27,12 +27,16 @@ scripts/check_release_layout.py          只读布局、资源、Git 属性与�
 ```sh
 python3 scripts/check_release_layout.py
 # 可选：对已冻结的迁移源按全文件集合、长度与 SHA 再比较。
-python3 scripts/check_release_layout.py --reference /path/to/frozen/bundle
+python3 scripts/check_release_layout.py --migration --reference /path/to/frozen/bundle
 # 发布源预检：现有本地签名仍在，因此这一命令目前预期拒绝。
 python3 scripts/check_release_layout.py --for-github-release
 ```
 
 校验器只读 bundle，可选报告必须在包外。PASS 仅指目录/资源/字节规则，不能替代 `hub check/scan`、签名校验、原生 UI 或业务验收。兼容 symlink 在 Git 中是 120000 模式；Windows 需要启用 Git symlink 支持，正式检查始终使用真实根目录。现有签名不能直接在 standalone card-host 中运行；不要为通过检查自动删除签名或重写当前包。
+
+2026-10-10 审计修复：默认 `publication-layout` 只要求真实根 `bundle/`，干净发布检出不再依赖历史源码目录。显式 `--migration` 才检查旧别名；可选 `--reference` 仍按全文件集合、长度和 SHA 比较。文件类型对齐锁定 Hub `95e4831` 的白名单，允许 `AGENT.md`、`skills/*/SKILL.md` 等正式 Agent 素材；拒绝原生文件、包内符号链接和逃逸资源路径。图片解码、Wasm 内容及权限、签名与准入仍交给真正 Hub Gate。
+
+便携布局测试：`python3 -m unittest discover -s scripts/tests -p test_release_layout.py -v`，9 项通过。使用有效 PNG 字节及明确合成的布局数据，仅验证校验器，不宣称应用准入或业务执行通过。
 
 ## 发布流程草稿与尚待审查项
 

@@ -1,29 +1,28 @@
+"""Portable parser unit tests. All inputs here are SYNTHETIC, not live evidence."""
 import hashlib
 from pathlib import Path
+import tempfile
 import unittest
 
 from check_host_log import analyze
-
-ROOT = Path(__file__).resolve().parents[3]
-
+from check_failure_artifacts import check
 
 class LogChecks(unittest.TestCase):
     def classify(self, source, log, report=None):
         return analyze(source, [('test', log)], report)['cases'][0]['classifications']
 
-    def test_actual_refusal_does_not_claim_loaded_artifact(self):
-        run = ROOT / 'build/pivot-candidate-compact-ui-r1'
-        result = self.classify((run / 'bundle/main.splash').read_bytes(),
-                               (run / 'runtime-0.log').read_text())
+    def test_synthetic_refusal_does_not_claim_loaded_artifact(self):
+        result = self.classify(b'SYNTHETIC candidate payload',
+            '[SPLASH] eval: 717 bytes preserve=false view=true')
         self.assertIn('PAYLOAD_NOT_OBSERVED', result)
         self.assertNotIn('SCRIPT_TIME_BUDGET_EXCEEDED', result)
         # Old Host does not log the reason; do not invent compatibility certainty.
         self.assertNotIn('COMPATIBILITY_REFUSAL', result)
 
-    def test_actual_time_budget_failure(self):
-        run = ROOT / 'build/pivot-action-rc2-native-r1'
-        result = self.classify((run / 'bundle/main.splash').read_bytes(),
-                               (run / 'runtime-0.log').read_text())
+    def test_synthetic_time_budget_failure(self):
+        result = self.classify(b'abc',
+            'splash: script time budget exceeded\n'
+            '[SPLASH] eval: 3 bytes preserve=false view=false')
         self.assertIn('SCRIPT_TIME_BUDGET_EXCEEDED', result)
         self.assertIn('PAYLOAD_EVALUATED_WITHOUT_VIEW', result)
 
@@ -54,6 +53,23 @@ class LogChecks(unittest.TestCase):
         self.assertEqual(result['cases'][0]['classifications'], ['PAYLOAD_BYTES_AND_VIEW_OBSERVED'])
         self.assertIsNone(result['report_source_sha_matches'])
         self.assertIn('no Mail delivery', result['boundary'])
+
+    def test_missing_artifacts_are_not_tested(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result, code = check(Path(directory), 'refusal')
+        self.assertEqual(code, 2)
+        self.assertEqual(result['status'], 'NOT_TESTED')
+        self.assertEqual(len(result['missing_evidence']), 2)
+
+    def test_synthetic_artifact_without_expected_failure_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'bundle').mkdir()
+            (root / 'bundle/main.splash').write_bytes(b'abc')
+            (root / 'runtime-0.log').write_text('[SPLASH] eval: 3 bytes preserve=false view=true')
+            result, code = check(root, 'timeout')
+        self.assertEqual(code, 1)
+        self.assertEqual(result['status'], 'FAIL_EXPECTED_FAILURE_NOT_FOUND')
 
 
 if __name__ == '__main__':
