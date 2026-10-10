@@ -1,0 +1,32 @@
+--- a/crates/shell/src/host_tools/admission.rs
++++ b/crates/shell/src/host_tools/admission.rs
+@@ -34,7 +34,7 @@
+     let mut store = channel.configure(octosense_app_hub::Store::new(
+         anchor,
+         root,
+-        octosense_app_contract::HostLimits::default(),
++        octosense_appstore::store_host_limits(),
+     )
+     .with_host_api_versions(octosense_appstore::host_api::available_versions()));
+     let catalog = channel.read_cache(root)
+--- a/crates/shell/src/glance_card.rs
++++ b/crates/shell/src/glance_card.rs
+@@ -1352,7 +1352,7 @@
+         None => {
+             let anchor = std::env::var("OCTOSENSE_HUB_ANCHOR").unwrap_or_else(|_| octosense_appstore::DEFAULT_ANCHOR.to_string());
+             let channel = octosense_appstore::source::CatalogChannel::from_environment(&root)?;
+-            let mut store = channel.configure(octosense_app_hub::Store::new(&anchor, &root, octosense_app_contract::HostLimits::default())
++            let mut store = channel.configure(octosense_app_hub::Store::new(&anchor, &root, octosense_appstore::store_host_limits())
+                 .with_host_api_versions(octosense_appstore::host_api::available_versions()));
+             let catalog = channel.read_cache(&root).map_err(|e| format!("no verified catalog on this device ({e})"))?;
+             store.accept_catalog(&catalog).map_err(|e| format!("no verified catalog on this device ({e})"))?;
+--- a/crates/shell/src/apps.rs
++++ b/crates/shell/src/apps.rs
+@@ -188,6 +188,7 @@
+     // owner's shareable declaration. Offer only Mail's reviewed dependencies.
+     octosense_appstore::system::set_agent_tool_offer("os.mail", &["calendar.events", "calendar.add_event", "calendar.notify"]);
+     register_calendar_services();
++    octosense_appstore::set_store_calendar_agent_offer(true);
+     static ONCE: std::sync::Once = std::sync::Once::new();
+     ONCE.call_once(|| {
+         crate::glance::register();

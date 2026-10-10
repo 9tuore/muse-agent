@@ -1,0 +1,223 @@
+--- a/crates/app-hub/src/client.rs
++++ b/crates/app-hub/src/client.rs
+@@ -117,6 +117,7 @@
+     /// Where installed apps live: one directory per app id.
+     app_data_root: PathBuf,
+     limits: HostLimits,
++    agent_tool_offers: BTreeMap<String, String>,
+     catalog: Option<Catalog>,
+     host_api_versions: BTreeMap<String, u32>,
+     github_catalog_required: bool,
+@@ -182,10 +183,39 @@
+             anchor_public_hex: anchor_public_hex.to_string(),
+             app_data_root: app_data_root.to_path_buf(),
+             limits,
++            agent_tool_offers: BTreeMap::new(),
+             catalog: None,
+             host_api_versions: BTreeMap::new(),
+             github_catalog_required: false,
+         }
++    }
++
++    /// Host-only ceiling for one authenticated store app, never a grant.
++    /// Empty by default. None revokes; other app ceilings are unchanged.
++    /// Embeddings must revalidate admission after a host configuration change.
++    pub fn set_agent_tool_offer(&mut self, app_id: &str, tool: Option<&str>) -> Result<(), String> {
++        let Some(tool) = tool else {
++            self.agent_tool_offers.remove(app_id);
++            return Ok(());
++        };
++        if app_id.starts_with("os.") { return Err("a store offer cannot name a system app".into()); }
++        octosense_app_policy::check_reserved_id(app_id)?;
++        let entry = self.entry(app_id).ok_or_else(|| format!("{app_id} is not in the verified catalog"))?;
++        if !entry.status.is_offered() { return Err(format!("{app_id} is withdrawn")); }
++        if entry.manifest.integrity.signature.is_none() && entry.manifest.integrity.github.is_none() {
++            return Err("an additional agent offer requires an authenticated manifest".into());
++        }
++        octosense_app_policy::verify::verify_manifest(&entry.manifest, &self.publisher_keys())?;
++        self.agent_tool_offers.insert(app_id.into(), tool.into());
++        Ok(())
++    }
++
++    fn limits_for(&self, app_id: &str) -> HostLimits {
++        let mut limits = self.limits.clone();
++        if let Some(tool) = self.agent_tool_offers.get(app_id) {
++            if !limits.offered_tools.contains(tool) { limits.offered_tools.push(tool.clone()); }
++        }
++        limits
+     }
+ 
+     /// Bind this device's implemented API versions. Empty by default: an older
+@@ -457,7 +487,7 @@
+         }
+         // And against the key the catalog records, whatever the caller passed.
+         let staged_json = serde_json::to_string(&staged_manifest).map_err(|e| e.to_string())?;
+-        let policy = octosense_app_policy::admit_and_resolve_dir(&staged_json, &digest, &self.limits, &self.publisher_keys())?;
++        let policy = octosense_app_policy::admit_and_resolve_dir(&staged_json, &digest, &self.limits_for(entry.app_id()), &self.publisher_keys())?;
+ 
+         let target = self.install_dir(app_id);
+         entry.manifest.check_host_apis(&self.host_api_versions)?;
+@@ -515,6 +545,7 @@
+             return Err("the release changed while it was opening; try again".into());
+         }
+         octosense_app_policy::verify::verify_manifest(&entry.manifest, &self.publisher_keys())?;
++        octosense_app_policy::policy::resolve(&entry.manifest, &self.limits_for(entry.app_id()))?;
+         Ok(())
+     }
+ 
+@@ -538,7 +569,7 @@
+             return Err("the installed manifest is not the reviewed one; reinstall this app".into());
+         }
+         let digest = digest_dir(bundle)?;
+-        octosense_app_policy::admit_and_resolve_dir(&text, &digest, &self.limits, &self.publisher_keys())
++        octosense_app_policy::admit_and_resolve_dir(&text, &digest, &self.limits_for(entry.app_id()), &self.publisher_keys())
+             .map_err(|e| format!("{e}; reinstall this app"))
+     }
+ }
+--- /dev/null
++++ b/crates/app-hub/tests/per_app_offer.rs
+@@ -0,0 +1,144 @@
++//! Signed fixture exercising the real Store. No shell/consent/Relay claim.
++mod common;
++use common::Fixture;
++use octosense_app_hub::{sign_manifest, Catalog, Entry, HubKey, PublisherKeys, Status, Store};
++use octosense_app_policy::{AppManifest, HostLimits};
++use serde_json::json;
++
++struct Harness {
++    apps: Vec<Fixture>,
++    store: Store,
++    catalog: Catalog,
++    signer: HubKey,
++    certificate: String,
++}
++
++impl Harness {
++    fn new(requests: &[(&str, &[&str])]) -> Self {
++        let anchor = HubKey::generate();
++        let signer = HubKey::generate();
++        let certificate = anchor.certify(&signer.public_hex()).unwrap();
++        let mut apps = Vec::new();
++        let mut entries: Vec<Entry> = Vec::new();
++        for (id, tools) in requests {
++            let mut app = Fixture::new();
++            app.manifest.id = (*id).into();
++            app.sign();
++            let mut entry = app.entry();
++            let mut raw = serde_json::to_value(&app.manifest).unwrap();
++            raw["agent"] = json!({"profile":"workspace-write-never-ask", "tools": tools,
++                "background":false});
++            app.manifest = AppManifest::parse(&raw.to_string()).unwrap();
++            app.sign();
++            // Fixture::sign/keys use publisher-one. Each independently
++            // generated publisher needs its own catalog key identity.
++            let key_id = format!("publisher-fixture-{id}");
++            sign_manifest(&app.publisher, &mut app.manifest, &key_id).unwrap();
++            app.write_manifest();
++            entry.publisher = key_id;
++            entry.manifest = app.manifest.clone();
++            entries.push(entry); apps.push(app);
++        }
++        let store = Store::new(&anchor.public_hex(), &apps[0].root.join("installed"), HostLimits::default());
++        let catalog = Catalog::new(1, "2026-09-25", entries);
++        let mut h = Self { apps, store, catalog, signer, certificate };
++        h.accept(); h
++    }
++    fn accept(&mut self) {
++        self.catalog.sequence += 1;
++        self.signer.sign_catalog(&mut self.catalog, &self.certificate).unwrap();
++        self.store.accept_catalog(&serde_json::to_string(&self.catalog).unwrap()).unwrap();
++    }
++    fn install(&self, n: usize) -> Result<octosense_app_policy::AppPolicy, String> {
++        let app = &self.apps[n];
++        let key_id = format!("publisher-fixture-{}", app.manifest.id);
++        let keys = PublisherKeys::new().with(&key_id, &app.publisher.public_hex());
++        self.store.install_staged(&app.manifest.id, &app.bundle, &keys, "2026-09-25")
++    }
++}
++
++#[test]
++fn default_is_closed_and_one_app_offer_does_not_extend_another() {
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events"]), ("another-app", &["calendar.events"])]);
++    assert_ne!(h.catalog.entries[0].publisher, h.catalog.entries[1].publisher);
++    assert_ne!(h.catalog.entries[0].publisher_key, h.catalog.entries[1].publisher_key);
++    let error = h.install(0).unwrap_err();
++    eprintln!("default offer refusal: {error}");
++    assert!(error.contains("does not offer"), "{error}");
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    h.install(0).unwrap();
++    h.store.may_run("muse-goals").unwrap();
++    let error = h.install(1).unwrap_err();
++    eprintln!("other app refusal: {error}");
++    assert!(error.contains("does not offer"), "{error}");
++}
++
++#[test]
++fn exact_offer_cannot_admit_a_second_requested_tool() {
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events", "calendar.remove_event"])]);
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    let error = h.install(0).unwrap_err();
++    assert!(error.contains("calendar.remove_event") && error.contains("does not offer"), "{error}");
++}
++
++#[test]
++fn host_offer_does_not_grant_a_tool_absent_from_the_manifest() {
++    let mut h = Harness::new(&[("muse-goals", &[])]);
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    let policy = h.install(0).unwrap();
++    assert!(policy.agent.unwrap().tools.is_empty());
++}
++
++#[test]
++fn revoke_rechecks_installed_and_already_prepared_launches() {
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events"])]);
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    h.install(0).unwrap();
++    let prepared = h.store.prepare_launch("muse-goals").unwrap();
++    h.store.set_agent_tool_offer("muse-goals", None).unwrap();
++    assert!(h.store.may_run("muse-goals").unwrap_err().contains("does not offer"));
++    assert!(h.store.validate_prepared_launch(&prepared).unwrap_err().contains("does not offer"));
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    assert!(h.store.validate_prepared_launch(&prepared).is_ok());
++}
++
++#[test]
++fn enabled_offer_does_not_bypass_bundle_digest() {
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events"])]);
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    std::fs::write(h.apps[0].bundle.join("main.splash"), "changed").unwrap();
++    assert!(h.install(0).unwrap_err().contains("hashes"));
++}
++
++#[test]
++fn offer_refuses_unverified_publisher_and_unsigned_manifests() {
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events"])]);
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    h.catalog.entries[0].publisher_key = HubKey::generate().public_hex(); h.accept();
++    assert!(h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).is_err());
++    assert!(h.install(0).is_err(), "retained offer must not bypass the catalog signing key");
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events"])]);
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap();
++    h.apps[0].manifest.integrity.signature = None; h.apps[0].write_manifest();
++    h.catalog.entries[0].manifest = h.apps[0].manifest.clone(); h.accept();
++    assert!(h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).is_err());
++    assert!(h.install(0).is_err(), "retained offer must not bypass required authentication");
++}
++
++#[test]
++fn signed_catalog_withdrawal_still_blocks_installed_and_prepared_release() {
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events"])]);
++    h.store.set_agent_tool_offer("muse-goals", Some("calendar.events")).unwrap(); h.install(0).unwrap();
++    let prepared = h.store.prepare_launch("muse-goals").unwrap();
++    h.catalog.entries[0].status = Status::Withdrawn("fixture withdrawal".into()); h.accept();
++    assert!(h.store.may_run("muse-goals").unwrap_err().contains("withdraw"));
++    assert!(h.store.validate_prepared_launch(&prepared).unwrap_err().contains("withdraw"));
++}
++
++#[test]
++fn unknown_and_reserved_ids_never_receive_an_offer() {
++    let mut h = Harness::new(&[("muse-goals", &["calendar.events"])]);
++    assert!(h.store.set_agent_tool_offer("unknown-app", Some("calendar.events")).is_err());
++    assert!(h.store.set_agent_tool_offer("os.calendar", Some("calendar.events")).is_err());
++    assert!(h.install(0).is_err());
++}

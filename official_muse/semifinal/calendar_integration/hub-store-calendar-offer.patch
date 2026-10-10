@@ -1,0 +1,100 @@
+--- /dev/null
++++ b/crates/appstore/src/store_agent_offer.rs
+@@ -0,0 +1,47 @@
++//! Host-owned ceiling only. Manifest admission, consent and relay grants
++//! remain authoritative. No script API or environment switch enables this.
++use std::sync::atomic::{AtomicBool, Ordering};
++
++pub struct StoreAgentOffer(AtomicBool);
++
++impl StoreAgentOffer {
++    pub const fn new() -> Self { Self(AtomicBool::new(false)) }
++    pub fn enable_calendar(&self, enabled: bool) { self.0.store(enabled, Ordering::SeqCst); }
++    pub fn extend(&self, offered: &mut Vec<String>) {
++        if self.0.load(Ordering::SeqCst) {
++            for tool in ["calendar.events", "calendar.add_event", "calendar.notify"] {
++                if !offered.iter().any(|name| name == tool) { offered.push(tool.into()); }
++            }
++        }
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn disabled_by_default() {
++        let offer = StoreAgentOffer::new();
++        let mut tools = vec!["ask_user_question".into()];
++        offer.extend(&mut tools);
++        assert_eq!(tools, ["ask_user_question"]);
++    }
++    #[test]
++    fn enables_only_original_shareable_tools_and_preserves_existing() {
++        let offer = StoreAgentOffer::new();
++        offer.enable_calendar(true);
++        let mut tools = vec!["ask_user_question".into(), "calendar.events".into()];
++        offer.extend(&mut tools); offer.extend(&mut tools);
++        assert_eq!(tools, ["ask_user_question", "calendar.events", "calendar.add_event", "calendar.notify"]);
++        for forbidden in ["calendar.update_event", "calendar.remove_event", "calendar.get_event", "shell", "dev.run"] {
++            assert!(!tools.iter().any(|tool| tool == forbidden));
++        }
++    }
++    #[test]
++    fn revoked_offer_does_not_extend_new_admission() {
++        let offer = StoreAgentOffer::new();
++        offer.enable_calendar(true); offer.enable_calendar(false);
++        let mut tools = Vec::new(); offer.extend(&mut tools);
++        assert!(tools.is_empty());
++    }
++}
+--- a/crates/appstore/src/lib.rs
++++ b/crates/appstore/src/lib.rs
+@@ -30,6 +30,18 @@
+ mod tool_schema;
+ pub mod source;
+ pub mod system;
++mod store_agent_offer;
++static STORE_AGENT_OFFER: store_agent_offer::StoreAgentOffer = store_agent_offer::StoreAgentOffer::new();
++
++/// Host startup opt-in; not consent, not a grant, not raw Calendar access.
++pub fn set_store_calendar_agent_offer(enabled: bool) {
++    STORE_AGENT_OFFER.enable_calendar(enabled);
++}
++pub fn store_host_limits() -> HostLimits {
++    let mut limits = HostLimits::default();
++    STORE_AGENT_OFFER.extend(&mut limits.offered_tools);
++    limits
++}
+ pub mod ui;
+ #[cfg(test)]
+ mod card_layout_tests;
+@@ -205,7 +217,7 @@
+                 return;
+             }
+         };
+-        let mut store = channel.configure(Store::new(&anchor, &self.app_data_root, HostLimits::default()).with_host_api_versions(crate::host_api::available_versions()));
++        let mut store = channel.configure(Store::new(&anchor, &self.app_data_root, store_host_limits()).with_host_api_versions(crate::host_api::available_versions()));
+         self.channel = Some(channel);
+ 
+         // A hub override on disk (`<data dir>/hub.txt`, a path or a base URL)
+--- a/crates/appstore/src/cardapp.rs
++++ b/crates/appstore/src/cardapp.rs
+@@ -16,7 +16,7 @@
+ };
+ use makepad_widgets::*;
+ use octosense_app_hub::Store;
+-use octosense_app_policy::HostLimits;
++// Store ceilings come from the host-owned offer.
+ use std::path::PathBuf;
+ 
+ script_mod! {
+@@ -93,7 +93,7 @@
+                     Ok(channel) => channel,
+                     Err(e) => return self.refuse(cx, &format!("Cannot open: {e}")),
+                 };
+-                let mut store = channel.configure(Store::new(&anchor, &root, HostLimits::default())
++                let mut store = channel.configure(Store::new(&anchor, &root, crate::store_host_limits())
+                     .with_host_api_versions(crate::host_api::available_versions()));
+                 // The catalog the store last verified. Without one, nothing
+                 // runs: an app the device cannot show was offered is not run
