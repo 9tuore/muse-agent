@@ -1,3 +1,9 @@
+## 2026-10-10 原生 Agent 准入补验
+
+最新原生Hub95e4831拒绝隔离原型请求calendar.events，原因是商店默认offered_tools不含它；空工具对照通过、kernel shell对照拒绝，旧listing错误保留。没有改准入或身份；原生覆盖仍0/16、prototype BLOCKED_NATIVE_GATE。源码表明当前AppStore也用默认清单，系统额外offer只供system app。已在AppHub #182 comment6095096789询问正规路径，未接受。现有model.complete和稳定根bundle不改。
+
+---
+
 ## 2026-10-10 14:51 昨夜任务续跑检查点
 
 稳定rc17根bundle和旧安装未覆盖；rc18研究源5e2e84fe。4af1f02e修正候选完整性必需字段后，原生最新官方Hub结构check通过，scan生成7问材料（reviewer未运行）；正式准入/新Shell/全链仍未通过。Hub源95e4831，锁与framework未变；旧空字段拒绝证据保留。

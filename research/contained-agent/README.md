@@ -4,11 +4,17 @@
 
 保留 `muse-goals`，没有自有 tools.json，绕开的是无需声明自有工具的产品范围，应用没有修改官方校验器。宿主仍需真实准入、每应用 Agent consent 和支持 tool_calling 的现有模型。
 
-**状态：NOT_TESTED_NATIVE。** 文件属于隔离原型，没有加入活动根 `bundle/` 或正式 Chat。零真实模型工具调用结果。`agent_state=needs_verification` 明确区分回答与完成事实，未知请求禁止自动重跑。
+**状态：BLOCKED_NATIVE_GATE。** 2026-10-10 用最新锁定官方 Hub `95e4831` 的原生二进制检查，`calendar.events` 不在商店默认 HostLimits 的 offered_tools 中，结构 Gate 拒绝。无工具对照通过、禁止 kernel shell 对照拒绝；没有放宽策略或改成系统应用。文件属于隔离原型，没有加入活动根 `bundle/` 或正式 Chat。零真实模型工具调用结果。`agent_state=needs_verification` 明确区分回答与完成事实，未知请求禁止自动重跑。
 
 该官方接口绑定单个 card.muse-goals/device 的合并历史；当前没有从 Splash 为每个 Muse 项目选择独立 Host context 的已验证路径。为保护个人/老师/账号资料归属，本原型只能使用独立合成环境。正式 Chat 继续使用现有按作用域检索的 model.complete。
 
 夜间接续：先完成新版官方 Shell 固定依赖构建和应用准入，再用免费或预算已核清的配置验证真实模型选择 calendar.events。参考 VM 的合成协议测试不能代替这一步。需要本人原生 consent 时标 HUMAN_REQUIRED。
+
+## 原生 Gate 的新证据
+
+`evidence/native-gate/` 保留第一次 listing 未知字段与工具准入的双拒绝；修正研究副本的 listing 后，仍只因 `calendar.events` 拒绝。对照副本仅用于定位原因，不作为降标准后的参赛候选。检查使用 `--allow-unsigned`，因此发布者签名仍未验证。
+
+源码也显示 `appstore/src/lib.rs`、`cardapp.rs` 用 `HostLimits::default()`，只含 ledger/net/storage/card/ask_user_question；额外工具 offer 的 `system::set_agent_tool_offer` 明确只用于系统应用。官方 Calendar 的共享描述符存在，不能推断商店已允许申请它。等待维护者确认正规商店准入路径；现有按作用域检索的 model.complete 不变。
 
 ## 已执行的协议隔离验证（2026-10-10）
 

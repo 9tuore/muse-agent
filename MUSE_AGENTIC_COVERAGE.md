@@ -1,5 +1,11 @@
 # Muse native Agent coverage — B branch audit
 
+## Root 2026-10-10 原生 Gate 补验
+
+本页原 B 静态审计作为历史证据保留。Root 已用最新官方 Hub `95e4831` 原生二进制检查 outbound-only 原型：保留 `muse-goals`、不带自有 tools.json 的 `calendar.events` 申请仍被结构 Gate 拒绝，原因是商店默认 offered_tools 不含它。修正 listing 后拒绝仍在；相同 ID 的无工具对照通过，kernel shell 对照拒绝。见 `research/contained-agent/evidence/native-gate/`。未改变 Gate、系统身份或授权边界，也未把无工具对照当正式候选。
+
+因此 loader 可解析不等于商店已准入；原型状态为 **BLOCKED_NATIVE_GATE**。最新 Shell 未安装、真实 Agent 模型工具选择未发生，覆盖仍 **0/16**。这独立于旧自有工具命名缺口和 Calendar update/remove 共享缺口。
+
 **Current B entry: no native Agent tools; prototype BLOCKED.** Existing model-assisted
 workflow is useful product logic, but it does not establish model-selected tool
 execution. This is a static audit of B's canonical bundle, not final Root/A
