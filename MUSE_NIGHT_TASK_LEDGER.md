@@ -1,3 +1,19 @@
+## 最新接续核对：2026-10-10 22:37（北京时间）
+
+- GitHub本人workflow授权已实际完成，账号9tuore；先普通推送c3b65950成功，再用官方Git Data API上传相同blob/tree/commit并非强制快进到34de7f10，远端独立读取完整SHA与本地一致。后者没有改写作者、时间或提交历史。main仍5126afc4，旧Tag和正式发布不动。接口编译单元4a60e390亦已按相同Git对象独立同步验证；后续文档Commit以最终同步记录为准。
+- 日历统一宿主提案：默认空、按应用准确工具集合、共享Store/clone/staging/新实例撤销；真实Store签名fixture **10/10 PASS**。原完整五crates离线失败保留；相同固定官方checkout补缓存后，AppStore/CardApp/nativeHub库check exit0（557秒）；最小test import修正后offline+locked库和测试源码check exit0（72秒）。只是组件与类型检查，没有执行这些原生Hub测试。Shell、系统Calendar owner装载、真实consent/Relay/Muse CRUD仍 **BLOCKED**。
+- 原官方Mail connected_review/真实transport准备保持，19协议/7双VM恢复为已有证据；新宿主尚未构建。补缓存有进展，openssl-src连接超时/端点403已保存，未删依赖或用demo替代。没有新的真实发信、日历写入或付费调用。
+- 行动链开发源与compact的已验证结果保持；本轮没有改业务主源。源34798c97，根rc17/90351cba保持；主工作区7fbda978及137项dirty保护。新候选全API宿主未就绪，不运行或宣称最终20次PASS。Phone独立成果保留，未新增真机测试。
+- 上游#182评论6098136836、#427评论6096907245已有提案/证据，未官方接受。当前下一优先级：合法完整Shell/Relay及真实Mail宿主，随后同候选核心冻结和20次；不借用系统身份、不假造可信批准，不把组件通过当正式闭环。
+
+# 最新核对：2026-10-10 22:08
+
+GitHub本人workflow授权已完成，普通开发分支同步c3b65950成功，独立远端SHA相同；main/旧Tag不动。正式Calendar Relay仍BLOCKED；统一Store共享配置10项测试在完整五crate离线依赖解析时受阻，旧8项不能代替。Mail原生Host依赖补缓存中，无新的真实外部动作。完整证据见PIVOT报告。
+
+# 2026-10-10 22:01 真实聊天接续
+
+行动链/compact通过的范围不变；日历per-app Store 8/8真实签名fixture通过，正式Relay未过。官方Mail准备脚本与启动错误分类器已本地提交。原生真实Mail、完整新Host、20次最终冷启动、手机真机与正式发布仍不是PASS；Git正在本人workflow授权流程，#182/#427均有已读回反馈。下方历史任务和失败全部保留，未受影响结果可复用，不能拼接成同候选全链。
+
 ## 2026-10-10 21:20 接续覆盖说明
 
 下方原夜间/17:00矩阵保留。最新状态以MUSE_PIVOT_20261010_REPORT与HANDOFF_LATEST为准：行动链已集成到开发源并补事项切换/明暗/37投影/新版compact真实窗口；内置Calendar原版及补丁CRUD/恢复/精确读回/损坏保护通过组件和窗口范围，正式Muse Relay仍BLOCKED。Mail协议恢复通过，原生新Host服务待注册验证。新版冷启动解析超时有compact部分改善，真正rc18 Host API门槛仍拒绝；不能启动最终20次。真实聊天三项分工已按本人新指令启动，原07:00/20:27心跳均已删除。原三小时关机中断没有假算连续开发。Git普通开发分支分批推送2b9a07e8，最终同步待补；#427已补评论6096907245，正式接受未发生。所有旧失败/Phone/主工作区137项dirty保留。

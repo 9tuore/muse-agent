@@ -1,3 +1,19 @@
+## 最新接续核对：2026-10-10 22:37（北京时间）
+
+- GitHub本人workflow授权已实际完成，账号9tuore；先普通推送c3b65950成功，再用官方Git Data API上传相同blob/tree/commit并非强制快进到34de7f10，远端独立读取完整SHA与本地一致。后者没有改写作者、时间或提交历史。main仍5126afc4，旧Tag和正式发布不动。接口编译单元4a60e390亦已按相同Git对象独立同步验证；后续文档Commit以最终同步记录为准。
+- 日历统一宿主提案：默认空、按应用准确工具集合、共享Store/clone/staging/新实例撤销；真实Store签名fixture **10/10 PASS**。原完整五crates离线失败保留；相同固定官方checkout补缓存后，AppStore/CardApp/nativeHub库check exit0（557秒）；最小test import修正后offline+locked库和测试源码check exit0（72秒）。只是组件与类型检查，没有执行这些原生Hub测试。Shell、系统Calendar owner装载、真实consent/Relay/Muse CRUD仍 **BLOCKED**。
+- 原官方Mail connected_review/真实transport准备保持，19协议/7双VM恢复为已有证据；新宿主尚未构建。补缓存有进展，openssl-src连接超时/端点403已保存，未删依赖或用demo替代。没有新的真实发信、日历写入或付费调用。
+- 行动链开发源与compact的已验证结果保持；本轮没有改业务主源。源34798c97，根rc17/90351cba保持；主工作区7fbda978及137项dirty保护。新候选全API宿主未就绪，不运行或宣称最终20次PASS。Phone独立成果保留，未新增真机测试。
+- 上游#182评论6098136836、#427评论6096907245已有提案/证据，未官方接受。当前下一优先级：合法完整Shell/Relay及真实Mail宿主，随后同候选核心冻结和20次；不借用系统身份、不假造可信批准，不把组件通过当正式闭环。
+
+# 最新核对：2026-10-10 22:08
+
+GitHub本人workflow授权已完成，普通开发分支同步c3b65950成功，独立远端SHA相同；main/旧Tag不动。正式Calendar Relay仍BLOCKED；统一Store共享配置10项测试在完整五crate离线依赖解析时受阻，旧8项不能代替。Mail原生Host依赖补缓存中，无新的真实外部动作。完整证据见PIVOT报告。
+
+# 最新接续检查点：2026-10-10 22:01
+
+A分支codex/muse-pivot-20261010，HEAD c3b65950。行动链与compact候选通过针对性验证，正式安装保持rc17。日历真实Store按应用准入8项通过（4131d9b3），只是隔离提案，正式Shell/consent/Relay BLOCKED；已在#182评论6098136836提交审阅。Mail原官方审阅Host已准备，解析依赖缓存尚待，未做新的真实发送。Git workflow权限已向本人申请并开启官方授权页；远端2b9a07e8，完整同步尚未确认。三条真实聊天按独占目录推进；详见PIVOT报告。
+
 ## 2026-10-10 21:20 本人授权接续与真实聊天分工
 
 原三小时被关机中断，已删除旧截止心跳；本人已明确继续，未声称中断期间运行。A分支codex/muse-pivot-20261010，2cebd4c8。行动链已进入开发源，37项投影、事项切换、明暗、四尺寸和恢复通过；根rc17和旧Host仍不动。内置Calendar原版及最小补丁的实际组件/窗口CRUD通过，正式Muse共享准入仍BLOCKED，#427评论6096907245已提交并独立读回。新框架原始源启动64ms失败保留；compact产物491529字节在优化Host五窗口通过、token/opcode等价，新rc18 manifest却被Host API检查拒绝（没有执行Muse源码）。Mail真实原生审阅待完成。开发分支远端2b9a07e8，完整同步尚未成功。三条真实聊天专攻日历/Mail/稳定性，独占目录和ID见MUSE_PIVOT_20261010_REPORT.md，中央独占共享源码/窗口/大型构建。总体PARTIAL，最终20次尚未启动。
