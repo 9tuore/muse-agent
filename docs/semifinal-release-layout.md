@@ -15,7 +15,7 @@ bundle/                                  实际 rc17 应用包（唯一目录）
 official_muse/app/bundle -> ../../bundle  相对兼容别名
 official_muse/app/source/main.splash     可读业务源码，保持原位置
 scripts/check_release_layout.py          只读布局、资源、Git 属性与可选参考字节检查
-docs/examples/publish-app.yml            尚未启用的只读 preflight 工作流草稿
+.github/workflows/publish-app.yml         workflow_dispatch，只读 preflight 草稿
 ```
 
 迁移源是旧七小时 worktree 实际活动目录 `official_muse/app/build/ui-memory-20261003/7h-live-route-r1/bundle`，不是 Git 中的 rc16 包，也不是 readable 源码。`main.splash` SHA-256：`90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc`。六文件的集合、长度和 SHA 见 [B 线证据](semifinal-release-layout-evidence.json)。旧 rc16 普通文件保留在原 Git 历史，旧固定验收目录、报告和测试中的 frozen 源路径未重写。
@@ -38,7 +38,7 @@ python3 scripts/check_release_layout.py --for-github-release
 
 App Hub 官方 pin：`18cd41d91b326db199fbed4129484a9ba1a8c63d`。已只读核对 [PUBLISHING](https://github.com/OctoSense-org/OctoSense-App-Hub/blob/18cd41d91b326db199fbed4129484a9ba1a8c63d/docs/PUBLISHING.md#github-publisher-provenance)、[SUBMITTING](https://github.com/OctoSense-org/OctoSense-App-Hub/blob/18cd41d91b326db199fbed4129484a9ba1a8c63d/docs/SUBMITTING.md#6-freeze-and-verify-the-release) 与 [GitHub catalog publishing](https://github.com/OctoSense-org/OctoSense-App-Hub/blob/18cd41d91b326db199fbed4129484a9ba1a8c63d/docs/GITHUB-PUBLISHING.md)。应用 publisher 证明与管理员 catalog 发布是两个流程。
 
-草稿中的 `workflow_dispatch` 只检出所选 commit，运行布局检查并打印未发布状态。仅有 job 级 `contents: read`，没有 Secret、`id-token: write`、`attestations: write`、`contents: write`、自动 push/tag trigger 或发布动作。Checkout 的精确 action pin取自已读取的官方 App Flow `tools/publish-app.template.yml`；模板来源与哈希保存在 B 线证据。2026-10-10 开发分支同步被当前 OAuth 凭据的 workflow 权限限制拒绝，因此把草稿原字节移到文档示例目录；没有启用 Actions 或删除草稿内容。
+草稿中的 `workflow_dispatch` 只检出所选 commit，运行布局检查并打印未发布状态。仅有 job 级 `contents: read`，没有 Secret、`id-token: write`、`attestations: write`、`contents: write`、自动 push/tag trigger 或发布动作。Checkout 的精确 action pin取自已读取的官方 App Flow `tools/publish-app.template.yml`；模板来源与哈希保存在 B 线证据。2026-10-10 曾因当前 OAuth 凭据的 workflow 权限限制将草稿临时移到文档目录；本人随后明确要求申请该权限并保留工作流，因此原字节恢复到工作流目录。尚未执行 Actions 或正式发布。
 
 正式应用证明要求公开仓库的 **tag-push** 身份，不能用手动 dispatch 签名冒充。待 Root 审查当前业务、最终版本、可编辑包、publisher 延续及截图后，另行授权安装/审查官方 tag workflow；所需写权限也在该步骤明确审查，不在本轮补填。现有 `muse-local-rehearsal` 签名保持原字节，不能自动 strip/sign/restamp；本轮不判断其公共 catalog 身份或迁移资格。
 

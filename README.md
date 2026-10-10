@@ -73,7 +73,7 @@ python3 tools/package_calendar_candidate.py --release --output ../../build/Muse-
 python3 scripts/check_release_layout.py
 ```
 
-`docs/examples/publish-app.yml` 保留只读布局检查的工作流草稿，尚未启用 GitHub Actions。正式 GitHub publisher 证明要求官方 tag-push 流程；现有本地 rehearsal 签名按原字节保留，尚不能作为该流程的可编辑发布源。审查步骤与未完成项见 [发布布局说明](docs/semifinal-release-layout.md)。
+`.github/workflows/publish-app.yml` 保留仅手动触发的只读布局检查草稿。正式 GitHub publisher 证明要求官方 tag-push 流程；现有本地 rehearsal 签名按原字节保留，尚不能作为该流程的可编辑发布源。审查步骤与未完成项见 [发布布局说明](docs/semifinal-release-layout.md)。
 
 ## 新手使用教程
 
