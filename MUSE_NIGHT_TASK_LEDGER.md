@@ -1,3 +1,15 @@
+## NIGHT-002 最新接续：2026-10-11 03:39（北京时间）
+
+完整Desktop r2/r3已release编译成功，SHA41198bb8/8008ec14。r2实际新home启动Native consent与内置Calendar owner UI；官方服务注册，不是模型/Relay。Calendar真实OS窗口和Metal三帧正文均空白；layout89控件不能替代像素验收。B复核函数缓存候选，中央r5可逆诊断编译中（唯一Cargo99673），原r4宏前缀编译失败保留。Native中文/History r2/scroll已编译，纯History5/5；共享DSL/legacy13与reference UI范围保持。HEAD4f7620f4已普通推送且独立远端一致，main不动。实际两次净清缓存4.96GB，Kernel/源码/稳定503/根rc17/数据/唯一失败保留。T18/真实Relay/原生Mail/最终20次仍未过；本人可信动作缺失HUMAN_REQUIRED，未模拟批准。07:00冻结/08:00停止。以下历史状态不拼接为同候选PASS。
+
+## NIGHT-002 最新接续：2026-10-11 02:58（北京时间）
+
+HEAD4f7620f4已普通开发分支推送且独立远端SHA一致，main/旧Tag不动。完整Desktop r1因外层cwd未加载官方系统应用打包配置而主动中断exit130；唯一r2从SDK目录继续offline/locked/release，日志full-desktop-build-r2.log，session43238。Native参数limit=10修正已应用，SDK模块5901/effective输入r3 e01；中文与History见证提案另行审查，纯解析器3/3实际通过不替代live Relay。旧task-focus三次失败保留，r4原13项通过。以下历史矩阵保留；最终T18/冻结20次尚未开始。
+
+## NIGHT-002 阶段记录：2026-10-11 02:07（北京时间）
+
+上轮任务全部保留，下列结果按NIGHT-002当前候选分开记录：Kernel固定b0759a5实际release/stage成功SHA9c3d4b94；完整metadata-r10成功1710包；中央唯一fullDesktop正在offline/locked/release编译，未运行。独立Native只读Calendar原型3patch已在隔离SDK准备，真实Relay/本人consent仍缺。共享DSL源2253/compact493实际reference78ab：Memory68/Task23/FS9/special3；可见行动链DSL三尺寸各9通过，合成状态及原失败保留。旧Task fixture异步适配在真实聊天ZC03进行，正式T18/20次冻结仍未达。59209a3e已开发分支正常同步并独立SHA确认；后续未提交工作不称已公开。旧Host503、根rc17、primary137dirty/生产保护。净清2.8GB无占用incremental。07:00冻结、08:00停止，以MUSE_RUNTIME_CLOSURE_20261011_REPORT与最新HANDOFF为准。
+
 ## 最新接续核对：2026-10-10 22:37（北京时间）
 
 - GitHub本人workflow授权已实际完成，账号9tuore；先普通推送c3b65950成功，再用官方Git Data API上传相同blob/tree/commit并非强制快进到34de7f10，远端独立读取完整SHA与本地一致。后者没有改写作者、时间或提交历史。main仍5126afc4，旧Tag和正式发布不动。接口编译单元4a60e390亦已按相同Git对象独立同步验证；后续文档Commit以最终同步记录为准。

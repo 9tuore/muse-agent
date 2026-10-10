@@ -1,5 +1,9 @@
 # Muse 行动链集成记录
 
+## NIGHT-002 完整Host边界 / 2026-10-11 03:55
+
+完整官方Desktop r2/r3已在Intel实际编译，r2/r3内置Calendar owner窗口存在且布局非空，但正文像素空白。r5单点Metal Cache2诊断实际编译、捕获不同代码碰撞，仍未修正文；源已恢复原字节。故完整新Host可见验收仍失败，不能把下面reference行动链窗口证据迁称正式新Shell通过。Native首次consent未点击，模型工具/Calendar Relay未验证，根rc17保留。原生路线与行动链/Memory业务保持隔离，所有失败截图和二进制保留。
+
 ## NIGHT-002 增量 / 2026-10-11 02:07
 
 开发源已接共享 `muse.view/1`：行动链、人可展开的 DSL 和模型使用的 Memory/任务上下文采用同一只读封装；`read_only=true`、`tool_authority=false`。保留原授权过滤、冲突、失效、UNKNOWN、原确认入口与持久化含义，不新增执行权、轮询、模型调用或存储。当前事务投影仍最多12个节点。

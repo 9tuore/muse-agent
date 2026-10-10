@@ -1,19 +1,22 @@
-# Muse 接续检查点：2026-10-11 02:07
+# Muse 接续检查点：2026-10-11 03:55
 
 ## Task
 NIGHT-002完整Host、官方内置Calendar、Mail原生审阅、共享DSL与Native路线验证。07:00冻结/08:00截止。
 
 ## Result
-PARTIAL。新reference Host78ab9efc真实VM：Memory+view68/68、Task/plan23/23、FS摘要9/9、特殊文件拒绝3/3。行动链DSL可见窗口1100×740/990×539/412×892各9项；actions摘要不变、合成状态恢复正确，公开截图已实际查看。原失败保留；不当作完整Shell、Mail、模型或Agent Calendar Relay。
+PARTIAL。新reference Host78ab9efc实际Memory+view68、Task/plan23、FS摘要9、特殊文件拒绝3通过；行动链DSL可见三尺寸各9项，actions摘要不变，合成截图已实看。旧task-focus等真实dispatch/计划绑定后r4实际13/13正常检查通过；三次失败保留。所有结果不是完整新Shell、真实Mail/Calendar或模型调用证明。
 
 ## Changed
-共享main开发源2253e9f0，compact493e9f4b；muse.view/1只读、不赋工具权，授权/Memory含义/执行入口不变。新jailed FS摘要兼容小补丁已真正编译进reference。原Kernel b0759a5 release及官方stage成功SHA9c3d4b94。metadata-r10完整成功1710包，cargo lock c87d9f29，有效输入r2 9f15ae94。源未进入根rc17或旧活动Host。
+共享main2253e9f0 / compact493e9f4b已提交aec355db，muse.view/1只读、不赋工具权。官方Kernel b0759a5 release/stage SHA9c3d4b94。完整Desktop r2/r3编译exit0，冻结SHA41198bb8/8008ec14；metadata-r11为1710包/41成员，lock5b58c5f5。Native当前742ebe0a，中文/严格History/Scroll已编译，纯History5/5；仍无live Relay。根rc17和旧Host未覆盖。
 
 ## Running
-中央唯一大型Cargo：fullDesktop offline/locked/release，features app-hub,octos-core,app-muse-native-prototype，session1549、日志build/runtime-closure-full-shell-r1/full-desktop-build-r1.log；target build/official-hub-rc2-target。确切完成/失败需读取实际进程与日志。真实聊天ZC03交最小异步fixture补丁，ZC01准备只读运行检查。不要终止稳定503、并发Cargo或删活动target。
+r5已exit0/13m19，冻结89d1bc5d，指纹f3b59de3编译前后逐文件一致。与r3相同条件对照实际4个函数缓存键/不同代码命中，但正文仍空白；Metal已恢复baseline47db4d10，不保留未经证明的诊断修复。当前唯一Cargo10073为SDK上下文真实AppHub per_app_offer测试（offline/locked/release），日志host-offer-test-r1.log，不并发Cargo/GUI验收。B R3提供现有4个trace topic与明确边界，待该测试结束后一次r5 trace。不得终止稳定503或删活动target。
 
 ## Remaining
-完整Host构建/启动、独立Native ID的真实Relay和consent、Mail审阅、精确Calendar写/读回/同ID修改/恢复；旧Task focus fixture同步假设要修复测试而非业务。只有核心冻结/T18实际准备后才同候选最终20次。无新外发/付费/Calendar写入成功证明，可信本人缺失HUMAN_REQUIRED。
+r2 Native和内置Calendar在新资料目录已真实启动，但Calendar正文在OS窗口与Metal三帧均空白；89个布局控件不代替可见验收。Native consent未点Allow，独立Native ID真实Relay、Mail前台审阅、Calendar同ID改期/精确读回/恢复仍缺。正式T18、根包晋级和冻结后同候选20次未完成。本人可信输入缺失HUMAN_REQUIRED；无新外发、付费模型或Calendar写入。
 
 ## Git / Protection
-HEADaec355db已通过非强制Git对象API同步开发分支，tree/commit/远端SHA一致；普通CLI网络失败保留。共享DSL已提交，后续测试适配/原型/报告修改仍待提交。main/旧Tag/正式发布不动。primary137dirty、两历史dirty、rc17/root摘要90351cba/旧Host276b2b68保留。已清无占用debug incremental净2.8GB，receipt保留；继续缺盘仅清可重建和核验重复产物。
+HEAD66918555为隔离Native提案；正常push超时/Empty reply后，精确Git对象API逐blob/tree/commit核对且force=false更新，独立远端相同，main5126afc4不变。4f7620f4此前普通推送独立通过。两历史dirty、primary137dirty、根rc17/90351cba、Host276b2b68保留。两次实际清理无占用缓存净4,956,504,064字节；receipt在build/runtime-closure-20261011/storage-cleanup-r1.json和r2.json，Kernel成品及SHA保持。活动target/源码/用户/模型/唯一失败证据保护。
+
+## 隔离原型补缺
+Native中文、History严格ID/关闭等待修订和垂直Scroll已应用且完整r3编译通过；纯解析器r2为5/5，不证明live History或Relay。重新准备脚本已实际在独立build/reproduction目录零fuzz应用完整冻结patch序列并核对模块字节；尚未编译该新目录。ZC01正在修生成器遗漏history.rs及覆写冻结patch问题，不动当前共享SDK。B渲染只读R2报告提出可证伪Cache2候选，未证实根因。上游三个Issue02:11无非本人回复/关联PR，其他默认分支未审计，不称获准。

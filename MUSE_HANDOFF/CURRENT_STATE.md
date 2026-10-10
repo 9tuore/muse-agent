@@ -1,3 +1,11 @@
+## 2026-10-11 03:39 NIGHT-002 实际接续
+
+完整Desktop r2/r3实际release编译成功，冻结SHA41198bb8/8008ec14，官方Kernel9c3d4b94相邻receipt核对。r2新资料目录已实际启动Native入口和内置Calendar owner UI；服务注册不是实际模型/Relay。Calendar布局89控件存在，但OS窗口与Metal三帧正文均空白，可见验收失败；B只读定位函数缓存候选，中央可逆绕过Cache2诊断。r4诊断宏缺crate前缀编译失败保留，r5已修正、中央唯一Cargo99673编译中。旧Host503/276b2b68和根rc17/90351cba未改。
+
+Native中文/严格History见证/滚动已编译进r3；纯解析5/5，不替代live Relay。Memory68、Task23、摘要9、特殊文件3、legacy Task13及reference UI三尺寸证据保留。HEAD4f7620f4已普通开发分支推送并独立SHA核对，main/Tag不动。两次实际清理无占用可重建缓存净约4.96GB，Kernel成品/稳定Host/源码/失败证据保留。新原生consent和Mail审阅仍HUMAN_REQUIRED，无本段外发、Calendar写入或付费模型调用；T18/根包晋级/同候选20次未开始。07:00冻结，08:00停止。
+
+---
+
 ## 2026-10-11 02:07 NIGHT-002 实际进展
 
 共享 DSL 开发源2253e9f0 / compact493e9f4b：新reference78ab9efc实际Memory+view68、Task23、摘要9、特殊文件拒绝3通过；可见UI三尺寸各9项，等待/失败及重启记录保留，actions字节未变，合成截图公开于official_muse/semifinal/evidence/shared-dsl-ui。根活动rc17仍不变，以上不是完整新Host或真实Calendar Relay通过。
