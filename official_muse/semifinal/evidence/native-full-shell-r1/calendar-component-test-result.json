@@ -1,0 +1,99 @@
+{
+  "status": "THREE_SHELL_COMPONENT_FIXTURES_PASS",
+  "started_at": "2026-10-11T05:29:02.783339+08:00",
+  "input_map_sha256": "d2332ed952af4fae0b048fea112b7f04118dbcfb81aa1259f73757593b0cecaa",
+  "results": [
+    {
+      "filter": "host_tools::script_apps::tests::calendar_offers_its_tools_from_its_bundle",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-shell",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "app-hub,octos-core,app-muse-native-prototype",
+        "host_tools::script_apps::tests::calendar_offers_its_tools_from_its_bundle",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 241.699983817,
+      "log_sha256": "83da55704ba79941e21898c6439cae3d39c8ed7e8f1b21a003441d5a43e70668",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "filter": "host_tools::tests::cold_mail_loads_calendar_without_preparing_its_agent",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-shell",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "app-hub,octos-core,app-muse-native-prototype",
+        "host_tools::tests::cold_mail_loads_calendar_without_preparing_its_agent",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 3.811657433000022,
+      "log_sha256": "369c230bed8561c8e834bd4a68e7762c745437dbcc43f4884008cf1df8ad9e1d",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "filter": "host_tools::tests::admitted_mail_calendar_grants_route_to_the_real_calendar_store",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-shell",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "app-hub,octos-core,app-muse-native-prototype",
+        "host_tools::tests::admitted_mail_calendar_grants_route_to_the_real_calendar_store",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 3.038219527000024,
+      "log_sha256": "1c8e2176ffc2b53936b3ae0de5087fe941f12f6e3eea644624c2d1a30086a053",
+      "passed": 1,
+      "failed": 0
+    }
+  ],
+  "real_calendar_writes": 0,
+  "native_consent": false,
+  "boundary": "Complete SDK component fixtures and real synthetic Calendar Store/Relay with World fixture; not Muse Store admission, physical Person, Agent turn, SMTP, live operation or upstream acceptance.",
+  "inputs_unchanged": true,
+  "finished_at": "2026-10-11T05:33:20.211237+08:00",
+  "calendar_service_tests": {
+    "passed": 10,
+    "failed": 0,
+    "log_sha256": "6be103d11a97f5eb1e7c10ff67633d5f873b3e030d25196d127d73c41599a6c7",
+    "same_service_lib_sha256": "1c87ef2d4c1db8f3c054d5e877fda36ae9212b734c2393d9cc7fc5fde04b77d8"
+  },
+  "preserved_failure": {
+    "r1_exit": 101,
+    "r1_test_failed": 1,
+    "cause": "New test expected serialized confirm: host; official protocol omits default Host. Test-only fix separately verifies raw Host and HostApproval policy.",
+    "log_sha256": "9f8f9a005180dae4b66ac74db827ddfceed9916df99546fa31f1e88d5ace4b6f"
+  }
+}

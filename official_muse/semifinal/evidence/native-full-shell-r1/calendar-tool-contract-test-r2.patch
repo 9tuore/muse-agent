@@ -1,0 +1,45 @@
+--- a/crates/shell/src/host_tools/script_apps.rs
++++ b/crates/shell/src/host_tools/script_apps.rs
+@@ -653,7 +653,7 @@
+         let _ = std::fs::remove_dir_all(dir);
+     }
+ 
+-    /// Calendar's bundle gives its agent its six tools, all on its own
++    /// Calendar's bundle gives its agent its seven tools, all on its own
+     /// `calendar` host service; removing an event is destructive (the
+     /// person approves it); Calendar is granted `glance`.
+     #[test]
+@@ -661,14 +661,30 @@
+         let dir = stamped_bundle("calendar", "tools", |_, _| {});
+         let loaded = from_bundle(&dir).unwrap();
+         let names: Vec<&str> = loaded.tools.iter().filter_map(|t| t["name"].as_str()).collect();
+-        assert_eq!(names, ["calendar.events", "calendar.add_event", "calendar.update_event", "calendar.remove_event", "calendar.notify", "calendar.agenda"]);
+-        assert_eq!(loaded.host_service_tools.len(), 6);
++        assert_eq!(names, ["calendar.events", "calendar.get_event", "calendar.add_event", "calendar.update_event", "calendar.remove_event", "calendar.notify", "calendar.agenda"]);
++        assert_eq!(loaded.host_service_tools.len(), 7);
+         assert!(loaded.tools.iter().all(|t| t["input_schema"]["type"] == "object" && t["output_schema"]["type"] == "object"));
+         let remove = loaded.tools.iter().find(|t| t["name"] == "calendar.remove_event").unwrap();
+         assert_eq!(remove["risk"], "destructive");
+         assert!(loaded.families.contains("glance") && loaded.families.contains("calendar"));
+         let edit = loaded.tools.iter().find(|t| t["name"] == "calendar.update_event").unwrap();
+-        assert_ne!(edit["shareable"], true, "editing is not granted to other apps");
++        // Shareable metadata does not grant a caller or approve a write.
++        for tool in [edit, remove] {
++            assert_eq!(tool["shareable"], true);
++            assert_eq!(tool["risk"], "destructive");
++            // Host is the protocol default; the catalog only writes confirm: app.
++            assert!(tool.get("confirm").is_none());
++            let raw: Value = serde_json::from_str(&std::fs::read_to_string(dir.join("tools.json")).unwrap()).unwrap();
++            let spec: ToolSpec = serde_json::from_value(raw["tools"].as_array().unwrap().iter()
++                .find(|v| v["name"] == tool["name"]).unwrap().clone()).unwrap();
++            assert_eq!(spec.confirm, octosense_app_policy::Confirm::Host);
++            assert_eq!(spec.supervision(), octosense_app_policy::Supervision::HostApproval);
++            assert_eq!(tool["auto_approvable"], false);
++            assert!(tool["input_schema"]["required"].as_array().unwrap().iter().any(|v| v == "expected"));
++        }
++        let get = loaded.tools.iter().find(|t| t["name"] == "calendar.get_event").unwrap();
++        assert_eq!(get["risk"], "read");
++        assert_eq!(get["shareable"], true);
+         assert!(edit["input_schema"]["required"].as_array().unwrap().iter().any(|v| v == "expected"));
+         assert_eq!(loaded.generic, ["ask_user_question"]);
+         let _ = std::fs::remove_dir_all(dir);
