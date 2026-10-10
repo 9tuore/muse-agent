@@ -1,3 +1,9 @@
+## 最新实测：2026-10-11 06:32
+
+r8冻结二进制baf55d24在隔离资料中实际完成普通owner UI创建、原ID改期、独立固定System events全字段读回、真实重启、二步删除、删除后及再次重启的有界列表为空。唯一事件ID ev-1791700320125；三个进程83319/83760/83859均remote quit/exit0，无迟到运行错误。六检查通过，状态严格为 OWNER_UI_COMPLETED_BOUNDED_READBACK_EXACT_GET_BLOCKED；不是精确get、权威不存在、Muse Agent Relay、模型选工具或可信Person批准通过。
+
+原r8-r1超时等视觉哨兵、r8-r2 notes位于可滚动底部而不可见均在Save之前停止、events空、0写；失败未删。最小驱动修复仅在原ScrollYView所属pane内最多14次正常滚动，Save/Delete仍单次投递、不重试。中央实际看全部九张OS截图；公开三张与独立视觉回执在 ../evidence/native-full-shell-r1/calendar-r8-owner/，完整原始日志与截图保留 build/runtime-closure-owner-ui-r8-r3/。重启后的最后一张默认显示10月11日，10月12日缺席来自目标日期的独立有界events结果，不能用截图宣称权威不存在。下文为原准备记录和可复跑边界。
+
 ## 中央实际结果：2026-10-11 06:10
 
 r7已完成真实release构建，SHA `50d545c2…`。R1启动前Rinx重复mkdir失败；R2早期只读抓帧404；R3 Calendar正常可见，但System read尚未声明；R4显式现有 `--test-action system-chat` 显示“No model provider is set up yet”，合法read在声明预检查停止。所有进程正常退出，**零日历写入**。这不是get grant拒绝或Calendar不存在的证据，更不是CRUD/Muse Relay通过。独立报告 `../evidence/native-full-shell-r1/calendar-r7-owner-read-result.json` 与实际OS图均保留。

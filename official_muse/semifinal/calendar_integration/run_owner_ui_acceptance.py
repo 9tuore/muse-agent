@@ -263,8 +263,27 @@ def main():
             time.sleep(.2)
         raise Stop('PARTIAL', 'System events reply not observed; no assumed schema or tool success')
 
-    def click(label):
+    def reach(key, area, direction=1):
+        # Scroll the existing owner pane only; never retry a business input.
+        for _ in range(14):
+            gate()
+            try:
+                widget = remote.find(key)
+                if widget['r'][2] >= 2 and widget['r'][3] >= 24:
+                    return widget
+            except AssertionError:
+                pass
+            x, y, width, height = remote.find(area)['r']
+            if width < 2 or height < 140:
+                raise Stop('PARTIAL', 'Owner scroll pane is clipped: '+area)
+            operation('Normal owner pane scroll', pane=area, target=key, direction=direction)
+            remote.scroll(int(x+width/2), int(y+height*.65), 100*direction)
+        raise Stop('PARTIAL', 'Control remains clipped after bounded scrolling: '+key)
+
+    def click(label, area=None, direction=1):
         gate()
+        if area:
+            reach(label, area, direction)
         operation('Normal owner UI click', label=label)
         remote.click(label)
 
@@ -321,24 +340,26 @@ def main():
                           'e_end_date':'2026-10-12', 'e_end':'15:30', 'e_zone':'Asia/Shanghai',
                           'e_place':FIELDS['location'], 'e_notes':''}.items():
             gate()
+            reach(key, 'editor', -1 if key == 'e_title' else 1)
             operation('Normal owner field input', field=key, value=value)
             remote.set_text(key, value)
         capture('create-fields')
         click('Save')  # Exactly once. Any unknown delivery is reconciled read-only, never retried.
-        remote.wait_for(TITLE, 10)
+        reach(TITLE, 'calendar')
         identity = event(listing('created'), '15')
         report['event_id'] = identity
         report['checks']['created_all_fields_and_id'] = True
         capture('created')
-        click('View event  ›')
+        click('View event  ›', 'calendar')
         click('Edit')
         for key,value in {'e_start':'16:00', 'e_end':'16:30'}.items():
             gate()
+            reach(key, 'editor', -1 if key == 'e_start' else 1)
             operation('Normal owner field input', field=key, value=value)
             remote.set_text(key, value)
         capture('edit-fields')
         click('Save')
-        remote.wait_for(TITLE, 10)
+        reach(TITLE, 'calendar')
         event(listing('updated'), '16', identity)
         report['checks']['updated_same_id_all_fields'] = True
         capture('updated')
@@ -346,16 +367,16 @@ def main():
         start()  # Same isolated home, only after real owned process exit.
         event(listing('restarted'), '16', identity)
         report['checks']['restart_same_id_no_duplicate'] = True
-        click('12 •')  # Actual calendar day control, not an injected focus_event call.
-        remote.wait_for(TITLE, 10)
+        click('12 •', 'calendar', -1)  # Actual day control, not an injected focus_event call.
+        reach(TITLE, 'calendar')
         capture('restarted')
-        click('View event  ›')
-        click('Delete event')
+        click('View event  ›', 'calendar')
+        click('Delete event', 'detail')
         event(listing('delete pending'), '16', identity)
         report['checks']['first_delete_did_not_remove'] = True
         capture('delete-pending')
-        click('Confirm delete')
-        remote.wait_for('No events on this day', 10)
+        click('Confirm delete', 'detail')
+        reach('No events on this day', 'calendar')
         if listing('deleted'):
             raise Stop('PARTIAL', 'Authorized day still has records; do not repeat delete')
         report['checks']['bounded_events_absence_after_delete'] = True

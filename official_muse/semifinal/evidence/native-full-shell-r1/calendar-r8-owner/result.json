@@ -1,0 +1,621 @@
+{
+  "state": "OWNER_UI_COMPLETED_BOUNDED_READBACK_EXACT_GET_BLOCKED",
+  "operations": [
+    {
+      "id": "001-6aadbae4-395c-4356-bc12-030eb98e765d",
+      "name": "Launch official Calendar owner",
+      "time": "2026-10-11T06:31:23.138481+08:00",
+      "pid": 83319
+    },
+    {
+      "id": "002-fe95b516-ba00-44e8-9f9b-ddee66fa5b12",
+      "name": "Owner visible",
+      "time": "2026-10-11T06:31:24.622526+08:00",
+      "remote_window": 0
+    },
+    {
+      "id": "003-ab27a9f3-27a6-4b50-8b53-99246e14220d",
+      "name": "OS capture",
+      "time": "2026-10-11T06:31:26.754328+08:00",
+      "window_id": "2970",
+      "exit": 0,
+      "stderr": "",
+      "file": "002-initial-os-2970.png"
+    },
+    {
+      "id": "004-ba0aa5b2-e9be-4b68-b2eb-4daed9be44c3",
+      "name": "Await central initial pixel review",
+      "time": "2026-10-11T06:31:26.761990+08:00",
+      "checkpoint": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-owner-ui-r8-r3/initial-visual-reviewed.txt",
+      "timeout_seconds": 120,
+      "required_content": "VISIBLE_REVIEWED"
+    },
+    {
+      "id": "005-e5a74e16-4941-4355-8a89-d0c67c7e503e",
+      "name": "Central initial pixels reviewed",
+      "time": "2026-10-11T06:31:52.993091+08:00",
+      "checkpoint": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-owner-ui-r8-r3/initial-visual-reviewed.txt",
+      "boundary": "Test harness pixel review only; not Person, consent or business approval"
+    },
+    {
+      "id": "006-a24c94b6-4ec5-425a-b0ef-c089e7cee13b",
+      "name": "Open existing System chat without sending",
+      "time": "2026-10-11T06:31:52.994409+08:00",
+      "boundary": "Startup action or F8 only; no provider, grant or consent changes"
+    },
+    {
+      "id": "007-b7ef2086-2c7a-49cf-8c1a-55df6da91881",
+      "name": "Fixed-grant System calendar.events",
+      "time": "2026-10-11T06:31:56.027398+08:00",
+      "checkpoint": "before create",
+      "arguments": {
+        "from": "2026-10-12",
+        "to": "2026-10-13",
+        "limit": 200
+      }
+    },
+    {
+      "id": "008-852c1077-bc20-4fb5-9a5f-9d59a55801ab",
+      "name": "Read result",
+      "time": "2026-10-11T06:31:56.035601+08:00",
+      "checkpoint": "before create",
+      "reply": {
+        "call_id": "system-call-1",
+        "data": {
+          "events": []
+        },
+        "ok": true
+      }
+    },
+    {
+      "id": "009-2a3fcc8e-98c4-4068-a6fd-9d3590c63dfa",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:31:56.051016+08:00",
+      "label": "+ Event"
+    },
+    {
+      "id": "010-d866da89-4fd2-4127-ae6a-3a5756090018",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:56.303617+08:00",
+      "field": "e_title",
+      "value": "MUSE-N002-20261011-A 合成联调"
+    },
+    {
+      "id": "011-72767ad1-8fb5-40aa-bd90-f13f5c385c4c",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:56.616068+08:00",
+      "field": "e_date",
+      "value": "2026-10-12"
+    },
+    {
+      "id": "012-2a44ae20-11f2-4e74-86ce-382d8278d860",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:56.839083+08:00",
+      "field": "e_start",
+      "value": "15:00"
+    },
+    {
+      "id": "013-402a94e9-dd0b-4dbe-92df-3a2ae5d72814",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:57.070938+08:00",
+      "field": "e_end_date",
+      "value": "2026-10-12"
+    },
+    {
+      "id": "014-2643cbee-82f5-472a-867f-e34f30c13d93",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:57.332287+08:00",
+      "field": "e_end",
+      "value": "15:30"
+    },
+    {
+      "id": "015-3a629dad-2d27-41b8-8c98-e18a82ea8ea0",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:57.539301+08:00",
+      "field": "e_zone",
+      "value": "Asia/Shanghai"
+    },
+    {
+      "id": "016-0eae3e2b-e6e7-464d-b567-d5a93827a7b1",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:57.748313+08:00",
+      "field": "e_place",
+      "value": "Muse synthetic acceptance"
+    },
+    {
+      "id": "017-90dec2f3-e798-4104-ad2d-e1541363c65f",
+      "name": "Normal owner pane scroll",
+      "time": "2026-10-11T06:31:57.950934+08:00",
+      "pane": "editor",
+      "target": "e_notes",
+      "direction": 1
+    },
+    {
+      "id": "018-a29972d8-ea9a-46e1-bdef-8553b734bb47",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:31:57.985326+08:00",
+      "field": "e_notes",
+      "value": ""
+    },
+    {
+      "id": "019-8dafe7d0-4f69-4c02-b083-3ee8eaa804c2",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:00.105906+08:00",
+      "window_id": "2970",
+      "exit": 0,
+      "stderr": "",
+      "file": "018-create-fields-os-2970.png"
+    },
+    {
+      "id": "020-e1fd01b6-51cc-4210-8207-3f43d2727aff",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:00.115657+08:00",
+      "label": "Save"
+    },
+    {
+      "id": "021-d91f47cc-8559-43a0-a791-9afc145dabac",
+      "name": "Normal owner pane scroll",
+      "time": "2026-10-11T06:32:00.150678+08:00",
+      "pane": "calendar",
+      "target": "MUSE-N002-20261011-A 合成联调",
+      "direction": 1
+    },
+    {
+      "id": "022-f28c8a2b-ceec-4e4a-94da-730606d603a9",
+      "name": "Fixed-grant System calendar.events",
+      "time": "2026-10-11T06:32:00.333156+08:00",
+      "checkpoint": "created",
+      "arguments": {
+        "from": "2026-10-12",
+        "to": "2026-10-13",
+        "limit": 200
+      }
+    },
+    {
+      "id": "023-500d1f03-0c19-4565-ad6e-deb9eb03a2a3",
+      "name": "Read result",
+      "time": "2026-10-11T06:32:00.341564+08:00",
+      "checkpoint": "created",
+      "reply": {
+        "call_id": "system-call-2",
+        "data": {
+          "events": [
+            {
+              "end": "2026-10-12T15:30",
+              "id": "ev-1791700320125",
+              "location": "Muse synthetic acceptance",
+              "notes": "",
+              "start": "2026-10-12T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-N002-20261011-A 合成联调"
+            }
+          ]
+        },
+        "ok": true
+      }
+    },
+    {
+      "id": "024-2acc0201-1cc0-47f6-812b-c50a2045876f",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:02.003755+08:00",
+      "window_id": "2970",
+      "exit": 0,
+      "stderr": "",
+      "file": "023-created-os-2970.png"
+    },
+    {
+      "id": "025-9b8ea691-6f4a-4dec-97b3-c83b47105da4",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:02.019322+08:00",
+      "label": "View event  ›"
+    },
+    {
+      "id": "026-7fffab21-7efc-41e2-b151-28c885774661",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:02.032372+08:00",
+      "label": "Edit"
+    },
+    {
+      "id": "027-63f670cf-92a1-45af-a449-91b3299be3dc",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:32:02.264995+08:00",
+      "field": "e_start",
+      "value": "16:00"
+    },
+    {
+      "id": "028-1275fdad-a475-4318-8769-fd7e26de6f5e",
+      "name": "Normal owner field input",
+      "time": "2026-10-11T06:32:02.488583+08:00",
+      "field": "e_end",
+      "value": "16:30"
+    },
+    {
+      "id": "029-a116281a-2912-4de5-80b6-11ad6510bd70",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:04.854813+08:00",
+      "window_id": "2970",
+      "exit": 0,
+      "stderr": "",
+      "file": "028-edit-fields-os-2970.png"
+    },
+    {
+      "id": "030-413e509c-31e3-4dcd-85e6-bb0eb6df3cb0",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:04.865131+08:00",
+      "label": "Save"
+    },
+    {
+      "id": "031-8ebbf9b9-f2bc-496b-bd05-920cbe199393",
+      "name": "Fixed-grant System calendar.events",
+      "time": "2026-10-11T06:32:04.908061+08:00",
+      "checkpoint": "updated",
+      "arguments": {
+        "from": "2026-10-12",
+        "to": "2026-10-13",
+        "limit": 200
+      }
+    },
+    {
+      "id": "032-bb32d3f6-9c25-41c9-8bee-29814759e305",
+      "name": "Read result",
+      "time": "2026-10-11T06:32:04.918796+08:00",
+      "checkpoint": "updated",
+      "reply": {
+        "call_id": "system-call-3",
+        "data": {
+          "events": [
+            {
+              "end": "2026-10-12T16:30",
+              "id": "ev-1791700320125",
+              "location": "Muse synthetic acceptance",
+              "notes": "",
+              "start": "2026-10-12T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-N002-20261011-A 合成联调"
+            }
+          ]
+        },
+        "ok": true
+      }
+    },
+    {
+      "id": "033-a7e71177-5889-4fec-8687-380e5eea33ee",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:06.467873+08:00",
+      "window_id": "2970",
+      "exit": 0,
+      "stderr": "",
+      "file": "032-updated-os-2970.png"
+    },
+    {
+      "id": "034-db83885b-5be1-4534-b4d1-95b8937ffa05",
+      "name": "Owned child exit",
+      "time": "2026-10-11T06:32:06.606509+08:00",
+      "pid": 83319,
+      "shutdown": {
+        "remote_quit": true,
+        "fallback": false,
+        "exit": 0,
+        "time": "2026-10-11T06:32:06.472234+08:00",
+        "remote_quit_reply": "{\"ok\":1}"
+      }
+    },
+    {
+      "id": "035-18ec80d9-fc39-43d6-934d-7841e57fb26a",
+      "name": "Launch official Calendar owner",
+      "time": "2026-10-11T06:32:06.630619+08:00",
+      "pid": 83760
+    },
+    {
+      "id": "036-e74489d6-20eb-404c-b378-d05f9c22175f",
+      "name": "Owner visible",
+      "time": "2026-10-11T06:32:08.412014+08:00",
+      "remote_window": 0
+    },
+    {
+      "id": "037-9a4362c8-54c9-4217-a3e1-7926606d3cef",
+      "name": "Fixed-grant System calendar.events",
+      "time": "2026-10-11T06:32:08.492716+08:00",
+      "checkpoint": "restarted",
+      "arguments": {
+        "from": "2026-10-12",
+        "to": "2026-10-13",
+        "limit": 200
+      }
+    },
+    {
+      "id": "038-667686bb-20b7-4820-a94a-9e722993aac2",
+      "name": "Read result",
+      "time": "2026-10-11T06:32:08.766648+08:00",
+      "checkpoint": "restarted",
+      "reply": {
+        "call_id": "system-call-1",
+        "data": {
+          "events": [
+            {
+              "end": "2026-10-12T16:30",
+              "id": "ev-1791700320125",
+              "location": "Muse synthetic acceptance",
+              "notes": "",
+              "start": "2026-10-12T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-N002-20261011-A 合成联调"
+            }
+          ]
+        },
+        "ok": true
+      }
+    },
+    {
+      "id": "039-0e6f1433-30ea-473e-97e2-fde6ea910ba1",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:08.784702+08:00",
+      "label": "12 •"
+    },
+    {
+      "id": "040-8ab4e3e2-ad68-4e99-9f7b-567e2056c35b",
+      "name": "Normal owner pane scroll",
+      "time": "2026-10-11T06:32:09.048525+08:00",
+      "pane": "calendar",
+      "target": "MUSE-N002-20261011-A 合成联调",
+      "direction": 1
+    },
+    {
+      "id": "041-13eee97d-dd7e-4a7e-a3f5-ae969d968ecd",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:11.115543+08:00",
+      "window_id": "2998",
+      "exit": 0,
+      "stderr": "",
+      "file": "040-restarted-os-2998.png"
+    },
+    {
+      "id": "042-261c2eec-202d-45f3-8afb-e2512f3c968a",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:11.130167+08:00",
+      "label": "View event  ›"
+    },
+    {
+      "id": "043-30c835ca-d1ed-4ee8-b4c8-e0da11ed8f17",
+      "name": "Normal owner pane scroll",
+      "time": "2026-10-11T06:32:11.154785+08:00",
+      "pane": "detail",
+      "target": "Delete event",
+      "direction": 1
+    },
+    {
+      "id": "044-06740c01-758a-4f4e-a27a-77570ab164f6",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:11.171638+08:00",
+      "label": "Delete event"
+    },
+    {
+      "id": "045-5c9e4957-0330-4d5f-bd43-0ebcaf7bcc04",
+      "name": "Fixed-grant System calendar.events",
+      "time": "2026-10-11T06:32:11.179840+08:00",
+      "checkpoint": "delete pending",
+      "arguments": {
+        "from": "2026-10-12",
+        "to": "2026-10-13",
+        "limit": 200
+      }
+    },
+    {
+      "id": "046-d5d285b4-d25a-4f2f-a7ca-03a157cfc55b",
+      "name": "Read result",
+      "time": "2026-10-11T06:32:11.185493+08:00",
+      "checkpoint": "delete pending",
+      "reply": {
+        "call_id": "system-call-2",
+        "data": {
+          "events": [
+            {
+              "end": "2026-10-12T16:30",
+              "id": "ev-1791700320125",
+              "location": "Muse synthetic acceptance",
+              "notes": "",
+              "start": "2026-10-12T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "MUSE-N002-20261011-A 合成联调"
+            }
+          ]
+        },
+        "ok": true
+      }
+    },
+    {
+      "id": "047-73e44bd9-3c68-4e71-b83e-7b2aaa61d0a5",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:13.065079+08:00",
+      "window_id": "2998",
+      "exit": 0,
+      "stderr": "",
+      "file": "046-delete-pending-os-2998.png"
+    },
+    {
+      "id": "048-181b4938-f91e-468e-869e-ea375502ba1c",
+      "name": "Normal owner UI click",
+      "time": "2026-10-11T06:32:13.080395+08:00",
+      "label": "Confirm delete"
+    },
+    {
+      "id": "049-74c2ed4c-76c5-4404-bdcc-4a97a593e7a9",
+      "name": "Fixed-grant System calendar.events",
+      "time": "2026-10-11T06:32:13.104480+08:00",
+      "checkpoint": "deleted",
+      "arguments": {
+        "from": "2026-10-12",
+        "to": "2026-10-13",
+        "limit": 200
+      }
+    },
+    {
+      "id": "050-0b3c8974-efcf-4d86-9f13-80482397a153",
+      "name": "Read result",
+      "time": "2026-10-11T06:32:13.115789+08:00",
+      "checkpoint": "deleted",
+      "reply": {
+        "call_id": "system-call-3",
+        "data": {
+          "events": []
+        },
+        "ok": true
+      }
+    },
+    {
+      "id": "051-f74aee48-f606-49e0-9f0d-d5408ef8396f",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:14.803128+08:00",
+      "window_id": "2998",
+      "exit": 0,
+      "stderr": "",
+      "file": "050-deleted-os-2998.png"
+    },
+    {
+      "id": "052-20a9615d-533c-4ed3-ae6c-2fb653c5ed5a",
+      "name": "Owned child exit",
+      "time": "2026-10-11T06:32:14.944219+08:00",
+      "pid": 83760,
+      "shutdown": {
+        "remote_quit": true,
+        "fallback": false,
+        "exit": 0,
+        "time": "2026-10-11T06:32:14.807442+08:00",
+        "remote_quit_reply": "{\"ok\":1}"
+      }
+    },
+    {
+      "id": "053-66752d21-b37f-4152-b21a-b8aa7ff0be31",
+      "name": "Launch official Calendar owner",
+      "time": "2026-10-11T06:32:14.968213+08:00",
+      "pid": 83859
+    },
+    {
+      "id": "054-0c21fe72-6329-44c5-b1bf-727dc7a6963a",
+      "name": "Owner visible",
+      "time": "2026-10-11T06:32:16.971755+08:00",
+      "remote_window": 0
+    },
+    {
+      "id": "055-2e1f76fc-ba88-476d-832e-c6a6ae92e287",
+      "name": "Fixed-grant System calendar.events",
+      "time": "2026-10-11T06:32:17.020967+08:00",
+      "checkpoint": "restart after delete",
+      "arguments": {
+        "from": "2026-10-12",
+        "to": "2026-10-13",
+        "limit": 200
+      }
+    },
+    {
+      "id": "056-8c5b391b-68d4-4935-b180-cc4dcd45cb62",
+      "name": "Read result",
+      "time": "2026-10-11T06:32:17.117168+08:00",
+      "checkpoint": "restart after delete",
+      "reply": {
+        "call_id": "system-call-1",
+        "data": {
+          "events": []
+        },
+        "ok": true
+      }
+    },
+    {
+      "id": "057-f632a60f-fc55-4f54-a015-b673a8096a2e",
+      "name": "OS capture",
+      "time": "2026-10-11T06:32:19.154487+08:00",
+      "window_id": "3026",
+      "exit": 0,
+      "stderr": "",
+      "file": "056-deleted-restarted-os-3026.png"
+    },
+    {
+      "id": "058-687381bf-4c5b-4f3c-8923-916d8c3f8ce8",
+      "name": "Owned child exit",
+      "time": "2026-10-11T06:32:19.280728+08:00",
+      "pid": 83859,
+      "shutdown": {
+        "remote_quit": true,
+        "fallback": false,
+        "exit": 0,
+        "time": "2026-10-11T06:32:19.158347+08:00",
+        "remote_quit_reply": "{\"ok\":1}"
+      }
+    }
+  ],
+  "processes": [
+    {
+      "pid": 83319,
+      "started": "2026-10-11T06:31:23.138129+08:00",
+      "log": "shell-0.log",
+      "shutdown": {
+        "remote_quit": true,
+        "fallback": false,
+        "exit": 0,
+        "time": "2026-10-11T06:32:06.472234+08:00",
+        "remote_quit_reply": "{\"ok\":1}"
+      },
+      "exit": 0
+    },
+    {
+      "pid": 83760,
+      "started": "2026-10-11T06:32:06.630255+08:00",
+      "log": "shell-1.log",
+      "shutdown": {
+        "remote_quit": true,
+        "fallback": false,
+        "exit": 0,
+        "time": "2026-10-11T06:32:14.807442+08:00",
+        "remote_quit_reply": "{\"ok\":1}"
+      },
+      "exit": 0
+    },
+    {
+      "pid": 83859,
+      "started": "2026-10-11T06:32:14.967653+08:00",
+      "log": "shell-2.log",
+      "shutdown": {
+        "remote_quit": true,
+        "fallback": false,
+        "exit": 0,
+        "time": "2026-10-11T06:32:19.158347+08:00",
+        "remote_quit_reply": "{\"ok\":1}"
+      },
+      "exit": 0
+    }
+  ],
+  "checks": {
+    "created_all_fields_and_id": true,
+    "updated_same_id_all_fields": true,
+    "restart_same_id_no_duplicate": true,
+    "first_delete_did_not_remove": true,
+    "bounded_events_absence_after_delete": true,
+    "bounded_absence_after_restart": true
+  },
+  "event_id": "ev-1791700320125",
+  "exact_get": "BLOCKED_NO_EXISTING_SYSTEM_GRANT",
+  "authoritative_absence": "BLOCKED",
+  "muse_agent_relay": "NOT_TESTED",
+  "trusted_person": "NOT_CLAIMED",
+  "png_visual_review": "REQUIRED",
+  "initial_pixels_reviewed": true,
+  "read_only_system_chat": false,
+  "initial_visual_review_boundary": "Test harness pixel review only; not Person, consent or business approval",
+  "binary_sha256": "baf55d24c3245ca858e68b9776d7f470558d619c65edc4ce288ceb90c8a276b7",
+  "kernel_receipt": {
+    "source": "prebuilt",
+    "revision": "b0759a57719fd35b3a2da1c5d969bc67538ed516",
+    "version": "octos 2.0.3-rc.13 (b0759a5 2026-10-11)",
+    "sha256": "9c3d4b947a9f90f19acfabad0f90cc891525751d418cb333e6e1d83220c4fb0a"
+  },
+  "owned_window_probe_sha256": "40317f8983191c14e29f058a87dc8895cb20b02364d3f16b12ccc6eae9d5a8ad",
+  "home": "build/runtime-closure-owner-ui-r8-r3/home",
+  "boundary": "Owner UI plus fixed-grant System events only; synthetic data.",
+  "runtime_errors": [],
+  "raw_record_sha256": "5de936579b7e4313c35c58155c425903b72998acc5818c4e20a6a78508b65427",
+  "raw_evidence": "build/runtime-closure-owner-ui-r8-r3",
+  "driver_sha256": "d5b1aeb258470248f7f47e55d641d6a3329799e7c21ca019874acf65d2f38dc7",
+  "test_input_scope": "One specifically authorized synthetic event; normal owner UI; no native Person/consent confirmation",
+  "source_to_binary_evidence": "../desktop-r8-build-result.json",
+  "formal_muse_agent_relay": "NOT_TESTED"
+}
