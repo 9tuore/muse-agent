@@ -1,0 +1,65 @@
+--- a/crates/shell/src/host_tools/mod.rs
++++ b/crates/shell/src/host_tools/mod.rs
+@@ -206,6 +206,16 @@
+     submit(Event::Call { call, reply });
+ }
+ 
++// Same admitted Calendar lazy load as ShellSystemHost::declarations. This
++// read-only diagnostic must not depend on opening a configured model session.
++fn test_read_owner(tool: &str) -> Option<String> {
++    let owner = owner_of(tool)?;
++    if owner == "os.calendar" {
++        ensure_loaded("card.os.calendar");
++    }
++    declaration(&owner, tool).filter(|d| d["risk"] == "read").map(|_| owner)
++}
++
+ /// A test path, the remote's `/event?data=system-call:<tool> <json args>`:
+ /// the system agent's call to `tool` as its session makes it, through the
+ /// relay (its grants, the tool's schema, the owning app's bus service),
+@@ -215,7 +225,7 @@
+     use std::sync::atomic::{AtomicU64, Ordering};
+     static NEXT: AtomicU64 = AtomicU64::new(1);
+     let (tool, args) = spec.split_once(' ').unwrap_or((spec, "{}"));
+-    let owner = owner_of(tool).filter(|owner| declaration(owner, tool).is_some_and(|d| d["risk"] == "read"));
++    let owner = test_read_owner(tool);
+     let Some(owner) = owner else {
+         makepad_widgets::log!("[system-call] {tool}: a test call runs only a declared read tool");
+         return;
+--- a/crates/shell/src/host_tools/tests.rs
++++ b/crates/shell/src/host_tools/tests.rs
+@@ -194,6 +194,34 @@
+ 
+ fn reply_pair(id: &str) -> (ToolReply, Sent) {
+     reply(id)
++}
++
++#[cfg(any(feature = "app-hub", native_mobile))]
++#[test]
++fn cold_system_calendar_read_loads_owner_without_new_system_grants() {
++    const CHILD: &str = "OCTOSENSE_TEST_COLD_SYSTEM_CALENDAR_READ";
++    if std::env::var_os(CHILD).is_none() {
++        let output = std::process::Command::new(std::env::current_exe().unwrap())
++            .args(["--exact", "host_tools::tests::cold_system_calendar_read_loads_owner_without_new_system_grants", "--nocapture"])
++            .env(CHILD, "1").output().unwrap();
++        assert!(output.status.success(), "{}\n{}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
++        return;
++    }
++    let root = std::env::temp_dir().join(format!("octosense-cold-system-calendar-{}", std::process::id()));
++    octosense_appstore::set_data_root(root.clone());
++    octosense_app_hub_app::system_apps();
++    let grants = crate::system_chat::grants::host_tools();
++    assert!(!super::with_relay(|r| r.catalog.knows("os.calendar")));
++    assert_eq!(super::test_read_owner("calendar.events"), Some("os.calendar".into()));
++    assert_eq!(crate::agents::prepared("os.calendar"), None);
++    assert_eq!(crate::system_chat::grants::host_tools(), grants);
++    assert!(!grants.contains("calendar.get_event"));
++    assert_eq!(super::test_read_owner("calendar.get_event"), Some("os.calendar".into()));
++    for tool in ["calendar.add_event", "calendar.update_event", "calendar.remove_event", "calendar.notify"] {
++        assert_eq!(super::test_read_owner(tool), None, "diagnostic refuses non-read tools");
++    }
++    assert!(!super::with_relay(|r| r.catalog.may_call("muse-goals", "os.calendar", "calendar.events", false)));
++    let _ = std::fs::remove_dir_all(root);
+ }
+ 
+ #[cfg(any(feature = "app-hub", native_mobile))]

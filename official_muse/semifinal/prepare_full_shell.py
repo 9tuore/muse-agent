@@ -40,7 +40,10 @@ def apply(root, patch):
     subprocess.run(["git", "apply", str(patch)], cwd=root, check=True)
 
 
-def prepare(out, native_prototype=False, calendar_review=False, qq_login_review=False):
+def prepare(out, native_prototype=False, calendar_review=False, qq_login_review=False,
+            system_read_review=False):
+    if system_read_review and not calendar_review:
+        raise ValueError("--system-read-review requires --calendar-review")
     out = out.resolve()
     if not out.is_relative_to(ROOT / "build"):
         raise ValueError("Complete Shell candidates belong in this worktree build/")
@@ -108,6 +111,11 @@ def prepare(out, native_prototype=False, calendar_review=False, qq_login_review=
         if digest(patches["qq_login_review"]) != "0415463dc87bba93b8867d1476f12260ac366eaf7be9a2c9380640d8437d5b25":
             raise ValueError("Reviewed QQ login patch changed")
         apply(host, patches["qq_login_review"])
+    if system_read_review:
+        patches["system_read_review"] = ROOT / "official_muse/semifinal/evidence/native-full-shell-r1/calendar-system-read-cold-load.patch"
+        if digest(patches["system_read_review"]) != "26267dc6ba172efbde0c2136ab65d8a7d164f65f6446cdf66c713fc02f755899":
+            raise ValueError("Reviewed Calendar read-only cold-load patch changed")
+        apply(host, patches["system_read_review"])
     # Consumer [patch] tables, not a second registry/service implementation.
     cargo = (host / "Cargo.toml").read_text()
     contract_pin = ('octosense-app-contract = { git = "https://github.com/OctoSense-org/OctoSense-App-Hub", '
@@ -142,6 +150,7 @@ def prepare(out, native_prototype=False, calendar_review=False, qq_login_review=
               "native_prototype": native_prototype,
               "calendar_review_proposal": calendar_review,
               "qq_login_review_proposal": qq_login_review,
+              "system_read_review_proposal": system_read_review,
               "native_registry_read_grants": ["os.calendar/calendar.events"] if native_prototype else [],
               "kernel": "Locked official binary and receipt still required separately",
               "boundary": "Host proposal only; not upstream accepted, not installed, not runtime or admission evidence"}
@@ -158,6 +167,8 @@ if __name__ == "__main__":
                         help="Include the companion Calendar proposal and metadata tests; not upstream acceptance or a grant")
     parser.add_argument("--qq-login-review", action="store_true",
                         help="Include the Chinese QQ login UI proposal; keeps the Mail protocol and credential boundary")
+    parser.add_argument("--system-read-review", action="store_true",
+                        help="Requires --calendar-review; cold-loads only the existing read diagnostic, adds no System grant")
     args = parser.parse_args()
     prepare(args.out, native_prototype=args.native_prototype, calendar_review=args.calendar_review,
-            qq_login_review=args.qq_login_review)
+            qq_login_review=args.qq_login_review, system_read_review=args.system_read_review)

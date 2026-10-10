@@ -1,0 +1,141 @@
+{
+  "state": "PASS_COLD_READ_DIAGNOSTIC_ONLY",
+  "binary_sha256": "baf55d24c3245ca858e68b9776d7f470558d619c65edc4ce288ceb90c8a276b7",
+  "kernel_receipt": {
+    "source": "prebuilt",
+    "revision": "b0759a57719fd35b3a2da1c5d969bc67538ed516",
+    "version": "octos 2.0.3-rc.13 (b0759a5 2026-10-11)",
+    "sha256": "9c3d4b947a9f90f19acfabad0f90cc891525751d418cb333e6e1d83220c4fb0a"
+  },
+  "calls": [
+    {
+      "id": "cacf1da8-fb6e-4714-a04e-32e03f8e2364",
+      "time": "2026-10-11T06:26:17.330430+08:00",
+      "tool": "calendar.events",
+      "args": {
+        "limit": 1
+      },
+      "expected": "empty_events",
+      "log_offset": 17143,
+      "reply": {
+        "call_id": "system-call-1",
+        "data": {
+          "events": []
+        },
+        "ok": true
+      },
+      "matched": true
+    },
+    {
+      "id": "61769c30-9fd4-4243-8344-606bf8a2c441",
+      "time": "2026-10-11T06:26:17.414027+08:00",
+      "tool": "calendar.events",
+      "args": {
+        "limit": 0
+      },
+      "expected": "invalid_args",
+      "log_offset": 17280,
+      "reply": {
+        "call_id": "system-call-2",
+        "error": {
+          "kind": "invalid_args",
+          "message": "calendar.events: $.limit: below the minimum 1"
+        },
+        "ok": false
+      },
+      "matched": true
+    },
+    {
+      "id": "49e6d5ce-a5da-43f6-aa1f-603ced3cb8cf",
+      "time": "2026-10-11T06:26:17.437466+08:00",
+      "tool": "calendar.get_event",
+      "args": {
+        "id": "MUSE-N002-READ-ABSENT"
+      },
+      "expected": "not_granted",
+      "log_offset": 17627,
+      "reply": {
+        "call_id": "system-call-3",
+        "error": {
+          "kind": "not_granted",
+          "message": "calendar.get_event is not granted to The system agent"
+        },
+        "ok": false
+      },
+      "matched": true
+    },
+    {
+      "id": "18d636c5-e60a-4d54-a2e9-489303ca43f2",
+      "time": "2026-10-11T06:26:17.532627+08:00",
+      "tool": "calendar.add_event",
+      "args": {},
+      "expected": "readonly_refusal",
+      "log_offset": 17973,
+      "observed_refusal": "[system-call] calendar.add_event: a test call runs only a declared read tool",
+      "matched": true
+    },
+    {
+      "id": "a95cc94b-1e5e-499b-9959-972b5b848a86",
+      "time": "2026-10-11T06:26:17.559037+08:00",
+      "tool": "calendar.update_event",
+      "args": {},
+      "expected": "readonly_refusal",
+      "log_offset": 18097,
+      "observed_refusal": "[system-call] calendar.update_event: a test call runs only a declared read tool",
+      "matched": true
+    },
+    {
+      "id": "f05bf5c4-4955-40ae-af45-8f9a4ef9c882",
+      "time": "2026-10-11T06:26:17.580297+08:00",
+      "tool": "calendar.remove_event",
+      "args": {},
+      "expected": "readonly_refusal",
+      "log_offset": 18224,
+      "observed_refusal": "[system-call] calendar.remove_event: a test call runs only a declared read tool",
+      "matched": true
+    },
+    {
+      "id": "5014d1ab-c39f-4ef5-9957-f8d0cee0cfac",
+      "time": "2026-10-11T06:26:17.624528+08:00",
+      "tool": "calendar.notify",
+      "args": {},
+      "expected": "readonly_refusal",
+      "log_offset": 18351,
+      "observed_refusal": "[system-call] calendar.notify: a test call runs only a declared read tool",
+      "matched": true
+    },
+    {
+      "id": "a66b6bba-c17f-478d-a24d-1bef8ddfa33f",
+      "time": "2026-10-11T06:26:17.632706+08:00",
+      "tool": "calendar.events",
+      "args": {
+        "limit": 1
+      },
+      "expected": "empty_events",
+      "log_offset": 18472,
+      "reply": {
+        "call_id": "system-call-4",
+        "data": {
+          "events": []
+        },
+        "ok": true
+      },
+      "matched": true
+    }
+  ],
+  "boundary": "Patched cold-read diagnostic entry only; no Muse/Agent Relay, Person, consent, model or private store access",
+  "shutdown": {
+    "remote_quit": true,
+    "fallback": false,
+    "exit": 0,
+    "reply": "{\"ok\":1}",
+    "time": "2026-10-11T06:26:17.730769+08:00"
+  },
+  "pid": 80978,
+  "started": "2026-10-11T06:26:15.635006+08:00",
+  "window": 0,
+  "runtime_errors": [],
+  "raw_record_sha256": "c9904089032a7977174e676a93f504fca8f8fc8335802297efc8dc08be3ef0b0",
+  "runner_sha256": "8f506632a7d4d82ca78e3736783e378de514873bbc7f18b790b0419927a1602b",
+  "raw_evidence": "build/runtime-closure-system-read-r8-r1"
+}

@@ -1,0 +1,102 @@
+{
+  "binary_bytes": 124126536,
+  "binary_sha256": "baf55d24c3245ca858e68b9776d7f470558d619c65edc4ce288ceb90c8a276b7",
+  "boundary": "Calendar read-only test entry cold-loading proposal; original System grants and admission retained, not Muse Relay or upstream accepted",
+  "build": {
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "-p",
+      "octosense",
+      "--bin",
+      "octosense",
+      "--no-default-features",
+      "--features",
+      "app-hub,octos-core,app-muse-native-prototype"
+    ],
+    "exit": 0,
+    "log_sha256": "eb7ab6fd47e4bee3731c1abd44fa240a5a4249ee0fe0081415e4a5bcde85844c",
+    "seconds": 204.443411509
+  },
+  "finished_at": "2026-10-11T06:24:08.860634+08:00",
+  "inputs_sha256": "8d8f910d1dda9da481b2191cf91281abc644910d9dec285df803971546b771dc",
+  "inputs_unchanged": true,
+  "results": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-shell",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "app-hub,octos-core,app-muse-native-prototype",
+        "host_tools::tests::cold_system_calendar_read_loads_owner_without_new_system_grants",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "filter": "host_tools::tests::cold_system_calendar_read_loads_owner_without_new_system_grants",
+      "log_sha256": "fb39275a8a8ce6ebd8706b2d13df891f8983cd85b042427b72ac1bb89eef08d7",
+      "seconds": 253.565822792
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-shell",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "app-hub,octos-core,app-muse-native-prototype",
+        "host_tools::tests::another_apps_agent_needs_a_grant_and_the_system_agent_its_own",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "filter": "host_tools::tests::another_apps_agent_needs_a_grant_and_the_system_agent_its_own",
+      "log_sha256": "db7e689949f3d6e6cf5951bdb852ebf4f956e02ce0a36b92ef9e9c309ffc1a00",
+      "seconds": 4.233182247999991
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--release",
+        "-p",
+        "octosense-shell",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "app-hub,octos-core,app-muse-native-prototype",
+        "host_tools::tests::a_grants_owner_is_the_namespaces_app_never_the_first_declarer",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "filter": "host_tools::tests::a_grants_owner_is_the_namespaces_app_never_the_first_declarer",
+      "log_sha256": "c1abb712ff3496273805f0cce7d812dcbc7264b0cefb0fc4ff42f49e3705243a",
+      "seconds": 2.9979243260000317
+    }
+  ],
+  "started_at": "2026-10-11T06:16:12.841343+08:00",
+  "state": "BUILT_FROZEN_NOT_RUNTIME_VERIFIED",
+  "raw_record_sha256": "4d78fef627d7d401bc37fb76f860e0a9fc8bc513b75d034eb217983f4b031504",
+  "raw_evidence": "build/runtime-closure-calendar-cold-read-r8"
+}
