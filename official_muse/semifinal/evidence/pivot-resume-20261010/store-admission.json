@@ -1,0 +1,114 @@
+{
+  "kind": "SIGNED_FIXTURE_REAL_STORE_ADMISSION",
+  "status": "PASS_STORE_FIXTURE_ONLY",
+  "verified_at": "2026-10-10T21:38:53.726684+08:00",
+  "executed_by": "central_serial_scheduler",
+  "central_reported_exit_code": 0,
+  "log_verified_passed": 8,
+  "log_verified_failed": 0,
+  "test_seconds": 1.02,
+  "build_elapsed_seconds": 208,
+  "build_elapsed_includes_package_cache_wait": true,
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "build/calendar-per-app-store-r3/Cargo.toml",
+    "--target-dir",
+    "build/official-hub-rc2-target",
+    "-p",
+    "octosense-app-hub",
+    "--test",
+    "per_app_offer",
+    "--",
+    "--test-threads=1"
+  ],
+  "environment": {
+    "CARGO_BUILD_JOBS": "1"
+  },
+  "checks": {
+    "patch_reverse_apply_check": true,
+    "test_source_matches_owned_source": true,
+    "patch_sha_matches_preparation": true,
+    "resolved_lock_matches_prepared_hub_lock": false
+  },
+  "files": {
+    "test_binary": {
+      "path": "build/official-hub-rc2-target/debug/deps/per_app_offer-16540a79e91eb6e9",
+      "sha256": "7a9684692186714fef52673c5bb4ff8cfc8f79686ea5248822374141f5fb3daf",
+      "bytes": 28785368
+    },
+    "test_log": {
+      "path": "build/calendar-per-app-store-r3/test-r2.log",
+      "sha256": "560d0d2f19b9bf95622c75d2c43163f0f4bc5dfbdee6952a804fbc2a38de3db9",
+      "bytes": 15870
+    },
+    "patched_store": {
+      "path": "build/calendar-per-app-store-r3/crates/app-hub/src/client.rs",
+      "sha256": "9272ab679a30321bc7f48cc1e464a396eca91b2ea79593e70101a1fcff4d9bc4",
+      "bytes": 37565
+    },
+    "compiled_test_source": {
+      "path": "build/calendar-per-app-store-r3/crates/app-hub/tests/per_app_offer.rs",
+      "sha256": "0d7f929a30d489d9ba8387660cb004edd93c0d4f8c8a916d6cd796f89a08629f",
+      "bytes": 7054
+    },
+    "fixture_common": {
+      "path": "build/calendar-per-app-store-r3/crates/app-hub/tests/common/mod.rs",
+      "sha256": "15ec824773a68d0e879dc91d2037829bd7ecdfdf317ef694e7e21f70e2d5995d",
+      "bytes": 4386
+    },
+    "review_patch": {
+      "path": "official_muse/semifinal/calendar_integration/hub-per-app-store-offer.patch",
+      "sha256": "bbf9b1a2066074b3f44299208f1dafaa16ae5ecaa156c0eb69eeb456bb1260c1",
+      "bytes": 11032
+    },
+    "resolved_lock": {
+      "path": "build/calendar-per-app-store-r3/Cargo.lock",
+      "sha256": "96dec86d1a3712c3a63b6365e0b66bbb6d04660f831dc1fc8a2a51bbe3e5abe2",
+      "bytes": 79606
+    },
+    "prepared_hub_lock": {
+      "path": ".local-state/hub-contract-sdk/app-hub/Cargo.lock",
+      "sha256": "00615a6f3baae357d81cf413721a0a0082df1c863ca16a3803daab40515006b3",
+      "bytes": 68475
+    },
+    "baseline_store": {
+      "path": ".local-state/hub-contract-sdk/app-hub/crates/app-hub/src/client.rs",
+      "sha256": "27701be87130900ee6981243569f135f0f1d3042ccd73649ead58407548cc54e",
+      "bytes": 35830
+    },
+    "retained_r2_failed_log": {
+      "path": "build/calendar-per-app-store-r2/test-r1.log",
+      "sha256": "06f593652e2bd1609a1c8506652cb442f16bdb6eb4e4c6b75280d2c37af53423",
+      "bytes": 16700
+    }
+  },
+  "tests": [
+    "test default_is_closed_and_one_app_offer_does_not_extend_another ... ok",
+    "test enabled_offer_does_not_bypass_bundle_digest ... ok",
+    "test exact_offer_cannot_admit_a_second_requested_tool ... ok",
+    "test host_offer_does_not_grant_a_tool_absent_from_the_manifest ... ok",
+    "test offer_refuses_unverified_publisher_and_unsigned_manifests ... ok",
+    "test revoke_rechecks_installed_and_already_prepared_launches ... ok",
+    "test signed_catalog_withdrawal_still_blocks_installed_and_prepared_release ... ok",
+    "test unknown_and_reserved_ids_never_receive_an_offer ... ok"
+  ],
+  "boundaries": {
+    "shell_wiring": "NOT_IMPLEMENTED",
+    "real_user_consent": "NOT_TESTED",
+    "relay": "NOT_TESTED",
+    "calendar_crud": "NOT_TESTED",
+    "official_approval": "NOT_GRANTED",
+    "overall": "BLOCKED"
+  },
+  "prior_failure": "r2 conflicting public keys for publisher key publisher-one; retained; not overwritten",
+  "lock_difference": {
+    "added_package_identities": 103,
+    "removed_package_identities": 132,
+    "command_used_locked": false,
+    "comparison": "name/version/source identities only; not dependency-edge equality",
+    "parsing_note": "System Python lacks tomllib; bounded package identity extraction used instead"
+  }
+}

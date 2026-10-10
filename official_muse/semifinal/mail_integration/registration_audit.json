@@ -1,0 +1,21 @@
+{
+  "kind": "READ_ONLY_MAIL_REGISTRATION_SOURCE_AUDIT",
+  "checks": {
+    "release_binary_matches_recorded_sha": true,
+    "reference_registers_calendar": true,
+    "reference_has_no_mail_dependency": true,
+    "reference_has_no_mail_registration": true,
+    "official_shell_registers_mail": true,
+    "official_shell_mounts_smtp_review": true,
+    "official_shell_registers_review_widget": true,
+    "missing_review_hook_fails_closed": true,
+    "foreground_required": true,
+    "physical_down_and_up_required": true,
+    "ui_uses_trusted_physical_input": true,
+    "account_grants_are_app_scoped": true
+  },
+  "status": "PASS_SOURCE_AUDIT",
+  "host_sha256": "8d13132a004623761b2a529e19fa8d306fb69bc27ad4524f5cc5b49706cac7a7",
+  "reference_source_identity_boundary": "r5 native source inspected; release report has no frozen source manifest, so binary/source correspondence is not proven",
+  "boundary": "Source assertions only; no runtime dispatch, login, native review, delivery or receipt verification."
+}

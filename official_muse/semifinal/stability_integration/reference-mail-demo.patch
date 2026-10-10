@@ -1,0 +1,13 @@
+--- a/native/Cargo.toml
++++ b/native/Cargo.toml
+@@ -24,2 +24,3 @@
+ [dependencies]
++octosense-mail-service = { path = "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/.local-state/official-rc2-source/apps/mail/host-service" }
+ octosense-calendar-service = {path = "../calendar"}
+--- a/native/src/main.rs
++++ b/native/src/main.rs
+@@ -24,3 +24,4 @@
+ fn main() {
+     octosense_calendar_service::register();
++    octosense_mail_service::register_demo();
+     match args::parse(std::env::args().skip(1)) {
