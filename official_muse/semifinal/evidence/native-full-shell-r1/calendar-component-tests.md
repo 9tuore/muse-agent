@@ -19,3 +19,7 @@ The original `calendar-tool-contract-test.patch` and failing log are retained. T
 ## Scope
 
 Shareability does not grant Muse access or approve a write. The Native prototype still has only `os.calendar/calendar.events`. Store admission, trusted Person consent, real Muse Relay, independent live UI/Agent readback, Mail delivery, T18 and the final same-candidate 20 cold starts remain separate gates. All real Calendar writes, SMTP sends and model turns in this test sequence were zero.
+
+## Privacy annotation follow-up — 05:41
+
+The exact-get proposal now declares `private_data:true`, matching the existing events tool. `calendar-get-private-data.patch` is a separate overlay; the original frozen proposal remains unchanged. Actual admitted-bundle contract recheck passed once with the new metadata using the existing compiled Shell test binary. No new grant or automatic approval was introduced. The service implementation bytes remain unchanged. Receipt: `calendar-private-data-result.json`.
