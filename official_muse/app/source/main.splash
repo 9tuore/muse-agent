@@ -4733,13 +4733,21 @@ fn mail_send_receipt_step(context,phase){
             start_timeout(0.05,|| mail_redraw()) return
         }
     }
-    if phase == 2 {
+    if phase == 2 && context["unsent"] == true && context.goal_id != "" && context.run_id != "" {
+        // A definite pre-send refusal closes only this bound run. UNKNOWN and
+        // accepted operations remain pending until independently reconciled.
+        if !core_finish_run(context.goal_id,context.run_id,"failed","") {
+            mail_sending = false mail_error = "邮件未发送，但任务状态尚未对齐。请核对原记录；不会重发。"
+            start_timeout(0.05,|| mail_redraw()) return
+        }
+    }
+    if phase == 3 {
         let kind = "error" let detail = "邮件发送结果未知，禁止自动重发。"
         if context.accepted { kind = "MAIL_ACCEPTED" detail = "新邮件已获宿主 SMTP 服务受理；收件端未核验。" }
         if context["unsent"] == true { kind = "MAIL_NOT_SENT" detail = context.notice }
         core_record_event(kind,detail,context.goal_id,context.run_id,context.request_id,context.snapshot.account)
     }
-    if phase < 3 { start_timeout(0.05,|| mail_send_receipt_step(context,phase+1)) return }
+    if phase < 4 { start_timeout(0.05,|| mail_send_receipt_step(context,phase+1)) return }
     mail_sending = false
     if context.accepted { mail_notice = "邮箱服务已受理；收件端投递尚未核验。" }
     else if context["unsent"] == true { mail_error = "" mail_notice = context.notice }

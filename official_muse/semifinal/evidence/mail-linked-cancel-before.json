@@ -1,0 +1,146 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FAIL",
+  "suite": "production",
+  "source_sha256": "c13a81f2a2a7316aaa1de5e55675c2661c7ca03a2a7342ebe0f12d4625d82990",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "runner_sha256": "79602d6434e72d144ccabd4052d9c78fa5a537689f14b7766b8bfcb553aa4b76",
+  "probe_sha256": "8ca3c99f8bfd8dae7ba18826b01715bb85ed59ef5c087b8065a9e745e89e5d3e",
+  "executed_sha256": "60675c3cdb876356a89dfe6aa8f596367b3b727c4749c2c637dcdcccd774600d",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [
+    "linked_cancel_run_closed",
+    "linked_cancel_goal_retryable",
+    "linked_cancel_persisted"
+  ],
+  "checks": {
+    "internal_calendar_not_private_bridge": true,
+    "calendar_blocked_without_relay": true,
+    "discovery_error_not_cached": true,
+    "discovery_recovers": true,
+    "host_compose_identity_persisted": true,
+    "review_binds_host_revision": true,
+    "accepted_not_delivery": true,
+    "native_cancel_preserves_text": true,
+    "unknown_not_retried": true,
+    "readonly_reconciliation": true,
+    "linked_cancel_setup": true,
+    "linked_cancel_run_closed": false,
+    "linked_cancel_goal_retryable": false,
+    "linked_cancel_handwritten_preserved": true,
+    "linked_cancel_persisted": false,
+    "no_legacy_host_calls": true
+  },
+  "calls": [
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "runtime.list",
+      "args": {}
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Synthetic",
+        "body": "Synthetic body",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-mail",
+        "compose_id": "compose-synthetic"
+      }
+    },
+    {
+      "method": "mail.compose",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Linked synthetic",
+        "body": "Keep handwritten text"
+      }
+    },
+    {
+      "method": "mail.review_send",
+      "args": {
+        "account": "synthetic-mail",
+        "to": "test@example.invalid",
+        "subject": "Linked synthetic",
+        "body": "Keep handwritten text",
+        "compose_id": "compose-synthetic",
+        "expected_revision": 1
+      }
+    }
+  ],
+  "observations": {
+    "linked_cancel": {
+      "run_status": "running",
+      "goal_status": "running"
+    }
+  },
+  "runtime_errors": [],
+  "runtime_log_sha256": "e28cb0f285f50bc8ad10eaf1155d65a97b14040eb44cf814190528f65bf33353"
+}

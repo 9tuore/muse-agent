@@ -1,0 +1,408 @@
+{
+  "kind": "TWO_REAL_VM_PROCESS_RESTART_SYNTHETIC_OFFICIAL_PROTOCOL",
+  "status": "FIXTURE_PASS",
+  "source_sha256": "9c0d6c20a3a086c0d53f9967ad3d2a0c5f01004785642185b0068f7affb698e3",
+  "host_sha256": "46a4d16dc4ac7cfcc33b866643e777524cdb8a87d2c5022d44ae1c24e8c5a0fe",
+  "probe_sha256": "5e3e400c51b1d371c38470ed558431a98fc90e07d06be340fd9e43395d58ef3c",
+  "runner_sha256": "3b54b00bd18038aee20517454c57fe9f1bae856e08b67d5d4cfa31f34b7a88c4",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "cases": [
+    {
+      "case": "prepare",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "1881bb94c4da4333b88f2a35c5577a2dd36cdfb480419f24bfcba77c1adbbe0d",
+      "pid": 23299,
+      "checks": {
+        "first_action_persisted": true,
+        "prepared_persisted": true,
+        "first_review_exact": true
+      },
+      "calls": [
+        {
+          "method": "runtime.list",
+          "args": {}
+        },
+        {
+          "method": "mail.compose",
+          "args": {
+            "account": "synthetic-account",
+            "to": "self@example.invalid",
+            "subject": "Synthetic restart",
+            "body": "Synthetic original body"
+          }
+        },
+        {
+          "method": "mail.review_send",
+          "args": {
+            "account": "synthetic-account",
+            "to": "self@example.invalid",
+            "subject": "Synthetic restart",
+            "body": "Synthetic original body",
+            "compose_id": "compose-interrupted",
+            "expected_revision": 1
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "host_revision": 1,
+        "verified_id": "",
+        "status": "sending",
+        "incoming_key": "",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "account": "synthetic-account",
+        "link_run_id": "",
+        "to": "self@example.invalid",
+        "accepted_at": 0,
+        "link_event_id": "",
+        "host_compose_id": "compose-interrupted",
+        "subject": "Synthetic restart",
+        "verified_at": 0,
+        "link_goal_id": "",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "request_id": "mail-synthetic-interrupted"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "90df178133b0f9829b2ae23317f3ead59fec5917eafaa8560d95a92d6ab7efca"
+    },
+    {
+      "case": "accepted",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "459def550bcd7e9c6b9a846a4b589a4090430d565b1dd371ca265816ec0928f6",
+      "pid": 23304,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "reconciled_receipt": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 1791608296.001617,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "accepted",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "aaccbaf90c20c834a9ccbbdbd149756484d00df28da32509016620d741ac0f65"
+    },
+    {
+      "case": "wrong_revision",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "979fa59000c336faea3416ce55ecabe018dd059acb24f2ce281506159f7ff107",
+      "pid": 23318,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "d2e37c59ce29715993da0f76bea4c853a4e942d4aa3fcdbc3b2c219a386c393d"
+    },
+    {
+      "case": "wrong_account",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "6346476546e27376ef164e1d8b230f7740c4ed42d50dd39126264933f1b64da4",
+      "pid": 23326,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "315370b958db92abf037f3a8aadc0219ee3f4c1f770462aa48455797a67e8d87"
+    },
+    {
+      "case": "wrong_body",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "5e430158029ab5a0e0cb7ed1340ba2862d3d829e12cce09f66070598b5b607b0",
+      "pid": 23350,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "3f8d09bbcf01fe86426b33cb3126c4ae3b30d7d0897fee1c5446e2b0554c372c"
+    },
+    {
+      "case": "still_draft",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "54c76aa2eab65dc8e3e7c9831a3c64a6f19bd54490d26380b9d7e6bc09eb2384",
+      "pid": 23367,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "71511382f3f55601960bb309af4edd2b01af4cc6ed226048fdfec05e0a624bd1"
+    },
+    {
+      "case": "host_error",
+      "status": "FIXTURE_PASS",
+      "executed_sha256": "779ca36c605a1b3991e4b9ae2428badd53bdb03e42e644a9c548f8124c5ceef2",
+      "pid": 23376,
+      "checks": {
+        "interrupted_action_unknown": true,
+        "interrupted_draft_unknown": true,
+        "host_identity_restored": true,
+        "original_text_restored": true,
+        "zero_replay_on_boot": true,
+        "same_payload_still_blocked": true,
+        "direct_send_guard": true,
+        "only_readonly_reconciliation": true,
+        "unmatched_receipt_not_adopted": true,
+        "no_delivery_claim": true,
+        "still_single_action": true
+      },
+      "calls": [
+        {
+          "method": "mail.accounts",
+          "args": {}
+        },
+        {
+          "method": "mail.compose_status",
+          "args": {
+            "account": "synthetic-account",
+            "compose_id": "compose-interrupted"
+          }
+        }
+      ],
+      "draft": {
+        "body": "Synthetic original body",
+        "preview": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "attempt": "{\"account\":\"synthetic-account\",\"to\":\"self@example.invalid\",\"subject\":\"Synthetic restart\",\"body\":\"Synthetic original body\"}",
+        "verified_id": "",
+        "accepted_at": 0,
+        "verified_at": 0,
+        "link_goal_id": "",
+        "link_event_id": "",
+        "link_run_id": "",
+        "status": "unknown",
+        "incoming_key": "",
+        "host_compose_id": "compose-interrupted",
+        "host_revision": 1,
+        "account": "synthetic-account",
+        "request_id": "mail-synthetic-interrupted",
+        "to": "self@example.invalid",
+        "subject": "Synthetic restart"
+      },
+      "action_count": 1,
+      "failed": [],
+      "runtime_errors": [],
+      "runtime_log_sha256": "cf1d718b211876e81a0a201965decb1091907f0bc38c7b5beb2723ebf56dbc4a"
+    }
+  ],
+  "boundary": "Real jailed storage/process recovery, mocked Host replies. Not native review, admission, SMTP or delivery acceptance."
+}

@@ -172,6 +172,39 @@ fn probe_mail_reconciled(){
         calendar_device_selections = [] calendar_boot()
         probe_checks.selected_handles_restore = calendar_device_selections.to_json() == prior
     }
+    start_timeout(0.04,|| probe_linked_cancel())
+}
+fn probe_linked_cancel(){
+    probe_mode = "cancel_mail"
+    let snapshot = {account: "synthetic-mail" to: "test@example.invalid" subject: "Linked synthetic" body: "Keep handwritten text"}
+    let id = "synthetic-linked-mail"
+    let goal = {schema: 1 id: id version: 1 goal: "Synthetic linked reply" source: "Synthetic source" items: ["Synthetic source"]
+        project_id: "synthetic-project" owner_id: "synthetic-owner" status: "planned" phase: "mail" approved_at: 0
+        model_summary: "" result_path: "results/synthetic-linked-mail.json" updated_at: time_now() archived: false
+        goal_spec: mail_goal_spec(id,1,"Synthetic linked reply","results/synthetic-linked-mail.json",snapshot.to_json())}
+    let added = core_add_goal(goal)
+    let run_id = core_start_run(id,1,"synthetic-linked-cancel")
+    probe_checks.linked_cancel_setup = added && run_id != nil
+    if run_id == nil { probe_finish() return }
+    mail_account = {id: snapshot.account}
+    mail_draft = {account: snapshot.account to: snapshot.to subject: snapshot.subject body: snapshot.body status: "sending"
+        preview: snapshot.to_json() attempt: snapshot.to_json() request_id: "synthetic-linked-cancel"
+        accepted_at: 0 verified_at: 0 verified_id: "" link_goal_id: id link_run_id: run_id incoming_key: ""}
+    if !core_begin_action(id,run_id,1,"mail.send",snapshot.account,mail_draft.request_id,mail_draft.preview) {
+        probe_checks.linked_cancel_setup = false probe_finish() return
+    }
+    mail_sending = true
+    mail_compose_before_review({request_id: mail_draft.request_id payload: snapshot.to_json() snapshot: snapshot goal_id: id run_id: run_id})
+    start_timeout(0.04,|| probe_linked_cancel_result(run_id,0))
+}
+fn probe_linked_cancel_result(run_id,tries){
+    if mail_sending && tries < 50 { start_timeout(0.04,|| probe_linked_cancel_result(run_id,tries+1)) return }
+    let saved = storage_read("goals.json").parse_json()
+    probe_checks.linked_cancel_run_closed = runs[core_run_index(run_id)].status == "failed"
+    probe_checks.linked_cancel_goal_retryable = goals[core_goal_index("synthetic-linked-mail")].status == "failed"
+    probe_checks.linked_cancel_handwritten_preserved = mail_draft.status == "DRAFT" && mail_draft.body == "Keep handwritten text"
+    probe_checks.linked_cancel_persisted = saved.runs[saved.runs.len()-1].status == "failed"
+    probe_observed.linked_cancel = {run_status: runs[core_run_index(run_id)].status goal_status: goals[core_goal_index("synthetic-linked-mail")].status}
     probe_finish()
 }
 start_timeout(0.05,|| probe_start())
