@@ -31,6 +31,7 @@ def main():
     parser.add_argument("--host-cwd", type=Path, required=True)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--bundle", type=Path, required=True)
+    parser.add_argument("--probe", type=Path, default=ROOT / "official_muse/semifinal/stability_integration/unknown_restart_proposal.splash")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--port", type=int, required=True)
     args = parser.parse_args()
@@ -63,7 +64,7 @@ def main():
     changed = [name for name in before if before[name] != after[name].replace("fixture_request(", "host.request(")]
     if sorted(changed) != ["redraw", "set_page"]:
         raise ValueError("Unexpected production-function substitution")
-    probe = ROOT / "official_muse/semifinal/stability_integration/unknown_restart_proposal.splash"
+    probe = args.probe.resolve(strict=True)
     transport = '''\nlet fixture_calls = []
 fn fixture_request(service,payload,callback){
     fixture_calls.push({service:service payload:payload})
@@ -80,6 +81,7 @@ fn fixture_request(service,payload,callback){
     report = {"kind": "TWO_PROCESS_SYNTHETIC_REFERENCE_VM_RECOVERY", "status": "ERROR",
               "source_sha256": sha(source_path), "host_sha256": sha(host), "probe_sha256": sha(probe),
               "runner_sha256": sha(Path(__file__)), "executed_sha256": sha(bundle / "main.splash"),
+              "probe_path": str(probe.relative_to(ROOT)),
               "input_manifest_sha256": input_manifest_sha256,
               "fixture_manifest_not_candidate_admission": True,
               "fixture_manifest_host_api": manifest.get("host_api", {}),

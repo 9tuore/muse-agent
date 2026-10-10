@@ -1,0 +1,47 @@
+--- a/official_muse/semifinal/stability_integration/unknown_restart_proposal.splash
++++ b/official_muse/semifinal/stability_integration/unknown_restart_proposal.splash
+@@ -1,5 +1,5 @@
+ // PROPOSED two-process fixture; same jailed fs, no real Calendar/tool operation.
+-// A missing verified-history baseline remains a failed prerequisite, never fake verified.
++// Supplemental variant: verified is explicitly synthetic persistence INPUT, not Calendar evidence.
+ let ur_checks = {}
+ let ur_goal = "synthetic-unknown-restart-goal"
+ let ur_request = "synthetic-unknown-restart-request"
+@@ -11,10 +11,21 @@
+     for link in calendar_links { if link.status == "verified" { kept.links.push(link) } }
+     return kept
+ }
++// Only persistence APIs prepare the test INPUT; no Calendar readback or tool is simulated.
++fn ur_seed_retention_input(){
++    let request = "synthetic-retention-history-request"
++    let payload = {calendar_id: "synthetic-retention-calendar" request_id: request
++        fixture_origin: "SYNTHETIC_RETENTION_INPUT" title: "No real event or independent verification"}
++    if !core_begin_action("","",0,"synthetic.retention",payload.calendar_id,request,payload.to_json()) { return false }
++    if !core_finish_action(request,"verified") { return false }
++    return calendar_store_receipt(request,"","","synthetic.retention",payload,
++        "synthetic-retention-event","synthetic-retention-v1","verified")
++}
+ fn ur_report(phase){
+     ur_checks.zero_transport = fixture_calls.len() == 0
+     ur_checks.forbidden_calls = []
+     for call in fixture_calls { ur_checks.forbidden_calls.push(call.service) }
++    ur_checks.history_origin = "SYNTHETIC_RETENTION_INPUT_NOT_INDEPENDENT_CALENDAR_EVIDENCE"
+     ur_checks.phase = phase
+     ur_checks.fixture_boundary = "Synthetic local journal recovery only; no live Calendar/Relay/consent proof"
+     fs.write("probe.json",ur_checks.to_json())
+@@ -24,9 +35,14 @@
+     ur_checks.boot_ready = core_boot_goals() && calendar_boot()
+     if !ur_checks.boot_ready { ur_report("boot_failed") return }
+     if second { ur_resume() return }
++    ur_checks.synthetic_history_saved = ur_seed_retention_input()
++    if !ur_checks.synthetic_history_saved { ur_report("synthetic_history_setup_failed") return }
++    start_timeout(0.05,|| ur_prepare_inflight())
++}
++fn ur_prepare_inflight(){
+     let history = ur_history()
+     ur_checks.verified_history_available = history.actions.len() > 0 && history.receipts.len() > 0
+-    // Central may preload proven synthetic history; this fixture never fabricates it.
++    // This baseline is synthetic input for retention only, never independent verification.
+     let goal = {schema: 1 id: ur_goal version: 1 goal: "Synthetic interrupted Calendar"
+         source: "Synthetic source" items: ["Synthetic source"] status: "planned" archived: false
+         approved_at: 0 updated_at: time_now() model_summary: "" result_path: "results/synthetic-unknown.json"}

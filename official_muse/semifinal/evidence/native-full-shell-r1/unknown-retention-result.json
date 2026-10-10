@@ -1,0 +1,81 @@
+{
+  "kind": "TWO_PROCESS_SYNTHETIC_REFERENCE_VM_RECOVERY",
+  "status": "FIXTURE_PASS",
+  "source_sha256": "2253e9f00e8a0a57b713c316db2c40d26e5c937beef54703833a52cdee6cb7fa",
+  "host_sha256": "78ab9efce55cb692552a3566e7b579d2e8c304eadfd6b107c51b2efb027e34db",
+  "probe_sha256": "a3a5f2bc37769971a5d78c6a503e0881bea94f0b7de72d31f9ac378da2a9906e",
+  "runner_sha256": "f61100d1d438c89dbfe8cbc0b2119a56bc092f56d687a68730966c46dc4c4186",
+  "executed_sha256": "bfc317b5603031f7e44035b9971583db51a1052209d1ceb63d3103881cb67302",
+  "input_manifest_sha256": "f92511da95885da77a3f53fe2c7a6edc184d47dd403ca7c2485f1157768801e0",
+  "fixture_manifest_not_candidate_admission": true,
+  "production_substitutions": [
+    "set_page",
+    "redraw"
+  ],
+  "calendar_enabled_unmodified": true,
+  "live_mail": false,
+  "live_calendar": false,
+  "native_consent": false,
+  "started_at": "2026-10-11T05:27:30.764506+08:00",
+  "finished_at": "2026-10-11T05:27:32.700923+08:00",
+  "processes_distinct": true,
+  "failed": [],
+  "unknown_recovery_checks_pass": true,
+  "history_origin": "SYNTHETIC_RETENTION_INPUT_NOT_INDEPENDENT_CALENDAR_EVIDENCE",
+  "original_r2_status": "PARTIAL_MISSING_VERIFIED_HISTORY",
+  "original_failed_evidence_preserved": true,
+  "raw_report_sha256": "06b1467b9d9064f6c981229bbd63fb6f76e0aa7f957fda2958a60db400c3be3b",
+  "phases": [
+    {
+      "phase": 1,
+      "pid": 60622,
+      "result": {
+        "boot_ready": true,
+        "synthetic_history_saved": true,
+        "verified_history_available": true,
+        "goal_saved": true,
+        "run_saved": true,
+        "action_saved": true,
+        "link_saved": true,
+        "persisted_in_flight": true,
+        "zero_transport": true,
+        "forbidden_calls": [],
+        "history_origin": "SYNTHETIC_RETENTION_INPUT_NOT_INDEPENDENT_CALENDAR_EVIDENCE",
+        "phase": "phase1_saved_stop_process",
+        "fixture_boundary": "Synthetic local journal recovery only; no live Calendar/Relay/consent proof"
+      },
+      "runtime_errors": [],
+      "shutdown": "remote_quit",
+      "exit": 0,
+      "log_sha256": "c33d948102fc3dc493e4a35e0a145625055ca90bf01968abfdd91a7f9f662333"
+    },
+    {
+      "phase": 2,
+      "pid": 60625,
+      "result": {
+        "rejected_attempt_no_journal_change": true,
+        "forbidden_calls": [],
+        "phase": "phase2_new_process_recovered",
+        "fixture_boundary": "Synthetic local journal recovery only; no live Calendar/Relay/consent proof",
+        "same_request_rejected": true,
+        "link_unknown": true,
+        "action_identity_payload_retained": true,
+        "original_records_exist": true,
+        "same_payload_calendar_guard": true,
+        "history_origin": "SYNTHETIC_RETENTION_INPUT_NOT_INDEPENDENT_CALENDAR_EVIDENCE",
+        "zero_transport": true,
+        "boot_ready": true,
+        "action_unknown": true,
+        "link_identity_payload_retained": true,
+        "phase_marker_valid": true,
+        "verified_history_retained": true,
+        "verified_history_available": true
+      },
+      "runtime_errors": [],
+      "shutdown": "remote_quit",
+      "exit": 0,
+      "log_sha256": "1d5d063c616ae1a75017fffd6921a1d0c0fcc9440461b5d593d762b7ca09f27d"
+    }
+  ],
+  "boundary": "Two real processes preserve explicitly synthetic history state and recover UNKNOWN; no evidence of earned live Calendar verification, SMTP, Person consent or rc18 admission."
+}
