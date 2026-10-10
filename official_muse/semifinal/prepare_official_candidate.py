@@ -30,7 +30,8 @@ def main():
     shutil.copytree(base, bundle)
     shutil.copyfile(source, bundle / 'main.splash')
     manifest['version'] = '0.3.27-rc18'
-    manifest['integrity'] = {}
+    # The current official contract requires this field even before stamping.
+    manifest['integrity'] = {'bundle_blake3': ''}
     manifest['capabilities'] = [c for c in manifest['capabilities'] if c != 'calendar']
     if 'runtime' not in manifest['capabilities']:
         manifest['capabilities'].append('runtime')
