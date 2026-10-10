@@ -1,0 +1,11 @@
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -21,7 +21,7 @@
+ script_mod! {
+     use mod.prelude.widgets.*
+     mod.widgets.MuseNativePrototypeView = set_type_default() do #(MuseNativePrototypeView::register_widget(vm)) {
+-        ..mod.widgets.RectView
++        ..mod.widgets.ScrollYView
+         width: Fill height: Fill
+         flow: Down padding: 24 spacing: 16
+         title := Label { text: "Muse 原生只读原型" draw_text.text_style.font_size: 24 }

@@ -1,0 +1,296 @@
+--- a/apps/muse-native-prototype/src/lib.rs
++++ b/apps/muse-native-prototype/src/lib.rs
+@@ -1,5 +1,6 @@
+ //! Read-only hosted prototype. The Shell supplies the service and owns the runtime.
+ pub use makepad_widgets;
++mod history;
+ use makepad_app_module::{
+     makepad_ai_services::wire::{ServiceCall, ServiceManifest, ToolResult},
+     AppModule, ExecOutcome, InstanceHandles, InstanceParts, OpenSchema, ServiceExecutor,
+@@ -30,7 +31,9 @@
+         }
+         read := Button { text: "请求 Agent 读取日历" }
+         stop := Button { text: "停止" }
++        history := Button { text: "查看读取证据" }
+         status := Label { width: Fill draw_text.wrap: Words text: "尚未请求；未验证 Relay。" }
++        evidence := Label { width: Fill draw_text.wrap: Words text: "尚无本回合工具证据。" }
+     }
+ }
+ 
+@@ -48,6 +51,10 @@
+     instance: String,
+     #[rust]
+     running: bool,
++    #[rust]
++    last_turn: Option<String>,
++    #[rust]
++    history_events: Option<mpsc::Receiver<String>>,
+ }
+ 
+ impl MuseNativePrototypeView {
+@@ -56,9 +63,11 @@
+     }
+ 
+     fn request_read(&mut self, cx: &mut Cx) {
+-        if self.running {
+-            return;
+-        }
++        if self.running || self.history_events.is_some() {
++            return;
++        }
++        self.last_turn = None;
++        self.view.label(cx, ids!(evidence)).set_text(cx, "尚无本回合工具证据。");
+         let Some(service) = self.service.as_ref() else {
+             self.status(cx, "Shell 未提供 assistant；请检查首次 consent、构建和 Host 状态，再重新打开模块。");
+             return;
+@@ -100,11 +109,42 @@
+         }
+     }
+ 
++    fn request_history(&mut self, cx: &mut Cx) {
++        if self.running || self.history_events.is_some() {
++            return;
++        }
++        let (Some(context), Some(turn)) = (self.context.as_ref(), self.last_turn.clone()) else {
++            self.status(cx, "没有可关联的已完成回合；请先发起只读请求。");
++            return;
++        };
++        let (sender, receiver) = mpsc::sync_channel(1);
++        let sink: EventSink = Arc::new(move |event| {
++            let ContextEvent::Complete(result) = event else { return };
++            let text = match result {
++                Ok(value) => history::calendar_evidence(&value, &turn),
++                Err(_) => "读取证据不足：Host 无法提供本 App 历史。".into(),
++            };
++            if sender.send(text).is_ok() {
++                SignalToUI::set_ui_signal();
++            }
++        });
++        // One explicit read, no model turn, grant, polling, file or other runtime.
++        match context.call(ContextOp::History, sink) {
++            Ok(()) => {
++                self.history_events = Some(receiver);
++                self.status(cx, "正在读取本回合历史；停止可取消。");
++            }
++            Err(_) => self.status(cx, "Host 拒绝读取历史；未取得工具证据。"),
++        }
++    }
++
+     fn shutdown(&mut self) {
+         if let Some(context) = self.context.take() {
+             context.close();
+         }
+         self.events = None;
++        self.history_events = None;
++        self.last_turn = None;
+         self.running = false;
+         // Release this instance's leases; never shutdown the shared runtime.
+         if let Some(service) = self.service.take() {
+@@ -124,13 +164,41 @@
+             self.events = None;
+             self.running = false;
+             match result {
+-                Ok(_) => self.status(cx, "Host 回合结束；这不证明 calendar.events 已执行。请核对 Shell 会话与 Relay 记录。"),
++                Ok(value) => {
++                    self.last_turn = value.get("turn_id").and_then(|v| v.as_str())
++                        .filter(|id| !id.is_empty() && id.len() <= 256).map(str::to_owned);
++                    self.status(cx, "Host 回合结束；可查看读取证据，尚未认定 Relay 通过。");
++                }
+                 Err(error) => self.status(cx, &format!("Host 回合失败：{error}")),
++            }
++        }
++        if self.history_events.is_some() && self.context.as_ref().is_none_or(|context| !context.is_open()) {
++            self.history_events = None;
++            self.last_turn = None;
++            self.view.label(cx, ids!(evidence)).set_text(cx, "读取证据不足：请求 context 已关闭。");
++            self.status(cx, "历史等待已清除；请求 context 已关闭。");
++        }
++        if let Some(result) = self.history_events.as_ref().map(|rx| rx.try_recv()) {
++            match result {
++                Ok(text) => {
++                    self.history_events = None;
++                    self.view.label(cx, ids!(evidence)).set_text(cx, &text);
++                    self.status(cx, "历史读取结束；工具正文仍须与独立审计核对。");
++                }
++                Err(mpsc::TryRecvError::Disconnected) => {
++                    self.history_events = None;
++                    self.view.label(cx, ids!(evidence)).set_text(cx, "读取证据不足：Host 未交付历史结果。");
++                    self.status(cx, "历史通道已关闭，等待已清除。");
++                }
++                Err(mpsc::TryRecvError::Empty) => {}
+             }
+         }
+         if let Event::Actions(actions) = event {
+             if self.view.button(cx, ids!(read)).clicked(actions) {
+                 self.request_read(cx);
++            }
++            if self.view.button(cx, ids!(history)).clicked(actions) {
++                self.request_history(cx);
+             }
+             if self.view.button(cx, ids!(stop)).clicked(actions) {
+                 // Closing the scoped context interrupts it and drops late replies.
+@@ -138,7 +206,10 @@
+                     context.close();
+                 }
+                 self.events = None;
++                self.history_events = None;
++                self.last_turn = None;
+                 self.running = false;
++                self.view.label(cx, ids!(evidence)).set_text(cx, "已关闭 context；读取证据已清除。");
+                 self.status(cx, "已关闭请求 context；后续结果丢弃。未更改 Calendar。");
+             }
+         }
+--- a/apps/muse-native-prototype/Cargo.toml
++++ b/apps/muse-native-prototype/Cargo.toml
+@@ -9,3 +9,4 @@
+ makepad-widgets = { workspace = true }
+ makepad-app-module = { workspace = true }
+ octosense-app-peers = { workspace = true, default-features = false }
++serde_json = { workspace = true }
+--- /dev/null
++++ b/apps/muse-native-prototype/src/history.rs
+@@ -0,0 +1,144 @@
++//! Display only authoritative tool rows of this context's most recent turn.
++use serde_json::Value;
++
++const MAX_ROWS: usize = 4096;
++const MAX_BODY_BYTES: usize = 4096;
++const MAX_DISPLAY_BYTES: usize = 8192;
++const MAX_RECORDS: usize = 4;
++
++fn valid_id(id: &str) -> bool {
++    !id.is_empty() && id.len() <= 256 && !id.chars().any(|c| c.is_control() || c.is_whitespace())
++}
++
++fn optional_id(value: Option<&Value>) -> Result<Option<&str>, &'static str> {
++    match value {
++        None | Some(Value::Null) => Ok(None),
++        Some(Value::String(id)) if valid_id(id) => Ok(Some(id)),
++        _ => Err("回合身份字段类型或内容无效"),
++    }
++}
++
++pub fn calendar_evidence(history: &Value, turn: &str) -> String {
++    match render(history, turn) {
++        Ok(text) => text,
++        Err(reason) => format!("读取证据不足：{reason}。不能据此认定读取成功或工具未执行。"),
++    }
++}
++
++fn render(history: &Value, turn: &str) -> Result<String, &'static str> {
++    if !valid_id(turn) {
++        return Err("缺少有效的回合 ID");
++    }
++    let rows = history.get("messages").and_then(Value::as_array).ok_or("History 未提供 messages")?;
++    if rows.len() > MAX_ROWS {
++        return Err("历史行数超过展示上限");
++    }
++    let mut text = String::from("本 App 最近回合的工具历史正文（不是模型回复；不代表 Relay/Person 验收通过）：\n");
++    let mut count = 0;
++    for row in rows {
++        // Broker merges both lanes. Do not confuse a system-agent lane or old turn.
++        if row["role"] != "tool" || row["lane"] != "person" {
++            continue;
++        }
++        let turn_id = optional_id(row.get("turn_id"))?;
++        let thread_id = optional_id(row.get("thread_id"))?;
++        if matches!((turn_id, thread_id), (Some(a), Some(b)) if a != b) {
++            return Err("turn_id 与 thread_id 矛盾");
++        }
++        // Only a missing/null turn_id permits thread_id fallback.
++        let row_turn = turn_id.or(thread_id);
++        if row_turn != Some(turn) {
++            continue;
++        }
++        let name = row.get("tool_name").and_then(Value::as_str).ok_or("工具行缺少正式 tool_name")?;
++        if name != "calendar.events" {
++            continue;
++        }
++        let id = row.get("tool_call_id").and_then(Value::as_str).filter(|id| !id.is_empty() && id.len() <= 256)
++            .ok_or("工具行缺少有效 call_id")?;
++        let body = row.get("content").and_then(Value::as_str).filter(|body| !body.is_empty())
++            .ok_or("工具行缺少正文")?;
++        if body.len() > MAX_BODY_BYTES || count == MAX_RECORDS {
++            return Err("工具正文或记录数超过展示上限，未截断为成功证据");
++        }
++        count += 1;
++        text.push_str(&format!("\n回合：{turn}\n调用：{id}\n工具：{name}\n正文：\n{body}\n"));
++        if text.len() > MAX_DISPLAY_BYTES {
++            return Err("展示字节超过上限");
++        }
++    }
++    if count == 0 {
++        return Err("没有找到可关联的 calendar.events 工具正文");
++    }
++    Ok(text)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use serde_json::json;
++
++    fn tool() -> Value {
++        json!({"role":"tool", "lane":"person", "thread_id":"t1",
++               "tool_call_id":"c1", "tool_name":"calendar.events", "content":"{\"events\":[]}"})
++    }
++
++    #[test]
++    fn exact_tool_body_is_kept_but_assistant_text_is_excluded() {
++        let history = json!({"messages":[
++            {"role":"assistant", "lane":"person", "thread_id":"t1", "content":"MODEL_CLAIM"}, tool()
++        ]});
++        let output = render(&history, "t1").unwrap();
++        assert!(output.contains("调用：c1"));
++        assert!(output.contains("{\"events\":[]}"));
++        assert!(!output.contains("MODEL_CLAIM"));
++    }
++
++    #[test]
++    fn another_turn_or_lane_cannot_supply_current_evidence() {
++        let mut old = tool();
++        old["thread_id"] = json!("old");
++        let mut other_lane = tool();
++        other_lane["lane"] = json!("system_agent");
++        assert!(render(&json!({"messages":[old, other_lane]}), "t1").is_err());
++    }
++
++    #[test]
++    fn missing_fields_and_large_body_are_not_accepted() {
++        let mut missing = tool();
++        missing.as_object_mut().unwrap().remove("tool_call_id");
++        assert!(render(&json!({"messages":[missing]}), "t1").is_err());
++        let mut large = tool();
++        large["content"] = json!("x".repeat(MAX_BODY_BYTES + 1));
++        assert!(render(&json!({"messages":[large]}), "t1").is_err());
++    }
++
++    #[test]
++    fn missing_null_or_matching_ids_preserve_exact_binding() {
++        let mut row = tool();
++        for turn_id in [Value::Null, json!("t1")] {
++            row["turn_id"] = turn_id;
++            assert!(render(&json!({"messages":[row.clone()]}), "t1").is_ok());
++        }
++        row["thread_id"] = Value::Null;
++        assert!(render(&json!({"messages":[row]}), "t1").is_ok());
++    }
++
++    #[test]
++    fn conflicting_or_malformed_identity_never_falls_back() {
++        let mut conflict = tool();
++        conflict["turn_id"] = json!("t1");
++        conflict["thread_id"] = json!("different");
++        assert!(render(&json!({"messages":[conflict]}), "t1").is_err());
++        for invalid in [json!(7), json!(true), json!([]), json!({}), json!(""),
++                        json!(" "), json!("t\n1"), json!("x".repeat(257))] {
++            let mut row = tool();
++            row["turn_id"] = invalid.clone();
++            assert!(render(&json!({"messages":[row]}), "t1").is_err());
++            let mut row = tool();
++            row["turn_id"] = json!("t1");
++            row["thread_id"] = invalid;
++            assert!(render(&json!({"messages":[row]}), "t1").is_err());
++        }
++    }
++}

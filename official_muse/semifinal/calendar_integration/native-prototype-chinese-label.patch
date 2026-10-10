@@ -1,0 +1,29 @@
+--- a/apps/muse-native-prototype/src/lib.rs
++++ b/apps/muse-native-prototype/src/lib.rs
+@@ -23,7 +23,7 @@
+         ..mod.widgets.RectView
+         width: Fill height: Fill
+         flow: Down padding: 24 spacing: 16
+-        title := Label { text: "Muse Native Prototype" draw_text.text_style.font_size: 24 }
++        title := Label { text: "Muse 原生只读原型" draw_text.text_style.font_size: 24 }
+         description := Label {
+             width: Fill draw_text.wrap: Words
+             text: "独立原生身份 · 内置 Calendar 只读联调。首次授权后重新打开此模块。"
+@@ -150,7 +150,7 @@
+ 
+ impl AppModule for MuseNativePrototypeModule {
+     fn id(&self) -> &'static str { APP_ID }
+-    fn label(&self) -> &'static str { "Muse Native Prototype" }
++    fn label(&self) -> &'static str { "Muse 原生只读原型" }
+     fn register(&self, vm: &mut ScriptVm) { script_mod(vm); }
+     fn open_schema(&self) -> OpenSchema { OpenSchema::new(1) }
+     fn capabilities(&self) -> &'static [&'static str] {
+@@ -182,7 +182,7 @@
+ impl ServiceExecutor for NoOwnTools {
+     fn manifest(&self) -> ServiceManifest {
+         // The service-bus slug has a separate [a-z0-9_]{1,24} grammar.
+-        ServiceManifest::new("muse_native_prototype", "Muse Native Prototype", "Read-only Calendar integration probe; no own tools.")
++        ServiceManifest::new("muse_native_prototype", "Muse 原生只读原型", "Read-only Calendar integration probe; no own tools.")
+     }
+     fn execute(&mut self, _cx: &mut Cx, call: &ServiceCall) -> ExecOutcome {
+         ExecOutcome::Done(ToolResult::unavailable(&call.call_id, "This prototype declares no own tools"))

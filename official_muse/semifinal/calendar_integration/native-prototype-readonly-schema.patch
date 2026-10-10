@@ -1,0 +1,11 @@
+--- a/apps/muse-native-prototype/src/lib.rs
++++ b/apps/muse-native-prototype/src/lib.rs
+@@ -15,7 +15,7 @@
+ pub const APP_ID: &str = "muse-native-prototype";
+ // ADR 0004 §11: Shell peer_link::DEVICE for apps with storage.accounts=false.
+ const DEVICE_ACCOUNT: &str = "device";
+-const READ_REQUEST: &str = "Use calendar.events with days=1 to read the builtin Calendar. Report the actual tool result or error. Do not create, update, remove or notify. Do not claim exact absence from a truncated list.";
++const READ_REQUEST: &str = "Use calendar.events with limit=10 to read the builtin Calendar. Report the actual tool result or error. Do not create, update, remove or notify. Do not claim exact absence from a truncated list.";
+ 
+ script_mod! {
+     use mod.prelude.widgets.*

@@ -1,0 +1,23 @@
+--- a/crates/shell/src/host_tools/mod.rs
++++ b/crates/shell/src/host_tools/mod.rs
+@@ -287,6 +287,20 @@
+         #[cfg(any(feature = "app-hub", native_mobile))]
+         admission::check(&app)?;
+         ensure_loaded(app_id);
++        // A native peer already has its reviewed grants in Catalog::shipped,
++        // but ensure_loaded only prepares contained callers. Load the system
++        // owners of those grants before registering native peer declarations.
++        // This installs owner executors, never grants or caller identities.
++        #[cfg(any(feature = "app-hub", native_mobile))]
++        if let Some(native) = crate::native_apps::find(&app) {
++            let owners: BTreeSet<&str> = native.grants.iter()
++                .map(|(owner, _)| *owner).filter(|owner| owner.starts_with("os.")).collect();
++            for owner in owners {
++                admission::check(owner)?;
++                let ready = with_relay(|r| r.catalog.knows(owner) && r.has_executor(owner));
++                if !ready { script_apps::load(owner)?; }
++            }
++        }
+         let dev = crate::dev_mode::grants_all(&app);
+         // The toolbox's tools only once the person allowed this app's agent
+         // (ADR 0004 §4); its calls are refused before that too (the relay).
