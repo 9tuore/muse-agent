@@ -24,3 +24,7 @@ python3 official_muse/semifinal/mail_integration/gpt02_recovery/test_recovery.py
 按中央授权固定9695、只读指定binary/cwd、隐藏窗口。完整mail_check_host_status→mail_send_receipt_step真实异步链before-r3 33/37（四项目标失败），after-r1 37/37，实际磁盘readback通过。每轮仅5次合成compose_status，compose/review/send为0；两轮正常Remote quit/exit0、退出后无Script错误。新增REAL_VM.md、real_vm_summary.json和evidence/real-vm，旧Node/错误fixture结果保留。正式main仍未应用本聊天patch，中央独立按函数位置应用不能替代此处源SHA身份。Memory source→claim尚无真实VM结果，不借Mail37项升级它。
 
 2026-10-11 Mail实机前置检查：MAIL_LIVE_PREFLIGHT.md+prepare_mail_live.py核中央固定SDK 8文件SHA；源码/新稿/已有稿3项生成通过，非法ID/源码漂移2项拒绝通过。没有mail.status；前台/Agent返回不同；公共review取消可能保留Host awaiting_approval。Keychain路径哈希及app grant限制已按源码定位，未读取凭据/账号状态。中央独占实际Host/GUI，零请求/发送/构建；37/37证据不重复。
+
+2026-10-11 登录隐式恢复修补：watch-pause.patch仅删除mail_add_account成功分支中的旧注释和mail_watch_toggle（2行），保留mail_accounts_load、失败/取消路径及默认enabled=true/现有30秒schedule。没有增加即时poll：账号刷新设置mail_pending，poll守卫会跳过；刷新结束后的既有timer使用最新granted accounts。迟到登录/账号刷新不再写enabled，也不替换当前选中的账号。
+固定中央源码SHA86f86e3ee0263bb3d34bfb92d3ed7f9d2952e3fdc949cf4b9699085846552c09，预期4516b660e66a2d47365ee9dca31c58d1169b763e06bceb27918a2122c9d97d24；完整身份见watch-pause-identity.json。零上下文patch须先核完整SHA再git apply --check --unidiff-zero，来源已漂移时只按mail_add_account具名边界重新准备，不按行号偏移应用。
+定向测试：test_watch_pause.py --source build/gpt02-watch-pause-source-r1/before.splash --phase before/after --out <独立报告>；Node提取4个真实函数fixture，before15/19（4个暂停恢复失败），after19/19，非法外部调用0。保留两次Node适配器语句分隔错误说明；不是产品失败。临时副本git apply --check通过、修补后完整SHA匹配。没有正式源码写入、GUI、Cargo、真实VM/Host/模型/SMTP/秘密操作。实际Splash VM未验证，等待中央协调；正式包由中央应用和验证。

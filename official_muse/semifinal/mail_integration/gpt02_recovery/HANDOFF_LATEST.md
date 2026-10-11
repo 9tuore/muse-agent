@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02，codex/gpt02-mail-memory-recovery，基线e9c88bc0；准备中央固定SDK Mail实机前置检查。
+GPT-02；codex/gpt02-mail-memory-recovery；中央观测HEAD f4f54f8e，固定源码SHA见watch-pause-identity.json。修复账号登录覆盖本人暂停。
 
 ## Result
-PARTIAL：源码与执行数据已备，实机未执行。没有mail.status，accounts/list真实服务存在但未登记descriptor；公共审阅取消可能保留Host awaiting_approval。
+PARTIAL：最小patch已备，源码绑定Node fixture通过；正式源码/真实Splash VM未改未测。
 
 ## Changed
-MAIL_LIVE_PREFLIGHT.md：请求/返回、失败、取消UI及Keychain复用边界。prepare_mail_live.py：锁8源码SHA、生成精确合成稿和status/review取消数据，零Host调用。CURRENT_STATE追加。
+watch-pause.patch只删mail_add_account成功分支的隐式toggle与旧注释（2行），保留账号刷新/失败/取消。identity固定前后SHA。test_watch_pause.py及evidence保存before/after和适配器错误。CURRENT_STATE追加。
 
 ## Tests
-2026-10-11脚本离线检查：源码/新稿/已有稿3项通过；非法ID/源码漂移2项拒绝通过。git diff --check通过。零GUI/账号读取/秘密/网络/发送/模型/构建。37/37不重测。
+2026-10-11：提取4个实际函数Node fixture，before15/19（4个暂停失败），after19/19；覆盖保存暂停、登录期间暂停、迟到账号刷新/选择、默认开启后timer、迟到poll、失败/取消、只读/重复/能力守卫。临时副本git apply --check --unidiff-zero与预期SHA通过。零外部调用。
 
 ## Commit
-本地提交号见最终回复，未push。
+本地提交见最终回复，未push。
 
 ## Remaining
-中央完整Host/Kernel/同app准入、真实账户可见性、native取消及status读回；实际凭据/网络认证未验证。
+中央先核完整source SHA，零上下文patch禁止偏移应用；漂移则按具名函数重准备。中央正式包真实VM/GUI验证待协调。
 
 ## Important Boundaries
-Keychain命名含mail_dir哈希，复用须同profile、账户identity及app grant；不拷数据库或凭据。本人登录会启用mail_watch，中央处理原有暂停设置。零发送不产生SMTP或收件证明。
+默认enabled=true与30秒schedule已存在；登录成功不额外poll，因mail_accounts_load设置pending，立即poll也被守卫跳过。新账号由既有timer读最新授权列表；登录回调不修改enabled或选中账号。没有GUI/Cargo/模型/SMTP/秘密；Node结果不是官方VM验收。

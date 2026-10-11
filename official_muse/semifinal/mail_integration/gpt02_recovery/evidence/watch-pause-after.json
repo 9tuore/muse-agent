@@ -1,0 +1,37 @@
+{
+  "checks": {
+    "persisted_pause_survives_success": true,
+    "success_still_refreshes_accounts": true,
+    "paused_account_refresh_completes": true,
+    "paused_timer_does_not_poll": true,
+    "pause_while_login_pending_survives_late_success": true,
+    "account_selection_survives_late_login": true,
+    "late_account_refresh_does_not_resume": true,
+    "first_connection_keeps_default_enabled": true,
+    "no_eager_poll_while_account_refresh_pending": true,
+    "existing_timer_polls_enabled_connection": true,
+    "poll_uses_fresh_granted_accounts": true,
+    "late_poll_response_after_pause_is_discarded": true,
+    "paused_Sign-in cancelled.": true,
+    "paused_fixture login failed": true,
+    "enabled_Sign-in cancelled.": true,
+    "enabled_fixture login failed": true,
+    "read_only_pause_not_toggled": true,
+    "pending_login_not_duplicated": true,
+    "missing_capability_still_blocks_login": true
+  },
+  "failed": [],
+  "external_calls": 0,
+  "boundary": "Four actual Splash functions projected to Node. Host, UI, pause, persistence and analysis are fixture adapters. Not actual Splash VM/Host proof.",
+  "phase": "after",
+  "source_sha256": "4516b660e66a2d47365ee9dca31c58d1169b763e06bceb27918a2122c9d97d24",
+  "patch_sha256": "525ac1dd371f68478556f15ec1f7abb503cf00bddbe69315bfa6af5578365710",
+  "projected_functions": [
+    "mail_add_account",
+    "mail_accounts_load",
+    "mail_watch_schedule",
+    "mail_watch_poll"
+  ],
+  "total": 19,
+  "passed": 19
+}
