@@ -1,0 +1,61 @@
+{
+  "status": "PYTHON_ORDER_FIXTURE_PASS",
+  "date": "2026-10-11",
+  "boundary": "Pure Python reproduction of verified Rust stable rank and current catalog; not Rust execution, GUI, provider inference, profile save or integration acceptance. Proposed Qwen entry exists only in fixture memory.",
+  "source_sha256": {
+    "apps/ai-providers/config/data/model_catalog.json": "65ee8b16156b33705e9937b8c9dc926e27aa247e30c7689f5ce3185313b91bf6",
+    "apps/ai-providers/host-service/src/complete/mod.rs": "79ce9ed937208d8df1dca27110001c7af1c0bc365a4a605c1154b57053d7d2fe",
+    "apps/ai-providers/host-service/src/lib.rs": "2c9685eec1aeea1e196154bbc074eeac0acfa831acbd779f049b60803859a538",
+    "apps/ai-providers/config/src/registry.rs": "41067c516521c767880e7c197f72efb2f1d81225435f669cfa2ada2d73e2401d"
+  },
+  "catalog_local_default_class": "strong",
+  "checks": [
+    {
+      "name": "current_fast",
+      "requested": "fast",
+      "actual_order": [
+        "minimax-cn/MiniMax-M3",
+        "local/Qwen2.5-0.5B-Instruct-Q4_0-offline"
+      ],
+      "passed": true
+    },
+    {
+      "name": "current_strong",
+      "requested": "strong",
+      "actual_order": [
+        "minimax-cn/MiniMax-M3",
+        "local/Qwen2.5-0.5B-Instruct-Q4_0-offline"
+      ],
+      "passed": true
+    },
+    {
+      "name": "proposed_fast",
+      "requested": "fast",
+      "actual_order": [
+        "local/Qwen2.5-0.5B-Instruct-Q4_0-offline",
+        "minimax-cn/MiniMax-M3"
+      ],
+      "passed": true
+    },
+    {
+      "name": "proposed_strong",
+      "requested": "strong",
+      "actual_order": [
+        "minimax-cn/MiniMax-M3",
+        "local/Qwen2.5-0.5B-Instruct-Q4_0-offline"
+      ],
+      "passed": true
+    },
+    {
+      "name": "same_class_preserves_user_order",
+      "requested": "fast",
+      "actual_order": [
+        "deepseek/deepseek-v4-flash",
+        "local/Qwen2.5-0.5B-Instruct-Q4_0-offline",
+        "minimax-cn/MiniMax-M3"
+      ],
+      "passed": true
+    }
+  ],
+  "count": 5
+}

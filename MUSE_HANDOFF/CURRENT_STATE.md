@@ -3,6 +3,14 @@
 用户将黑屏修复交给外部应用 WorkBuddy。中央停止 owned GUI/Cargo，Metal 数字诊断构建因交接主动中断，未产生新 Host；SDK metal.rs 已核对恢复原 SHA47db4d10。实际 rc3-ui-r1 两轮 Remote 与 OS 专窗均深色，多个 pass draw_calls_done=0，根因尚未确认。完整失败/诊断证据与独占构建边界见 BLACK_SCREEN_HANDOFF_20261011.md；项目根目录另有同名交接副本，当前工具无 WorkBuddy 聊天发送通道。
 
 中央继续业务：hybrid 启动器代码和16项 fixture、Calendar19项和Mail37项真实参考VM合成恢复已接收；官方 Mail 固定SDK预检已合入 b95b7b23。正在实现连接邮箱后保留本人暂停、Qwen精确fast alias目录覆盖、Native官方loop控制。源准备/签名目录和整包验签已通过，但正式Muse Relay、实际Mail投递、两端推理、持续任务与最终T18/20次均未通过。源代码集成与真实业务验收分开记录，不宣布正式版完成。
+## GPT-03 Native 路由只读核对：2026-10-11
+
+黑屏工作按中央新安排停止，构建/GUI 交另一 AI。Hybrid 332bf 代码未改。
+官方 local provider 可用；当前 MiniMax-M3 与 local-default 均 strong，命名 Qwen 为目录未知，fast 仍先走 MiniMax。
+最小提案是在 SDK 模型目录追加精确 Qwen alias 的 fast 记录，再由官方 Models 加入本地 fallback；未应用。
+五项 Python 排序 fixture 通过，仅验证现有数据与排序逻辑，不是 Rust/GUI/推理。
+有界 model.complete 路由不改变持续 Agent 的 _main；本地失败仍可能云端回退。
+契约与指纹见 official_muse/integrated_release/NATIVE_LOCAL_ROUTING_CONTRACT.md，未 push。
 
 ## GPT-03 Hybrid 补丁：2026-10-11
 
