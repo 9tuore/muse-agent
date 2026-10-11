@@ -1,0 +1,48 @@
+{
+  "kind": "SOURCE_BOUND_NODE_PROJECTION_FIXTURE",
+  "checks": {
+    "official_top_level_keys": false,
+    "chat_history_is_inside_input": false,
+    "history_order_and_assistant_reply_format": true,
+    "current_query_memory_task_and_earlier_context_preserved": true,
+    "failed_cross_scope_and_forgotten_history_excluded": true,
+    "schema_class_url_policy_preserved": true,
+    "clock_and_task_preserved": true,
+    "caller_arguments_not_mutated": true,
+    "input_below_official_byte_limit": true,
+    "usage_metadata_preserved": true,
+    "captured_refs_preserved": true,
+    "structured_candidate_history_preserved": true,
+    "ordinary_nonchat_input_unchanged": true,
+    "before_dispatch_user_guard": true,
+    "before_dispatch_accounts_guard": true,
+    "before_dispatch_enabled_guard": true,
+    "before_dispatch_current_guard": true,
+    "before_dispatch_memory_guard": true,
+    "before_dispatch_project_guard": true,
+    "before_dispatch_owner_guard": true,
+    "late_user_guard": true,
+    "late_accounts_guard": true,
+    "late_enabled_guard": true,
+    "late_current_guard": true,
+    "late_memory_refs_guard": true,
+    "memory_conflict_blocks_transport": true
+  },
+  "failed": [
+    "official_top_level_keys",
+    "chat_history_is_inside_input"
+  ],
+  "external_calls": 0,
+  "phase": "before",
+  "source_sha256": "0c7f9812cf7319cf5120557ddef7caacfe49326c0dcbc5759e689fcac38ce9eb",
+  "sdk_contract_sha256": "79ce9ed937208d8df1dca27110001c7af1c0bc365a4a605c1154b57053d7d2fe",
+  "projected_functions": [
+    "muse_model_request",
+    "chat_model_history",
+    "chat_history_scope_current",
+    "chat_reply_is_context"
+  ],
+  "official_parser_executed": false,
+  "total": 26,
+  "passed": 24
+}
