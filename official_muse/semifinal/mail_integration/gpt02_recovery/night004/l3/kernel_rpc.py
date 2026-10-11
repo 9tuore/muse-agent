@@ -39,9 +39,9 @@ def fixture_turn_payload(payload,mutation_approval='once'):
     if mutation_approval not in ('once','deny'):
         raise ValueError('Explicit mutation approval must be once or deny')
     text = payload['text']
-    markers = ['精确 calendar.events 参数：','精确 calendar.add_event 参数：','2. calendar.update_event 精确参数：']
+    markers = ['精确 calendar.events 参数：','精确 calendar.add_event 参数：','2. calendar.update_event 精确参数：','2. calendar.remove_event 参数：']
     if sum(marker in text for marker in markers) != 1:
-        raise ValueError('Exactly one native query/create/update prompt marker required')
+        raise ValueError('Exactly one native query/create/update/delete prompt marker required')
     approval = 'once'
     if '精确 calendar.events 参数：' in text:
         args = prompt_object(text, '精确 calendar.events 参数：')
@@ -72,8 +72,19 @@ def fixture_turn_payload(payload,mutation_approval='once'):
                  dict(tool='calendar.update_event', args=args),
                  dict(tool='calendar.get_event', args={'id': args['id']})]
         approval = mutation_approval
+    elif '2. calendar.remove_event 参数：' in text:
+        args = prompt_object(text, '2. calendar.remove_event 参数：')
+        expected = args.get('expected')
+        if set(args) != {'id','expected'} or not isinstance(args['id'],str) or not 1 <= len(args['id']) <= 64:
+            raise ValueError('Exact production delete id and expected are required')
+        if not isinstance(expected,dict) or set(expected) != {'id','request_id','title','start','end','timezone','location','notes'} \
+                or any(not isinstance(v,str) for v in expected.values()) or args['id'] != expected['id'] or not expected['request_id']:
+            raise ValueError('Exact selected eight-field delete snapshot is required')
+        steps = [dict(tool='calendar.get_event',args={'id':args['id']}),
+                 dict(tool='calendar.remove_event',args=args),
+                 dict(tool='calendar.get_event',args={'id':args['id']})]
     else:
-        raise ValueError('No supported native query/create/update production prompt')
+        raise ValueError('No supported native query/create/update/delete production prompt')
     result = dict(payload, fixture_tool_plan=steps, fixture_approval=approval)
     assert result['text'] == payload['text'] and result.get('trigger') == payload.get('trigger')
     return result

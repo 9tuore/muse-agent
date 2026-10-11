@@ -1,0 +1,83 @@
+{
+  "kind": "STATIC_NATIVE_DELETE_PROBE_AND_SOURCE_CONTRACT",
+  "status": "PASS",
+  "checks": {
+    "original_query_branch_bytes_unchanged": true,
+    "original_create_branch_bytes_unchanged": true,
+    "original_update_branch_bytes_unchanged": true,
+    "original_query_create_update_outbound_bytes_unchanged": true,
+    "actual_c892_source_and_both_identities": true,
+    "both_production_closures_byte_equal": true,
+    "both_probe_sha256_match": true,
+    "actual_remove_prompt_marker_selected": true,
+    "exact_remove_literal_expected_not_get_result_ref": true,
+    "original_create_before_delete_select_confirm": true,
+    "actual_history_receipts_removed_absence_asserted": true,
+    "independent_owner_zero_events_in_both": true,
+    "duplicate_and_new_process_zero_turn_zero_mail_asserted": true,
+    "original_production_action_chain_in_both": true,
+    "delete_request_event_three_call_proof_restored": true,
+    "no_goal_failure_history_receipt_synthesized": true,
+    "no_external_owner_write": true,
+    "actual_production_calendar_agent_delete_select_selected": true,
+    "actual_production_calendar_agent_delete_confirm_selected": true,
+    "actual_production_calendar_agent_delete_history_selected": true,
+    "actual_production_calendar_agent_delete_result_selected": true,
+    "actual_production_calendar_agent_delete_project_selected": true,
+    "actual_existing_remove_schema_id_expected": true
+  },
+  "source_sha256": "c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4",
+  "production_function_counts": [
+    232,
+    318
+  ],
+  "kernel_calendar_calls": 0,
+  "runtime_status": "PREPARED_NOT_TESTED",
+  "python_ast_parse": "PASS",
+  "referenced_remove_schema": {
+    "path": "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-calendar-crud/sdk/apps/calendar/bundle/tools.json",
+    "sha256": "bd2cfbce0706ef047001688f54cd43b72db5b26f08d3f84f69d417e16d1519eb",
+    "tool": {
+      "name": "calendar.remove_event",
+      "description": "Remove one saved Calendar event by its exact id. First use calendar.get_event and pass its exact event as expected; a stale snapshot is refused. The Host requires the person's approval. After removal, verify the same id with calendar.get_event: only found:false and event:null establish absence. A card warning does not undo an event deletion.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "expected": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "expected"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "removed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "removed"
+        ]
+      },
+      "risk": "destructive",
+      "confirm": "host",
+      "background": true,
+      "implemented_by": "host-service",
+      "shareable": true,
+      "auto_approvable": false
+    }
+  },
+  "plan_observed_source_sha256": "c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4",
+  "plan_observed_report_sha256": "6bad855ffc38e8edd7eb887f91c01a1a42c31b3eb2314f1ca9d52f567f277bc4",
+  "plan_note": "Final parser fixture uses actual c892 native-l3-central-r4 create candidate. Original query/create/update outbound byte comparison repeated against that input; earlier r1 parser report preserved."
+}

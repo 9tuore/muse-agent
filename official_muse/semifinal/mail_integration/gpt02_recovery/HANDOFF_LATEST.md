@@ -1,22 +1,13 @@
 # Handoff
 
 ## Task
-ZC02 native同ID改期Deny；固定c892bff3，基线00bdf7f6。
+ZC02原生精确删除正向准备；基线66299928，同c892/cdb。
 
 ## Result
-PREPARED_NOT_TESTED。默认Once，仅update显式Deny；create/query不变。actual audit只读，缺合法回执必须UNKNOWN，真实回执才允许failed。
+PREPARED_NOT_TESTED。原create→原delete select/confirm/history→同ID不存在；原expected保留、Once精确plan，不造回执或完成。
 
 ## Changed
-l3 parent/两probe/DENY_PARENT及静态身份；旧证据保留。
+parent remove分支、两probe、DELETE_PARENT/静态身份。query/create/update分支体及outbound字节不变。
 
 ## Tests
-plan32/32、源契约15/15、AST通过；初始244/恢复322原函数逐字。==误判旧FAIL保留。Kernel/Calendar调用0。
-
-## Commit
-见最终回复，未push。
-
-## Remaining
-Root按DENY_PARENT运行初始+真新进程恢复，核owner八字段/count/bytes、旧草稿正文、0重发及无完成Goal/Run/Memory。
-
-## Important Boundaries
-无main/SDK/Host/history/GUI/资料/SMTP改动；不造回执或failure。
+最终c892 plan44/44、源23/23、AST通过；初始232/恢复318原函数逐字。Kernel/VM运行0；旧parser输入及全部旧证据保留。

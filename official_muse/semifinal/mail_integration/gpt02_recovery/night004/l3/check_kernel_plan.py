@@ -71,10 +71,26 @@ try:
     checks['invalid_mutation_approval_refused'] = False
 except ValueError:
     checks['invalid_mutation_approval_refused'] = True
+delete_args = {'id':expected['id'],'expected':copy.deepcopy(expected)}
+delete_payload = {'text':'本人明确选择并确认删除。\n2. calendar.remove_event 参数：'+json.dumps(delete_args,ensure_ascii=False)+'\n3. 仅removed=true后同ID读回。',
+                  'trigger':'app','opaque':'delete-original'}
+delete_before = copy.deepcopy(delete_payload); deleted = fixture_turn_payload(delete_payload); delete_steps = deleted['fixture_tool_plan']
+checks['delete_get_remove_get_exact_order'] = [s['tool'] for s in delete_steps]==['calendar.get_event','calendar.remove_event','calendar.get_event']
+checks['delete_original_payload_text_trigger_opaque_preserved'] = delete_payload==delete_before and all(deleted[k]==v for k,v in delete_payload.items())
+checks['delete_original_expected_eight_fields_preserved'] = delete_steps[1]['args']==delete_args and delete_steps[1]['args']['expected']==expected
+checks['delete_same_id_all_three_steps'] = all(s['args']['id']==expected['id'] for s in delete_steps)
+checks['delete_once_exact_plan_without_result_snapshot_substitution'] = deleted['fixture_approval']=='once' and '$tool_result' not in json.dumps(delete_steps)
+checks['update_deny_option_keeps_delete_once'] = fixture_turn_payload(delete_payload,'deny')==deleted
+checks['delete_missing_expected_refused'] = refuses({'text':'2. calendar.remove_event 参数：'+json.dumps({'id':expected['id']})})
+checks['delete_wrong_id_refused'] = refuses({'text':'2. calendar.remove_event 参数：'+json.dumps(dict(delete_args,id='different'))})
+checks['delete_unknown_top_field_refused'] = refuses({'text':'2. calendar.remove_event 参数：'+json.dumps(dict(delete_args,request_id='replacement'))})
+checks['delete_incomplete_extra_wrong_type_expected_refused'] = all(refuses({'text':'2. calendar.remove_event 参数：'+json.dumps(dict(delete_args,expected=bad))}) for bad in [{k:v for k,v in expected.items() if k!='notes'},dict(expected,extra='x'),dict(expected,title=3),dict(expected,request_id='')])
+checks['delete_invalid_id_refused'] = all(refuses({'text':'2. calendar.remove_event 参数：'+json.dumps({'id':bad,'expected':dict(expected,id=bad)})}) for bad in ['',7,'x'*65])
+checks['delete_duplicate_or_mixed_markers_refused'] = all(refuses({'text':delete_payload['text']+'\n'+t}) for t in [delete_payload['text'],payload['text'],query_payload['text'],update_payload['text']])
 result = {'kind':'FIXTURE_PLAN_PARSER_ONLY','checks':checks,'status':'PASS' if all(checks.values()) else 'FAIL',
     'observed_report_sha256':hashlib.sha256(a.observed_report.read_bytes()).hexdigest(),
     'source_main_sha256':report['source_identity']['source_sha256'],
-    'kernel_calendar_calls':0,'full_chain_status':'NOT_TESTED','plans':{'query':query,'create':create,'update':updated,'update_deny':denied}}
+    'kernel_calendar_calls':0,'full_chain_status':'NOT_TESTED','plans':{'query':query,'create':create,'update':updated,'update_deny':denied,'delete':deleted}}
 (out/'report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({'status':result['status'],'checks':len(checks),'failed':[k for k,v in checks.items() if not v]}))
 raise SystemExit(0 if result['status']=='PASS' else 1)
