@@ -1,0 +1,96 @@
+// Synthetic inputs; all named production functions remain byte-exact.
+let receipt_checks = {}
+let receipt_goal = ""
+let receipt_run = ""
+let receipt_path = ""
+let receipt_bytes = ""
+let receipt_mode = 0
+let receipt_cases = ["changed","missing","wrong_task","stale_revision","verified"]
+fn receipt_seed(){
+    if receipt_mode == 0 {
+        receipt_checks.boot = core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot()
+        gm_set_focus("synthetic-project","synthetic-owner")
+    }
+    let label = receipt_cases[receipt_mode]
+    receipt_goal = "synthetic-result-" + label
+    receipt_path = "results/" + receipt_goal + ".json"
+    let goal = {schema:1 id:receipt_goal version:1 goal:"Synthetic result " + label
+        source:"Synthetic fixture input" items:["Synthetic fixture input"] status:"planned"
+        model_summary:"" result_path:receipt_path approved_at:0 updated_at:time_now()
+        project_id:"synthetic-project" owner_id:"synthetic-owner" archived:false}
+    receipt_checks[label + "_seed"] = core_add_goal(goal)
+    receipt_run = core_start_run(receipt_goal,1,"synthetic-approved-" + label)
+    receipt_checks[label + "_run"] = receipt_run != nil
+    receipt_bytes = {schema:1 task_id:receipt_goal source_text:"Synthetic unverified input"
+        goal:goal.goal items:[{text:"Synthetic fixture input"}]}.to_json()
+    fs.mkdir("results")
+    if label != "missing" { fs.write(receipt_path,receipt_bytes) }
+    if label == "wrong_task" { receipt_bytes = {schema:1 task_id:"different-goal"}.to_json() fs.write(receipt_path,receipt_bytes) }
+    start_timeout(0.12,||receipt_finish())
+}
+fn receipt_finish(){
+    let label = receipt_cases[receipt_mode]
+    let expected = receipt_bytes
+    let revision = 1
+    if label == "changed" { expected = "different bytes" }
+    if label == "stale_revision" { revision = 2 }
+    finalize_result(receipt_goal,receipt_run,revision,receipt_path,expected,true)
+    start_timeout(0.15,||receipt_inspect())
+}
+fn receipt_inspect(){
+    let label = receipt_cases[receipt_mode]
+    let gi = core_goal_index(receipt_goal) let ri = core_run_index(receipt_run)
+    let mi = core_memory_index("memory:result:" + receipt_run,"local")
+    if label == "verified" {
+        receipt_checks.completed_after_readback = goals[gi].status == "completed" && runs[ri].status == "completed"
+        receipt_checks.memory_only_verified_receipt = mi >= 0 && gm_completed_receipt(memory[mi].document)
+        if mi >= 0 {
+            let doc = memory[mi].document
+            let si = core_source_index(doc.payload.source_ids[0],"local")
+            receipt_checks.receipt_source_hash = si >= 0 && memory_sources[si].content_sha256 == fs.sha256(storage_read(receipt_path))
+            receipt_checks.receipt_scope = doc["scope"].project_id == "synthetic-project" && doc["scope"].owner_id == "synthetic-owner"
+            receipt_checks.input_marked_unverified = doc.payload.value.search("未核事实") >= 0
+        }
+        start_timeout(0.12,||receipt_mail_seed())
+    } else {
+        receipt_checks[label + "_not_completed"] = goals[gi].status != "completed" && runs[ri].status != "completed"
+        receipt_checks[label + "_no_receipt_memory"] = mi < 0
+        receipt_mode = receipt_mode + 1
+        start_timeout(0.12,||receipt_seed())
+    }
+    fs.write("completion-progress.json",receipt_checks.to_json())
+}
+fn receipt_mail_seed(){
+    receipt_goal = "synthetic-mail-guard"
+    receipt_path = "results/synthetic-mail-guard.json"
+    let goal = {schema:1 id:receipt_goal version:1 goal:"Synthetic Mail guard"
+        source:"Synthetic fixture input" items:[] status:"planned" model_summary:""
+        result_path:receipt_path approved_at:0 updated_at:time_now() archived:false
+        project_id:"synthetic-project" owner_id:"synthetic-owner"}
+    receipt_checks.mail_guard_seed = core_add_goal(goal)
+    receipt_run = core_start_run(receipt_goal,1,"synthetic-mail-request")
+    receipt_checks.mail_guard_run = receipt_run != nil
+    receipt_checks.mail_guard_action = core_begin_action(receipt_goal,receipt_run,1,"mail.send","one","synthetic-mail-request","synthetic payload")
+        && core_finish_action("synthetic-mail-request","verified")
+    calendar_links.push({goal_id:receipt_goal status:"verified" event_id:"synthetic-event"
+        calendar_id:"synthetic-calendar" candidate:{start:"synthetic-start" end:"synthetic-end"}})
+    start_timeout(0.12,||receipt_mail_guard())
+}
+fn receipt_mail_guard(){
+    // No receiver claim exists in these cases. Accepted/unknown/rejected must not finish a linked result.
+    let before = storage_read("memory.json")
+    let goal_before = storage_read("goals.json")
+    for status in ["accepted","outcome_unknown","cancelled"] {
+        mail_draft = {status:status request_id:"synthetic-mail-request" link_goal_id:receipt_goal link_run_id:receipt_run
+            account:"one" to:"receiver@example.invalid" subject:"Synthetic Mail guard"}
+        let artifact = {task_id:receipt_goal event_id:"synthetic-event" calendar_id:"synthetic-calendar"
+            start:"synthetic-start" end:"synthetic-end" mail_account:"one" mail_to:"receiver@example.invalid"
+            mail_subject:"Synthetic Mail guard"}
+        mail_finish_linked_step(receipt_goal,receipt_run,"synthetic-mail-request",artifact,0)
+        receipt_checks["mail_" + status + "_no_new_memory"] = storage_read("memory.json") == before
+        receipt_checks["mail_" + status + "_no_new_completion"] = storage_read("goals.json") == goal_before
+    }
+    fs.write("probe.json",{checks:receipt_checks calls:[] observations:{real_smtp_calls:0
+        boundary:"Production finalization with synthetic files; linked Mail has matching verified Action/calendar bindings but lacks receiver confirmation. Full Mail/Calendar chain remains separate."}}.to_json())
+}
+start_timeout(0.1,||receipt_seed())

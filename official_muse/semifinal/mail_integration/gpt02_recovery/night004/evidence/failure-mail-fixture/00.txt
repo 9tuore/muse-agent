@@ -1,0 +1,17 @@
+
+running 1 test
+test night004_l2::l2_compose_edit_reject_cancel_accept_independent_recipient ... FAILED
+
+failures:
+
+failures:
+    night004_l2::l2_compose_edit_reject_cancel_accept_independent_recipient
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 70 filtered out; finished in 0.46s
+
+
+thread 'night004_l2::l2_compose_edit_reject_cancel_accept_independent_recipient' (773667) panicked at apps/mail/host-service/src/night004_l2.rs:45:1278:
+assertion `left == right` failed
+  left: String("<send-0c4f502bac2e2093d568bff10880912a@example.invalid>")
+ right: String("<send-cf996ccd040a69700d2f502a57a1b102@example.invalid>")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

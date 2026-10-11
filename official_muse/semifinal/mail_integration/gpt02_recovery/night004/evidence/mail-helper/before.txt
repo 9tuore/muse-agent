@@ -1,0 +1,10 @@
+
+running 1 test
+{"data": {"account": "one", "attempts": [{"notice": "Submission failed before message delivery. Explicit Retry requires a new approval.", "operation_id": "send-0e594937bd554610ac1635a6c7d6040c", "payload": {"body": "Protocol payload", "from": "sender@example.invalid", "in_reply_to": "", "message_id": "<send-0e594937bd554610ac1635a6c7d6040c@example.invalid>", "references": "", "subject": "NIGHT004 synthetic", "to": "receiver@example.invalid"}, "prior_attempt": null, "revision": 1, "status": "failed_before_delivery"}], "body": "Protocol payload", "body_origin": "app", "chat_thread": "reply-7ce6a5738e26a89bd748ea8a", "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db", "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-734e2251e2e836894d264fcd632f9d85", "email": {}, "from": "sender@example.invalid", "in_reply_to": "", "kind": "public_compose", "publisher": "night004.synthetic-mail", "references": "", "revision": 1, "source_message": {"folder": null, "generation": null, "message": null}, "status": "failed_before_delivery", "subject": "NIGHT004 synthetic", "suggestions": [], "to": "receiver@example.invalid"}, "id": 13, "is_ok": true}
+{"error": "This message has a submission attempt; inspect its receipt instead of composing again", "id": 14, "is_ok": false}
+{"data": {"real_smtp_calls": 0, "received": [], "transport_calls": 0}, "id": 15, "is_ok": true}
+{"data": {"quit": true}, "id": 16, "is_ok": true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 0.02s
+

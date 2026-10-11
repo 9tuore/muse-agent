@@ -1,5 +1,13 @@
 # GPT-02 定向恢复状态
 
+2026-10-12 NIGHT-004 Mail/Memory：本轮组件 fixture 范围 PASS，完整新 Host/L3 仍 NOT_TESTED。自有 SDK/Hub 实际复制并独立 offline+locked 编译生产 octosense-mail-service；生产六文件逐 SHA 通过，仅 cfg(test) 新模块，中央 SDK/target 不动。最终同一 binary 6b67963a 的 15/15 定向测试通过：compose→编辑失效→拒绝/取消→MockTransport accepted→独立 Python 收件子进程、same ID status、两个真实子进程重启、防重复、UNKNOWN、late callback、持久化失败及 claim/grant 拒绝。Vault/native 输入/Transport 为合成；Shell 原守卫不改，完整 Shell 本聊天未运行；真实 SMTP/Keychain 均0。
+
+持久 `night004/mail_helper.py` 纯 JSON-lines façade 已26/26；accepted/unknown/before 三种模式经过真实 dispatch/review/status 和独立 receiver，新的 Rust 进程从专用 marker 合成 state 恢复，same ID/status/attempts 和0重发通过。接口、二进制绝对路径及集成说明见 night004/README.md。仅用于中央 L3 模拟边界，不能称本人批准、真实投递或完整链 PASS。
+
+Memory 在已核 reference78ab9efc 的真实 Splash VM + jailed fs：原 suite61/61，实际 finalize_result / mail_finish_linked_step 门禁33/33。生产函数/全局逐字提取冻结主源768e295d；仅3renderer替换，禁止外部服务。provenance/scope/correction/forget/import拒绝，以及产物缺失/字节变化/wrong task/stale revision不写完成Memory、verified readback才写 completed+source hash 通过。其他绑定一致但 Mail accepted/unknown/cancelled 仍不新增Memory/完成。异步/大库/重启/视觉占位未计入61。原 VM object-loop适配错误、timer预算失败及Mail历史attempt断言错误保留；只拆合成timer步骤、修fixture断言，不改生产函数或VM预算。
+
+新增 night004/源码身份、测试补丁、runners、helper、summary及原日志。测试补丁独立apply/check+SHA读回通过，业务本轮无新改动。共享main/bundle/SDK/target、真实用户资料/凭据、外部账号与通知均未操作；不push。完整 Muse+Calendar+Mail L3、原生准入/本人审阅/真实收件由中央继续，不借用本轮计数宣称完成。
+
 实际结果为PARTIAL；补丁未应用正式源码。source→claim重复恢复未复现，不改已有幂等流程。原core_add_source相同locator/hash/excerpt/scope直接true；重启从JSON回读来源，claim重试仅落一次。
 
 实际备用缺口：官方SDK `drafts.rs:961-975` 将SendFailure::BeforeDelivery落盘为draft.status/attempt.status=failed_before_delivery。原Muse mail_check_host_status只接纳accepted，已确定投递前失败仍永远UNKNOWN。源码绑定合成fixture复现此错误；新增helper要求最终attempt operation_id非空、revision/status及精确to/subject/body匹配，accepted还要求receipt.accepted=true；仅可靠failed_before_delivery沿原unsent receipt phases恢复DRAFT正文、action/run failed。真正unknown/cancelled/awaiting_approval继续保留，不批准、不重发。Host角色/账号绑定的现有callback校验原样保留。

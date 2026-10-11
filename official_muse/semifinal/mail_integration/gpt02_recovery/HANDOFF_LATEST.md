@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02，own基线62de66c4；Mail生命周期键最小修复。
+ZC-02 NIGHT-004 Mail/Memory；own基线8b6eb613，独立worktree。
 
 ## Result
-PASS（独立Rust fixture）；完整Host/live未验证。accounts=false→None，true→Some；保留所有claim guard。
+PASS（组件fixture范围）；完整Host/L3未测。生产Rust Mail与真实VM Memory门禁通过。
 
 ## Changed
-lifecycle-key/patch、identity、准备器、fixture/native tests与证据；CURRENT_STATE。生产两行；两旧测试显式账号模式，新增device重装回归。
+night004/test-only patch、helper、runners、SHA与原日志；CURRENT_STATE。生产业务函数未改。
 
 ## Tests
-2026-10-12 Cargo offline before4/6、after6/6。提取真实函数，依赖适配器；完整Shell测试未运行。独立apply/check与SHA通过；中央未改。
+2026-10-12 Cargo offline+locked：15/15；持久helper26/26含真实进程重启/独立收件子进程/0重发。reference78ab9efc VM：Memory61/61、完成门禁33/33。证据night004/evidence；旧断言/适配器/预算失败保留。补丁独立apply/check+SHA通过。
 
 ## Commit
 见最终回复，未push。
 
 ## Remaining
-中央核两before SHA后apply --unidiff-zero，串行增量Host及完整测试/live。UNKNOWN仍只读对账。
+中央/ZC-03按night004/README接helper完成L3；完整Shell/native/真实收件未验。UNKNOWN不重发。
 
 ## Important Boundaries
-仅owned定向SDK副本/独立target；无GUI/生产metadata/grant/manifest/SMTP/Secrets操作。
+实际Mail crate/VM逻辑，Vault/审阅/Transport为合成；SMTP/Keychain0。无共享main/SDK/target/用户资料写入；未push。

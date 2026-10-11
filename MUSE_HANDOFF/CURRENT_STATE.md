@@ -1,3 +1,7 @@
+## NIGHT-004 Mail/Memory 组件证据接收
+
+接收GPT02 10ef2087隔离专项：生产Mail Rust15/15，持久JSONL helper26/26，真实Splash VM Memory61/61、完成回执门禁33/33。中央核对44份证据SHA、helper二进制SHA，以及6个生产Mail源码与owned SDK一致；未改业务实现。邮箱含独立Python模拟收件端、真实子进程重启与same compose ID状态保持。Memory只允许真实产物精确回读后completed；Mail accepted/UNKNOWN/cancelled不凭空完成Goal。所有SMTP/Keychain调用为0，合成审批/transport；完整同候选L3尚待Calendar更新接线。证据official_muse/semifinal/mail_integration/gpt02_recovery/night004/。
+
 ## NIGHT-004 Calendar 安全修复接收与中央复跑
 
 接收 GPT03 b6ee81ee，main原冻结SHA768e295d→c183a5c4；保留原已落盘外部修改后再应用最小patch，逐字核对。基线真实Splash VM22项有6失败，修复后22/22，中央独立复跑同SHA22/22。修复请求结清写/读失败恢复、超显示上限回执统计、非查询写回执防误结清、候选预校验、原事项选择恢复、重启绑定失败的稳定事项ID。真实业务函数；存储/transport/绘制是fixture，不计正式Host GUI或L3。Native同ID改期仍在下一单元。证据official_muse/semifinal/gpt03_night004/evidence/central/。新Intel Mail Host已构建a9fc8ca3，待最终同候选打包运行。

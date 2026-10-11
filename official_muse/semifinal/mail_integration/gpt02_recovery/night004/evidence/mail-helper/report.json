@@ -1,0 +1,1672 @@
+{
+  "kind": "ACTUAL_MAIL_CRATE_PERSISTENT_HELPER_WITH_SYNTHETIC_REVIEW_AND_TRANSPORT",
+  "checks": {
+    "accepted_same_draft_id": true,
+    "accepted_cancel_no_delivery": true,
+    "accepted_status": true,
+    "accepted_independent_recipient": true,
+    "accepted_same_message_id": true,
+    "accepted_no_resubmit": true,
+    "accepted_smtp_zero": true,
+    "accepted_restart_same_id_status_attempts": true,
+    "accepted_restart_no_resubmit": true,
+    "unknown_same_draft_id": true,
+    "unknown_cancel_no_delivery": true,
+    "unknown_status": true,
+    "unknown_independent_recipient": true,
+    "unknown_same_message_id": true,
+    "unknown_no_resubmit": true,
+    "unknown_smtp_zero": true,
+    "unknown_restart_same_id_status_attempts": true,
+    "unknown_restart_no_resubmit": true,
+    "before_same_draft_id": true,
+    "before_cancel_no_delivery": true,
+    "before_status": true,
+    "before_independent_recipient": true,
+    "before_no_resubmit": true,
+    "before_smtp_zero": true,
+    "before_restart_same_id_status_attempts": true,
+    "before_restart_no_resubmit": true
+  },
+  "cases": {
+    "accepted": {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/official_muse/semifinal/mail_integration/gpt02_recovery/night004/mail_helper.py",
+        "--binary",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/build/gpt02-night004-mail-r1/target/debug/deps/octosense_mail_service-f1a378928c07f474",
+        "--root",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/build/gpt02-night004-mail-helper-r3/accepted"
+      ],
+      "trace": [
+        {
+          "request": {
+            "id": 1,
+            "method": "fixture.mode",
+            "args": {},
+            "mode": "accepted"
+          },
+          "response": {
+            "data": {
+              "mode": "accepted"
+            },
+            "id": 1,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 2,
+            "method": "mail.accounts",
+            "args": {}
+          },
+          "response": {
+            "data": [
+              {
+                "address": "sender@example.invalid",
+                "id": "one"
+              }
+            ],
+            "id": 2,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 3,
+            "method": "mail.compose",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-75c2571d0b125a7a1efe3eb8",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-5e593b1d5130ec1c3e90f8f8a6d8f72f",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "draft",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 3,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 4,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-75c2571d0b125a7a1efe3eb8",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-5e593b1d5130ec1c3e90f8f8a6d8f72f",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "draft",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 4,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 5,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "expected_revision": 1
+            },
+            "decision": "cancel"
+          },
+          "response": {
+            "error": "Review cancelled; nothing was sent",
+            "id": 5,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 6,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [],
+              "transport_calls": 0
+            },
+            "id": 6,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 7,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "data": {
+              "accepted": true,
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-5e593b1d5130ec1c3e90f8f8a6d8f72f",
+              "id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+              "operation_id": "send-c6bc2dc28490c5013f2bb445040866c0",
+              "receipt": {
+                "accepted": true,
+                "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>"
+              },
+              "revision": 1,
+              "status": "accepted"
+            },
+            "id": 7,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 8,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [
+                {
+                  "operation_id": "send-c6bc2dc28490c5013f2bb445040866c0",
+                  "payload": {
+                    "body": "Protocol payload",
+                    "from": "sender@example.invalid",
+                    "in_reply_to": "",
+                    "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+                    "references": "",
+                    "subject": "NIGHT004 synthetic",
+                    "to": "receiver@example.invalid"
+                  },
+                  "prior_attempt": null,
+                  "receipt": {
+                    "accepted": true,
+                    "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>"
+                  },
+                  "revision": 1,
+                  "status": "accepted"
+                }
+              ],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-75c2571d0b125a7a1efe3eb8",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-5e593b1d5130ec1c3e90f8f8a6d8f72f",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "accepted",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 8,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 9,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [
+                {
+                  "body": "Protocol payload",
+                  "from": "sender@example.invalid",
+                  "in_reply_to": "",
+                  "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+                  "references": "",
+                  "subject": "NIGHT004 synthetic",
+                  "to": "receiver@example.invalid"
+                }
+              ],
+              "transport_calls": 1
+            },
+            "id": 9,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 10,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "This message has a submission attempt; inspect its receipt instead of composing again",
+            "id": 10,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 11,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [
+                {
+                  "body": "Protocol payload",
+                  "from": "sender@example.invalid",
+                  "in_reply_to": "",
+                  "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+                  "references": "",
+                  "subject": "NIGHT004 synthetic",
+                  "to": "receiver@example.invalid"
+                }
+              ],
+              "transport_calls": 1
+            },
+            "id": 11,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 12,
+            "method": "fixture.quit",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "quit": true
+            },
+            "id": 12,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 13,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [
+                {
+                  "operation_id": "send-c6bc2dc28490c5013f2bb445040866c0",
+                  "payload": {
+                    "body": "Protocol payload",
+                    "from": "sender@example.invalid",
+                    "in_reply_to": "",
+                    "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+                    "references": "",
+                    "subject": "NIGHT004 synthetic",
+                    "to": "receiver@example.invalid"
+                  },
+                  "prior_attempt": null,
+                  "receipt": {
+                    "accepted": true,
+                    "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>"
+                  },
+                  "revision": 1,
+                  "status": "accepted"
+                }
+              ],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-75c2571d0b125a7a1efe3eb8",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-5e593b1d5130ec1c3e90f8f8a6d8f72f",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "accepted",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 13,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 14,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "This message has a submission attempt; inspect its receipt instead of composing again",
+            "id": 14,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 15,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [
+                {
+                  "body": "Protocol payload",
+                  "from": "sender@example.invalid",
+                  "in_reply_to": "",
+                  "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+                  "references": "",
+                  "subject": "NIGHT004 synthetic",
+                  "to": "receiver@example.invalid"
+                }
+              ],
+              "transport_calls": 0
+            },
+            "id": 15,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 16,
+            "method": "fixture.quit",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "quit": true
+            },
+            "id": 16,
+            "is_ok": true
+          }
+        }
+      ],
+      "status": {
+        "account": "one",
+        "attempts": [
+          {
+            "operation_id": "send-c6bc2dc28490c5013f2bb445040866c0",
+            "payload": {
+              "body": "Protocol payload",
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+              "references": "",
+              "subject": "NIGHT004 synthetic",
+              "to": "receiver@example.invalid"
+            },
+            "prior_attempt": null,
+            "receipt": {
+              "accepted": true,
+              "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>"
+            },
+            "revision": 1,
+            "status": "accepted"
+          }
+        ],
+        "body": "Protocol payload",
+        "body_origin": "app",
+        "chat_thread": "reply-75c2571d0b125a7a1efe3eb8",
+        "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+        "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-5e593b1d5130ec1c3e90f8f8a6d8f72f",
+        "email": {},
+        "from": "sender@example.invalid",
+        "in_reply_to": "",
+        "kind": "public_compose",
+        "publisher": "night004.synthetic-mail",
+        "references": "",
+        "revision": 1,
+        "source_message": {
+          "folder": null,
+          "generation": null,
+          "message": null
+        },
+        "status": "accepted",
+        "subject": "NIGHT004 synthetic",
+        "suggestions": [],
+        "to": "receiver@example.invalid"
+      },
+      "recipient": {
+        "real_smtp_calls": 0,
+        "received": [
+          {
+            "body": "Protocol payload",
+            "from": "sender@example.invalid",
+            "in_reply_to": "",
+            "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+            "references": "",
+            "subject": "NIGHT004 synthetic",
+            "to": "receiver@example.invalid"
+          }
+        ],
+        "transport_calls": 1
+      },
+      "restart": {
+        "status": {
+          "account": "one",
+          "attempts": [
+            {
+              "operation_id": "send-c6bc2dc28490c5013f2bb445040866c0",
+              "payload": {
+                "body": "Protocol payload",
+                "from": "sender@example.invalid",
+                "in_reply_to": "",
+                "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+                "references": "",
+                "subject": "NIGHT004 synthetic",
+                "to": "receiver@example.invalid"
+              },
+              "prior_attempt": null,
+              "receipt": {
+                "accepted": true,
+                "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>"
+              },
+              "revision": 1,
+              "status": "accepted"
+            }
+          ],
+          "body": "Protocol payload",
+          "body_origin": "app",
+          "chat_thread": "reply-75c2571d0b125a7a1efe3eb8",
+          "compose_id": "compose-8e1f132442eea8c7309496c1bbfe7a19",
+          "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-5e593b1d5130ec1c3e90f8f8a6d8f72f",
+          "email": {},
+          "from": "sender@example.invalid",
+          "in_reply_to": "",
+          "kind": "public_compose",
+          "publisher": "night004.synthetic-mail",
+          "references": "",
+          "revision": 1,
+          "source_message": {
+            "folder": null,
+            "generation": null,
+            "message": null
+          },
+          "status": "accepted",
+          "subject": "NIGHT004 synthetic",
+          "suggestions": [],
+          "to": "receiver@example.invalid"
+        },
+        "recipient": {
+          "real_smtp_calls": 0,
+          "received": [
+            {
+              "body": "Protocol payload",
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "message_id": "<send-c6bc2dc28490c5013f2bb445040866c0@example.invalid>",
+              "references": "",
+              "subject": "NIGHT004 synthetic",
+              "to": "receiver@example.invalid"
+            }
+          ],
+          "transport_calls": 0
+        }
+      }
+    },
+    "unknown": {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/official_muse/semifinal/mail_integration/gpt02_recovery/night004/mail_helper.py",
+        "--binary",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/build/gpt02-night004-mail-r1/target/debug/deps/octosense_mail_service-f1a378928c07f474",
+        "--root",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/build/gpt02-night004-mail-helper-r3/unknown"
+      ],
+      "trace": [
+        {
+          "request": {
+            "id": 1,
+            "method": "fixture.mode",
+            "args": {},
+            "mode": "unknown"
+          },
+          "response": {
+            "data": {
+              "mode": "unknown"
+            },
+            "id": 1,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 2,
+            "method": "mail.accounts",
+            "args": {}
+          },
+          "response": {
+            "data": [
+              {
+                "address": "sender@example.invalid",
+                "id": "one"
+              }
+            ],
+            "id": 2,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 3,
+            "method": "mail.compose",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-a49df7e69a78521ad35380f1",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-1e8caa2f4fed770d3573c1082bf223b1",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "draft",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 3,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 4,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-a49df7e69a78521ad35380f1",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-1e8caa2f4fed770d3573c1082bf223b1",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "draft",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 4,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 5,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "expected_revision": 1
+            },
+            "decision": "cancel"
+          },
+          "response": {
+            "error": "Review cancelled; nothing was sent",
+            "id": 5,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 6,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [],
+              "transport_calls": 0
+            },
+            "id": 6,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 7,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "Submission status: outcome_unknown. Inspect mail.compose_status for compose_id compose-a364f40b17fd21c327280a81c6042837 before retrying; do not automatically resend.",
+            "id": 7,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 8,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [
+                {
+                  "notice": "Delivery may have happened. Check Sent; do not automatically resend.",
+                  "operation_id": "send-84d936b07aebbb8d21d6f90f53b3f464",
+                  "payload": {
+                    "body": "Protocol payload",
+                    "from": "sender@example.invalid",
+                    "in_reply_to": "",
+                    "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+                    "references": "",
+                    "subject": "NIGHT004 synthetic",
+                    "to": "receiver@example.invalid"
+                  },
+                  "prior_attempt": null,
+                  "revision": 1,
+                  "status": "outcome_unknown"
+                }
+              ],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-a49df7e69a78521ad35380f1",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-1e8caa2f4fed770d3573c1082bf223b1",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "outcome_unknown",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 8,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 9,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [
+                {
+                  "body": "Protocol payload",
+                  "from": "sender@example.invalid",
+                  "in_reply_to": "",
+                  "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+                  "references": "",
+                  "subject": "NIGHT004 synthetic",
+                  "to": "receiver@example.invalid"
+                }
+              ],
+              "transport_calls": 1
+            },
+            "id": 9,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 10,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "This message has a submission attempt; inspect its receipt instead of composing again",
+            "id": 10,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 11,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [
+                {
+                  "body": "Protocol payload",
+                  "from": "sender@example.invalid",
+                  "in_reply_to": "",
+                  "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+                  "references": "",
+                  "subject": "NIGHT004 synthetic",
+                  "to": "receiver@example.invalid"
+                }
+              ],
+              "transport_calls": 1
+            },
+            "id": 11,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 12,
+            "method": "fixture.quit",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "quit": true
+            },
+            "id": 12,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 13,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [
+                {
+                  "notice": "Delivery may have happened. Check Sent; do not automatically resend.",
+                  "operation_id": "send-84d936b07aebbb8d21d6f90f53b3f464",
+                  "payload": {
+                    "body": "Protocol payload",
+                    "from": "sender@example.invalid",
+                    "in_reply_to": "",
+                    "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+                    "references": "",
+                    "subject": "NIGHT004 synthetic",
+                    "to": "receiver@example.invalid"
+                  },
+                  "prior_attempt": null,
+                  "revision": 1,
+                  "status": "outcome_unknown"
+                }
+              ],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-a49df7e69a78521ad35380f1",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-1e8caa2f4fed770d3573c1082bf223b1",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "outcome_unknown",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 13,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 14,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "This message has a submission attempt; inspect its receipt instead of composing again",
+            "id": 14,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 15,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [
+                {
+                  "body": "Protocol payload",
+                  "from": "sender@example.invalid",
+                  "in_reply_to": "",
+                  "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+                  "references": "",
+                  "subject": "NIGHT004 synthetic",
+                  "to": "receiver@example.invalid"
+                }
+              ],
+              "transport_calls": 0
+            },
+            "id": 15,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 16,
+            "method": "fixture.quit",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "quit": true
+            },
+            "id": 16,
+            "is_ok": true
+          }
+        }
+      ],
+      "status": {
+        "account": "one",
+        "attempts": [
+          {
+            "notice": "Delivery may have happened. Check Sent; do not automatically resend.",
+            "operation_id": "send-84d936b07aebbb8d21d6f90f53b3f464",
+            "payload": {
+              "body": "Protocol payload",
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+              "references": "",
+              "subject": "NIGHT004 synthetic",
+              "to": "receiver@example.invalid"
+            },
+            "prior_attempt": null,
+            "revision": 1,
+            "status": "outcome_unknown"
+          }
+        ],
+        "body": "Protocol payload",
+        "body_origin": "app",
+        "chat_thread": "reply-a49df7e69a78521ad35380f1",
+        "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+        "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-1e8caa2f4fed770d3573c1082bf223b1",
+        "email": {},
+        "from": "sender@example.invalid",
+        "in_reply_to": "",
+        "kind": "public_compose",
+        "publisher": "night004.synthetic-mail",
+        "references": "",
+        "revision": 1,
+        "source_message": {
+          "folder": null,
+          "generation": null,
+          "message": null
+        },
+        "status": "outcome_unknown",
+        "subject": "NIGHT004 synthetic",
+        "suggestions": [],
+        "to": "receiver@example.invalid"
+      },
+      "recipient": {
+        "real_smtp_calls": 0,
+        "received": [
+          {
+            "body": "Protocol payload",
+            "from": "sender@example.invalid",
+            "in_reply_to": "",
+            "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+            "references": "",
+            "subject": "NIGHT004 synthetic",
+            "to": "receiver@example.invalid"
+          }
+        ],
+        "transport_calls": 1
+      },
+      "restart": {
+        "status": {
+          "account": "one",
+          "attempts": [
+            {
+              "notice": "Delivery may have happened. Check Sent; do not automatically resend.",
+              "operation_id": "send-84d936b07aebbb8d21d6f90f53b3f464",
+              "payload": {
+                "body": "Protocol payload",
+                "from": "sender@example.invalid",
+                "in_reply_to": "",
+                "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+                "references": "",
+                "subject": "NIGHT004 synthetic",
+                "to": "receiver@example.invalid"
+              },
+              "prior_attempt": null,
+              "revision": 1,
+              "status": "outcome_unknown"
+            }
+          ],
+          "body": "Protocol payload",
+          "body_origin": "app",
+          "chat_thread": "reply-a49df7e69a78521ad35380f1",
+          "compose_id": "compose-a364f40b17fd21c327280a81c6042837",
+          "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-1e8caa2f4fed770d3573c1082bf223b1",
+          "email": {},
+          "from": "sender@example.invalid",
+          "in_reply_to": "",
+          "kind": "public_compose",
+          "publisher": "night004.synthetic-mail",
+          "references": "",
+          "revision": 1,
+          "source_message": {
+            "folder": null,
+            "generation": null,
+            "message": null
+          },
+          "status": "outcome_unknown",
+          "subject": "NIGHT004 synthetic",
+          "suggestions": [],
+          "to": "receiver@example.invalid"
+        },
+        "recipient": {
+          "real_smtp_calls": 0,
+          "received": [
+            {
+              "body": "Protocol payload",
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "message_id": "<send-84d936b07aebbb8d21d6f90f53b3f464@example.invalid>",
+              "references": "",
+              "subject": "NIGHT004 synthetic",
+              "to": "receiver@example.invalid"
+            }
+          ],
+          "transport_calls": 0
+        }
+      }
+    },
+    "before": {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/official_muse/semifinal/mail_integration/gpt02_recovery/night004/mail_helper.py",
+        "--binary",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/build/gpt02-night004-mail-r1/target/debug/deps/octosense_mail_service-f1a378928c07f474",
+        "--root",
+        "/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/build/gpt02-night004-mail-helper-r3/before"
+      ],
+      "trace": [
+        {
+          "request": {
+            "id": 1,
+            "method": "fixture.mode",
+            "args": {},
+            "mode": "before"
+          },
+          "response": {
+            "data": {
+              "mode": "before"
+            },
+            "id": 1,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 2,
+            "method": "mail.accounts",
+            "args": {}
+          },
+          "response": {
+            "data": [
+              {
+                "address": "sender@example.invalid",
+                "id": "one"
+              }
+            ],
+            "id": 2,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 3,
+            "method": "mail.compose",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-7ce6a5738e26a89bd748ea8a",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-734e2251e2e836894d264fcd632f9d85",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "draft",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 3,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 4,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-7ce6a5738e26a89bd748ea8a",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-734e2251e2e836894d264fcd632f9d85",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "draft",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 4,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 5,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "expected_revision": 1
+            },
+            "decision": "cancel"
+          },
+          "response": {
+            "error": "Review cancelled; nothing was sent",
+            "id": 5,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 6,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [],
+              "transport_calls": 0
+            },
+            "id": 6,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 7,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "Submission status: failed_before_delivery. Inspect mail.compose_status for compose_id compose-70fd416bd1389afafb76ed8b3871c0db before retrying; do not automatically resend.",
+            "id": 7,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 8,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [
+                {
+                  "notice": "Submission failed before message delivery. Explicit Retry requires a new approval.",
+                  "operation_id": "send-0e594937bd554610ac1635a6c7d6040c",
+                  "payload": {
+                    "body": "Protocol payload",
+                    "from": "sender@example.invalid",
+                    "in_reply_to": "",
+                    "message_id": "<send-0e594937bd554610ac1635a6c7d6040c@example.invalid>",
+                    "references": "",
+                    "subject": "NIGHT004 synthetic",
+                    "to": "receiver@example.invalid"
+                  },
+                  "prior_attempt": null,
+                  "revision": 1,
+                  "status": "failed_before_delivery"
+                }
+              ],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-7ce6a5738e26a89bd748ea8a",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-734e2251e2e836894d264fcd632f9d85",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "failed_before_delivery",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 8,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 9,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [],
+              "transport_calls": 1
+            },
+            "id": 9,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 10,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "This message has a submission attempt; inspect its receipt instead of composing again",
+            "id": 10,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 11,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [],
+              "transport_calls": 1
+            },
+            "id": 11,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 12,
+            "method": "fixture.quit",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "quit": true
+            },
+            "id": 12,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 13,
+            "method": "mail.compose_status",
+            "args": {
+              "account": "one",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db"
+            }
+          },
+          "response": {
+            "data": {
+              "account": "one",
+              "attempts": [
+                {
+                  "notice": "Submission failed before message delivery. Explicit Retry requires a new approval.",
+                  "operation_id": "send-0e594937bd554610ac1635a6c7d6040c",
+                  "payload": {
+                    "body": "Protocol payload",
+                    "from": "sender@example.invalid",
+                    "in_reply_to": "",
+                    "message_id": "<send-0e594937bd554610ac1635a6c7d6040c@example.invalid>",
+                    "references": "",
+                    "subject": "NIGHT004 synthetic",
+                    "to": "receiver@example.invalid"
+                  },
+                  "prior_attempt": null,
+                  "revision": 1,
+                  "status": "failed_before_delivery"
+                }
+              ],
+              "body": "Protocol payload",
+              "body_origin": "app",
+              "chat_thread": "reply-7ce6a5738e26a89bd748ea8a",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-734e2251e2e836894d264fcd632f9d85",
+              "email": {},
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "kind": "public_compose",
+              "publisher": "night004.synthetic-mail",
+              "references": "",
+              "revision": 1,
+              "source_message": {
+                "folder": null,
+                "generation": null,
+                "message": null
+              },
+              "status": "failed_before_delivery",
+              "subject": "NIGHT004 synthetic",
+              "suggestions": [],
+              "to": "receiver@example.invalid"
+            },
+            "id": 13,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 14,
+            "method": "mail.review_send",
+            "args": {
+              "account": "one",
+              "to": "receiver@example.invalid",
+              "subject": "NIGHT004 synthetic",
+              "body": "Protocol payload",
+              "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+              "expected_revision": 1
+            },
+            "decision": "approve"
+          },
+          "response": {
+            "error": "This message has a submission attempt; inspect its receipt instead of composing again",
+            "id": 14,
+            "is_ok": false
+          }
+        },
+        {
+          "request": {
+            "id": 15,
+            "method": "fixture.receiver",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "real_smtp_calls": 0,
+              "received": [],
+              "transport_calls": 0
+            },
+            "id": 15,
+            "is_ok": true
+          }
+        },
+        {
+          "request": {
+            "id": 16,
+            "method": "fixture.quit",
+            "args": {}
+          },
+          "response": {
+            "data": {
+              "quit": true
+            },
+            "id": 16,
+            "is_ok": true
+          }
+        }
+      ],
+      "status": {
+        "account": "one",
+        "attempts": [
+          {
+            "notice": "Submission failed before message delivery. Explicit Retry requires a new approval.",
+            "operation_id": "send-0e594937bd554610ac1635a6c7d6040c",
+            "payload": {
+              "body": "Protocol payload",
+              "from": "sender@example.invalid",
+              "in_reply_to": "",
+              "message_id": "<send-0e594937bd554610ac1635a6c7d6040c@example.invalid>",
+              "references": "",
+              "subject": "NIGHT004 synthetic",
+              "to": "receiver@example.invalid"
+            },
+            "prior_attempt": null,
+            "revision": 1,
+            "status": "failed_before_delivery"
+          }
+        ],
+        "body": "Protocol payload",
+        "body_origin": "app",
+        "chat_thread": "reply-7ce6a5738e26a89bd748ea8a",
+        "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+        "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-734e2251e2e836894d264fcd632f9d85",
+        "email": {},
+        "from": "sender@example.invalid",
+        "in_reply_to": "",
+        "kind": "public_compose",
+        "publisher": "night004.synthetic-mail",
+        "references": "",
+        "revision": 1,
+        "source_message": {
+          "folder": null,
+          "generation": null,
+          "message": null
+        },
+        "status": "failed_before_delivery",
+        "subject": "NIGHT004 synthetic",
+        "suggestions": [],
+        "to": "receiver@example.invalid"
+      },
+      "recipient": {
+        "real_smtp_calls": 0,
+        "received": [],
+        "transport_calls": 1
+      },
+      "restart": {
+        "status": {
+          "account": "one",
+          "attempts": [
+            {
+              "notice": "Submission failed before message delivery. Explicit Retry requires a new approval.",
+              "operation_id": "send-0e594937bd554610ac1635a6c7d6040c",
+              "payload": {
+                "body": "Protocol payload",
+                "from": "sender@example.invalid",
+                "in_reply_to": "",
+                "message_id": "<send-0e594937bd554610ac1635a6c7d6040c@example.invalid>",
+                "references": "",
+                "subject": "NIGHT004 synthetic",
+                "to": "receiver@example.invalid"
+              },
+              "prior_attempt": null,
+              "revision": 1,
+              "status": "failed_before_delivery"
+            }
+          ],
+          "body": "Protocol payload",
+          "body_origin": "app",
+          "chat_thread": "reply-7ce6a5738e26a89bd748ea8a",
+          "compose_id": "compose-70fd416bd1389afafb76ed8b3871c0db",
+          "draft_id": "composer-d9b07773382e7b780cc4bc0a44744d2f-734e2251e2e836894d264fcd632f9d85",
+          "email": {},
+          "from": "sender@example.invalid",
+          "in_reply_to": "",
+          "kind": "public_compose",
+          "publisher": "night004.synthetic-mail",
+          "references": "",
+          "revision": 1,
+          "source_message": {
+            "folder": null,
+            "generation": null,
+            "message": null
+          },
+          "status": "failed_before_delivery",
+          "subject": "NIGHT004 synthetic",
+          "suggestions": [],
+          "to": "receiver@example.invalid"
+        },
+        "recipient": {
+          "real_smtp_calls": 0,
+          "received": [],
+          "transport_calls": 0
+        }
+      }
+    }
+  },
+  "real_smtp_calls": 0,
+  "binary_sha256": "6b67963a11b70526ada986cbff14570e7344b0e852a61c875401eca2a6049de5",
+  "boundary": "Stdio helper verified; Muse full-chain integration and physical native approval are separate."
+}
