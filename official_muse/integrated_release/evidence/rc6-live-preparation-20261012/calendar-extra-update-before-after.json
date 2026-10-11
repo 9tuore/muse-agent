@@ -1,0 +1,45 @@
+{
+  "status": "NARROW_REVIEW_REGRESSION_PASS",
+  "observed_at": "2026-10-11T15:54:44.567642+00:00",
+  "case": "extra_calendar_update_between_three_required_delete_calls",
+  "before_and_after": [
+    {
+      "label": "before_rc6_r1",
+      "path": "build/muse-integrated-0.4.0-rc6-r1/readable-bundle/main.splash",
+      "sha256": "a3e0b190a724a7e92dd6a7ae17063b84af0ffc26d48f68831247cb9e203c30ac",
+      "cases": [
+        {
+          "tool_alias": "calendar.update_event",
+          "normalized_tool": "",
+          "status": "verified"
+        },
+        {
+          "tool_alias": "calendar_update_event",
+          "normalized_tool": "",
+          "status": "verified"
+        }
+      ]
+    },
+    {
+      "label": "after_root_source",
+      "path": "official_muse/app/source/main.splash",
+      "sha256": "5c14db2d186d9e787f7e9135a0edf87206ef7ba10622ed882e0b16373ff4e6f0",
+      "cases": [
+        {
+          "tool_alias": "calendar.update_event",
+          "normalized_tool": "calendar.update_event",
+          "status": "unknown"
+        },
+        {
+          "tool_alias": "calendar_update_event",
+          "normalized_tool": "calendar.update_event",
+          "status": "unknown"
+        }
+      ]
+    }
+  ],
+  "external_calls": 0,
+  "checks": 4,
+  "passed": 4,
+  "boundary": "Four source-bound Node review cases only. No Splash VM, Host approval, GUI, or live Calendar mutation. Existing 88-case test was not rerun."
+}

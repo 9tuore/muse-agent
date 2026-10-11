@@ -5,7 +5,8 @@ use octosense_appstore::{configure_muse_calendar_offers, host_store, set_muse_ca
 use serde_json::json;
 use std::path::PathBuf;
 
-const FOUR: &[&str] = &["calendar.events", "calendar.get_event", "calendar.add_event", "calendar.notify"];
+const SIX: &[&str] = &["calendar.events", "calendar.get_event", "calendar.add_event",
+    "calendar.update_event", "calendar.remove_event", "calendar.notify"];
 
 struct Fixture {
     root: PathBuf,
@@ -71,12 +72,12 @@ fn authenticated_muse_ceiling_is_exact_revocable_and_does_not_bypass_signatures(
     // One test process owns the host's global integration configuration.
     set_muse_calendar_integration_enabled(false);
     {
-        let mut f = Fixture::new(FOUR);
+        let mut f = Fixture::new(SIX);
         configure_muse_calendar_offers(&mut f.store).unwrap();
         assert!(f.store.resolve_offered_policy("muse-goals").unwrap_err().contains("does not offer"));
         set_muse_calendar_integration_enabled(true);
         configure_muse_calendar_offers(&mut f.store).unwrap();
-        let expected = FOUR.iter().map(|tool| (*tool).to_owned()).collect::<std::collections::BTreeSet<_>>();
+        let expected = SIX.iter().map(|tool| (*tool).to_owned()).collect::<std::collections::BTreeSet<_>>();
         assert_eq!(f.store.resolve_offered_policy("muse-goals").unwrap().agent.unwrap().tools, expected);
         assert!(f.store.resolve_offered_policy("another-app").unwrap_err().contains("does not offer"));
         let clone = f.store.clone();
@@ -100,11 +101,11 @@ fn authenticated_muse_ceiling_is_exact_revocable_and_does_not_bypass_signatures(
         assert!(clone.resolve_offered_policy("muse-goals").unwrap_err().contains("does not offer"));
     }
     {
-        let mut f = Fixture::new(&["calendar.events", "calendar.update_event", "calendar.remove_event"]);
+        let mut f = Fixture::new(&["calendar.events", "calendar.agenda", "calendar.delete_event"]);
         set_muse_calendar_integration_enabled(true);
         configure_muse_calendar_offers(&mut f.store).unwrap();
         let error = f.store.resolve_offered_policy("muse-goals").unwrap_err();
-        assert!(error.contains("does not offer") && (error.contains("update_event") || error.contains("remove_event")));
+        assert!(error.contains("does not offer") && (error.contains("agenda") || error.contains("delete_event")));
     }
     {
         let mut f = Fixture::new(&[]);

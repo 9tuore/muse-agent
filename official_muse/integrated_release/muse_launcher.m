@@ -111,11 +111,11 @@ int main(int argc, const char *argv[]) {
     @autoreleasepool {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
-        NSArray *required = @[@"OctoSense Host.app/Contents/MacOS/octosense", @"mirror/catalog.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle/manifest.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle.pack.json",
-            @"OctoSense Host.app/Contents/MacOS/octos-kernel",
-            @"OctoSense Host.app/Contents/Resources/octos-kernel.json"];
+        NSArray *required = @[@"host-runtime/octosense", @"mirror/catalog.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle/manifest.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle.pack.json",
+            @"host-runtime/octos-kernel",
+            @"host-runtime/octos-kernel.json"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
         BOOL gptCheck = argc == 2 && strcmp(argv[1], "--gpt-check") == 0;
         BOOL supervise = (argc == 3 || argc == 4) && strcmp(argv[1], "--supervise") == 0;
@@ -161,7 +161,7 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
         if (check) {
-            puts("PASS：Muse 0.4.0-rc5 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
+            puts("PASS：Muse 0.4.0-rc6 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;

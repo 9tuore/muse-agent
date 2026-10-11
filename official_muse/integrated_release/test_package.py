@@ -55,12 +55,12 @@ int main(int argc, char **argv) {
         self.before = {p.relative_to(self.source).as_posix(): p.read_bytes()
                        for p in self.source.rglob('*') if p.is_file()}
         self.mirror = self.root / 'mirror'
-        bundle = self.mirror / 'artifacts/muse-goals-0.4.0-rc5.bundle'
+        bundle = self.mirror / 'artifacts/muse-goals-0.4.0-rc6.bundle'
         bundle.mkdir(parents=True)
         (bundle / 'manifest.json').write_text('{}')
         (bundle / 'main.splash').write_text('// fixture')
         (self.mirror / 'catalog.json').write_text('{}')
-        (self.mirror / 'artifacts/muse-goals-0.4.0-rc5.bundle.pack.json').write_text('{}')
+        (self.mirror / 'artifacts/muse-goals-0.4.0-rc6.bundle.pack.json').write_text('{}')
         self.output = self.root / 'candidate'
         self.state = self.root / 'existing state'
         self.state.mkdir()
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
                  for p in copied.rglob('*') if p.is_file()}
         self.assertEqual(after, self.before)
         record = json.loads((self.output / 'PACKAGE.json').read_text())
-        self.assertEqual(record['version'], '0.4.0-rc5')
+        self.assertEqual(record['version'], '0.4.0-rc6')
         self.assertTrue(record['reused_signed_pair'])
         self.assertEqual(record['source_host_sha256'], record['host_sha256'])
         self.assertEqual(record['source_kernel_sha256'], record['kernel_sha256'])

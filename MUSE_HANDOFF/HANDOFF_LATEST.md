@@ -1,23 +1,9 @@
 # Handoff
 
-## Task
-ZC-00：统一 rc4 候选、复用 WorkBuddy 可见宿主、继续官方业务验收。
-
-## Result
-PARTIAL。签名 hybrid 单包已生成；原 WorkBuddy 入口重启后可见，本人Install和Native Allow已完成；完整Muse打开，官方Calendar只读真实调用通过。
-
-## Changed
-rc5模型请求按官方契约将历史置于input；中央112项Node定向检查通过，真实GUI复验待完成。catalog递增到2。
-正式 main 当前事项→官方 Calendar 精确读回→可选 Mail 草稿已接入；统一 Launcher/仓库脚本/GitHub 回归接收。仅向原 WorkBuddy Launcher 添加三个公开目录变量，原字节备份保留，Host/STATE/HOME 未替换。
-
-## Tests
-完整 Host Release、paired-host gate、整包 deep/strict 签名通过；Launcher21、Qwen目录12、Calendar参考VM19、Mail参考VM37通过，均不证明业务投递。GitHub run38122820596实际SUCCESS。新增40项参考VM探针尚无PASS；旧解析失败日志保留。
-
-## Commit
-真实Calendar.events完成1/失败0/未核验0，Broker持久回执见workbuddy-rc4-calendar-readonly-live.json；无外部写入与SMTP。本节点正常推开发分支并核对远端；正式 main 源SHA0c7f9812，签名目录引用72f7b1ef。
-
-## Remaining
-实际Calendar新建/精确读回、Mail/模型/行动链业务，持续 Kernel权威配额，T18与同候选20冷启动。新包宿主首屏需修复，现场继续保留可见 WorkBuddy Host。
-
-## Important Boundaries
-当前可见Host ec83a4f9 与新包d273ebf3不是同一二进制，不能拼接验收。生产数据/旧dirty/旧证据不动；不公开发布或比赛提交。
+Task: ZC-00 rc6 六工具/standalone 同候选真实联通。
+Result: PARTIAL。邮箱签名根因已修，本人连接和同步及Muse本地草稿保存通过；官方 compose/SMTP未核验，未发信。原可见入口 PID16170 / Host4623caae。
+Changed: main 删除回执与 update 别名守卫；manifest/publisher six-tool/rc6/sequence3；package flatten host-runtime，Host在app外先独立签名；保持原 WorkBuddy shell/Info/HOME/state。
+Tests: Host868.564s exit0 unsigned80285180；88删除fixture、4混入更新拒绝probe，静态不代表真实CRUD；签名dynamic0、本人登录和mail.sync实机通过。
+Commit: 以本条文档所在Git提交为源码集成节点；无push/公开发布。
+Remaining: rc6签名目录/单包GUI、本人的新scope确认、Calendar CRUD、Mail重启/官方草稿和审阅、持续AI/T18/20冷启动。
+Boundaries: owned副本签名，原bare ec83/Kernel5676原件和失败保留；不包含密码/账号地址/生产资料，不绕过确认，不改根候选。

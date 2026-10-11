@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = '0.4.0-rc5'
+VERSION = '0.4.0-rc6'
 
 
 def main():
@@ -36,7 +36,7 @@ def main():
         ('runtime.list', 'mail.compose', 'mail.compose_status', 'mail.review_send')}}
     manifest['agent'] = {'profile': 'read-only', 'instructions': 'AGENT.md',
         'tools': ['ask_user_question', 'calendar.events', 'calendar.get_event',
-            'calendar.add_event', 'calendar.notify'], 'model': {'tier': 'standard',
+            'calendar.add_event', 'calendar.update_event', 'calendar.remove_event', 'calendar.notify'], 'model': {'tier': 'standard',
         'needs': ['tool_calling'], 'local_only': False},
         'token_budget': None, 'max_iterations': None}
     (readable / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
@@ -44,8 +44,8 @@ def main():
     listing = json.loads((readable / 'listing.json').read_text())
     listing['description'] = ('Muse 将中文对话、全局记忆、长期事务和行动链整合在同一界面。'
         '邮件使用配套 OctoSense 原生登录、起草、审阅和状态接口；发送需要本人批准。'
-        '全局记忆支持来源、范围、更正和遗忘。官方助手申请内置日历查询、回读、新建和通知，'
-        '使用前需要宿主本人启用；当前事项可绑定请求和精确读回回执；自动安排、改期仍待接通。'
+        '全局记忆支持来源、范围、更正和遗忘。官方助手申请内置日历查询、回读、新建、更新、删除和通知，'
+        '使用前需要宿主本人启用；更新与删除仍需 Host 本人批准；真实调动须经过同身份验收。'
         '本候选保留历史记录并明确显示能力状态。配套宿主基于官方源码，包含待审修复。')
     listing['release_notes'] = (VERSION + '：统一应用入口、宿主、锁定内核、界面和本地模型启动器。'
         '移植有界源码准备，保留 64ms 脚本限额；新增官方 Agent 声明，首次使用仍需宿主本人授权。'

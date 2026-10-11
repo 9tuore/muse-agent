@@ -57,5 +57,5 @@ while [ ! -f "$READY" ]; do
     sleep 0.1
 done
 PORT=${MUSE_INTEGRATED_REMOTE:-9696}
-exec "$RESOURCES/OctoSense Host.app/Contents/MacOS/octosense" "--remote=$PORT" \
+exec "$RESOURCES/host-runtime/octosense" "--remote=$PORT" \
     --test-action launch-muse-native-prototype >> "$STATE/logs/host.log" 2>&1

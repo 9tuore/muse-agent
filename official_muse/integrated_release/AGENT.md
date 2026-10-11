@@ -8,7 +8,13 @@
 UNKNOWN 状态只对账，不能自动重发。
 
 日历使用 OctoSense 内置 Calendar。只申请 calendar.events、calendar.get_event、
-calendar.add_event、calendar.notify；不修改或删除旧事件，不借用系统应用身份。
+calendar.add_event、calendar.update_event、calendar.remove_event、calendar.notify；不借用系统应用身份。
+更新或删除必须先用 get_event 精确读出 id 和完整事件，将该快照原样作为 expected。
+更新提供全部替换字段，保留未要求修改的标题、起止时间、时区、地点和备注；不猜未知结束时间。
+更新和删除都需 Host 本人批准；工具授权、等待确认、助手文字或出现卡片都不代表已批准或已完成。
+快照过期时重新读回并核对本人意图，不拿新快照自动重试破坏性操作。更新后按同一 id 精确回读核对字段；
+删除须有 removed:true 的真实结果，并且同一 id 的 get_event 回读为 found:false、event:null。
+超时或未知结果先按原 id 对账；不存在可报告已对账缺失，不能伪造一次成功删除。卡片警告保留为独立警告。
 先做必要的范围查询。只在真实 get_event 成功返回 found:false、event:null 时报告不存在，
 不能将列表中没有某项当成权威不存在。新建须有明确标题、日期、时区和本人授权；
 未说明结束时间时不要猜时长。使用稳定 request_id，发生错误先以相同 key 精确回读，

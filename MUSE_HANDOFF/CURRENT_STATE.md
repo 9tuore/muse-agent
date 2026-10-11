@@ -1,3 +1,11 @@
+## ZC-00 rc6 联通集成：2026-10-12 00:06 北京时间
+
+Intel x86_64 现场原 WorkBuddy CFBundleExecutable shell→bare Host 能显示。原 bare Host 的动态签名 -67030 导致系统 Keychain 拒绝；仅对 owned standalone Host 重新签名，动态签名 0 后本人真实邮箱连接成功。mail.sync 宿主成功回执及无收件人的合成 Muse 本地草稿保存已实测；官方 host compose/审阅/SMTP和重启恢复尚未核验，真实发信0。rc5 模型实调 1+1 返回2。
+
+rc6 六工具 Host Release 真实构建成功（868.564s，unsigned SHA80285180）。main 接入新建/读回/删除回执，删除88项 Node fixture通过；复核补齐 update_event 别名，额外更新混入删除序列的4项前后检查通过。Rust服务/History21项及六工具静态15项来自独立交付，不代表本机CRUD。当前生成六工具签名目录和 standalone 单app；原工作入口/生产/旧dirty与失败证据保留，未正式发布。关键证据见 official_muse/integrated_release/evidence/rc6-live-preparation-20261012/。
+
+下一步：rc6同候选可见窗口→本人必要的新scope安装/授权→日历真实新建/精确读回/删除/不存在读回→邮箱账号与草稿重启恢复。持续AI/T18/最终20次仍待完成。
+
 ## ZC-00 rc5 官方模型请求修复：2026-10-11
 
 真实GUI Chat触发bad_request，SDK Request::from_args明确拒绝顶层messages。最小修复仅muse_model_request：历史和上下文移入input.messages，最终只发task/input/schema与存在的class/allow_urls；六caller及其身份/版本守卫不变。中央重新运行源码绑定Node检查112/112 PASS，外部调用0；不是实际模型或VM通过。prepare/publisher同步rc5，catalog sequence=2，新签名候选正在准备，真实GUI复验待完成。
