@@ -2,28 +2,28 @@
 
 ## Task
 
-NIGHT-004 GPT01：R4三例compact native overlap probe独立单元。
+NIGHT-004 GPT01：Root contained-r1 bounded query FAIL的只读定位与最小fixture契约修正。
 
 ## Result
 
-PREPARED_NOT_RUN。Root实际product commit197d16d785533469b0e90ab720d4f110f3ebe505/source8227已核对，中央同Main49/49 guard PASS。本单元提供实际source8227的same/contained/adjacent新closure与Root-only fixture-copy脚本；真实signed R4/Kernel三例由Root执行。
+TEST_EXPECTATION_ERROR；原Root FAIL保持原样，candidate preflight尚未触达。官方events使用end>=from且start<=to含端点重叠。此前读反local_stamp(true/false)，contained/adjacent预期0错误，两入口现修为1。
 
 ## Changed
 
-native_overlap_probe最终出口把JSON先存局部result_json再返回，格式表达式无fixture_rpc；three小入口、prepare_root_case、正式preparer复用脚本与R6准备/格式证据。Root命令/路径见overlap/ROOT_R4_INTERVAL_HANDOFF.md。
+只改contained/adjacent入口数字、相关说明、只读证据与R7准备记录。Main/SDK/Relay/model不改。R7 prepared绝对路径和Root命令见overlap/ROOT_R4_INTERVAL_HANDOFF.md。
 
 ## Tests
 
-精确final assignment＋精确local-string出口在已有f480VM用保存实际fixture字段执行：exit0/stderr空/RPC0、1384字节合法JSON，仅format-only。actual central source8227与product197d核对；三例338functions/184globals逐字归一化断言通过，未运行旅程。旧r1/r2和全部原日志不变，不补旧baseline成功结果。
+原resolved args精确from16:10/limit200/to16:20，canonical digest5da0f132与真实Broker receipt及call/done audit一致；person lane/turn/toolcall/session/persisted/terminal ok严格关联。返回原事件1，七字段与checkpoint/owner一致，owner count1/SHA103a5a86不变。9个离线断言PASS，原report仅8checks/FAIL保存且未进新candidate。official parse_time/stamp/local_stamp与Relay/scoped_args→ServiceCall已核对。新R7实际source8227三例338functions/184globals逐字准备通过，仅PREPARED_NOT_RUN。没有再跑Kernel/VM或改写原结果。
 
 ## Commit
 
-独立三例交付commit见Git/聊天。本地提交，未push。
+当前本地修正提交见Git/聊天，未push。
 
 ## Remaining
 
-Root实际signed Main SHA/config确认后，新clone分别运行same/contained第一操作仅query/warn、adjacent query/settle/第二次操作create/get。实际输出/owner/receipt由原parent日志核对。
+Root以新独立fixture执行R7 contained/adjacent。Main仍按半开区间将adjacent判conflicts0；bounded官方结果1不等于产品冲突1。不可把此前置fixture失败报告成产品preflight失败。
 
 ## Important Boundaries
 
-无中央Main/SDK/包/状态写入，未启动Kernel/GUI/Cargo。提示词不是权限隔离；额外mutation只使UNKNOWN/no第二次nativecreate，不能撤回query副作用。runtime快照不预约时段、不恢复审批。保留原Host边界。
+旧失败保留，不补PASS。Main/SDK/包/状态没有写入；未启动Kernel/GUI/Cargo。原Host权限和提示词不隔离工具的限制保持。

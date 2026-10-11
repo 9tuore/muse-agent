@@ -1,3 +1,5 @@
+> bounded契约修正：Root contained-r1只到8条前置checks，actual_bounded_query_contract FAIL，未进candidate preflight。实际from16:10/to16:20、resolved args、digest5da0f132、Broker person receipt与call/done audit完全一致，owner1/SHA103a5a86不变。官方local_stamp(true)=end/false=start，events是含端点重叠而非完整包含；此前读反。contained/adjacent两个入口预期0→1，新R7实际source8227/338func184globals逐字准备；原FAIL保留，Main/SDK不改、不起Kernel，Root再验。见overlap/BOUNDED_QUERY_CONTRACT_CORRECTION.md与RESULT。
+
 > R4三例小单元：Root真实产品commit197d16d7/source8227已核对，中央同Main guard49/49/RPC0 PASS。compact native probe最终出口先生成局部result_json再返回；精确出口现有VM使用保存字段输出1384字节合法JSON/RPC0（format-only）。实际中央source8227重新准备same/contained/adjacent到新build/gpt01-native-overlap-prepared-r6，338functions/184globals逐字断言通过，PREPARED_NOT_RUN。R4签名和三例真实Kernel由Root串行；无旧baseline重写/结果修补。见overlap/ROOT_R4_INTERVAL_HANDOFF.md。
 
 > 04:48现场增量：只读中央source已为8227bbb3（与提案一致），HEAD5d6cd7fa且Main为未提交修改；本站未apply。compact final用保存真实字段在现有VM输出1125字节合法JSON/RPC0。postpatch七例338functions/184globals逐字准备已完成，PREPARED_NOT_RUN；Root已有明确case/命令与GPT02三阶段说明。旧baseline与失败证据保留。最小提案独立commit87d3b6d3，实际signed/full-chain仍待Root报告。

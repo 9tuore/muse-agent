@@ -12,7 +12,7 @@
 
 第一次候选操作只发起提示为精确 `calendar.events {"limit":200}` 的 query turn。当前 turn 必须只有一条真实 tool row；person lane、持久化 receipt、thread/turn/tool/call/session、result.call_id、persisted_at 和精确参数 digest 全部匹配。还绑定 History 顶层 session_id 与 context_state.session_id。open reply 没有 session_id，不从该回复杜撰字段。额外工具（包括 mutation）、坏记录、缺 receipt 或 ID 复用均 UNKNOWN。列表达到 200 条，无耗尽标志，UNKNOWN。其他时区、缺 end、无效区间也 UNKNOWN。
 
-比较使用半开区间 `event_start < candidate_end && event_end > candidate_start`，覆盖跨界、候选包含原事件、候选被原事件包含；相邻不重叠。官方 from/to 是完整包含过滤，不能作为重叠查询。重叠是合法 Calendar 事件；Muse 展示当前快照与原标题/时间，等待本人修改时间或另一次明确保留重叠的候选操作。清晰和重叠均需第二次操作，UNKNOWN 不继续创建。
+比较使用半开区间 `event_start < candidate_end && event_end > candidate_start`，覆盖跨界、候选包含原事件、候选被原事件包含；相邻不重叠。官方 from/to 用 `event_end >= from && event_start <= to` 作含端点的重叠过滤；此前将其写成“完整包含”是读反了 `local_stamp(true/false)`。contained-r1实际wire参数、Broker receipt、audit与owner已核对，官方结果包含原事件正确；contained与adjacent前置bounded-match预期均修为1。实际Main仍用精确limit200完整快照和半开区间，不改产品门禁。重叠是合法 Calendar 事件；Muse 展示当前快照与原标题/时间，等待本人修改时间或另一次明确保留重叠的候选操作。清晰和重叠均需第二次操作，UNKNOWN 不继续创建。
 
 **实际边界：**提示词没有提供按 turn 的工具子集授权，当前声明仍有写工具。本提案只能检查真实 query 的实际记录；额外 mutation 记录使 preflight UNKNOWN、阻止第二次 native create，不能撤回 query 回合已经产生的副作用，也不能承诺模型违例绝无副作用。当前快照不是时段预约；查询和后续创建之间 owner 可变化。账号、本人、Goal/plan、候选内容或版本、后续 query 改变即失效；runtime 检查不持久化，重启须重新查询。原 Host 审批策略仍适用。
 
