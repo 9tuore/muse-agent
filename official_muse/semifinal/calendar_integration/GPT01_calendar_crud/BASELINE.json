@@ -1,0 +1,105 @@
+{
+  "state": "PREPARED_TARGETED_TEST_PENDING",
+  "source_roots": {
+    "sdk": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/sdk",
+    "hub": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/hub",
+    "release": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松"
+  },
+  "patches": {
+    "sdk": {
+      "path": "GPT01-calendar-crud-sdk.patch",
+      "sha256": "7916019e672f64c62410f662aa5ef9159b8b16c8fcdcb585c8d1fd13077aad18",
+      "zero_fuzz_apply_and_byte_compare": true
+    },
+    "hub": {
+      "path": "GPT01-calendar-crud-hub.patch",
+      "sha256": "a097140dcf8ea39a101f08ffec6d4c3246f827c6c70f93ea0e0605ee328f8f5d",
+      "zero_fuzz_apply_and_byte_compare": true
+    },
+    "release": {
+      "path": "GPT01-calendar-crud-release.patch",
+      "sha256": "a9d018c426d4313e9647ffcd730679d73a55ee38c5a76cc7b1e12503d1e1233d",
+      "zero_fuzz_apply_and_byte_compare": true
+    }
+  },
+  "files": {
+    "sdk": {
+      "crates/app-peers/src/calendar_history.rs": {
+        "before": "e95dfde82a1e1aaf7548c4a5f557a1a3285c8b30f489ecc012dd2aaef10ea1f3",
+        "after": "0b922b3c30478c4a6d3f9c0f06a437706bf96a247b1aec0cc4a85bb1b9d18408"
+      },
+      "crates/shell/src/app_chat/calendar_history.rs": {
+        "before": "e64e9ca30a47f1a3e8edbdd3780d43b37992b695fc3fd425e523403ef258a4ed",
+        "after": "78070cb21245308bf9b1b9d863fcaa5ea753bba2ea7480a0369460274aa5b78b"
+      },
+      "crates/shell/src/app_chat/history_receipt_tests.rs": {
+        "before": "acb20cf26f77aff249ddf0edd1ece83fa8be8a95cb9df719cb45e5db770f74f3",
+        "after": "3e870a7c57f436dab46b4597567780021177d0bcd38595611b075d861dbbe1b1"
+      },
+      "crates/shell/src/host_tools/mod.rs": {
+        "before": "2773676fbbc7eea83a6acba9484b0467d1a03205558f6aa27ad4dacc42ec8775",
+        "after": "d3d3e117212438cfe8fda153154358f5c8b775d9f9b4dee6eb5bfd5407592a1c"
+      },
+      "apps/calendar/host-service/src/lib.rs": {
+        "before": "1c87ef2d4c1db8f3c054d5e877fda36ae9212b734c2393d9cc7fc5fde04b77d8",
+        "after": "81b904807a886397cdf9401fb1b5e66cd25befbb3d11bef8cb99bde51979dd86"
+      },
+      "apps/calendar/host-service/src/gpt01_crud_tests.rs": {
+        "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after": "c663ff469a50d76e31e17b7956a257e443ad8c268d6c22e01587d03db3a651ae"
+      },
+      "apps/calendar/bundle/tools.json": {
+        "before": "2892fefb159e3b5e4a0e2cdb64a086093c0350d6227d7d2bc383fa070c45d2eb",
+        "after": "bd2cfbce0706ef047001688f54cd43b72db5b26f08d3f84f69d417e16d1519eb"
+      }
+    },
+    "hub": {
+      "crates/appstore/src/lib.rs": {
+        "before": "c3fe71806e6c9cb09dfb601af81f85664de3dbbd696fe46c7d64c926b44a28df",
+        "after": "e49d18dee4dac9842a902ad2ed6fe1b1e872e825e9024c084e3dd4410c98c2e1"
+      }
+    },
+    "release": {
+      "official_muse/integrated_release/prepare_bundle.py": {
+        "before": "2f1c6d8858e4079f56cb37e2b8365f75a550e5eb17468d16045039a57ce0d6f6",
+        "after": "a6a7efb2a4f4e5be949b1e867dec5abe2e1c0f56a96e86c048d169f9955cecef"
+      },
+      "official_muse/integrated_release/AGENT.md": {
+        "before": "2de4689adf4c4a14c00ad1a7f4175f304b3f5fc326f4aba374cf2cac755edcdb",
+        "after": "7e1c852f9ed1ac7caf53a0623d3e0decf77d7a4d933f104bd4c1649467288a13"
+      },
+      "official_muse/integrated_release/muse_calendar_offers.rs": {
+        "before": "36249b0ab356257edf97d5951f5ac943c6e3086b921c24148a89320877d1d8dc",
+        "after": "413c45845bcab9bfc5b37c53d4a75bf6e4d772d5a88974e98c244f2551bb1fb7"
+      }
+    }
+  },
+  "schema_rules": {
+    "calendar.update_event": {
+      "risk": "destructive",
+      "confirm": "host",
+      "auto_approvable": false,
+      "shareable": true
+    },
+    "calendar.remove_event": {
+      "risk": "destructive",
+      "confirm": "host",
+      "auto_approvable": false,
+      "shareable": true
+    }
+  },
+  "writes_shared": false,
+  "live_actions": 0,
+  "source_heads": {
+    "sdk": "facc0f5f9e6700ce0b2f8dbd33a4fb21301b4fa8",
+    "hub": "facc0f5f9e6700ce0b2f8dbd33a4fb21301b4fa8",
+    "release": "facc0f5f9e6700ce0b2f8dbd33a4fb21301b4fa8"
+  },
+  "harness_scope": "Real Calendar handle/storage/ui/cards and broker/history/Conversation; service registration and GUI adapters are explicit fixture doubles. No Host or Kernel build.",
+  "source_git_roots": {
+    "sdk": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松",
+    "hub": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松",
+    "release": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松"
+  },
+  "source_heads_note": "Containing project repo heads, not claims of upstream SDK/Hub revisions; exact per-file hashes define this incremental baseline."
+}
