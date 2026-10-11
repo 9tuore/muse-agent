@@ -2,28 +2,28 @@
 
 ## Task
 
-NIGHT-004 GPT01：Root contained-r1 bounded query FAIL的只读定位与最小fixture契约修正。
+NIGHT-004 GPT01：仅own准备实际新source caa99的三个interval probe。
 
 ## Result
 
-TEST_EXPECTATION_ERROR；原Root FAIL保持原样，candidate preflight尚未触达。官方events使用end>=from且start<=to含端点重叠。此前读反local_stamp(true/false)，contained/adjacent预期0错误，两入口现修为1。
+PREPARED_NOT_RUN。Root产品commit0c3aa9b1e0574a550f21b93b6d8942cdd2759f35及sourcecaa99已逐字核对；三个fresh closure准备完成，R5真实运行/签名由Root负责。R4报告没有改标签。
 
 ## Changed
 
-只改contained/adjacent入口数字、相关说明、只读证据与R7准备记录。Main/SDK/Relay/model不改。R7 prepared绝对路径和Root命令见overlap/ROOT_R4_INTERVAL_HANDOFF.md。
+仅own namespace R5准备结果、完整逐函数SHA manifest、R5交接与本状态。probe/入口/adapter不改，实际Main只读。新paths见overlap/ROOT_R5_SOURCE_CAA99_HANDOFF.md。
 
 ## Tests
 
-原resolved args精确from16:10/limit200/to16:20，canonical digest5da0f132与真实Broker receipt及call/done audit一致；person lane/turn/toolcall/session/persisted/terminal ok严格关联。返回原事件1，七字段与checkpoint/owner一致，owner count1/SHA103a5a86不变。9个离线断言PASS，原report仅8checks/FAIL保存且未进新candidate。official parse_time/stamp/local_stamp与Relay/scoped_args→ServiceCall已核对。新R7实际source8227三例338functions/184globals逐字准备通过，仅PREPARED_NOT_RUN。没有再跑Kernel/VM或改写原结果。
+静态身份：当前Root source等于0c3aa9b1 committed Main及三个frozen-main；338function/184global maps三例相等，各function SHA与当前Root原函数一致，所有非adapter反归一fixture_transport到host.request后逐字相等。相较R4/source8227 selected closure仅core_boot_goals SHA变化，函数集合和globals未变。无VM或真实runtime验证。
 
 ## Commit
 
-当前本地修正提交见Git/聊天，未push。
+本地准备记录提交见Git/聊天，未push。
 
 ## Remaining
 
-Root以新独立fixture执行R7 contained/adjacent。Main仍按半开区间将adjacent判conflicts0；bounded官方结果1不等于产品冲突1。不可把此前置fixture失败报告成产品preflight失败。
+Root以实际R5 signed Main SHA/config在每例新fixture执行same/contained/adjacent。不借R4 PASS充当R5结论。
 
 ## Important Boundaries
 
-旧失败保留，不补PASS。Main/SDK/包/状态没有写入；未启动Kernel/GUI/Cargo。原Host权限和提示词不隔离工具的限制保持。
+没有Kernel/GUI/Cargo/签包/Root source或state写入。原r1/r2/R4证据保留。query提示词不是工具权限隔离，Main/Host边界保持。
