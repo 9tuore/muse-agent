@@ -2,28 +2,28 @@
 
 ## Task
 
-NIGHT-004 GPT01，R2追加JSONL失败定位及最小parent修复；基线94437。
+NIGHT-004 GPT01：原生 Calendar 重叠缺口、最小 Main 提案与 guard。
 
 ## Result
 
-PARTIAL。Root真实cdb141 R2前三项PASS；interrupt原始日志证实真实取消，但parent未完成对账/撤回。R3尚未新Kernel运行。
+PARTIAL。Root 固定 c892 的实际首次同槽操作 owner 1→2 已复现；当前提交提供未应用 Main patch。纯 VM／离线回放 49/49 PASS；真实接入后 query limit200、候选第二次选择和 full-chain 待 Root 串行验证。
 
 ## Changed
 
-仅parent按LF读取完整字节记录，半行/半UTF8留待下次；完整坏记录仍抛错并保留traceback。interrupt绑定唯一started ID、Stop同ID/lane及原请求interrupted结局；完成竞态NOT_TESTED。
+仅 GPT01_NIGHT004/overlap 提案、probe、准备脚本、证据与本 namespace 状态/交接。Main 提案 source 8227bbb38637aeba28cfe67e5d120a704bfcaf579910610b6b64a6d414acde0d；patch b34ac5c26e3d955dcc3358e66caa0323ed15cef2f099376967a6342e21be7ece。
 
 ## Tests
 
-2026-10-12本机文件fixture＋原R2只读回放23项PASS；原始行前缀复现同column213错误。精确瞬时半行未被原运行捕获。bound_receipt/native Deny逐字未变；Python compile/help/diff通过。
+现有 frozen VM f48060d9，三进程 exit0／stderr空／RPC0，20 receipt +13 interval +16 scope/gesture 断言 PASS。正例回放未改写真实 {} receipt，同解析器的 limit200 不同 digest 必须拒绝；未伪造通过的 Host receipt。scope 使用生产函数，dispatch 只作 unit 计数。中央只读 git apply --check PASS。最初缺 --rpc 的 parent FAIL、原 ok reserved 语法失败、definitions-only 超时均保留，不计通过。细节见 overlap/README.md、VM_GUARD_RESULT.json。
 
 ## Commit
 
-本单元local commit见Git/聊天，未push。
+当前本地提交见 Git／聊天，未 push。
 
 ## Remaining
 
-Root用现有R8 binary跑新fixture；五项完整L4仍待实际运行，无需Cargo重编。
+Root 接入、实际 source/Main SHA 重准备并签名；同槽/包含/相邻及时间/Goal/未知字段 probe；GPT02 正向 query→history settle→第二次 candidate gesture。旧 L4 中央五项实际 PASS 的证据与历史记录保留。
 
 ## Important Boundaries
 
-未改SDK/Main/model/History或中央数据，未启动Kernel/GUI；无伪造Interrupted。实际R2已取消，无证据需加模型延迟。
+手动重叠在 Calendar 合法；此提案是 snapshot 提醒与独立选择。提示词不是工具权限隔离，额外 mutation row 只能令 UNKNOWN/no第二次nativecreate，不能撤回 query 已发生的副作用。快照不预约时段、runtime不恢复审批。原 Host 门禁保留；未改共享 Main/SDK/Gate/bundle、启动 Kernel/GUI/Cargo。
