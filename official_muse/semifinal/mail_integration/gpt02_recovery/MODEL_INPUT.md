@@ -24,6 +24,14 @@
 
 Root 已有这份修复时无需再次应用。若回放，先核完整基线 SHA，再使用 model-input.patch；源码漂移则按具名函数核对，不强行偏移。
 
+## Root 补验要求接续
+
+以原修复 e2f3ab87 为唯一基线，新增 `test_model_boundaries.py`。实际枚举六个调用点：mail_analysis_pump、schedule_auto_reply、calendar_model_candidate、mail_model_draft、send_chat、ask_model；唯一 Host model.complete 发送点仍位于 wrapper。提取六处实际 args 对象表达式，变量使用合成值，分别通过真实 wrapper；非 Chat current input/schema/class 保持原值，Chat 历史进入 input。没有执行六个完整 caller 的 UI、持久化或结果处理分支。
+
+从固定源码抽取实际 gm_get/gm_has 和 Chat、Goal、Mail、Calendar generation 的 current guard，另抽取两处自动分析/确认稿 current 闭包。最终共12个实际函数及2处闭包，在19种变化下分别验证初始有效、发送前拒绝和迟到拒绝。补验缺省、nil、class-only、URL false/true，字符串/nil input，来源授权、绑定Goal来源授权和缺少安排偏好。SDK from_args 会拒绝显式 nil class/allow_urls；现有 gm_has 对 nil 为 false，修复发送时省略它们，保留SDK默认值；false URL值仍保留。
+
+最终 `evidence/model-boundaries-r5.json` **112/112 PASS**，含此前26项，不累计为138项。r4为93/93，补齐实际发送前守卫后r5为112；r1-r3的三个Node适配器错误保留。`model-boundaries-audit.json` 独立核当前中央source仍为e2f3ab87、六caller/八guard函数相对基线字节不变。仍是 SOURCE_BOUND_NODE_PROJECTION_FIXTURE，未执行Rust parser、官方schema compiler、完整caller、真实VM/模型/GUI；外部调用0。
+
 ## GUI 最短接续
 
 先用普通 Chat 发一个短问题，实际成功回复且 trace 不再 bad_request 后，在新对话用顶部「切换」填写验收项目/个人并「使用这个项目」。发一次性任务计划请求，在「结果→来信与结果→本次任务计划→打开并核对」建 Goal，保持「等你确认」；同会话发明确未来时间的日程创建请求。到「行动链→切换事项」明确点击新 Goal，再打开日程候选。「核对后提交当前事项候选」经本人批准后「回读当前请求的官方记录」，须看到该绑定的「官方日历精确读回 / 已核验」。已提前选好授权邮箱时，点击「准备或打开关联确认草稿」，止于空收件人的未发送草稿。不以 calendar.events 数量替代 add/get 配对核验，不 seed 用户存储。

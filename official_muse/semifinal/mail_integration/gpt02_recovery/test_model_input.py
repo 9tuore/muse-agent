@@ -20,7 +20,7 @@ def project_model(text):
     text = project(text)
     # Observed adjacent statements only; this is not an OctoScript compiler.
     text = text.replace(') return', '); return')
-    text = re.sub(r'for (\w+) in (\w+)\.length \{', r'for (const \1 of range(\2.length)) {', text)
+    text = re.sub(r'for (\w+) in ([\w.]+)\.length \{', r'for (const \1 of range(\2.length)) {', text)
     text = text.replace('project = args.input.project_id owner =', 'project = args.input.project_id; owner =')
     text = text.replace('project = goals[bound_goal].project_id owner =', 'project = goals[bound_goal].project_id; owner =')
     text = text.replace('gm_set_accounts(ids) gm_set_focus', 'gm_set_accounts(ids); gm_set_focus')
