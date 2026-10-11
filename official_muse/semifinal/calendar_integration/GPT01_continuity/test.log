@@ -1,0 +1,31 @@
+   Compiling gpt01-continuity-check v0.0.0 (/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_continuity/harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.81s
+     Running unittests src/lib.rs (official_muse/semifinal/calendar_integration/GPT01_continuity/harness/target/debug/deps/gpt01_continuity_check-373b3ec4f58fae09)
+
+running 24 tests
+test system_chat::continuity_tests::continuity_close_default_idle_pane_still_releases_connection ... ok
+test system_chat::continuity_tests::continuity_default_is_disabled_and_list_is_not_create ... ok
+test system_chat::continuity_tests::continuity_enable_queued_before_open_is_not_lost ... ok
+test system_chat::continuity_tests::continuity_bad_pause_ack_is_unknown_and_keeps_connection ... ok
+test system_chat::continuity_tests::continuity_close_after_pause_waits_for_person_turn_terminal ... ok
+test system_chat::continuity_tests::continuity_creation_needs_gesture_and_uses_only_official_fields ... ok
+test system_chat::continuity_tests::continuity_expired_paused_record_cannot_resume ... ok
+test system_chat::continuity_tests::continuity_close_keeps_active_driver_and_person_turn_separate ... ok
+test system_chat::continuity_tests::continuity_fired_is_only_a_signal_and_does_not_complete_a_turn ... ok
+test system_chat::continuity_tests::continuity_lost_create_reply_is_resolved_by_list_not_retried ... ok
+test system_chat::continuity_tests::continuity_matching_prompt_with_foreign_profile_is_rejected ... ok
+test system_chat::continuity_tests::continuity_missing_known_id_blocks_recreation_and_unrelated_adoption ... ok
+test system_chat::continuity_tests::continuity_malformed_foreign_and_duplicate_lists_block_creation ... ok
+test system_chat::continuity_tests::continuity_pause_queued_while_initial_list_is_in_flight_is_not_lost ... ok
+test system_chat::continuity_tests::continuity_policy_must_match_current_primary_model ... ok
+test system_chat::continuity_tests::continuity_pause_and_delete_remain_available_without_billing_policy ... ok
+test system_chat::continuity_tests::continuity_pausing_closed_idle_pane_releases_link_only_after_reply ... ok
+test system_chat::continuity_tests::continuity_control_outer_scope_id_and_false_ok_cannot_claim_success ... ok
+test system_chat::continuity_tests::continuity_rpc_errors_are_not_success_and_do_not_retry_create ... ok
+test system_chat::continuity_tests::continuity_unknown_create_empty_reply_and_empty_list_never_recreate ... ok
+test system_chat::continuity_tests::continuity_reconnect_paused_record_is_not_automatically_resumed ... ok
+test system_chat::continuity_tests::continuity_reconnect_reads_original_id_without_create_or_resume ... ok
+test system_chat::continuity_tests::continuity_repeated_enable_while_busy_never_duplicates_create ... ok
+test system_chat::continuity_tests::continuity_pause_resume_delete_use_real_id_and_do_not_interrupt ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.01s
