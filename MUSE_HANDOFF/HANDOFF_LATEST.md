@@ -7,6 +7,7 @@ ZC-00：统一 rc4 候选、复用 WorkBuddy 可见宿主、继续官方业务�
 PARTIAL。签名 hybrid 单包已生成；原 WorkBuddy 入口重启后可见，本人Install和Native Allow已完成；完整Muse打开，官方Calendar只读真实调用通过。
 
 ## Changed
+rc5模型请求按官方契约将历史置于input；中央112项Node定向检查通过，真实GUI复验待完成。catalog递增到2。
 正式 main 当前事项→官方 Calendar 精确读回→可选 Mail 草稿已接入；统一 Launcher/仓库脚本/GitHub 回归接收。仅向原 WorkBuddy Launcher 添加三个公开目录变量，原字节备份保留，Host/STATE/HOME 未替换。
 
 ## Tests

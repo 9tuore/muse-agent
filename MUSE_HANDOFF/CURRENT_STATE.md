@@ -1,3 +1,7 @@
+## ZC-00 rc5 官方模型请求修复：2026-10-11
+
+真实GUI Chat触发bad_request，SDK Request::from_args明确拒绝顶层messages。最小修复仅muse_model_request：历史和上下文移入input.messages，最终只发task/input/schema与存在的class/allow_urls；六caller及其身份/版本守卫不变。中央重新运行源码绑定Node检查112/112 PASS，外部调用0；不是实际模型或VM通过。prepare/publisher同步rc5，catalog sequence=2，新签名候选正在准备，真实GUI复验待完成。
+
 ## ZC-00 Muse已安装与官方日历只读实调：2026-10-11T19:02:02.918575+08:00
 
 用户已本人完成Install与Native Allow；安装manifest/main与rc4签名镜像逐字节一致，完整Muse与行动链已打开。现场保留原WorkBuddy Host ec83a4f9和STATE/HOME。

@@ -8692,6 +8692,7 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
                 turn = turn + "\n应用响应格式：只输出一个JSON对象，唯一字段reply必须是字符串。将本轮回答放在reply中；用户要求数字或短词时也放在这个字符串中。不要代码块，不要额外字段。"
             }
             payload.messages.push({role: "user" content: turn})
+            payload.input = {messages: payload.messages}
             let request = chat_request_index(session_id)
             if request >= 0 { chat_requests[request].memory_refs = captured_refs.to_json().parse_json() }
         } else {
@@ -8701,7 +8702,11 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
         payload.task = payload.task + "\n参考时钟UTC：" + core_utc_iso(time_now()) + "；默认Asia/Shanghai（UTC+08:00）。遵从资料中明确日期或时区；缺必要时间就留空或询问。"
         let request_at = time_now()
         let query_hash = fs.sha256(query)
-        host.request("model.complete",payload,fn(r){
+        // The official service accepts input data, not top-level chat messages.
+        let model_payload = {task: payload.task input: payload.input schema: payload.schema}
+        if gm_has(payload,"class") { model_payload.class = payload.class }
+        if gm_has(payload,"allow_urls") { model_payload.allow_urls = payload.allow_urls }
+        host.request("model.complete",model_payload,fn(r){
             // Host-owned usage, without prompt, answer, credential or provider secret.
             let trace = {schema: 1 request_at: request_at response_at: time_now()
                 query_sha256: query_hash session_id: session_id goal_id: goal_id
