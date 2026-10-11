@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC02四原生L3初始probe适配新8227 preflight；基线33de17ce。
+ZC02 R4大库Memory/activity只读审查及GPT03恢复评审；基线c2b9d00d。
 
 ## Result
-PREPARED_NOT_TESTED。原首次candidate query→ready/binding nil/owner无写→原history结清idle/current→独立第二次原create。通用query仍另一个turn。
+现场8unknown/120inflight及budget6779落goals backup回读；无更早Memory阻塞证据，不写推测性patch。GPT03单次归并commit语义可接受。
 
 ## Changed
-仅四初始probe新增相同helper/PREFLIGHT_PARENT/静态身份。其余原流程逐字保留，四restart/parent/run/parser未改。
+仅boot_review/状态/交接；关键验证要求及实际补丁SHA记录。
 
 ## Tests
-源33/33、parser44/44、8227实际prompt唯一events limit200/Once；八prepare原函数逐字。CAS恢复路径错误保留后修正。Kernel/VM/GUI/Cargo运行0。
+自有scratch apply/check，静态10/10；仅core_boot_goals改、579其他函数逐字。Kernel/VM/GUI/Cargo0，中央0写；64ms未验证。
 
 ## Commit
 见最终回复，未push。
 
 ## Remaining
-Root新8227重签后按PREFLIGHT_PARENT串行执行full/deny/CAS/delete及恢复。
+GPT03验证0/1/128/mixed、backup及primary写/回读失败、重启0重发；Root实际R5 GUI预算。
 
 ## Important Boundaries
-无Main/SDK/包/history/资料写入，不造ready/回执，不stub binding，不借旧源PASS。
+原commit/restore/typed/cache/权限/Secret路径不变；不生成第二补丁、不启动现场服务。
