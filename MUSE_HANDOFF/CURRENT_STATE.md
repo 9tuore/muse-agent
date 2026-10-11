@@ -1,3 +1,11 @@
+## ZC-00 Muse已安装与官方日历只读实调：2026-10-11T19:02:02.918575+08:00
+
+用户已本人完成Install与Native Allow；安装manifest/main与rc4签名镜像逐字节一致，完整Muse与行动链已打开。现场保留原WorkBuddy Host ec83a4f9和STATE/HOME。
+
+实际Muse→Octos session→Relay→内置Calendar.events通过：2026-10-12 Asia/Shanghai查询，完成1/失败0/未核验0，结果events=[]。Broker回执caller=card.muse-goals、owner=os.calendar、kernel_persisted=true、terminal=ok，关联同一turn/tool_call/call ID。证据official_muse/integrated_release/evidence/workbuddy-rc4-calendar-readonly-live.json。无外部写入或SMTP；不证明新建/精确读回/Mail/持续任务/最终稳定性。
+
+下一项通过GUI走事项和候选→日历新建/精确读回→行动链→可选邮件草稿。正式包启动按已工作WorkBuddy pair收口，旧失败证据保留。远端076638ba已独立核对。
+
 ## ZC-00 单包生成与工作入口恢复：2026-10-11T17:25:37+08:00
 
 完整配套 Host Release aec5dda8 构建通过，0.4.0-rc4-r2 当前 main 0c7f9812 已签名并通过本地 paired-host catalog gate；Muse.app hybrid 包生成并通过 deep/strict 签名和资源检查，保留内置 Qwen，云端仍沿用现有 MiniMax。包路径 build/muse-integrated-0.4.0-rc4-app-r1，默认资料引用 live-acceptance-003；引用在包外，不复制 profile/凭证。
