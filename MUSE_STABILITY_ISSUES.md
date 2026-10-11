@@ -1,10 +1,15 @@
 # Muse NIGHT-004 故障台账
 
-2026-10-12 05:18更新：N004-15已在R4/8227/a040实际same、contained、adjacent各20检查通过，首次query不写，包含显示重叠，相邻独立第二次选择创建；列表200上限/未知字段仍UNKNOWN，查询不预约。官方events的from/to是含端点重叠，不是完整包含；contained-r1预期错误与真实失败保留，修正测试后新r2通过。新增N004-16见下；总体PARTIAL。
+2026-10-12 06:03更新：固定R5/caa99/ef584隔离模拟SIMULATION_PASS。N004-15三种真实重叠各20通过；N004-16一次恢复提交、正式GUI128UNKNOWN及原始备份通过。同源真实Kernel/Calendar/Mail整链及重启164、L4五场景、最终20启动/60图、Calendar GUI6项/12read/7图及窄窗口4图全部通过。生产真实端到端未测。下方早期状态为当时事实，当前结论以本段及新acceptance为准，不覆盖失败原证据。
 
-| ID | 等级 | 复现 / 实际结果 | 预期 | 原因证据 | 修复 / 回归 | 状态 |
-|---|---|---|---|---|---|---|
-| N004-16 | P1 | R4导入真实生产save的64Memory/128Source/32Goal/32Run/128Action；GUI45秒仍只初始挂载，主8unknown/120in_flight，备7unknown | 恢复全部丢失回调为UNKNOWN，主备可读、完整界面可交互，不重发或伪造完成 | actual Host.log269: script time budget exceeded；Main6779重复保存整份备份。core_boot_goals逐个parse/commit整个83KiB库 | GPT03提最小单次恢复提交；Root待实际集成/新签名GUI/重启回归 | ROOT_REPRODUCED_FIX_PENDING |
+| ID | 等级 | 复现 / 实际结果 | 原因证据 | 修复 / 回归 | 当前状态 |
+|---|---|---|---|---|---|
+| N004-16 | P1 | R4规模GUI仅8unknown/120in_flight且挂载未完成 | Host script time budget exceeded；逐个重写83KiB库 | 0c3aa9b1一次恢复；46检查；同原API-save输出128UNKNOWN/完整备份/32GoalRun不变；R5最终20大GUI通过 | FIXED_SAME_CANDIDATE_FINAL20_PASS |
+| N004-15 | P1 | 旧native首次提交缺重叠查询/提示 | 旧原生owner/Broker记录 | R5 same/contained/adjacent各20；首次只查询，相邻需第二次操作；快照不锁定时间、静态工具含写权限 | FIXED_SAME_CANDIDATE_OVERLAP_PASS |
+| N004-14 | P1 | 旧测试副本绘制黑底/部分主体 | 原native失败图片保留，根因未定 | 原WorkBuddy入口R5 20次Muse及3次Calendar/7图实审通过 | SUPPORTED_ENTRY_PASS_OLD_ROOT_CAUSE_UNKNOWN |
+| N004-05 / 13 | P0 | 同候选全链缺证据 / 重启行动链结构匹配失败 | 早期运行记录 | R5 full33+15及Deny/CAS/delete、Mail故障、Kernel L4均通过；同聊天行动链不重发恢复 | SAME_CANDIDATE_SIMULATION_PASS |
+| TEST-UI-FRAME | 测试驱动 | r1已打开NewEvent，帧确认失败后旧按钮重试missing | 原生两图；remote.rs先输入后确认，旧确切HTTP未保留 | Calendar driver单次输入无wait=1；独立状态等待；r3真实6/12/3/7通过 | DRIVER_FIXED_RUNTIME_PASS |
+| TEST-UI-READY | 测试驱动 | final20 r1仅初始goal_input就导航而失败 | native初始框架/未恢复按钮 | 要求完整新对话/对话/切换事项按钮；每轮输入读回/清空；r2真实20通过 | DRIVER_FIXED_RUNTIME_PASS |
 
 截至本轮开始：2026-10-12 01:08 北京时间。截止延长至11:00，09:00停止新增高风险开发。
 只记录已观察的问题。状态和通过项必须绑定同一候选；本轮模拟不操作生产邮箱、私人日历或用户资料。

@@ -246,7 +246,14 @@ def main():
     def full_muse():
         # Chat deliberately hides page_header/page_title in the real source.
         widgets = formal_shell()
-        return widgets if widgets and 'goal_input' in {item.get('i') for item in widgets} else None
+        if not widgets or 'goal_input' not in {item.get('i') for item in widgets}:
+            return None
+        # The input mounts before the staged storage restore finishes. Starting
+        # navigation at that point can capture an empty initial shell. Require
+        # the actual restored chat list and rendered navigation before input.
+        buttons = {item.get('t') for item in widgets
+                   if item.get('ty') == 'Button' and item.get('r', [0, 0, 0, 0])[3] >= 24}
+        return widgets if {'新对话', '对话', '切换事项'}.issubset(buttons) else None
 
     def open_formal(pid, row):
         if formal_shell():
@@ -335,7 +342,7 @@ def main():
         time.sleep(.2)
         row['apphub_after_open_capture'] = capture(pid, Path(row['directory']) / 'apphub-after-open.png')
         row['open_route'] = 'Actual AppsMenu apphub → App Hub Library → exact Muse row installed Open; worker may_open and Shell launch_app admission preserved'
-        wait(formal_shell, args.startup_timeout, 'Formal Muse did not render; prototype/Host chrome cannot pass')
+        wait(full_muse, args.startup_timeout, 'Full Muse restore did not become interactive; initial mount cannot pass')
 
     def navigate(name):
         # The live Muse ScrollYView is shortcuts. App Hub also exposes nav,
@@ -435,6 +442,12 @@ def main():
                     navigate('对话')
                     page('对话')
                     require(full_muse(), 'Full Muse widgets disappeared after navigation')
+                    text = f'NIGHT004 cold start {number} input readback'
+                    remote.set_text('goal_input', text)
+                    require(remote.find('goal_input').get('val') == text, 'Actual input readback differs')
+                    remote.set_text('goal_input', '')
+                    require(remote.find('goal_input').get('val') == '', 'Actual input did not clear')
+                    row['input_readback_and_clear'] = True
                     row['muse_widget_proof'] = [{'i': item.get('i'), 'ty': item.get('ty'), 't': item.get('t'), 'r': item.get('r')}
                                                for item in remote.widgets() if item.get('i') in ('goal_input', 'sidebar', 'central_main', 'chat_list', 'right_column', 'shortcuts')]
                 row['interactivity_seconds'] = time.monotonic() - interactive

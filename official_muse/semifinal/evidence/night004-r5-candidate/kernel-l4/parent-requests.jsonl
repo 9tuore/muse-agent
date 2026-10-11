@@ -1,0 +1,41 @@
+{"request_id": "l4-88411-1", "method": "octos.session.open", "payload": {}}
+{"request_id": "l4-88411-2", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88411-3", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: create and precisely read this selected fixture event.", "trigger": "app", "fixture_approval": "once", "fixture_tool_plan": [{"tool": "calendar.add_event", "args": {"title": "NIGHT004 synthetic bridge L4", "start": "2026-10-13T15:00", "end": "2026-10-13T15:30", "timezone": "Asia/Shanghai", "location": "Synthetic fixture room", "notes": "Synthetic original notes", "request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}, {"tool": "calendar.get_event", "args": {"request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}]}}
+{"request_id": "l4-88411-4", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}}
+{"request_id": "l4-88411-5", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88411-6", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: repeat the exact same stable fixture request, then read it.", "trigger": "app", "fixture_approval": "once", "fixture_tool_plan": [{"tool": "calendar.add_event", "args": {"title": "NIGHT004 synthetic bridge L4", "start": "2026-10-13T15:00", "end": "2026-10-13T15:30", "timezone": "Asia/Shanghai", "location": "Synthetic fixture room", "notes": "Synthetic original notes", "request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}, {"tool": "calendar.get_event", "args": {"request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}]}}
+{"request_id": "l4-88411-7", "method": "octos.session.history", "payload": {}}
+{"request_id": "l4-88411-8", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88411-9", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}}
+{"request_id": "l4-88411-10", "method": "fixture/quit", "payload": {}}
+{"request_id": "l4-88861-1", "method": "octos.session.open", "payload": {}}
+{"request_id": "l4-88861-2", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: repeat the exact same stable fixture request, then read it.", "trigger": "app", "fixture_approval": "once", "fixture_tool_plan": [{"tool": "calendar.add_event", "args": {"title": "NIGHT004 synthetic bridge L4", "start": "2026-10-13T15:00", "end": "2026-10-13T15:30", "timezone": "Asia/Shanghai", "location": "Synthetic fixture room", "notes": "Synthetic original notes", "request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}, {"tool": "calendar.get_event", "args": {"request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}]}}
+{"request_id": "l4-88861-3", "method": "octos.session.history", "payload": {}}
+{"request_id": "l4-88861-4", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-5", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233"}}}
+{"request_id": "l4-88861-6", "method": "fixture/history-sessions", "payload": {}}
+{"request_id": "l4-88861-7", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"id": "ev-1791783191578"}}}
+{"request_id": "l4-88861-8", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-9", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: request this destructive mutation; fixture sheet decision is Deny.", "trigger": "app", "fixture_approval": "deny", "fixture_tool_plan": [{"tool": "calendar.update_event", "args": {"id": "ev-1791783191578", "expected": {"end": "2026-10-13T15:30", "id": "ev-1791783191578", "location": "Synthetic fixture room", "notes": "Synthetic original notes", "request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233", "start": "2026-10-13T15:00", "timezone": "Asia/Shanghai", "title": "NIGHT004 synthetic bridge L4"}, "title": "NIGHT004 synthetic bridge L4", "start": "2026-10-13T15:00", "end": "2026-10-13T15:30", "timezone": "Asia/Shanghai", "location": "Synthetic fixture room", "notes": "Synthetic denied change"}}]}}
+{"request_id": "l4-88861-10", "method": "octos.session.history", "payload": {}}
+{"request_id": "l4-88861-11", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-12", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"id": "ev-1791783191578"}}}
+{"request_id": "l4-88861-13", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"id": "ev-1791783191578"}}}
+{"request_id": "l4-88861-14", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-15", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: request this destructive mutation; fixture sheet decision is Deny.", "trigger": "app", "fixture_approval": "deny", "fixture_tool_plan": [{"tool": "calendar.remove_event", "args": {"id": "ev-1791783191578", "expected": {"end": "2026-10-13T15:30", "id": "ev-1791783191578", "location": "Synthetic fixture room", "notes": "Synthetic original notes", "request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233", "start": "2026-10-13T15:00", "timezone": "Asia/Shanghai", "title": "NIGHT004 synthetic bridge L4"}}}]}}
+{"request_id": "l4-88861-16", "method": "octos.session.history", "payload": {}}
+{"request_id": "l4-88861-17", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-18", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"id": "ev-1791783191578"}}}
+{"request_id": "l4-88861-19", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"id": "ev-1791783191578"}}}
+{"request_id": "l4-88861-20", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-21", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: get this event, then request its selected update.", "trigger": "app", "fixture_approval": "once", "fixture_tool_plan": [{"tool": "calendar.get_event", "args": {"id": "ev-1791783191578"}}, {"tool": "calendar.update_event", "args": {"title": "NIGHT004 synthetic bridge L4", "start": "2026-10-13T15:00", "end": "2026-10-13T15:30", "timezone": "Asia/Shanghai", "location": "Synthetic fixture room", "notes": "Synthetic interrupted revision", "id": "ev-1791783191578", "expected": {"$tool_result": 0, "path": ["event"]}}}]}}
+{"request_id": "l4-88861-22", "method": "octos.turn.interrupt", "payload": {}}
+{"request_id": "l4-88861-23", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-24", "method": "fixture/read-owner", "payload": {"method": "get_event", "args": {"id": "ev-1791783191578"}}}
+{"request_id": "l4-88861-25", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: read only; reconcile the selected event after interruption.", "trigger": "app", "fixture_approval": "once", "fixture_tool_plan": [{"tool": "calendar.get_event", "args": {"id": "ev-1791783191578"}}]}}
+{"request_id": "l4-88861-26", "method": "octos.session.history", "payload": {}}
+{"request_id": "l4-88861-27", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-28", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-29", "method": "octos.turn.start", "payload": {"text": "Synthetic L4: request update after genuine signed caller withdrawal.", "trigger": "app", "fixture_approval": "once", "fixture_tool_plan": [{"tool": "calendar.update_event", "args": {"title": "NIGHT004 synthetic bridge L4", "start": "2026-10-13T15:00", "end": "2026-10-13T15:30", "timezone": "Asia/Shanghai", "location": "Synthetic fixture room", "notes": "Synthetic revoked request", "id": "ev-1791783191578", "expected": {"end": "2026-10-13T15:30", "id": "ev-1791783191578", "location": "Synthetic fixture room", "notes": "Synthetic original notes", "request_id": "night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233", "start": "2026-10-13T15:00", "timezone": "Asia/Shanghai", "title": "NIGHT004 synthetic bridge L4"}}}]}}
+{"request_id": "l4-88861-30", "method": "fixture/logsideeffects", "payload": {}}
+{"request_id": "l4-88861-31", "method": "fixture/quit", "payload": {}}

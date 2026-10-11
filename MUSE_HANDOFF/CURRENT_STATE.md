@@ -1,3 +1,13 @@
+## 2026-10-12 06:03 NIGHT-004 R5固定候选模拟验收通过
+
+当前结论SIMULATION_PASS（隔离模拟），生产REAL_E2E_NOT_TESTED。产品0c3aa9b1/Main caa99c57、签名ef58430f、manifest7b746fb0固定。原WorkBuddy→AppHub Library/Open在Intel机器实际可用，完整Muse留开PID26569；06:02动态身份三项0。
+
+R5实际结果：官方Kernel/Calendar/Mail整链及重启164检查、重叠三种各20、Kernel L4五场景、启动恢复46、SDK坏JSON54、Mail故障107、规模组件14通过；最终20次大数据启动/60原生图、官方Calendar GUI6检查/12读回/3Host/7图、412点窄窗口输入/行动链/返回4图均实审PASS。128原in_flight一次恢复为UNKNOWN，原始备份、32Goal/Run与负载不变，64Memory可浏览。旧失败照录，不拼跨版本结果。
+
+唯一支持入口和冻结包：build/night-004/rc7-integrated-candidate-r5/package/Muse.app。统一证据official_muse/semifinal/evidence/night004-r5-candidate，最终报告MUSE_STABILIZATION_20261012_REPORT.md。本地checkpoint和普通push/独立远端SHA记录在独立git-sync目录；不自动发正式版或提交比赛。生产资料/Secret及四项原有未提交改动保留。
+
+下一最高价值任务是白天真实账号/模型业务验收：官方Mail登录、原生Review、SMTP自发自收与独立收件，当前R5宿主Agent授权及生产Calendar业务。本輪Mail输运/模型/审批为fixture，官方Calendar服务和owner是真实但仅隔离合成资料；不宣称生产端到端或长期稳定性已通过。早期测试副本黑底根因仍未知，支持的原入口已有固定候选20次GUI覆盖。
+
 ## 2026-10-12 05:18 NIGHT-004 R4真实整链通过，规模GUI恢复阻塞已定位
 
 R4源8227bbb3/产品提交197d16d7、签名Main a040d63b、manifest b69168fb、catalog24b2d795已实际打包并在隔离App Hub安装。原WorkBuddy入口Open完整Muse、输入读回与清空、Host三项动态SecCode=0通过。新同候选真实Kernel/Calendar初始/恢复：full33+15、Deny29+12、CAS28+11、delete23+13，共164检查PASS。重叠same20、contained20、adjacent20 PASS；原事件字节/ID不变，首次只query，相邻第二次选择才创建。contained-r1的官方含端点查询预期读反，失败原始记录保留，测试修正已24f131c5接收，不改产品权限或Calendar契约。

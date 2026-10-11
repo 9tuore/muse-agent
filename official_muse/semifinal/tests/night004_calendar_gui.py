@@ -191,6 +191,31 @@ def main():
             remote.scroll(int(x + width / 2), int(y + height * .7), 80)
         raise AssertionError(f'Calendar widget not visible after scroll: {key}')
 
+    def click_once(key):
+        # The remote applies input before confirming presentation. A failed
+        # wait=1 frame can therefore follow an already delivered click. Never
+        # retry a business click on that frame error; observe the next UI/store.
+        widget = remote.wait_for(key)
+        x, y, width, height = widget['r']
+        assert widget['ty'] == 'Button' and widget.get('enabled', True)
+        assert width >= 2 and height >= 24, f'Clipped Calendar button: {key}'
+        record = {'control': key, 'widget': widget, 'dispatches': 1}
+        report.setdefault('ui_inputs', []).append(record)
+        try:
+            answer = remote.request('/click', w=widget['w'],
+                                    x=int(x + width / 2), y=int(y + height / 2))
+            record['reply'] = json.loads(answer)
+            assert 'err' not in record['reply'], record['reply']
+        except HTTPError as error:
+            record['http_status'] = error.code
+            record['error_body'] = error.read().decode(errors='replace')
+            raise
+
+    def click_scroll_once(key, area):
+        remote.wait_for(area)
+        reveal(key, area)
+        click_once(key)
+
     def start():
         nonlocal pid
         command = ['open', '-n', str(app)]
@@ -261,7 +286,9 @@ def main():
         assert read('events', {})['events'] == []
         pid = start()
         shot('01-empty.png')
-        remote.click('+ Event')
+        click_once('+ Event')
+        remote.wait_for('e_title')
+        assert remote.find('edit_heading')['t'] == 'New event'
         title = 'NIGHT004 official Calendar GUI test'
         remote.set_text('e_title', title)
         remote.set_text('e_start', '19:00')
@@ -286,7 +313,7 @@ def main():
                     'end': remote.find('e_end_date')['val'] + 'T19:30',
                     'timezone': 'Asia/Shanghai', 'location': 'NIGHT004 synthetic room',
                     'notes': ''}
-        remote.click('Save')
+        click_once('Save')
         wait(lambda: len(read('events', {})['events']) == 1)
         event = read('events', {})['events'][0]
         event_id = event['id']
@@ -294,13 +321,14 @@ def main():
         checks['create_and_exact_independent_read'] = saved['found'] and saved['event']['id'] == event_id and all(saved['event'][key] == value for key, value in expected.items())
         reveal(title, 'calendar')
         shot('02-created.png')
-        remote.click_scroll('View event  ›', 'calendar')
-        remote.click('Edit')
+        click_scroll_once('View event  ›', 'calendar')
+        click_once('Edit')
+        remote.wait_for('e_start')
         remote.set_text('e_start', '20:00')
         remote.set_text('e_end', '20:30')
         expected.update(start=remote.find('e_date')['val'] + 'T20:00',
                         end=remote.find('e_end_date')['val'] + 'T20:30')
-        remote.click('Save')
+        click_once('Save')
         wait(lambda: read('get_event', {'id': event_id})['event']['start'].endswith('T20:00'))
         revised = read('get_event', {'id': event_id})['event']
         checks['update_preserves_same_id'] = revised['id'] == event_id and len(read('events', {})['events']) == 1 and all(revised[key] == value for key, value in expected.items()) and revised.get('request_id', '') == saved['event'].get('request_id', '')
@@ -313,11 +341,11 @@ def main():
         checks['restart_preserves_same_updated_event'] = restored['found'] and restored['event'] == revised
         reveal(title, 'calendar')
         shot('04-restored.png')
-        remote.click_scroll('View event  ›', 'calendar')
-        remote.click_scroll('Delete event', 'detail')
+        click_scroll_once('View event  ›', 'calendar')
+        click_scroll_once('Delete event', 'detail')
         checks['delete_requires_second_owner_ui_click'] = read('get_event', {'id': event_id})['found']
         shot('05-delete-review.png')
-        remote.click_scroll('Confirm delete', 'detail')
+        click_scroll_once('Confirm delete', 'detail')
         wait(lambda: read('get_event', {'id': event_id}) == {'found': False, 'event': None})
         checks['delete_and_independent_exact_absence'] = read('events', {})['events'] == []
         shot('06-deleted.png')

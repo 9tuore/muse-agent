@@ -1,0 +1,82 @@
+[
+  {
+    "method": "events",
+    "args": {},
+    "reply": {
+      "fixture_authorization": true,
+      "process_id": 5211,
+      "result": {
+        "data": {
+          "events": [
+            {
+              "end": "2026-10-12T20:30",
+              "id": "ev-1791784086468",
+              "location": "NIGHT004 synthetic room",
+              "notes": "",
+              "start": "2026-10-12T20:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 official Calendar GUI test"
+            }
+          ]
+        },
+        "ok": true
+      }
+    }
+  },
+  {
+    "method": "get_event",
+    "args": {
+      "id": "ev-1791784086468"
+    },
+    "reply": {
+      "fixture_authorization": true,
+      "process_id": 5988,
+      "result": {
+        "data": {
+          "event": {
+            "end": "2026-10-12T20:30",
+            "id": "ev-1791784086468",
+            "location": "NIGHT004 synthetic room",
+            "notes": "",
+            "start": "2026-10-12T20:00",
+            "timezone": "Asia/Shanghai",
+            "title": "NIGHT004 official Calendar GUI test"
+          },
+          "found": true
+        },
+        "ok": true
+      }
+    }
+  },
+  {
+    "method": "get_event",
+    "args": {
+      "id": "ev-1791784086468"
+    },
+    "reply": {
+      "fixture_authorization": true,
+      "process_id": 6078,
+      "result": {
+        "data": {
+          "event": null,
+          "found": false
+        },
+        "ok": true
+      }
+    }
+  },
+  {
+    "method": "events",
+    "args": {},
+    "reply": {
+      "fixture_authorization": true,
+      "process_id": 6087,
+      "result": {
+        "data": {
+          "events": []
+        },
+        "ok": true
+      }
+    }
+  }
+]

@@ -1,0 +1,143 @@
+{
+  "broker_receipts_reconstructed": false,
+  "histories": [
+    {
+      "error": "session/open with an explicit cwd is required before resuming this scoped session (session_open_required)",
+      "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.c8144fba-p1-night004-vm-bridge"
+    },
+    {
+      "raw_kernel_history": {
+        "context": {
+          "compaction": {
+            "count": 0,
+            "last": null
+          },
+          "schema": "octos.context.lifecycle.v1",
+          "state": {
+            "generation": 0,
+            "item_count": 0,
+            "last_checkpoint_id": null,
+            "last_compaction_id": null,
+            "recovery_state": "exact",
+            "session_id": "_main:api:octosense",
+            "thread_id": null,
+            "token_estimate": 1,
+            "transcript_hash": "sha256:a38e326dc867505bb0d848608669a48ebc725929dc65402640ad2f64ff062683"
+          }
+        },
+        "context_state": {
+          "generation": 0,
+          "item_count": 0,
+          "recovery_state": "exact",
+          "session_id": "_main:api:octosense",
+          "token_estimate": 1,
+          "transcript_hash": "sha256:a38e326dc867505bb0d848608669a48ebc725929dc65402640ad2f64ff062683"
+        },
+        "cursor": {
+          "seq": 1,
+          "stream": "_main:api:octosense"
+        },
+        "messages": [],
+        "session_id": "_main:api:octosense"
+      },
+      "session_id": "_main:api:octosense"
+    },
+    {
+      "raw_kernel_history": {
+        "context": {
+          "compaction": {
+            "count": 0,
+            "last": null
+          },
+          "schema": "octos.context.lifecycle.v1",
+          "state": {
+            "generation": 13,
+            "item_count": 8,
+            "last_checkpoint_id": null,
+            "last_compaction_id": null,
+            "recovery_state": "exact",
+            "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.2f4e6a14-p1-night004-vm-bridge",
+            "thread_id": null,
+            "token_estimate": 781,
+            "transcript_hash": "sha256:61528db1bcae9255534c11771197389a8cc0b3feddf9dbb2a22bd564ed05a8ca"
+          }
+        },
+        "context_state": {
+          "generation": 13,
+          "item_count": 8,
+          "recovery_state": "exact",
+          "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.2f4e6a14-p1-night004-vm-bridge",
+          "token_estimate": 781,
+          "transcript_hash": "sha256:61528db1bcae9255534c11771197389a8cc0b3feddf9dbb2a22bd564ed05a8ca"
+        },
+        "cursor": {
+          "seq": 32,
+          "stream": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.2f4e6a14-p1-night004-vm-bridge\u0000~cwd-f2cc4e8af5a7cfbc"
+        },
+        "messages": [
+          {
+            "content": "[from the app: Muse fixture bridge] Synthetic L4: repeat the exact same stable fixture request, then read it.",
+            "persisted_at": "2026-10-11T21:33:15.245288Z",
+            "role": "user",
+            "seq": 0,
+            "thread_id": "795d5ca5-4b8c-4e1d-bf2c-ca20c1a06aa4"
+          },
+          {
+            "content": "",
+            "persisted_at": "2026-10-11T21:33:15.249688Z",
+            "role": "assistant",
+            "seq": 1,
+            "thread_id": "795d5ca5-4b8c-4e1d-bf2c-ca20c1a06aa4",
+            "tool_calls": [
+              {
+                "tool_call_id": "fixture_call_1",
+                "tool_name": "calendar_add_event"
+              }
+            ]
+          },
+          {
+            "content": "{\"card_warning\":null,\"id\":\"ev-1791783191578\",\"reused\":true,\"start\":\"2026-10-13T15:00\"}",
+            "persisted_at": "2026-10-11T21:33:15.314949Z",
+            "role": "tool",
+            "seq": 2,
+            "thread_id": "795d5ca5-4b8c-4e1d-bf2c-ca20c1a06aa4",
+            "tool_call_id": "fixture_call_1",
+            "tool_name": "calendar_add_event"
+          },
+          {
+            "content": "",
+            "persisted_at": "2026-10-11T21:33:15.320464Z",
+            "role": "assistant",
+            "seq": 3,
+            "thread_id": "795d5ca5-4b8c-4e1d-bf2c-ca20c1a06aa4",
+            "tool_calls": [
+              {
+                "tool_call_id": "fixture_call_2",
+                "tool_name": "calendar_get_event"
+              }
+            ]
+          },
+          {
+            "content": "{\"event\":{\"end\":\"2026-10-13T15:30\",\"id\":\"ev-1791783191578\",\"location\":\"Synthetic fixture room\",\"notes\":\"Synthetic original notes\",\"request_id\":\"night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233\",\"start\":\"2026-10-13T15:00\",\"timezone\":\"Asia/Shanghai\",\"title\":\"NIGHT004 synthetic bridge L4\"},\"found\":true}",
+            "persisted_at": "2026-10-11T21:33:15.372023Z",
+            "role": "tool",
+            "seq": 4,
+            "thread_id": "795d5ca5-4b8c-4e1d-bf2c-ca20c1a06aa4",
+            "tool_call_id": "fixture_call_2",
+            "tool_name": "calendar_get_event"
+          },
+          {
+            "content": "FIXTURE PLAN COMPLETE {\"event\": {\"end\": \"2026-10-13T15:30\", \"id\": \"ev-1791783191578\", \"location\": \"Synthetic fixture room\", \"notes\": \"Synthetic original notes\", \"request_id\": \"night004-bridge-l4-1a8c18cddaa44d39b3df76daf7b27233\", \"start\": \"2026-10-13T15:00\", \"timezone\": \"Asia/Shanghai\", \"title\": \"NIGHT004 synthetic bridge L4\"}, \"found\": true}",
+            "persisted_at": "2026-10-11T21:33:15.379479Z",
+            "role": "assistant",
+            "seq": 5,
+            "thread_id": "795d5ca5-4b8c-4e1d-bf2c-ca20c1a06aa4"
+          }
+        ],
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.2f4e6a14-p1-night004-vm-bridge"
+      },
+      "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.2f4e6a14-p1-night004-vm-bridge"
+    }
+  ],
+  "source": "actual_kernel_session_hydrate"
+}

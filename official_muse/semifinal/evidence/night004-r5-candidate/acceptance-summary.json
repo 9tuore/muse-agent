@@ -1,0 +1,72 @@
+{
+  "source_sha256": "caa99c570744d36a5e3b3d890fe56baf6337f506b8e37353e5d79bca9e3e7cce",
+  "signed_main_sha256": "ef58430fef4b2f707b78a12f4c4bcd2403b8404c092f5cd73239e5d128a9e750",
+  "manifest_sha256": "7b746fb0871e9e40f30819e4f6d851cda9c61d9ccb595468373cf622307f9714",
+  "source_commit": "0c3aa9b1e0574a550f21b93b6d8942cdd2759f35",
+  "layers": {
+    "native_full": {
+      "initial": 33,
+      "restart": 15
+    },
+    "native_deny": {
+      "initial": 29,
+      "restart": 12
+    },
+    "native_cas": {
+      "initial": 28,
+      "restart": 11
+    },
+    "native_delete": {
+      "initial": 23,
+      "restart": 13
+    },
+    "overlap_same": {
+      "checks": 20
+    },
+    "overlap_contained": {
+      "checks": 20
+    },
+    "overlap_adjacent": {
+      "checks": 20
+    },
+    "kernel_l4": {
+      "cases": 5
+    },
+    "final20": {
+      "cycles": 20,
+      "native_photos": 60,
+      "actual_input_readback_clear": true
+    },
+    "calendar_owner_gui": {
+      "checks": 6,
+      "independent_reads": 12,
+      "hosts": 3,
+      "native_photos_reviewed": 7
+    },
+    "narrow_gui": {
+      "actual_width": 412,
+      "native_photos_reviewed": 4,
+      "actual_inputs_and_return": true
+    },
+    "large_gui_recovery": {
+      "original_pending_actions": 128,
+      "recovered_unknown_actions": 128,
+      "goals": 32,
+      "runs": 32,
+      "memory": 64,
+      "sources": 128,
+      "exact_original_backup_preserved": true
+    },
+    "same_source_components": {
+      "boot_recovery_checks": 46,
+      "sdk_raw_model_json_checks": 54,
+      "mail_failure_checks": 107,
+      "memory_action_projection_checks": 14,
+      "evidence": "Existing committed night004-boot-recovery-central and GPT03 candidate-caa99-r1 directories; no duplicate runtime count for central verification"
+    }
+  },
+  "boundary": "Counts are individual assertions in explicitly named layers, not combined into a fictitious single full-chain count. Native owner/Kernel are real; model/approvals/Mail transport remain isolated fixtures.",
+  "overall_status": "SIMULATION_PASS",
+  "production_e2e_status": "NOT_TESTED",
+  "promoted_as": "Validated development candidate; not public release/contest submission"
+}
