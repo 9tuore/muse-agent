@@ -5,7 +5,8 @@
 #[test]
 fn real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture() {
     use octosense_app_hub::{Catalog, Entry, HubKey, Source, Status};
-    use crate::approvals::{Answer, Caller};
+    use crate::approvals::Caller;
+    use crate::approvals::sheet::Answer;
     use sha2::Digest;
     const TEST: &str = "host_tools::real_kernel_tests::real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture";
     let program = kernel().expect("NIGHT-004 requires an actual pinned kernel; missing is not a pass/skip");
@@ -56,9 +57,24 @@ fn real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture() {
     let host_dir = apps_root.join(".host");
     std::fs::create_dir(&host_dir).unwrap();
     std::fs::write(host_dir.join("FIXTURE_ONLY"), "Synthetic fixture only\n").unwrap();
+    // Match prepare_news/production App Hub: first use registers the compiled
+    // system packs. Registering CalendarService alone does not register its bundle.
+    let calendar_system=octosense_app_hub_app::system_apps().into_iter()
+        .find(|app|app.id=="os.calendar").expect("the actual build ships Calendar's official system pack");
+    let (calendar_bundle,_)=octosense_appstore::system::prepare(&apps_root,&calendar_system)
+        .expect("Calendar's compiled pack must pass real digest/policy admission");
+    assert!(calendar_bundle.join("manifest.json").is_file());
     octosense_calendar_service::register();
+    // Fail at initialization rather than letting ensure_loaded's logged failure
+    // produce an empty model offer later. This uses the actual admitted owner.
+    super::script_apps::load("os.calendar").expect("official Calendar owner tools/executor loaded");
     super::script_apps::load("muse-goals").expect("signed fixture and real system Calendar owner admitted");
     assert_eq!(super::owner_of("calendar.add_event").as_deref(), Some("os.calendar"));
+    let preflight=super::ShellToolHost.declarations("card.muse-goals",crate::ai_host::contained::ACCOUNT)
+        .expect("real signed Muse admission and owner declarations");
+    for tool in six {assert!(preflight.iter().any(|d|d["app"]=="os.calendar"&&d["name"]==tool),
+        "real owner must offer {tool} before starting the model: {preflight}");}
+    eprintln!("NIGHT004_OWNER_INITIALIZED {}",json!({"owner":"os.calendar","bundle":calendar_bundle,"declarations":preflight}));
     let offered_log = dir.join("offered.jsonl");
     let model = start_model(&offered_log);
     let core_dir = dir.join("octos-home/.octos");

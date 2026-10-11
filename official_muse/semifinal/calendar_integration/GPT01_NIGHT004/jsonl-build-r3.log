@@ -1,0 +1,42 @@
+   Compiling gpt01-night004-relay v0.0.0 (/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-night004-calendar/relay)
+warning: unexpected `cfg` condition name: `native_mobile`
+  --> src/approvals/contacts.rs:93:36
+   |
+93 |     #[cfg(any(feature = "app-hub", native_mobile))]
+   |                                    ^^^^^^^^^^^^^
+   |
+   = help: expected names are: `docsrs`, `feature`, and `test` and 32 more
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(native_mobile)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(native_mobile)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition name: `native_mobile`
+   --> src/approvals/contacts.rs:100:40
+    |
+100 |     #[cfg(not(any(feature = "app-hub", native_mobile)))]
+    |                                        ^^^^^^^^^^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(native_mobile)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(native_mobile)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: associated function `settings_tap` is never used
+  --> src/approvals/rules.rs:44:19
+   |
+42 | impl ApprovalGesture {
+   | -------------------- associated function in this implementation
+43 |     /// A tap on Settings → Assistant → Approvals.
+44 |     pub(crate) fn settings_tap() -> ApprovalGesture {
+   |                   ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `gpt01-night004-relay` (lib) generated 3 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.03s

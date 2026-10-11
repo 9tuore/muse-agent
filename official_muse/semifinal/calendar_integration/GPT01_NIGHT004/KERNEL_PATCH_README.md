@@ -1,8 +1,12 @@
 # NIGHT-004 real Kernel Calendar journey
 
-状态：PREPARED；git apply --check、临时副本逐字比对和现有syn::parse_file语法解析PASS。没有编译本测试，没有运行本测试。中央负责唯一Shell/Host构建；不要使用当前旧测试binary宣称本新增测试通过。
+状态PARTIAL：中央R2及Answer导入修正已release编译，实际Kernel runtime失败，非skip。已读取run-r2/test.log：os.calendar system bundle未注册，被当作未安装store app，模型收到NO TOOL。R4初始化补丁的应用检查、逐字比对和syn语法解析通过；本聊天未编译运行R4，中央负责重新运行。
 
-中央本次应用NIGHT004_real_kernel_calendar_r2.patch；R1补丁及KERNEL_PATCH_RESULT.json保留旧证据。R2结果与SHA在KERNEL_PATCH_R2_RESULT.json。
+R4根因：CalendarService::register只注册服务。App Hub system_apps首次调用才注册编译system packs；system::system_app只读取已有registry。原fixture没有调用factory，script_apps::load(Muse)中的owner ensure_loaded失败只记日志，留下空offer。修补参照已有prepare_news：官方factory找到Calendar pack，真实system::prepare校验digest/policy，显式load os.calendar和签名Muse，再用实际ShellToolHost.declarations断言六工具都有os.calendar owner，最后启动model。
+
+中央当前962b87ec基线应用NIGHT004_real_kernel_calendar_r4_init.patch；原始bc44d2d干净基线使用r4_full.patch。最终源码SHA为0f519651e05a1f3f3f6f31686b5959c212759f34d9a3eb0bb49cf07755538f97。指纹、原失败日志路径与SHA在KERNEL_PATCH_R4_RESULT.json。没有改权限gates、生产实现或工具schema，没有手写tools声明。R1-R3证据保留。
+
+R3修正Answer导入至approvals::sheet::Answer，最终源码SHA962b87eca40b79a4f500aa170c4d882316c0fc851a76b8aaaaeefdfe78f5d7d3，与中央已修正源码一致；R1/R2补丁和结果保留。中央已应用R2并修正此导入，可按该最终SHA核对，不需重复应用。干净bc44d2d基线用NIGHT004_real_kernel_calendar_r3.patch，R3指纹在KERNEL_PATCH_R3_RESULT.json。
 
 NIGHT004_real_kernel_calendar_r2.patch只追加SDK crates/shell/src/host_tools/real_kernel_tests.rs一个测试及其局部闭包，不改Kernel/Calendar业务实现。before/after/patch SHA在KERNEL_PATCH_R2_RESULT.json。该SDK所在项目的Git HEAD不是upstream revision，适用性按文件SHA核对。
 

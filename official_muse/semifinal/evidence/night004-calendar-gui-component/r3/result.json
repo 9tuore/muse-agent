@@ -1,0 +1,397 @@
+{
+  "status": "REAL_OFFICIAL_CALENDAR_OWNER_GUI_PASS",
+  "boundary": "Actual official Calendar owner UI and service; isolated synthetic events. Test target/port/state are changed only in a signed public app copy. No Muse Agent, real model, production consent or email claim.",
+  "source_app": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/rc7-safety-component-r1/package/Muse.app",
+  "host_kernel_identity": {
+    "muse-host": "1eb1887b7e89e1f3adebd750a4afff278d3ad7a942f35ae89a04fa70103cf0f7",
+    "octos-kernel": "56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270",
+    "octos-kernel.json": "4d4b836d2270874c0fc58dbca1c5bc62b0f466ff3295d24f340fe8cb603f252e"
+  },
+  "reader_sha256": "c90de9679a043f51f54630bc777ec9892ccd18888da782a4099cee68c08e0ded",
+  "checks": {
+    "create_and_exact_independent_read": true,
+    "update_preserves_same_id": true,
+    "restart_preserves_same_updated_event": true,
+    "delete_requires_second_owner_ui_click": true,
+    "delete_and_independent_exact_absence": true,
+    "restart_preserves_absence": true
+  },
+  "independent_reads": [
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "events",
+      "payload": {},
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 50865,
+        "result": {
+          "data": {
+            "events": []
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "events",
+      "payload": {},
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51282,
+        "result": {
+          "data": {
+            "events": [
+              {
+                "end": "2026-10-12T19:30",
+                "id": "ev-1791770012433",
+                "location": "NIGHT004 synthetic room",
+                "notes": "",
+                "start": "2026-10-12T19:00",
+                "timezone": "Asia/Shanghai",
+                "title": "NIGHT004 official Calendar GUI test"
+              }
+            ]
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "events",
+      "payload": {},
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51289,
+        "result": {
+          "data": {
+            "events": [
+              {
+                "end": "2026-10-12T19:30",
+                "id": "ev-1791770012433",
+                "location": "NIGHT004 synthetic room",
+                "notes": "",
+                "start": "2026-10-12T19:00",
+                "timezone": "Asia/Shanghai",
+                "title": "NIGHT004 official Calendar GUI test"
+              }
+            ]
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "get_event",
+      "payload": {
+        "id": "ev-1791770012433"
+      },
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51296,
+        "result": {
+          "data": {
+            "event": {
+              "end": "2026-10-12T19:30",
+              "id": "ev-1791770012433",
+              "location": "NIGHT004 synthetic room",
+              "notes": "",
+              "start": "2026-10-12T19:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 official Calendar GUI test"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "get_event",
+      "payload": {
+        "id": "ev-1791770012433"
+      },
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51369,
+        "result": {
+          "data": {
+            "event": {
+              "end": "2026-10-12T20:30",
+              "id": "ev-1791770012433",
+              "location": "NIGHT004 synthetic room",
+              "notes": "",
+              "start": "2026-10-12T20:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 official Calendar GUI test"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "get_event",
+      "payload": {
+        "id": "ev-1791770012433"
+      },
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51377,
+        "result": {
+          "data": {
+            "event": {
+              "end": "2026-10-12T20:30",
+              "id": "ev-1791770012433",
+              "location": "NIGHT004 synthetic room",
+              "notes": "",
+              "start": "2026-10-12T20:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 official Calendar GUI test"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "events",
+      "payload": {},
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51382,
+        "result": {
+          "data": {
+            "events": [
+              {
+                "end": "2026-10-12T20:30",
+                "id": "ev-1791770012433",
+                "location": "NIGHT004 synthetic room",
+                "notes": "",
+                "start": "2026-10-12T20:00",
+                "timezone": "Asia/Shanghai",
+                "title": "NIGHT004 official Calendar GUI test"
+              }
+            ]
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "get_event",
+      "payload": {
+        "id": "ev-1791770012433"
+      },
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51774,
+        "result": {
+          "data": {
+            "event": {
+              "end": "2026-10-12T20:30",
+              "id": "ev-1791770012433",
+              "location": "NIGHT004 synthetic room",
+              "notes": "",
+              "start": "2026-10-12T20:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 official Calendar GUI test"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "get_event",
+      "payload": {
+        "id": "ev-1791770012433"
+      },
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51832,
+        "result": {
+          "data": {
+            "event": {
+              "end": "2026-10-12T20:30",
+              "id": "ev-1791770012433",
+              "location": "NIGHT004 synthetic room",
+              "notes": "",
+              "start": "2026-10-12T20:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 official Calendar GUI test"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "get_event",
+      "payload": {
+        "id": "ev-1791770012433"
+      },
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51882,
+        "result": {
+          "data": {
+            "event": null,
+            "found": false
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "events",
+      "payload": {},
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 51892,
+        "result": {
+          "data": {
+            "events": []
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/state/apps/.host"
+      ],
+      "method": "get_event",
+      "payload": {
+        "id": "ev-1791770012433"
+      },
+      "reply": {
+        "fixture_authorization": true,
+        "process_id": 52253,
+        "result": {
+          "data": {
+            "event": null,
+            "found": false
+          },
+          "ok": true
+        }
+      }
+    }
+  ],
+  "launches": [
+    {
+      "owner_pid": 50897,
+      "guardian_pid": 50910,
+      "dynamic_signature": {
+        "scope": "read_only_dynamic_code_identity",
+        "checked_at_utc": "2026-10-11T17:53:30.375472+00:00",
+        "pid": 50897,
+        "expected_main_executable": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/Calendar Fixture.app/Contents/Resources/host-runtime/muse-host",
+        "guest_status": 0,
+        "dynamic_validity_status": 0,
+        "signing_information_status": 0,
+        "identifier": "org.xinghai.muse.paired-host",
+        "main_executable": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/Calendar Fixture.app/Contents/Resources/host-runtime/muse-host",
+        "secured_info_plist_present": false,
+        "main_executable_matches": true,
+        "probe_exit_code": 0,
+        "keychain_items_accessed": false,
+        "gui_actions_performed": false,
+        "status": "VALIDATED",
+        "check_exit_code": 0
+      }
+    },
+    {
+      "owner_pid": 51434,
+      "guardian_pid": 51448,
+      "dynamic_signature": {
+        "scope": "read_only_dynamic_code_identity",
+        "checked_at_utc": "2026-10-11T17:53:41.063213+00:00",
+        "pid": 51434,
+        "expected_main_executable": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/Calendar Fixture.app/Contents/Resources/host-runtime/muse-host",
+        "guest_status": 0,
+        "dynamic_validity_status": 0,
+        "signing_information_status": 0,
+        "identifier": "org.xinghai.muse.paired-host",
+        "main_executable": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/Calendar Fixture.app/Contents/Resources/host-runtime/muse-host",
+        "secured_info_plist_present": false,
+        "main_executable_matches": true,
+        "probe_exit_code": 0,
+        "keychain_items_accessed": false,
+        "gui_actions_performed": false,
+        "status": "VALIDATED",
+        "check_exit_code": 0
+      }
+    },
+    {
+      "owner_pid": 51951,
+      "guardian_pid": 51965,
+      "dynamic_signature": {
+        "scope": "read_only_dynamic_code_identity",
+        "checked_at_utc": "2026-10-11T17:53:49.561773+00:00",
+        "pid": 51951,
+        "expected_main_executable": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/Calendar Fixture.app/Contents/Resources/host-runtime/muse-host",
+        "guest_status": 0,
+        "dynamic_validity_status": 0,
+        "signing_information_status": 0,
+        "identifier": "org.xinghai.muse.paired-host",
+        "main_executable": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004/calendar-gui-component-r3/Calendar Fixture.app/Contents/Resources/host-runtime/muse-host",
+        "secured_info_plist_present": false,
+        "main_executable_matches": true,
+        "probe_exit_code": 0,
+        "keychain_items_accessed": false,
+        "gui_actions_performed": false,
+        "status": "VALIDATED",
+        "check_exit_code": 0
+      }
+    }
+  ],
+  "event_id": "ev-1791770012433"
+}

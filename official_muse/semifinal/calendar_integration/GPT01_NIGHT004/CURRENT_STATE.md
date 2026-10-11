@@ -1,3 +1,7 @@
+> Kernel R4（2026-10-12）：中央R2及import修正release实际runtime FAILED，非skip。已读原日志并记SHA；CalendarService已注册但官方system pack registry未初始化，owner lazy load只log错误。自有R4使用官方factory、真实system::prepare、显式owner/Muse加载及六工具preflight。267f5f16已提交补丁；当前962b87ec用r4_init.patch，最终0f519651；应用检查/逐字比对/syn通过，未编译运行R4。未写共享SDK/target。L4单元d9e99025保持已提交。文档更新脚本UTF-8读取失败后改用文件补丁补齐交接，代码不受影响。
+
+> JSONL/L4单元（2026-10-12）：真实Relay/Schema/审批Router/CalendarService JSONL helper已建成，自有小target增量9.75秒+3.03秒。写/读只接受自有或中央build/night-004内已有FIXTURE_ONLY根；协议CLI_PROTOCOL.md。L4_RESULT.json首轮25步PASS（3次helper进程）：外部真实owner-service修改、stale expected、审批后撤grant、deny/缺consent/撤下、坏输入与坏存储JSON、实际文件写失败/恢复、重启稳定request_id无重复、删后重启无记录。最终event count=0，稳定重试count=1。权限/账号/手势均fixture；没有KernelHistory/Muse receipt。首编译E0277/E0382日志保留，修正后通过。Kernel R3只同步中央发现的Answer导入错误，最终SDK文件SHA962b87ec…匹配；运行仍由中央核验。
+
 > R2（2026-10-12）：中央接入NIGHT004_real_kernel_calendar_r2.patch，完整end/location/notes与同稳定request_id重试已纳入；创建和更新六字段、id/request_id与存储event count=1均有断言。实际owner binary七步参数核验PASS（OWNER_FULL_FIELDS_RESULT.json）；R2 apply check/逐字比对/syn解析PASS，未编译未运行Kernel。R1补丁/结果保留。只读reader已在46f3a773交付，路径/权限未变。
 
 # NIGHT-004 ZC01

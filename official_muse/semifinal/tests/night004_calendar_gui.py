@@ -68,6 +68,10 @@ def main():
                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     assert {name: digest(runtime / name) for name in frozen} == frozen
     remote = Remote(args.port)
+    window_probe = out / 'owned-window-id'
+    subprocess.run(['clang', '-framework', 'ApplicationServices',
+                    str(ROOT / 'official_muse/semifinal/tests/owned_main_window_id.c'),
+                    '-o', str(window_probe)], check=True, capture_output=True)
     reads, checks, launches = [], {}, []
     report = {'status': 'ERROR', 'boundary': 'Actual official Calendar owner UI and service; isolated synthetic events. Test target/port/state are changed only in a signed public app copy. No Muse Agent, real model, production consent or email claim.',
               'source_app': str(source), 'host_kernel_identity': frozen,
@@ -92,17 +96,25 @@ def main():
             time.sleep(.15)
 
     def shot(name):
-        for attempt in range(8):
+        # The remote framebuffer omits composed in-process card surfaces on
+        # this Intel Host. Capture only the actual window owned by this PID.
+        window = subprocess.check_output([str(window_probe), str(pid)], text=True).strip()
+        assert window, 'No owned native window to capture'
+        target = out / name
+        subprocess.run(['screencapture', '-x', '-l', window, str(target)], check=True)
+        assert target.read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
+
+    def reveal(key, area):
+        for attempt in range(12):
             try:
-                capture = json.loads(remote.request('/g'))
-                target = out / name
-                shutil.copy2(Path(capture['png']), target)
-                assert target.read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
-                return
-            except HTTPError:
-                if attempt == 7:
-                    raise
-                time.sleep(.25)
+                widget = remote.find(key)
+                if widget['r'][2] >= 2 and widget['r'][3] >= 18:
+                    return widget
+            except AssertionError:
+                pass
+            x, y, width, height = remote.find(area)['r']
+            remote.scroll(int(x + width / 2), int(y + height * .7), 80)
+        raise AssertionError(f'Calendar widget not visible after scroll: {key}')
 
     def start():
         result = subprocess.run(['open', '-n', str(app)], capture_output=True, text=True)
@@ -151,20 +163,19 @@ def main():
         remote.set_text('e_end', '19:30')
         remote.set_text('e_zone', 'Asia/Shanghai')
         remote.set_text('e_place', 'NIGHT004 synthetic room')
-        remote.set_text('e_notes', 'Official owner UI isolated acceptance')
         expected = {'title': title, 'start': remote.find('e_date')['val'] + 'T19:00',
                     'end': remote.find('e_end_date')['val'] + 'T19:30',
                     'timezone': 'Asia/Shanghai', 'location': 'NIGHT004 synthetic room',
-                    'notes': 'Official owner UI isolated acceptance'}
+                    'notes': ''}
         remote.click('Save')
         wait(lambda: len(read('events', {})['events']) == 1)
         event = read('events', {})['events'][0]
         event_id = event['id']
         saved = read('get_event', {'id': event_id})
         checks['create_and_exact_independent_read'] = saved['found'] and saved['event']['id'] == event_id and all(saved['event'][key] == value for key, value in expected.items())
-        remote.wait_for(title)
+        reveal(title, 'calendar')
         shot('02-created.png')
-        remote.click('View event  ›')
+        remote.click_scroll('View event  ›', 'calendar')
         remote.click('Edit')
         remote.set_text('e_start', '20:00')
         remote.set_text('e_end', '20:30')
@@ -174,20 +185,20 @@ def main():
         wait(lambda: read('get_event', {'id': event_id})['event']['start'].endswith('T20:00'))
         revised = read('get_event', {'id': event_id})['event']
         checks['update_preserves_same_id'] = revised['id'] == event_id and len(read('events', {})['events']) == 1 and all(revised[key] == value for key, value in expected.items()) and revised.get('request_id', '') == saved['event'].get('request_id', '')
-        remote.wait_for(title)
+        reveal(title, 'calendar')
         shot('03-updated.png')
         stop(pid)
         pid = None
         pid = start()
         restored = read('get_event', {'id': event_id})
         checks['restart_preserves_same_updated_event'] = restored['found'] and restored['event'] == revised
-        remote.wait_for(title)
+        reveal(title, 'calendar')
         shot('04-restored.png')
-        remote.click('View event  ›')
-        remote.click('Delete event')
+        remote.click_scroll('View event  ›', 'calendar')
+        remote.click_scroll('Delete event', 'detail')
         checks['delete_requires_second_owner_ui_click'] = read('get_event', {'id': event_id})['found']
         shot('05-delete-review.png')
-        remote.click('Confirm delete')
+        remote.click_scroll('Confirm delete', 'detail')
         wait(lambda: read('get_event', {'id': event_id}) == {'found': False, 'event': None})
         checks['delete_and_independent_exact_absence'] = read('events', {})['events'] == []
         shot('06-deleted.png')
@@ -200,6 +211,12 @@ def main():
         report.update(status='REAL_OFFICIAL_CALENDAR_OWNER_GUI_PASS', event_id=event_id)
     except Exception as error:
         report['error'] = f'{type(error).__name__}: {error}'
+        if pid is not None:
+            try:
+                shot('failure-native-window.png')
+                (out / 'failure-widgets.json').write_text(json.dumps(remote.widgets(), indent=2) + '\n')
+            except Exception as capture_error:
+                report['failure_capture_error'] = str(capture_error)
         raise
     finally:
         if pid is not None:

@@ -2,28 +2,28 @@
 
 ## Task
 
-NIGHT-004 ZC01，codex/gpt01-calendar-history；中央2395a70c/main768e295d。
+NIGHT-004 ZC01，真实Kernel Calendar fixture初始化修补。
 
 ## Result
 
-PARTIAL。L1真实CalendarService九进程生命周期/重启PASS；真实Relay和审批Router的L2组件fixture六项PASS；只读helper及直接exec PASS；完整字段/稳定request_id重试L1七步PASS。
+PARTIAL。中央R2真实runtime失败（非skip）；自有R4修补应用检查/逐字比对/syn通过，未编译运行。L4 25步PASS保持。
 
 ## Changed
 
-GPT01_NIGHT004隔离harness、来源指纹、原始日志、结果、read_calendar.py。实际SDK业务代码按字节复制，未改共享源码。
+GPT01_NIGHT004新增r4_init增量及r4_full补丁、指纹/诊断。仅测试初始化使用官方factory、system::prepare、显式owner加载和六工具preflight。
 
 ## Tests
 
-10-12：owner14.481秒；Relay首轮E0282失败133.729秒保留，修复Arc类型后6/0、22.543秒。nice10/jobs1/offline。只读helper两次读、两层写拒绝，store SHA不变。JSON与对应日志在本目录。
+10-12已读中央原日志并记SHA：system registry未初始化导致NO TOOL。962b87ec基线到0f519651最终源码，两个patch检查及语法通过。无新Cargo构建。
 
 ## Commit
 
-首单元30bc0fdc；helper与R1 patch46f3a773；R2本单元本地提交，SHA见Git/聊天；未push。
+L4 d9e99025已提交；R4补丁267f5f16；文档补齐单元SHA见Git/聊天。未push。
 
 ## Remaining
 
-真实Kernel R2 patch含完整字段/幂等重试；apply check/语法解析PASS，未编译未运行。中央负责正式Host、精确新增filter、隔离GUI及同目录回读。
+中央串行接收r4_init.patch、编译并实际运行。JSONL/L4 helper协议仍为CLI_PROTOCOL.md。
 
 ## Important Boundaries
 
-事件/目录/consent/审批手势为synthetic fixture。无本人Agent同意、GUI或完整Kernel PASS；撤grant证据发生在dispatch前。
+保留原失败和R1-R3证据；未改production/gate/schema或假tools。Muse/model/consent/手势为fixture；未宣称L3/full-chain。

@@ -1,0 +1,205 @@
+--- a/crates/shell/src/host_tools/real_kernel_tests.rs
++++ b/crates/shell/src/host_tools/real_kernel_tests.rs
+@@ -534,3 +534,202 @@
+         self.0.connect().map(crate::system_chat::link::link).map_err(|e| crate::system_chat::session::Unavailable::Failed(e.to_string()))
+     }
+ }
++
++/// NIGHT-004 L2: actual pinned Kernel/Broker/Relay/CalendarService, localhost
++/// scripted model and a signed synthetic Muse bundle. Consent and every
++/// sheet gesture below are TEST fixtures, never real-person Agent consent.
++#[test]
++fn real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture() {
++    use octosense_app_hub::{Catalog, Entry, HubKey, Source, Status};
++    use crate::approvals::Caller;
++    use crate::approvals::sheet::Answer;
++    use sha2::Digest;
++    const TEST: &str = "host_tools::real_kernel_tests::real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture";
++    let program = kernel().expect("NIGHT-004 requires an actual pinned kernel; missing is not a pass/skip");
++    assert_eq!(format!("{:x}", sha2::Sha256::digest(std::fs::read(&program).unwrap())),
++        "56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270",
++        "the NIGHT-004 pinned Kernel bytes must match");
++    if run_isolated(TEST) { return; }
++    // Process-local catalog settings: no production profile, credential or remote model.
++    std::env::set_var("OCTOSENSE_HUB_CATALOG", "legacy");
++    let dir = std::env::temp_dir().join(format!("gpt01-night004-kernel-{}", uuid::Uuid::new_v4()));
++    std::fs::create_dir(&dir).unwrap();
++    std::fs::write(dir.join("FIXTURE_ONLY"), "Synthetic fixture only\n").unwrap();
++    let apps_root = dir.join("apps");
++    octosense_appstore::set_data_root(apps_root.clone());
++    octosense_appstore::set_muse_calendar_integration_enabled(true);
++    let bundle = octosense_app_hub::installed_bundle_dir(&apps_root, "muse-goals");
++    std::fs::create_dir_all(&bundle).unwrap();
++    std::fs::write(bundle.join("main.splash"), "Label{text: \"NIGHT-004 synthetic Muse fixture\"}").unwrap();
++    let six = ["calendar.events", "calendar.get_event", "calendar.add_event",
++        "calendar.update_event", "calendar.remove_event", "calendar.notify"];
++    let mut manifest = octosense_app_contract::AppManifest::parse(&json!({
++        "schema":1,"id":"muse-goals","version":"1.0.0","name":"Synthetic Muse",
++        "integrity":{"bundle_blake3":octosense_app_contract::digest_dir(&bundle).unwrap()},
++        "agent":{"profile":"read-only","tools":six}
++    }).to_string()).unwrap();
++    let publisher = HubKey::generate();
++    octosense_app_hub::sign_manifest(&publisher, &mut manifest, "night004-fixture").unwrap();
++    std::fs::write(bundle.join("manifest.json"), serde_json::to_vec(&manifest).unwrap()).unwrap();
++    let anchor = HubKey::generate();
++    let signer = HubKey::generate();
++    let certificate = anchor.certify(&signer.public_hex()).unwrap();
++    std::env::set_var("OCTOSENSE_HUB_ANCHOR", anchor.public_hex());
++    let mut catalog = Catalog::new(1, "2026-10-12", vec![Entry {
++        manifest,listing:None,tools:vec![],artifact:"night004-fixture".into(),
++        publisher:"night004-fixture".into(),publisher_key:publisher.public_hex(),
++        source:Source{repository:String::new(),commit:String::new()},
++        status:Status::Offered,admitted:"2026-10-12".into()
++    }]);
++    signer.sign_catalog(&mut catalog, &certificate).unwrap();
++    std::fs::write(apps_root.join("catalog.json"), serde_json::to_vec(&catalog).unwrap()).unwrap();
++    let home = dir.join("home");
++    std::fs::create_dir(&home).unwrap();
++    crate::approvals::init(&home);
++    super::init();
++    assert!(!crate::dev_mode::grants_all("muse-goals"), "no developer blanket grant");
++    crate::approvals::with(|a| a.consent.set(
++        &crate::approvals::rules::ApprovalGesture::sheet_tap(), "muse-goals", true, crate::approvals::now())).unwrap();
++    let host_dir = apps_root.join(".host");
++    std::fs::create_dir(&host_dir).unwrap();
++    std::fs::write(host_dir.join("FIXTURE_ONLY"), "Synthetic fixture only\n").unwrap();
++    octosense_calendar_service::register();
++    super::script_apps::load("muse-goals").expect("signed fixture and real system Calendar owner admitted");
++    assert_eq!(super::owner_of("calendar.add_event").as_deref(), Some("os.calendar"));
++    let offered_log = dir.join("offered.jsonl");
++    let model = start_model(&offered_log);
++    let core_dir = dir.join("octos-home/.octos");
++    write_profile(&core_dir, model.1);
++    let core = Core::new(Options::default().core_dir(&core_dir).program(&program));
++    let mut cfg = BrokerConfig::new(Deployment::Hosted, "_main", "_main:api:octosense#system",
++        "card.muse-goals", "Synthetic Muse", OCTOS_SERVICES.iter().map(|s|s.to_string()).collect());
++    cfg.state_dir = Some(dir.join("host-state"));
++    cfg.tool_host = Some(ToolHostHandle(Arc::new(super::ShellToolHost) as Arc<dyn ToolHost>));
++    let muse = Broker::new(cfg, Arc::new(CoreConnector::shared(core.clone())));
++    muse.set_account(Some(crate::ai_host::contained::ACCOUNT));
++    let ctx = muse.open_context(ContextSpec {account:crate::ai_host::contained::ACCOUNT.into(),
++        instance:"card.muse-goals-night004".into(),services:OCTOS_SERVICES.iter().map(|s|s.to_string()).collect()}).unwrap();
++    let approvals = Arc::new(Mutex::new(Vec::<Value>::new()));
++    let run = |op:ContextOp, expected:Option<(&str, Value, Answer)>| -> Result<Value,String> {
++        let (tx,rx)=std::sync::mpsc::channel();let tx=Mutex::new(tx);
++        ctx.call(op, Arc::new(move |e| {let _=tx.lock().unwrap().send(e);}))?;
++        let deadline=Instant::now()+Duration::from_secs(120);
++        loop {
++            super::pump();
++            crate::approvals::with(|a| {
++                let Some(sheet)=a.router.front_sheet().cloned() else {return};
++                for line in sheet.lines {
++                    let Some(request)=a.router.pending_request(&line.request).cloned() else {continue};
++                    let (tool,args,answer)=expected.as_ref().expect("unexpected approval during a read/history");
++                    assert_eq!(request.app,"os.calendar");
++                    assert_eq!(request.tool.name,*tool);
++                    assert_eq!(&request.args,args,"only this fixture phase's exact arguments may be answered");
++                    assert_eq!(request.caller,Caller::AppAgent{app:"muse-goals".into()});
++                    approvals.lock().unwrap().push(json!({"fixture_gesture":true,"owner":request.app,
++                        "tool":request.tool.name,"args":request.args,"caller":"muse-goals","approved":*answer==Answer::Once}));
++                    a.router.answer(sheet.id,&line.request,*answer,
++                        &crate::approvals::rules::ApprovalGesture::sheet_tap(),crate::approvals::now()).unwrap();
++                }
++            });
++            match rx.recv_timeout(Duration::from_millis(20)) {
++                Ok(ContextEvent::Complete(result)) => return result,
++                Ok(ContextEvent::Data(_))|Err(std::sync::mpsc::RecvTimeoutError::Timeout)=>{},
++                Err(std::sync::mpsc::RecvTimeoutError::Disconnected)=>panic!("context callback disconnected")
++            }
++            assert!(Instant::now()<deadline,"NIGHT-004 actual Kernel turn timed out");
++        }
++    };
++    let turn = |tool:&str,args:Value,decision:Answer| -> Value {
++        let model_name=tool.replace('.',"_");
++        let reply=run(ContextOp::Turn{text:format!("CALL_TOOL:{model_name} {}",args)},
++            Some((tool,args.clone(),decision))).expect("actual Kernel turn completed");
++        eprintln!("NIGHT004_KERNEL_TURN {}",json!({"tool":tool,"args":args,"reply":reply}));
++        assert!(reply["text"].as_str().unwrap_or("").starts_with("TOOL SAID"),"actual tool result reached local model: {reply}");
++        reply
++    };
++    // Independent read: actual owner handler and store, never model wording.
++    let read = |args:Value| octosense_calendar_service::handle("os.calendar","get_event",&args,
++        &host_dir,chrono::Local::now().naive_local(),None).unwrap();
++    let request_id="night004-real-kernel-synthetic";
++    let add=json!({"title":"NIGHT004 synthetic","start":"2026-10-13T15:00","end":"2026-10-13T15:30",
++        "timezone":"Asia/Shanghai","location":"Synthetic room A","notes":"Synthetic initial notes","request_id":request_id});
++    turn("calendar.add_event",add.clone(),Answer::Once);
++    let created=read(json!({"request_id":request_id}));assert_eq!(created["found"],true);
++    let old=created["event"].clone();let id=old["id"].as_str().unwrap().to_string();
++    for field in ["title","start","end","timezone","location","notes","request_id"] {
++        assert_eq!(old[field],add[field],"created owner field {field}");
++    }
++    // A distinct Kernel turn retries the same stable request_id and exact data.
++    // Count actual stored events, so repeated model wording cannot prove idempotency.
++    turn("calendar.add_event",add.clone(),Answer::Once);
++    let retried=read(json!({"request_id":request_id}));assert_eq!(retried["event"],old);
++    let stored=octosense_calendar_service::handle("os.calendar","events",&json!({}),
++        &host_dir,chrono::Local::now().naive_local(),None).unwrap();
++    assert_eq!(stored["events"].as_array().unwrap().len(),1,"two Kernel add turns cause one stored event");
++    assert_eq!(stored["events"][0],old);
++    eprintln!("NIGHT004_STABLE_REQUEST_RETRY {}",json!({"request_id":request_id,"id":id,"stored_event_count":1,"owner_read":stored}));
++    let get=turn("calendar.get_event",json!({"id":id}),Answer::Once);
++    assert!(get["text"].as_str().unwrap().contains(&id));
++    let before_denial=std::fs::read(host_dir.join("calendar/events.json")).unwrap();
++    let denied_args=json!({"title":"DENIED fixture","start":"2026-10-13T17:00","end":"2026-10-13T17:30",
++        "timezone":"Asia/Shanghai","location":"Synthetic denied room","notes":"Synthetic denied notes","request_id":"night004-denied"});
++    let denied=run(ContextOp::Turn{text:format!("CALL_TOOL:calendar_add_event {}",denied_args)},
++        Some(("calendar.add_event",denied_args,Answer::Deny)));
++    eprintln!("NIGHT004_KERNEL_DENIED {denied:?}");
++    assert!(approvals.lock().unwrap().iter().any(|r|r["approved"]==false),"real Router answered this fixture deny");
++    assert_eq!(std::fs::read(host_dir.join("calendar/events.json")).unwrap(),before_denial);
++    assert_eq!(read(json!({"request_id":"night004-denied"}))["found"],false);
++    let update=json!({"id":id,"expected":old,"title":"NIGHT004 revised","start":"2026-10-13T16:00","end":"2026-10-13T16:45",
++        "timezone":"Asia/Shanghai","location":"Synthetic room B","notes":"Synthetic revised notes"});
++    turn("calendar.update_event",update.clone(),Answer::Once);
++    let current=read(json!({"id":id}))["event"].clone();
++    assert_eq!(current["id"],id);assert_eq!(current["request_id"],request_id);
++    for field in ["title","start","end","timezone","location","notes"] {
++        assert_eq!(current[field],update[field],"updated owner field {field}");
++    }
++    eprintln!("NIGHT004_UPDATED_OWNER {}",json!({"id":id,"request_id":request_id,"event":current}));
++    turn("calendar.get_event",json!({"id":id}),Answer::Once);
++    let before_stale=std::fs::read(host_dir.join("calendar/events.json")).unwrap();
++    let stale=turn("calendar.remove_event",json!({"id":id,"expected":old}),Answer::Once);
++    assert!(stale["text"].as_str().unwrap().contains("changed"));
++    assert_eq!(std::fs::read(host_dir.join("calendar/events.json")).unwrap(),before_stale);
++    turn("calendar.remove_event",json!({"id":id,"expected":current}),Answer::Once);
++    let absent=turn("calendar.get_event",json!({"id":id}),Answer::Once);
++    assert!(absent["text"].as_str().unwrap().contains("false"));
++    assert_eq!(read(json!({"id":id})),json!({"found":false,"event":null}));
++    let history=run(ContextOp::History,None).expect("actual Kernel session/hydrate");
++    let rows=history["messages"].as_array().expect("actual persisted Kernel messages");
++    for name in ["calendar.add_event","calendar.get_event","calendar.update_event","calendar.remove_event"] {
++        let persisted=rows.iter().filter(|r|r["role"]=="tool").any(|r| {
++            let receipt=&r["host_calendar_receipt"];
++            receipt["kernel_persisted"]==true&&receipt["tool"]==name&&receipt["owner"]=="os.calendar"
++                &&receipt["caller"]=="card.muse-goals"&&receipt["source"]=="broker_tool_result"
++        });
++        assert!(persisted,"real Kernel tool row/host receipt must bind exact owner/caller/tool {name}: {history}");
++    }
++    eprintln!("NIGHT004_REAL_KERNEL_HISTORY {}",history);
++    // Signed caller withdrawal must stop an already-created context's next turn.
++    catalog.sequence+=1;catalog.entries[0].status=Status::Withdrawn("NIGHT004 synthetic withdrawal".into());
++    signer.sign_catalog(&mut catalog,&certificate).unwrap();
++    std::fs::write(apps_root.join("catalog.json"),serde_json::to_vec(&catalog).unwrap()).unwrap();
++    let before_withdrawal=std::fs::read(host_dir.join("calendar/events.json")).unwrap();
++    let revoked_args=json!({"title":"REVOKED","start":"2026-10-13T18:00","end":"2026-10-13T18:30",
++        "timezone":"Asia/Shanghai","location":"Synthetic revoked room","notes":"Synthetic revoked notes","request_id":"night004-revoked"});
++    let withdrawn=run(ContextOp::Turn{text:format!("CALL_TOOL:calendar_add_event {}",revoked_args)},None);
++    assert!(withdrawn.as_ref().err().is_some_and(|e|e.to_lowercase().contains("withdrawn")),"signed withdrawal: {withdrawn:?}");
++    assert_eq!(std::fs::read(host_dir.join("calendar/events.json")).unwrap(),before_withdrawal);
++    let requests:Vec<Value>=std::fs::read_to_string(&offered_log).unwrap().lines().map(|l|serde_json::from_str(l).unwrap()).collect();
++    let first=requests.iter().find(|r|r["user"].as_str().unwrap_or("").contains("CALL_TOOL")).unwrap();
++    let tools:Vec<&str>=first["tools"].as_array().unwrap().iter().filter_map(Value::as_str).collect();
++    for tool in six {assert!(tools.contains(&tool.replace('.',"_").as_str()),"six-tool signed offer {tools:?}");}
++    for denied in ["shell","bash","exec_command","read_file"] {assert!(!tools.contains(&denied));}
++    assert!(approvals.lock().unwrap().iter().any(|r|r["approved"]==false));
++    eprintln!("NIGHT004_FIXTURE_APPROVALS {}",json!(*approvals.lock().unwrap()));
++    eprintln!("NIGHT004_RESULT {}",json!({"state":"REAL_KERNEL_CALENDAR_SYNTHETIC_FIXTURE_PASS",
++        "fixture_authorization":true,"fixture_model":"localhost mock_agent_llm.py","id":id,
++        "real_kernel":true,"real_owner":true,"signed_withdrawal":true,"gui":false,"muse_product_bundle":false}));
++    ctx.close();drop(ctx);muse.release();drop(muse);
++    core.shutdown_within(Duration::from_secs(5));drop(model);
++    octosense_appstore::set_muse_calendar_integration_enabled(false);
++    std::fs::remove_dir_all(dir).unwrap();
++}

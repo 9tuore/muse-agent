@@ -1,3 +1,9 @@
+## NIGHT-004 官方Calendar GUI组件验收通过
+
+新Intel Host signed SHA1eb1887b、固定Kernel56761a9f，在rc7安全组件包的隔离资料实际操作官方Calendar owner界面：19:00–19:30新建、同ID改期20:00–20:30、重启保持更新、确认删除、独立不存在读回、重启仍不存在，6/6检查通过。3次启动实际动态SecCode全部0且精确路径一致；7张实际窗口PNG与12次独立CalendarService读回保存。Root按PID捕获真实窗口；remote /g会遗漏合成卡片层，未改渲染代码。R1屏下Notes/R2屏下title失败保留；测试driver增加正常滚动。证据official_muse/semifinal/evidence/night004-calendar-gui-component/。此为官方日历owner GUI组件，包主源c183a5c4，不能算最终Muse Agent/Mail/L3候选PASS。
+
+同时接收GPT01 d9e99025→c8f7a93f：真实Relay/Schema/Router/CalendarService L4共25步，重启稳定请求1事件、外部owner编辑后旧expected拒绝、撤销/拒绝不写、坏JSON保留、真实写失败与恢复、删后跨进程不存在，副作用计数有证据；权限/输运ID为fixture，无假KernelHistory。实际helper SHA0b704576核对。真实Kernel R4测试初始化使用官方system Apps factory及真实pack admission，已按SHA0f519651应用owned SDK，中央串行编译/运行中，尚未PASS。
+
 ## NIGHT-004 Calendar真实新建时间与回执核验修复
 
 main SHA ebbc50b8：修复wall分段错误，合法ISO原生成空start/end；真实VM前4失败后6/6。VM实际参数送入未改官方CalendarService，旧参数拒绝、新参数保存，独立进程按同ID精确回读，删除后独立不存在验证，共6个进程。创建link_result严格单add→单get，同Kernel、调用唯一、精确参数摘要；原23例有12个负例误verified，中央修复后23/23，候选参数由生产wall生成。原Safety22/22复跑通过。证据official_muse/semifinal/evidence/night004-calendar-create/。
