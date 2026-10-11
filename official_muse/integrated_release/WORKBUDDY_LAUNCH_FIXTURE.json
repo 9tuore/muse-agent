@@ -23,7 +23,7 @@
   "host_home": "inherited",
   "MAKEPAD_APP_CONFIG": "unset",
   "remote": "argv --remote=9696 by default, explicit MUSE_INTEGRATED_REMOTE supported",
-  "startup": "Native module first, then existing Muse/AppHub or Models target",
+  "startup": "argv lists Native before the existing Muse/AppHub or Models target; both are processed in one startup loop, no rendered-frame ordering is verified",
   "legacy_state": "MUSE_INTEGRATED_STATE selects existing WorkBuddy layout, no credential migration",
   "preserved": [
     "package signature",

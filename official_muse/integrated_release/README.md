@@ -37,7 +37,8 @@ ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。只使用本任务新生成的私钥；私�
 
 ## 运行和验收边界
 
-所有入口使用同一个签名 Launcher，按 WorkBuddy 的 Native-first 顺序打开 Muse／Models。
+所有入口使用同一个签名 Launcher，argv 中先列 Native，再列 Muse／Models 的 test-action。
+SDK 在同一启动循环中处理这两个 action；尚未证明 Native 首屏先绘制完成，不能把参数顺序称作 GUI 时序验证。
 默认资料在 `Muse.app` 同级的 `Muse Data`，采用 `shell/`、`apps/`、`kernel/.octos/`、
 `rinx/`、`config/`、`data/`、`cache/` 布局；Host 保留调用者 HOME，不设置 MAKEPAD_APP_CONFIG。
 默认远程参数为 argv `--remote=9696`，可用 MUSE_INTEGRATED_REMOTE 指定另一个有效端口。
@@ -84,6 +85,8 @@ Qwen；MiniMax/混合 profile 会进入设置而非被改写，GPT 验证应使�
 Qwen 推理或云端调用，不代表最终 Host 的 GUI、凭证有效性或实调通过。
 新增 WorkBuddy argv/env、相对默认目录、同一脚本入口、锁生命周期及旧日志追加用例；
 2026-10-11 最终 21/21 通过，37.664 秒。首轮脚本对比断言未归一化包位置，19/20；已修正。
+中央最新真实对照：相同 WorkBuddy 脚本直接从 shell 启动仍黑，原 LaunchServices 实例仍正常。
+因此配置移植及 fixture 通过不等于黑屏已修复；中央继续验证同候选的 `.app`／LaunchServices 入口。
 2026-10-11 只读 config.llm 元数据确认旧 live-acceptance-003 主提供方为 minimax-cn/MiniMax-M3，
 route 省略，Native 注册表默认主机 api.minimaxi.com；新默认独立目录尚无 profile，未迁移凭证。
 

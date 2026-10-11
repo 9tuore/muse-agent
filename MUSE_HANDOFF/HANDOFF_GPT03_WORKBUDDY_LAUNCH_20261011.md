@@ -4,7 +4,7 @@
 GPT-03，独立detached worktree基线9dbccbe8；按用户最新授权统一采用WorkBuddy启动方式，仓库/发布入口一致。
 
 ## Result
-PARTIAL：可应用Launcher代码和脚本已交付，21/21 fixture通过；中央同候选真实GUI/冷启动尚待验证。
+PARTIAL：151af288已交付Launcher代码和脚本，21/21 fixture通过；两个action同启动循环，未证明首屏绘制时序。中央报告相同脚本direct shell仍黑、原LaunchServices实例正常，继续.app入口实测。
 
 ## Changed
 Launcher改为portable同级Muse Data、WorkBuddy目录/清环境/继承HOME/argv remote/Native-first再目标页；原验签/pin/mirror/锁/模型保护保留，日志追加。package附统一launch_muse.sh，README与fixture更新，目录gitignore防止意外暂存本地包/资料。
