@@ -1,3 +1,11 @@
+## ZC-00 单包生成与工作入口恢复：2026-10-11T17:25:37+08:00
+
+完整配套 Host Release aec5dda8 构建通过，0.4.0-rc4-r2 当前 main 0c7f9812 已签名并通过本地 paired-host catalog gate；Muse.app hybrid 包生成并通过 deep/strict 签名和资源检查，保留内置 Qwen，云端仍沿用现有 MiniMax。包路径 build/muse-integrated-0.4.0-rc4-app-r1，默认资料引用 live-acceptance-003；引用在包外，不复制 profile/凭证。
+
+重启后真实新包首屏仍为黑屏，不能交付为正式可用。已恢复原 WorkBuddy .app/Host ec83a4f9，仅在原 Launcher 清环境后加入 rc4 公开镜像/anchor/legacy 三项，原脚本备份在候选 build 内；Host、STATE、HOME 保留。旧工作宿主重新显示，实际 App Hub 已验签加载 Muse，已打开并滚到 Install 权限确认；本人安装尚未完成。窗口和签名不等于正式 Muse/native grant/Calendar/Mail 业务成功。
+
+GitHub 同源 Launcher 实际运行成功（run38122820596，7d3f4185）；当前参考VM Calendar19项、Mail37项合成协议通过，外部调用0。Calendar→Mail新增40项 VM 探针已修复尾部原始定义遗漏，但 r2/r3启动解析触及原预算，无业务PASS，失败日志保留，转最小源码准备适配。65/100项Node fixture不能替代真实业务。Kernel持续任务配额补丁0477a18e的11项Rust fixture通过，完整构建/实际接线尚未完成；关机后现只做轻量开发，费用门禁保持默认关闭。
+
 ## ZC-00 固定可见入口与 rc4：2026-10-11T15:48:44+08:00
 
 用户要求直接使用 WorkBuddy 能显示的实例，中央已关闭 owned 黑屏测试进程并重新打开其 .app，现有 PID90055 保留。151af288/4a288a26 已接收为238c9f8f/f3a5c352；仓库与包内 launch_muse.sh调用同一签名Launcher，WorkBuddy目录/env与HOME继承。中央统一升rc4，编译Launcher21/21、Qwen目录12/12通过；.github/workflows/muse-launcher.yml新增macOS同源回归，尚无GitHub实际运行结果。

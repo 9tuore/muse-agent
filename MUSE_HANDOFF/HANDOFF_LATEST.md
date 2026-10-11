@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC-00：统一 WorkBuddy 启动、GitHub 同源回归、rc4 集成。
+ZC-00：统一 rc4 候选、复用 WorkBuddy 可见宿主、继续官方业务验收。
 
 ## Result
-PARTIAL。现场保留能显示的 WorkBuddy PID90055；完整 Muse 尚未安装并验收。
+PARTIAL。签名 hybrid 单包已生成；原 WorkBuddy 入口重启后可见，真实 App Hub 显示新 Muse 并停在本人 Install 确认。
 
 ## Changed
-统一 Launcher/launch_muse.sh 已合入；rc4版本、签名目录校验、包元数据同步。新增 GitHub macOS 启动 fixture workflow；主源码已有 Calendar→当前事项行动链。
+正式 main 当前事项→官方 Calendar 精确读回→可选 Mail 草稿已接入；统一 Launcher/仓库脚本/GitHub 回归接收。仅向原 WorkBuddy Launcher 添加三个公开目录变量，原字节备份保留，Host/STATE/HOME 未替换。
 
 ## Tests
-2026-10-11 编译 Launcher 与临时签名 stub：21/21；Qwen catalog：12/12。原错误命令日志保留；这些是零外部调用的 fixture。证据见 integrated_release/evidence/portable-launcher-rc4-fixture.json。当前 Host 编译中。
+完整 Host Release、paired-host gate、整包 deep/strict 签名通过；Launcher21、Qwen目录12、Calendar参考VM19、Mail参考VM37通过，均不证明业务投递。GitHub run38122820596实际SUCCESS。新增40项参考VM探针尚无PASS；旧解析失败日志保留。
 
 ## Commit
-随本单元本地提交；按用户授权正常推开发分支，随后核对远端 SHA。
+本节点本地提交后正常推开发分支并核对远端；正式 main 源SHA0c7f9812，签名目录引用72f7b1ef。
 
 ## Remaining
-完整 Muse 的可见安装、真实 Calendar/Mail/行动链同候选业务、T18、20冷启动与重启。Native持续循环默认停用，真实预算尚未实施。GitHub结果尚待实际运行。
+本人 Install 与实际 Native Agent 启用；完整 Muse真实Calendar/Mail/模型/行动链业务，持续 Kernel权威配额，T18与同候选20冷启动。新包宿主首屏需修复，现场继续保留可见 WorkBuddy Host。
 
 ## Important Boundaries
-窗口可见与 fixture 不等于日历写入、真实投递或正式候选稳定通过。
+当前可见Host ec83a4f9 与新包d273ebf3不是同一二进制，不能拼接验收。生产数据/旧dirty/旧证据不动；不公开发布或比赛提交。
