@@ -22,3 +22,5 @@ python3 official_muse/semifinal/mail_integration/gpt02_recovery/test_recovery.py
 ## 真实VM补验（最新）
 
 按中央授权固定9695、只读指定binary/cwd、隐藏窗口。完整mail_check_host_status→mail_send_receipt_step真实异步链before-r3 33/37（四项目标失败），after-r1 37/37，实际磁盘readback通过。每轮仅5次合成compose_status，compose/review/send为0；两轮正常Remote quit/exit0、退出后无Script错误。新增REAL_VM.md、real_vm_summary.json和evidence/real-vm，旧Node/错误fixture结果保留。正式main仍未应用本聊天patch，中央独立按函数位置应用不能替代此处源SHA身份。Memory source→claim尚无真实VM结果，不借Mail37项升级它。
+
+2026-10-11 Mail实机前置检查：MAIL_LIVE_PREFLIGHT.md+prepare_mail_live.py核中央固定SDK 8文件SHA；源码/新稿/已有稿3项生成通过，非法ID/源码漂移2项拒绝通过。没有mail.status；前台/Agent返回不同；公共review取消可能保留Host awaiting_approval。Keychain路径哈希及app grant限制已按源码定位，未读取凭据/账号状态。中央独占实际Host/GUI，零请求/发送/构建；37/37证据不重复。
