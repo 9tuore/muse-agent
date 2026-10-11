@@ -82,7 +82,7 @@ def main():
     # Foundation treats this directory as the bare executable's resource root.
     runtime = resources / 'host-runtime'
     shutil.copytree(inner / 'Resources', runtime, symlinks=True)
-    shutil.copy2(inner / 'MacOS/octosense', runtime / 'octosense')
+    shutil.copy2(inner / 'MacOS/octosense', runtime / 'muse-host')
     shutil.copy2(inner / 'MacOS/octos-kernel', runtime / 'octos-kernel')
     shutil.rmtree(inner.parent)
     if args.model_mode != 'gpt':
@@ -112,11 +112,11 @@ def main():
     # Sign outside every .app so the original Info/resource special slots are removed.
     with tempfile.TemporaryDirectory(prefix='standalone-host-', dir=output) as staging:
         standalone = Path(staging) / 'octosense'
-        shutil.copy2(runtime / 'octosense', standalone)
+        shutil.copy2(runtime / 'muse-host', standalone)
         run(['codesign', '--force', '--sign', '-', '--identifier',
             'org.xinghai.muse.paired-host', standalone])
         run(['codesign', '--verify', '--strict', standalone])
-        shutil.copy2(standalone, runtime / 'octosense')
+        shutil.copy2(standalone, runtime / 'muse-host')
     run(['codesign', '--force', '--sign', '-', app])
     run(['codesign', '--verify', '--deep', '--strict', app])
     assert sha(runtime / 'octos-kernel') == signed_receipt['sha256'], 'Packaging changed the pinned kernel'
@@ -126,7 +126,7 @@ def main():
     shutil.copy2(HERE / 'launch_muse.sh', output / 'launch_muse.sh')
     (output / 'launch_muse.sh').chmod(0o755)
     inventory = {p.relative_to(runtime).as_posix(): sha(p)
-        for p in sorted(runtime.rglob('*')) if p.is_file() and p not in (runtime / 'octosense', runtime / 'octos-kernel')}
+        for p in sorted(runtime.rglob('*')) if p.is_file() and p not in (runtime / 'muse-host', runtime / 'octos-kernel')}
     (output / 'HOST_RESOURCES.json').write_text(json.dumps(inventory, indent=2) + '\n')
     assert sha(executable / 'Launcher') == sha(HERE / 'workbuddy_launcher.sh'), 'Packaged entry differs from source script'
     assert (app / 'Contents/Info.plist').read_bytes() == (HERE / 'workbuddy_info.plist').read_bytes(), 'Working App Info changed'
@@ -135,7 +135,7 @@ def main():
         'source_kernel_sha256': source_kernel_sha256,
         'reused_signed_pair': False, 'reused_signed_kernel': bool(args.paired_host_app),
         'standalone_host': True,
-        'host_launch_method': 'outer CFBundleExecutable shell -> exec Resources/host-runtime/octosense',
+        'host_launch_method': 'outer CFBundleExecutable shell -> exec Resources/host-runtime/muse-host',
         'outer_info_plist_sha256': sha(app / 'Contents/Info.plist'),
         'source_launcher_sha256': sha(HERE / 'workbuddy_launcher.sh'),
         'packaged_launcher_sha256': sha(executable / 'Launcher'),
@@ -145,7 +145,7 @@ def main():
         'state_root_reference': str(args.state_root) if args.state_root is not None else None,
         'catalog_sha256': sha(resources / 'mirror/catalog.json'),
         'muse_main_sha256': sha(resources / 'mirror/artifacts/muse-goals-0.4.0-rc6.bundle/main.splash'),
-        'host_sha256': sha(runtime / 'octosense'),
+        'host_sha256': sha(runtime / 'muse-host'),
         'host_hash_boundary': 'source_host_sha256 is the input; host_sha256 is the packaged executable after signing',
         'kernel_sha256': sha(runtime / 'octos-kernel'),
         'production_data_included': False, 'calendar_shared_tools_granted': False,

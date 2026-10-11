@@ -1,3 +1,11 @@
+## ZC-00 NIGHT-004 启动修复收口：2026-10-12 01:23 北京时间
+
+用户延长目标至11:00；09:00冻结高风险变更。新一轮使用隔离合成数据，日历调用官方os.calendar真实服务和持久化，邮件使用真实官方服务+MockTransport，不向真实邮箱投递。
+
+正式包资源目录octosense与可执行文件同名导致IsADirectoryError，三处统一改为host-runtime/muse-host；保留官方资源路径、WorkBuddy外层shell/Info及裸Host签名方式。本轮28/28 Launcher/Package测试通过（49.346s），签名stub与合成模型health，无真实GUI或推理。证据official_muse/integrated_release/evidence/night004-launcher-20261012/。
+
+Mail账户生命周期修复已接收为8a80b8ed并应用owned SDK，完整Shell mail_测试进行中，尚未生成包含修复的新Host。Calendar服务真实CRUD跨进程局部通过，Relay/正式Muse同版本全链、Native同ID改期、Memory、20次冷启动均待本轮核验。N004故障台账见MUSE_STABILITY_ISSUES.md。
+
 ## ZC-00 rc6 联通集成：2026-10-12 00:06 北京时间
 
 Intel x86_64 现场原 WorkBuddy CFBundleExecutable shell→bare Host 能显示。原 bare Host 的动态签名 -67030 导致系统 Keychain 拒绝；仅对 owned standalone Host 重新签名，动态签名 0 后本人真实邮箱连接成功。mail.sync 宿主成功回执及无收件人的合成 Muse 本地草稿保存已实测；官方 host compose/审阅/SMTP和重启恢复尚未核验，真实发信0。rc5 模型实调 1+1 返回2。

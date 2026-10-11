@@ -111,7 +111,7 @@ int main(int argc, const char *argv[]) {
     @autoreleasepool {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
-        NSArray *required = @[@"host-runtime/octosense", @"mirror/catalog.json",
+        NSArray *required = @[@"host-runtime/muse-host", @"mirror/catalog.json",
             @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle/manifest.json",
             @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle.pack.json",
             @"host-runtime/octos-kernel",
