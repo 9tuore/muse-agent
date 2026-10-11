@@ -16,8 +16,6 @@ Calendar 的三个 INTEGRATED patch 位于 `../semifinal/calendar_integration/`�
 离线、锁定依赖、Release 构建，features 为 app-hub、octos-core、app-muse-native-prototype。
 中央串行运行 Cargo。`prepare_bundle.py` 从当前主源创建新目录并压缩，保留稳定根 bundle。
 `package_app.py` 用显式 Host、Kernel receipt、公开模型和签名镜像输入生成一个 Muse.app。
-PACKAGE.json 的 source_host_sha256 是输入 Host，host_sha256 是包内签名后的实际可执行文件；
-签名可能改变字节，验收最终运行文件必须使用后者。暂存副本在签名前与输入 SHA 比对。
 它只签名 Kernel 的包内副本，再由官方 staging helper 为相同锁定 revision 重建 receipt；
 原 Kernel 和 receipt 不改。签名为本机 ad-hoc，不能作为 Developer ID/公证或公开 App Hub 发布。
 
@@ -55,3 +53,34 @@ ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。只使用本任务新生成的私钥；私�
 此模式不自动添加提供方、不启动付费轮询、不执行邮件或日历动作。旧 `--model-mode offline` 保留。
 
 GPT 开发验证包可选 `package_app.py --model-mode gpt`，省略 `--model-source`，不包含或启动
+Qwen。双击该包默认走 GPT 入口；未配置时打开真实 `os.ai-providers` Models 面板，
+本人选择 OpenAI/GPT 官方路由、输入凭证并保存，退出后重开。启动器不复制任何已有凭证。
+`--models` 直接打开该面板，不再先写离线 profile 或启动 Qwen。
+
+`Muse.app/Contents/MacOS/muse-launcher --gpt-check` 只检查包签名/资源与独立目录的
+`config.llm` metadata，不读取 `config.env_vars`、不解析 Keychain、不调用网络或写配置。
+返回 0 / `GPT_CONFIG_ONLY` 仅代表主提供方及全部回退为官方 OpenAI/GPT 配置；
+返回 3 / `GPT_SETUP_REQUIRED` 表示需要本人配置，2 表示数据路径参数错误，1 表示包检查失败。
+兼容 API 的本地端点、第三方路由和非 GPT 回退不计通过。已有离线包也可显式 `--gpt`。
+子 Host 的 HOME、core、apps、XDG 路径均指向独立目录；已有配置保持原字节。
+
+本机 `python3 official_muse/integrated_release/test_launcher.py -v` 使用真实编译启动器、
+临时 ad-hoc 签名包与 stub Host 验证九项启动/保留/隔离行为；不代表最终 Host 的 GUI、
+凭证有效性或 GPT 实调通过。2026-10-11 现场默认独立目录无 profile，仍需本人配置。
+
+Calendar 页使用已核实的 session.open → turn.start(trigger:app) → session.history 接口；
+持久化当前请求 ID，未知结果不自动重做，不允许新 ID 覆盖旧待核对请求。
+显式保留记录后可另写不同事项，旧 ID 仍保留用于对账。输入草稿在重绘后保留，
+切换账号不显示旧结果，工具详情默认折叠；模型文本不改变业务成功状态。
+官方助手也可从宿主「询问 Muse」/Shift+F8 进入，实际 Muse ID 的首次本人启用不可模拟。
+多 Chat 的结构化 model.complete 路径保留。Contained 的应用共享历史没有项目隔离/上游遗忘
+契约，不能直接替换全部 Chat，也不向其自动注入私人 Memory。
+Calendar 四工具须取得实际授予和相同回合工具结果；正文回复、调用映射和窗口出现均不证明成功。
+本页自动安排/改期/行动链回执联动、Muse update/remove、真实 Mail 登录/发送/收件仍须单独验证。
+UNKNOWN 只读对账，不自动重发。
+
+实际窄测试在 `evidence/`：model wrapper 六项合成回归与当前函数字节一致性；
+VM 准备、streaming、硬限额和 Splash 样式日志保留在 build/muse-integrated-0.4.0-rc1/rc2。
+编译、签名、fixture 和最终包业务验收分别记录。核心冻结后才进行同一候选 20 次冷启动。
+
+Calendar 接线与回执19项真实参考VM合成协议检查通过，旧解析失败保留；Mail终态恢复完整异步真实VM37/37通过，首轮预算失败与探针错误保留。最新History配套Host30d4d356完整构建和四工具准入安全测试通过；这些结果不能替代同候选真实Calendar/Mail/模型业务通过。
