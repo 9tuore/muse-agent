@@ -1,0 +1,17 @@
+[stdin]:187
+        if (calendar_agent_delete_state.records[i].expected.id == expected.id) { return i }
+                                                            ^
+
+TypeError: Cannot read properties of undefined (reading 'id')
+    at calendar_agent_delete_index ([stdin]:187:61)
+    at calendar_agent_delete_blocks ([stdin]:191:56)
+    at calendar_agent_delete_target ([stdin]:197:77)
+    at calendar_agent_delete_select ([stdin]:228:18)
+    at [stdin]:429:78
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [stdin]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+
+Node.js v24.16.0

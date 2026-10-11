@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02，codex/gpt02-mail-memory-recovery；中央88e5ba28/source0c7，只读核Chat bad_request契约及最小修复。
+GPT-02 own namespace，中央source e2f3ab87；按日历真实删除优先准备source-bound接线。
 
 ## Result
-PARTIAL：SDK拒绝顶层messages，Root原patch e2f3ab87独立核对及全部六处调用参数补验通过，中央当前source相同。
+PARTIAL / PROPOSAL：e2→6e0f2b70，未应用main；只允许本人所选当前事项自建verified事件，get exact→remove expected→get权威缺席。
 
 ## Changed
-model-input提案及test_model_boundaries.py/证据。仅wrapper 6增1替，历史进入input.messages，保留schema/class/URL/usage/guards；无新增main修改。
+calendar-delete.patch/identity/fragment、生成器、定向fixture和CALENDAR_DELETE.md；4原函数/必要UI、526其他函数不变、15helper。独立32条journal，UNKNOWN不重发，旧创建/Goal不改。
 
 ## Tests
-2026-10-11 before24/26→after26/26；补验r5 112/112（含26），12真实函数+2闭包、六实际args、nil/默认/false和非Chat input、19种发送前/迟到守卫。临时apply/SHA通过；旧错误和三个新适配器错误保留。
+2026-10-11 Node最终r7 88/88，0外部/0Goal写；精确参数digest、八字段/顺序/重复/取消/迟到/恢复/保存失败。临时apply/check及SHA通过，四份适配器/fixture错误保留。
 
 ## Commit
 本地提交见最终回复，未push。
 
 ## Remaining
-Root已有补丁无需重放，直接新候选GUI短问→计划→日程候选→明确选事项→add/get精确核验→关联未发送草稿。
+Root/GPT01先完成合法第五工具offer/ceiling及Broker remove回执，再接patch、新候选安装与本人原生批准实测。所有同ID旧删除请求含blocked/取消均不重发是保守限制。
 
 ## Important Boundaries
-Node fixture，六完整caller/SDK parser/schema compiler/VM/模型/GUI未执行，零外部调用。未写共享main/SDK/Bundle/用户资料，未Cargo/GUI/凭据。旧compact6e5仍未VM运行。
+仅Node fixture，非VM/合法准入/原生批准/真实删除。未写共享main/SDK/Bundle/用户资料，未GUI/model/Cargo/凭据/push。新增删除记录暂缓旧关联Mail，原稿保留。
