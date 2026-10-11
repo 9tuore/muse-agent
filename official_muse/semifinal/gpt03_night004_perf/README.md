@@ -64,3 +64,5 @@ python3 official_muse/semifinal/gpt03_night004_perf/export_fixture.py \
 ```
 
 两份chat未落盘，所以明确absent；backup是原前一状态（127 Sources、127 Actions、63 activity），未伪造为primary。没有completed/verified或Secret输入，未读Root profile、未自行GUI导入。SDK storage路径/Host默认scope尚由Root核对决定；不把export当GUI规模验收PASS。
+
+2026-10-12 caa99新候选benchmark/独立证据入口：[CANDIDATE_CAA99.md](CANDIDATE_CAA99.md)。

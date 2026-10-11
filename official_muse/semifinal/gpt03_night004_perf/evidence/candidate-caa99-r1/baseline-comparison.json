@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "baseline_source_sha256": "8227bbb38637aeba28cfe67e5d120a704bfcaf579910610b6b64a6d414acde0d",
+  "candidate_source_sha256": "caa99c570744d36a5e3b3d890fe56baf6337f506b8e37353e5d79bca9e3e7cce",
+  "closures": {
+    "production_function_sha256": {
+      "count": 157,
+      "changed": [
+        "core_boot_goals"
+      ],
+      "added": [],
+      "removed": []
+    },
+    "production_global_sha256": {
+      "count": 65,
+      "changed": [],
+      "added": [],
+      "removed": []
+    }
+  },
+  "all_other_function_and_all_global_sha256_equal": true,
+  "same_all_persisted_dataset_file_sha256": true,
+  "same_samples": 31,
+  "same_warmups": 3,
+  "baseline_measurements": {
+    "bridge_only": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 0.187259,
+      "median_ms": 0.235053,
+      "p95_ms": 0.282137,
+      "max_ms": 0.284463,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "gm_context": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 68.888477,
+      "median_ms": 80.070419,
+      "p95_ms": 98.548852,
+      "max_ms": 106.934903,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "ac_projection": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 8.192569,
+      "median_ms": 12.784918,
+      "p95_ms": 16.68948,
+      "max_ms": 17.065377,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    }
+  },
+  "candidate_measurements": {
+    "bridge_only": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 0.202398,
+      "median_ms": 0.329245,
+      "p95_ms": 0.639138,
+      "max_ms": 5.777647,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "gm_context": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 71.857585,
+      "median_ms": 88.653645,
+      "p95_ms": 105.173179,
+      "max_ms": 134.366532,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "ac_projection": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 8.742508,
+      "median_ms": 10.773112,
+      "p95_ms": 15.596808,
+      "max_ms": 17.000392,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    }
+  },
+  "boundary": "Fresh run on new source. Only boot recovery digest changed; API-generated dataset identical. Single warm VM run per source and no isolated system load, so timing differences alone do not establish a regression or GUI budget outcome."
+}

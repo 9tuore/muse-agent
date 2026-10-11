@@ -52,3 +52,7 @@ backup保留真实前一状态，未补写成primary容量。Memory、来源exce
 Root可在核对SDK实际storage路径、Host默认scope后决定合法GUI fixture适配。`gui_import_status=NOT_TESTED`，没有自行启动GUI或写用户profile。归档另存export manifest/scope/执行exporter SHA，数据内容复用baseline main-state，不在Git重复存两套JSON。
 
 边界为合成数据、原生产API、官方CLI VM和实际owned文件IO；UI/计时队列/资料clock为fixture，不含GUI布局/绘制、冷启动恢复、真正磁盘fsync保证或Mail/Calendar网络时延。`full_chain_status=NOT_TESTED`。旧54/107项目录及Root Main/SDK/包未改；新Main复验仍待明确SHA。
+
+## 2026-10-12 caa99 新执行
+
+14项PASS，新证据复核PASS；Memory中位88.653645/p95 105.173179ms，Projection10.773112/15.596808ms。新prepare闭包只改变core_boot_goals，数据SHA同8227。原始102区间/204标记及来源见CANDIDATE_CAA99.md、evidence/candidate-caa99-r1。debug CLI未64ms预算，不作GUI/性能SLO结论。
