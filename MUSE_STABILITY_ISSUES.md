@@ -35,3 +35,10 @@ Kernel R4首次add/retry/get真执行，拟拒绝add也执行：官方add为act�
 
 | N004-12 | P0 test harness | 实际Kernel成功add/get且署名准入通过，但桥open_context历史没有person lane，Muse正确不核验 | 测试桥沿用正式无client的conversation/TurnFrom | r2 raw actualhistory及SDK peer_link/link.rs | 两行cfg(test)增量0426；R8实际编译/CRUD通过；r3实际native initial22/22 | REAL_KERNEL_BRIDGE_FIX_PASS |
 | N004-13 | P0 | 真正全进程重启13/14，原聊天行动链缺官方Calendar/Mail节点 | 同来源、账号、事项、版本和完整产物一致时展示已核验节点；不重发 | r3 restore+diagnostic：所有binding/card/权限/版本有效，仅completion matcher拒绝；实际artifact/Goal/Run/Action/source SHA一致，对象键顺序不同 | GPT03定位最小两个完整结构比较修复，尚未接收/运行 | OPEN |
+
+## 2026-10-12 03:47 同候选复验更新
+
+- N004-05：同c892/cdb L3初始28与完整进程恢复15全通过，状态 L3_SIMULATION_PASS；fixture模型/授权/transport边界明确。L4核心五场景与Main Deny/CAS/邮件故障通过，最终20及崩溃/计时超时仍待补齐。
+- N004-13：完整结构对比补丁保留全部身份、版本、精确Hash与产物门禁；中央22项篡改拒绝检查通过，实际同候选重启15/15中四节点行动链恢复。状态 FIXED_SAME_CANDIDATE_L3_RESTART_PASS。
+- N004-14，P1：官方Calendar owner首轮3张native照片只有顶栏/暗主体，第二Host缺部分月表/背景，第三Host完整；实际服务CRUD及重启6/6。根因未确认，不能以控件树或6/6宣布视觉PASS。状态 OPEN_CAPTURE_SERIES_IN_PROGRESS；完整Muse另4张native图已实际确认正常。
+- L4 parent半行：原R2中断实际命中同turn，但测试parent读取正追加JSONL时失败。a689bdce最小完整LF记录读取，完整坏JSON仍抛错；中央新R3真实五场景全部PASS。保留R2 FAILED，不补改旧结论。

@@ -3,10 +3,9 @@
 
 No VM result injection, service imitation, automatic write retry or secret lookup.
 """
-import argparse,hashlib,json,queue,subprocess,threading,time,uuid
+import argparse,hashlib,json,queue,subprocess,threading,time,traceback,uuid
 from pathlib import Path
 
-MAIN_SHA='643009fed5065fd0cb43c2b2210c175cd162f31a9eb6bf5f67004f8f504223dc'
 SOURCE_SHA='0426f4db13d86b577166b334c4686668c81cf8c7fa62d0f05e44e43c54eee1b9'
 KERNEL_SHA='56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270'
 CENTRAL=Path('/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松')
@@ -16,7 +15,11 @@ FIELDS=('title','start','end','timezone','location','notes')
 REQUIRED=('stable_retry_restart','destructive_update_deny','destructive_remove_deny','interrupt_reconcile','signed_caller_withdrawal')
 
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
-def lines(path):return [json.loads(s) for s in path.read_text().splitlines()] if path.is_file() else []
+def lines(path):
+    # Writers append JSON and LF separately. Read only LF-committed records;
+    # leave the unfinished byte tail for the next poll, including partial UTF-8.
+    # json.loads still raises for every malformed complete record.
+    return [json.loads(s) for s in path.read_bytes().split(b'\n')[:-1]] if path.is_file() else []
 def save(path,value):path.write_text(json.dumps(value,ensure_ascii=True,indent=2)+'\n')
 def require(value,message):
     if not value:raise AssertionError(message)
@@ -38,7 +41,7 @@ class Bridge:
         threading.Thread(target=read,daemon=True).start()
         ready=self.receive(None,30)
         require(ready.get('method')=='fixture.ready' and ready.get('is_ok') is True,'No actual fixture.ready/admission')
-        require(ready['data']['source_main_sha256']==MAIN_SHA and ready['data']['kernel_sha256']==KERNEL_SHA,'Actual ready identity drift')
+        require(ready['data']['source_main_sha256']==args.main_sha256 and ready['data']['kernel_sha256']==KERNEL_SHA,'Actual ready identity drift')
     def send(self,method,payload=None):
         self.seq+=1;rid=f'l4-{self.p.pid}-{self.seq}'
         request={'request_id':rid,'method':method,'payload':payload or {}}
@@ -90,6 +93,57 @@ def bound_receipt(history,reply,tool,terminal):
     require(all(receipt.get(k) for k in ('call_id','session_id','tool_call_id','args_digest')),'Actual receipt identifiers missing')
     return receipt
 
+def interruption_confirmed(interrupted,terminal,starts):
+    # A completed original request is a race, even if a Stop reply lists an ID.
+    if terminal.get('is_ok') is not False or 'interrupt' not in terminal.get('error',{}).get('message','').lower():return False
+    if interrupted.get('is_ok') is not True or len(starts)!=1:return False
+    started=starts[0];tid=started.get('params',{}).get('turn_id');data=interrupted.get('data',{})
+    if started.get('lane') not in ('person','system_agent'):return False
+    stopped=[t for t in data.get('turns',[]) if t.get('turn_id')==tid and t.get('lane')==started.get('lane')]
+    return bool(tid) and tid in data.get('interrupted',[]) and len(stopped)==1
+
+def native_denial_proof(history,reply,tool,args,events,audits,fixtures):
+    """Kernel denies before peer/tool/call: bind original approval/row/audit IDs.
+
+    There is no HostToolCall/ToolResult in this stage. Never manufacture its
+    broker receipt or treat a plaintext model response alone as denial proof.
+    """
+    tid=reply.get('data',{}).get('turn_id');require(bool(tid),'Actual denied turn ID missing')
+    rows=[r for r in history.get('messages',[]) if r.get('role')=='tool'
+          and CANON.get(r.get('tool_name',r.get('name')))==tool
+          and (r.get('turn_id') or r.get('thread_id'))==tid]
+    require(len(rows)==1,'Expected one exact original Kernel denial row')
+    row=rows[0];require(row.get('lane') in ('person','system_agent') and bool(row.get('persisted_at')),'Original persisted denial row/lane missing')
+    if row.get('turn_id') and row.get('thread_id'):require(row['turn_id']==row['thread_id'],'Conflicting actual turn identities')
+    require(row.get('host_calendar_receipt') is None,'Pre-dispatch denial must not claim a Host execution receipt')
+    handled=[]
+    for event in events:
+        p=event.get('params',{});typed=p.get('typed_details',{}).get('host_tool',{})
+        if event.get('method')=='approval/handled_by_host' and p.get('turn_id')==tid and typed.get('tool_call_id')==row.get('tool_call_id'):
+            require(event.get('lane')==row['lane'] and p.get('approval_kind')=='host_tool' and p.get('risk')=='destructive','Actual confirmation scope/risk mismatch')
+            require(CANON.get(p.get('tool_name'))==tool and typed.get('tool')==tool and typed.get('app')=='os.calendar' and typed.get('args')==args,'Actual typed owner/tool/arguments mismatch')
+            require(typed.get('calling_kind')=='app_peer' and bool(typed.get('calling_peer')) and bool(typed.get('context_id')),'Actual peer/context identity missing')
+            require(bool(p.get('session_id')) and typed.get('calling_session_id')==p['session_id'],'Actual approval session mismatch')
+            require(typed.get('risk')=='destructive' and typed.get('outcome_unknown_before') is False,'Actual confirmation does not establish this pre-dispatch boundary')
+            handled.append(event)
+    require(len(handled)==1,'Actual native HostApproval event must match the original tool occurrence')
+    approval=handled[0]['params'];aid=approval.get('approval_id');require(bool(aid),'Actual approval ID missing')
+    decided=[e for e in events if e.get('method')=='approval/decided' and e.get('params',{}).get('approval_id')==aid
+             and e['params'].get('turn_id')==tid and e['params'].get('session_id')==approval['session_id']]
+    require(len(decided)==1 and decided[0]['params'].get('decision')=='deny' and decided[0]['params'].get('auto_resolved') is False,'Actual Kernel approval/decided Deny missing')
+    decisions=[r for r in audits if r.get('id')=='hostappr:'+aid and r.get('app')=='os.calendar' and r.get('tool')==tool
+               and r.get('caller')=='app/muse-goals' and r.get('trigger')=='app' and r.get('result')=='denied'
+               and r.get('by')=='person' and r.get('reason')=='denied on the sheet' and bool(r.get('args_digest'))]
+    require(len(decisions)==1,'Exact actual native Router sheet audit missing')
+    answers=[r for r in fixtures if r.get('owner')=='os.calendar' and r.get('tool')==tool and r.get('args')==args
+             and r.get('caller')=='app/muse-goals' and r.get('approved') is False and r.get('fixture_gesture') is True]
+    require(len(answers)==1,'Actual fixture answer did not match the pending owner request')
+    content=row.get('content','');require(isinstance(content,str) and tool in content and 'declined' in content and 'not run' in content,'Original Kernel tool denial outcome missing')
+    require(not any(r.get('turn_id')==tid and r.get('tool_call_id')==row.get('tool_call_id') for r in history.get('host_calendar_receipts',[])),'Unexecuted native denial unexpectedly carries an execution receipt')
+    return {'stage':'native_kernel_host_approval_before_peer_tool_call','approval_id':aid,'turn_id':tid,
+            'tool_call_id':row['tool_call_id'],'actual_handled_event':handled[0],'actual_decided_event':decided[0],
+            'actual_router_audit':decisions[0],'actual_fixture_answer':answers[0],'actual_persisted_kernel_row':row}
+
 def run(args):
     cfg=json.loads(args.config.read_text());input_root=Path(cfg['fixture_root'])
     require(not input_root.is_symlink(),'Symlink fixture root refused')
@@ -98,14 +152,17 @@ def run(args):
     require(root!=central_fixture and root.is_relative_to(central_fixture) and (root/'FIXTURE_ONLY').is_file(),'Only marked central NIGHT-004 fixture root')
     for path in (root/'FIXTURE_ONLY',root/'apps',root/'apps/catalog.json',root/'apps/.host',root/'apps/.host/calendar',root/'apps/.host/calendar/events.json'):
         require(not path.is_symlink(),'Fixture marker/store ancestors cannot be symlinks')
-    require(cfg['main_sha256']==MAIN_SHA and sha(Path(cfg['signed_bundle'])/'main.splash')==MAIN_SHA,'Frozen signed candidate must be 643009')
+    require(len(args.main_sha256)==64 and all(c in '0123456789abcdef' for c in args.main_sha256),'Explicit final Main SHA256 required')
+    require(cfg['main_sha256']==args.main_sha256 and sha(Path(cfg['signed_bundle'])/'main.splash')==args.main_sha256,'Explicit final candidate/config/bundle SHA mismatch')
+    manifest=json.loads((Path(cfg['signed_bundle'])/'manifest.json').read_text())
+    require(manifest.get('id')=='muse-goals' and bool(manifest.get('version')),'Explicit signed Muse manifest identity required')
     require(sha(args.sdk_test_source)==SOURCE_SHA,'Actual R8 test source must be 0426')
     require(len(args.test_binary_sha256)==64 and sha(args.test_binary)==args.test_binary_sha256,'Explicit actual R8 test binary identity mismatch')
     require(sha(args.kernel)==KERNEL_SHA,'Pinned actual Kernel mismatch')
     out=args.out.resolve();require(out.is_relative_to(root) and out!=root,'Output must be a new child of this fixture root')
     out.mkdir(parents=True,exist_ok=False)
     result={'state':'RUNNING','scope':'Signed candidate actual bridge/Broker/Kernel L4; no production Main VM evaluation',
-            'fixture_model':True,'fixture_authorization':True,'main_sha256':MAIN_SHA,'source_sha256':SOURCE_SHA,
+            'fixture_model':True,'fixture_authorization':True,'main_sha256':args.main_sha256,'source_version':manifest['version'],'source_sha256':SOURCE_SHA,
             'test_binary_sha256':args.test_binary_sha256,'kernel_sha256':KERNEL_SHA,'cases':[]}
     save(out/'identity.json',{k:v for k,v in result.items() if k!='cases'})
     bridge=None
@@ -138,18 +195,15 @@ def run(args):
             if tool=='calendar.update_event':mutation.update({k:current[k] for k in FIELDS});mutation['notes']='Synthetic denied change'
             before=snapshot(bridge,root);audit_path=root/'approval-home/logs/approvals-audit.jsonl';audit_start=len(lines(audit_path))
             fixture_path=root/'fixture-approvals.jsonl';fixture_start=len(lines(fixture_path))
+            events_path=root/'actual-kernel-events.jsonl';events_start=len(lines(events_path))
             denied=turn(bridge,'Synthetic L4: request this destructive mutation; fixture sheet decision is Deny.',[step(tool,mutation)],'deny')
-            history=bridge.data('octos.session.history');receipt=bound_receipt(history,denied,tool,'error')
-            require(receipt['result']['error']['kind']=='declined','Actual terminal is not Router decline')
+            history=bridge.data('octos.session.history')
             decisions=lines(audit_path)[audit_start:];fixtures=lines(fixture_path)[fixture_start:]
-            require(any(r.get('id')=='hosttool:'+receipt['call_id'] and r.get('app')=='os.calendar' and r.get('tool')==tool
-                        and r.get('result')=='denied' and r.get('by')=='person' and r.get('reason')=='denied on the sheet' for r in decisions), 'Actual confirmation sheet/audit ID did not match Kernel call')
-            require(any(r.get('owner')=='os.calendar' and r.get('tool')==tool and r.get('args')==mutation
-                        and r.get('approved') is False and r.get('fixture_gesture') is True for r in fixtures), 'Actual fixture answer did not match pending owner request')
+            proof=native_denial_proof(history,denied,tool,mutation,lines(events_path)[events_start:],decisions,fixtures)
             after=snapshot(bridge,root);require(after==before and event(bridge,{'id':current['id']})==current,'Deny produced an actual side effect')
             case='destructive_update_deny' if tool.endswith('update_event') else 'destructive_remove_deny'
-            save(out/f'{case}.json',{'actual_turn_reply':denied,'actual_history':history,'actual_audit':decisions,'actual_fixture_answers':fixtures,'before':before,'after':after})
-            result['cases'].append({'case':case,'status':'PASS','call_id':receipt['call_id']})
+            save(out/f'{case}.json',{'actual_turn_reply':denied,'actual_history':history,'actual_denial_proof':proof,'before':before,'after':after})
+            result['cases'].append({'case':case,'status':'PASS','approval_id':proof['approval_id'],'tool_call_id':proof['tool_call_id']})
         current=event(bridge,{'id':original['id']});before=snapshot(bridge,root)
         update={k:current[k] for k in FIELDS};update.update(id=current['id'],expected={'$tool_result':0,'path':['event']},notes='Synthetic interrupted revision')
         resolved=root/'resolved-model-calls.jsonl';offset=len(lines(resolved))
@@ -162,9 +216,7 @@ def run(args):
             time.sleep(.005)
         interrupt_id=bridge.send('octos.turn.interrupt');interrupted=bridge.receive(interrupt_id);terminal=bridge.receive(pending)
         starts=[v for v in lines(events)[events_offset:] if v.get('method')=='turn/started']
-        started_ids={v.get('params',{}).get('turn_id') for v in starts}-{None}
-        stopped_ids=set(interrupted.get('data',{}).get('interrupted',[]))
-        actual_stop=interrupted.get('is_ok') is True and bool(started_ids & stopped_ids)
+        actual_stop=interruption_confirmed(interrupted,terminal,starts)
         after=snapshot(bridge,root);after_event=event(bridge,{'id':current['id']})
         require(after['event_count']==1 and after_event['request_id']==request_id,'Interrupted operation duplicated/lost selected identity')
         require(all(after_event[k]==current[k] for k in FIELDS if k!='notes') and after_event['notes'] in (current['notes'],update['notes']), 'Reconciliation found unexpected owner state')
@@ -178,10 +230,10 @@ def run(args):
         result['cases'].append({'case':'interrupt_reconcile','status':'PASS' if actual_stop else 'NOT_TESTED','side_effect_observed':after!=before})
         if args.withdrawal_catalog:
             catalog=root/'apps/catalog.json';old=json.loads(catalog.read_text());new=json.loads(args.withdrawal_catalog.read_text())
-            selected=[e for e in new.get('entries',[]) if e.get('manifest',{}).get('id')=='muse-goals' and e['manifest'].get('version')=='0.4.0-rc7']
+            selected=[e for e in new.get('entries',[]) if e.get('manifest',{}).get('id')=='muse-goals' and e['manifest'].get('version')==manifest['version']]
             require(len(selected)==1 and selected[0].get('status',{}).get('state')=='withdrawn','Explicit signed catalog must withdraw the exact selected public release')
             require(new.get('sequence',0)>old['sequence'] and bool(new.get('signature')),'Withdrawal needs signed higher sequence')
-            offered=next(e for e in old['entries'] if e['manifest']['id']=='muse-goals' and e['manifest']['version']=='0.4.0-rc7')
+            offered=next(e for e in old['entries'] if e['manifest']['id']=='muse-goals' and e['manifest']['version']==manifest['version'])
             require(selected[0]['manifest']==offered['manifest'],'Withdrawal must preserve the exact public candidate manifest')
             allowed=[{**e,'status':selected[0]['status']} if e==offered else e for e in old['entries']]
             require(new['entries']==allowed,'Withdrawal must change only the selected entry status')
@@ -201,6 +253,7 @@ def run(args):
         bridge.quit();bridge=None
     except Exception as error:
         result['state']='FAILED';result['error']=str(error)
+        result['error_traceback']=traceback.format_exc()
         result['recovery']='Actual result unknown where a reply was missing. Preserve store/history; no automatic write retry.'
     finally:
         if bridge:
@@ -221,6 +274,7 @@ def run(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config',type=Path,required=True)
+    parser.add_argument('--main-sha256',required=True,help='Explicit final signed candidate SHA; must match config, bundle and actual fixture.ready')
     parser.add_argument('--test-binary',type=Path,required=True)
     parser.add_argument('--test-binary-sha256',required=True,help='Actual Root R8 binary SHA; no guessed identity')
     parser.add_argument('--kernel',type=Path,required=True)

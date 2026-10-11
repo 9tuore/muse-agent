@@ -1,0 +1,37 @@
+let bridge_checks = {}
+let bridge_observations = {}
+fn native_update_deny_restart(){
+    bridge_checks.production_boot = core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot() && chat_boot_data()
+    if !fs.exists("l3-deny-checkpoint.json") { bridge_checks.actual_checkpoint_present = false return }
+    let checkpoint = storage_read("l3-deny-checkpoint.json").parse_json()
+    mail_accounts_load() mail_account = mail_accounts[0] gm_set_accounts(["local","one"])
+    calendar_agent_boot() calendar_agent_update_boot() calendar_agent_delete_boot() boot_restore("")
+    bridge_checks.original_chat_selected = chat_select_session(checkpoint.chat_id)
+    let chat = chat_sessions[chat_session_index(chat_selected_id)] gm_set_focus(chat.focus_project,chat.focus_owner)
+    ac_choose_matter(checkpoint.goal_id)
+    bridge_checks.original_goal_not_completed = ac_current_goal() != nil && ac_current_goal().id == checkpoint.goal_id
+        && ac_current_goal().status != "completed" && goals.len() == 1
+    bridge_checks.actual_saved_deny_not_verified = calendar_agent_update_state.records.len() == 1
+        && calendar_agent_update_state.records[0].request_id == checkpoint.mutation.request_id
+        && (calendar_agent_update_state.records[0].receipt_status == "unknown" || calendar_agent_update_state.records[0].receipt_status == "failed")
+    bridge_checks.unknown_without_saved_refusal_proof = checkpoint.legal_refusal_receipt || calendar_agent_update_state.records[0].receipt_status == "unknown"
+    let readback = fixture_rpc("fixture/read-owner",{method:"get_event" args:{id:checkpoint.event.id}})
+    bridge_checks.actual_original_event_retained = readback.is_ok && readback.data.found
+        && calendar_agent_event_json(readback.data.event) == calendar_agent_event_json(checkpoint.event)
+        && fixture_rpc("fixture/logsideeffects",{}).data.events.len() == 1
+    bridge_checks.actual_owner_store_bytes_retained = fixture_rpc("fixture/owner-store-sha",{}).data.sha256 == checkpoint.owner_store_sha256
+    calendar_agent_update_confirm() calendar_agent_submit_candidate() mail_send_confirmed()
+    let counts = fixture_rpc("fixture/call-counts",{}).data
+    bridge_checks.new_process_no_turn_or_mail_resubmit = counts["octos.turn.start"] == nil
+        && fixture_rpc("fixture.receiver",{}).data.transport_calls == 0
+    bridge_checks.old_handwritten_draft_preserved_blocked = mail_draft.body == checkpoint.old_draft.body && !mail_calendar_current(mail_draft)
+    let completed = false for entry in memory { if gm_completed_receipt(entry.document) { completed = true } }
+    bridge_checks.no_completed_memory_invented = !completed && runs.len() == 0
+    let old = chat_selected_id
+    bridge_checks.new_chat_created = chat_new_session() && chat_selected_id != old
+    bridge_checks.actual_source_memory_recalled = gm_context("合成日历安排",chat_selected_id,"").hits.len() > 0
+    bridge_observations = {owner_read:readback update_state:calendar_agent_update_state draft:mail_draft counters:counts
+        background_timers_not_drained:fixture_timers.len()}
+}
+native_update_deny_restart()
+({kind:"NIGHT004_NATIVE_UPDATE_DENY_RESTART" checks:bridge_checks observations:bridge_observations}).to_json()

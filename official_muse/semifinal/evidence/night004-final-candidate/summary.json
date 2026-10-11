@@ -1,0 +1,193 @@
+{
+  "native-l3": {
+    "initial": {
+      "status": "PASS",
+      "checks": 28,
+      "counters": {
+        "fixture.fs.exists": 57,
+        "fixture.random": 10,
+        "fixture.fs.write": 106,
+        "fixture.fs.read": 172,
+        "fixture.clock": 50,
+        "fixture.host_capabilities": 1,
+        "mail.accounts": 1,
+        "fixture.incoming": 2,
+        "mail.message": 2,
+        "octos.session.open": 3,
+        "octos.turn.start": 3,
+        "octos.session.history": 5,
+        "fixture/logsideeffects": 2,
+        "fixture.receiver": 3,
+        "fixture/read-owner": 1,
+        "runtime.list": 1,
+        "mail.compose": 1,
+        "mail.review_send": 1,
+        "mail.compose_status": 1,
+        "fixture.fs.mkdir": 1
+      }
+    },
+    "restart": {
+      "status": "PASS",
+      "checks": 15,
+      "counters": {
+        "fixture.fs.exists": 24,
+        "fixture.fs.read": 29,
+        "fixture.host_capabilities": 1,
+        "mail.accounts": 1,
+        "fixture.clock": 5,
+        "fixture.fs.write": 7,
+        "mail.compose_status": 1,
+        "fixture.receiver": 2,
+        "fixture/read-owner": 1,
+        "fixture/history-sessions": 1,
+        "fixture.random": 1
+      }
+    }
+  },
+  "native-deny": {
+    "initial": {
+      "status": "PASS",
+      "checks": 24,
+      "counters": {
+        "fixture.fs.exists": 19,
+        "fixture.random": 7,
+        "fixture.fs.write": 56,
+        "fixture.fs.read": 58,
+        "fixture.clock": 30,
+        "fixture.host_capabilities": 1,
+        "mail.accounts": 1,
+        "fixture.incoming": 2,
+        "mail.message": 2,
+        "fixture/mutation-approval": 1,
+        "octos.session.open": 2,
+        "octos.turn.start": 2,
+        "octos.session.history": 3,
+        "fixture.receiver": 4,
+        "fixture/owner-store-sha": 2,
+        "fixture/approval-audit": 1,
+        "fixture/read-owner": 1,
+        "fixture/logsideeffects": 1,
+        "fixture/call-counts": 2
+      }
+    },
+    "restart": {
+      "status": "PASS",
+      "checks": 12,
+      "counters": {
+        "fixture.fs.exists": 19,
+        "fixture.fs.read": 14,
+        "fixture.host_capabilities": 1,
+        "mail.accounts": 1,
+        "fixture.clock": 4,
+        "fixture.fs.write": 5,
+        "fixture/read-owner": 1,
+        "fixture/logsideeffects": 1,
+        "fixture/owner-store-sha": 1,
+        "fixture/call-counts": 1,
+        "fixture.receiver": 1,
+        "fixture.random": 1
+      }
+    }
+  },
+  "native-cas": {
+    "initial": {
+      "status": "PASS",
+      "checks": 23,
+      "counters": {
+        "fixture.fs.exists": 19,
+        "fixture.random": 7,
+        "fixture.fs.write": 58,
+        "fixture.fs.read": 60,
+        "fixture.clock": 32,
+        "fixture.host_capabilities": 1,
+        "mail.accounts": 1,
+        "fixture.incoming": 3,
+        "mail.message": 3,
+        "octos.session.open": 2,
+        "octos.turn.start": 2,
+        "octos.session.history": 3,
+        "fixture/call-counts": 4,
+        "fixture/logsideeffects": 2,
+        "fixture.receiver": 4,
+        "fixture/owner-update": 1,
+        "fixture/owner-store-sha": 2,
+        "fixture/read-owner": 1
+      }
+    },
+    "restart": {
+      "status": "PASS",
+      "checks": 11,
+      "counters": {
+        "fixture.fs.exists": 19,
+        "fixture.fs.read": 14,
+        "fixture.host_capabilities": 1,
+        "mail.accounts": 1,
+        "fixture.clock": 4,
+        "fixture.fs.write": 5,
+        "fixture/read-owner": 1,
+        "fixture/logsideeffects": 1,
+        "fixture/owner-store-sha": 1,
+        "fixture/call-counts": 1,
+        "fixture.receiver": 1,
+        "fixture.random": 1
+      }
+    }
+  },
+  "mail-faults": {
+    "status": "PASS",
+    "scenarios": 13,
+    "checks": 117,
+    "full_chain_status": "NOT_TESTED"
+  },
+  "source_sha256": "c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4",
+  "signed_main_sha256": "cdb1412b14a25fdbb8f97681e7fe344c855a0adaac50c26ded5eb17f876108d7",
+  "status": "L3_SIMULATION_L4_CORE_AND_FORMAL_UI_PASS_FINAL20_PENDING",
+  "boundary": "Real official Kernel/Calendar and SDK Mail service. Model/tool-selection/approval/transport/user-receipt declarations are fixtures. SMTP/IMAP/private profiles/Keychain unused. Full GUI visual and final20 remain pending.",
+  "kernel-l4": {
+    "status": "PASS",
+    "cases": [
+      {
+        "case": "stable_retry_restart",
+        "status": "PASS",
+        "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+        "event_id": "ev-1791776740714"
+      },
+      {
+        "case": "destructive_update_deny",
+        "status": "PASS",
+        "approval_id": "01a12c7f-f473-7612-965b-02b803d36423",
+        "tool_call_id": "fixture_call_3"
+      },
+      {
+        "case": "destructive_remove_deny",
+        "status": "PASS",
+        "approval_id": "01a12c7f-f613-7552-9f5d-7ff193f7826f",
+        "tool_call_id": "fixture_call_4"
+      },
+      {
+        "case": "interrupt_reconcile",
+        "status": "PASS",
+        "side_effect_observed": false
+      },
+      {
+        "case": "signed_caller_withdrawal",
+        "status": "PASS"
+      }
+    ],
+    "boundary": "Signed candidate actual bridge/Broker/Kernel L4; no production Main VM evaluation"
+  },
+  "formal-ui": {
+    "status": "COMPONENT_PASS",
+    "actual_signed_install": true,
+    "source_identity_matches": true,
+    "native_images_reviewed": 4
+  },
+  "calendar-owner-ui": {
+    "actual_checks": 6,
+    "independent_reads": 12,
+    "processes": 3,
+    "native_images_reviewed": 7,
+    "status": "PASS_AFTER_NATIVE_IMAGE_REVIEW",
+    "entry_boundary": "Test target calendar in independent APFS copy of exact Host/Kernel; production outer candidate unchanged"
+  }
+}

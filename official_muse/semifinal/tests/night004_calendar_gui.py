@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import os
+import plistlib
 from pathlib import Path
 import shutil
 import socket
@@ -27,6 +28,29 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def copy_candidate(source, destination, apfs_clone=False):
+    if not apfs_clone:
+        shutil.copytree(source, destination, symlinks=True)
+        return {'mode': 'shutil.copytree'}
+    if destination.exists() or destination.is_symlink():
+        raise ValueError('APFS clone destination must not exist')
+    if os.stat(source).st_dev != os.stat(destination.parent).st_dev:
+        raise ValueError('APFS clone source and destination must be on the same volume')
+    volume = subprocess.run(['/bin/df', '-P', str(source)], check=True,
+                            capture_output=True, text=True).stdout
+    device = volume.splitlines()[-1].split()[0]
+    info = plistlib.loads(subprocess.run(['/usr/sbin/diskutil', 'info', '-plist', device],
+                                       check=True, capture_output=True).stdout)
+    if info.get('FilesystemType') != 'apfs':
+        raise ValueError('Explicit APFS clone requires an APFS volume')
+    command = ['/bin/cp', '-c', '-R', '-p', '-P', str(source), str(destination)]
+    result = subprocess.run(command, check=True, capture_output=True, text=True)
+    return {'mode': 'apfs_clone_requested', 'command': command,
+            'filesystem': info['FilesystemType'], 'device': device,
+            'returncode': result.returncode, 'stderr': result.stderr,
+            'boundary': 'cp -c requests clonefile; cp may fall back to copyfile. Physical block sharing is not measured. Existing bundle symlinks are preserved; no source links are created.'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--candidate-app', type=Path, required=True)
@@ -34,7 +58,13 @@ def main():
     parser.add_argument('--identity-checker', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--port', type=int, default=9697)
+    parser.add_argument('--apfs-clone', action='store_true',
+                        help='Request independent APFS CoW copies via cp -c; requires same APFS volume')
+    parser.add_argument('--capture-settle-seconds', type=float, default=0,
+                        help='Record owned native screenshots at 0/half/full wait; visual review stays required')
     args = parser.parse_args()
+    if not 0 <= args.capture_settle_seconds <= 30:
+        parser.error('--capture-settle-seconds must be between 0 and 30')
     source = args.candidate_app.resolve()
     out = args.out.resolve()
     assert out.is_relative_to(ROOT / 'build/night-004') and not out.exists()
@@ -48,11 +78,14 @@ def main():
     owner_root.mkdir(parents=True)
     (owner_root / 'FIXTURE_ONLY').write_text('NIGHT004 synthetic events only. Never production consent.\n')
     app = out / 'Calendar Fixture.app'
-    shutil.copytree(source, app, symlinks=True)
-    resources = app / 'Contents/Resources'
-    runtime = resources / 'host-runtime'
     frozen = {name: digest(source / 'Contents/Resources/host-runtime' / name)
               for name in ('muse-host', 'octos-kernel', 'octos-kernel.json')}
+    source_guard = {f'Contents/Resources/host-runtime/{name}': value for name, value in frozen.items()}
+    source_guard.update({name: digest(source / name) for name in
+                         ('Contents/MacOS/Launcher', 'Contents/Resources/launcher.json')})
+    copy_evidence = copy_candidate(source, app, args.apfs_clone)
+    resources = app / 'Contents/Resources'
+    runtime = resources / 'host-runtime'
     wrapper = app / 'Contents/MacOS/Launcher'
     text = wrapper.read_text()
     assert text.count('launch-muse-native-prototype') == 1
@@ -67,16 +100,23 @@ def main():
     subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True,
                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     assert {name: digest(runtime / name) for name in frozen} == frozen
+    assert {name: digest(source / name) for name in source_guard} == source_guard, 'Source candidate changed'
+    copy_evidence.update(source_sha256=source_guard, source_unchanged_after_fixture_preparation=True)
+    (out / 'copy-evidence.json').write_text(json.dumps(copy_evidence, indent=2) + '\n')
     remote = Remote(args.port)
     window_probe = out / 'owned-window-id'
     subprocess.run(['clang', '-framework', 'ApplicationServices',
                     str(ROOT / 'official_muse/semifinal/tests/owned_main_window_id.c'),
                     '-o', str(window_probe)], check=True, capture_output=True)
     reads, checks, launches = [], {}, []
+    native_captures = []
     report = {'status': 'ERROR', 'boundary': 'Actual official Calendar owner UI and service; isolated synthetic events. Test target/port/state are changed only in a signed public app copy. No Muse Agent, real model, production consent or email claim.',
-              'source_app': str(source), 'host_kernel_identity': frozen,
+              'source_app': str(source), 'candidate_copy': copy_evidence, 'host_kernel_identity': frozen,
               'reader_sha256': digest(args.reader.resolve()), 'checks': checks,
-              'independent_reads': reads, 'launches': launches}
+              'independent_reads': reads, 'launches': launches,
+              'native_captures': native_captures,
+              'capture_settle_seconds': args.capture_settle_seconds,
+              'visual_review': 'REQUIRED_NOT_PERFORMED' if args.capture_settle_seconds else 'NOT_RECORDED'}
 
     def read(method, payload):
         assert method in ('events', 'get_event')
@@ -96,13 +136,31 @@ def main():
             time.sleep(.15)
 
     def shot(name):
-        # The remote framebuffer omits composed in-process card surfaces on
-        # this Intel Host. Capture only the actual window owned by this PID.
-        window = subprocess.check_output([str(window_probe), str(pid)], text=True).strip()
-        assert window, 'No owned native window to capture'
-        target = out / name
-        subprocess.run(['screencapture', '-x', '-l', window, str(target)], check=True)
-        assert target.read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
+        # Native samples document drawing over time; they never prove visual
+        # completeness. Keep the default single capture unchanged.
+        targets = [(0, out / name)]
+        if args.capture_settle_seconds:
+            sample_dir = out / 'native-capture-series' / Path(name).stem
+            sample_dir.mkdir(parents=True, exist_ok=True)
+            half = args.capture_settle_seconds / 2
+            targets = [(0, sample_dir / '01-immediate.png'),
+                       (half, sample_dir / '02-midpoint.png'), (half, out / name)]
+        started = time.monotonic()
+        for delay, target in targets:
+            if delay:
+                time.sleep(delay)
+            # /g misses in-process cards. Re-resolve this owned native window.
+            window = subprocess.check_output([str(window_probe), str(pid)], text=True).strip()
+            assert window, 'No owned native window to capture'
+            subprocess.run(['screencapture', '-x', '-l', window, str(target)], check=True)
+            assert target.read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
+            if args.capture_settle_seconds:
+                native_captures.append({'stage': name, 'owner_pid': pid, 'window_id': window,
+                                        'path': str(target), 'sha256': digest(target),
+                                        'captured_unix_seconds': time.time(),
+                                        'elapsed_seconds': time.monotonic() - started,
+                                        'visual_acceptance': 'REQUIRED_NOT_PERFORMED'})
+                (out / 'native-capture-series.json').write_text(json.dumps(native_captures, indent=2) + '\n')
 
     def reveal(key, area):
         for attempt in range(12):
@@ -208,7 +266,9 @@ def main():
         checks['restart_preserves_absence'] = read('get_event', {'id': event_id}) == {'found': False, 'event': None}
         shot('07-deleted-after-restart.png')
         assert all(checks.values()), checks
-        report.update(status='REAL_OFFICIAL_CALENDAR_OWNER_GUI_PASS', event_id=event_id)
+        report.update(status=('REAL_OFFICIAL_CALENDAR_OWNER_GUI_CHECKS_PASS_NATIVE_REVIEW_PENDING'
+                              if args.capture_settle_seconds else 'REAL_OFFICIAL_CALENDAR_OWNER_GUI_PASS'),
+                      event_id=event_id)
     except Exception as error:
         report['error'] = f'{type(error).__name__}: {error}'
         if pid is not None:

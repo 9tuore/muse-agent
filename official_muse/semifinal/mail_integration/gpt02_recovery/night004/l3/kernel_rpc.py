@@ -32,14 +32,17 @@ def prompt_object(prompt, marker):
     return value
 
 
-def fixture_turn_payload(payload):
+def fixture_turn_payload(payload,mutation_approval='once'):
     """Keep original payload, including text/trigger; add separate fixture inputs."""
     if not isinstance(payload.get('text'), str) or any(k.startswith('fixture_') for k in payload):
         raise ValueError('Original VM text required; fixture fields belong to parent only')
+    if mutation_approval not in ('once','deny'):
+        raise ValueError('Explicit mutation approval must be once or deny')
     text = payload['text']
     markers = ['精确 calendar.events 参数：','精确 calendar.add_event 参数：','2. calendar.update_event 精确参数：']
     if sum(marker in text for marker in markers) != 1:
         raise ValueError('Exactly one native query/create/update prompt marker required')
+    approval = 'once'
     if '精确 calendar.events 参数：' in text:
         args = prompt_object(text, '精确 calendar.events 参数：')
         if set(args) - {'from','to','limit'}:
@@ -68,9 +71,10 @@ def fixture_turn_payload(payload):
         steps = [dict(tool='calendar.get_event', args={'id': args['id']}),
                  dict(tool='calendar.update_event', args=args),
                  dict(tool='calendar.get_event', args={'id': args['id']})]
+        approval = mutation_approval
     else:
         raise ValueError('No supported native query/create/update production prompt')
-    result = dict(payload, fixture_tool_plan=steps, fixture_approval='once')
+    result = dict(payload, fixture_tool_plan=steps, fixture_approval=approval)
     assert result['text'] == payload['text'] and result.get('trigger') == payload.get('trigger')
     return result
 
@@ -106,8 +110,10 @@ def validate_candidate(settings, out, source_sha, source_file):
 
 
 class KernelBridge:
-    def __init__(self, *, bridge, test_binary, kernel, config, out, source_sha, source_file, use_frozen_test_binary=False):
+    def __init__(self, *, bridge, test_binary, kernel, config, out, source_sha, source_file, use_frozen_test_binary=False, mutation_approval='once'):
         self.out, self.serial, self.pending, self.lock = out, 0, {}, threading.Lock()
+        assert mutation_approval in ('once','deny')
+        self.mutation_approval = mutation_approval
         self.frames, self.reader_error = [], None
         config = config.resolve(strict=True)
         settings = json.loads(config.read_text())
@@ -130,7 +136,7 @@ class KernelBridge:
             test_sha,marker_sha = hashlib.sha256(selected_test_binary.read_bytes()).hexdigest(),None
         self.identity = dict(source_sha256=source_sha, kernel_sha256=PINNED_KERNEL,
             test_binary_sha256=test_sha,test_binary_path=str(selected_test_binary),frozen_test_binary=use_frozen_test_binary,
-            frozen_marker_sha256=marker_sha,
+            frozen_marker_sha256=marker_sha,mutation_approval=mutation_approval,
             bridge_sha256=hashlib.sha256((helper/'bridge.py').read_bytes()).hexdigest(),
             model_sha256=hashlib.sha256((helper/'plan_model.py').read_bytes()).hexdigest(),
             config_sha256=hashlib.sha256(config.read_bytes()).hexdigest(), fixture_root=str(fixture_root),candidate_mapping=mapping)
@@ -173,7 +179,7 @@ class KernelBridge:
                 for target in self.pending.values(): target.put(failure)
 
     def call(self, method, payload, timeout=195):
-        outbound = fixture_turn_payload(payload) if method == 'octos.turn.start' else dict(payload)
+        outbound = fixture_turn_payload(payload,self.mutation_approval) if method == 'octos.turn.start' else dict(payload)
         with self.lock:
             self.serial += 1; request_id = 'gpt02-kernel-'+str(self.serial)
             target = self.pending[request_id] = queue.Queue()

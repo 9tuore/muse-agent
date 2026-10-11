@@ -1,0 +1,31 @@
+{
+  "kind": "STATIC_NATIVE_DENY_PROBE_AND_SOURCE_CONTRACT",
+  "checks": {
+    "actual_c892_source": true,
+    "both_production_closures_byte_equal": true,
+    "no_external_owner_write": true,
+    "actual_audit_not_text_proof": true,
+    "unknown_without_receipt_gate_present": true,
+    "future_failed_requires_real_receipt": true,
+    "owner_bytes_count_assertions_present": true,
+    "duplicate_and_restart_no_turn_assertions_present": true,
+    "old_draft_preserved_blocked": true,
+    "no_history_failure_or_completion_state_synthesized": true,
+    "actual_calendar_agent_submit_candidate_selected": true,
+    "actual_calendar_agent_update_select_selected": true,
+    "actual_calendar_agent_update_confirm_selected": true,
+    "actual_calendar_agent_update_history_selected": true,
+    "actual_calendar_agent_delete_receipt_selected": true
+  },
+  "status": "PASS",
+  "source_sha256": "c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4",
+  "kernel_calendar_calls": 0,
+  "runtime_status": "PREPARED_NOT_TESTED",
+  "static_check_note": "R1 substring matcher mistook receipt_status == assertions for assignment; corrected single-equals matcher. R1 report preserved.",
+  "forbidden_matches": [],
+  "python_ast_parse": "PASS",
+  "production_function_counts": [
+    244,
+    322
+  ]
+}

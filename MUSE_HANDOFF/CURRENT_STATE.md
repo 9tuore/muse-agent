@@ -1,3 +1,13 @@
+## 2026-10-12 03:47 NIGHT-004 同候选完整链与核心故障复验
+
+最终业务源码固定 c892bff3，签名Main cdb1412b，rc7-integrated-candidate-r3 由fee00c9构建。真实官方Kernel/内置Calendar与真实SDK Mail service的同候选L3初始28/28、完整新进程恢复15/15通过；邮件独立MockTransport收件核对1条，恢复新增发送0，事项/Run/完成Memory/四节点行动链正确恢复。工具选择、授权、模型及邮件传输仍为明确fixture，不宣称生产SMTP/IMAP或云端模型通过。
+
+同c892/cdb的真实拒绝改期24/24+重启12/12、真实CAS外部编辑拒绝23/23+重启11/11、Mail故障13场景117项通过。新R8 Kernel L4五场景全部真实PASS：稳定请求跨进程复用、修改Deny、删除Deny、实际同turn/lane中断及只读对账、同manifest更高序列签名撤回。N004-12/13已解决；旧失败及中途JSONL读取半行错误保留。读取修复只影响测试parent，完整坏JSON仍拒绝。
+
+真实App Hub Install/Open完整Muse，已安装Main/manifest逐字匹配签名候选；对话→日历→记忆→对话和输入读回通过，中央实际查看4张native图，动态Host身份SecCode为0。独立Calendar owner UI真实创建/同ID改期/删除/两次重启读回6/6，但首轮部分native照片黑底/缺绘制，视觉尚未PASS，正在做8秒连续截图实验。固定20次启动与崩溃/实际计时超时覆盖仍待补齐。正式候选和生产资料未修改，未发布。
+
+证据 official_muse/semifinal/evidence/night004-final-candidate/；原始 build/night-004/native-l3-central-r4、native-deny-central-r1、native-cas-central-r3、mail-fault-central-final-r2、kernel-bridge-l4-central-r3、rc7-integrated-ui-r3、calendar-gui-final-r1/r2。
+
 ## ZC-00 NIGHT-004 完结与真实入口：2026-10-12 02:51 北京时间
 
 ## ZC-00 NIGHT-004 行动链重启修复集成：2026-10-12 03:31 北京时间

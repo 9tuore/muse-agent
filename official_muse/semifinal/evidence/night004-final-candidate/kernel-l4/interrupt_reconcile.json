@@ -1,0 +1,575 @@
+{
+  "actual_interrupt_reply": {
+    "data": {
+      "interrupted": [
+        "0167806a-b219-4240-9029-b26468e4dcd9"
+      ],
+      "turns": [
+        {
+          "lane": "person",
+          "speaker": {
+            "kind": "app",
+            "label": "Muse fixture bridge"
+          },
+          "turn_id": "0167806a-b219-4240-9029-b26468e4dcd9"
+        }
+      ]
+    },
+    "is_ok": true,
+    "method": "octos.turn.interrupt",
+    "request_id": "l4-40278-22"
+  },
+  "actual_pending_turn_terminal": {
+    "error": {
+      "kind": "bridge_error",
+      "message": "turn interrupted by client"
+    },
+    "is_ok": false,
+    "method": "octos.turn.start",
+    "request_id": "l4-40278-21"
+  },
+  "actual_turn_started_events": [
+    {
+      "lane": "person",
+      "method": "turn/started",
+      "params": {
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+        "timestamp": "2026-10-11T19:45:46.326698Z",
+        "topic": "peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+        "turn_id": "0167806a-b219-4240-9029-b26468e4dcd9"
+      },
+      "request": {
+        "speaker": {
+          "kind": "app",
+          "label": "Muse fixture bridge"
+        },
+        "text": "Synthetic L4: get this event, then request its selected update."
+      },
+      "speaker": {
+        "kind": "app",
+        "label": "Muse fixture bridge"
+      }
+    }
+  ],
+  "actual_reconcile_turn": {
+    "data": {
+      "lane": "person",
+      "speaker": {
+        "kind": "app",
+        "label": "Muse fixture bridge"
+      },
+      "text": "FIXTURE PLAN COMPLETE {\"event\": {\"end\": \"2026-10-13T15:30\", \"id\": \"ev-1791776740714\", \"location\": \"Synthetic fixture room\", \"notes\": \"Synthetic original notes\", \"request_id\": \"night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46\", \"start\": \"2026-10-13T15:00\", \"timezone\": \"Asia/Shanghai\", \"title\": \"NIGHT004 synthetic bridge L4\"}, \"found\": true}",
+      "turn_id": "1c49005d-d647-4bc4-b6d5-389f04164f06"
+    },
+    "is_ok": true,
+    "method": "octos.turn.start",
+    "request_id": "l4-40278-25"
+  },
+  "actual_history": {
+    "context": {
+      "compaction": {
+        "count": 0,
+        "last": null
+      },
+      "schema": "octos.context.lifecycle.v1",
+      "state": {
+        "generation": 38,
+        "item_count": 20,
+        "last_checkpoint_id": null,
+        "last_compaction_id": null,
+        "recovery_state": "exact",
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+        "thread_id": null,
+        "token_estimate": 1908,
+        "transcript_hash": "sha256:3c74396c717933d4229432a17eb609445145ef0273e24d3f29dedce93451929e"
+      }
+    },
+    "context_state": {
+      "generation": 38,
+      "item_count": 20,
+      "recovery_state": "exact",
+      "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+      "token_estimate": 1908,
+      "transcript_hash": "sha256:3c74396c717933d4229432a17eb609445145ef0273e24d3f29dedce93451929e"
+    },
+    "cursor": {
+      "seq": 120,
+      "stream": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge\u0000~cwd-63f0ef9c5f353880"
+    },
+    "host_calendar_receipts": [
+      {
+        "args_digest": "sha256:e2b1f9f466093a5afbe5c394f789ab822c7baf65e743ece4574a86d5f71106a0",
+        "call_id": "ptc-eae69302c00c43559ce2d950c5b0fe45",
+        "caller": "card.muse-goals",
+        "context_id": "1503755e-p1-night004-vm-bridge",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "ptc-eae69302c00c43559ce2d950c5b0fe45",
+          "data": {
+            "event": {
+              "end": "2026-10-13T15:30",
+              "id": "ev-1791776740714",
+              "location": "Synthetic fixture room",
+              "notes": "Synthetic original notes",
+              "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+              "start": "2026-10-13T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 synthetic bridge L4"
+            },
+            "found": true
+          },
+          "ok": true
+        },
+        "result_bytes": 372,
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+        "source": "broker_tool_result",
+        "terminal": "ok",
+        "tool": "calendar.get_event",
+        "tool_call_id": "fixture_call_7",
+        "turn_id": "1c49005d-d647-4bc4-b6d5-389f04164f06"
+      },
+      {
+        "args_digest": "sha256:e2b1f9f466093a5afbe5c394f789ab822c7baf65e743ece4574a86d5f71106a0",
+        "call_id": "ptc-a68c03571618451a8ae0fb491b9f1372",
+        "caller": "card.muse-goals",
+        "context_id": "1503755e-p1-night004-vm-bridge",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "ptc-a68c03571618451a8ae0fb491b9f1372",
+          "data": {
+            "event": {
+              "end": "2026-10-13T15:30",
+              "id": "ev-1791776740714",
+              "location": "Synthetic fixture room",
+              "notes": "Synthetic original notes",
+              "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+              "start": "2026-10-13T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 synthetic bridge L4"
+            },
+            "found": true
+          },
+          "ok": true
+        },
+        "result_bytes": 372,
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+        "source": "broker_tool_result",
+        "terminal": "ok",
+        "tool": "calendar.get_event",
+        "tool_call_id": "fixture_call_5",
+        "turn_id": "0167806a-b219-4240-9029-b26468e4dcd9"
+      },
+      {
+        "args_digest": "sha256:d0f96fc7c07b1433c57b8c55f74da8324281bbc29f3939225aac5ba33af2e1e9",
+        "call_id": "ptc-319511cb307e4a3eac5115204639becb",
+        "caller": "card.muse-goals",
+        "context_id": "1503755e-p1-night004-vm-bridge",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "ptc-319511cb307e4a3eac5115204639becb",
+          "data": {
+            "event": {
+              "end": "2026-10-13T15:30",
+              "id": "ev-1791776740714",
+              "location": "Synthetic fixture room",
+              "notes": "Synthetic original notes",
+              "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+              "start": "2026-10-13T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 synthetic bridge L4"
+            },
+            "found": true
+          },
+          "ok": true
+        },
+        "result_bytes": 372,
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+        "source": "broker_tool_result",
+        "terminal": "ok",
+        "tool": "calendar.get_event",
+        "tool_call_id": "fixture_call_2",
+        "turn_id": "45650b3a-27ee-4c21-90fc-f86881d3877e"
+      },
+      {
+        "args_digest": "sha256:fa820ed2290b6676349f8269f0e6aff17bbc24bd13c2a9df1c52620fea7f5b78",
+        "call_id": "ptc-82f8c9ce630246c4b67260ad6575d311",
+        "caller": "card.muse-goals",
+        "context_id": "1503755e-p1-night004-vm-bridge",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "ptc-82f8c9ce630246c4b67260ad6575d311",
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791776740714",
+            "reused": true,
+            "start": "2026-10-13T15:00"
+          },
+          "ok": true
+        },
+        "result_bytes": 154,
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+        "source": "broker_tool_result",
+        "terminal": "ok",
+        "tool": "calendar.add_event",
+        "tool_call_id": "fixture_call_1",
+        "turn_id": "45650b3a-27ee-4c21-90fc-f86881d3877e"
+      }
+    ],
+    "messages": [
+      {
+        "content": "[from the app: Muse fixture bridge] Synthetic L4: repeat the exact same stable fixture request, then read it.",
+        "display_text": "Synthetic L4: repeat the exact same stable fixture request, then read it.",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:44.781363Z",
+        "role": "user",
+        "seq": 0,
+        "speaker": {
+          "kind": "app",
+          "label": "Muse fixture bridge"
+        },
+        "thread_id": "45650b3a-27ee-4c21-90fc-f86881d3877e"
+      },
+      {
+        "content": "",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:44.786743Z",
+        "role": "assistant",
+        "seq": 1,
+        "thread_id": "45650b3a-27ee-4c21-90fc-f86881d3877e",
+        "tool_calls": [
+          {
+            "tool_call_id": "fixture_call_1",
+            "tool_name": "calendar_add_event"
+          }
+        ]
+      },
+      {
+        "content": "{\"card_warning\":null,\"id\":\"ev-1791776740714\",\"reused\":true,\"start\":\"2026-10-13T15:00\"}",
+        "host_calendar_receipt": {
+          "args_digest": "sha256:fa820ed2290b6676349f8269f0e6aff17bbc24bd13c2a9df1c52620fea7f5b78",
+          "call_id": "ptc-82f8c9ce630246c4b67260ad6575d311",
+          "caller": "card.muse-goals",
+          "context_id": "1503755e-p1-night004-vm-bridge",
+          "kernel_persisted": true,
+          "owner": "os.calendar",
+          "result": {
+            "call_id": "ptc-82f8c9ce630246c4b67260ad6575d311",
+            "data": {
+              "card_warning": null,
+              "id": "ev-1791776740714",
+              "reused": true,
+              "start": "2026-10-13T15:00"
+            },
+            "ok": true
+          },
+          "result_bytes": 154,
+          "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+          "source": "broker_tool_result",
+          "terminal": "ok",
+          "tool": "calendar.add_event",
+          "tool_call_id": "fixture_call_1",
+          "turn_id": "45650b3a-27ee-4c21-90fc-f86881d3877e"
+        },
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:44.854897Z",
+        "role": "tool",
+        "seq": 2,
+        "thread_id": "45650b3a-27ee-4c21-90fc-f86881d3877e",
+        "tool_call_id": "fixture_call_1",
+        "tool_name": "calendar_add_event"
+      },
+      {
+        "content": "",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:44.859764Z",
+        "role": "assistant",
+        "seq": 3,
+        "thread_id": "45650b3a-27ee-4c21-90fc-f86881d3877e",
+        "tool_calls": [
+          {
+            "tool_call_id": "fixture_call_2",
+            "tool_name": "calendar_get_event"
+          }
+        ]
+      },
+      {
+        "content": "{\"event\":{\"end\":\"2026-10-13T15:30\",\"id\":\"ev-1791776740714\",\"location\":\"Synthetic fixture room\",\"notes\":\"Synthetic original notes\",\"request_id\":\"night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46\",\"start\":\"2026-10-13T15:00\",\"timezone\":\"Asia/Shanghai\",\"title\":\"NIGHT004 synthetic bridge L4\"},\"found\":true}",
+        "host_calendar_receipt": {
+          "args_digest": "sha256:d0f96fc7c07b1433c57b8c55f74da8324281bbc29f3939225aac5ba33af2e1e9",
+          "call_id": "ptc-319511cb307e4a3eac5115204639becb",
+          "caller": "card.muse-goals",
+          "context_id": "1503755e-p1-night004-vm-bridge",
+          "kernel_persisted": true,
+          "owner": "os.calendar",
+          "result": {
+            "call_id": "ptc-319511cb307e4a3eac5115204639becb",
+            "data": {
+              "event": {
+                "end": "2026-10-13T15:30",
+                "id": "ev-1791776740714",
+                "location": "Synthetic fixture room",
+                "notes": "Synthetic original notes",
+                "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+                "start": "2026-10-13T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "NIGHT004 synthetic bridge L4"
+              },
+              "found": true
+            },
+            "ok": true
+          },
+          "result_bytes": 372,
+          "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+          "source": "broker_tool_result",
+          "terminal": "ok",
+          "tool": "calendar.get_event",
+          "tool_call_id": "fixture_call_2",
+          "turn_id": "45650b3a-27ee-4c21-90fc-f86881d3877e"
+        },
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:44.902236Z",
+        "role": "tool",
+        "seq": 4,
+        "thread_id": "45650b3a-27ee-4c21-90fc-f86881d3877e",
+        "tool_call_id": "fixture_call_2",
+        "tool_name": "calendar_get_event"
+      },
+      {
+        "content": "FIXTURE PLAN COMPLETE {\"event\": {\"end\": \"2026-10-13T15:30\", \"id\": \"ev-1791776740714\", \"location\": \"Synthetic fixture room\", \"notes\": \"Synthetic original notes\", \"request_id\": \"night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46\", \"start\": \"2026-10-13T15:00\", \"timezone\": \"Asia/Shanghai\", \"title\": \"NIGHT004 synthetic bridge L4\"}, \"found\": true}",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:44.907392Z",
+        "role": "assistant",
+        "seq": 5,
+        "thread_id": "45650b3a-27ee-4c21-90fc-f86881d3877e"
+      },
+      {
+        "content": "[from the app: Muse fixture bridge] Synthetic L4: request this destructive mutation; fixture sheet decision is Deny.",
+        "display_text": "Synthetic L4: request this destructive mutation; fixture sheet decision is Deny.",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:45.581615Z",
+        "role": "user",
+        "seq": 6,
+        "speaker": {
+          "kind": "app",
+          "label": "Muse fixture bridge"
+        },
+        "thread_id": "d40c6469-a7f4-4f8a-b668-17323b36f520"
+      },
+      {
+        "content": "",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:45.587520Z",
+        "role": "assistant",
+        "seq": 7,
+        "thread_id": "d40c6469-a7f4-4f8a-b668-17323b36f520",
+        "tool_calls": [
+          {
+            "tool_call_id": "fixture_call_3",
+            "tool_name": "calendar_update_event"
+          }
+        ]
+      },
+      {
+        "content": "calendar.update_event: the person declined; it was not run",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:45.651315Z",
+        "role": "tool",
+        "seq": 8,
+        "thread_id": "d40c6469-a7f4-4f8a-b668-17323b36f520",
+        "tool_call_id": "fixture_call_3",
+        "tool_name": "calendar_update_event"
+      },
+      {
+        "content": "FIXTURE PLAN ERROR Expecting value: line 1 column 1 (char 0)",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:45.659659Z",
+        "role": "assistant",
+        "seq": 9,
+        "thread_id": "d40c6469-a7f4-4f8a-b668-17323b36f520"
+      },
+      {
+        "content": "[from the app: Muse fixture bridge] Synthetic L4: request this destructive mutation; fixture sheet decision is Deny.",
+        "display_text": "Synthetic L4: request this destructive mutation; fixture sheet decision is Deny.",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:45.996903Z",
+        "role": "user",
+        "seq": 10,
+        "speaker": {
+          "kind": "app",
+          "label": "Muse fixture bridge"
+        },
+        "thread_id": "145b9422-2ed9-44c3-beb0-6ca84ceabc88"
+      },
+      {
+        "content": "",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.003718Z",
+        "role": "assistant",
+        "seq": 11,
+        "thread_id": "145b9422-2ed9-44c3-beb0-6ca84ceabc88",
+        "tool_calls": [
+          {
+            "tool_call_id": "fixture_call_4",
+            "tool_name": "calendar_remove_event"
+          }
+        ]
+      },
+      {
+        "content": "calendar.remove_event: the person declined; it was not run",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.061395Z",
+        "role": "tool",
+        "seq": 12,
+        "thread_id": "145b9422-2ed9-44c3-beb0-6ca84ceabc88",
+        "tool_call_id": "fixture_call_4",
+        "tool_name": "calendar_remove_event"
+      },
+      {
+        "content": "FIXTURE PLAN ERROR Expecting value: line 1 column 1 (char 0)",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.067760Z",
+        "role": "assistant",
+        "seq": 13,
+        "thread_id": "145b9422-2ed9-44c3-beb0-6ca84ceabc88"
+      },
+      {
+        "content": "Synthetic L4: get this event, then request its selected update.",
+        "display_text": "Synthetic L4: get this event, then request its selected update.",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.323437Z",
+        "role": "user",
+        "speaker": {
+          "kind": "app",
+          "label": "Muse fixture bridge"
+        },
+        "turn_id": "0167806a-b219-4240-9029-b26468e4dcd9",
+        "unrecorded": true
+      },
+      {
+        "content": "[from the app: Muse fixture bridge] Synthetic L4: read only; reconcile the selected event after interruption.",
+        "display_text": "Synthetic L4: read only; reconcile the selected event after interruption.",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.559334Z",
+        "role": "user",
+        "seq": 14,
+        "speaker": {
+          "kind": "app",
+          "label": "Muse fixture bridge"
+        },
+        "thread_id": "1c49005d-d647-4bc4-b6d5-389f04164f06"
+      },
+      {
+        "content": "",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.570873Z",
+        "role": "assistant",
+        "seq": 15,
+        "thread_id": "1c49005d-d647-4bc4-b6d5-389f04164f06",
+        "tool_calls": [
+          {
+            "tool_call_id": "fixture_call_7",
+            "tool_name": "calendar_get_event"
+          }
+        ]
+      },
+      {
+        "content": "{\"event\":{\"end\":\"2026-10-13T15:30\",\"id\":\"ev-1791776740714\",\"location\":\"Synthetic fixture room\",\"notes\":\"Synthetic original notes\",\"request_id\":\"night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46\",\"start\":\"2026-10-13T15:00\",\"timezone\":\"Asia/Shanghai\",\"title\":\"NIGHT004 synthetic bridge L4\"},\"found\":true}",
+        "host_calendar_receipt": {
+          "args_digest": "sha256:e2b1f9f466093a5afbe5c394f789ab822c7baf65e743ece4574a86d5f71106a0",
+          "call_id": "ptc-eae69302c00c43559ce2d950c5b0fe45",
+          "caller": "card.muse-goals",
+          "context_id": "1503755e-p1-night004-vm-bridge",
+          "kernel_persisted": true,
+          "owner": "os.calendar",
+          "result": {
+            "call_id": "ptc-eae69302c00c43559ce2d950c5b0fe45",
+            "data": {
+              "event": {
+                "end": "2026-10-13T15:30",
+                "id": "ev-1791776740714",
+                "location": "Synthetic fixture room",
+                "notes": "Synthetic original notes",
+                "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+                "start": "2026-10-13T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "NIGHT004 synthetic bridge L4"
+              },
+              "found": true
+            },
+            "ok": true
+          },
+          "result_bytes": 372,
+          "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge",
+          "source": "broker_tool_result",
+          "terminal": "ok",
+          "tool": "calendar.get_event",
+          "tool_call_id": "fixture_call_7",
+          "turn_id": "1c49005d-d647-4bc4-b6d5-389f04164f06"
+        },
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.630724Z",
+        "role": "tool",
+        "seq": 16,
+        "thread_id": "1c49005d-d647-4bc4-b6d5-389f04164f06",
+        "tool_call_id": "fixture_call_7",
+        "tool_name": "calendar_get_event"
+      },
+      {
+        "content": "FIXTURE PLAN COMPLETE {\"event\": {\"end\": \"2026-10-13T15:30\", \"id\": \"ev-1791776740714\", \"location\": \"Synthetic fixture room\", \"notes\": \"Synthetic original notes\", \"request_id\": \"night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46\", \"start\": \"2026-10-13T15:00\", \"timezone\": \"Asia/Shanghai\", \"title\": \"NIGHT004 synthetic bridge L4\"}, \"found\": true}",
+        "lane": "person",
+        "persisted_at": "2026-10-11T19:45:46.638686Z",
+        "role": "assistant",
+        "seq": 17,
+        "thread_id": "1c49005d-d647-4bc4-b6d5-389f04164f06"
+      }
+    ],
+    "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.1503755e-p1-night004-vm-bridge"
+  },
+  "before": {
+    "actual_owner_result": {
+      "events": [
+        {
+          "end": "2026-10-13T15:30",
+          "id": "ev-1791776740714",
+          "location": "Synthetic fixture room",
+          "notes": "Synthetic original notes",
+          "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+          "start": "2026-10-13T15:00",
+          "timezone": "Asia/Shanghai",
+          "title": "NIGHT004 synthetic bridge L4"
+        }
+      ]
+    },
+    "event_count": 1,
+    "store_sha256": "4ce7a2d99731503cf76f93a06d10469260e4c841981c95aed378e834b52480ce"
+  },
+  "after": {
+    "actual_owner_result": {
+      "events": [
+        {
+          "end": "2026-10-13T15:30",
+          "id": "ev-1791776740714",
+          "location": "Synthetic fixture room",
+          "notes": "Synthetic original notes",
+          "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+          "start": "2026-10-13T15:00",
+          "timezone": "Asia/Shanghai",
+          "title": "NIGHT004 synthetic bridge L4"
+        }
+      ]
+    },
+    "event_count": 1,
+    "store_sha256": "4ce7a2d99731503cf76f93a06d10469260e4c841981c95aed378e834b52480ce"
+  },
+  "actual_owner_event": {
+    "end": "2026-10-13T15:30",
+    "id": "ev-1791776740714",
+    "location": "Synthetic fixture room",
+    "notes": "Synthetic original notes",
+    "request_id": "night004-bridge-l4-ad86f2ed769548ea94c43bdef3a83a46",
+    "start": "2026-10-13T15:00",
+    "timezone": "Asia/Shanghai",
+    "title": "NIGHT004 synthetic bridge L4"
+  },
+  "observation": "actual Kernel interruption"
+}

@@ -1,0 +1,207 @@
+{
+  "state": "LOCAL_JSONL_FIXTURE_AND_ACTUAL_R2_READONLY_REPLAY_PASS_NO_NEW_KERNEL",
+  "actual_original_root": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/kernel-bridge-l4-central-r2",
+  "actual_original_file_sha256": {
+    "l4-evidence/result.json": "40a0f1800d62ec4e2cf19f4594f51e4fc61c4ff4e1fb6ebad1971ab5c186e1a7",
+    "actual-kernel-events.jsonl": "02b82b430217f658a512d3573205917251344d07ea1161c713c80b6da50c938c",
+    "resolved-model-calls.jsonl": "c6f700021bd811bc0bbcedf1258562e6b8262336865e5dc7e75a3393791e7254",
+    "bridge-replies.jsonl": "6782d53553b7e795fcb845180ac895b1b86a90fee59cbb940c0354e34af1ae65",
+    "l4-evidence/parent-requests.jsonl": "29f23a72dea8cb49977b5b927a7608b49c4cd15797bd575af125cc0e10094553",
+    "parent.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "actual_original_result": {
+    "state": "FAILED",
+    "scope": "Signed candidate actual bridge/Broker/Kernel L4; no production Main VM evaluation",
+    "fixture_model": true,
+    "fixture_authorization": true,
+    "main_sha256": "cdb1412b14a25fdbb8f97681e7fe344c855a0adaac50c26ded5eb17f876108d7",
+    "source_version": "0.4.0-rc7",
+    "source_sha256": "0426f4db13d86b577166b334c4686668c81cf8c7fa62d0f05e44e43c54eee1b9",
+    "test_binary_sha256": "270617f07d6af51bfc6ccda28913925386c74b75942735050ae3764bf8445385",
+    "kernel_sha256": "56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270",
+    "cases": [
+      {
+        "case": "stable_retry_restart",
+        "status": "PASS",
+        "request_id": "night004-bridge-l4-7e6e556f7d084a3badd5e23370acc7f6",
+        "event_id": "ev-1791776278699"
+      },
+      {
+        "case": "destructive_update_deny",
+        "status": "PASS",
+        "approval_id": "01a12c78-e5f4-73d0-863d-33d96942ab45",
+        "tool_call_id": "fixture_call_3"
+      },
+      {
+        "case": "destructive_remove_deny",
+        "status": "PASS",
+        "approval_id": "01a12c78-e776-7431-afe9-9bf24ccceca9",
+        "tool_call_id": "fixture_call_4"
+      }
+    ],
+    "error": "Unterminated string starting at: line 1 column 213 (char 212)",
+    "recovery": "Actual result unknown where a reply was missing. Preserve store/history; no automatic write retry."
+  },
+  "diagnosis": {
+    "location_by_request_order": "Parent emitted interrupt, received both real replies, then failed before any owner snapshot/reconcile request; first JSONL read at that point is actual-kernel-events.jsonl in starts collection.",
+    "limits": "No original traceback or captured transient read buffer exists. Exact incomplete byte slice is not provable after the writer completed. All stopped complete records parse; actual turn/started line 116 prefix of 256 bytes reproduces the exact error.",
+    "reproduced_prefix": {
+      "file": "actual-kernel-events.jsonl",
+      "line": 116,
+      "prefix_bytes": 256,
+      "error": "Unterminated string starting at: line 1 column 213 (char 212)"
+    },
+    "actual_interrupt": {
+      "turn_id": "9266a3df-8812-4143-8dca-c07f4f93a5b3",
+      "stop_reply": {
+        "data": {
+          "interrupted": [
+            "9266a3df-8812-4143-8dca-c07f4f93a5b3"
+          ],
+          "turns": [
+            {
+              "lane": "person",
+              "speaker": {
+                "kind": "app",
+                "label": "Muse fixture bridge"
+              },
+              "turn_id": "9266a3df-8812-4143-8dca-c07f4f93a5b3"
+            }
+          ]
+        },
+        "is_ok": true,
+        "method": "octos.turn.interrupt",
+        "request_id": "l4-9905-22"
+      },
+      "pending_terminal": {
+        "error": {
+          "kind": "bridge_error",
+          "message": "turn interrupted by client"
+        },
+        "is_ok": false,
+        "method": "octos.turn.start",
+        "request_id": "l4-9905-21"
+      },
+      "approval_cancelled": [
+        {
+          "lane": "person",
+          "method": "approval/cancelled",
+          "params": {
+            "approval_id": "01a12c78-e91c-7ce3-a4f4-11d491d900d7",
+            "reason": "turn_interrupted",
+            "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.67854dba-p1-night004-vm-bridge",
+            "topic": "peerctx-muse-fixture-bridge-22a12f906cd27b73.67854dba-p1-night004-vm-bridge",
+            "turn_id": "9266a3df-8812-4143-8dca-c07f4f93a5b3"
+          },
+          "speaker": {
+            "kind": "app",
+            "label": "Muse fixture bridge"
+          }
+        }
+      ]
+    },
+    "fixture_model_delay": "Not added: the actual R2 trace already confirms genuine ContextOp::Interrupt cancelled this specific turn. Add no timing control without evidence of a completion race."
+  },
+  "checks": [
+    {
+      "case": "old_reader_actual_turn_started_prefix_reproduces_exact_R2_error",
+      "passed": true
+    },
+    {
+      "case": "new_reader_defers_actual_incomplete_tail",
+      "passed": true
+    },
+    {
+      "case": "valid_json_without_commit_LF_is_still_deferred",
+      "passed": true
+    },
+    {
+      "case": "next_read_sees_original_completed_record_once",
+      "passed": true
+    },
+    {
+      "case": "partial_UTF8_tail_not_decoded",
+      "passed": true
+    },
+    {
+      "case": "complete_malformed_JSON_raises",
+      "passed": true
+    },
+    {
+      "case": "complete_invalid_UTF8_raises",
+      "passed": true
+    },
+    {
+      "case": "complete_empty_record_raises",
+      "passed": true
+    },
+    {
+      "case": "empty_file_has_no_committed_records",
+      "passed": true
+    },
+    {
+      "case": "absent_file_has_no_records",
+      "passed": true
+    },
+    {
+      "case": "actual_resolved_update_tail_is_deferred",
+      "passed": true
+    },
+    {
+      "case": "actual_resolved_update_complete_record_appears",
+      "passed": true
+    },
+    {
+      "case": "actual_R2_interrupt_binds_specific_turn_and_lane",
+      "passed": true
+    },
+    {
+      "case": "completed_original_turn_is_NOT_TESTED_even_with_same_stop_ID",
+      "passed": true
+    },
+    {
+      "case": "wrong_interrupted_turn_rejected",
+      "passed": true
+    },
+    {
+      "case": "wrong_stop_lane_rejected",
+      "passed": true
+    },
+    {
+      "case": "ambiguous_multiple_starts_not_coverage",
+      "passed": true
+    },
+    {
+      "case": "unrelated_terminal_failure_not_coverage",
+      "passed": true
+    },
+    {
+      "case": "empty_stop_not_coverage",
+      "passed": true
+    },
+    {
+      "case": "executed_tool_bound_receipt_unchanged",
+      "passed": true
+    },
+    {
+      "case": "native_denial_proof_unchanged",
+      "passed": true
+    },
+    {
+      "case": "original_R2_logs_readonly_unchanged",
+      "passed": true
+    },
+    {
+      "case": "both_missing_actual_lanes_not_coverage",
+      "passed": true
+    }
+  ],
+  "check_count": 23,
+  "runtime_new_kernel": false,
+  "shared_writes": false,
+  "scope": "Only parent LF framing, actual interrupt proof, and preserved exception traceback; no SDK/Main/model/history change.",
+  "resource_sha256": {
+    "run_l4_bridge.py": "40bc738485a4e7b9640a8d754cca076d061942cda2b8f1048f78ec14821365d4",
+    "L4_EXECUTION.md": "673eeb5010bdd4442210daac01a6b55dcfa430ca45fd97a81d2d3a04bc7c3404"
+  }
+}

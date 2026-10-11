@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC02修CAS fixture notes；基线bd44e5c0，同e7d。
+ZC02 native同ID改期Deny；固定c892bff3，基线00bdf7f6。
 
 ## Result
-输入已修正；实际CAS重跑待Root。query已bd44e5c0交付。
+PREPARED_NOT_TESTED。默认Once，仅update显式Deny；create/query不变。actual audit只读，缺合法回执必须UNKNOWN，真实回执才允许failed。
 
 ## Changed
-仅native_cas_fault_probe新notes表达式包.trim()；5项静态报告/244函数字节identity及文档。
+l3 parent/两probe/DENY_PARENT及静态身份；旧证据保留。
 
 ## Tests
-现场r1 actual owner success同ID/request；请求首空格被官方text.trim去掉，旧期待不符。静态5/5和prepare逐字通过。原expected/回执/副作用所有检查不变；Kernel调用0，未重跑真实CAS。
+plan32/32、源契约15/15、AST通过；初始244/恢复322原函数逐字。==误判旧FAIL保留。Kernel/Calendar调用0。
 
 ## Commit
 见最终回复，未push。
 
 ## Remaining
-Root保留CAS r1 FAIL后新fixture重跑；query/R8按QUERY_PARENT.md，不重复旧步骤。
+Root按DENY_PARENT运行初始+真新进程恢复，核owner八字段/count/bytes、旧草稿正文、0重发及无完成Goal/Run/Memory。
 
 ## Important Boundaries
-无main/service/SDK/Host/GUI/资料/SMTP改动；不放松回执/digest/bytes/count门禁，不造history/lane/Goal完成。
+无main/SDK/Host/history/GUI/资料/SMTP改动；不造回执或failure。

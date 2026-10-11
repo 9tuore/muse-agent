@@ -60,10 +60,21 @@ checks['query_invalid_time_filter_types_lengths_refused'] = all(refuses({'text':
 filtered_args = {'from':'2026-10-13','to':'2026-10-14','limit':200}
 filtered = fixture_turn_payload({'text':'精确 calendar.events 参数：'+json.dumps(filtered_args)})
 checks['query_official_optional_filters_preserved'] = filtered['fixture_tool_plan']==[{'tool':'calendar.events','args':filtered_args}]
+denied = fixture_turn_payload(update_payload,'deny')
+checks['explicit_mutation_deny_only_changes_approval'] = {k:v for k,v in denied.items() if k!='fixture_approval'}=={k:v for k,v in updated.items() if k!='fixture_approval'} and denied['fixture_approval']=='deny'
+checks['mutation_deny_keeps_original_expected_text_trigger'] = denied['fixture_tool_plan'][1]['args']['expected']==expected and denied['text']==update_payload['text'] and denied['trigger']==update_payload['trigger']
+checks['mutation_default_remains_once'] = updated['fixture_approval']=='once'
+checks['mutation_deny_never_denies_create'] = fixture_turn_payload(payload,'deny')['fixture_approval']=='once'
+checks['mutation_deny_never_changes_query_approval'] = fixture_turn_payload(query_payload,'deny')['fixture_approval']=='once'
+try:
+    fixture_turn_payload(update_payload,'standing')
+    checks['invalid_mutation_approval_refused'] = False
+except ValueError:
+    checks['invalid_mutation_approval_refused'] = True
 result = {'kind':'FIXTURE_PLAN_PARSER_ONLY','checks':checks,'status':'PASS' if all(checks.values()) else 'FAIL',
     'observed_report_sha256':hashlib.sha256(a.observed_report.read_bytes()).hexdigest(),
     'source_main_sha256':report['source_identity']['source_sha256'],
-    'kernel_calendar_calls':0,'full_chain_status':'NOT_TESTED','plans':{'query':query,'create':create,'update':updated}}
+    'kernel_calendar_calls':0,'full_chain_status':'NOT_TESTED','plans':{'query':query,'create':create,'update':updated,'update_deny':denied}}
 (out/'report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({'status':result['status'],'checks':len(checks),'failed':[k for k,v in checks.items() if not v]}))
 raise SystemExit(0 if result['status']=='PASS' else 1)

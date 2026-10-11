@@ -1,0 +1,138 @@
+// Model outputs, incoming content, user selections and review gestures are explicit fixtures.
+// Every Calendar result comes from the actual Kernel bridge. No result/history is written here.
+let bridge_checks = {}
+let bridge_observations = {}
+fn native_incoming(id,body){return {id:id uid:id sender:"Synthetic sender" address:"receiver@example.invalid"
+    subject:"合成日历安排" preview:body body:body date:"2026-10-12T02:30:00+08:00" time:"Oct 12" unread:true}}
+fn native_read_remember(message,mailbox){
+    let seeded = fixture_rpc("fixture.incoming",{messages:mailbox state:{}})
+    if !seeded.is_ok { return false }
+    mail_open(message.id)
+    if mail_selected == nil || mail_selected.id != message.id || mail_selected.body != message.body { return false }
+    // Explicit fixture user scope selection; production memory entry/source commit follows.
+    mail_scope_project = gm_project mail_scope_owner = gm_owner
+    memory_remember_mail()
+    let mi = core_memory_index("memory:mail:one:" + message.id,"one")
+    if mi < 0 { return false }
+    let doc = memory[mi].document let si = core_source_index(doc.payload.source_ids[0],"one")
+    return doc.payload.epistemic_type == "external_claim" && si >= 0 && memory_sources[si].content_sha256 == fs.sha256(message.body)
+}
+fn native_update_deny(){
+    bridge_checks.production_boot = core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot() && chat_boot_data()
+    mail_accounts_load()
+    if mail_accounts.len() != 1 { bridge_checks.actual_mail_account = false return }
+    mail_account = mail_accounts[0] gm_set_accounts(["local",mail_account.id])
+    gm_set_focus("synthetic-project","synthetic-owner")
+    let chat = chat_sessions[chat_session_index(chat_selected_id)]
+    chat.focus_project = gm_project chat.focus_owner = gm_owner chat_save()
+    let first = native_incoming("synthetic-incoming-001","合成日历安排：2026-10-13 15:00至15:30，地点合成会议室。外部声明。")
+    bridge_checks.first_mail_actual_read_and_memory = native_read_remember(first,[first])
+    let first_refs = chat_context_refs(gm_context("合成日历安排",chat_selected_id,"").hits)
+    chat_requests = [{id:"fixture-model-first" session_id:chat_selected_id status:"running" editing:false
+        project:gm_project owner:gm_owner memory_refs:first_refs}]
+    let output = {intent:"calendar_candidate" proposal:{title:"合成日历安排" start:"2026-10-13T15:00:00+08:00"
+        end:"2026-10-13T15:30:00+08:00" time_zone:"Asia/Shanghai" location:"合成会议室"}}
+    bridge_checks.first_candidate_actual_chat_entry = chat_add_proposal(chat_selected_id,"fixture-model-first","one","根据这封合成邮件建立日程：2026年10月13日15:00至15:30，合成会议室。",output)
+    chat_save() chat_apply_proposal("fixture-model-first")
+    bridge_checks.one_goal_before_kernel = goals.len() == 1 && goals[0].status == "planned" && calendar_agent_candidate != nil
+    if !bridge_checks.one_goal_before_kernel { bridge_observations.error = ui_error return }
+    bridge_checks.explicit_mutation_deny = fixture_rpc("fixture/mutation-approval",{}).data.approval == "deny"
+    if !bridge_checks.explicit_mutation_deny { return }
+    calendar_agent_submit_candidate()
+    bridge_checks.real_kernel_create_verified = calendar_agent_state.status == "turn_completed"
+        && calendar_agent_state["binding"] != nil && calendar_agent_state.binding.receipt_status == "verified"
+    bridge_observations.create_state = calendar_agent_state.to_json().parse_json()
+    bridge_observations.create_notice = calendar_agent_notice
+    if !bridge_checks.real_kernel_create_verified { return }
+    let original = calendar_agent_authority()
+    let creation_json = calendar_agent_state.to_json()
+    let old_card_json = chat.proposals[0].to_json()
+    let old_goal_json = goals[0].to_json()
+    mail_compose_from_agent_calendar()
+    fixture_ui_to = "receiver@example.invalid"
+    fixture_ui_body = "手写原安排：15点见。MUSE-R2-L3-001"
+    mail_edit() mail_preview()
+    let old_draft = mail_draft.to_json().parse_json()
+    bridge_checks.old_draft_waits_without_delivery = old_draft.status == "waiting_user" && mail_calendar_current(old_draft)
+        && fixture_rpc("fixture.receiver",{}).data.transport_calls == 0
+    let second = native_incoming("synthetic-incoming-002","合成日历安排改期：2026-10-13 16:00至16:30，地点第二合成会议室。外部声明。")
+    bridge_checks.second_mail_actual_read_and_memory = native_read_remember(second,[first,second])
+    let latest_refs = chat_context_refs(gm_context("合成日历安排改期",chat_selected_id,"").hits)
+    let active = chat_active_candidate(chat_selected_id)
+    chat_requests = [{id:"fixture-model-update" session_id:chat_selected_id status:"running" editing:true
+        project:gm_project owner:gm_owner goal_id:goals[0].id candidate_id:active.id candidate_payload:active.payload.to_json()
+        candidate_state:active.state memory_refs:latest_refs}]
+    let changed = {intent:"calendar_candidate" proposal:{title:"合成日历安排" start:"2026-10-13T16:00:00+08:00"
+        end:"2026-10-13T16:30:00+08:00" time_zone:"Asia/Shanghai" location:"第二合成会议室"}}
+    bridge_checks.second_mail_appends_same_goal = chat_add_proposal(chat_selected_id,"fixture-model-update","one","把日程改到2026年10月13日16:00至16:30",changed)
+        && chat.proposals.len() == 2 && chat.proposals[1].goal_id == goals[0].id && chat.proposals[0].to_json() == old_card_json
+    chat_save() chat_apply_proposal("fixture-model-update")
+    calendar_agent_update_select()
+    bridge_checks.update_prepared_old_plan_invalid = calendar_agent_update_state.records.len() == 1
+        && calendar_agent_update_selected != "" && goals.len() == 1 && goals[0].version == 2 && goals[0].approved_at == 0
+        && calendar_agent_update_state.records[0].prior_goal_json == old_goal_json
+    bridge_checks.old_draft_invalid_handwriting_retained = !mail_calendar_current(old_draft) && mail_draft.preview == ""
+        && mail_draft.body == old_draft.body && fixture_rpc("fixture.receiver",{}).data.transport_calls == 0
+    if !bridge_checks.update_prepared_old_plan_invalid { bridge_observations.update_notice = calendar_agent_notice return }
+    let selected = calendar_agent_update_state.records[0].to_json().parse_json()
+    mail_send_confirmed()
+    bridge_checks.old_draft_cannot_send = fixture_rpc("fixture.receiver",{}).data.transport_calls == 0
+        && !mail_calendar_current(mail_draft) && mail_draft.body == old_draft.body
+    let original_bytes = fixture_rpc("fixture/owner-store-sha",{}).data
+    calendar_agent_update_confirm()
+    let mutation = calendar_agent_update_state.records[0]
+    bridge_checks.native_deny_never_verified = mutation.status == "turn_completed" && mutation.turn_id != ""
+        && (mutation.receipt_status == "unknown" || mutation.receipt_status == "failed")
+        && calendar_agent_event_json(mutation.expected) == calendar_agent_event_json(selected.expected)
+    let audit = fixture_rpc("fixture/approval-audit",{})
+    let denied = 0
+    if audit.is_ok && audit.data["source"] == "actual_fixture_router_approval_audit" {
+        for row in audit.data.rows {
+            if row["owner"] == "os.calendar" && calendar_agent_tool_name(row["tool"]) == "calendar.update_event"
+                && row["approved"] == false && row["fixture_gesture"] == true && gm_object(row["args"]) {
+                if calendar_agent_update_args(row.args.expected,row.args).update_digest == mutation.update_digest { denied = denied + 1 }
+            }
+        }
+    }
+    bridge_checks.actual_router_denied_exact_update = denied == 1
+    let history = fixture_rpc("octos.session.history",{})
+    let legal_refusal = false let refusal_receipt = nil
+    if history.is_ok && gm_array(history.data["messages"]) {
+        for row in history.data.messages {
+            if gm_object(row) && row["role"] == "tool" {
+                let turn = row["turn_id"] if turn == nil { turn = row["thread_id"] }
+                if turn == mutation.turn_id && calendar_agent_tool_name(row["tool_name"]) == "calendar.update_event" {
+                    let terminal = calendar_agent_delete_receipt(row,mutation)
+                    if terminal == "error" || terminal == "cancelled" {
+                        let actual = row.host_calendar_receipt
+                        if actual["args_digest"] == mutation.update_digest { legal_refusal = true refusal_receipt = actual }
+                    }
+                }
+            }
+        }
+    }
+    bridge_checks.actual_history_reply_preserved = history.is_ok && gm_array(history.data["messages"])
+    bridge_checks.missing_legal_refusal_receipt_stays_unknown = legal_refusal || mutation.receipt_status == "unknown"
+    bridge_checks.failed_requires_actual_refusal_receipt = mutation.receipt_status != "failed" || legal_refusal
+    let readback = fixture_rpc("fixture/read-owner",{method:"get_event" args:{id:original.event.id}})
+    bridge_checks.original_event_unchanged_single_record = readback.is_ok && readback.data.found
+        && calendar_agent_event_json(readback.data.event) == calendar_agent_event_json(original.event)
+        && fixture_rpc("fixture/logsideeffects",{}).data.events.len() == 1
+    bridge_checks.original_owner_bytes_unchanged = fixture_rpc("fixture/owner-store-sha",{}).data.sha256 == original_bytes.sha256
+    let count_before = fixture_rpc("fixture/call-counts",{}).data["octos.turn.start"]
+    calendar_agent_update_confirm() calendar_agent_submit_candidate() mail_send_confirmed()
+    bridge_checks.duplicate_confirmation_no_new_turn = fixture_rpc("fixture/call-counts",{}).data["octos.turn.start"] == count_before
+    bridge_checks.old_draft_blocked_body_preserved = !mail_calendar_current(mail_draft) && mail_draft.body == old_draft.body
+        && mail_draft.preview == "" && fixture_rpc("fixture.receiver",{}).data.transport_calls == 0
+    bridge_checks.deny_no_completed_goal_run = goals[0].status != "completed" && runs.len() == 0
+    let completed = false for entry in memory { if gm_completed_receipt(entry.document) { completed = true } }
+    bridge_checks.deny_no_completed_memory = !completed
+    bridge_checks.original_creation_journal_preserved = calendar_agent_state.to_json() == creation_json
+    storage_write("l3-deny-checkpoint.json",{chat_id:chat_selected_id goal_id:goals[0].id event:original.event
+        mutation:mutation old_draft:old_draft owner_store_sha256:original_bytes.sha256 legal_refusal_receipt:legal_refusal}.to_json())
+    bridge_observations = {mutation:mutation actual_audit:audit actual_history:history actual_refusal_receipt:refusal_receipt
+        actual_owner_read:readback draft:mail_draft goals:goals runs:runs memory:memory
+        boundary:"Only actual Router audit proves fixture Deny. Native UNKNOWN is required without a legal production refusal receipt; future actual failed is allowed with that receipt. No history/lane/receipt or failure state fabricated. Background timers not drained."}
+}
+native_update_deny()
+({kind:"NIGHT004_NATIVE_UPDATE_DENY" checks:bridge_checks observations:bridge_observations}).to_json()

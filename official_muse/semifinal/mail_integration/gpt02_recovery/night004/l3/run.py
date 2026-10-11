@@ -17,6 +17,7 @@ p.add_argument('--mail-root', type=Path)
 p.add_argument('--kernel-bridge', type=Path)
 p.add_argument('--kernel-test-binary', type=Path)
 p.add_argument('--kernel-test-frozen',action='store_true')
+p.add_argument('--calendar-mutation-approval',choices=['once','deny'],default='once')
 p.add_argument('--kernel-binary', type=Path)
 p.add_argument('--kernel-config', type=Path)
 p.add_argument('--calendar-owner-helper', type=Path)
@@ -47,7 +48,7 @@ if all(kernel_options):
         kernel = KernelBridge(bridge=a.kernel_bridge,test_binary=a.kernel_test_binary,
             kernel=a.kernel_binary,config=a.kernel_config,out=out,
             source_sha=source_identity['source_sha256'],source_file=prepared.with_name('frozen-main.splash'),
-            use_frozen_test_binary=a.kernel_test_frozen)
+            use_frozen_test_binary=a.kernel_test_frozen,mutation_approval=a.calendar_mutation_approval)
     except Exception as error: kernel_start_error = type(error).__name__+': '+str(error)
 owner_helper = None
 assert not a.authorize_external_owner_write or a.calendar_owner_helper, 'External write scope requires the explicit owner binary'
@@ -155,6 +156,15 @@ def dispatch(request):
         assert not events.is_symlink() and (root/'apps/.host/FIXTURE_ONLY').is_file()
         raw = events.read_bytes()
         return dict(is_ok=True,data=dict(sha256=sha(raw),bytes=len(raw)))
+    if method == 'fixture/approval-audit':
+        assert kernel is not None, 'Actual Kernel fixture is required for approval audit'
+        root = Path(kernel.identity['fixture_root']).resolve(strict=True)
+        path = root/'fixture-approvals.jsonl'
+        path.resolve(strict=True).relative_to(root)
+        assert not path.is_symlink() and (root/'FIXTURE_ONLY').is_file()
+        raw = path.read_bytes()
+        rows = [json.loads(line) for line in raw.decode().splitlines() if line]
+        return dict(is_ok=True,data=dict(source='actual_fixture_router_approval_audit',rows=rows,sha256=sha(raw)))
     if method.startswith('octos.') or method in ('fixture/read-owner','fixture/logsideeffects','fixture/history-sessions'):
         if kernel is None: raise ValueError('unconfigured actual backend: '+method+((': '+kernel_start_error) if kernel_start_error else ''))
         return kernel.call(method,payload)
@@ -163,6 +173,7 @@ def dispatch(request):
     if method == 'fixture.observe': return dict(is_ok=True,data=None)
     if method == 'fixture/call-counts': return dict(is_ok=True,data=dict(counters))
     if method == 'fixture.fault.options': return dict(is_ok=True,data=dict(mail_mode=a.mail_mode,reply_fault=a.fault_case))
+    if method == 'fixture/mutation-approval': return dict(is_ok=True,data=dict(approval=a.calendar_mutation_approval))
     if method == 'fixture.fault.arm_write':
         assert payload == {'path':'mail-draft.backup.json'} and write_fault is None
         write_fault = payload['path']
