@@ -1,0 +1,167 @@
+let checks={} let observations={}
+fn input_seed(stage){
+    fixture_stage=stage fixture_files={} fixture_pending=[] fixture_timers=[] fixture_values={}
+    core_storage_ready=true core_memory_ready=true core_activity_ready=true gm_ready=true gm_enabled=true gm_boot_pending=false
+    gm_user_id="fixture-user" gm_project="fixture-project" gm_owner="fixture-owner" gm_accounts=["local","fixture-account"]
+    goals=[] runs=[] actions=[] memory=[] memory_sources=[] memory_forget=[] activity=[]
+    core_last_goals="" core_last_memory="" core_last_activity="" core_validated_memory_bytes={} selected_id="" task=nil result=nil
+    chat_ready=true chat_requests=[] chat_last_state="" chat_pending=false chat_selected_id="chat:fixture"
+    ac_selected_id="" ac_selected_chat=chat_selected_id messages=[] page="Chat"
+    chat_sessions=[{id:chat_selected_id title:"Fixture input" created_at:time_now() updated_at:time_now()
+        focus_project:gm_project focus_owner:gm_owner goal_id:"" messages:[] proposals:[]}]
+    mail_accounts=[{id:"fixture-account"}] mail_account=mail_accounts[0] mail_pending=false mail_sending=false mail_model_pending=false mail_verifying=false
+    mail_draft_writable=true mail_draft_last_state="" mail_selected=nil mail_folder="INBOX"
+    mail_draft={account:"" to:"" subject:"" body:"" status:"DRAFT" preview:"" attempt:"" request_id:""
+        accepted_at:0 verified_at:0 verified_id:"" link_goal_id:"" link_event_id:"" link_run_id:"" incoming_key:""}
+    mail_watch={enabled:false accounts:[] alerts:[]} mail_watch_writable=true
+    calendar_links=[] calendar_receipts=[] calendar_conflicts=[] calendar_selected_goal=""
+    calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+    calendar_agent_candidate=nil calendar_agent_busy=false calendar_agent_writable=true
+    calendar_agent_update_state={schema:1 records:[]} calendar_agent_update_writable=true calendar_agent_update_selected=""
+    calendar_agent_delete_state={schema:1 records:[]} calendar_agent_delete_writable=true calendar_agent_delete_selected=""
+    calendar_agent_history_settle=false calendar_agent_history_epoch=0
+}
+fn input_goal(id){return {schema:1 id:id version:1 goal:"Fixture Goal " + id source:"Fixture source " + id
+    status:"planned" model_summary:"" items:[] result_path:"results/" + id + ".json" approved_at:0 updated_at:time_now() archived:false
+    project_id:gm_project owner_id:gm_owner goal_spec:goal_spec(id,1,"Fixture Goal " + id,"results/" + id + ".json")}}
+
+input_seed("scale_fixture_records")
+let saved=0
+for i in 64 {
+    let project=gm_project let owner=gm_owner let marker="LOCAL_"
+    if i>=48 && i<56 {project="fixture-other-project" marker="FOREIGN_PROJECT_"}
+    if i>=56 {owner="fixture-other-owner" marker="FOREIGN_OWNER_"}
+    if gm_save("规模条目 " + marker + i + " · 合成安排资料，不授权操作。","source","subject:" + i,"note:" + i,"scale-chat",project,owner,"local") {saved=saved+1}
+}
+checks.sixty_four_legal_memory_records=saved==64 && memory.len()==64 && memory_sources.len()==64
+let before_memory=fixture_read("memory.json")
+checks.memory_65_rejected_preserves_store=!gm_save("规模条目 overflow","source","subject:overflow","note:overflow","scale-chat",gm_project,gm_owner,"local")
+    && memory.len()==64 && memory_sources.len()==64 && fixture_read("memory.json")==before_memory
+let context=gm_context("规模条目","scale-chat","")
+checks.context_bounded_at_real_capacity=context.hits.len()>0 && context.hits.len()<=6 && context.bytes<=2200 && context.text.to_chars().len()<=2200
+checks.context_foreign_scope_absent=context.text.search("FOREIGN_PROJECT_")<0 && context.text.search("FOREIGN_OWNER_")<0
+checks.context_truncation_audited=context.truncated && gm_last_trace.reasons.len()>0 && gm_last_trace.bytes==context.bytes
+let refs=chat_context_refs(context.hits)
+checks.selected_refs_are_current=chat_refs_valid(refs) && chat_reply_context_valid({memory_refs:refs})
+let scale_scope=gm_complete_scope(core_memory_scope("local"))
+let extra_sources=0
+for i in 64 {
+    let source=gm_make_source("合法孤立来源 " + i,scale_scope,"scale-chat","source:scale:extra:" + i)
+    if core_add_source(source){extra_sources=extra_sources+1}
+}
+checks.one_twenty_eight_legal_sources=extra_sources==64 && memory_sources.len()==128
+before_memory=fixture_read("memory.json")
+checks.source_129_rejected_preserves_store=!core_add_source(gm_make_source("合法溢出来源",scale_scope,"scale-chat","source:scale:overflow"))
+    && memory_sources.len()==128 && fixture_read("memory.json")==before_memory
+observations.memory={records:memory.len() sources:memory_sources.len() local_scope_records:48 other_project_records:8 other_owner_records:8
+    retrieved:context.hits.len() context_bytes:context.bytes truncated:context.truncated memory_sha256:fs.sha256(fixture_read("memory.json"))}
+
+let added=0
+for i in 32 {
+    let goal=input_goal("scale-goal-" + i)
+    if i==31 {goal.mail_source={account_id:"fixture-account" message_id:"fixture-original"}}
+    if core_add_goal(goal){added=added+1}
+}
+checks.thirty_two_goals_saved=added==32 && goals.len()==32
+let before_goals=fixture_read("goals.json")
+checks.goal_33_rejected_preserves_store=!core_add_goal(input_goal("scale-goal-overflow")) && goals.len()==32 && fixture_read("goals.json")==before_goals
+checks.saved_goal_set_boots=core_boot_goals() && goals.len()==32
+let run_ids=[]
+for i in 32 {run_ids.push(core_start_run("scale-goal-" + i,1,"scale-run-request-" + i))}
+checks.thirty_two_runs_bound=runs.len()==32 && run_ids.len()==32
+let action_count=0
+for i in 128 {
+    let target=i-floor(i/32)*32
+    if core_begin_action("scale-goal-" + target,run_ids[target],1,"storage.write","local","scale-action-" + i,"{\"fixture\":true}") {action_count=action_count+1}
+}
+checks.one_twenty_eight_actions_saved=action_count==128 && actions.len()==128
+before_goals=fixture_read("goals.json")
+checks.action_129_rejected_preserves_store=!core_begin_action("scale-goal-31",run_ids[31],1,"storage.write","local","scale-action-overflow","{\"fixture\":true}")
+    && actions.len()==128 && fixture_read("goals.json")==before_goals
+let goal_bindings=0 let action_bindings=0 let valid=true
+for i in 32 {
+    let gi=core_goal_index("scale-goal-" + i) let ri=core_run_index(run_ids[i]) let matching=0
+    if gi>=0 && ri>=0 && runs[ri].goal_id==goals[gi].id && runs[ri].plan_revision==goals[gi].version {goal_bindings=goal_bindings+1}
+    for action in actions {
+        if action.goal_id=="scale-goal-" + i {
+            if action.run_id!=run_ids[i] || action.plan_revision!=goals[gi].version || action.status!="in_flight" {valid=false}
+            matching=matching+1 action_bindings=action_bindings+1
+        }
+    }
+    if matching!=4 {valid=false}
+}
+checks.all_final_goal_action_bindings_exact=valid && goal_bindings==32 && action_bindings==128
+let choices=ac_choices() let choice_ids=[] let unique=true
+for choice in choices {
+    if core_goal_index(choice.id)<0 {unique=false}
+    for id in choice_ids {if id==choice.id{unique=false}}
+    choice_ids.push(choice.id)
+}
+checks.picker_bounded_and_real_goal_ids=choices.len()==8 && unique
+let selections=0
+for i in 32 {
+    let target=i-floor(i/2)*2
+    let id="scale-goal-" + i
+    if target==1 {id="scale-goal-" + (31-floor(i/2))}
+    ac_choose_matter(id)
+    if ac_current_goal()!=nil && ac_current_goal().id==id {selections=selections+1}
+}
+checks.interleaved_scale_selection_bound=selections==32 && goals.len()==32 && actions.len()==128
+
+// Read-only projection inputs are cached source/unknown history fixtures;
+// they are not verified Calendar or delivery results.
+for i in 32 {
+    calendar_links.push({goal_id:"scale-goal-" + i account_id:"fixture-account" status:"candidate" event_id:""
+        memory_refs:refs source_id:"source:fixture-calendar:" + i run_id:"" calendar_id:"fixture-calendar"
+        candidate:{title:"Fixture candidate " + i start:"2030-12-12T10:00:00+08:00" end:"2030-12-12T11:00:00+08:00"
+            time_zone:"Asia/Shanghai" location:"Fixture"}})
+}
+for i in 64 {
+    let target=i-floor(i/32)*32
+    calendar_receipts.push({goal_id:"scale-goal-" + target request_id:"calendar-history-" + i service:"calendar.get_event" status:"unknown"})
+}
+mail_watch.alerts=[{key:"fixture-account:fixture-original" account_id:"fixture-account" message_id:"fixture-original" goal_id:"scale-goal-31"
+    subject:"合成原来信" source_body:"合成缓存正文" status:"new" analysis_state:"ready" analysis:{} intent:"确认" draft_intent:"确认" reply_mode:"manual"}
+    {key:"fixture-account:fixture-later" account_id:"fixture-account" message_id:"fixture-later" goal_id:"scale-goal-31"
+    subject:"合成后续来信" source_body:"合成后续缓存正文" status:"new" analysis_state:"ready" analysis:{} intent:"确认" draft_intent:"确认" reply_mode:"manual"}]
+mail_draft={account:"fixture-account" status:"DRAFT" body:"手写合成回复" link_goal_id:"scale-goal-31"
+    link_event_id:"" incoming_key:"fixture-account:fixture-later" request_id:"scale-draft"}
+// Complete only queued memory-save audit writes, not external service callbacks.
+let timer_count=fixture_timers.len()
+for i in timer_count {
+    let callback=fixture_timers[0] let rest=[]
+    for j in fixture_timers.len(){if j>0{rest.push(fixture_timers[j])}}
+    fixture_timers=rest callback()
+}
+core_record_event("STALE_APPROVAL","Fixture stale approval one","scale-goal-31","","stale-current-1","fixture-account")
+core_record_event("STALE_APPROVAL","Fixture stale approval two","scale-goal-31","","stale-current-2","fixture-account")
+for i in 30 {core_record_event("STALE_APPROVAL","FOREIGN_GOAL_HISTORY","scale-goal-0","","foreign-stale-" + i,"fixture-account")}
+calendar_selected_goal="scale-goal-31" calendar_conflicts=[{id:"fixture-conflict"}]
+ac_choose_matter("scale-goal-31")
+let snapshot={goals:goals runs:runs actions:actions memory:memory memory_sources:memory_sources activity:activity
+    calendar_links:calendar_links calendar_receipts:calendar_receipts mail_draft:mail_draft mail_watch:mail_watch}.to_json()
+let view=ac_projection()
+checks.projection_twelve_node_limit=view.nodes.len()==12 && view.limited
+checks.projection_does_not_mutate_records=snapshot=={goals:goals runs:runs actions:actions memory:memory memory_sources:memory_sources activity:activity
+    calendar_links:calendar_links calendar_receipts:calendar_receipts mail_draft:mail_draft mail_watch:mail_watch}.to_json()
+let node_ids=[] let node_unique=true let only_selected=true
+let allowed=["scale-goal-31","fixture-account:fixture-original","fixture-account:fixture-later","calendar-history-31","calendar-history-63"
+    "scale-action-95","scale-action-127","scale-draft","stale-current-1","stale-current-2"]
+for node in view.nodes {
+    for id in node_ids {if node.node_id==id{node_unique=false}}
+    node_ids.push(node.node_id)
+    let belongs=false for id in allowed {if node.record_id==id{belongs=true}}
+    if !belongs || node.detail.search("FOREIGN_GOAL_HISTORY")>=0 {only_selected=false}
+}
+checks.projection_nodes_unique_and_selected_goal_only=node_unique && only_selected
+calendar_links=[] calendar_receipts=[] mail_watch.alerts=[] activity=[] mail_draft={account:"" status:"DRAFT" link_goal_id:""}
+calendar_conflicts=[]
+let simple=ac_projection()
+checks.latest_scan_window_retains_history=simple.nodes.len()==3 && actions.len()==128 && simple.limited
+let completed=0 for goal in goals {if goal.status=="completed"{completed=completed+1}}
+checks.no_external_dispatch_or_fake_completion=fixture_trace.len()==0 && fixture_pending.len()==0 && completed==0
+observations.goals={goals:goals.len() runs:runs.len() actions:actions.len() exact_goal_run_bindings:goal_bindings exact_action_bindings:action_bindings
+    successful_interleaved_selections:selections selected_goal:ac_current_goal().id completed_goals:completed}
+observations.projection={max_nodes:view.nodes.len() limited:view.limited projected_sources:view.sources.len() view:view scan_window_nodes:simple.nodes.len()
+    history_actions_retained:actions.len() actual_external_calls:0 transport_intents:fixture_trace.len()}
+({checks:checks observations:observations boundary:"64 Memory records/128 Sources and 32 Goals/32 Runs/128 pending Actions are produced by production save APIs from fixture choices. Cached source/unknown history are projection fixtures. Real official VM, zero external actions, no fixture completed states."}).to_json()

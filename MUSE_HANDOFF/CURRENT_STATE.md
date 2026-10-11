@@ -1,5 +1,12 @@
 ## ZC-00 NIGHT-004 完结与真实入口：2026-10-12 02:51 北京时间
 
+## ZC-00 NIGHT-004 行动链重启修复集成：2026-10-12 03:31 北京时间
+
+Main c892bff3仅改两处完整结构比较。实际r3重启原FAIL保留，官方VM复现为JSON键順序差异；parsed完整结构比较保留字段/数组/字符串字节和所有既有门禁。中央独立完结33/改期99/归属11、真实fixture恢复guard22、输入隔离26/规模22通过；受影响七模块150项回归通过。原source/artifact hash变化、额外或改写字段、旧版本/其他Goal、重复Run、缺完成Source仍拒绝。下一项以该真实源重新签名candidate，前置query→create→同IDupdate→Mail/完成→全进程重启；尚未标最终整链或GUIPASS。
+
+实际Kernel L4首次稳定请求/新进程重试PASS（1事件、rawpersisted history、bytes不变），Deny raw工具消息缺Broker receipt，真实Router/audit及无副作用证据待GPT01定位；严格Main不会据缺证明标verified。外owner CAS23+11已同e7d实际通过，c892 final需重新绑定。旧日志与证据不删。
+
+
 ## ZC-00 NIGHT-004 真实整链及重启定位：2026-10-12 03:20 北京时间
 
 最终主源e7d665dd/签名compact643009，Intel正式包已实际AppHub Install/Open，Chat→Calendar→Memory→Chat和输入读回通过，4张native窗口PNG已查看，Host三动态SecCode0。原WorkBuddy外层入口保持。唯一R8 cfg(test)桥0426f4db采用正式open_conversation+原trigger parser，393.468s编译及真实CRUD1/1通过；冻结独立binary270617f0。
