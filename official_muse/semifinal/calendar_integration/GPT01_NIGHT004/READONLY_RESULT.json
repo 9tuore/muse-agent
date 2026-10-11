@@ -1,0 +1,105 @@
+{
+  "state": "READONLY_HELPER_PASS",
+  "binary_sha256": "b603e2549e4e9e2f374d0c385171e2057c5aa3cb8531f2bde64c6be85e3ebc38",
+  "checks": [
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "events",
+        "args": {}
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 78875,
+        "result": {
+          "data": {
+            "events": [
+              {
+                "end": null,
+                "id": "ev-1791768288038",
+                "location": "",
+                "notes": "",
+                "start": "2026-10-13T12:00",
+                "timezone": "Asia/Shanghai",
+                "title": "Read-only fixture"
+              }
+            ]
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "get_event",
+        "args": {
+          "id": "ev-1791768288038"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 78885,
+        "result": {
+          "data": {
+            "event": {
+              "end": null,
+              "id": "ev-1791768288038",
+              "location": "",
+              "notes": "",
+              "start": "2026-10-13T12:00",
+              "timezone": "Asia/Shanghai",
+              "title": "Read-only fixture"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "write_attempt_refused": true,
+      "command": [
+        "python3",
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+        "/var/folders/5m/gjtt7xhs29b05xg8s30m25lr0000gn/T/gpt01-night004-reader-xjny690e"
+      ],
+      "exit": 1,
+      "error": "Traceback (most recent call last):\n  File \"/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py\", line 20, in <module>\n    assert request.get('method') in ('events','get_event'),'Independent GUI helper is read-only'\nAssertionError: Independent GUI helper is read-only"
+    },
+    {
+      "write_attempt_refused": true,
+      "command": [
+        "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-calendar-history/target/debug/gpt01-night004-calendar",
+        "--read-only",
+        "/var/folders/5m/gjtt7xhs29b05xg8s30m25lr0000gn/T/gpt01-night004-reader-xjny690e"
+      ],
+      "exit": 101,
+      "error": "thread 'main' (781700) panicked at src/main.rs:13:18:\nIndependent GUI helper is read-only\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+    }
+  ],
+  "scope": "Actual CalendarService events/get_event on a synthetic marked temporary directory. Central .host canonical path allowed by source guard; not yet GUI tested. No copy of central store.",
+  "central_runner_direct_exec": {
+    "pass": true,
+    "command": [
+      "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/read_calendar.py",
+      "<marked synthetic root>"
+    ],
+    "request": {
+      "owner": "os.calendar",
+      "method": "events",
+      "args": {}
+    },
+    "response": {
+      "fixture_authorization": true,
+      "process_id": 89848,
+      "result": {
+        "data": {
+          "events": []
+        },
+        "ok": true
+      }
+    },
+    "first_check_correction": "Direct exec worked; initial assertion guessed total field and raised KeyError. Corrected to actual events response."
+  }
+}

@@ -1,0 +1,61 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling serde_derive v1.0.229
+   Compiling serde v1.0.229
+   Compiling chrono v0.4.45
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling chrono-tz v0.10.4
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling gpt01-app-peers-history-check v0.0.0 (/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-night004-calendar/peer)
+   Compiling gpt01-night004-calendar v0.0.0 (/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-night004-calendar/service)
+   Compiling gpt01-night004-relay v0.0.0 (/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-night004-calendar/relay)
+warning: unexpected `cfg` condition name: `native_mobile`
+  --> src/approvals/contacts.rs:93:36
+   |
+93 |     #[cfg(any(feature = "app-hub", native_mobile))]
+   |                                    ^^^^^^^^^^^^^
+   |
+   = help: expected names are: `docsrs`, `feature`, and `test` and 32 more
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(native_mobile)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(native_mobile)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition name: `native_mobile`
+   --> src/approvals/contacts.rs:100:40
+    |
+100 |     #[cfg(not(any(feature = "app-hub", native_mobile)))]
+    |                                        ^^^^^^^^^^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(native_mobile)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(native_mobile)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+error[E0282]: type annotations needed for `Arc<_, _>`
+  --> src/relay_tests.rs:58:13
+   |
+58 |         let executed=Arc::default();
+   |             ^^^^^^^^
+59 |         relay.set_executor("os.calendar",Some(Arc::new(OwnerExecutor{root:root.clone(),calls:executed.clone()})));
+   |                                                                                              -------- type must be known at this point
+   |
+help: consider giving `executed` an explicit type, where the placeholders `_` are specified
+   |
+58 |         let executed: Arc<T, A>=Arc::default();
+   |                     +++++++++++
+
+For more information about this error, try `rustc --explain E0282`.
+warning: `gpt01-night004-relay` (lib test) generated 2 warnings
+error: could not compile `gpt01-night004-relay` (lib test) due to 1 previous error; 2 warnings emitted

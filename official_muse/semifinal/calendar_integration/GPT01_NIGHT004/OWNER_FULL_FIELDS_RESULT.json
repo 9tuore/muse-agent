@@ -1,0 +1,227 @@
+{
+  "state": "REAL_CALENDAR_SERVICE_FULL_FIELDS_AND_STABLE_REQUEST_RETRY_PASS",
+  "level": "L1 owner-service",
+  "binary_sha256": "b603e2549e4e9e2f374d0c385171e2057c5aa3cb8531f2bde64c6be85e3ebc38",
+  "steps": [
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "add_event",
+        "args": {
+          "title": "NIGHT004 synthetic",
+          "start": "2026-10-13T15:00",
+          "end": "2026-10-13T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Synthetic room A",
+          "notes": "Synthetic initial notes",
+          "request_id": "night004-real-kernel-synthetic"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 96885,
+        "result": {
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791768724877",
+            "start": "2026-10-13T15:00"
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "get_event",
+        "args": {
+          "request_id": "night004-real-kernel-synthetic"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 96886,
+        "result": {
+          "data": {
+            "event": {
+              "end": "2026-10-13T15:30",
+              "id": "ev-1791768724877",
+              "location": "Synthetic room A",
+              "notes": "Synthetic initial notes",
+              "request_id": "night004-real-kernel-synthetic",
+              "start": "2026-10-13T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 synthetic"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "add_event",
+        "args": {
+          "title": "NIGHT004 synthetic",
+          "start": "2026-10-13T15:00",
+          "end": "2026-10-13T15:30",
+          "timezone": "Asia/Shanghai",
+          "location": "Synthetic room A",
+          "notes": "Synthetic initial notes",
+          "request_id": "night004-real-kernel-synthetic"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 96887,
+        "result": {
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791768724877",
+            "reused": true,
+            "start": "2026-10-13T15:00"
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "events",
+        "args": {}
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 96888,
+        "result": {
+          "data": {
+            "events": [
+              {
+                "end": "2026-10-13T15:30",
+                "id": "ev-1791768724877",
+                "location": "Synthetic room A",
+                "notes": "Synthetic initial notes",
+                "request_id": "night004-real-kernel-synthetic",
+                "start": "2026-10-13T15:00",
+                "timezone": "Asia/Shanghai",
+                "title": "NIGHT004 synthetic"
+              }
+            ]
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "update_event",
+        "args": {
+          "id": "ev-1791768724877",
+          "expected": {
+            "end": "2026-10-13T15:30",
+            "id": "ev-1791768724877",
+            "location": "Synthetic room A",
+            "notes": "Synthetic initial notes",
+            "request_id": "night004-real-kernel-synthetic",
+            "start": "2026-10-13T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "NIGHT004 synthetic"
+          },
+          "title": "NIGHT004 revised",
+          "start": "2026-10-13T16:00",
+          "end": "2026-10-13T16:45",
+          "timezone": "Asia/Shanghai",
+          "location": "Synthetic room B",
+          "notes": "Synthetic revised notes"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 96889,
+        "result": {
+          "data": {
+            "card_warning": null,
+            "event": {
+              "end": "2026-10-13T16:45",
+              "id": "ev-1791768724877",
+              "location": "Synthetic room B",
+              "notes": "Synthetic revised notes",
+              "request_id": "night004-real-kernel-synthetic",
+              "start": "2026-10-13T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 revised"
+            }
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "get_event",
+        "args": {
+          "id": "ev-1791768724877"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 96890,
+        "result": {
+          "data": {
+            "event": {
+              "end": "2026-10-13T16:45",
+              "id": "ev-1791768724877",
+              "location": "Synthetic room B",
+              "notes": "Synthetic revised notes",
+              "request_id": "night004-real-kernel-synthetic",
+              "start": "2026-10-13T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 revised"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "request": {
+        "owner": "os.calendar",
+        "method": "events",
+        "args": {}
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 96891,
+        "result": {
+          "data": {
+            "events": [
+              {
+                "end": "2026-10-13T16:45",
+                "id": "ev-1791768724877",
+                "location": "Synthetic room B",
+                "notes": "Synthetic revised notes",
+                "request_id": "night004-real-kernel-synthetic",
+                "start": "2026-10-13T16:00",
+                "timezone": "Asia/Shanghai",
+                "title": "NIGHT004 revised"
+              }
+            ]
+          },
+          "ok": true
+        }
+      }
+    }
+  ],
+  "side_effect_event_count": 1,
+  "retry_store_bytes_unchanged": true,
+  "id_and_request_id_preserved": true,
+  "kernel": false,
+  "fixture_authorization": true,
+  "scope": "Seven independent actual CalendarService calls on an empty marked temporary fixture. No Cargo/GUI/shared SDK writes; not the newly prepared Kernel test."
+}

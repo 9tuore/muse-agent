@@ -1,0 +1,60 @@
+   Compiling gpt01-night004-relay v0.0.0 (/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-night004-calendar/relay)
+warning: unexpected `cfg` condition name: `native_mobile`
+  --> src/approvals/contacts.rs:93:36
+   |
+93 |     #[cfg(any(feature = "app-hub", native_mobile))]
+   |                                    ^^^^^^^^^^^^^
+   |
+   = help: expected names are: `docsrs`, `feature`, and `test` and 32 more
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(native_mobile)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(native_mobile)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition name: `native_mobile`
+   --> src/approvals/contacts.rs:100:40
+    |
+100 |     #[cfg(not(any(feature = "app-hub", native_mobile)))]
+    |                                        ^^^^^^^^^^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(native_mobile)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(native_mobile)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: associated function `settings_tap` is never used
+  --> src/approvals/rules.rs:44:19
+   |
+42 | impl ApprovalGesture {
+   | -------------------- associated function in this implementation
+43 |     /// A tap on Settings → Assistant → Approvals.
+44 |     pub(crate) fn settings_tap() -> ApprovalGesture {
+   |                   ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `gpt01-night004-relay` (lib test) generated 3 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.34s
+     Running unittests src/lib.rs (build/gpt01-calendar-history/target/debug/deps/gpt01_night004_relay-a90e1235776f56c8)
+
+running 6 tests
+test relay_tests::real_host_router_denial_and_grant_revocation_preserve_event ... NIGHT004_TRACE {"executor_calls":[{"call_id":"fixture-call-1","caller":"card.muse-goals","name":"calendar.add_event","owner":"os.calendar"},{"call_id":"fixture-call-2","caller":"card.muse-goals","name":"calendar.get_event","owner":"os.calendar"}],"fixture_authorization":true,"real_person_consent":false,"steps":[{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-1","data":{"card_warning":null,"id":"ev-1791768044896","start":"2026-10-13T15:00"},"ok":true},"tool":"calendar.add_event"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-2","data":{"event":{"end":null,"id":"ev-1791768044896","location":"","notes":"","request_id":"relay-synthetic-1","start":"2026-10-13T15:00","timezone":"Asia/Shanghai","title":"Relay synthetic"},"found":true},"ok":true},"tool":"calendar.get_event"},{"approved":false,"fixture_host_confirmation":"calendar.remove_event","real_person_consent":false},{"approved":true,"fixture_host_confirmation":"calendar.remove_event","real_person_consent":false},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-5","error":{"kind":"not_granted","message":"calendar.remove_event is not granted to Muse-goals's agent"},"ok":false},"tool":"calendar.remove_event"}]}
+ok
+test relay_tests::real_relay_missing_fixture_consent_or_signed_out_refuses ... NIGHT004_TRACE {"executor_calls":[],"fixture_authorization":true,"real_person_consent":false,"steps":[{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-1","error":{"kind":"consent_pending","message":"the person has not allowed this app's agent"},"ok":false},"tool":"calendar.events"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-2","error":{"kind":"signed_out","message":"the account is signed out"},"ok":false},"tool":"calendar.events"}]}
+ok
+test relay_tests::real_relay_owner_lifecycle_and_host_router_fixture_confirmation ... NIGHT004_TRACE {"executor_calls":[{"call_id":"fixture-call-1","caller":"card.muse-goals","name":"calendar.add_event","owner":"os.calendar"},{"call_id":"fixture-call-2","caller":"card.muse-goals","name":"calendar.get_event","owner":"os.calendar"},{"call_id":"fixture-call-4","caller":"card.muse-goals","name":"calendar.update_event","owner":"os.calendar"},{"call_id":"fixture-call-5","caller":"card.muse-goals","name":"calendar.get_event","owner":"os.calendar"},{"call_id":"fixture-call-6","caller":"card.muse-goals","name":"calendar.remove_event","owner":"os.calendar"},{"call_id":"fixture-call-8","caller":"card.muse-goals","name":"calendar.remove_event","owner":"os.calendar"},{"call_id":"fixture-call-9","caller":"card.muse-goals","name":"calendar.get_event","owner":"os.calendar"}],"fixture_authorization":true,"real_person_consent":false,"steps":[{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-1","data":{"card_warning":null,"id":"ev-1791768044907","start":"2026-10-13T15:00"},"ok":true},"tool":"calendar.add_event"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-2","data":{"event":{"end":null,"id":"ev-1791768044907","location":"","notes":"","request_id":"relay-synthetic-1","start":"2026-10-13T15:00","timezone":"Asia/Shanghai","title":"Relay synthetic"},"found":true},"ok":true},"tool":"calendar.get_event"},{"approved":true,"fixture_host_confirmation":"calendar.update_event","real_person_consent":false},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-4","data":{"card_warning":null,"event":{"end":null,"id":"ev-1791768044907","location":"","notes":"","request_id":"relay-synthetic-1","start":"2026-10-13T16:00","timezone":"Asia/Shanghai","title":"Relay revised"}},"ok":true},"tool":"calendar.update_event"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-5","data":{"event":{"end":null,"id":"ev-1791768044907","location":"","notes":"","request_id":"relay-synthetic-1","start":"2026-10-13T16:00","timezone":"Asia/Shanghai","title":"Relay revised"},"found":true},"ok":true},"tool":"calendar.get_event"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-6","error":{"kind":"calendar_error","message":"This event changed elsewhere. Reload before deleting it."},"ok":false},"tool":"calendar.remove_event"},{"approved":true,"fixture_host_confirmation":"calendar.remove_event","real_person_consent":false},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-8","data":{"removed":true},"ok":true},"tool":"calendar.remove_event"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-9","data":{"event":null,"found":false},"ok":true},"tool":"calendar.get_event"}]}
+ok
+test relay_tests::real_relay_owner_or_caller_withdrawn_refuses ... NIGHT004_TRACE {"executor_calls":[],"fixture_authorization":true,"real_person_consent":false,"steps":[{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-1","error":{"kind":"app_unavailable","message":"fixture withdrawn os.calendar"},"ok":false},"tool":"calendar.events"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-2","error":{"kind":"app_unavailable","message":"fixture withdrawn muse-goals"},"ok":false},"tool":"calendar.events"}]}
+ok
+test relay_tests::real_relay_schema_requires_expected_before_mutation_dispatch ... NIGHT004_TRACE {"executor_calls":[],"fixture_authorization":true,"real_person_consent":false,"steps":[{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-1","error":{"kind":"invalid_args","message":"calendar.remove_event: $: expected is required"},"ok":false},"tool":"calendar.remove_event"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-2","error":{"kind":"invalid_args","message":"calendar.update_event: $: expected is required"},"ok":false},"tool":"calendar.update_event"}]}
+ok
+test relay_tests::real_relay_wrong_caller_owner_system_and_revoked_grants_refuse ... NIGHT004_TRACE {"executor_calls":[],"fixture_authorization":true,"real_person_consent":false,"steps":[{"caller":"card.another-app","owner":"os.calendar","response":{"call_id":"fixture-call-1","error":{"kind":"not_granted","message":"calendar.add_event is not granted to Another-app's agent"},"ok":false},"tool":"calendar.add_event"},{"caller":"card.muse-goals","owner":"muse-goals","response":{"call_id":"fixture-call-2","error":{"kind":"not_granted","message":"calendar.add_event is not granted to Muse-goals's agent"},"ok":false},"tool":"calendar.add_event"},{"caller":"system","owner":"os.calendar","response":{"call_id":"fixture-call-3","error":{"kind":"not_granted","message":"calendar.add_event is not granted to The system agent"},"ok":false},"tool":"calendar.add_event"},{"caller":"card.muse-goals","owner":"os.calendar","response":{"call_id":"fixture-call-4","error":{"kind":"not_granted","message":"calendar.add_event is not granted to Muse-goals's agent"},"ok":false},"tool":"calendar.add_event"}]}
+ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.03s
+

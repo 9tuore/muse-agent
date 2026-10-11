@@ -2,28 +2,28 @@
 
 ## Task
 
-NIGHT-004 ZC01：Calendar 与真实 Relay 的隔离验证。自有 codex/gpt01-calendar-history，中央基线2395a70c。
+NIGHT-004 ZC01，codex/gpt01-calendar-history；中央2395a70c/main768e295d。
 
 ## Result
 
-PARTIAL。真实 CalendarService::call 九个独立进程生命周期、旧快照/外 owner 拒绝和重启持久化通过。
+PARTIAL。L1真实CalendarService九进程生命周期/重启PASS；真实Relay和审批Router的L2组件fixture六项PASS；只读helper及直接exec PASS；完整字段/稳定request_id重试L1七步PASS。
 
 ## Changed
 
-GPT01_NIGHT004 内小型适配器、构建/运行脚本、源码指纹和逐步结果；SDK业务源码未修改。
+GPT01_NIGHT004隔离harness、来源指纹、原始日志、结果、read_calendar.py。实际SDK业务代码按字节复制，未改共享源码。
 
 ## Tests
 
-2026-10-12，python3 run_owner.py；nice10/jobs1离线Rust构建14.481秒，九步九进程通过。实际 CalendarService/handle/storage/ui/cards；OWNER_RESULT.json和owner-build.log保存命令、binary SHA、请求及结果。
+10-12：owner14.481秒；Relay首轮E0282失败133.729秒保留，修复Arc类型后6/0、22.543秒。nice10/jobs1/offline。只读helper两次读、两层写拒绝，store SHA不变。JSON与对应日志在本目录。
 
 ## Commit
 
-本开发单元本地提交，SHA见Git/聊天；未push。
+首单元30bc0fdc；helper与R1 patch46f3a773；R2本单元本地提交，SHA见Git/聊天；未push。
 
 ## Remaining
 
-真实 Relay、授权拒绝与撤销继续验证；中央负责唯一完整Host构建及GUI。
+真实Kernel R2 patch含完整字段/幂等重试；apply check/语法解析PASS，未编译未运行。中央负责正式Host、精确新增filter、隔离GUI及同目录回读。
 
 ## Important Boundaries
 
-合成事件/隔离目录，Replier/ServiceHost/权限为fixture。没有本人真实Agent consent、GUI或真实外部动作；不以此次PASS冒充官方Agent full-chain。
+事件/目录/consent/审批手势为synthetic fixture。无本人Agent同意、GUI或完整Kernel PASS；撤grant证据发生在dispatch前。
