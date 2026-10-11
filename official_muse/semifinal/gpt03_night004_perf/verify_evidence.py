@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Verify saved timings against real VM mark requests and persisted production records; no rerun."""
+import argparse
 import hashlib
 import json
 import math
@@ -7,12 +8,18 @@ from pathlib import Path
 import statistics
 
 HERE=Path(__file__).resolve().parent
-evidence=HERE/'evidence/baseline-r1'
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--evidence',type=Path,default=HERE/'evidence/baseline-r1')
+parser.add_argument('--source-sha',default='c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4')
+parser.add_argument('--export-directory',default='gui-scale-export-r2')
+args=parser.parse_args()
+evidence=args.evidence.resolve();evidence.relative_to(HERE/'evidence')
+export_directory=evidence/args.export_directory;export_directory.resolve().relative_to(evidence)
 load=lambda name:json.loads((evidence/name).read_text())
 sha=lambda data:hashlib.sha256(data).hexdigest()
 report=load('report.json');rows=load('samples.json');identity=load('identity.json')
 assert report['status']=='PASS' and not report['failed'] and all(value is True for value in report['checks'].values())
-assert report['source_sha256']==identity['source_sha256']=='c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4'
+assert report['source_sha256']==identity['source_sha256']==args.source_sha
 assert report['clock']['name']=='time.perf_counter_ns' and report['clock']['monotonic'] is True
 assert identity['all_other_functions_byte_equal_after_transport_normalization'] is True
 assert sha((evidence/'executed.splash').read_bytes())==identity['executed_sha256']
@@ -59,10 +66,10 @@ raw=load('raw-log-index.json')
 assert raw['raw_stdout_sha256']==report['raw_file_sha256']['vm-stdout.log']
 assert raw['marker_requests_sha256']==sha((evidence/'actual-perf-marker-requests.log').read_bytes())
 assert not report['unknown_calls'] and report['full_chain_status']=='NOT_TESTED'
-export=load('gui-scale-export-r2/manifest.json');scopes=load('gui-scale-export-r2/scope.json')
+export=load(args.export_directory+'/manifest.json');scopes=load(args.export_directory+'/scope.json')
 assert export['status']=='PASS' and export['source_run_report_sha256']==sha((evidence/'report.json').read_bytes())
-assert export['exporter_sha256']==sha((evidence/'gui-scale-export-r2/executed-exporter-r2.py').read_bytes())
-assert export['scope_sha256']==sha((evidence/'gui-scale-export-r2/scope.json').read_bytes())
+assert export['exporter_sha256']==sha((export_directory/'executed-exporter-r2.py').read_bytes())
+assert export['scope_sha256']==sha((export_directory/'scope.json').read_bytes())
 assert export['completed_records']==export['verified_records']==0 and export['synthetic_literal_text_only'] is True
 assert export['private_profile_or_credentials_read'] is False and export['gui_import_status']=='NOT_TESTED'
 assert set(export['absent_whitelist_files'])=={'chat-sessions.json','chat-sessions.backup.json'}

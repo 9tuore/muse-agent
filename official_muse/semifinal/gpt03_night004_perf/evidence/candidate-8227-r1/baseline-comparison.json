@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "baseline_source_sha256": "c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4",
+  "candidate_source_sha256": "8227bbb38637aeba28cfe67e5d120a704bfcaf579910610b6b64a6d414acde0d",
+  "same_function_and_global_sha256": true,
+  "same_all_persisted_dataset_file_sha256": true,
+  "same_samples": 31,
+  "same_warmups": 3,
+  "baseline_measurements": {
+    "bridge_only": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 0.147611,
+      "median_ms": 0.206595,
+      "p95_ms": 0.259184,
+      "max_ms": 0.345499,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "gm_context": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 68.453198,
+      "median_ms": 76.644147,
+      "p95_ms": 91.168581,
+      "max_ms": 107.320224,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "ac_projection": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 8.007845,
+      "median_ms": 9.477834,
+      "p95_ms": 12.758504,
+      "max_ms": 13.745837,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    }
+  },
+  "candidate_measurements": {
+    "bridge_only": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 0.187259,
+      "median_ms": 0.235053,
+      "p95_ms": 0.282137,
+      "max_ms": 0.284463,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "gm_context": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 68.888477,
+      "median_ms": 80.070419,
+      "p95_ms": 98.548852,
+      "max_ms": 106.934903,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    },
+    "ac_projection": {
+      "samples": 31,
+      "iterations_per_sample": 1,
+      "min_ms": 8.192569,
+      "median_ms": 12.784918,
+      "p95_ms": 16.68948,
+      "max_ms": 17.065377,
+      "p95_definition": "nearest rank ceil(0.95*n), no subtraction of bridge control"
+    }
+  },
+  "boundary": "Fresh actual run; runtime closure and dataset byte identical. One run per candidate, no load isolation, no GUI 64ms budget. Timing differences alone are not code regression evidence."
+}

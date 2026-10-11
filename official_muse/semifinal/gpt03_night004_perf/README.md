@@ -1,5 +1,7 @@
 # 真实性能测量与显式候选复验
 
+最新：Root明确8227候选已新prepare/新VM实际复验14项PASS，Memory中位80.070419/p95 98.548852ms、Projection中位12.784918/p95 16.689480ms。独立归档、fixture导出及完整中央命令见[CANDIDATE_8227.md](CANDIDATE_8227.md)。下面保留原c892 baseline，未改版本。verifier默认核baseline，显式参数可核新归档。
+
 当前c892 baseline：`gm_context`中位76.644147ms、p95 91.168581ms；`ac_projection`中位9.477834ms、p95 12.758504ms。14项测量/数据检查PASS；真实值和边界见[RESULT.md](RESULT.md)。每项31个单次样本，另3次预热；桥接开销不扣除。
 
 现成VM为target/debug中的debug CLI binary，仅设置50,000,000总指令上限；未启用正式GUI的64ms回调预算。不能将本次76ms等同GUI预算失败。
