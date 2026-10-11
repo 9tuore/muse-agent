@@ -1,0 +1,120 @@
+warning: crates/host-api-smoke/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/sdk/crates/host-api-smoke/../shell/examples/host-api-lab.rs` found to be present in multiple build targets:
+  * `lib` target `octosense_host_api_smoke`
+  * `bin` target `octosense-host-api-smoke`
+warning: `octosense-host-api-smoke` (manifest) generated 1 warning
+warning: phone/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/sdk/phone/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense_home`
+  * `bin` target `octosense-home`
+warning: `octosense-home` (manifest) generated 1 warning
+warning: crates/wasm-phone-smoke/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/sdk/crates/wasm-phone-smoke/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense_wasm_phone_smoke`
+  * `bin` target `octosense-wasm-phone-smoke`
+warning: `octosense-wasm-phone-smoke` (manifest) generated 1 warning
+warning: desktop/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/sdk/desktop/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense`
+  * `bin` target `octosense`
+warning: `octosense` (manifest) generated 1 warning
+warning: crates/video-api-smoke/Cargo.toml: file `/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/sdk/crates/video-api-smoke/src/main.rs` found to be present in multiple build targets:
+  * `lib` target `octosense_video_api_smoke`
+  * `bin` target `octosense-video-api-smoke`
+warning: `octosense-video-api-smoke` (manifest) generated 1 warning
+warning: apps/muse-native-prototype/Cargo.toml: `default-features` is ignored for octosense-app-peers, since `default-features` was not specified for `workspace.dependencies.octosense-app-peers`, this could become a hard error in the future
+warning: `muse-native-prototype` (manifest) generated 1 warning
+warning: patch `hayro-jbig2 v0.3.0 (https://github.com/ymote/pdfcraft.git?rev=d801407a9f956281d612dee3d2d72c76d43ef399#d801407a)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: unused import: `crate::makepad_live_id_macros::*`
+ --> .sources/makepad/platform/script/src/mod_math.rs:3:5
+  |
+3 | use crate::makepad_live_id_macros::*;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `makepad-script` (lib) generated 1 warning (run `cargo fix --lib -p makepad-script` to apply 1 suggestion)
+warning: method `update_native_dpi_factor` is never used
+   --> .sources/makepad/platform/src/window.rs:893:19
+    |
+833 | impl CxWindow {
+    | ------------- method in this implementation
+...
+893 |     pub(crate) fn update_native_dpi_factor(&mut self, density: f64) -> Option<(WindowGeom, WindowGeom)> {
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `makepad-platform` (lib) generated 1 warning
+   Compiling leb128fmt v0.1.0
+   Compiling wasm-encoder v0.261.0
+   Compiling wast v261.0.0
+   Compiling octosense-shell v0.1.0 (/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/sdk/crates/shell)
+warning: variable does not need to be mutable
+   --> ~/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/runtime-closure-full-shell-r1/hub/crates/app-hub-app/src/catalog.rs:422:17
+    |
+422 |             let mut prepared_store = self.store.for_install_root(&workspace.join("verified"));
+    |                 ----^^^^^^^^^^^^^^
+    |                 |
+    |                 help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `octosense-app-hub-app` (lib) generated 1 warning (run `cargo fix --lib -p octosense-app-hub-app` to apply 1 suggestion)
+   Compiling wat v1.261.0
+    Finished `release` profile [optimized] target(s) in 14m 19s
+     Running unittests src/lib.rs (/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/official-hub-rc2-target/release/deps/octosense_shell-72365014b64f3f98)
+
+running 49 tests
+test agent_events::tests::failed_oldest_event_does_not_block_later_mail_and_is_not_lost ... ok
+test agent_events::tests::new_mail_runs_during_an_older_events_backoff_and_removed_events_are_pruned ... ok
+test app_storage::lifecycle::tests::mail_device_lifecycle_claim_uses_resumed_device_and_keeps_account_selection ... ok
+test app_storage::lifecycle::tests::mail_send_claim_rechecks_current_host_selection_and_suspension ... ok
+test app_storage::lifecycle::tests::public_mail_send_claim_rechecks_selected_account_and_requires_admission ... ok
+test app_storage::lifecycle::tests::should_decide_read_parent_per_mail_account_with_the_same_rule_as_its_workspace ... ok
+test app_storage::lifecycle::tests::should_refuse_a_mail_accounts_agent_when_its_folder_reaches_the_secrets ... ok
+test approvals::tests::mail_contacts_read_the_mail_services_data_where_it_lives ... ok
+test glance::tests::a_mail_toast_opens_its_own_card ... ok
+test glance::tests::completed_mail_retirement_keeps_other_accounts_new_messages_and_undo ... ok
+test glance::tests::generated_mail_cards_cannot_opt_into_l1 ... ok
+test glance::tests::generated_mail_data_must_bind_every_declared_dataset_field ... ok
+test glance_card::tests::mail_chat_receives_exact_publication_but_keeps_large_draft_context_valid ... ok
+test glance_card::tests::the_mail_card_asks_mails_agent_in_the_card ... ok
+test glance_card::tests::the_mail_card_replies_and_sends_through_l0_taps ... ok
+test glance_sheet::tests::email_and_chat_share_one_row_on_narrow_phones ... ok
+test host_tools::script_apps::tests::mail_agent_arguments_are_bound_to_the_authenticated_account ... ok
+test host_tools::script_apps::tests::mail_offers_its_tools_and_notify_from_its_bundle ... ok
+test host_tools::script_apps::tests::public_mail_tool_aliases_bind_the_owners_live_account ... ok
+test host_tools::tests::admitted_mail_calendar_grants_route_to_the_real_calendar_store ... ok
+test host_tools::tests::cold_mail_loads_calendar_without_preparing_its_agent ... ok
+test mail_background::tests::ended_old_lease_cannot_cancel_the_new_worker_lease ... ok
+test mail_background::tests::every_authorized_worker_must_settle_before_the_job_finishes ... ok
+test mail_background::tests::foreground_cards_restore_before_agent_consent_without_bypassing_revocation ... ok
+test mail_background::tests::notification_scope_expiry_and_dismissal_are_authoritative ... ok
+test mail_background::tests::ordinary_app_publications_preserve_publisher_and_account_scope ... ok
+test mail_background::tests::outbox_roundtrip_is_private_bounded_and_rejects_tampered_scope ... ok
+test mail_background::tests::uninstall_erases_all_publisher_accounts_without_touching_other_apps ... ok
+test mail_card::persistence::tests::cache_files_are_private_and_links_are_refused ... ok
+test mail_card::persistence::tests::corrupt_identity_and_expiry_are_not_restored ... ok
+test mail_card::persistence::tests::dismiss_undo_is_version_bound_and_cannot_resurrect_a_republished_card ... ok
+test mail_card::persistence::tests::equal_card_ids_are_account_scoped_and_never_retarget ... ok
+test mail_card::persistence::tests::expiry_is_absolute_and_a_tombstone_survives_reopening ... ok
+test mail_card::tests::action_failure_survives_reread_and_alias_until_explicit_success ... ok
+test mail_card::tests::editing_one_card_invalidates_all_reviews_of_its_draft_only ... ok
+test mail_card::tests::generated_data_cannot_supply_durable_values ... ok
+test mail_card::tests::inaccessible_bound_chat_redacts_generated_transcript ... ok
+test mail_card::tests::mail_source_requires_host_binding_and_exact_identity ... ok
+test mail_card::tests::only_a_confirmed_saved_send_completes_a_mail_card ... ok
+test mail_card::tests::programmatic_call_is_not_human_authorization ... ok
+test mail_clip::tests::compact_actions_leave_most_of_the_reply_visible_above_the_keyboard ... ok
+test mail_clip::tests::theme_reapply_restores_palette_without_discarding_typed_text ... ok
+test mail_review::tests::a_released_or_dragged_gesture_cannot_activate_a_different_target ... ok
+test mail_review::tests::duplicate_acknowledgment_does_not_stage_or_send_and_requires_another_gesture ... ok
+test mail_review::tests::invalidation_hides_private_snapshot_and_clears_an_armed_gesture ... ok
+test mail_review::tests::neither_injected_endpoint_nor_a_changed_account_can_approve ... ok
+test mail_review::tests::retry_uses_only_the_last_durable_failure_and_never_an_accepted_attempt ... ok
+test mail_review::tests::stale_revision_cancelled_attempt_and_alias_replacement_cannot_remain_reviewable ... ok
+test mobile_shade::tests::mail_notification_uses_launcher_art_without_changing_publisher_identity ... ok
+
+test result: ok. 49 passed; 0 failed; 0 ignored; 0 measured; 1039 filtered out; finished in 1.29s
+
