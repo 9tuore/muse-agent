@@ -37,7 +37,21 @@ ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。只使用本任务新生成的私钥；私�
 
 ## 运行和验收边界
 
-启动器使用独立 `Muse Integrated 0.4` 数据目录；可用 MUSE_INTEGRATED_STATE 指定独立试验目录。
+所有入口使用同一个签名 Launcher，按 WorkBuddy 的 Native-first 顺序打开 Muse／Models。
+默认资料在 `Muse.app` 同级的 `Muse Data`，采用 `shell/`、`apps/`、`kernel/.octos/`、
+`rinx/`、`config/`、`data/`、`cache/` 布局；Host 保留调用者 HOME，不设置 MAKEPAD_APP_CONFIG。
+默认远程参数为 argv `--remote=9696`，可用 MUSE_INTEGRATED_REMOTE 指定另一个有效端口。
+可用 MUSE_INTEGRATED_STATE 指定绝对资料目录；复用已有 WorkBuddy 布局时直接选择其根目录，
+不复制或迁移 profile／凭证。此前 `home/octos-home/.octos` 目录保留，不自动迁移。
+
+发布目录的 `launch_muse.sh` 与 `Muse.app` 同级，直接运行即可。GitHub 源码使用同一脚本调用
+已生成／解压的成品，路径含空格也支持：
+
+```sh
+./official_muse/integrated_release/launch_muse.sh '/absolute/path/Muse.app' --models
+```
+
+双击应用、仓库脚本及发布脚本都进入同一 Launcher，沿用包资源验签、Kernel pin、签名镜像与单 Host 锁。
 首启走普通 App Hub 安装，后续从相同签名入口启动 Muse。既有来源不匹配时回普通更新流程。
 包内 Qwen2.5-0.5B 是基础离线回退，不代表强模型工具调用能力；模型配置由宿主原生界面处理。
 
@@ -61,12 +75,17 @@ Qwen。双击该包默认走 GPT 入口；未配置时打开真实 `os.ai-provid
 `config.llm` metadata，不读取 `config.env_vars`、不解析 Keychain、不调用网络或写配置。
 返回 0 / `GPT_CONFIG_ONLY` 仅代表主提供方及全部回退为官方 OpenAI/GPT 配置；
 返回 3 / `GPT_SETUP_REQUIRED` 表示需要本人配置，2 表示数据路径参数错误，1 表示包检查失败。
-兼容 API 的本地端点、第三方路由和非 GPT 回退不计通过。已有离线包也可显式 `--gpt`。
-子 Host 的 HOME、core、apps、XDG 路径均指向独立目录；已有配置保持原字节。
+兼容 API 的本地端点、第三方路由和非 GPT 回退不计通过。hybrid 包也可显式 `--gpt`，不会启动
+Qwen；MiniMax/混合 profile 会进入设置而非被改写，GPT 验证应使用本人配置的独立 GPT-only state。
+子 Host 的 shell、core、apps、XDG 路径指向所选资料目录，HOME 原样继承；云端单独配置保持原字节。
 
 本机 `python3 official_muse/integrated_release/test_launcher.py -v` 使用真实编译启动器、
-临时 ad-hoc 签名包与 stub Host 验证九项启动/保留/隔离行为；不代表最终 Host 的 GUI、
-凭证有效性或 GPT 实调通过。2026-10-11 现场默认独立目录无 profile，仍需本人配置。
+临时 ad-hoc 签名包、stub Host/本地 health endpoint 验证二十一项启动/保留/路径行为；没有运行
+Qwen 推理或云端调用，不代表最终 Host 的 GUI、凭证有效性或实调通过。
+新增 WorkBuddy argv/env、相对默认目录、同一脚本入口、锁生命周期及旧日志追加用例；
+2026-10-11 最终 21/21 通过，37.664 秒。首轮脚本对比断言未归一化包位置，19/20；已修正。
+2026-10-11 只读 config.llm 元数据确认旧 live-acceptance-003 主提供方为 minimax-cn/MiniMax-M3，
+route 省略，Native 注册表默认主机 api.minimaxi.com；新默认独立目录尚无 profile，未迁移凭证。
 
 Calendar 页使用已核实的 session.open → turn.start(trigger:app) → session.history 接口；
 持久化当前请求 ID，未知结果不自动重做，不允许新 ID 覆盖旧待核对请求。

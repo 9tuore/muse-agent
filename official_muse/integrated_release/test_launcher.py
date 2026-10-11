@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exercise the real compiled launcher with a signed stub Host, never a model/GUI."""
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -7,6 +8,7 @@ import plistlib
 import shutil
 import subprocess
 import tempfile
+import time
 import unittest
 
 HERE = Path(__file__).resolve().parent
@@ -40,10 +42,13 @@ class LauncherTests(unittest.TestCase):
         source = cls.root / 'host.c'
         source.write_text('''#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 int main(int argc, char **argv) {
     for (int i=1; i<argc; ++i) puts(argv[i]);
-    const char *names[] = {"HOME", "OCTOSENSE_HOME", "OCTOS_APP_CORE_DIR", "OCTOSENSE_APP_DATA", "XDG_DATA_HOME", "OCTOSENSE_DEV_MODE", "OCTOSENSE_KERNEL_BIN", "OCTOSENSE_ALLOW_ANY_KERNEL_REVISION", "OCTOSENSE_CONTAINED_APPS"};
-    for (int i=0; i<9; ++i) printf("%s=%s\\n", names[i], getenv(names[i]) ? getenv(names[i]) : "<unset>");
+    const char *names[] = {"HOME", "OCTOSENSE_HOME", "OCTOS_APP_CORE_DIR", "OCTOSENSE_APP_DATA", "XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "RINX_DATA_DIR", "ROBRIX_DATA_DIR", "OCTOSENSE_DEV_MODE", "OCTOSENSE_KERNEL_BIN", "OCTOSENSE_ALLOW_ANY_KERNEL_REVISION", "OCTOSENSE_CONTAINED_APPS", "MAKEPAD_REMOTE", "MAKEPAD_APP_CONFIG", "MAKEPAD_NO_GAUSS", "MAKEPAD_DISABLE_GAUSS", "MAKEPAD_HIDE_WINDOWS", "MAKEPAD_NO_FOCUS", "OCTOS_APP_CORE_BIN", "OCTOSENSE_KERNEL_ANY_REVISION", "MAKEPAD_FOCUS", "OCTOSENSE_HUB", "OCTOSENSE_HUB_ANCHOR", "OCTOSENSE_HUB_CATALOG", "MAKEPAD_SPLASH_BUDGET_MS", "MAKEPAD_STYLE", "MAKEPAD_SPLASH_THEME", "MAKEPAD_WM_TEST_APP"};
+    for (unsigned i=0; i<sizeof(names)/sizeof(names[0]); ++i) printf("%s=%s\\n", names[i], getenv(names[i]) ? getenv(names[i]) : "<unset>");
+    const char *delay = getenv("MUSE_FIXTURE_HOST_DELAY");
+    if (delay) { fflush(stdout); sleep(atoi(delay)); }
     return 0;
 }''')
         binary = host / 'MacOS/octosense'
@@ -95,7 +100,9 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
 
     def setUp(self):
         self.state = self.root / self._testMethodName
-        self.profile = self.state / 'home/octos-home/.octos/profiles/_main.json'
+        self.profile = self.state / 'kernel/.octos/profiles/_main.json'
+        self.owner_home = self.root / 'owner-home'
+        self.owner_home.mkdir(exist_ok=True)
 
     def write_profile(self, primary, fallbacks=None):
         self.profile.parent.mkdir(parents=True, exist_ok=True)
@@ -104,10 +111,20 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
                        'env_vars': {}, 'preserve_this': 'fixture'}, 'unknown': 'preserve'}))
         return self.profile.read_bytes()
 
-    def launch(self, flag, hybrid=False):
+    def launch_env(self, updates=None):
         env = dict(os.environ, MUSE_INTEGRATED_STATE=str(self.state),
+                   HOME=str(self.owner_home),
                    OCTOSENSE_KERNEL_BIN='/must/not/inherit', OCTOSENSE_CONTAINED_APPS='1',
                    OCTOSENSE_ALLOW_ANY_KERNEL_REVISION='1')
+        for key, value in (updates or {}).items():
+            if value is None:
+                env.pop(key, None)
+            else:
+                env[key] = value
+        return env
+
+    def launch(self, flag, hybrid=False, env_updates=None):
+        env = self.launch_env(env_updates)
         launcher = self.hybrid_app / 'Contents/MacOS/muse-launcher' if hybrid else self.launcher
         return subprocess.run([str(launcher)] + ([flag] if flag else []), env=env, capture_output=True,
                               text=True, timeout=30)
@@ -166,8 +183,8 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.assertEqual(result.returncode, 0, result.stderr)
         log = (self.state / 'logs/host.log').read_text()
         self.assertIn('launch-apphub', log)
-        self.assertIn('HOME=' + str(self.state), log)
-        self.assertIn('OCTOS_APP_CORE_DIR=' + str(self.state / 'home/octos-home/.octos'), log)
+        self.assertIn('HOME=' + str(self.owner_home), log)
+        self.assertIn('OCTOS_APP_CORE_DIR=' + str(self.state / 'kernel/.octos'), log)
         self.assertIn('OCTOSENSE_APP_DATA=' + str(self.state / 'apps'), log)
         self.assertIn('OCTOSENSE_DEV_MODE=0', log)
         self.assertIn('OCTOSENSE_KERNEL_BIN=<unset>', log)
@@ -256,6 +273,97 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(self.profile.read_text())['config']['llm']['primary'], primary)
         self.assertTrue(json.loads((self.state / 'local-model.json').read_text())['native_local_selected'])
+
+    def test_workbuddy_environment_layout_and_native_first_argv(self):
+        removed = ['MAKEPAD_REMOTE', 'MAKEPAD_HIDE_WINDOWS', 'MAKEPAD_NO_FOCUS',
+                   'MAKEPAD_NO_GAUSS', 'MAKEPAD_DISABLE_GAUSS', 'MAKEPAD_SPLASH_BUDGET_MS',
+                   'MAKEPAD_STYLE', 'MAKEPAD_SPLASH_THEME', 'MAKEPAD_WM_TEST_APP',
+                   'MAKEPAD_APP_CONFIG', 'OCTOSENSE_CONTAINED_APPS', 'OCTOS_APP_CORE_BIN',
+                   'OCTOSENSE_KERNEL_ANY_REVISION', 'OCTOSENSE_KERNEL_BIN']
+        env = {key: 'fixture-poison' for key in removed}
+        env.update(MUSE_INTEGRATED_REMOTE='9693', OCTOSENSE_HUB='/fixture/wrong',
+                   OCTOSENSE_HUB_ANCHOR='wrong', OCTOSENSE_HUB_CATALOG='wrong')
+        result = self.launch('--models', env_updates=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        lines = (self.state / 'logs/host.log').read_text().splitlines()
+        self.assertEqual(lines[:5], ['--remote=9693', '--test-action',
+                                    'launch-muse-native-prototype', '--test-action',
+                                    'launch-ai-providers'])
+        for key in removed:
+            self.assertIn(key + '=<unset>', lines)
+        expected = {'HOME': self.owner_home, 'OCTOSENSE_HOME': self.state / 'shell',
+                    'OCTOS_APP_CORE_DIR': self.state / 'kernel/.octos',
+                    'OCTOSENSE_APP_DATA': self.state / 'apps',
+                    'RINX_DATA_DIR': self.state / 'rinx', 'ROBRIX_DATA_DIR': self.state / 'rinx',
+                    'XDG_CONFIG_HOME': self.state / 'config', 'XDG_DATA_HOME': self.state / 'data',
+                    'XDG_CACHE_HOME': self.state / 'cache', 'OCTOSENSE_HUB': self.resources / 'mirror'}
+        for key, value in expected.items():
+            self.assertIn(key + '=' + str(value), lines)
+        self.assertIn('MAKEPAD_FOCUS=1', lines)
+        self.assertIn('OCTOSENSE_HUB_CATALOG=legacy', lines)
+        self.assertIn('OCTOSENSE_HUB_ANCHOR=543ffbe45b6700c23e1824157ea694f8bd7839090e0ede464c11758d350b1412', lines)
+        self.assertFalse((self.state / 'home').exists())
+
+    def test_default_state_is_portable_beside_app(self):
+        state = self.app.parent / 'Muse Data'
+        self.assertFalse(state.exists())
+        result = self.launch('--models', env_updates={'MUSE_INTEGRATED_STATE': None,
+                                                     'MUSE_INTEGRATED_REMOTE': None})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        lines = (state / 'logs/host.log').read_text().splitlines()
+        self.assertEqual(lines[0], '--remote=9696')
+        self.assertIn('OCTOSENSE_HOME=' + str(state / 'shell'), lines)
+        self.assertIn('HOME=' + str(self.owner_home), lines)
+        self.assertFalse((state / 'kernel/.octos/profiles/_main.json').exists())
+
+    def test_repository_and_packaged_script_use_same_launcher(self):
+        env = self.launch_env()
+        result = subprocess.run(['/bin/sh', str(HERE / 'launch_muse.sh'), str(self.app),
+                                 '--models'], env=env, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        first_log = (self.state / 'logs/host.log').read_bytes()
+        portable = self.root / 'portable package with spaces'
+        portable.mkdir()
+        shutil.copytree(self.app, portable / 'Muse.app')
+        shutil.copy2(HERE / 'launch_muse.sh', portable / 'launch_muse.sh')
+        result = subprocess.run(['/bin/sh', str(portable / 'launch_muse.sh')], env=env,
+                                capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        expected = first_log.replace(str(self.resources).encode(),
+                                     str(portable / 'Muse.app/Contents/Resources').encode())
+        self.assertEqual((self.state / 'logs/host.log').read_bytes(), first_log + expected)
+
+    def test_existing_host_and_model_errors_are_preserved(self):
+        self.write_profile({'family_id': 'minimax-cn', 'model_id': 'MiniMax-M3'})
+        logs = self.state / 'logs'
+        logs.mkdir()
+        (logs / 'host.log').write_text('previous Host error\n')
+        (logs / 'model.log').write_text('previous model error\n')
+        result = self.launch('--hybrid', hybrid=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((logs / 'host.log').read_text().startswith('previous Host error\n'))
+        self.assertTrue((logs / 'model.log').read_text().startswith('previous model error\n'))
+
+    def test_launcher_holds_one_host_lock_until_exit(self):
+        env = self.launch_env({'MUSE_FIXTURE_HOST_DELAY': '3'})
+        process = subprocess.Popen([str(self.launcher), '--models'], env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            log = self.state / 'logs/host.log'
+            limit = time.monotonic() + 5
+            while not log.exists() and time.monotonic() < limit:
+                time.sleep(0.02)
+            self.assertTrue(log.exists())
+            with (self.state / 'launch.flock').open('r') as lock:
+                with self.assertRaises(BlockingIOError):
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                stdout, stderr = process.communicate(timeout=10)
+                self.assertEqual(process.returncode, 0, stderr)
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        finally:
+            if process.poll() is None:
+                process.terminate()
+                process.communicate(timeout=10)
 
 
 if __name__ == '__main__':

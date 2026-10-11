@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-11",
+  "status": "PASS_FIXTURE_ONLY",
+  "tests_passed": 21,
+  "tests_total": 21,
+  "elapsed_seconds": 37.664,
+  "initial_run": {
+    "tests_passed": 19,
+    "tests_total": 20,
+    "failure": "Script log comparison expected the old package absolute resource path; corrected path normalization."
+  },
+  "command": "python3 official_muse/integrated_release/test_launcher.py -v",
+  "default_state": "Muse.app sibling Muse Data",
+  "layout": [
+    "shell",
+    "apps",
+    "kernel/.octos",
+    "rinx",
+    "config",
+    "data",
+    "cache"
+  ],
+  "host_home": "inherited",
+  "MAKEPAD_APP_CONFIG": "unset",
+  "remote": "argv --remote=9696 by default, explicit MUSE_INTEGRATED_REMOTE supported",
+  "startup": "Native module first, then existing Muse/AppHub or Models target",
+  "legacy_state": "MUSE_INTEGRATED_STATE selects existing WorkBuddy layout, no credential migration",
+  "preserved": [
+    "package signature",
+    "Kernel pin",
+    "signed mirror anchor",
+    "cloud primary and credential bytes",
+    "Qwen service lifecycle",
+    "per-state Host lock",
+    "old Host/model log bytes"
+  ],
+  "boundary": "Compiled real Launcher with signed stub Host and synthetic health service. No real Host GUI, inference, Mail/Calendar actions, 20 cold starts, Rust/Metal builds or publication.",
+  "sha256": {
+    "muse_launcher.m": "5b71c1bfdb277ff223fb0a9d35768dab4e70ae436d2f6bca62047ae18f098b36",
+    "test_launcher.py": "df38549eda5ae6d11ab59132f0dfd689c87804f44bbc39c0621adf350718cfa6",
+    "launch_muse.sh": "561e5b509f4e8ee65ca4a942c993606b39f127db85b640d94a1b59dd20a469ab",
+    "package_app.py": "2b42b752dc1ce9de0e7e1006184adb4bf88338c56e6ca8f4e6420e97038a1ffd"
+  },
+  "log_sha256": "ea1a38ac2ca07a9810dcfb38b5982dd4d6c73d9505e1f898158ab7e3d417ed36"
+}

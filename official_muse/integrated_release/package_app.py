@@ -92,6 +92,8 @@ def main():
     run(['codesign', '--verify', '--deep', '--strict', app])
     assert sha(inner / 'MacOS/octos-kernel') == signed_receipt['sha256'], 'Packaging changed the pinned kernel'
     run([executable / 'muse-launcher', '--check'])
+    shutil.copy2(HERE / 'launch_muse.sh', output / 'launch_muse.sh')
+    (output / 'launch_muse.sh').chmod(0o755)
     record = {'version': '0.4.0-rc3', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
         'signature': 'AD_HOC_LOCAL_ONLY', 'source_host_sha256': source_host_sha256,
         'host_sha256': sha(inner / 'MacOS/octosense'),

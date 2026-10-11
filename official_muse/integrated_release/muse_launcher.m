@@ -186,13 +186,13 @@ int main(int argc, const char *argv[]) {
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
-        NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: join(NSHomeDirectory(), @"Library/Application Support/Muse Integrated 0.4");
+        NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: join(NSBundle.mainBundle.bundlePath.stringByDeletingLastPathComponent, @"Muse Data");
         if (![state isAbsolutePath]) {
             if (headless) fprintf(stderr, "MUSE_INTEGRATED_STATE 必须是绝对路径。\n");
             else fail(@"MUSE_INTEGRATED_STATE 必须是绝对路径。");
             return 2;
         }
-        NSString *core = join(state, @"home/octos-home/.octos");
+        NSString *core = join(state, @"kernel/.octos");
         NSString *profilePath = join(core, @"profiles/_main.json");
         if (gpt) {
             BOOL configured = nativeGPT(modelMetadata(profilePath));
@@ -219,7 +219,7 @@ int main(int argc, const char *argv[]) {
         }
         fcntl(lock, F_SETFD, FD_CLOEXEC);
         signal(SIGTERM, stop); signal(SIGINT, stop);
-        for (NSString *path in @[join(core, @"profiles"), join(state, @"apps"), join(state, @"logs"), join(state, @"rinx"), join(state, @"config"), join(state, @"data"), join(state, @"cache")]) {
+        for (NSString *path in @[join(state, @"shell"), join(core, @"profiles"), join(state, @"apps"), join(state, @"logs"), join(state, @"rinx"), join(state, @"config"), join(state, @"data"), join(state, @"cache")]) {
             if (![files createDirectoryAtPath:path withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:&error]) {
                 fail(error.localizedDescription); return 1;
             }
@@ -255,8 +255,9 @@ int main(int argc, const char *argv[]) {
             if (!port) { fail(@"无法分配本地模型端口。"); return 1; }
             NSString *base = [NSString stringWithFormat:@"http://127.0.0.1:%d", port];
             NSString *modelLog = join(state, @"logs/model.log");
-            [files createFileAtPath:modelLog contents:nil attributes:@{NSFilePosixPermissions:@0600}];
+            if (![files fileExistsAtPath:modelLog]) [files createFileAtPath:modelLog contents:nil attributes:@{NSFilePosixPermissions:@0600}];
             NSFileHandle *output = [NSFileHandle fileHandleForWritingAtPath:modelLog];
+            [output seekToEndOfFile];
             model = [NSTask new];
             model.executableURL = [NSURL fileURLWithPath:join(resources, @"local-model/llama/llama-server")];
             model.arguments = @[@"--model", join(resources, @"local-model/qwen2.5-0.5b-instruct-q4_0.gguf"),
@@ -315,11 +316,10 @@ int main(int argc, const char *argv[]) {
         }
         }
         NSMutableDictionary *environment = [inherited mutableCopy];
-        for (NSString *key in @[@"MAKEPAD_REMOTE", @"MAKEPAD_HIDE_WINDOWS", @"MAKEPAD_APP_CONFIG", @"OCTOSENSE_HOME", @"OCTOSENSE_APP_DATA", @"OCTOS_APP_CORE_DIR", @"OCTOSENSE_HUB", @"OCTOSENSE_HUB_ANCHOR", @"OCTOSENSE_HUB_CATALOG", @"OCTOSENSE_KERNEL_BIN", @"OCTOSENSE_ALLOW_ANY_KERNEL_REVISION", @"OCTOSENSE_DEV_MODE", @"OCTOSENSE_CONTAINED_APPS", @"MAKEPAD_WM_TEST_APP", @"MAKEPAD_SPLASH_BUDGET_MS", @"MAKEPAD_SPLASH_THEME", @"MAKEPAD_STYLE", @"MAKEPAD_DISABLE_GAUSS", @"MAKEPAD_NO_FOCUS"]) {
+        for (NSString *key in @[@"MAKEPAD_REMOTE", @"MAKEPAD_HIDE_WINDOWS", @"MAKEPAD_APP_CONFIG", @"OCTOSENSE_HOME", @"OCTOSENSE_APP_DATA", @"OCTOS_APP_CORE_DIR", @"OCTOSENSE_HUB", @"OCTOSENSE_HUB_ANCHOR", @"OCTOSENSE_HUB_CATALOG", @"OCTOS_APP_CORE_BIN", @"OCTOSENSE_KERNEL_ANY_REVISION", @"OCTOSENSE_KERNEL_BIN", @"OCTOSENSE_ALLOW_ANY_KERNEL_REVISION", @"OCTOSENSE_DEV_MODE", @"OCTOSENSE_CONTAINED_APPS", @"MAKEPAD_WM_TEST_APP", @"MAKEPAD_SPLASH_BUDGET_MS", @"MAKEPAD_SPLASH_THEME", @"MAKEPAD_STYLE", @"MAKEPAD_NO_GAUSS", @"MAKEPAD_DISABLE_GAUSS", @"MAKEPAD_NO_FOCUS"]) {
             [environment removeObjectForKey:key];
         }
-        environment[@"OCTOSENSE_HOME"] = join(state, @"home");
-        environment[@"HOME"] = state;
+        environment[@"OCTOSENSE_HOME"] = join(state, @"shell");
         environment[@"OCTOSENSE_APP_DATA"] = join(state, @"apps");
         environment[@"OCTOS_APP_CORE_DIR"] = core;
         environment[@"OCTOSENSE_HUB"] = join(resources, @"mirror");
@@ -334,14 +334,13 @@ int main(int argc, const char *argv[]) {
         environment[@"XDG_CONFIG_HOME"] = join(state, @"config");
         environment[@"XDG_DATA_HOME"] = join(state, @"data");
         environment[@"XDG_CACHE_HOME"] = join(state, @"cache");
-        environment[@"MAKEPAD_APP_CONFIG"] = @"{}";
-        NSString *remote = inherited[@"MUSE_INTEGRATED_REMOTE"];
+        NSString *remote = inherited[@"MUSE_INTEGRATED_REMOTE"] ?: @"9696";
         NSInteger remotePort = remote.integerValue;
-        if (remote.length && remotePort >= 1024 && remotePort <= 65535) environment[@"MAKEPAD_REMOTE"] = [NSString stringWithFormat:@"%ld", (long)remotePort];
         NSString *directory = join(resources, @"OctoSense Host.app/Contents/MacOS");
         NSString *log = join(state, @"logs/host.log");
-        [files createFileAtPath:log contents:nil attributes:@{NSFilePosixPermissions:@0600}];
+        if (![files fileExistsAtPath:log]) [files createFileAtPath:log contents:nil attributes:@{NSFilePosixPermissions:@0600}];
         NSFileHandle *output = [NSFileHandle fileHandleForWritingAtPath:log];
+        [output seekToEndOfFile];
         NSTask *host = [NSTask new];
         host.executableURL = [NSURL fileURLWithPath:join(directory, @"octosense")];
         NSString *installed = join(state, @"apps/.bundles/muse-goals/bundle/main.splash");
@@ -354,9 +353,14 @@ int main(int argc, const char *argv[]) {
                 action = @"launch-hub:muse-goals";
             }
         }
-        host.arguments = @[@"--test-action", models ? @"launch-ai-providers" : action];
+        // WorkBuddy opens the linked Native module first; the requested Muse/Models surface follows it.
+        NSMutableArray *arguments = [NSMutableArray arrayWithArray:@[@"--test-action", @"launch-muse-native-prototype",
+            @"--test-action", models ? @"launch-ai-providers" : action]];
+        if (remote.length && remotePort >= 1024 && remotePort <= 65535) {
+            [arguments insertObject:[NSString stringWithFormat:@"--remote=%ld", (long)remotePort] atIndex:0];
+        }
+        host.arguments = arguments;
         host.environment = environment;
-        host.currentDirectoryURL = [NSURL fileURLWithPath:directory];
         host.standardOutput = output; host.standardError = output;
         if (![host launchAndReturnError:&error]) {
             [output closeFile]; finishTask(model); fail([NSString stringWithFormat:@"宿主未启动：%@\n日志：%@", error.localizedDescription, log]); return 1;

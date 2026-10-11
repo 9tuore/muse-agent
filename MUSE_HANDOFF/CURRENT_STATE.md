@@ -1,4 +1,11 @@
 ## ZC-00 / WorkBuddy 分工：2026-10-11 14:43（北京时间）
+## GPT-03 WorkBuddy 统一 Launcher：2026-10-11
+
+按用户最新指令停止单变量排查，实际移植 WorkBuddy 环境/目录/Native-first argv。默认Muse.app同级Muse Data，shell/apps/kernel/.octos/rinx/config/data/cache；Host继承HOME，MAKEPAD_APP_CONFIG未设置，remote走argv。原署名镜像/Kernel pin/Qwen生命周期、云端profile字节保护与单state锁保留；日志追加不擦旧错误。
+仓库及发布包launch_muse.sh都调用同一签名Launcher，显式旧state只选资料根，不迁移凭证或硬编码开发路径。21/21编译Launcher+签名stub/合成health fixture通过（37.664s）；首轮19/20的脚本绝对包路径断言已修正。未GUI/Metal/真实模型/20冷启动，中央做最终同候选验收；未push。
+交接HANDOFF_GPT03_WORKBUDDY_LAUNCH_20261011.md。
+
+## GPT-03 黑屏启动与包资源核对：2026-10-11
 
 用户将黑屏修复交给外部应用 WorkBuddy。中央停止 owned GUI/Cargo，Metal 数字诊断构建因交接主动中断，未产生新 Host；SDK metal.rs 已核对恢复原 SHA47db4d10。实际 rc3-ui-r1 两轮 Remote 与 OS 专窗均深色，多个 pass draw_calls_done=0，根因尚未确认。完整失败/诊断证据与独占构建边界见 BLACK_SCREEN_HANDOFF_20261011.md；项目根目录另有同名交接副本，当前工具无 WorkBuddy 聊天发送通道。
 
