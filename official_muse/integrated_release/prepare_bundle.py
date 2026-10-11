@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = '0.4.0-rc6'
+VERSION = '0.4.0-rc7'
 
 
 def main():

@@ -112,8 +112,8 @@ int main(int argc, const char *argv[]) {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
         NSArray *required = @[@"host-runtime/muse-host", @"mirror/catalog.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle/manifest.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle.pack.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc7.bundle/manifest.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc7.bundle.pack.json",
             @"host-runtime/octos-kernel",
             @"host-runtime/octos-kernel.json"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
@@ -161,7 +161,7 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
         if (check) {
-            puts("PASS：Muse 0.4.0-rc6 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
+            puts("PASS：Muse 0.4.0-rc7 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;

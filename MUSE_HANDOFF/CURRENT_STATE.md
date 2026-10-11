@@ -1,3 +1,7 @@
+## NIGHT-004 rc7 打包入口准备
+
+统一六处候选版本rc7、本地catalog sequence4；WorkBuddy Launcher环境和Info身份保持原字节。对应28/28Launcher/Package fixture通过26.49s，非GUI或模型测试。publisher example从锁定SDK workspace离线编译通过10.15s；从独立Hub workspace的locked拒绝日志保留，未改lock。Intel production Host含Mail lifecycle修复构建通过324.61s，unsigned a9fc8ca3；尚未正式打包/运行。Calendar owner GUI验收脚本syntax/help通过，待固定rc7候选运行，输出独立读回、7图及每次实际Host动态签名；不操作生产资料。证据official_muse/integrated_release/evidence/night004-rc7-preparation/。
+
 ## NIGHT-004 Mail/Memory 组件证据接收
 
 接收GPT02 10ef2087隔离专项：生产Mail Rust15/15，持久JSONL helper26/26，真实Splash VM Memory61/61、完成回执门禁33/33。中央核对44份证据SHA、helper二进制SHA，以及6个生产Mail源码与owned SDK一致；未改业务实现。邮箱含独立Python模拟收件端、真实子进程重启与same compose ID状态保持。Memory只允许真实产物精确回读后completed；Mail accepted/UNKNOWN/cancelled不凭空完成Goal。所有SMTP/Keychain调用为0，合成审批/transport；完整同候选L3尚待Calendar更新接线。证据official_muse/semifinal/mail_integration/gpt02_recovery/night004/。
