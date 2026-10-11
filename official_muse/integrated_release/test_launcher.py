@@ -56,12 +56,12 @@ int main(int argc, char **argv) {
         shutil.copy2(binary, host / 'MacOS/octos-kernel')
         (host / 'Resources/octos-kernel.json').write_text('{}')
         mirror = cls.resources / 'mirror'
-        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc3.bundle'
+        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc4.bundle'
         bundle.mkdir(parents=True)
         (bundle / 'manifest.json').write_text('{}')
         (bundle / 'main.splash').write_text('// fixture')
         (mirror / 'catalog.json').write_text('{}')
-        (mirror / 'artifacts/muse-goals-0.4.0-rc3.bundle.pack.json').write_text('{}')
+        (mirror / 'artifacts/muse-goals-0.4.0-rc4.bundle.pack.json').write_text('{}')
         for item in [host / 'MacOS/octos-kernel', host.parent, cls.app]:
             subprocess.run(['codesign', '--force', '--sign', '-', str(item)], check=True,
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC-00 统一 Muse，codex/muse-pivot-20261010；黑屏已交外部 WorkBuddy。
+ZC-00：统一 WorkBuddy 启动、GitHub 同源回归、rc4 集成。
 
 ## Result
-PARTIAL。完整Host30d4d356/签名包ec83a4f9已构建，但真实OS窗口黑屏。中央释放GUI与Cargo，Metal恢复47db4d10；数字诊断构建主动中断，非编译失败。
+PARTIAL。现场保留能显示的 WorkBuddy PID90055；完整 Muse 尚未安装并验收。
 
 ## Changed
-hybrid携带Qwen且保留MiniMax主配置；官方Calendar会话、History终态绑定与未知请求保护；Mail异步恢复与固定SDK预检。WorkBuddy交接见BLACK_SCREEN_HANDOFF_20261011.md。
+统一 Launcher/launch_muse.sh 已合入；rc4版本、签名目录校验、包元数据同步。新增 GitHub macOS 启动 fixture workflow；主源码已有 Calendar→当前事项行动链。
 
 ## Tests
-Calendar19、Mail37、身份6项真实参考VM合成测试通过，外部调用0；launcher16项fixture、签名目录/整包验签通过。旧失败全部保留。以上不证明真实Relay、推理或投递。
+2026-10-11 编译 Launcher 与临时签名 stub：21/21；Qwen catalog：12/12。原错误命令日志保留；这些是零外部调用的 fixture。证据见 integrated_release/evidence/portable-launcher-rc4-fixture.json。当前 Host 编译中。
 
 ## Commit
-交接前b95b7b23；本次文档另提交。开发分支最近远端核验e962e418。
+随本单元本地提交；按用户授权正常推开发分支，随后核对远端 SHA。
 
 ## Remaining
-WorkBuddy修可见UI；中央实现暂停保留、Qwen fast目录、Native持续loop。随后真实Calendar四工具/独立读回、本人Mail登录审阅状态、同候选行动链与最终T18/20次。
+完整 Muse 的可见安装、真实 Calendar/Mail/行动链同候选业务、T18、20冷启动与重启。Native持续循环默认停用，真实预算尚未实施。GitHub结果尚待实际运行。
 
 ## Important Boundaries
-仅中央整合正式源/Bundle；不触生产/旧dirty。未知动作不自动重做，Secret与可信批准不模拟，未正式发布。
+窗口可见与 fixture 不等于日历写入、真实投递或正式候选稳定通过。

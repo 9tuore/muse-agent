@@ -1,4 +1,4 @@
-# Muse 统一候选 0.4.0-rc3
+# Muse 统一候选 0.4.0-rc4
 
 这是统一入口和配套宿主的开发候选。当前不能称正式版验收通过，也没有公开发布。
 主源码、全局记忆、多对话、长期事务、邮件和行动链沿用现有实现；不另建 Calendar 或 Mail。
@@ -23,7 +23,7 @@ Calendar 的三个 INTEGRATED patch 位于 `../semifinal/calendar_integration/`�
 
 原版 Hub CLI 保持默认权限上限，拒绝含 calendar.events 的清单；失败证据保留。
 `muse_local_catalog.rs` 是本任务的本地 publisher embedding，使用原 Hub gate、packer、
-签名和 catalog verifier，只接受 muse-goals 0.4.0-rc3 与本任务固定 publisher。
+签名和 catalog verifier，只接受 muse-goals 0.4.0-rc4 与本任务固定 publisher。
 它只添加配套宿主相同的 events/get_event/add_event/notify 四项上限；
 不改验证器、默认 CLI、系统身份或本人 consent，不对其他应用赋权。
 本地目录的通过只对这个待审配套宿主有效。
@@ -106,3 +106,7 @@ VM 准备、streaming、硬限额和 Splash 样式日志保留在 build/muse-int
 编译、签名、fixture 和最终包业务验收分别记录。核心冻结后才进行同一候选 20 次冷启动。
 
 Calendar 接线与回执19项真实参考VM合成协议检查通过，旧解析失败保留；Mail终态恢复完整异步真实VM37/37通过，首轮预算失败与探针错误保留。最新History配套Host30d4d356完整构建和四工具准入安全测试通过；这些结果不能替代同候选真实Calendar/Mail/模型业务通过。
+
+## 同源 GitHub 启动回归
+
+`.github/workflows/muse-launcher.yml` 在本开发分支的入口变更和手动运行时，用 macOS 编译相同 `muse_launcher.m` 并运行 `test_launcher.py`；仓库及包内 `launch_muse.sh` 都只调用该签名 Launcher。它不发布成品，不请求模型、不使用账号秘密，不能替代真实 Host 首屏、官方业务和同候选20次冷启动。rc4本机21项通过的证据在 `evidence/portable-launcher-rc4-fixture.json`，GitHub运行结果另行核实。

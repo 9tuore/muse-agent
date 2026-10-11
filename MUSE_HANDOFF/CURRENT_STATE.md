@@ -1,3 +1,9 @@
+## ZC-00 固定可见入口与 rc4：2026-10-11T15:48:44+08:00
+
+用户要求直接使用 WorkBuddy 能显示的实例，中央已关闭 owned 黑屏测试进程并重新打开其 .app，现有 PID90055 保留。151af288/4a288a26 已接收为238c9f8f/f3a5c352；仓库与包内 launch_muse.sh调用同一签名Launcher，WorkBuddy目录/env与HOME继承。中央统一升rc4，编译Launcher21/21、Qwen目录12/12通过；.github/workflows/muse-launcher.yml新增macOS同源回归，尚无GitHub实际运行结果。
+
+当前main SHA0c17e4cc已实接当前事项→官方日历请求/精确读回行动链，65项Node合成通过；Mail暂停19项通过。Qwen目录补丁和Native持续任务控制精确SHA应用到统一SDK，Host在串行构建。正式Muse仍未在该工作窗口安装/授权，真实Calendar/Mail/T18/20次尚未通过；Native循环默认费用门禁关闭，4次封顶不能由Host观察伪造。
+
 ## ZC-00 / WorkBuddy 分工：2026-10-11 14:43（北京时间）
 ## GPT-03 WorkBuddy 统一 Launcher：2026-10-11
 
