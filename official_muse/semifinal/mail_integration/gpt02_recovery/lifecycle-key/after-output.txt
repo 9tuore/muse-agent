@@ -1,0 +1,130 @@
+
+running 6 tests
+test tests::device_signed_out_still_refused ... ok
+test tests::device_reinstall_resumes_device_even_with_unresumed_mail_key ... ok
+test tests::host_admission_and_capability_guards_unchanged ... ok
+test tests::account_reinstall_requires_account_sign_in ... ok
+test tests::account_mode_uses_mail_key_even_when_device_is_suspended ... ok
+test tests::selection_changed_or_removed_refused_in_both_modes ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling mail-lifecycle-key-fixture v0.1.0 (/Users/mima0000/.codex/worktrees/gpt02-mail-memory-recovery/Agent APP黑客松/build/gpt02-mail-lifecycle-key-r1/after)
+warning: constant `DEVICE` is never used
+ --> src/lib.rs:3:7
+  |
+3 | const DEVICE: &str = "device";
+  |       ^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `account_hash` is never used
+ --> src/lib.rs:4:4
+  |
+4 | fn account_hash(a: &str)->String { format!("fixture-account:{a}") }
+  |    ^^^^^^^^^^^^
+
+warning: struct `StorageSpec` is never constructed
+ --> src/lib.rs:5:33
+  |
+5 | #[derive(Clone,Default)] struct StorageSpec { accounts: bool }
+  |                                 ^^^^^^^^^^^
+
+warning: struct `State` is never constructed
+ --> src/lib.rs:6:27
+  |
+6 | #[derive(Default)] struct State { signed_out:HashSet<(String,String)>,uninstalled:HashMap<String,HashSet<String>>,erased:HashSet<(Str...
+  |                           ^^^^^
+
+warning: struct `Layout` is never constructed
+ --> src/lib.rs:7:8
+  |
+7 | struct Layout { root:PathBuf }
+  |        ^^^^^^
+
+warning: method `apps_root` is never used
+ --> src/lib.rs:8:18
+  |
+8 | impl Layout { fn apps_root(&self)->&Path { &self.root } }
+  | -----------      ^^^^^^^^^
+  | |
+  | method in this implementation
+
+warning: struct `Storage` is never constructed
+ --> src/lib.rs:9:8
+  |
+9 | struct Storage { state:Mutex<State>,spec:StorageSpec,layout:Layout }
+  |        ^^^^^^^
+
+warning: multiple associated items are never used
+  --> src/lib.rs:11:8
+   |
+10 | impl Storage {
+   | ------------ associated items in this implementation
+11 |     fn new(accounts:bool)->Self { Self{state:Mutex::default(),spec:StorageSpec{accounts},layout:Layout{root:PathBuf::from("fixture-a...
+   |        ^^^
+12 |     fn state(&self)->MutexGuard<'_,State> {self.state.lock().unwrap()}
+   |        ^^^^^
+13 |     fn spec(&self,_:&str)->StorageSpec {self.spec.clone()}
+   |        ^^^^
+14 |     fn layout(&self)->&Layout {&self.layout}
+   |        ^^^^^^
+15 |     fn save_suspended(&self,_:&State) {} // Persistence boundary omitted in this unit fixture.
+   |        ^^^^^^^^^^^^^^
+16 |     fn key(app_id: &str, account: Option<&str>) -> (String, String) {
+   |        ^^^
+...
+19 | pub fn sign_out(&self, app_id: &str, account: Option<&str>) {
+   |        ^^^^^^^^
+...
+25 | pub fn sign_in(&self, app_id: &str, account: Option<&str>) {
+   |        ^^^^^^^
+...
+37 | pub fn is_signed_out(&self, app_id: &str, account: Option<&str>) -> bool {
+   |        ^^^^^^^^^^^^^
+...
+42 | pub fn installed(&self, app_id: &str) {
+   |        ^^^^^^^^^
+
+warning: function `mail_claim_allowed` is never used
+  --> src/lib.rs:54:4
+   |
+54 | fn mail_claim_allowed(storage: &Storage, host_dir: &Path, app: &str, account: &str) -> Result<(), String> {
+   |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `mail_account_claim_allowed` is never used
+  --> src/lib.rs:66:4
+   |
+66 | fn mail_account_claim_allowed(
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `active_account` is never used
+  --> src/lib.rs:49:51
+   |
+49 | mod octosense_mail_service { use super::*; pub fn active_account(_:&Path,_:&str)->Option<String>{ACTIVE.with(|v|v.borrow().clone())} }
+   |                                                   ^^^^^^^^^^^^^^
+
+warning: function `check` is never used
+  --> src/lib.rs:51:32
+   |
+51 |     pub mod admission { pub fn check(_:&str)->Result<(),String>{super::super::ADMITTED.with(|v|if *v.borrow(){Ok(())}else{Err("fixtu...
+   |                                ^^^^^
+
+warning: function `grants` is never used
+  --> src/lib.rs:52:33
+   |
+52 |     pub mod script_apps {pub fn grants(_:&str,_:&str)->bool{super::super::GRANTED.with(|v|*v.borrow())}}
+   |                                 ^^^^^^
+
+warning: `mail-lifecycle-key-fixture` (lib) generated 13 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.24s
+     Running unittests src/lib.rs (build/gpt02-mail-lifecycle-key-r1/target-after/debug/deps/mail_lifecycle_key_fixture-1f4a053fbef6fd76)
+   Doc-tests mail_lifecycle_key_fixture

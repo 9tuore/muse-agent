@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02只读核对Mail登录恢复。own基线0c80a50a；中央291e74b3/main6e0f2b70。
+GPT-02，own基线62de66c4；Mail生命周期键最小修复。
 
 ## Result
-PASS（源码）；live仍PARTIAL。Keychain put失败保留同sheet输入/pending，不存新账号；重开需本人重填。
+PASS（独立Rust fixture）；完整Host/live未验证。accounts=false→None，true→Some；保留所有claim guard。
 
 ## Changed
-MAIL_KEYCHAIN_SIGNIN_RECOVERY.md、source evidence、CURRENT_STATE。七源码SHA/行号/接口已记录。
+lifecycle-key/patch、identity、准备器、fixture/native tests与证据；CURRENT_STATE。生产两行；两旧测试显式账号模式，新增device重装回归。
 
 ## Tests
-2026-10-11源码/rg/SHA核对，无运行测试。mail.accounts前台array/Agent object，无mail.status；列表不证明vault读回。
+2026-10-12 Cargo offline before4/6、after6/6。提取真实函数，依赖适配器；完整Shell测试未运行。独立apply/check与SHA通过；中央未改。
 
 ## Commit
-本地提交见最终回复，未push。
+见最终回复，未push。
 
 ## Remaining
-Root/GPT03签名完整.app保留profile/Muse身份；本人连接账号、重填、成功后查看账号。真实恢复待live。
+中央核两before SHA后apply --unidiff-zero，串行增量Host及完整测试/live。UNKNOWN仍只读对账。
 
 ## Important Boundaries
-无GUI/Cargo/network/model/账号/Keychain/env读取。错误及ec83由中央报告，未复现/验签；draft review先失效；旧文件get迁移不能证明新Keychain写成功。
+仅owned定向SDK副本/独立target；无GUI/生产metadata/grant/manifest/SMTP/Secrets操作。
