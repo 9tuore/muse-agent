@@ -1,0 +1,87 @@
+{
+  "scope": "Owned standalone copy only. Host not executed; no GUI, SDK, original artifact, or user data changed. Dynamic SecCode/Keychain and visibility unverified.",
+  "input_sha256": "ec83a4f9682f75602b88f7d4cf17d3c8711e7b5034298d848735bafce685594d",
+  "output_path": "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense",
+  "original_verify": {
+    "command": [
+      "codesign",
+      "--verify",
+      "--strict",
+      "/Users/mima0000/WorkBuddy/2026-09-28-21-35-00/muse-blackfix/artifacts-rc3/octosense"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "/Users/mima0000/WorkBuddy/2026-09-28-21-35-00/muse-blackfix/artifacts-rc3/octosense: invalid Info.plist (plist or signature have been modified)\nIn architecture: x86_64\n"
+  },
+  "original_display": {
+    "command": [
+      "codesign",
+      "--display",
+      "--verbose=4",
+      "/Users/mima0000/WorkBuddy/2026-09-28-21-35-00/muse-blackfix/artifacts-rc3/octosense"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Executable=/Users/mima0000/WorkBuddy/2026-09-28-21-35-00/muse-blackfix/artifacts-rc3/octosense\nIdentifier=org.xinghai.muse.paired-host\nFormat=Mach-O thin (x86_64)\nCodeDirectory v=20400 size=970261 flags=0x2(adhoc) hashes=30314+3 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=52bed0d09e075b2e3dececef5cb2eb6a22e60724\nCandidateCDHashFull sha256=52bed0d09e075b2e3dececef5cb2eb6a22e60724f4d055069fc36afea6209a51\nHash choices=sha256\nCMSDigest=52bed0d09e075b2e3dececef5cb2eb6a22e60724f4d055069fc36afea6209a51\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=97566720\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=52bed0d09e075b2e3dececef5cb2eb6a22e60724\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\n"
+  },
+  "resign": {
+    "command": [
+      "codesign",
+      "--force",
+      "--sign",
+      "-",
+      "--identifier",
+      "org.xinghai.muse.paired-host",
+      "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense: replacing existing signature\n"
+  },
+  "standalone_verify": {
+    "command": [
+      "codesign",
+      "--verify",
+      "--strict",
+      "--verbose=4",
+      "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense: valid on disk\n/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense: satisfies its Designated Requirement\n"
+  },
+  "standalone_display": {
+    "command": [
+      "codesign",
+      "--display",
+      "--verbose=4",
+      "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Executable=/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-standalone-sign-20261011/octosense\nIdentifier=org.xinghai.muse.paired-host\nFormat=Mach-O thin (x86_64)\nCodeDirectory v=20400 size=970229 flags=0x2(adhoc) hashes=30314+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=983552\nHash type=sha256 size=32\nCandidateCDHash sha256=f5ec312ce76f4572a788b97f741a1324add40664\nCandidateCDHashFull sha256=f5ec312ce76f4572a788b97f741a1324add40664f71898eaaca7a4af9aa646ea\nHash choices=sha256\nCMSDigest=f5ec312ce76f4572a788b97f741a1324add40664f71898eaaca7a4af9aa646ea\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=97566720\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=f5ec312ce76f4572a788b97f741a1324add40664\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\n"
+  },
+  "output_sha256": "4623caae99142bfd5a2826a86038e17d6860b611b337614bdf0cf5334e5f9a3c",
+  "original_unchanged": true,
+  "all_16_sections_unchanged": true,
+  "original_code_directory": {
+    "special_slot_count": 3,
+    "hash_size": 32,
+    "hash_type": 2,
+    "special_slot_hashes": {
+      "1": "c09b516a84c6901ebecd12d921b3cfcbe1ab95b3cd70a76d92f66f3455d96913",
+      "2": "987920904eab650e75788c054aa0b0524e6a80bfc71aa32df8d237a61743f986",
+      "3": "725f73499615752e1b892a5c7fffc2e969727cae6480965d094b313763b71f97"
+    }
+  },
+  "resigned_code_directory": {
+    "special_slot_count": 2,
+    "hash_size": 32,
+    "hash_type": 2,
+    "special_slot_hashes": {
+      "1": "0000000000000000000000000000000000000000000000000000000000000000",
+      "2": "987920904eab650e75788c054aa0b0524e6a80bfc71aa32df8d237a61743f986"
+    }
+  },
+  "info_slot_1_zero_after_resign": true
+}
