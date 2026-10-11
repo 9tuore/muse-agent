@@ -1,5 +1,7 @@
 # Root 最小接收复验
 
+最新：Root明确8227候选已新prepare/新进程实际复验54/54 PASS，独立归档及完整中央命令见[CANDIDATE_8227.md](CANDIDATE_8227.md)。下方c892是原baseline，不覆盖或改版本。verifier默认仍核旧c892，显式`--evidence/--source-sha`可核新归档。
+
 本单元3场景54项PASS。完整路径、SDK源/库身份与边界见[RESULT.md](RESULT.md)。只读核对保存证据：
 
 ```sh

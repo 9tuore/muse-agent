@@ -1,5 +1,7 @@
 # GPT03 NIGHT-004 无效原始模型 JSON
 
+最新2026-10-12：Root明确8227bbb3…acde0d实际源码已核对，新prepare及新进程54/54 PASS，SDK/VM/Mail固定身份、raw及error/finished/零副作用复核PASS。203函数/88global与c892摘要相同。独立evidence/candidate-8227-r1，中央命令见CANDIDATE_8227；旧raw/report/manifest不改，full_chain NOT_TESTED。
+
 2026-10-12 04:14（Asia/Shanghai）：机制组件PASS，3场景54项。实际已编译SDK ModelService dispatch接受原Main payload与fixture provider bytes，两种原始坏JSON经SDK重试一次真实返回invalid_output；c892 Main原callback回复error/原请求finished，实际存储无候选/Goal/Run/Action/完成Memory，Calendar/Mail/transport均0。合法JSON对照实际经SDK解析。
 
 仅自有stdio wrapper由rustc链接已有SDK rlibs，未Cargo/SDK修改/Kernel/GUI/包重建；Main203函数＋88global逐字提取。源/库及raw bytes/Err/Ok/SHA保留evidence，原14e0384的107项证据未改。重现见README；短交接见HANDOFF_LATEST。

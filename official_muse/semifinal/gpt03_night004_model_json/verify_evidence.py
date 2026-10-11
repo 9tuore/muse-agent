@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """Verify retained SDK stdio/raw bytes and persisted Main terminal state; no rerun."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-evidence = HERE / 'evidence'
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--evidence',type=Path,default=HERE/'evidence')
+parser.add_argument('--source-sha',default='c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4')
+args=parser.parse_args()
+evidence=args.evidence.resolve();evidence.relative_to(HERE/'evidence')
 load = lambda path: json.loads(path.read_text())
 sha = lambda data: hashlib.sha256(data).hexdigest()
 summary = load(evidence / 'summary.json')
 assert summary['status'] == 'PASS' and summary['checks'] == 54 and len(summary['cases']) == 3
-assert summary['source_sha256'] == 'c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4'
+assert summary['source_sha256'] == args.source_sha
 assert summary['sdk_library_unchanged'] is True
 assert sha((evidence/'executed-parent-r1.py').read_bytes()) == summary['parent_sha256']
 build = load(evidence / 'build-identity.json')
@@ -24,6 +29,7 @@ assert sha((evidence/'main-prepare/executed.splash').read_bytes()) == identity['
 for mode in ('invalid-calendar','invalid-mail-fenced','valid-control'):
     directory = evidence/mode
     report = load(directory/'report.json')
+    assert report['source_sha256']==args.source_sha
     assert report['status']=='PASS' and not report['failed'] and all(value is True for value in report['checks'].values())
     raw=(directory/'raw-model-output.bin').read_bytes()
     assert sha(raw)==report['raw_model_sha256'] and len(raw)==report['raw_model_bytes']
