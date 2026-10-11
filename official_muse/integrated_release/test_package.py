@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -91,9 +92,13 @@ int main(int argc, char **argv) {
         inventory = json.loads((self.output / 'HOST_RESOURCES.json').read_text())
         self.assertEqual(inventory['makepad_widgets/resources/fixture-font.ttf'], package_app.sha(self.asset))
         info = plistlib.loads((self.output / 'Muse.app/Contents/Info.plist').read_bytes())
-        self.assertEqual(info['CFBundleVersion'], '5')
-        self.assertEqual(info['MuseHostLaunchMethod'], 'workbuddy')
-        self.assertEqual(info['MuseStateRoot'], str(self.state))
+        self.assertEqual((self.output / 'Muse.app/Contents/Info.plist').read_bytes(),
+                         (package_app.HERE / 'workbuddy_info.plist').read_bytes())
+        self.assertEqual(info['CFBundleExecutable'], 'Launcher')
+        settings = json.loads((self.output / 'Muse.app/Contents/Resources/launcher.json').read_text())
+        self.assertEqual(settings['state_root'], str(self.state))
+        self.assertFalse((self.output / 'Muse.app/Contents/Resources/WorkBuddy Launcher.app').exists())
+        self.assertEqual(record['source_launcher_sha256'], record['packaged_launcher_sha256'])
         self.assertFalse(list(self.output.rglob('fixture-data')))
         self.assertEqual((self.state / 'fixture-data').read_bytes(), b'private fixture: never package')
         self.assertFalse((self.output / 'signed-kernel').exists())
@@ -112,18 +117,22 @@ int main(int argc, char **argv) {
     def test_wrapper_resolves_spaces_clears_overrides_and_preserves_argv(self):
         self.package()
         resources = self.output / 'Muse.app/Contents/Resources'
-        wrapper = resources / 'WorkBuddy Launcher.app/Contents/MacOS/Launcher'
-        log = self.root / 'fixture-host.log'
-        env = dict(os.environ, MUSE_HOST_LOG=str(log), MAKEPAD_APP_CONFIG='poison',
+        wrapper = self.output / 'Muse.app/Contents/MacOS/Launcher'
+        log = self.state / 'logs/host.log'
+        env = dict(os.environ, MAKEPAD_APP_CONFIG='poison',
                    OCTOSENSE_HUB='/wrong')
         subprocess.run(['/bin/sh', str(wrapper), '--remote=9696', '--test-action',
                         'launch-muse-native-prototype', '--test-action', 'launch-hub:muse-goals'],
                        env=env, check=True, capture_output=True)
         lines = log.read_text().splitlines()
-        self.assertEqual(lines[:5], ['--remote=9696', '--test-action',
-                                    'launch-muse-native-prototype', '--test-action', 'launch-hub:muse-goals'])
+        self.assertEqual(lines[:3], ['--remote=9696', '--test-action', 'launch-muse-native-prototype'])
+        self.assertNotIn('launch-hub:muse-goals', lines)
         self.assertIn('HUB=' + str(resources / 'mirror'), lines)
         self.assertIn('APP_CONFIG=unset', lines)
+        deadline = time.monotonic() + 5
+        while list(self.state.glob('launch-*.ready')) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertFalse(list(self.state.glob('launch-*.ready')))
 
 
 if __name__ == '__main__':

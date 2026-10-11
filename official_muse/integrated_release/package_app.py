@@ -32,7 +32,7 @@ def main():
     parser.add_argument('--paired-host-app', type=Path,
         help='Copy an already signed matching Host/Kernel app and resources; no Cargo or re-signing of the pair')
     parser.add_argument('--state-root', type=Path,
-        help='Reference an existing absolute state root in Info.plist; never copy its contents')
+        help='Reference an existing absolute state root in launcher.json; never copy its contents')
     args = parser.parse_args()
     if args.model_mode != 'gpt' and args.model_source is None:
         parser.error('--model-source is required for offline/hybrid mode')
@@ -84,33 +84,22 @@ def main():
     shutil.copytree(args.mirror, resources / 'mirror', symlinks=True)
     # Local signing keys and account data are not inputs to this packager.
     assert not list(resources.rglob('*.key')), 'A private key entered the package'
-    plist = dict(CFBundleName='Muse', CFBundleDisplayName='Muse', CFBundleExecutable='muse-launcher',
-        CFBundleIdentifier='org.xinghai.muse.integrated', CFBundlePackageType='APPL',
-        CFBundleShortVersionString='0.4.0', CFBundleVersion='5', LSMinimumSystemVersion='14.0',
-        NSHighResolutionCapable=True, MuseModelMode=args.model_mode)
-    if args.paired_host_app:
-        plist['MuseHostLaunchMethod'] = 'workbuddy'
-    if args.state_root is not None:
-        plist['MuseStateRoot'] = str(args.state_root)
-    with (app / 'Contents/Info.plist').open('wb') as stream:
-        plistlib.dump(plist, stream)
-    host_plist = dict(plist, CFBundleName='OctoSense', CFBundleDisplayName='OctoSense',
-        CFBundleExecutable='octosense', CFBundleIdentifier='org.xinghai.muse.paired-host')
+    # Preserve the original working LaunchServices identity and shell executable.
+    shutil.copy2(HERE / 'workbuddy_info.plist', app / 'Contents/Info.plist')
+    (resources / 'launcher.json').write_text(json.dumps({'version': '0.4.0-rc5',
+        'model_mode': args.model_mode, 'state_root': str(args.state_root) if args.state_root else None}, indent=2) + '\n')
     if not args.paired_host_app:
+        host_plist = dict(CFBundleName='OctoSense', CFBundleDisplayName='OctoSense',
+            CFBundleExecutable='octosense', CFBundleIdentifier='org.xinghai.muse.paired-host',
+            CFBundlePackageType='APPL', CFBundleShortVersionString='0.4.0', CFBundleVersion='5',
+            LSMinimumSystemVersion='14.0', NSHighResolutionCapable=True)
         with (inner / 'Info.plist').open('wb') as stream:
             plistlib.dump(host_plist, stream)
-    else:
-        wrapper = resources / 'WorkBuddy Launcher.app/Contents'
-        (wrapper / 'MacOS').mkdir(parents=True)
-        wrapper_plist = dict(host_plist, CFBundleExecutable='Launcher',
-            CFBundleIdentifier='org.xinghai.muse.workbuddy-launcher')
-        with (wrapper / 'Info.plist').open('wb') as stream:
-            plistlib.dump(wrapper_plist, stream)
-        shutil.copy2(HERE / 'workbuddy_launcher.sh', wrapper / 'MacOS/Launcher')
-        (wrapper / 'MacOS/Launcher').chmod(0o755)
-        run(['codesign', '--force', '--sign', '-', wrapper.parent])
+    shutil.copy2(HERE / 'workbuddy_launcher.sh', executable / 'Launcher')
+    (executable / 'Launcher').chmod(0o755)
     run(['clang', '-fobjc-arc', '-O2', '-framework', 'AppKit', HERE / 'muse_launcher.m',
         '-o', executable / 'muse-launcher'])
+    run(['codesign', '--force', '--sign', '-', executable / 'muse-launcher'])
     # Sign only our staged copy, then ask the official staging helper to
     # re-attest the same pinned revision and the resulting binary bytes.
     if not args.paired_host_app:
@@ -134,11 +123,18 @@ def main():
     inventory = {p.relative_to(inner / 'Resources').as_posix(): sha(p)
         for p in sorted((inner / 'Resources').rglob('*')) if p.is_file()}
     (output / 'HOST_RESOURCES.json').write_text(json.dumps(inventory, indent=2) + '\n')
+    assert sha(executable / 'Launcher') == sha(HERE / 'workbuddy_launcher.sh'), 'Packaged entry differs from source script'
+    assert (app / 'Contents/Info.plist').read_bytes() == (HERE / 'workbuddy_info.plist').read_bytes(), 'Working App Info changed'
     record = {'version': '0.4.0-rc5', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
         'signature': 'AD_HOC_LOCAL_ONLY', 'source_host_sha256': source_host_sha256,
         'source_kernel_sha256': source_kernel_sha256,
         'reused_signed_pair': bool(args.paired_host_app),
-        'host_launch_method': 'LaunchServices WorkBuddy shell wrapper' if args.paired_host_app else 'NSTask',
+        'host_launch_method': 'outer CFBundleExecutable shell -> exec Host; no NSWorkspace',
+        'outer_info_plist_sha256': sha(app / 'Contents/Info.plist'),
+        'source_launcher_sha256': sha(HERE / 'workbuddy_launcher.sh'),
+        'packaged_launcher_sha256': sha(executable / 'Launcher'),
+        'profile_modified_by_launcher': False,
+        'qwen_supervision': 'background guardian watches original shell/Host parent PID; runtime not verified',
         'host_resources_files': len(inventory),
         'state_root_reference': str(args.state_root) if args.state_root is not None else None,
         'catalog_sha256': sha(resources / 'mirror/catalog.json'),

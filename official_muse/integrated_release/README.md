@@ -27,18 +27,24 @@ Calendar 的三个 INTEGRATED patch 位于 `../semifinal/calendar_integration/`�
 它们与 WorkBuddy artifacts-rc3 的字节相同；源宿主包 deep/strict 校验通过。
 八个资源命名空间共 208 文件，另有一份 Kernel receipt；成品输出逐文件 `HOST_RESOURCES.json`。
 
-此模式通过 NSWorkspace/LaunchServices 打开包内 WorkBuddy shell Launcher；shell 最终 exec
-配套宿主包里的原 Host。保留原 HOME、state 路径、环境清理与 remote argv，不指定 Host cwd；
-原工作进程的实际 cwd 为 `/`。
-现有编译 Launcher 管理 Qwen、单 state 锁和退出清理；云端 MiniMax 配置按原规则保留。
-`--state-root` 只把绝对资料根路径写入 Info.plist，不读取或复制该目录；
-运行时 `MUSE_INTEGRATED_STATE` 优先，其次包内引用，最后默认同级 Muse Data。
+正式外层 `CFBundleExecutable=Launcher`，使用原 WorkBuddy Info.plist 的完整字节、identifier 和版本3。
+rc5 是 Muse payload/候选版本，记录在 launcher.json/PACKAGE.json，不重写已工作 App Info。
+LaunchServices 直接启动外层 shell，shell 在自身 Contents 定位资源后直接 exec 原 Host；
+没有 NSWorkspace、嵌套 Launcher.app 或第二个 test-action。Host 默认 argv 为
+`--remote=9696 --test-action launch-muse-native-prototype`，不指定 cwd，也不改 HOME。
+
+签名检查、单 state 锁和 Qwen 生命周期复用现有编译逻辑做后台 guardian；它不启动 Host。
+启动前 shell 等 guardian 就绪，随后同一 PID 被 Host 替换。guardian 通过 getppid 跟踪这个原父 PID；
+Host 退出后清理自己启动的 Qwen 并释放锁。PID不换的链路与退出清理只做合成fixture验证，最终GUI仍由中央验收。
+所有 profile 字节均保留，包括已有 local 回退。Qwen就绪只代表本机服务；不改Native端点、不证明路由或推理。
+`--state-root` 只把绝对资料根路径写入 launcher.json，不读取或复制该目录；
+运行时 MUSE_INTEGRATED_STATE 优先，其次包内引用，最后默认同级 Muse Data。
 
 Root 完成 prepare_bundle/publisher helper 的 rc5 同步、生成新镜像并验签后，
 将 `MUSE_RC5_MIRROR` 设为该镜像的绝对目录，再生成新成品目录。Host/Kernel 与 Qwen 继续复用已核对输入：
 rc5 catalog sequence 必须高于设备已验证的 sequence；当前 rc4 镜像为 1，更新至少用 2。
 Root 的 helper 须同步这一序列，不能仅更改版本号后继续发布不同内容的 sequence=1。
-既存 rc4 安装与 rc5 main 不同会进入 App Hub 正常更新；Launcher 不替换安装文件或资料。
+从 Native 入口由本人打开 Muse/App Hub，更新走普通签名安装与本人批准；Launcher 不替换安装文件或资料。
 
 ```sh
 MUSE_WORKING_TREE='/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松'
@@ -54,16 +60,18 @@ python3 "$MUSE_WORKING_TREE/official_muse/integrated_release/package_app.py" \
   --model-mode hybrid \
   --model-source "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc4-app-r1/Muse.app/Contents/Resources/local-model" \
   --state-root "$MUSE_WORKING_TREE/build/live-acceptance-003/home" \
-  --out "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc5-workbuddy-r1"
+  --out "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc5-direct-shell-r1"
 ```
 
 PACKAGE.json 记录 pair、目录与 Muse main 的实际 SHA，状态仍为 PACKAGED_NOT_RUNTIME_VERIFIED。
 复制 pair、资源和编译通过不证明新外层候选可见；中央串行验证最终 LaunchServices 启动与退出。
 本任务不启动真实 GUI、不执行新的模型或 Calendar/Mail 调用。
-最终定向验证：`test_launcher.py` 22/22（18.224s）、`test_package.py` 4/4（4.941s）。
-打包 fixture 使用签名 stub、合成资源和假 SDK pin；不调用 LaunchServices。
-LaunchServices 不提供原 Host 的 exit status；控制器退出 0 不能作为 Host/业务成功回执。
-rc5 同步后：Launcher 23/23（20.157s）、package 4/4（5.859s）；新增旧 main 保持原字节并走 Hub 更新的 fixture。
+此前 22/4、23/4 fixture 是旧包装的合成结果，历史日志与提交保留。
+中央真实 rc5 NSWorkspace 包运行黑屏、remote 不可达，已停止；这不能记为工作包runtime通过。
+本轮只验证外层直接shell、argv/env、资源、单state锁与退出；未启动真实Host/Qwen/GUI。
+直接 shell 的 Launcher fixture 24/24，20.093秒；首轮22/23中一项仍预期改写local端点，
+已改为原route保持检查。PID连续、重复启动拒绝与Host SIGTERM退出清理均用合成输入验证。
+外层直接shell打包fixture最终4/4，4.953秒；原App Info、脚本SHA与已签pair字节均保持。
 
 ## 本地签名目录
 
@@ -83,8 +91,7 @@ ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。只使用本任务新生成的私钥；私�
 
 ## 运行和验收边界
 
-所有入口使用同一个签名 Launcher，argv 中先列 Native，再列 Muse／Models 的 test-action。
-SDK 在同一启动循环中处理这两个 action；尚未证明 Native 首屏先绘制完成，不能把参数顺序称作 GUI 时序验证。
+所有正式入口运行同一签名外层 shell；Host 只接收原 Native test-action。
 默认资料在 `Muse.app` 同级的 `Muse Data`，采用 `shell/`、`apps/`、`kernel/.octos/`、
 `rinx/`、`config/`、`data/`、`cache/` 布局；Host 保留调用者 HOME，不设置 MAKEPAD_APP_CONFIG。
 默认远程参数为 argv `--remote=9696`，可用 MUSE_INTEGRATED_REMOTE 指定另一个有效端口。
@@ -98,32 +105,33 @@ SDK 在同一启动循环中处理这两个 action；尚未证明 Native 首屏�
 ./official_muse/integrated_release/launch_muse.sh '/absolute/path/Muse.app' --models
 ```
 
-双击应用、仓库脚本及发布脚本都进入同一 Launcher，沿用包资源验签、Kernel pin、签名镜像与单 Host 锁。
-首启走普通 App Hub 安装，后续从相同签名入口启动 Muse。既有来源不匹配时回普通更新流程。
+双击应用直接进入外层CF shell；仓库/发布脚本用 open -n -W 调用同一 .app 的同一 shell。
+--check/--gpt-check 直接调用同一脚本的只读分支，fixture不经过LaunchServices。
+原签名、Kernel pin、目录验签与本人权限批准保留；正式Muse从Native/Dock/App Hub正常打开。
 包内 Qwen2.5-0.5B 是基础离线回退，不代表强模型工具调用能力；模型配置由宿主原生界面处理。
 
 产品默认 `package_app.py --model-mode hybrid --model-source ...`，继续携带 Qwen。
 运行时接受 Native 注册表的云端主提供方，包括已有 MiniMax，不将其替换成 GPT。
-云端主配置缺失时进入真实 Models；此设置入口及 `--models` 均不启动 Qwen、不改 profile。
-已有云端主配置时，hybrid 启动本机 loopback 轻量服务，保持到 Host 退出；未配置本地提供方时
-云端 profile 原字节保留。只有既存 `local/Qwen2.5-0.5B-Instruct-Q4_0-offline` 回退的端点会
-通过系统 plutil 就地更新，云端 primary、其他提供方与凭证字段不改，不解析或迁移 Keychain。
+云端主配置缺失时仍启动原 Native 入口，本次不启动 Qwen；由本人打开 Models。
+`--models` 仅抑制 Qwen，不改变 Host argv，也不自动打开另一应用。
+已有云端主配置时，hybrid 启动本机 loopback 基础服务；guardian保持到 Host 退出。
+原 profile 全部字节保留，不更新 local 回退端点，也不解析/迁移 Keychain。
 `local-model.json` 给出实际 route_base_url、pid、ready/failed/stopped 与 native_local_selected；
 它是服务状态，inference_verified 始终为 false，不能当作模型推理或持续 AI 成功证据。
 需要本地 Native 回退时，由本人在仍运行的 Host Models 面板添加 local、上述模型 ID 和实际端点。
 此模式不自动添加提供方、不启动付费轮询、不执行邮件或日历动作。旧 `--model-mode offline` 保留。
 
 GPT 开发验证包可选 `package_app.py --model-mode gpt`，省略 `--model-source`，不包含或启动
-Qwen。双击该包默认走 GPT 入口；未配置时打开真实 `os.ai-providers` Models 面板，
+Qwen。双击该包仍走原 Native 入口；未配置时由本人打开 `os.ai-providers` Models 面板，
 本人选择 OpenAI/GPT 官方路由、输入凭证并保存，退出后重开。启动器不复制任何已有凭证。
-`--models` 直接打开该面板，不再先写离线 profile 或启动 Qwen。
+`--models` 保留原 Native 入口，抑制 Qwen，不写离线 profile。
 
 `Muse.app/Contents/MacOS/muse-launcher --gpt-check` 只检查包签名/资源与独立目录的
 `config.llm` metadata，不读取 `config.env_vars`、不解析 Keychain、不调用网络或写配置。
 返回 0 / `GPT_CONFIG_ONLY` 仅代表主提供方及全部回退为官方 OpenAI/GPT 配置；
 返回 3 / `GPT_SETUP_REQUIRED` 表示需要本人配置，2 表示数据路径参数错误，1 表示包检查失败。
 兼容 API 的本地端点、第三方路由和非 GPT 回退不计通过。hybrid 包也可显式 `--gpt`，不会启动
-Qwen；MiniMax/混合 profile 会进入设置而非被改写，GPT 验证应使用本人配置的独立 GPT-only state。
+Qwen；MiniMax/混合 profile 保持原字节，由本人进入设置，GPT 验证应使用本人配置的独立 GPT-only state。
 子 Host 的 shell、core、apps、XDG 路径指向所选资料目录，HOME 原样继承；云端单独配置保持原字节。
 
 本机 `python3 official_muse/integrated_release/test_launcher.py -v` 使用真实编译启动器、

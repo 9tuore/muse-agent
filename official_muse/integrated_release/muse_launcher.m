@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
@@ -71,31 +72,6 @@ static BOOL cloudPrimary(NSDictionary *llm) {
     } else if ([primary[@"family_id"] isEqual:@"vllm"]) return NO;
     return YES;
 }
-static BOOL updateLocalRoute(NSString *profilePath, NSDictionary *llm, NSString *base) {
-    NSArray *fallbacks = [llm[@"fallbacks"] isKindOfClass:NSArray.class] ? llm[@"fallbacks"] : @[];
-    for (NSUInteger i = 0; i < fallbacks.count; i++) {
-        NSDictionary *selection = fallbacks[i];
-        if (![selection isKindOfClass:NSDictionary.class] || ![selection[@"family_id"] isEqual:@"local"]
-            || ![selection[@"model_id"] isEqual:@"Qwen2.5-0.5B-Instruct-Q4_0-offline"]) continue;
-        NSString *path = [NSString stringWithFormat:@"config.llm.fallbacks.%lu.route", (unsigned long)i];
-        NSTask *task = [NSTask new];
-        task.executableURL = [NSURL fileURLWithPath:@"/usr/bin/plutil"];
-        id route = selection[@"route"];
-        if ([route isKindOfClass:NSDictionary.class]) {
-            task.arguments = @[route[@"base_url"] ? @"-replace" : @"-insert", [path stringByAppendingString:@".base_url"],
-                @"-string", base, @"--", profilePath];
-        } else if (!route) {
-            NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"base_url":base, @"api_type":@"openai", @"label":@"内置基础离线模型"} options:0 error:nil];
-            task.arguments = @[@"-insert", path, @"-json", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], @"--", profilePath];
-        } else return NO;
-        task.standardOutput = NSFileHandle.fileHandleWithNullDevice;
-        task.standardError = NSFileHandle.fileHandleWithNullDevice;
-        if (![task launchAndReturnError:nil]) return NO;
-        [task waitUntilExit];
-        if (task.terminationStatus != 0) return NO;
-    }
-    return YES;
-}
 static int localPort(void) {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in address = {0};
@@ -129,35 +105,36 @@ static void finishTask(NSTask *task) {
 }
 static void fail(NSString *message) {
     fprintf(stderr, "%s\n", message.UTF8String);
-    NSAlert *alert = [NSAlert new];
-    alert.messageText = @"Muse 启动未完成";
-    alert.informativeText = message;
-    [alert addButtonWithTitle:@"知道了"];
-    [alert runModal];
+
 }
 int main(int argc, const char *argv[]) {
     @autoreleasepool {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
-        BOOL workbuddy = [NSBundle.mainBundle.infoDictionary[@"MuseHostLaunchMethod"] isEqual:@"workbuddy"];
         NSArray *required = @[@"OctoSense Host.app/Contents/MacOS/octosense", @"mirror/catalog.json",
             @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle/manifest.json",
             @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle.pack.json",
             @"OctoSense Host.app/Contents/MacOS/octos-kernel",
             @"OctoSense Host.app/Contents/Resources/octos-kernel.json"];
-        if (workbuddy) required = [required arrayByAddingObject:@"WorkBuddy Launcher.app/Contents/MacOS/Launcher"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
-        BOOL models = argc == 2 && strcmp(argv[1], "--models") == 0;
         BOOL gptCheck = argc == 2 && strcmp(argv[1], "--gpt-check") == 0;
-        NSString *mode = NSBundle.mainBundle.infoDictionary[@"MuseModelMode"] ?: @"offline";
-        if (argc == 2 && strcmp(argv[1], "--gpt") == 0) mode = @"gpt";
-        if (argc == 2 && strcmp(argv[1], "--hybrid") == 0) mode = @"hybrid";
+        BOOL supervise = (argc == 3 || argc == 4) && strcmp(argv[1], "--supervise") == 0;
+        pid_t owner = supervise ? (pid_t)atoi(argv[2]) : 0;
+        if ((!check && !gptCheck && !supervise) || (supervise && (owner <= 1 || getppid() != owner))) {
+            fprintf(stderr, "使用方式：muse-launcher --check|--gpt-check|--supervise PARENT_PID [--models|--gpt|--hybrid]\n"); return 2;
+        }
+        NSData *settingsData = [NSData dataWithContentsOfFile:join(resources, @"launcher.json")];
+        if (!settingsData) { fail(@"启动配置缺失。"); return 1; }
+        NSDictionary *settings = [NSJSONSerialization JSONObjectWithData:settingsData options:0 error:nil];
+        if (![settings isKindOfClass:NSDictionary.class]) { fail(@"启动配置缺失或无效。"); return 1; }
+        NSString *option = argc == 4 ? [NSString stringWithUTF8String:argv[3]] : @"";
+        BOOL models = [option isEqual:@"--models"];
+        NSString *mode = settings[@"model_mode"];
+        if ([option isEqual:@"--gpt"]) mode = @"gpt";
+        if ([option isEqual:@"--hybrid"]) mode = @"hybrid";
         BOOL gpt = gptCheck || [mode isEqual:@"gpt"];
         BOOL hybrid = !gpt && [mode isEqual:@"hybrid"];
-        BOOL headless = check || gptCheck;
-        if (argc > 1 && !check && !models && !gptCheck && strcmp(argv[1], "--gpt") != 0 && strcmp(argv[1], "--hybrid") != 0) {
-            fprintf(stderr, "使用方式：muse-launcher [--check|--models|--gpt|--gpt-check|--hybrid]\n"); return 2;
-        }
+        BOOL headless = YES;
         if (!gpt && !models) required = [required arrayByAddingObjectsFromArray:
             @[@"local-model/llama/llama-server", @"local-model/qwen2.5-0.5b-instruct-q4_0.gguf"]];
         for (NSString *relative in required) {
@@ -188,7 +165,7 @@ int main(int argc, const char *argv[]) {
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
-        NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: NSBundle.mainBundle.infoDictionary[@"MuseStateRoot"]
+        NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: (settings[@"state_root"] == NSNull.null ? nil : settings[@"state_root"])
             ?: join(NSBundle.mainBundle.bundlePath.stringByDeletingLastPathComponent, @"Muse Data");
         if (![state isAbsolutePath]) {
             if (headless) fprintf(stderr, "MUSE_INTEGRATED_STATE 必须是绝对路径。\n");
@@ -230,22 +207,9 @@ int main(int argc, const char *argv[]) {
         NSTask *model = nil;
         NSDictionary *localStatus = nil;
         if (!gpt && !models) {
-        BOOL first = ![files fileExistsAtPath:profilePath];
-        NSMutableDictionary *profile = nil;
-        if (hybrid) {
-            NSDictionary *metadata = modelMetadata(profilePath);
-            if (!metadata) { fail(@"现有云端模型元数据无法读取，启动器不会覆盖配置。"); return 1; }
-            profile = [@{@"config":@{@"llm":metadata}} mutableCopy];
-        } else profile = first ? [@{@"id":@"_main", @"name":@"Muse 整合版本", @"enabled":@YES,
-            @"config":@{@"llm":@{@"primary":@{@"family_id":@"local", @"model_id":@"Qwen2.5-0.5B-Instruct-Q4_0-offline",
-                @"context_window":@4096}, @"fallbacks":@[]}, @"env_vars":@{}}} mutableCopy] :
-            [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:profilePath]
-                options:NSJSONReadingMutableContainers error:&error];
-        if (![profile isKindOfClass:NSMutableDictionary.class]) {
-            fail(@"现有模型配置无法读取，请查看本机配置文件；启动器不会覆盖它。"); return 1;
-        }
+        NSDictionary *llm = modelMetadata(profilePath);
+        if (![llm isKindOfClass:NSDictionary.class]) { fail(@"模型元数据无法读取，原 profile 保留。"); return 1; }
         NSString *modelID = @"Qwen2.5-0.5B-Instruct-Q4_0-offline";
-        NSDictionary *llm = profile[@"config"][@"llm"];
         NSMutableArray *selections = [NSMutableArray new];
         if ([llm[@"primary"] isKindOfClass:NSDictionary.class]) [selections addObject:llm[@"primary"]];
         if ([llm[@"fallbacks"] isKindOfClass:NSArray.class]) [selections addObjectsFromArray:llm[@"fallbacks"]];
@@ -285,127 +249,28 @@ int main(int argc, const char *argv[]) {
             }
             [session invalidateAndCancel];
             if (!ready) { finishTask(model); fail([NSString stringWithFormat:@"离线模型未就绪，请查看日志：%@", modelLog]); return 1; }
-            // Update only selections belonging to this bundled model; preserve user providers and credentials.
-            NSMutableDictionary *configData = [profile[@"config"] mutableCopy];
-            NSMutableDictionary *llmData = [configData[@"llm"] mutableCopy];
-            for (NSString *key in @[@"primary", @"fallbacks"]) {
-                NSArray *items = [key isEqual:@"primary"] ? (llmData[key] ? @[llmData[key]] : @[]) : (llmData[key] ?: @[]);
-                NSMutableArray *updated = [NSMutableArray new];
-                for (NSDictionary *selection in items) {
-                    NSMutableDictionary *copy = [selection mutableCopy];
-                    if ([copy[@"family_id"] isEqual:@"local"] && [copy[@"model_id"] isEqual:modelID]) {
-                        copy[@"route"] = @{@"base_url":[base stringByAppendingString:@"/v1"], @"api_type":@"openai", @"label":@"内置基础离线模型"};
-                    }
-                    [updated addObject:copy];
-                }
-                if ([key isEqual:@"primary"]) { if (updated.count) llmData[key] = updated[0]; }
-                else llmData[key] = updated;
-            }
-            configData[@"llm"] = llmData; profile[@"config"] = configData;
-            NSString *now = [[NSISO8601DateFormatter new] stringFromDate:NSDate.date];
-            if (first) profile[@"created_at"] = now;
-            profile[@"updated_at"] = now;
-            // A cloud-only profile is byte-preserved. Only a pre-existing bundled-local selection needs a route update.
-            if (localSelected && !(hybrid ? updateLocalRoute(profilePath,llm,[base stringByAppendingString:@"/v1"])
-                : saveJSON(profile, profilePath, &error))) { finishTask(model); fail(@"无法保存本机离线模型路由，现有云端主配置保留。"); return 1; }
             localStatus = @{@"model_id":modelID, @"quality":@"basic offline fallback; not a strong model",
                 @"base_url":base, @"route_base_url":[base stringByAppendingString:@"/v1"],
                 @"pid":@(model.processIdentifier), @"service_status":@"ready",
-                @"native_local_selected":@(localSelected), @"inference_verified":@NO};
+                @"native_local_selected":@NO, @"native_route_updated":@NO, @"configured_local_selection":@(localSelected), @"inference_verified":@NO};
             saveJSON(localStatus, join(state, @"local-model.json"), nil);
-            if (hybrid) puts(localSelected
-                ? "HYBRID_LOCAL_READY_ONLY：云端主配置保留；已配置的本地路由更新，尚未验证协同推理或持续代理运行。"
-                : "HYBRID_LOCAL_READY_ONLY：云端配置原字节保留；本地服务已就绪但未进入 Native 提供方列表。可在 Models 添加 local 回退；路由见本机 local-model.json。尚未验证协同推理。");
+            if (hybrid) puts("HYBRID_LOCAL_READY_ONLY：原 profile 字节保留；本地服务就绪，Native 路由与推理尚未验证。");
         }
         }
-        NSMutableDictionary *environment = [inherited mutableCopy];
-        for (NSString *key in @[@"MAKEPAD_REMOTE", @"MAKEPAD_HIDE_WINDOWS", @"MAKEPAD_APP_CONFIG", @"OCTOSENSE_HOME", @"OCTOSENSE_APP_DATA", @"OCTOS_APP_CORE_DIR", @"OCTOSENSE_HUB", @"OCTOSENSE_HUB_ANCHOR", @"OCTOSENSE_HUB_CATALOG", @"OCTOS_APP_CORE_BIN", @"OCTOSENSE_KERNEL_ANY_REVISION", @"OCTOSENSE_KERNEL_BIN", @"OCTOSENSE_ALLOW_ANY_KERNEL_REVISION", @"OCTOSENSE_DEV_MODE", @"OCTOSENSE_CONTAINED_APPS", @"MAKEPAD_WM_TEST_APP", @"MAKEPAD_SPLASH_BUDGET_MS", @"MAKEPAD_SPLASH_THEME", @"MAKEPAD_STYLE", @"MAKEPAD_NO_GAUSS", @"MAKEPAD_DISABLE_GAUSS", @"MAKEPAD_NO_FOCUS"]) {
-            [environment removeObjectForKey:key];
+        NSString *readyPath = join(state, [NSString stringWithFormat:@"launch-%d.ready", owner]);
+        if (getppid() != owner || !saveJSON(@{@"owner_pid":@(owner), @"guardian_pid":@(getpid())}, readyPath, &error)) {
+            finishTask(model); return 1;
         }
-        environment[@"OCTOSENSE_HOME"] = join(state, @"shell");
-        environment[@"OCTOSENSE_APP_DATA"] = join(state, @"apps");
-        environment[@"OCTOS_APP_CORE_DIR"] = core;
-        environment[@"OCTOSENSE_HUB"] = join(resources, @"mirror");
-        environment[@"OCTOSENSE_HUB_ANCHOR"] = @"543ffbe45b6700c23e1824157ea694f8bd7839090e0ede464c11758d350b1412";
-        // Only the fresh local catalog uses legacy Ed25519. Existing v2 floors
-        // are still enforced by the host and never downgraded by the launcher.
-        environment[@"OCTOSENSE_HUB_CATALOG"] = @"legacy";
-        environment[@"OCTOSENSE_DEV_MODE"] = @"0";
-        environment[@"MAKEPAD_FOCUS"] = @"1";
-        environment[@"RINX_DATA_DIR"] = join(state, @"rinx");
-        environment[@"ROBRIX_DATA_DIR"] = join(state, @"rinx");
-        environment[@"XDG_CONFIG_HOME"] = join(state, @"config");
-        environment[@"XDG_DATA_HOME"] = join(state, @"data");
-        environment[@"XDG_CACHE_HOME"] = join(state, @"cache");
-        NSString *remote = inherited[@"MUSE_INTEGRATED_REMOTE"] ?: @"9696";
-        NSInteger remotePort = remote.integerValue;
-        NSString *directory = join(resources, @"OctoSense Host.app/Contents/MacOS");
-        NSString *log = join(state, @"logs/host.log");
-        if (![files fileExistsAtPath:log]) [files createFileAtPath:log contents:nil attributes:@{NSFilePosixPermissions:@0600}];
-        NSFileHandle *output = [NSFileHandle fileHandleForWritingAtPath:log];
-        [output seekToEndOfFile];
-        NSTask *host = [NSTask new];
-        host.executableURL = [NSURL fileURLWithPath:join(directory, @"octosense")];
-        NSString *installed = join(state, @"apps/.bundles/muse-goals/bundle/main.splash");
-        NSString *action = @"launch-apphub";
-        if ([files fileExistsAtPath:installed]) {
-            NSData *expected = [NSData dataWithContentsOfFile:join(resources, @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle/main.splash")];
-            if (![expected isEqualToData:[NSData dataWithContentsOfFile:installed]]) {
-                action = @"launch-apphub"; // Normal signed Store update, preserving the app jail.
-            } else {
-                action = @"launch-hub:muse-goals";
-            }
-        }
-        // WorkBuddy opens the linked Native module first; the requested Muse/Models surface follows it.
-        NSMutableArray *arguments = [NSMutableArray arrayWithArray:@[@"--test-action", @"launch-muse-native-prototype",
-            @"--test-action", models ? @"launch-ai-providers" : action]];
-        if (remote.length && remotePort >= 1024 && remotePort <= 65535) {
-            [arguments insertObject:[NSString stringWithFormat:@"--remote=%ld", (long)remotePort] atIndex:0];
-        }
-        host.arguments = arguments;
-        host.environment = environment;
-        host.standardOutput = output; host.standardError = output;
-        __block NSRunningApplication *application = nil;
-        if (workbuddy) {
-            environment[@"MUSE_HOST_LOG"] = log;
-            NSWorkspaceOpenConfiguration *configuration = [NSWorkspaceOpenConfiguration configuration];
-            configuration.createsNewApplicationInstance = YES;
-            configuration.allowsRunningApplicationSubstitution = NO;
-            configuration.environment = environment;
-            configuration.arguments = arguments;
-            __block BOOL completed = NO;
-            __block NSError *launchError = nil;
-            [NSWorkspace.sharedWorkspace openApplicationAtURL:
-                [NSURL fileURLWithPath:join(resources, @"WorkBuddy Launcher.app")]
-                configuration:configuration completionHandler:^(NSRunningApplication *app, NSError *failure) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        application = app; launchError = failure; completed = YES;
-                    });
-                }];
-            while (!completed) [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
-            error = launchError;
-        }
-        if (workbuddy ? !application : ![host launchAndReturnError:&error]) {
-            [output closeFile]; finishTask(model); fail([NSString stringWithFormat:@"宿主未启动：%@\n日志：%@", error.localizedDescription, log]); return 1;
-        }
-        [output closeFile];
         BOOL localStopped = NO;
-        while ((workbuddy ? !application.terminated : host.running) && !stopping) {
+        while (getppid() == owner && !stopping) {
             if (model && !model.running && !localStopped) {
                 localStopped = YES;
                 NSMutableDictionary *status = [localStatus mutableCopy];
                 status[@"service_status"] = @"failed";
                 saveJSON(status, join(state, @"local-model.json"), nil);
-                fprintf(stderr, "Muse 本地服务已退出；云端配置保留，不能称本地持续运行。\n");
+                fprintf(stderr, "Muse 本地服务已退出；原 profile 保留。\n");
             }
-            [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
-        }
-        if (workbuddy) {
-            if (!application.terminated) [application terminate];
-            while (!application.terminated) [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
-        } else {
-            if (host.running) [host terminate];
-            [host waitUntilExit];
+            [NSThread sleepForTimeInterval:0.2];
         }
         finishTask(model);
         if (localStatus && !localStopped) {
@@ -413,7 +278,8 @@ int main(int argc, const char *argv[]) {
             status[@"service_status"] = @"stopped";
             saveJSON(status, join(state, @"local-model.json"), nil);
         }
+        [files removeItemAtPath:readyPath error:nil];
         flock(lock, LOCK_UN); close(lock);
-        return workbuddy ? 0 : host.terminationStatus;
+        return 0;
     }
 }
