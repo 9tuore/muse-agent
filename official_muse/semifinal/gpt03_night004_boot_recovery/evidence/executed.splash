@@ -1,0 +1,232 @@
+use mod.math.*
+use mod.std.*
+let fixture_timers=[] let fixture_timer_index=0
+let fixture_values={} let fixture_visibility={}
+fn fixture_rpc(method,payload){return mod.fixture.rpc({method:method payload:payload}.to_json()).parse_json()}
+fn fixture_io(operation,payload){
+    let reply=fixture_rpc("fixture.fs."+operation,payload)
+    if reply.is_ok {return reply["data"]}
+    if operation=="read" {return ""}
+    if operation=="exists" {return false}
+    return "fixture_io_failed: "+reply.error
+}
+fn fixture_transport(method,payload,callback){callback(fixture_rpc(method,payload))}
+fn time_now(){return fixture_rpc("fixture.clock",{}).data}
+fn random_u32(){return fixture_rpc("fixture.random",{}).data}
+fn start_timeout(delay,callback){fixture_timers.push(callback)}
+fn fixture_drain(){
+    while fixture_timer_index<fixture_timers.len() && fixture_timer_index<300 {
+        let callback=fixture_timers[fixture_timer_index]
+        fixture_timer_index=fixture_timer_index+1 callback()
+    }
+}
+let fs={exists:|path|fixture_io("exists",{path:path}) read:|path|fixture_io("read",{path:path})
+    write:|path,data|fixture_io("write",{path:path data:data}) mkdir:|path|fixture_io("mkdir",{path:path})
+    sha256:|value|mod.fixture.sha256(value) sha256_file:|path|fixture_io("sha256_file",{path:path})}
+fn fixture_widget(name){return {text:||{let value=fixture_values[name] if value==nil{return ""} return value}
+    set_text:|value|{fixture_values[name]=value} render:||{} set_visible:|value|{fixture_visibility[name]=value}
+    is_visible:||fixture_visibility[name]==true set_focus:||{} set_enabled:|value|{}}}
+let host={capabilities:||["mail"]}
+let ui={}
+
+
+let task = nil
+let goals = []
+let selected_id = ""
+let runs = []
+let actions = []
+let core_error = ""
+let core_storage_ready = false
+let core_last_goals = ""
+fn storage_write(path,data){return fixture_io("write",{path:path data:data})}
+fn storage_read(path){return fixture_io("read",{path:path})}
+fn core_goal_index(id){
+    for i in goals.len() { if goals[i].id == id { return i } }
+    return -1
+}
+fn core_goals_valid(saved){
+    if !saved.is_object() || !saved["schema"].is_number() || saved.schema != 2
+        || !saved["goals"].is_array() || saved.goals.len() > 32
+        || !saved["runs"].is_array() || saved.runs.len() > 128
+        || !saved["actions"].is_array() || saved.actions.len() > 128
+        || !saved["selected_id"].is_string() { return false }
+    let goal_ids = {}
+    for goal in saved.goals {
+        if !goal.is_object() || !goal["schema"].is_number() || goal.schema != 1
+            || !goal["id"].is_string() || goal.id == "" || goal_ids[goal.id] != nil
+            || !goal["version"].is_number() || goal.version < 1 || floor(goal.version) != goal.version
+            || !goal["items"].is_array() || !goal["archived"].is_bool() { return false }
+        for key in ["goal","source","status","model_summary","result_path"] {
+            if !goal[key].is_string() { return false }
+        }
+        for key in ["approved_at","updated_at"] {
+            if !goal[key].is_number() || goal[key] < 0 { return false }
+        }
+        for item in goal.items { if !item.is_string() { return false } }
+        let spec = goal["goal_spec"]
+        if spec != nil {
+            if !spec.is_object() || !spec["triggers"].is_array() { return false }
+            for trigger in spec.triggers {
+                if !trigger.is_object() || !trigger["kind"].is_string()
+                    || (trigger.kind == "event" && !trigger["topic"].is_string()) { return false }
+            }
+        }
+        goal_ids[goal.id] = true
+    }
+    if saved.selected_id != "" && goal_ids[saved.selected_id] == nil { return false }
+    let run_ids = {}
+    for run in saved.runs {
+        if !run.is_object() { return false }
+        for key in ["id","goal_id","request_id","status","result_path"] {
+            if !run[key].is_string() { return false }
+        }
+        if run.id == "" || run_ids[run.id] != nil || goal_ids[run.goal_id] == nil
+            || !run["plan_revision"].is_number() || run.plan_revision < 1
+            || floor(run.plan_revision) != run.plan_revision { return false }
+        for key in ["started_at","finished_at"] {
+            if !run[key].is_number() || run[key] < 0 { return false }
+        }
+        run_ids[run.id] = true
+    }
+    let action_ids = {}
+    for action in saved.actions {
+        if !action.is_object() { return false }
+        for key in ["id","goal_id","run_id","service","target_scope","payload_json","status"] {
+            if !action[key].is_string() { return false }
+        }
+        if action.id == "" || action_ids[action.id] != nil || !action["plan_revision"].is_number()
+            || action.plan_revision < 0 || floor(action.plan_revision) != action.plan_revision { return false }
+        for key in ["started_at","finished_at"] {
+            if !action[key].is_number() || action[key] < 0 { return false }
+        }
+        if action.goal_id == "" && action.run_id == "" {
+            if action.plan_revision != 0 { return false }
+        } else if goal_ids[action.goal_id] == nil || run_ids[action.run_id] == nil { return false }
+        action_ids[action.id] = true
+    }
+    return true
+}
+fn core_restore_goals(){
+    if core_last_goals == "" { return }
+    let saved = core_last_goals.parse_json()
+    if saved == nil { return }
+    goals = saved.goals
+    runs = saved.runs
+    actions = saved.actions
+    selected_id = saved.selected_id
+    task = nil
+    let i = core_goal_index(selected_id)
+    if i >= 0 { task = goals[i] }
+}
+fn core_commit_goals(next_goals,next_runs,next_actions,next_selected){
+    if !core_storage_ready { core_error = "多目标存储未就绪；原文件仍保留。" return false }
+    if next_goals.len() > 32 || next_runs.len() > 128 || next_actions.len() > 128 {
+        core_error = "目标、执行或外部动作已达本地容量上限。"
+        return false
+    }
+    let serialized = {schema: 2 goals: next_goals runs: next_runs actions: next_actions
+        selected_id: next_selected}.to_json()
+    if serialized.len() > 900000 { core_error = "多目标记录接近 1 MiB 存储上限。" return false }
+    if core_last_goals != "" {
+        let backup_error = storage_write("goals.backup.json",core_last_goals)
+        if backup_error != nil || storage_read("goals.backup.json") != core_last_goals {
+            core_error = "无法保存目标回退快照，写入已停止。"
+            core_restore_goals()
+            return false
+        }
+    }
+    let error = storage_write("goals.json",serialized)
+    if error != nil || storage_read("goals.json") != serialized {
+        core_error = "目标写入或回读失败；可由回退快照恢复。"
+        core_restore_goals()
+        return false
+    }
+    goals = next_goals
+    runs = next_runs
+    actions = next_actions
+    selected_id = next_selected
+    core_last_goals = serialized
+    task = nil
+    let selected_index = core_goal_index(selected_id)
+    if selected_index >= 0 { task = goals[selected_index] }
+    core_error = ""
+    return true
+}
+fn core_boot_goals(){
+    core_storage_ready = true
+    let saved = nil
+    let primary_present = fs.exists("goals.json")
+    let backup_present = fs.exists("goals.backup.json")
+    if primary_present {
+        let candidate = storage_read("goals.json").parse_json()
+        if core_goals_valid(candidate) { saved = candidate }
+    }
+    if saved == nil && backup_present {
+        let candidate = storage_read("goals.backup.json").parse_json()
+        if core_goals_valid(candidate) {
+            saved = candidate
+            core_error = "目标主记录损坏；已从备份读取，尚未重写。"
+        }
+    }
+    if saved != nil {
+        goals = saved.goals
+        runs = saved.runs
+        actions = saved.actions
+        selected_id = saved.selected_id
+        core_last_goals = saved.to_json()
+        let i = core_goal_index(selected_id)
+        if i >= 0 { task = goals[i] }
+        // A lost callback is not proof of external failure or success.
+        // Recover one snapshot once; each commit rewrites and reads both files.
+        let revised = nil
+        for j in actions.len() {
+            if actions[j].status == "in_flight" {
+                if revised == nil { revised = core_last_goals.parse_json() }
+                revised.actions[j].status = "unknown"
+            }
+        }
+        if revised != nil {
+            if !core_commit_goals(revised.goals,revised.runs,revised.actions,revised.selected_id) { return false }
+        }
+        return true
+    }
+    if primary_present || backup_present {
+        core_storage_ready = false
+        core_error = "目标主记录和备份均不可读；已停止迁移，避免丢失较新目标。"
+        return false
+    }
+    if fs.exists("current.json") {
+        let old = storage_read("current.json").parse_json()
+        if old == nil || old.id == nil || old.result_path == nil {
+            core_storage_ready = false
+            core_error = "旧版目标记录无效，未迁移也未覆盖。"
+            return false
+        }
+        old += {archived: false}
+        let imported_runs = []
+        if old.status == "running" || old.status == "completed" || old.status == "failed" {
+            let finished = 0
+            if old.status != "running" { finished = old.updated_at }
+            imported_runs.push({id: "legacy:" + old.id goal_id: old.id plan_revision: old.version
+                request_id: "legacy:" + old.id status: old.status started_at: old.approved_at
+                finished_at: finished result_path: old.result_path})
+        }
+        if !core_commit_goals([old],imported_runs,[],old.id) {
+            core_storage_ready = false
+            task = old
+            return false
+        }
+    }
+    return true
+}
+fixture_rpc("fixture.perf_mark",{phase: "start"})
+let restored = core_boot_goals()
+fixture_rpc("fixture.perf_mark",{phase: "end"})
+let unknown = 0 let in_flight = 0
+for action in actions {
+    if action.status == "unknown" { unknown = unknown + 1 }
+    if action.status == "in_flight" { in_flight = in_flight + 1 }
+}
+({is_ok: restored storage_ready: core_storage_ready error: core_error
+    goals: goals.len() runs: runs.len() actions: actions.len()
+    unknown: unknown in_flight: in_flight memory_snapshot: core_last_goals}).to_json()

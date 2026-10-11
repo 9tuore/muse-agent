@@ -1,0 +1,65 @@
+{
+  "name": "primary_write_failure",
+  "pending": 128,
+  "injected_failure": "primary_write",
+  "checks": {
+    "vm_clean": true,
+    "fixture_only_no_dispatch": true,
+    "shape_unchanged": true,
+    "failure_returned": true,
+    "prior_memory_restored": true,
+    "no_completed_actions": true,
+    "backup_preserves_original_primary_bytes": true,
+    "primary_matches_actual_write_result": true
+  },
+  "elapsed_ms": 349.621285,
+  "operations": [
+    {
+      "operation": "exists",
+      "path": "goals.json",
+      "injected_failure": false
+    },
+    {
+      "operation": "exists",
+      "path": "goals.backup.json",
+      "injected_failure": false
+    },
+    {
+      "operation": "read",
+      "path": "goals.json",
+      "injected_failure": false
+    },
+    {
+      "operation": "write",
+      "path": "goals.backup.json",
+      "injected_failure": false,
+      "bytes": 83116,
+      "sha256": "ca417c34f18444ba3c2d4ea17a8857f689c0525cf84f6ced2ea56f7931641dee"
+    },
+    {
+      "operation": "read",
+      "path": "goals.backup.json",
+      "injected_failure": false
+    },
+    {
+      "operation": "write",
+      "path": "goals.json",
+      "injected_failure": true,
+      "bytes": 82860,
+      "sha256": "043451af189163b0a6cd1abed1d40e2a47a97ca72d01ec69281397a17ba5a7e1"
+    }
+  ],
+  "commit_writes": 2,
+  "commit_reads": 1,
+  "before_sha256": {
+    "goals.json": "ca417c34f18444ba3c2d4ea17a8857f689c0525cf84f6ced2ea56f7931641dee",
+    "goals.backup.json": "074fdd22533d86c47edc35227a16e8c1357ad39780511edd765c2606d741ca34"
+  },
+  "after_sha256": {
+    "goals.json": "ca417c34f18444ba3c2d4ea17a8857f689c0525cf84f6ced2ea56f7931641dee",
+    "goals.backup.json": "ca417c34f18444ba3c2d4ea17a8857f689c0525cf84f6ced2ea56f7931641dee"
+  },
+  "ok": false,
+  "unknown": 0,
+  "in_flight": 128
+}
