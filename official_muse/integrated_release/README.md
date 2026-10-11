@@ -1,4 +1,4 @@
-# Muse 统一候选 0.4.0-rc4
+# Muse 统一候选 0.4.0-rc5
 
 这是统一入口和配套宿主的开发候选。当前不能称正式版验收通过，也没有公开发布。
 主源码、全局记忆、多对话、长期事务、邮件和行动链沿用现有实现；不另建 Calendar 或 Mail。
@@ -22,7 +22,7 @@ Calendar 的三个 INTEGRATED patch 位于 `../semifinal/calendar_integration/`�
 ### 复用 WorkBuddy 工作 pair
 
 `--paired-host-app` 复制现成已签名宿主包，不运行 Cargo、不重新生成资源、不重签 Host/Kernel，
-输入与最终 Host/Kernel SHA 必须保持。保留源宿主 Info.plist 与资源封印，外层候选仍为 rc4。
+输入与最终 Host/Kernel SHA 必须保持。保留源宿主 Info.plist 与资源封印，外层候选为 rc5。
 2026-10-11 核对的具体输入见 `WORKBUDDY_PAIR.json`：Host ec83a4f9、Kernel 56761a9f，
 它们与 WorkBuddy artifacts-rc3 的字节相同；源宿主包 deep/strict 校验通过。
 八个资源命名空间共 208 文件，另有一份 Kernel receipt；成品输出逐文件 `HOST_RESOURCES.json`。
@@ -34,22 +34,27 @@ Calendar 的三个 INTEGRATED patch 位于 `../semifinal/calendar_integration/`�
 `--state-root` 只把绝对资料根路径写入 Info.plist，不读取或复制该目录；
 运行时 `MUSE_INTEGRATED_STATE` 优先，其次包内引用，最后默认同级 Muse Data。
 
-中央在接收本补丁后生成新目录，使用当前已冻结的公开镜像和 Qwen 输入：
+Root 完成 prepare_bundle/publisher helper 的 rc5 同步、生成新镜像并验签后，
+将 `MUSE_RC5_MIRROR` 设为该镜像的绝对目录，再生成新成品目录。Host/Kernel 与 Qwen 继续复用已核对输入：
+rc5 catalog sequence 必须高于设备已验证的 sequence；当前 rc4 镜像为 1，更新至少用 2。
+Root 的 helper 须同步这一序列，不能仅更改版本号后继续发布不同内容的 sequence=1。
+既存 rc4 安装与 rc5 main 不同会进入 App Hub 正常更新；Launcher 不替换安装文件或资料。
 
 ```sh
 MUSE_WORKING_TREE='/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松'
 MUSE_WORKBUDDY='/Users/mima0000/WorkBuddy/2026-09-28-21-35-00/muse-blackfix'
+: "${MUSE_RC5_MIRROR:?请先设为 Root 新生成并验签的 rc5 mirror 绝对目录}"
 python3 "$MUSE_WORKING_TREE/official_muse/integrated_release/package_app.py" \
   --sdk "$MUSE_WORKING_TREE/build/runtime-closure-full-shell-r1/sdk" \
   --host "$MUSE_WORKBUDDY/artifacts-rc3/octosense" \
   --kernel "$MUSE_WORKBUDDY/artifacts-rc3/octos-kernel" \
   --kernel-receipt "$MUSE_WORKBUDDY/artifacts-rc3/octos-kernel.json" \
   --paired-host-app "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc3-ui-r1/Muse.app/Contents/Resources/OctoSense Host.app" \
-  --mirror "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc4-r2/mirror" \
+  --mirror "$MUSE_RC5_MIRROR" \
   --model-mode hybrid \
   --model-source "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc4-app-r1/Muse.app/Contents/Resources/local-model" \
   --state-root "$MUSE_WORKING_TREE/build/live-acceptance-003/home" \
-  --out "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc4-workbuddy-r1"
+  --out "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc5-workbuddy-r1"
 ```
 
 PACKAGE.json 记录 pair、目录与 Muse main 的实际 SHA，状态仍为 PACKAGED_NOT_RUNTIME_VERIFIED。
@@ -58,12 +63,13 @@ PACKAGE.json 记录 pair、目录与 Muse main 的实际 SHA，状态仍为 PACK
 最终定向验证：`test_launcher.py` 22/22（18.224s）、`test_package.py` 4/4（4.941s）。
 打包 fixture 使用签名 stub、合成资源和假 SDK pin；不调用 LaunchServices。
 LaunchServices 不提供原 Host 的 exit status；控制器退出 0 不能作为 Host/业务成功回执。
+rc5 同步后：Launcher 23/23（20.157s）、package 4/4（5.859s）；新增旧 main 保持原字节并走 Hub 更新的 fixture。
 
 ## 本地签名目录
 
 原版 Hub CLI 保持默认权限上限，拒绝含 calendar.events 的清单；失败证据保留。
 `muse_local_catalog.rs` 是本任务的本地 publisher embedding，使用原 Hub gate、packer、
-签名和 catalog verifier，只接受 muse-goals 0.4.0-rc4 与本任务固定 publisher。
+签名和 catalog verifier，只接受 muse-goals 0.4.0-rc5 与本任务固定 publisher。
 它只添加配套宿主相同的 events/get_event/add_event/notify 四项上限；
 不改验证器、默认 CLI、系统身份或本人 consent，不对其他应用赋权。
 本地目录的通过只对这个待审配套宿主有效。

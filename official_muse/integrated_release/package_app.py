@@ -86,7 +86,7 @@ def main():
     assert not list(resources.rglob('*.key')), 'A private key entered the package'
     plist = dict(CFBundleName='Muse', CFBundleDisplayName='Muse', CFBundleExecutable='muse-launcher',
         CFBundleIdentifier='org.xinghai.muse.integrated', CFBundlePackageType='APPL',
-        CFBundleShortVersionString='0.4.0', CFBundleVersion='4', LSMinimumSystemVersion='14.0',
+        CFBundleShortVersionString='0.4.0', CFBundleVersion='5', LSMinimumSystemVersion='14.0',
         NSHighResolutionCapable=True, MuseModelMode=args.model_mode)
     if args.paired_host_app:
         plist['MuseHostLaunchMethod'] = 'workbuddy'
@@ -134,7 +134,7 @@ def main():
     inventory = {p.relative_to(inner / 'Resources').as_posix(): sha(p)
         for p in sorted((inner / 'Resources').rglob('*')) if p.is_file()}
     (output / 'HOST_RESOURCES.json').write_text(json.dumps(inventory, indent=2) + '\n')
-    record = {'version': '0.4.0-rc4', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
+    record = {'version': '0.4.0-rc5', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
         'signature': 'AD_HOC_LOCAL_ONLY', 'source_host_sha256': source_host_sha256,
         'source_kernel_sha256': source_kernel_sha256,
         'reused_signed_pair': bool(args.paired_host_app),
@@ -142,7 +142,7 @@ def main():
         'host_resources_files': len(inventory),
         'state_root_reference': str(args.state_root) if args.state_root is not None else None,
         'catalog_sha256': sha(resources / 'mirror/catalog.json'),
-        'muse_main_sha256': sha(resources / 'mirror/artifacts/muse-goals-0.4.0-rc4.bundle/main.splash'),
+        'muse_main_sha256': sha(resources / 'mirror/artifacts/muse-goals-0.4.0-rc5.bundle/main.splash'),
         'host_sha256': sha(inner / 'MacOS/octosense'),
         'host_hash_boundary': 'source_host_sha256 is the input; host_sha256 is the packaged executable after signing',
         'kernel_sha256': sha(inner / 'MacOS/octos-kernel'),

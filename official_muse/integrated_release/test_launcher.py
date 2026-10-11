@@ -56,12 +56,12 @@ int main(int argc, char **argv) {
         shutil.copy2(binary, host / 'MacOS/octos-kernel')
         (host / 'Resources/octos-kernel.json').write_text('{}')
         mirror = cls.resources / 'mirror'
-        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc4.bundle'
+        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc5.bundle'
         bundle.mkdir(parents=True)
         (bundle / 'manifest.json').write_text('{}')
         (bundle / 'main.splash').write_text('// fixture')
         (mirror / 'catalog.json').write_text('{}')
-        (mirror / 'artifacts/muse-goals-0.4.0-rc4.bundle.pack.json').write_text('{}')
+        (mirror / 'artifacts/muse-goals-0.4.0-rc5.bundle.pack.json').write_text('{}')
         for item in [host / 'MacOS/octos-kernel', host.parent, cls.app]:
             subprocess.run(['codesign', '--force', '--sign', '-', str(item)], check=True,
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -200,6 +200,17 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.profile.read_text(), 'invalid fixture')
         self.assertIn('launch-ai-providers', (self.state / 'logs/host.log').read_text())
+
+    def test_previous_installed_main_routes_to_normal_hub_update_without_rewriting(self):
+        self.write_profile({'family_id': 'openai', 'model_id': 'gpt-4o'})
+        installed = self.state / 'apps/.bundles/muse-goals/bundle/main.splash'
+        installed.parent.mkdir(parents=True)
+        previous = b'// Previous rc4 installed fixture; requires normal Hub update'
+        installed.write_bytes(previous)
+        result = self.launch('--gpt')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('launch-apphub', (self.state / 'logs/host.log').read_text())
+        self.assertEqual(installed.read_bytes(), previous)
 
     def test_relative_state_rejected_without_creation(self):
         self.state = Path('relative-fixture-state')

@@ -141,8 +141,8 @@ int main(int argc, const char *argv[]) {
         NSFileManager *files = NSFileManager.defaultManager;
         BOOL workbuddy = [NSBundle.mainBundle.infoDictionary[@"MuseHostLaunchMethod"] isEqual:@"workbuddy"];
         NSArray *required = @[@"OctoSense Host.app/Contents/MacOS/octosense", @"mirror/catalog.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc4.bundle/manifest.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc4.bundle.pack.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle/manifest.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle.pack.json",
             @"OctoSense Host.app/Contents/MacOS/octos-kernel",
             @"OctoSense Host.app/Contents/Resources/octos-kernel.json"];
         if (workbuddy) required = [required arrayByAddingObject:@"WorkBuddy Launcher.app/Contents/MacOS/Launcher"];
@@ -184,7 +184,7 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
         if (check) {
-            puts("PASS：Muse 0.4.0-rc4 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
+            puts("PASS：Muse 0.4.0-rc5 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
@@ -349,7 +349,7 @@ int main(int argc, const char *argv[]) {
         NSString *installed = join(state, @"apps/.bundles/muse-goals/bundle/main.splash");
         NSString *action = @"launch-apphub";
         if ([files fileExistsAtPath:installed]) {
-            NSData *expected = [NSData dataWithContentsOfFile:join(resources, @"mirror/artifacts/muse-goals-0.4.0-rc4.bundle/main.splash")];
+            NSData *expected = [NSData dataWithContentsOfFile:join(resources, @"mirror/artifacts/muse-goals-0.4.0-rc5.bundle/main.splash")];
             if (![expected isEqualToData:[NSData dataWithContentsOfFile:installed]]) {
                 action = @"launch-apphub"; // Normal signed Store update, preserving the app jail.
             } else {
