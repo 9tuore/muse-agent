@@ -1,3 +1,7 @@
+> R4三例小单元：Root真实产品commit197d16d7/source8227已核对，中央同Main guard49/49/RPC0 PASS。compact native probe最终出口先生成局部result_json再返回；精确出口现有VM使用保存字段输出1384字节合法JSON/RPC0（format-only）。实际中央source8227重新准备same/contained/adjacent到新build/gpt01-native-overlap-prepared-r6，338functions/184globals逐字断言通过，PREPARED_NOT_RUN。R4签名和三例真实Kernel由Root串行；无旧baseline重写/结果修补。见overlap/ROOT_R4_INTERVAL_HANDOFF.md。
+
+> 04:48现场增量：只读中央source已为8227bbb3（与提案一致），HEAD5d6cd7fa且Main为未提交修改；本站未apply。compact final用保存真实字段在现有VM输出1125字节合法JSON/RPC0。postpatch七例338functions/184globals逐字准备已完成，PREPARED_NOT_RUN；Root已有明确case/命令与GPT02三阶段说明。旧baseline与失败证据保留。最小提案独立commit87d3b6d3，实际signed/full-chain仍待Root报告。
+
 > Calendar overlap 提案（2026-10-12）：Root 固定c892真实首次同槽操作 owner 1→2，原事件保留；parent最终JSON失败原样保留。overlap/native_preflight_main.patch为未应用194行Main提案，query limit200精确receipt/session、只一条当前tool row、半开区间、cap200/未知字段UNKNOWN，结清query后另一次候选操作才创建。提示词不是权限隔离，额外mutation只能阻止第二次nativecreate，不能撤回query副作用。纯VM/replay三进程49/49 PASS、RPC0；实际scope函数未stub。proposed source8227bbb3/patchb34ac5c2，中央apply--check PASS。Main/SDK/包未改，Root接入和真实full-chain仍待执行。见overlap/README.md与VM_GUARD_RESULT.json。
 
 > Root 中央 R3 实际 L4 验收：2026-10-12，最终 Main cdb1412b、现有 R8 binary 270617f0，5/5 PASS（stable retry/restart、update/remove Deny、interrupt＋只读对账、signed caller withdrawal）。GPT01只读核对原始result/identity/关键证据及SHA：真实取消turn0167806a/person且原请求interrupted，owner count1/store SHA一致、副作用false；catalog seq4→5保留同manifest、仅目标status改变，真实withdrawn拒绝。Root报告10.771秒，本聊天未独立计时/重跑。原R1/R2失败保留；记录kernel_bridge/L4_CENTRAL_R3_ACCEPTANCE_RECORD.json。此桥L4使用fixture模型/手势，不代表生产Main VM或产品L3验收。
