@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02；修Calendar→Mail VM r1 probe缺少runner截断后生产定义。正式source0c7f9812不改。
+GPT-02；中央r2/r3启动解析限额后，准备最小追加probe，正式source0c7保持。
 
 ## Result
-PARTIAL：fixture依赖修复已交，中央新out真实VM重跑未做。
+PARTIAL：compact产物已交，未VM执行，不宣称启动限额解除。
 
 ## Changed
-仅probe/expectations及自有说明。逐字补7个真实action-chain全局和ac_field/ac_goal_allowed/ac_current_goal，登记SHA；40预期不变，不删当前事项检查。
+calendar_mail_vm_compact.splash、compact identity及生成器；只使用现有compact_bundle.py压缩合成部分，生产prefix、7尾部let/3真实函数原字节不变。现有--probe直接使用，无runner补丁。
 
 ## Tests
-中央r1实际log报ac_selected_chat缺失；原report/log/state保留。离线核508其他prefix函数不变、3尾部函数与生产字节一致、114可达函数调用/裸赋值声明。不把离线检查称VM测试，未运行VM/Host/Node/GUI/Cargo。
+离线核全部字符串、非空白/注释字节、换行及40检查不变；追加15973→13610字节，减少2363，r3输入替换后537473字节。旧tokenizer binary未找到，不称官方token/VM验证。未重复VM/Host/GUI/Cargo/Node。
 
 ## Commit
 本地提交见最终回复，未push。
 
 ## Remaining
-中央新out重跑完整40集合。当前正式源实际符号ac_current_goal，不存在current_action_goal。
+中央优先正式窗口安装；后续若验证compact须新out和完整40集合。
 
 ## Important Boundaries
-r1是probe截取依赖缺口，不是正式main缺变量；未动main/runner/Host。期待值非PASS；真实Calendar/Mail批准与投递未验证。
+r2/r3 ERROR/log保留，未到业务。正式main/dirty runner/Host预算未改；不删当前事项/版本检查。压缩准备不等于真实业务、批准或SMTP成功。

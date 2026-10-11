@@ -105,5 +105,29 @@
     "error": "variable ac_selected_chat not found in scope",
     "classification": "probe omitted production tail dependencies; not a formal-source absence or current-binding bypass"
   },
-  "offline_dependency_audit": "114 reachable function bodies: free function calls and bare variable assignments checked against actual prefix plus copied tail declarations; not a VM compiler or execution."
+  "offline_dependency_audit": "114 reachable function bodies: free function calls and bare variable assignments checked against actual prefix plus copied tail declarations; not a VM compiler or execution.",
+  "compact_probe": {
+    "file": "calendar_mail_vm_compact.splash",
+    "sha256": "153a16496e77ddfb8228a03f2bba1bc929db600aeea7bc6b52208bb683a7ed01",
+    "bytes": 13610,
+    "readable_bytes": 15973,
+    "saved_bytes": 2363,
+    "status": "PREPARED_NOT_VM_EXECUTED",
+    "production_tail_bytes_unchanged": true,
+    "same_runner_candidate_bytes": 537473
+  },
+  "startup_vm_failures": [
+    {
+      "central_out": "build/muse-integrated-calendar-mail-rc4-vm-r2",
+      "status": "ERROR",
+      "runtime_log_sha256": "577536549c283c2198b70ddffc0c0960ca9f916781c687b651ed8b5d64a95b50",
+      "stage": "startup parsing; script time budget exceeded; view=false; business checks not reached"
+    },
+    {
+      "central_out": "build/muse-integrated-calendar-mail-rc4-vm-r3",
+      "status": "ERROR",
+      "runtime_log_sha256": "f7ac189ec78f7b4a9c9b1adcf3933c5cdd2df08b27f9d09b0d22643f9339f53c",
+      "stage": "startup parsing; script time budget exceeded; view=false; business checks not reached"
+    }
+  ]
 }

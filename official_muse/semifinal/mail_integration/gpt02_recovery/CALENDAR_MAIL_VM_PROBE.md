@@ -48,3 +48,20 @@ python3 official_muse/semifinal/tests/run_official_api.py \
 修复仅在 probe 前置逐字复制该源码七个 action-chain 全局 let，以及 ac_field/ac_goal_allowed/ac_current_goal 三个真实函数，不复制完整 UI、不替换或简化当前事项检查。当前 0c7 正式源没有 current_action_goal 这个符号；实际被调用的是 ac_current_goal。三个函数与全局 block 的来源 SHA 在 expectations 中登记。
 
 修复后离线核 508 个其他 prefix 函数不变、新增三函数不重名且与正式源字节相同；从 fixture 入口/transport 递归检查 114 个可达函数的自由函数调用和裸变量赋值声明。40 个预期断言、调用次序与负向 scope 检查均未删除。此检查不是 Splash 语义编译器，没有重新执行 VM、Node 或启动 Host；等待中央新 out 实测完整 40 项。
+
+## r2/r3 启动限额后的最小追加产物
+
+中央 r2/r3 原 ERROR 和日志均保留；两轮都在启动解析阶段报 `script time budget exceeded`、`view=false`，未到业务逻辑。本聊天不重复启动相同输入，不提高 Host 预算，也不删事项/版本检查。
+
+新增 `calendar_mail_vm_compact.splash`。仅合成 probe 部分使用项目现有 `ui_memory/compact_bundle.py`（SHA `2abe13a909dc0d320e65cdb43b6e1dc4f338e4a128f3d965223fd03b72485349`）移除行注释、缩进和字符串外分隔符空白。补入的整个生产尾部 block、七个 let、三个真实函数保留原字节；正式 prefix 与 WIDGET 不动。换行、全部字符串字节、非空白/非注释字节序列逐项核对相同，40 项检查仍完整。当前可用环境未找到旧官方 bundle-tokens binary，没有把此检查说成官方 token 比较。
+
+追加文本从 15,973 字节减为 13,610 字节，减少 2,363 字节；按 r3 原输入只替换追加文本，候选总大小为 537,473 字节。SHA、逐字函数身份和验证范围见 `calendar-mail-vm-compact-identity.json`。这是离线准备，**未执行 VM，也不证明启动限额已解除**。
+
+复现准备：
+
+```sh
+python3 official_muse/semifinal/mail_integration/gpt02_recovery/prepare_calendar_mail_compact.py \
+  --source official_muse/app/source/main.splash
+```
+
+中央后续若验证，只需现有 runner 的 `--probe` 改指 `calendar_mail_vm_compact.splash`，使用新 out 并核 compact SHA 与原完整40集合。现有接口已经足够，未提供或应用 runner 补丁；不动用户 dirty runner、正式 main 或 Host。
