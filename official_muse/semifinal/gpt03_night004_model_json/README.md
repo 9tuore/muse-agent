@@ -43,3 +43,5 @@ python3 "$TASK_SCOPE/run.py" \
 prepare和run的`--source-sha`默认均固定c892。复验新Main时，Root须将`TASK_SOURCE_SHA`显式设为已核对的新候选SHA，并选择新的`TASK_OUT`；两个命令传同值，重新prepare后运行。脚本不读取当前HEAD或自动接受当前文件SHA；runner在创建out、读取binary或启动子进程前，校验prepared的source身份与executed字节SHA。case/summary记录本次显式SHA。
 
 旧54项报告、实际执行parent/SDK快照及`evidence-manifest.json`仍属于提交4db56e的c892执行。该历史manifest中的活动脚本/文档摘要应对照4db56e内容；修改后的runner不得被冒充为旧执行parent。`verify_evidence.py`仍只核对旧归档，不能用来为新候选授予54项PASS。新SHA参数契约的检查见`source-sha-contract.json`；其中替代SHA是仅追加注释的明确身份fixture，不是未来Main业务或全链运行。
+
+2026-10-12 caa99新候选实际复验与新证据入口：[CANDIDATE_CAA99.md](CANDIDATE_CAA99.md)。

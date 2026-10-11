@@ -1,15 +1,3 @@
-# GPT03 NIGHT-004 L4 当前状态
+# Current state
 
-最新2026-10-12：Root明确8227bbb3…acde0d源码已核对，新prepare及8阶段实际107/107 PASS。SIGKILL−9、receipt errno21、Review cancel、真实wait52.204ms/late259.614ms独立归档在evidence/candidate-8227-r1。144/65与285/155函数/global摘要同c892，无NativeCreate适配。新旧归档复核PASS；中央命令见CANDIDATE_8227，旧107原字节保留，整链NOT_TESTED。
-
-2026-10-12（Asia/Shanghai）。只读审查＋自有探针，状态PARTIAL。
-
-实际c892 Mail组件8阶段107项PASS（78＋29）：pending review回执前SIGKILL−9；accepted后receipt OS写错errno21；实际Review取消；fixture网关50msdeadline实际等57.603ms后Queue.Empty，250ms回包255.908ms才入队并丢弃。各自新VM/Mail/recipient恢复，同request/compose/message/payload保留，恢复transport/review均0。未改生产代码，未Kernel/GUI/SMTP/push。
-
-中央最新实际结果已读回：L3 28＋15、Mail117、input26/scale22/guard22/completion33/update99/binding11、Main Deny24＋12/CAS23＋11、Kernel五场景。Deny/CAS Main仍unknown并阻断旧草稿，不编造failed/verified或完成Memory。
-
-L4缺口：无效model JSON经SDK decoder到Main的机制；native Calendar重叠冲突行为。overlap query仅prepare。网关实际计时已通过，不称生产SDK/SMTP/network timeout。批准版本/内容失效有证据，不臆造TTL。
-
-复验及对照见README.md、RESULT.md；交接见HANDOFF_LATEST.md。仅本目录本地提交，无关gui_smoke.py保留。共享MUSE_HANDOFF及中央Main/SDK/target未改。
-
-接续：prepare/run显式--source-sha默认c892；执行前同时校验initial/restart prepared的source/executed身份。新候选须新out重prepare/rerun；旧107项未改版本。NativeCreate未被当前探针调用，未来闭包适配边界见README。参数契约20项PASS，见source-sha-contract.json，仅身份fixture，无新Mail/VM运行。
+2026-10-12 Root明确caa99 Main，新prepare后本组件107/107 PASS，归档复核PASS。闭包仅core_boot_goals摘要改变，其余函数/global相同。新证据evidence/candidate-caa99-r1；运行build/gpt03-night004-l4-audit/candidate-caa99-run-r1。旧8227/c892证据不改。完整边界/命令见CANDIDATE_CAA99.md；Root R5 Host64ms/GUI/full-chain待其现场验证。

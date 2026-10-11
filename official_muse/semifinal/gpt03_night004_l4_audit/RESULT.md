@@ -63,3 +63,7 @@ fixture网关实际计时超时已新增29项PASS，不再列为缺口。50ms/25
 Host Deny、同 request 复用、签名撤回、实际中断及外部 Calendar CAS 已读回新中央结果，不继续列成未完成，不重复执行。时间 TTL 若并无产品规则，应在最终结果明确批准绑定版本/内容的范围；不能臆造 TTL 测试或接口。GUI/Calendar owner 的绘制问题由 Root 处理，不属于本次 L4 代码或测试。
 
 **建议最终状态：L3 可按已有同候选证据保持 SIMULATION_PASS；本单元 Mail 组件 PASS；L4 总体 PARTIAL，直到上述必要缺口有实际证据。REAL_E2E_PASS 不成立。**
+
+## 2026-10-12 caa99 新执行
+
+107/107 PASS；新prepare/新进程/新归档，只有core_boot_goals摘要改变。详见CANDIDATE_CAA99.md与evidence/candidate-caa99-r1。旧证据不改，Host64ms/GUI/full-chain不计入。

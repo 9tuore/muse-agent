@@ -56,3 +56,5 @@ prepare和run的`--source-sha`默认均固定c892。新候选复验须显式设�
 只准备 [overlap_query.splash](overlap_query.splash)，没有运行 Kernel。Root若执行，应从 c892重新prepare，交给既有 GPT02 `night004/l3/run.py`实际Kernel parent，并使用复制出的标记 Main L3 state/checkpoint和实际owner fixture配置。需要标准四个Kernel参数；该脚本已定义此契约，不在此发明新的CLI。
 
 该探针要求原L3 checkpoint的event仍在actualowner中，检查真实 persisted `calendar.events`回执/digest/同字段event、owner SHA不变、无mutation/Mail运输。它只证明重叠原事件可见；`production_conflicts`只作观察，**不授予“冲突警告或创建阻断PASS”**。不要为了通过而手写history/receipt或启用被禁的legacy Calendar路径。
+
+2026-10-12 caa99新候选实际复验与新证据入口：[CANDIDATE_CAA99.md](CANDIDATE_CAA99.md)。

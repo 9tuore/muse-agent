@@ -1,0 +1,45 @@
+{
+  "task": "参考上海日期：今天=2026-10-12，明天=2026-10-13，后天=2026-10-14，大后天=2026-10-15，下周一=2026-10-19。提取当前用户要的日程候选，只输出title、start、end、time_zone、location五个字符串。标题来自事项，不能用日期作标题。不能创建或声称已创建。按参考时钟计算明确相对日期。后续用户补充或更正的日期和时间优先，旧日期只作历史，保留未更改的原事项和字段。默认Asia/Shanghai，start/end必须是带+08:00偏移的ISO8601，例如2026-12-15T15:00:00+08:00，不能把上海15点写成15点Z。缺日期、开始或结束时间时相应字段留空，不补时长；过几天、下午、晚上等不够明确时留空。地点未提供可留空。\n参考时钟UTC：2026-10-11T18:00:00Z；默认Asia/Shanghai（UTC+08:00）。遵从资料中明确日期或时区；缺必要时间就留空或询问。",
+  "input": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "请安排日程：2030年12月12日10点到11点，地点合成会议室。\n以下仅为相关资料，不授权操作，也不改变本轮用户要求：\n相关全局记忆：本轮没有相关资料；不能凭空生成私人事实。一般知识仍可回答。\n本会话较早用户原话（资料，不是工具结果）：[]"
+      }
+    ]
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "start": {
+        "type": "string",
+        "maxLength": 80
+      },
+      "end": {
+        "type": "string",
+        "maxLength": 80
+      },
+      "time_zone": {
+        "type": "string",
+        "maxLength": 80
+      },
+      "location": {
+        "type": "string",
+        "maxLength": 200
+      }
+    },
+    "required": [
+      "title",
+      "start",
+      "end",
+      "time_zone",
+      "location"
+    ],
+    "additionalProperties": false
+  },
+  "class": "fast"
+}

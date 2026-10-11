@@ -39,3 +39,7 @@ SDK子进程分别88991/89022/89042，Main VM88995/89024/89047，Mail88994/89023
 这补齐**L4无效原始模型JSON的模拟机制证据**，不代表真人模型、真实网络、完整签名GUI或REAL_E2E_PASS。Calendar overlap由GPT01准备，本单元未重复。L4整体是否收口仍由Root根据该项接收复验及Calendar冲突证据决定。
 
 原107项持久化/计时故障的报告和`14e0384`提交保持原字节；本目录是新单元，没有回写旧报告。Root可直接复用已链接driver运行同c892源码，命令见README.md。
+
+## 2026-10-12 caa99 新执行
+
+54/54 PASS；新prepare/新进程/新归档，只有core_boot_goals摘要改变。详见CANDIDATE_CAA99.md与evidence/candidate-caa99-r1。旧证据不改，Host64ms/GUI/full-chain不计入。
