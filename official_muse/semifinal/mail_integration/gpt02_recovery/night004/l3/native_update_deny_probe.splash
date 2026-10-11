@@ -38,7 +38,11 @@ fn native_update_deny(){
     if !bridge_checks.one_goal_before_kernel { bridge_observations.error = ui_error return }
     bridge_checks.explicit_mutation_deny = fixture_rpc("fixture/mutation-approval",{}).data.approval == "deny"
     if !bridge_checks.explicit_mutation_deny { return }
+    if !native_create_preflight() { return }
+    // Second explicit candidate gesture: the original create entry remains add/get-only.
     calendar_agent_submit_candidate()
+    bridge_checks.preflight_and_create_distinct_requests_turns = calendar_agent_state.request_id != native_preflight_snapshot.state.request_id
+        && calendar_agent_state.turn_id != native_preflight_snapshot.state.turn_id && calendar_agent_preflight.status == "consumed"
     bridge_checks.real_kernel_create_verified = calendar_agent_state.status == "turn_completed"
         && calendar_agent_state["binding"] != nil && calendar_agent_state.binding.receipt_status == "verified"
     bridge_observations.create_state = calendar_agent_state.to_json().parse_json()
@@ -130,9 +134,45 @@ fn native_update_deny(){
     bridge_checks.original_creation_journal_preserved = calendar_agent_state.to_json() == creation_json
     storage_write("l3-deny-checkpoint.json",{chat_id:chat_selected_id goal_id:goals[0].id event:original.event
         mutation:mutation old_draft:old_draft owner_store_sha256:original_bytes.sha256 legal_refusal_receipt:legal_refusal}.to_json())
-    bridge_observations = {mutation:mutation actual_audit:audit actual_history:history actual_refusal_receipt:refusal_receipt
+    bridge_observations = {preflight:native_preflight_snapshot mutation:mutation actual_audit:audit actual_history:history actual_refusal_receipt:refusal_receipt
         actual_owner_read:readback draft:mail_draft goals:goals runs:runs memory:memory
         boundary:"Only actual Router audit proves fixture Deny. Native UNKNOWN is required without a legal production refusal receipt; future actual failed is allowed with that receipt. No history/lane/receipt or failure state fabricated. Background timers not drained."}
+}
+let native_preflight_snapshot = nil
+fn native_create_preflight(){
+    let owner_before = fixture_rpc("fixture/logsideeffects",{})
+    let goals_before = goals.to_json() let runs_before = runs.to_json() let memory_before = memory.to_json()
+    // First explicit candidate gesture: production code submits only its query turn.
+    calendar_agent_submit_candidate()
+    bridge_checks.preflight_query_ready_without_binding = calendar_agent_state.status == "turn_completed"
+        && calendar_agent_state["binding"] == nil && calendar_agent_preflight.status == "ready"
+        && calendar_agent_preflight_current()
+    native_preflight_snapshot = {state:calendar_agent_state.to_json().parse_json()
+        preflight:calendar_agent_preflight.to_json().parse_json() notice:calendar_agent_notice}
+    bridge_observations.preflight = native_preflight_snapshot
+    if !bridge_checks.preflight_query_ready_without_binding { return false }
+    let history = fixture_rpc("octos.session.history",{})
+    let receipt = nil
+    if history.is_ok { receipt = calendar_agent_preflight_query(history.data,"{\"limit\":200}") }
+    let owner_after = fixture_rpc("fixture/logsideeffects",{})
+    bridge_checks.preflight_actual_only_events_limit200_no_owner_write = receipt != nil
+        && owner_before.is_ok && owner_after.is_ok && owner_before.data.events.len() == 0
+        && owner_after.data.events.to_json() == owner_before.data.events.to_json()
+    bridge_checks.preflight_no_goal_run_memory_write = goals.to_json() == goals_before
+        && runs.to_json() == runs_before && memory.to_json() == memory_before
+    native_preflight_snapshot.actual_history = history native_preflight_snapshot.actual_receipt = receipt
+    native_preflight_snapshot.owner_before = owner_before native_preflight_snapshot.owner_after = owner_after
+    if !bridge_checks.preflight_actual_only_events_limit200_no_owner_write || !bridge_checks.preflight_no_goal_run_memory_write { return false }
+    // Same explicit user gesture as 回读并结清; only the production callback archives.
+    calendar_agent_history_settle = true calendar_agent_history()
+    let previous = calendar_agent_state.previous_requests
+    let last = nil if previous.len() > 0 { last = previous[previous.len()-1] }
+    bridge_checks.preflight_archived_idle_current = calendar_agent_state.status == "idle" && last != nil
+        && calendar_agent_preflight.status == "ready" && calendar_agent_preflight_current()
+        && last.request_id == native_preflight_snapshot.state.request_id && last.turn_id == native_preflight_snapshot.state.turn_id
+        && last.status == "turn_completed" && last["binding"] == nil
+    native_preflight_snapshot.archived_state = calendar_agent_state.to_json().parse_json()
+    return bridge_checks.preflight_archived_idle_current
 }
 native_update_deny()
 ({kind:"NIGHT004_NATIVE_UPDATE_DENY" checks:bridge_checks observations:bridge_observations}).to_json()
