@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC-00，NIGHT-004固定rc7候选稳定性；分支codex/muse-pivot-20261010，产品来源fee00c9、Main c892、签名Main cdb141。
+ZC-00 NIGHT-004；截止11:00，09:00冻结高风险。产品来源fee00c9，Main c892、签名cdb，rc7 R3。
 
 ## Result
-PARTIAL。完整同候选模拟L3初始28/28+新进程恢复15/15通过。真实Calendar、SDK Mail、独立MockTransport收件，完成事项/Run/Memory和四节点行动链恢复。
+PARTIAL。L3初始28+全进程恢复15、原生精确删除18+恢复13、最终20正式入口启动/60原生图实审通过。
 
 ## Changed
-接收GPT01严格真实Deny/中断证据与完整JSONL读取测试parent，GPT02同ID Deny探针；增加测试副本APFS复制及连续native捕获。产品Main/SDK/正式候选保持固定。
+接收GPT03实际Mail故障探针、GPT02原生删除parent；测试驱动新增不改包的WorkBuddy入口/实际Calendar菜单和屏下输入滚动；归档原生照片、实际报告、独立SHA。产品源/SDK/包冻结。
 
 ## Tests
-同候选Main Deny24+12、CAS23+11、Mail故障13场景117项、Kernel L4五场景全部PASS。正式AppHub安装Open/输入/导航和4张native图通过。Calendar owner UI6项+12独立读回+3启动通过，8秒样本7张图实际复审。原黑底/缺绘制照片保留，未认定等待修好了生产渲染。证据official_muse/semifinal/evidence/night004-final-candidate。
+Deny24+12、CAS23+11、旧Mail117、Kernel5、中央新Mail107全部分层PASS。普通入口Calendar6项/12read/3Host/7照片通过。GUI Mail为空，不计邮件业务PASS。旧失败保留。
 
 ## Commit
-本轮接收检查待本地checkpoint；已有83681918普通开发分支推送并独立核对远端SHA。
+已接收930b26bc、2d745696；中央启动/删除/图片checkpoint待提交。之前836已普通push核远端SHA。
 
 ## Remaining
-20次固定启动运行中；崩溃和实际计时超时补证据；最后正常入口Calendar截图、报告/推送/留开最新窗口。
+原SDK坏模型JSON解析；native已有重叠事件提示缺口；必要重签/同候选回归；报告/push/留开最新窗口。
 
 ## Important Boundaries
-模型/审批/邮件transport为fixture，未操作私人日历/生产邮箱/Keychain，未公开发布或比赛提交。GUI无邮箱记录0不代表真实Mail业务验证。
+模型/审批/邮件transport为fixture。真实官方Calendar仅隔离合成数据；未动私人日历/生产邮箱/Keychain，无发布/比赛提交。

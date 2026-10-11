@@ -1,0 +1,81 @@
+{
+  "status": "MUSE_20_GUI_STARTUP_INTERACTION_PASS_NATIVE_REVIEWED",
+  "muse_20_pass": true,
+  "raw_result_status_unchanged": "MUSE_20_STARTUP_INTERACTION_CHECKS_PASS_NATIVE_REVIEW_PENDING",
+  "raw_result_sha256": "72a112f5b52b8b93a41a697c17bfb41049c4ad6a672d7ceeb9267a6637f789b1",
+  "native_review_sha256": "21c62c3cdaeb3f8624cf93e2ff95cf4bf97eaec0437669730293059b48debd7c",
+  "source_main_sha256": "c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4",
+  "installed_main_sha256": "cdb1412b14a25fdbb8f97681e7fe344c855a0adaac50c26ded5eb17f876108d7",
+  "installed_manifest_sha256": "b45620d854b58382d561451e43af34d5effc110d07b4cec163545a660c87482f",
+  "requested_repetitions": 20,
+  "passed_repetitions": 20,
+  "native_images_reviewed": 60,
+  "all_dynamic_sec_code_checks_pass": true,
+  "frozen_package_and_installed_bundle_unchanged": true,
+  "reader_runtime_after_matches_before": true,
+  "normal_shutdown_all_ready_files_removed": true,
+  "baseline_and_after_each_counts": {
+    "calendar_event_count": 0,
+    "supplied_counts": {
+      "coverage": {
+        "draft_namespace_count": 0,
+        "durable_mail_records_observed": 0,
+        "external_mail_root_supplied": 0,
+        "host_store_path_matches_gui_state": 1,
+        "mail_directory_present": 0,
+        "recipient_delivery_observed": 0,
+        "smtp_transport_observed": 0,
+        "state_double_marker_checked": 1
+      },
+      "mail": {
+        "accepted_attempt_count": 0,
+        "accepted_count": 0,
+        "attempts_by_status": {
+          "accepted": 0,
+          "awaiting_approval": 0,
+          "cancelled": 0,
+          "draft": 0,
+          "failed_before_delivery": 0,
+          "outcome_unknown": 0,
+          "sending": 0
+        },
+        "compose_count": 0,
+        "draft_count": 0,
+        "send_attempt_count": 0,
+        "submission_claim_count": 0
+      }
+    }
+  },
+  "metrics": {
+    "host_ready_seconds": {
+      "min": 3.281533454999998,
+      "median": 3.8640185020000004,
+      "max": 4.4330656610000005
+    },
+    "muse_ready_seconds": {
+      "min": 15.389361440000002,
+      "median": 16.2426196285,
+      "max": 17.54098679399999
+    },
+    "interactivity_seconds": {
+      "min": 1.0478025670000193,
+      "median": 1.1673233469999857,
+      "max": 1.4209985940000252
+    },
+    "graceful_shutdown_seconds": {
+      "min": 0.30822445999999104,
+      "median": 0.35016885950000187,
+      "max": 0.4894603079999911
+    },
+    "total_seconds": {
+      "min": 18.864866751,
+      "median": 19.9191246365,
+      "max": 21.16981427899998
+    },
+    "observed_peak_rss_mib_sum": 468.99609375,
+    "observed_peak_cpu_percent_ps_sum": 136.0,
+    "resource_scope": "From owned ready-file discovery until graceful shutdown. ps CPU percentage is its reported average, not an instantaneous CPU measurement. Peaks are sampled maxima, not guaranteed absolute maxima."
+  },
+  "mail_coverage_limit": "GUI test state contained zero durable Mail records and zero SMTP/recipient activity. This checks an empty marked state; Mail business delivery and no-resend are established only by separately scoped SDK MockTransport/independent-recipient L3/L4 evidence.",
+  "real_e2e_status": "NOT_TESTED_NIGHT004_FIXTURE_ONLY"
+}

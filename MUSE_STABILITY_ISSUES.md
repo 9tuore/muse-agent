@@ -42,3 +42,11 @@ Kernel R4首次add/retry/get真执行，拟拒绝add也执行：官方add为act�
 - N004-13：完整结构对比补丁保留全部身份、版本、精确Hash与产物门禁；中央22项篡改拒绝检查通过，实际同候选重启15/15中四节点行动链恢复。状态 FIXED_SAME_CANDIDATE_L3_RESTART_PASS。
 - N004-14，P1：官方Calendar owner首轮3张native照片只有顶栏/暗主体，第二Host缺部分月表/背景，第三Host完整；实际服务CRUD及重启6/6。根因未确认，不能以控件树或6/6宣布视觉PASS。状态 OPEN_CAPTURE_SERIES_IN_PROGRESS；完整Muse另4张native图已实际确认正常。
 - L4 parent半行：原R2中断实际命中同turn，但测试parent读取正追加JSONL时失败。a689bdce最小完整LF记录读取，完整坏JSON仍抛错；中央新R3真实五场景全部PASS。保留R2 FAILED，不补改旧结论。
+
+## 2026-10-12 04:14 固定候选中央验收增量
+
+- 同 c892/cdb 20 次 WorkBuddy 正式入口启动＋60 张原生界面实审 PASS；原 raw pending 保留，中央 native-review/acceptance 单列。真实 Calendar0前后，GUI Mail 空状态不计邮件业务。
+- N004-05：同候选原生删除18＋新进程13 PASS；L3和既有各层级结果不拼成L4全通。新增四种实际进程/OS/fixture期限故障107项中央复验PASS。
+- N004-14：原样 WorkBuddy 入口→普通 AppsMenu Calendar 三次真实 Host，CRUD/重启6项、12read和7张native图实审PASS；source未改。旧直接测试副本首绘黑底/部分绘制证据保留，根因仍未确定，不能宣称用等待修好了生产绘制。正式支持的入口有实测覆盖。
+- N004-15，P1：native候选新建没有已验证的重叠查询/冲突提示；旧冲突按钮调用禁用calendar.list，官方events from/to只筛完整包含事件。只读代码证据由GPT01核实，Root实际重叠probe/最小修复待接收，状态 OPEN_NATIVE_OVERLAP。
+- 无效原始模型JSON：原 Main 拒绝注入 invalid_output 有组件证据，但原SDK decoder机制尚未实测，保持L4未完成；不把证据缺口自动记作产品缺陷。

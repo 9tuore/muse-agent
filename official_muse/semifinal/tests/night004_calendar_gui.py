@@ -60,6 +60,8 @@ def main():
     parser.add_argument('--port', type=int, default=9697)
     parser.add_argument('--apfs-clone', action='store_true',
                         help='Request independent APFS CoW copies via cp -c; requires same APFS volume')
+    parser.add_argument('--normal-entry-state', type=Path,
+                        help='Use the unchanged candidate WorkBuddy entry and ordinary AppsMenu Calendar in an existing marked state')
     parser.add_argument('--capture-settle-seconds', type=float, default=0,
                         help='Record owned native screenshots at 0/half/full wait; visual review stays required')
     args = parser.parse_args()
@@ -73,32 +75,45 @@ def main():
     with socket.socket() as sock:
         assert sock.connect_ex(('127.0.0.1', args.port)) != 0, 'Test port already occupied'
     out.mkdir(parents=True)
-    state = out / 'state'
+    state = args.normal_entry_state.resolve() if args.normal_entry_state else out / 'state'
     owner_root = state / 'apps/.host'
-    owner_root.mkdir(parents=True)
-    (owner_root / 'FIXTURE_ONLY').write_text('NIGHT004 synthetic events only. Never production consent.\n')
-    app = out / 'Calendar Fixture.app'
+    if args.normal_entry_state:
+        assert state.is_relative_to(ROOT / 'build/night-004') and state.is_dir()
+        assert (state / 'FIXTURE_ONLY').is_file() and (owner_root / 'FIXTURE_ONLY').is_file()
+        assert not list(state.glob('launch-*.ready')), 'Existing owned Host must be closed first'
+        assert not args.apfs_clone, 'Normal entry does not copy the candidate'
+    else:
+        owner_root.mkdir(parents=True)
+        (owner_root / 'FIXTURE_ONLY').write_text('NIGHT004 synthetic events only. Never production consent.\n')
+    app = source if args.normal_entry_state else out / 'Calendar Fixture.app'
     frozen = {name: digest(source / 'Contents/Resources/host-runtime' / name)
               for name in ('muse-host', 'octos-kernel', 'octos-kernel.json')}
     source_guard = {f'Contents/Resources/host-runtime/{name}': value for name, value in frozen.items()}
     source_guard.update({name: digest(source / name) for name in
                          ('Contents/MacOS/Launcher', 'Contents/Resources/launcher.json')})
-    copy_evidence = copy_candidate(source, app, args.apfs_clone)
+    if args.normal_entry_state:
+        source_guard.update({name: digest(source / name) for name in (
+            'Contents/Info.plist', 'Contents/MacOS/muse-launcher', 'Contents/Resources/mirror/catalog.json')})
+        copy_evidence = {'mode': 'unchanged_workbuddy_entry', 'candidate_copied': False,
+                         'state_root': str(state), 'route': 'Normal open -n → actual AppsMenu calendar → os.calendar Card'}
+    else:
+        copy_evidence = copy_candidate(source, app, args.apfs_clone)
     resources = app / 'Contents/Resources'
     runtime = resources / 'host-runtime'
     wrapper = app / 'Contents/MacOS/Launcher'
-    text = wrapper.read_text()
-    assert text.count('launch-muse-native-prototype') == 1
-    assert text.count('PORT=${MUSE_INTEGRATED_REMOTE:-9696}') == 1
-    wrapper.write_text(text.replace('launch-muse-native-prototype', 'launch-calendar')
-                      .replace('PORT=${MUSE_INTEGRATED_REMOTE:-9696}', f'PORT={args.port}'))
-    settings = json.loads((resources / 'launcher.json').read_text())
-    settings.update(state_root=str(state), model_mode='gpt')
-    (resources / 'launcher.json').write_text(json.dumps(settings, indent=2) + '\n')
-    subprocess.run(['codesign', '--force', '--sign', '-', str(app)], check=True,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-    subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    if not args.normal_entry_state:
+        text = wrapper.read_text()
+        assert text.count('launch-muse-native-prototype') == 1
+        assert text.count('PORT=${MUSE_INTEGRATED_REMOTE:-9696}') == 1
+        wrapper.write_text(text.replace('launch-muse-native-prototype', 'launch-calendar')
+                          .replace('PORT=${MUSE_INTEGRATED_REMOTE:-9696}', f'PORT={args.port}'))
+        settings = json.loads((resources / 'launcher.json').read_text())
+        settings.update(state_root=str(state), model_mode='gpt')
+        (resources / 'launcher.json').write_text(json.dumps(settings, indent=2) + '\n')
+        subprocess.run(['codesign', '--force', '--sign', '-', str(app)], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     assert {name: digest(runtime / name) for name in frozen} == frozen
     assert {name: digest(source / name) for name in source_guard} == source_guard, 'Source candidate changed'
     copy_evidence.update(source_sha256=source_guard, source_unchanged_after_fixture_preparation=True)
@@ -110,7 +125,9 @@ def main():
                     '-o', str(window_probe)], check=True, capture_output=True)
     reads, checks, launches = [], {}, []
     native_captures = []
-    report = {'status': 'ERROR', 'boundary': 'Actual official Calendar owner UI and service; isolated synthetic events. Test target/port/state are changed only in a signed public app copy. No Muse Agent, real model, production consent or email claim.',
+    boundary = ('Actual official Calendar owner UI and service; unchanged candidate opened through the WorkBuddy entry and ordinary AppsMenu. Existing doubly marked state, synthetic events only. No Muse Agent, real model, production consent or email claim.'
+                if args.normal_entry_state else 'Actual official Calendar owner UI and service; isolated synthetic events. Test target/port/state are changed only in a signed public app copy. No Muse Agent, real model, production consent or email claim.')
+    report = {'status': 'ERROR', 'boundary': boundary,
               'source_app': str(source), 'candidate_copy': copy_evidence, 'host_kernel_identity': frozen,
               'reader_sha256': digest(args.reader.resolve()), 'checks': checks,
               'independent_reads': reads, 'launches': launches,
@@ -175,9 +192,38 @@ def main():
         raise AssertionError(f'Calendar widget not visible after scroll: {key}')
 
     def start():
-        result = subprocess.run(['open', '-n', str(app)], capture_output=True, text=True)
+        nonlocal pid
+        command = ['open', '-n', str(app)]
+        if args.normal_entry_state:
+            command = ['open', '-n', '--env', 'MUSE_INTEGRATED_STATE=' + str(state),
+                       '--env', f'MUSE_INTEGRATED_REMOTE={args.port}', str(app)]
+        result = subprocess.run(command, capture_output=True, text=True)
         assert result.returncode == 0, result.stderr
         deadline = time.monotonic() + 45
+        if args.normal_entry_state:
+            while True:
+                try:
+                    ready_files = list(state.glob('launch-*.ready'))
+                    if len(ready_files) == 1:
+                        pid = json.loads(ready_files[0].read_text())['owner_pid']
+                    if len(ready_files) == 1 and remote.find('请求 Agent 读取日历'):
+                        window = subprocess.run([str(window_probe), str(pid)],
+                                                capture_output=True, text=True)
+                        if window.returncode != 0 or not window.stdout.strip():
+                            time.sleep(.15)
+                            continue
+                        break
+                except (AssertionError, URLError, ConnectionError, TimeoutError):
+                    pass
+                assert time.monotonic() < deadline, 'Normal WorkBuddy Host did not become ready'
+                time.sleep(.15)
+            remote.request('/k', k='press', c='Space', cmd=1, alt=1)
+            time.sleep(.2)
+            remote.request('/k', k='press', c='KeyU', ctrl=1)
+            for char in 'calendar':
+                remote.request('/k', k='press', c='Key' + char.upper())
+            time.sleep(.2)
+            remote.request('/k', k='press', c='ReturnKey')
         while True:
             try:
                 remote.find('Your schedule, all in one place')
@@ -188,6 +234,7 @@ def main():
         ready = list(state.glob('launch-*.ready'))
         assert len(ready) == 1, 'Exactly one owned launcher is expected'
         identity = json.loads(ready[0].read_text())
+        identity['command'] = command
         signature = subprocess.run([sys.executable, str(args.identity_checker.resolve()),
                                     '--pid', str(identity['owner_pid']),
                                     '--expected-executable', str(runtime / 'muse-host')],
@@ -220,7 +267,21 @@ def main():
         remote.set_text('e_start', '19:00')
         remote.set_text('e_end', '19:30')
         remote.set_text('e_zone', 'Asia/Shanghai')
+        reveal('e_place', 'editor')
         remote.set_text('e_place', 'NIGHT004 synthetic room')
+        # The normal AppsMenu window is shorter than the direct test window.
+        # Return to the actual date fields before recording their values.
+        if args.normal_entry_state:
+            for _ in range(12):
+                try:
+                    if remote.find('e_date')['r'][3] >= 18 and remote.find('e_end_date')['r'][3] >= 18:
+                        break
+                except AssertionError:
+                    pass
+                x, y, width, height = remote.find('editor')['r']
+                remote.scroll(int(x + width / 2), int(y + height * .7), -80)
+            else:
+                raise AssertionError('Calendar date fields not reachable after input scroll')
         expected = {'title': title, 'start': remote.find('e_date')['val'] + 'T19:00',
                     'end': remote.find('e_end_date')['val'] + 'T19:30',
                     'timezone': 'Asia/Shanghai', 'location': 'NIGHT004 synthetic room',
@@ -266,8 +327,10 @@ def main():
         checks['restart_preserves_absence'] = read('get_event', {'id': event_id}) == {'found': False, 'event': None}
         shot('07-deleted-after-restart.png')
         assert all(checks.values()), checks
+        assert {name: digest(source / name) for name in source_guard} == source_guard
         report.update(status=('REAL_OFFICIAL_CALENDAR_OWNER_GUI_CHECKS_PASS_NATIVE_REVIEW_PENDING'
-                              if args.capture_settle_seconds else 'REAL_OFFICIAL_CALENDAR_OWNER_GUI_PASS'),
+                              if args.capture_settle_seconds or args.normal_entry_state else 'REAL_OFFICIAL_CALENDAR_OWNER_GUI_PASS'),
+                      source_candidate_unchanged=True,
                       event_id=event_id)
     except Exception as error:
         report['error'] = f'{type(error).__name__}: {error}'

@@ -1,3 +1,13 @@
+## 2026-10-12 04:14 NIGHT-004 固定候选启动、删除与故障恢复中央验收
+
+同 c892/cdb R3 固定候选的最终 20 次 WorkBuddy 正式入口启动全部通过，60 张原生 Chat/Memory/Chat 图经四张联系表实际复核，无黑主体；Host 动态 SecCode 全部 0、包八文件及已安装 Main/manifest 前后 SHA 不变、真实 Calendar 前后均 0。可交互 Muse 中位 16.243 秒、范围 15.389–17.541 秒；采样最大 RSS 468.996 MiB。GUI Mail 为空，只记空状态计数，不算投递或防重发业务通过。原 raw result 视觉 pending 不改，另有中央 acceptance/native-review。
+
+同候选 Muse 原生精确删除初始 18/18＋真正 VM/Mail/Kernel 新进程恢复 13/13 PASS；实际 get→remove 原 expected→get 回执、稳定 ID、digest、removed:true/不存在读回、owner0、删除行动链节点恢复及重复确认零 turn/Mail。原 WorkBuddy 入口普通 AppsMenu Calendar 真实创建/同 ID 修改/删除/重启 6/6、12 次独立读回、3 次 Host 和 7 张实际复核原生图通过；原包未复制、改目标或重新签名。旧首次 frame 未就绪/地点输入屏下的测试失败保留，驱动改真实 ready/滚动，不改产品绘制。
+
+中央重新执行 Mail 四场景初始＋新进程恢复 107/107 PASS：真实 SIGKILL −9 发生在官方服务 accepted/独立收件后、Main 回执前；实际 OS errno21 回执写入失败；Review 取消；50ms fixture 网关实际计时超时、250ms 晚回包丢弃。恢复均零重发/零新 Review，合成 transport 不算 SMTP。L3 同候选 28＋15、Deny24＋12、CAS23＋11、旧 Mail13场景117、Kernel L4五场景仍保持各自层级 PASS。
+
+整体 L4 仍 PARTIAL：GPT03准备原 SDK decoder 的无效原始模型 JSON 机制证据；GPT01已定位 native create 缺已有重叠提示，旧 calendar.list 不能替代，正准备实际缺口 probe 与最小 native 修复建议。未宣称云端、本地模型长稳或真人官方全链通过。用户明确将截止延至北京时间 11:00；09:00仍冻结高风险。证据统一 official_muse/semifinal/evidence/night004-final-candidate，产品包固定 build/night-004/rc7-integrated-candidate-r3/package/Muse.app。
+
 ## 2026-10-12 03:47 NIGHT-004 同候选完整链与核心故障复验
 
 最终业务源码固定 c892bff3，签名Main cdb1412b，rc7-integrated-candidate-r3 由fee00c9构建。真实官方Kernel/内置Calendar与真实SDK Mail service的同候选L3初始28/28、完整新进程恢复15/15通过；邮件独立MockTransport收件核对1条，恢复新增发送0，事项/Run/完成Memory/四节点行动链正确恢复。工具选择、授权、模型及邮件传输仍为明确fixture，不宣称生产SMTP/IMAP或云端模型通过。
