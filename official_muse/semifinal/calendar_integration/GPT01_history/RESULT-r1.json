@@ -1,0 +1,67 @@
+{
+  "state": "TYPECHECK_AND_TARGETED_TESTS_PASS_NOT_LIVE",
+  "source_sdk": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/runtime-closure-full-shell-r1/sdk",
+  "worktree": "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP\u9ed1\u5ba2\u677e",
+  "isolated_target": "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP\u9ed1\u5ba2\u677e/build/gpt01-calendar-history-r1/target",
+  "patch_sha256": "10f4a9b2e635c6a7f5c84de05c7b11923264f6d751a16b6d7cf582b70182646d",
+  "zero_fuzz_apply": true,
+  "files": [
+    {
+      "path": "crates/app-peers/src/broker.rs",
+      "before": "7020b119f2eebe7294fda72cdb8ef04241b38e2a957040695eb05d2cc17de7bb",
+      "after": "e36e12685777f7abf287ab75761936d29b5ecdc063639826ca8a740bd54cb002"
+    },
+    {
+      "path": "crates/app-peers/src/lib.rs",
+      "before": "47a02424d8066644960137c7ac890077b9612c5aee8b0236aea359294464344a",
+      "after": "c268615f6014bbea10f960f702b5a56e75bf85315cb0e9678b497f79ee1d96eb"
+    },
+    {
+      "path": "crates/shell/src/app_chat/model.rs",
+      "before": "e603903e54ccb224f1caa60bd94b5298cd8ecb1b7de4d6768522635ae86a4b3e",
+      "after": "5fe33ee6d3ded64344a2e7ab954089e453262ce42f3b4ae17240f2cf385dec64"
+    },
+    {
+      "path": "crates/shell/src/app_chat/mod.rs",
+      "before": "f84a2a5961c964c90a17a02d0afdc43405e0dd36d29d9250e9fb724ede4fc6a6",
+      "after": "84cc1b585f249b165eeca78416caa4b8703da01f7a66bb3f812be0edd5f10615"
+    },
+    {
+      "path": "crates/shell/src/system_chat/model.rs",
+      "before": "8278eaefcd943dcdaa7f0f07f5157b2dbaadfb7ecc5844c8061dd01e3062e926",
+      "after": "90a8b31cb4e4fa4c80d38ffb86f126a8fcf7ec62148e3939442c786dc0661b32"
+    },
+    {
+      "path": "crates/shell/src/system_chat/view.rs",
+      "before": "2bda60b325151bb0b5aa3f79d343ffe891a2d5d3fb86f6b6fbc3b5a6fb55ca1c",
+      "after": "44e6a13b14e66c98520ea7e4912d640bdc516bee94bf76bf8898604b7d65aded"
+    },
+    {
+      "path": "crates/app-peers/src/calendar_history.rs",
+      "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after": "e95dfde82a1e1aaf7548c4a5f557a1a3285c8b30f489ecc012dd2aaef10ea1f3"
+    },
+    {
+      "path": "crates/shell/src/app_chat/calendar_history.rs",
+      "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after": "e64e9ca30a47f1a3e8edbdd3780d43b37992b695fc3fd425e523403ef258a4ed"
+    }
+  ],
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP\u9ed1\u5ba2\u677e/build/gpt01-calendar-history-r1/app-peers/Cargo.toml",
+    "--target-dir",
+    "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP\u9ed1\u5ba2\u677e/build/gpt01-calendar-history/target",
+    "--lib",
+    "history"
+  ],
+  "test_exit": 0,
+  "elapsed_seconds": 15.416,
+  "original_failure": "First isolated broker check failed E0004 (Cancelled match arm); preserved first stage in build/gpt01-calendar-history. Fixed r1 and reran.",
+  "validation_scope": "Real patched broker and two history models; broker-only isolated harness, no Kernel/provider/GUI/full Shell.",
+  "target_size_observed": "152 MiB before final targeted test"
+}

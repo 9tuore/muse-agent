@@ -1,0 +1,23 @@
+   Compiling gpt01-app-peers-history-check v0.0.0 (/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-calendar-history-r1/app-peers)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.26s
+     Running unittests src/lib.rs (build/gpt01-calendar-history/target/debug/deps/gpt01_app_peers_history_check-339e747b21b70014)
+
+running 15 tests
+test app_chat::history_tests::oversized_result_is_unverified_and_never_partially_shown ... ok
+test app_chat::history_tests::host_success_without_kernel_row_is_unverified_and_error_preserved ... ok
+test app_chat::history_tests::rejection_cancel_and_missing_receipt_do_not_become_done ... ok
+test app_chat::history_tests::unrelated_tools_keep_existing_history_behavior ... ok
+test app_chat::history_tests::actual_conversation_reload_keeps_body_and_terminal_failure ... ok
+test app_chat::history_tests::exact_history_success_and_ids_are_visible ... ok
+test app_chat::history_tests::wrong_turn_and_tool_cannot_borrow_receipt ... ok
+test app_chat::history_tests::receipt_only_then_persisted_history_does_not_duplicate_a_call ... ok
+test calendar_history::tests::exact_scope_and_four_tools_only ... ok
+test contract::tests::history_does_not_need_turns_and_approvals_need_turns ... ok
+test calendar_history::tests::actual_ids_and_errors_survive_history ... ok
+test calendar_history::tests::duplicate_or_cancelled_receipts_never_forge_success ... ok
+test calendar_history::tests::conflicting_turn_session_generation_and_missing_ids_do_not_bind ... ok
+test calendar_history::tests::history_receipt_count_is_bounded ... ok
+test calendar_history::tests::acknowledgement_is_not_an_outcome_and_oversized_result_is_not_truncated ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 26 filtered out; finished in 0.01s
+
