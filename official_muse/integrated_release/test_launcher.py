@@ -316,6 +316,24 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.assertIn('HOME=' + str(self.owner_home), lines)
         self.assertFalse((state / 'kernel/.octos/profiles/_main.json').exists())
 
+    def test_packaged_state_reference_reuses_paths_without_copying_profile(self):
+        before = self.write_profile({'family_id': 'minimax-cn', 'model_id': 'MiniMax-M3'})
+        app = self.root / 'State reference.app'
+        shutil.copytree(self.app, app)
+        info_path = app / 'Contents/Info.plist'
+        info = plistlib.loads(info_path.read_bytes())
+        info['MuseStateRoot'] = str(self.state)
+        info_path.write_bytes(plistlib.dumps(info))
+        subprocess.run(['codesign', '--force', '--sign', '-', str(app)], check=True,
+                       capture_output=True)
+        env = self.launch_env({'MUSE_INTEGRATED_STATE': None})
+        result = subprocess.run([str(app / 'Contents/MacOS/muse-launcher'), '--models'],
+                                env=env, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.profile.read_bytes(), before)
+        self.assertIn('OCTOSENSE_HOME=' + str(self.state / 'shell'),
+                      (self.state / 'logs/host.log').read_text())
+
     def test_repository_and_packaged_script_use_same_launcher(self):
         env = self.launch_env()
         result = subprocess.run(['/bin/sh', str(HERE / 'launch_muse.sh'), str(self.app),

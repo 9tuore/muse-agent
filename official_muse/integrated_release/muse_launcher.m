@@ -139,11 +139,13 @@ int main(int argc, const char *argv[]) {
     @autoreleasepool {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
+        BOOL workbuddy = [NSBundle.mainBundle.infoDictionary[@"MuseHostLaunchMethod"] isEqual:@"workbuddy"];
         NSArray *required = @[@"OctoSense Host.app/Contents/MacOS/octosense", @"mirror/catalog.json",
             @"mirror/artifacts/muse-goals-0.4.0-rc4.bundle/manifest.json",
             @"mirror/artifacts/muse-goals-0.4.0-rc4.bundle.pack.json",
             @"OctoSense Host.app/Contents/MacOS/octos-kernel",
             @"OctoSense Host.app/Contents/Resources/octos-kernel.json"];
+        if (workbuddy) required = [required arrayByAddingObject:@"WorkBuddy Launcher.app/Contents/MacOS/Launcher"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
         BOOL models = argc == 2 && strcmp(argv[1], "--models") == 0;
         BOOL gptCheck = argc == 2 && strcmp(argv[1], "--gpt-check") == 0;
@@ -186,7 +188,8 @@ int main(int argc, const char *argv[]) {
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
-        NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: join(NSBundle.mainBundle.bundlePath.stringByDeletingLastPathComponent, @"Muse Data");
+        NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: NSBundle.mainBundle.infoDictionary[@"MuseStateRoot"]
+            ?: join(NSBundle.mainBundle.bundlePath.stringByDeletingLastPathComponent, @"Muse Data");
         if (![state isAbsolutePath]) {
             if (headless) fprintf(stderr, "MUSE_INTEGRATED_STATE 必须是绝对路径。\n");
             else fail(@"MUSE_INTEGRATED_STATE 必须是绝对路径。");
@@ -362,12 +365,32 @@ int main(int argc, const char *argv[]) {
         host.arguments = arguments;
         host.environment = environment;
         host.standardOutput = output; host.standardError = output;
-        if (![host launchAndReturnError:&error]) {
+        __block NSRunningApplication *application = nil;
+        if (workbuddy) {
+            environment[@"MUSE_HOST_LOG"] = log;
+            NSWorkspaceOpenConfiguration *configuration = [NSWorkspaceOpenConfiguration configuration];
+            configuration.createsNewApplicationInstance = YES;
+            configuration.allowsRunningApplicationSubstitution = NO;
+            configuration.environment = environment;
+            configuration.arguments = arguments;
+            __block BOOL completed = NO;
+            __block NSError *launchError = nil;
+            [NSWorkspace.sharedWorkspace openApplicationAtURL:
+                [NSURL fileURLWithPath:join(resources, @"WorkBuddy Launcher.app")]
+                configuration:configuration completionHandler:^(NSRunningApplication *app, NSError *failure) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        application = app; launchError = failure; completed = YES;
+                    });
+                }];
+            while (!completed) [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+            error = launchError;
+        }
+        if (workbuddy ? !application : ![host launchAndReturnError:&error]) {
             [output closeFile]; finishTask(model); fail([NSString stringWithFormat:@"宿主未启动：%@\n日志：%@", error.localizedDescription, log]); return 1;
         }
         [output closeFile];
         BOOL localStopped = NO;
-        while (host.running && !stopping) {
+        while ((workbuddy ? !application.terminated : host.running) && !stopping) {
             if (model && !model.running && !localStopped) {
                 localStopped = YES;
                 NSMutableDictionary *status = [localStatus mutableCopy];
@@ -375,10 +398,15 @@ int main(int argc, const char *argv[]) {
                 saveJSON(status, join(state, @"local-model.json"), nil);
                 fprintf(stderr, "Muse 本地服务已退出；云端配置保留，不能称本地持续运行。\n");
             }
-            [NSThread sleepForTimeInterval:0.2];
+            [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
         }
-        if (host.running) [host terminate];
-        [host waitUntilExit];
+        if (workbuddy) {
+            if (!application.terminated) [application terminate];
+            while (!application.terminated) [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+        } else {
+            if (host.running) [host terminate];
+            [host waitUntilExit];
+        }
         finishTask(model);
         if (localStatus && !localStopped) {
             NSMutableDictionary *status = [localStatus mutableCopy];
@@ -386,6 +414,6 @@ int main(int argc, const char *argv[]) {
             saveJSON(status, join(state, @"local-model.json"), nil);
         }
         flock(lock, LOCK_UN); close(lock);
-        return host.terminationStatus;
+        return workbuddy ? 0 : host.terminationStatus;
     }
 }

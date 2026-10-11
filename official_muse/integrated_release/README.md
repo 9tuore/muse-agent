@@ -19,6 +19,46 @@ Calendar 的三个 INTEGRATED patch 位于 `../semifinal/calendar_integration/`�
 它只签名 Kernel 的包内副本，再由官方 staging helper 为相同锁定 revision 重建 receipt；
 原 Kernel 和 receipt 不改。签名为本机 ad-hoc，不能作为 Developer ID/公证或公开 App Hub 发布。
 
+### 复用 WorkBuddy 工作 pair
+
+`--paired-host-app` 复制现成已签名宿主包，不运行 Cargo、不重新生成资源、不重签 Host/Kernel，
+输入与最终 Host/Kernel SHA 必须保持。保留源宿主 Info.plist 与资源封印，外层候选仍为 rc4。
+2026-10-11 核对的具体输入见 `WORKBUDDY_PAIR.json`：Host ec83a4f9、Kernel 56761a9f，
+它们与 WorkBuddy artifacts-rc3 的字节相同；源宿主包 deep/strict 校验通过。
+八个资源命名空间共 208 文件，另有一份 Kernel receipt；成品输出逐文件 `HOST_RESOURCES.json`。
+
+此模式通过 NSWorkspace/LaunchServices 打开包内 WorkBuddy shell Launcher；shell 最终 exec
+配套宿主包里的原 Host。保留原 HOME、state 路径、环境清理与 remote argv，不指定 Host cwd；
+原工作进程的实际 cwd 为 `/`。
+现有编译 Launcher 管理 Qwen、单 state 锁和退出清理；云端 MiniMax 配置按原规则保留。
+`--state-root` 只把绝对资料根路径写入 Info.plist，不读取或复制该目录；
+运行时 `MUSE_INTEGRATED_STATE` 优先，其次包内引用，最后默认同级 Muse Data。
+
+中央在接收本补丁后生成新目录，使用当前已冻结的公开镜像和 Qwen 输入：
+
+```sh
+MUSE_WORKING_TREE='/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松'
+MUSE_WORKBUDDY='/Users/mima0000/WorkBuddy/2026-09-28-21-35-00/muse-blackfix'
+python3 "$MUSE_WORKING_TREE/official_muse/integrated_release/package_app.py" \
+  --sdk "$MUSE_WORKING_TREE/build/runtime-closure-full-shell-r1/sdk" \
+  --host "$MUSE_WORKBUDDY/artifacts-rc3/octosense" \
+  --kernel "$MUSE_WORKBUDDY/artifacts-rc3/octos-kernel" \
+  --kernel-receipt "$MUSE_WORKBUDDY/artifacts-rc3/octos-kernel.json" \
+  --paired-host-app "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc3-ui-r1/Muse.app/Contents/Resources/OctoSense Host.app" \
+  --mirror "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc4-r2/mirror" \
+  --model-mode hybrid \
+  --model-source "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc4-app-r1/Muse.app/Contents/Resources/local-model" \
+  --state-root "$MUSE_WORKING_TREE/build/live-acceptance-003/home" \
+  --out "$MUSE_WORKING_TREE/build/muse-integrated-0.4.0-rc4-workbuddy-r1"
+```
+
+PACKAGE.json 记录 pair、目录与 Muse main 的实际 SHA，状态仍为 PACKAGED_NOT_RUNTIME_VERIFIED。
+复制 pair、资源和编译通过不证明新外层候选可见；中央串行验证最终 LaunchServices 启动与退出。
+本任务不启动真实 GUI、不执行新的模型或 Calendar/Mail 调用。
+最终定向验证：`test_launcher.py` 22/22（18.224s）、`test_package.py` 4/4（4.941s）。
+打包 fixture 使用签名 stub、合成资源和假 SDK pin；不调用 LaunchServices。
+LaunchServices 不提供原 Host 的 exit status；控制器退出 0 不能作为 Host/业务成功回执。
+
 ## 本地签名目录
 
 原版 Hub CLI 保持默认权限上限，拒绝含 calendar.events 的清单；失败证据保留。
