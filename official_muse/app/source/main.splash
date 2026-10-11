@@ -6825,12 +6825,16 @@ fn core_boot_goals(){
         let i = core_goal_index(selected_id)
         if i >= 0 { task = goals[i] }
         // A lost callback is not proof of external failure or success.
+        // Recover one snapshot once; each commit rewrites and reads both files.
+        let revised = nil
         for j in actions.len() {
             if actions[j].status == "in_flight" {
-                let revised = core_last_goals.parse_json()
+                if revised == nil { revised = core_last_goals.parse_json() }
                 revised.actions[j].status = "unknown"
-                if !core_commit_goals(revised.goals,revised.runs,revised.actions,revised.selected_id) { return false }
             }
+        }
+        if revised != nil {
+            if !core_commit_goals(revised.goals,revised.runs,revised.actions,revised.selected_id) { return false }
         }
         return true
     }

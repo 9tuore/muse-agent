@@ -1,0 +1,53 @@
+{
+  "name": "backup_write_failure",
+  "pending": 128,
+  "injected_failure": "backup_write",
+  "checks": {
+    "vm_clean": true,
+    "fixture_only_no_dispatch": true,
+    "shape_unchanged": true,
+    "failure_returned": true,
+    "prior_memory_restored": true,
+    "no_completed_actions": true,
+    "primary_and_backup_unchanged": true,
+    "primary_write_not_attempted": true
+  },
+  "elapsed_ms": 770.83299,
+  "operations": [
+    {
+      "operation": "exists",
+      "path": "goals.json",
+      "injected_failure": false
+    },
+    {
+      "operation": "exists",
+      "path": "goals.backup.json",
+      "injected_failure": false
+    },
+    {
+      "operation": "read",
+      "path": "goals.json",
+      "injected_failure": false
+    },
+    {
+      "operation": "write",
+      "path": "goals.backup.json",
+      "injected_failure": true,
+      "bytes": 83116,
+      "sha256": "ca417c34f18444ba3c2d4ea17a8857f689c0525cf84f6ced2ea56f7931641dee"
+    }
+  ],
+  "commit_writes": 1,
+  "commit_reads": 0,
+  "before_sha256": {
+    "goals.json": "ca417c34f18444ba3c2d4ea17a8857f689c0525cf84f6ced2ea56f7931641dee",
+    "goals.backup.json": "074fdd22533d86c47edc35227a16e8c1357ad39780511edd765c2606d741ca34"
+  },
+  "after_sha256": {
+    "goals.json": "ca417c34f18444ba3c2d4ea17a8857f689c0525cf84f6ced2ea56f7931641dee",
+    "goals.backup.json": "074fdd22533d86c47edc35227a16e8c1357ad39780511edd765c2606d741ca34"
+  },
+  "ok": false,
+  "unknown": 0,
+  "in_flight": 128
+}
