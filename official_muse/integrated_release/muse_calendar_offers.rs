@@ -76,7 +76,8 @@ fn authenticated_muse_ceiling_is_exact_revocable_and_does_not_bypass_signatures(
         assert!(f.store.resolve_offered_policy("muse-goals").unwrap_err().contains("does not offer"));
         set_muse_calendar_integration_enabled(true);
         configure_muse_calendar_offers(&mut f.store).unwrap();
-        assert_eq!(f.store.resolve_offered_policy("muse-goals").unwrap().agent.unwrap().tools, FOUR);
+        let expected = FOUR.iter().map(|tool| (*tool).to_owned()).collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(f.store.resolve_offered_policy("muse-goals").unwrap().agent.unwrap().tools, expected);
         assert!(f.store.resolve_offered_policy("another-app").unwrap_err().contains("does not offer"));
         let clone = f.store.clone();
         let fresh = f.fresh();

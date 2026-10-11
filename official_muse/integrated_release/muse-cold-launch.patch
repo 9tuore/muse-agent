@@ -1,0 +1,16 @@
+--- a/crates/shell/src/apps.rs
++++ b/crates/shell/src/apps.rs
+@@ -622,6 +622,13 @@
+     let schema = module.open_schema();
+     if module.id() == "card" {
+         let manifest_id = card_manifest_id(app).ok_or_else(|| format!("{} names no app for the card runner", app.id))?;
++        #[cfg(any(feature = "app-hub", native_mobile))]
++        if manifest_id == "muse-goals" {
++            // Cold launches use the same authenticated catalog, sequence floor
++            // and installed-release admission before the Card runner mounts.
++            // This configures the paired host ceiling; it never sets consent.
++            crate::host_tools::script_apps::admitted_bundle(manifest_id)?;
++        }
+         return schema.validate(&format!("{{\"app\":{}}}", makepad_strict_json::Value::Str(manifest_id.into()).to_json()), &[]);
+     }
+     let config = std::env::var("MAKEPAD_APP_CONFIG").ok().and_then(|text| makepad_strict_json::parse(text.as_bytes()).ok());

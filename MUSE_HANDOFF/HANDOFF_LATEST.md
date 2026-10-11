@@ -13,7 +13,7 @@ integrated_release构建/打包/Agent指导和框架patch；主源重验迟到�
 10-11：VM准备1、streaming5、硬时限1、样式6通过；第一次样式失败保留并修复。reference VM合成迟到身份6/6通过，外部调用0。见integrated_release/evidence；不是完整Host业务证据。
 
 ## Commit
-本地开发单元待提交；不push、不正式发布。
+本地开发单元466c8319；冷开/本地publisher补强待提交。不push、不正式发布。
 
 ## Remaining
 配套Host编译；签名目录/便携包；同Muse本人Agent授权与Calendar回执；原生QQ登录/审阅；共享Agent项目/遗忘契约及改期/删除仍缺；最终20次未开始。
