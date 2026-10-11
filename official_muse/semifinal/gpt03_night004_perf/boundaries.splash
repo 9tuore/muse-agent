@@ -1,0 +1,31 @@
+use mod.math.*
+use mod.std.*
+let fixture_timers=[] let fixture_timer_index=0
+let fixture_values={} let fixture_visibility={}
+fn fixture_rpc(method,payload){return mod.fixture.rpc({method:method payload:payload}.to_json()).parse_json()}
+fn fixture_io(operation,payload){
+    let reply=fixture_rpc("fixture.fs."+operation,payload)
+    if reply.is_ok {return reply["data"]}
+    if operation=="read" {return ""}
+    if operation=="exists" {return false}
+    return "fixture_io_failed: "+reply.error
+}
+fn fixture_transport(method,payload,callback){callback(fixture_rpc(method,payload))}
+fn time_now(){return fixture_rpc("fixture.clock",{}).data}
+fn random_u32(){return fixture_rpc("fixture.random",{}).data}
+fn start_timeout(delay,callback){fixture_timers.push(callback)}
+fn fixture_drain(){
+    while fixture_timer_index<fixture_timers.len() && fixture_timer_index<300 {
+        let callback=fixture_timers[fixture_timer_index]
+        fixture_timer_index=fixture_timer_index+1 callback()
+    }
+}
+let fs={exists:|path|fixture_io("exists",{path:path}) read:|path|fixture_io("read",{path:path})
+    write:|path,data|fixture_io("write",{path:path data:data}) mkdir:|path|fixture_io("mkdir",{path:path})
+    sha256:|value|mod.fixture.sha256(value) sha256_file:|path|fixture_io("sha256_file",{path:path})}
+fn fixture_widget(name){return {text:||{let value=fixture_values[name] if value==nil{return ""} return value}
+    set_text:|value|{fixture_values[name]=value} render:||{} set_visible:|value|{fixture_visibility[name]=value}
+    is_visible:||fixture_visibility[name]==true set_focus:||{} set_enabled:|value|{}}}
+let host={capabilities:||["mail"]}
+let ui={}
+__UI__

@@ -1,0 +1,74 @@
+let checks={} let observations={}
+checks.production_boot=core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot()
+checks.production_scope=gm_set_accounts(["local"]) && gm_set_focus("fixture-project","fixture-owner")
+chat_ready=true chat_selected_id="chat:perf-fixture" page="Chat"
+chat_sessions=[{id:chat_selected_id title:"Fixture performance" created_at:time_now() updated_at:time_now()
+    focus_project:gm_project focus_owner:gm_owner goal_id:"" messages:[] proposals:[]}]
+fn perf_goal(id){return {schema:1 id:id version:1 goal:"Fixture Goal "+id source:"Fixture source "+id
+    status:"planned" model_summary:"" items:[] result_path:"results/"+id+".json" approved_at:0 updated_at:time_now() archived:false
+    project_id:gm_project owner_id:gm_owner goal_spec:goal_spec(id,1,"Fixture Goal "+id,"results/"+id+".json")}}
+let saved=0
+for i in 64 {
+    let project=gm_project let owner=gm_owner let marker="LOCAL_"
+    if i>=48 && i<56 {project="fixture-other-project" marker="FOREIGN_PROJECT_"}
+    if i>=56 {owner="fixture-other-owner" marker="FOREIGN_OWNER_"}
+    if gm_save("规模条目 "+marker+i+" · 合成安排资料，不授权操作。","source","subject:"+i,"note:"+i,"scale-chat",project,owner,"local") {saved=saved+1}
+}
+checks.memory_saved_by_api=saved==64 && memory.len()==64 && memory_sources.len()==64
+let mem_scope=gm_complete_scope(core_memory_scope("local")) let source_count=0
+for i in 64 {
+    if core_add_source(gm_make_source("合法孤立来源 "+i,mem_scope,"scale-chat","source:scale:extra:"+i)) {source_count=source_count+1}
+}
+checks.sources_saved_by_api=source_count==64 && memory_sources.len()==128
+let goal_count=0
+for i in 32 {if core_add_goal(perf_goal("scale-goal-"+i)) {goal_count=goal_count+1}}
+let run_ids=[]
+for i in 32 {run_ids.push(core_start_run("scale-goal-"+i,1,"scale-run-request-"+i))}
+let action_count=0
+for i in 128 {
+    let target=i-floor(i/32)*32
+    if core_begin_action("scale-goal-"+target,run_ids[target],1,"storage.write","local","scale-action-"+i,"{\"fixture\":true}") {action_count=action_count+1}
+}
+checks.goals_runs_actions_saved_by_api=goal_count==32 && goals.len()==32 && runs.len()==32 && action_count==128 && actions.len()==128
+fixture_drain()
+let before_goals=storage_read("goals.json") let before_memory=storage_read("memory.json")
+let options=fixture_rpc("fixture.options",{}).data
+let context=nil let projection=nil let retrieval_valid=true let projection_valid=true
+for name in ["bridge_only","gm_context","ac_projection"] {
+    for i in options.samples+options.warmups {
+        let target=i-floor(i/32)*32 let id="scale-goal-"+target
+        if name=="ac_projection" {ac_choose_matter(id)}
+        let marker={name:name sample:i-options.warmups warmup:i<options.warmups iterations:1}
+        marker.phase="start" fixture_rpc("fixture.perf_mark",marker)
+        if name=="gm_context" {context=gm_context("规模条目","scale-chat","")}
+        if name=="ac_projection" {projection=ac_projection()}
+        marker.phase="end" fixture_rpc("fixture.perf_mark",marker)
+        if name=="gm_context" {
+            if context.hits.len()==0 || context.hits.len()>6 || context.bytes>2200
+                || context.text.search("FOREIGN_PROJECT_")>=0 || context.text.search("FOREIGN_OWNER_")>=0 {retrieval_valid=false}
+        }
+        if name=="ac_projection" {
+            if ac_current_goal()==nil || ac_current_goal().id!=id || projection.nodes.len()!=3 || !projection.limited {projection_valid=false}
+            for node in projection.nodes {
+                if node.record_id!=id {
+                    let ai=core_action_index(node.record_id)
+                    if ai<0 || actions[ai].goal_id!=id || actions[ai].status!="in_flight" {projection_valid=false}
+                }
+            }
+        }
+    }
+}
+checks.retrieval_scope_and_bound_preserved=retrieval_valid
+checks.projection_selection_and_bound_preserved=projection_valid
+checks.measured_apis_do_not_mutate_goals_memory=before_goals==storage_read("goals.json") && before_memory==storage_read("memory.json")
+let valid=true
+for goal in goals {if goal.status!="running" {valid=false}}
+for run in runs {if run.status!="running" {valid=false}}
+for action in actions {if action.status!="in_flight" {valid=false}}
+checks.no_completion_created=valid
+observations={memory:memory.len() sources:memory_sources.len() local_scope_records:48 foreign_project_records:8 foreign_owner_records:8
+    goals:goals.len() runs:runs.len() actions:actions.len() retrieval_hits:context.hits.len() retrieval_bytes:context.bytes
+    retrieval_truncated:context.truncated projection:projection selected_goal:ac_current_goal().id
+    before_goals_sha256:fs.sha256(before_goals) after_goals_sha256:fs.sha256(storage_read("goals.json"))
+    before_memory_sha256:fs.sha256(before_memory) after_memory_sha256:fs.sha256(storage_read("memory.json"))}
+({checks:checks observations:observations boundary:"Actual production APIs in existing official VM; synthetic scoped data, UI/timers/identity clock. Real parent perf_counter_ns brackets one API including RPC/VM scheduling and actual retrieval-audit write. No Host/Kernel/network or completion."}).to_json()
