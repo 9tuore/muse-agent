@@ -1,0 +1,99 @@
+{
+  "kind": "FIXTURE_PLAN_PARSER_ONLY",
+  "checks": {
+    "original_payload_unchanged": true,
+    "original_text_trigger_binding_preserved": true,
+    "create_uses_exact_observed_payload": true,
+    "create_get_uses_actual_previous_id": true,
+    "explicit_once_separate_from_prompt": true,
+    "update_exact_cas_snapshot_preserved": true,
+    "update_get_old_then_update_then_get_new": true,
+    "same_id_all_three_steps": true,
+    "escaped_json_notes_and_prompt_preserved": true,
+    "unsupported_prompt_refused": true,
+    "vm_injected_fixture_fields_refused": true,
+    "missing_create_field_refused": true,
+    "mismatched_update_id_refused": true,
+    "update_replacing_creation_request_refused": true,
+    "missing_text_refused": true
+  },
+  "status": "PASS",
+  "observed_report_sha256": "6c1e47015f48095b60048033b7db1e2b670a2531e15a4c47fc072991bdcf0a14",
+  "source_main_sha256": "dabfe65bbb859e51db5cc2b9eea59855024af927f8bfbe548fa86f50ded95a6d",
+  "kernel_calendar_calls": 0,
+  "full_chain_status": "NOT_TESTED",
+  "plans": {
+    "create": {
+      "text": "本次日历请求。\n精确 calendar.add_event 参数：{\"title\": \"合成日历安排\", \"start\": \"2026-10-13T15:00\", \"end\": \"2026-10-13T15:30\", \"timezone\": \"Asia/Shanghai\", \"location\": \"合成会议室\", \"request_id\": \"muse-calendar-1791741568-6\", \"notes\": \"\"}\n以该id精确读回。",
+      "trigger": "app",
+      "binding_id": "fixture-opaque-binding",
+      "fixture_tool_plan": [
+        {
+          "tool": "calendar.add_event",
+          "args": {
+            "title": "合成日历安排",
+            "start": "2026-10-13T15:00",
+            "end": "2026-10-13T15:30",
+            "timezone": "Asia/Shanghai",
+            "location": "合成会议室",
+            "request_id": "muse-calendar-1791741568-6",
+            "notes": ""
+          }
+        },
+        {
+          "tool": "calendar.get_event",
+          "args": {
+            "id": {
+              "$tool_result": 0,
+              "path": [
+                "id"
+              ]
+            }
+          }
+        }
+      ],
+      "fixture_approval": "once"
+    },
+    "update": {
+      "text": "2. calendar.update_event 精确参数：{\"title\": \"合成日历安排\", \"start\": \"2026-10-13T16:00\", \"end\": \"2026-10-13T16:30\", \"timezone\": \"Asia/Shanghai\", \"location\": \"合成会议室\", \"notes\": \"Quoted \\\"value\\\", braces {} and newline\\n合成\", \"id\": \"synthetic-parser-event\", \"expected\": {\"title\": \"合成日历安排\", \"start\": \"2026-10-13T15:00\", \"end\": \"2026-10-13T15:30\", \"timezone\": \"Asia/Shanghai\", \"location\": \"合成会议室\", \"request_id\": \"muse-calendar-1791741568-6\", \"notes\": \"\", \"id\": \"synthetic-parser-event\"}}\n3. 同id读回。",
+      "trigger": "app",
+      "fixture_tool_plan": [
+        {
+          "tool": "calendar.get_event",
+          "args": {
+            "id": "synthetic-parser-event"
+          }
+        },
+        {
+          "tool": "calendar.update_event",
+          "args": {
+            "title": "合成日历安排",
+            "start": "2026-10-13T16:00",
+            "end": "2026-10-13T16:30",
+            "timezone": "Asia/Shanghai",
+            "location": "合成会议室",
+            "notes": "Quoted \"value\", braces {} and newline\n合成",
+            "id": "synthetic-parser-event",
+            "expected": {
+              "title": "合成日历安排",
+              "start": "2026-10-13T15:00",
+              "end": "2026-10-13T15:30",
+              "timezone": "Asia/Shanghai",
+              "location": "合成会议室",
+              "request_id": "muse-calendar-1791741568-6",
+              "notes": "",
+              "id": "synthetic-parser-event"
+            }
+          }
+        },
+        {
+          "tool": "calendar.get_event",
+          "args": {
+            "id": "synthetic-parser-event"
+          }
+        }
+      ],
+      "fixture_approval": "once"
+    }
+  }
+}

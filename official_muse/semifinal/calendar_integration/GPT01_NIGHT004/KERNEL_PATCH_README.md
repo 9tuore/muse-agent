@@ -1,3 +1,7 @@
+> Bridge policy registry R4：实际正式包requires host-api-v1隐式要求app_policy.device_consent@1；生产Card/AppStore入口register_policy_runtime_features按原feature guard登记。增量patch调用真实入口并用实际AppManifest::check_host_apis检查全部explicit+implicit：Mail3/runtime.list/device_consent共5项。3c59e9ff→e6036b6f；应用/逐字/full syn及全部requirements静态核对PASS，尚未typecheck/运行。公开signed包/门禁不变；原L3 failure保留。代码commit2d927bde。外部owner CAS helper第二优先。
+
+> GPT01 NIGHT-004 Bridge Host registry R3：中央R5真实Kernel CRUD/Deny/revocation result=PASS（fixture模型/授权，非产品L3）；首次signed public bridge实际失败于缺三项Mail API，原日志保留。自有test-only最小补丁调用生产同源真实MailService::register并检查service/实际supported versions，不注入描述、不改manifest/gates，不调Mail、不访问Secret。fb74bd8e→3c59e9ff，patch replay/逐字/full syn通过；新补丁未typecheck/运行，待中央唯一编译。证据KERNEL_BRIDGE_HOST_REGISTRY_R3_RESULT.json。
+
 # NIGHT-004 real Kernel Calendar journey
 
 R5最新接入：中央R4真实Kernel已完成create/stable retry(1 event)/get，随后deny-add案例实际保存第二event并失败；官方add是act、不强制Host sheet，未观察到Deny决定，不支持遗留Once grant假设。R5只把deny案例改为官方destructive+confirm:host的update，要求新Router Deny和原事件/bytes不变。单独修补NIGHT004_kernel_denial_r5.patch；若同次编译桥接，使用NIGHT004_kernel_and_bridge_r2.patch。b9765284基线→联合fb74bd8e。patch/syn通过，未运行新版本。原失败日志及SHA、全部指纹在KERNEL_DENIAL_AND_BRIDGE_R2_RESULT.json。

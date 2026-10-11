@@ -866,7 +866,10 @@ fn calendar_agent_project(view,goal){
     ac_add(view,"官方日历请求",status,"请求与当前事项版本绑定；模型回复不算工具回执",calendar_agent_state.request_id)
     if status == "verified" {
         ac_add(view,"官方日历精确读回","verified","新建稳定 ID 与精确事件字段一致 · " + binding.verification.event_id,calendar_agent_state.request_id)
-        view.next = "日历已精确核验；可选准备关联确认草稿，邮件需另行审阅和收件声明。可本人选择新候选同ID改期；整体事项完成尚未接通。"
+        view.next = "日历已精确核验；确认草稿需单独审阅，收件端本人核验后保存事项完成记录。可本人选择新候选同ID改期。"
+        if goal.status == "completed" && mail_native_completion_matches(goal,nil) {
+            view.next = "最新日历与收件核验声明已保存；事项已完成，可在全局记忆回读完成结果。"
+        }
     } else { view.next = "核对官方请求记录；未知结果不重发，尚未完成当前事项。" }
     calendar_agent_delete_project(view,goal)
     return true
@@ -1073,7 +1076,8 @@ fn calendar_agent_update_current(record){
         || calendar_agent_update_card_json(record.creation_binding) != record.creation_card_json
         || calendar_agent_update_card_json(record.binding) != record.candidate_card_json { return false }
     let goal = ac_current_goal()
-    return goal != nil && goal.to_json() == record.goal_json && goal.status == "planned"
+    if goal != nil && goal.to_json() == record.goal_json && goal.status == "planned" { return true }
+    return mail_native_completion_matches(goal,record)
 }
 fn calendar_agent_authority(){
     let binding = calendar_agent_state["binding"]
@@ -1316,7 +1320,7 @@ fn calendar_agent_update_history(index){
             calendar_agent_update_state.records[index].verification = result
         }
         if !calendar_agent_update_save() { redraw() return }
-        calendar_agent_notice = "同ID改期回执状态：" + ac_state(result.status) + "；三步精确核验后才使用新事件，事项未整体完成。"
+        calendar_agent_notice = "同ID改期回执状态：" + ac_state(result.status) + "；三步精确核验后才使用新事件。整体事项完成还需收件核验并保存结果。"
         redraw()
     })
 }
@@ -1329,7 +1333,10 @@ fn calendar_agent_update_project(view,goal){
     ac_add(view,"官方日历同ID改期",status,"原创建证据保留；计划版本 " + record.binding.plan_revision,record.request_id)
     if record.receipt_status == "verified" {
         ac_add(view,"改期精确读回","verified",record.event.title + " · " + record.event.start + " → " + record.event.end,record.request_id)
-        view.next = "新安排已按同ID精确核验；可另行准备邮件，旧审阅失效，事项未整体完成。"
+        view.next = "新安排已按同ID精确核验；可另行准备邮件，旧审阅失效。收件端本人核验后保存事项完成记录。"
+        if goal.status == "completed" && mail_native_completion_matches(goal,record) {
+            view.next = "同ID改期与最新邮件核验结果已保存；事项已完成，可在全局记忆回读完成结果。"
+        }
     } else { view.next = "核对原改期回执；未知不重发，旧日历快照不用于邮件或删除。" }
     calendar_agent_delete_project(view,goal)
     return true
@@ -6112,8 +6119,179 @@ fn mail_keep_pending_step(requested_id,pending_status,phase){
     start_timeout(0.05,|| mail_keep_pending_step(requested_id,pending_status,1))
 }
 
+// Native Calendar keeps its verified authority after this same-revision,
+// user-confirmed Mail result completes. SMTP accepted alone never enters here.
+fn mail_native_completion_matches(goal,record){
+    if goal == nil { return false }
+    if (goal.status != "running" && goal.status != "completed") || !fs.exists(goal.result_path) { return false }
+    let artifact = storage_read(goal.result_path).parse_json()
+    if !gm_object(artifact) || artifact["schema"] != 1 || artifact["task_id"] != goal.id
+        || artifact["plan_revision"] != goal.version || artifact["mail_status"] != "verified_by_user"
+        || !gm_object(artifact["native_calendar"]) || !gm_string(artifact.native_calendar["goal_json"],65536)
+        || !gm_string(artifact["mail_payload_json"],12000)
+        || !gm_string(artifact["request_id"],160) || artifact.request_id == ""
+        || !gm_string(artifact["mail_verified_id"],100) || artifact.mail_verified_id == ""
+        || !gm_number(artifact["verified_at"]) || artifact.verified_at <= 0 { return false }
+    let authority = artifact.native_calendar["authority"]
+    let prior = artifact.native_calendar["goal_json"].parse_json()
+    if !calendar_agent_authority_valid(authority) || !gm_object(prior) || prior["id"] != goal.id
+        || prior["version"] != goal.version || prior["status"] != "planned"
+        || authority.current_binding.goal_id != goal.id || authority.revision != goal.version
+        || artifact["event_id"] != authority.event.id || artifact["start"] != authority.event.start
+        || artifact["end"] != authority.event.end { return false }
+    if record != nil && (!gm_has(authority,"update") || authority.update.to_json() != record.to_json().parse_json().to_json()
+        || artifact.native_calendar.goal_json != record.goal_json) { return false }
+    let normalized = goal.to_json().parse_json()
+    normalized.status = prior.status normalized.approved_at = prior.approved_at normalized.updated_at = prior.updated_at
+    if normalized.to_json() != prior.to_json() { return false }
+    let ai = core_action_index(artifact.request_id)
+    if ai < 0 || actions[ai].status != "verified" || actions[ai].service != "mail.send"
+        || actions[ai].goal_id != "" || actions[ai].run_id != "" || actions[ai].plan_revision != 0
+        || actions[ai].target_scope != artifact["mail_account"] || actions[ai].payload_json != artifact.mail_payload_json { return false }
+    let payload = artifact.mail_payload_json.parse_json()
+    let declaration = artifact["receiver_declaration"]
+    if !gm_object(payload) || payload["account"] != artifact.mail_account || payload["to"] != artifact["mail_to"]
+        || payload["subject"] != artifact["mail_subject"] || payload["body"] != artifact["mail_body"]
+        || !gm_object(declaration) || declaration["kind"] != "MAIL_DELIVERY_USER_CONFIRMED"
+        || declaration["request_id"] != artifact.request_id || declaration["goal_id"] != goal.id
+        || declaration["account_scope"] != artifact.mail_account || declaration["at"] < artifact.verified_at
+        || !gm_string(declaration["detail"],500) || declaration.detail.search(artifact.mail_verified_id) < 0 { return false }
+    let matches = 0 let bound_run = ""
+    for run in runs {
+        if run.request_id == artifact.request_id && run.goal_id == goal.id {
+            if run.plan_revision != goal.version || run.result_path != goal.result_path || run.status != goal.status
+                || (artifact["run_id"] != "" && artifact.run_id != run.id)
+                || (goal.status == "completed" && artifact["run_id"] != run.id) { return false }
+            matches = matches + 1 bound_run = run.id
+        }
+    }
+    if matches != 1 { return false }
+    let si = core_source_index("source:mail-result:" + bound_run,artifact.mail_account)
+    if si >= 0 && memory_sources[si].content_sha256 != fs.sha256(storage_read(goal.result_path)) { return false }
+    if core_memory_index("memory:result:" + bound_run,artifact.mail_account) >= 0 && si < 0 { return false }
+    return true
+}
+
+fn mail_finish_native_result(){
+    if mail_verifying || !mail_draft_writable || mail_draft.status != "verified" || !mail_calendar_current(mail_draft)
+        || mail_draft.verified_at <= 0 || mail_draft.verified_id == "" { return false }
+    let authority = calendar_agent_authority()
+    let goal = ac_current_goal()
+    let ai = core_action_index(mail_draft.request_id)
+    if authority == nil || goal == nil || goal.id != authority.current_binding.goal_id || goal.version != authority.revision
+        || ai < 0 || actions[ai].status != "verified" || actions[ai].service != "mail.send"
+        || actions[ai].goal_id != "" || actions[ai].run_id != "" || actions[ai].plan_revision != 0
+        || actions[ai].target_scope != mail_draft.account || actions[ai].payload_json != mail_draft.attempt { return false }
+    let payload = mail_draft.attempt.parse_json()
+    if !gm_object(payload) || payload["account"] != mail_draft.account || payload["to"] != mail_draft.to
+        || payload["subject"] != mail_draft.subject || payload["body"] != mail_draft.body { return false }
+    let artifact = nil
+    if fs.exists(goal.result_path) {
+        artifact = storage_read(goal.result_path).parse_json()
+        if storage_read(goal.result_path).len() > 65536 || !gm_object(artifact) || artifact["schema"] != 1
+            || artifact["mail_status"] != "verified_by_user" || !gm_string(artifact["run_id"],160)
+            || !gm_object(artifact["receiver_declaration"]) || artifact.receiver_declaration["kind"] != "MAIL_DELIVERY_USER_CONFIRMED"
+            || artifact.receiver_declaration["request_id"] != mail_draft.request_id
+            || artifact.receiver_declaration["goal_id"] != goal.id || artifact.receiver_declaration["account_scope"] != mail_draft.account
+            || !gm_string(artifact.receiver_declaration["detail"],500)
+            || artifact.receiver_declaration.detail.search(mail_draft.verified_id) < 0
+            || artifact["request_id"] != mail_draft.request_id || artifact["task_id"] != goal.id
+            || artifact["plan_revision"] != goal.version || artifact["mail_payload_json"] != mail_draft.attempt
+            || artifact["mail_verified_id"] != mail_draft.verified_id || artifact["verified_at"] != mail_draft.verified_at
+            || !gm_object(artifact["native_calendar"]) || artifact.native_calendar["authority"].to_json() != authority.to_json()
+            || (goal.status != "planned" && !mail_native_completion_matches(goal,nil)) {
+            mail_error = "已有完成产物与当前核验不一致，保留原文件并等待对账。" return false
+        }
+    } else {
+        if goal.status != "planned" { return false }
+        let declaration = nil
+        for event in activity {
+            if event.kind == "MAIL_DELIVERY_USER_CONFIRMED" && event.request_id == mail_draft.request_id
+                && event.goal_id == goal.id && event.account_scope == mail_draft.account && event.at >= mail_draft.verified_at
+                && event.detail.search(mail_draft.verified_id) >= 0 { declaration = event.to_json().parse_json() }
+        }
+        if declaration == nil { mail_error = "收件端核验声明尚未保存，事项仍待核对。" return false }
+        artifact = {schema:1 task_id:goal.id run_id:"" request_id:mail_draft.request_id plan_revision:goal.version
+            event_id:authority.event.id title:authority.event.title start:authority.event.start end:authority.event.end
+            time_zone:authority.event.timezone location:authority.event.location
+            mail_account:mail_draft.account mail_to:mail_draft.to mail_subject:mail_draft.subject mail_body:mail_draft.body
+            mail_status:"verified_by_user" mail_verified_id:mail_draft.verified_id verified_at:mail_draft.verified_at
+            mail_payload_json:mail_draft.attempt receiver_declaration:declaration
+            native_calendar:{authority:authority.to_json().parse_json() goal_json:goal.to_json()}
+            model_summary:"" count:0 items:[]}
+        // Persist the complete frozen evidence before changing the Goal. A
+        // restarted run can be found by its original Mail request, never replayed.
+        artifact = artifact.to_json().parse_json()
+        let text = artifact.to_json()
+        if text.len() > 65536 || fs.mkdir("results") != nil || storage_write(goal.result_path,text) != nil || storage_read(goal.result_path) != text {
+            mail_error = "收件核验已保留，但完成产物写入或回读失败；不会重发。" return false
+        }
+    }
+    mail_verifying = true
+    start_timeout(0.05,|| mail_finish_native_step(artifact,0))
+    return true
+}
+
+fn mail_finish_native_step(artifact,phase){
+    let authority = calendar_agent_authority()
+    let goal = ac_current_goal()
+    let ai = core_action_index(artifact.request_id)
+    if goal == nil || authority == nil || goal.id != artifact.task_id || goal.version != artifact.plan_revision
+        || authority.to_json() != artifact.native_calendar.authority.to_json() || !mail_calendar_current(mail_draft)
+        || mail_draft.status != "verified" || mail_draft.request_id != artifact.request_id
+        || mail_draft.attempt != artifact.mail_payload_json || mail_draft.verified_id != artifact.mail_verified_id
+        || mail_draft.verified_at != artifact.verified_at || ai < 0 || actions[ai].status != "verified"
+        || actions[ai].payload_json != artifact.mail_payload_json
+        || mail_draft.account != artifact.mail_account || mail_draft.to != artifact.mail_to
+        || mail_draft.subject != artifact.mail_subject || mail_draft.body != artifact.mail_body
+        || storage_read(goal.result_path) != artifact.to_json() {
+        mail_verifying = false mail_error = "完成前的事项、邮件或产物绑定已变化；保留记录，不会重发。" mail_redraw() return
+    }
+    let run_id = artifact.run_id
+    if phase == 0 {
+        if goal.status == "planned" {
+            if goal.to_json() != artifact.native_calendar.goal_json { mail_verifying = false return }
+            for run in runs { if run.request_id == artifact.request_id { mail_verifying = false return } }
+            run_id = core_start_run(goal.id,goal.version,artifact.request_id)
+            if run_id == nil { mail_verifying = false mail_error = core_error mail_redraw() return }
+        } else {
+            if !mail_native_completion_matches(goal,nil) { mail_verifying = false return }
+            for run in runs { if run.request_id == artifact.request_id && run.goal_id == goal.id { run_id = run.id } }
+        }
+        artifact.run_id = run_id
+        let text = artifact.to_json()
+        if storage_write(goal.result_path,text) != nil || storage_read(goal.result_path) != text {
+            mail_verifying = false mail_error = "完成执行已保留，产物尚未对齐；请核对原记录，不会重发。" mail_redraw() return
+        }
+    }
+    if phase == 1 && goal.status != "completed" && !core_finish_run(goal.id,run_id,"completed",goal.result_path) {
+        mail_verifying = false mail_error = core_error mail_redraw() return
+    }
+    if phase == 2 || phase == 3 {
+        let sources = []
+        let card = calendar_agent_update_card_json(authority.current_binding).parse_json()
+        if gm_object(card) && gm_has(card,"memory_refs") {
+            for ref in card.memory_refs {
+                for source in ref.source_ids { if core_source_index(source,artifact.mail_account) >= 0 { sources.push(source) } }
+            }
+        }
+        if !core_remember_result_part(goal.id,run_id,goal.result_path,artifact.mail_account,
+            "source:mail-result:" + run_id,"mail-send:" + artifact.mail_account + ":" + artifact.request_id,sources,phase-2) {
+            mail_verifying = false mail_error = "完成结果已保存，来源记忆仍需核对：" + core_error mail_redraw() return
+        }
+    }
+    if phase == 4 && !schedule_supersede_result(goal.id,"memory:result:" + run_id,artifact.mail_account) {
+        mail_verifying = false mail_error = core_error mail_redraw() return
+    }
+    if phase == 5 && !core_record_event("readback","日历最新版本与本人收件核验声明已保存并回读；不是宿主自动投递证明。",
+        goal.id,run_id,artifact.request_id,artifact.mail_account) { mail_verifying = false mail_error = core_error mail_redraw() return }
+    if phase < 6 { start_timeout(0.05,|| mail_finish_native_step(artifact,phase+1)) return }
+    if task != nil && task.id == goal.id { result = artifact }
+    mail_verifying = false mail_error = "" mail_notice = "最新日程与本人核验的邮件结果已保存，事项已完成。" mail_redraw()
+}
+
 fn mail_finish_linked_result(){
-    if gm_has(mail_draft,"official_calendar") { return mail_calendar_current(mail_draft) }
+    if gm_has(mail_draft,"official_calendar") { return mail_finish_native_result() }
     if mail_verifying { return false }
     let goal_id = mail_draft.link_goal_id
     let run_id = mail_draft.link_run_id
@@ -11593,7 +11771,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                         Secondary{text: "我已在收件端核对测试 ID" enabled: !mail_verifying on_click: || mail_verify_received()}
                     }
                     if mail_draft.status == "verified" { Label{width: Fill text: "已记录本人收件端核验声明 · " + mail_draft.verified_id draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
-                    if mail_draft.status == "verified" && mail_draft.link_run_id != "" { Secondary{text: "回读并完成关联 执行记录" on_click: || { mail_finish_linked_result() mail_redraw() }} }
+                    if mail_draft.status == "verified" && (mail_draft.link_run_id != "" || gm_has(mail_draft,"official_calendar")) { Secondary{text: "回读并完成关联事项" enabled: !mail_verifying on_click: || { mail_finish_linked_result() mail_redraw() }} }
                     Label{width: Fill text: mail_notice draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
                 }}
                 Label{text: "本人收件端核验 · 测试 ID" draw_text.color: muted draw_text.text_style.font_size: 11}
@@ -11615,7 +11793,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                             Label{width: Fill text: "当前事项候选 · " + calendar_agent_candidate.payload.title + "\n" + calendar_agent_candidate.payload.start + " → " + calendar_agent_candidate.payload.end + " · " + calendar_agent_candidate.payload.timezone draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
                             Secondary{text: "核对后提交当前事项候选" enabled: !calendar_agent_busy && calendar_agent_writable && calendar_agent_binding_current(calendar_agent_candidate) && (calendar_agent_state.status == "idle" || calendar_agent_state.status == "blocked") on_click: || calendar_agent_submit_candidate()}
                         }
-                        Label{width: Fill text: "候选联动支持新建、精确读回和可选确认草稿；发送须单独原生审阅，同ID改期需另行选择和确认；整体事项完成尚未接通。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        Label{width: Fill text: "候选联动支持新建、精确读回和可选确认草稿；发送须单独原生审阅，同ID改期需另行选择和确认。最新日程与本人收件核验通过后，可保存事项完成记录。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                         calendar_agent_input := TextInput{width: Fill height: 90 text: calendar_agent_input_text empty_text: "例如：查询今天的日程；或新建事项并写明标题、起止时间、时区"
                             on_change: || { calendar_agent_input_text = ui.calendar_agent_input.text() }}
                         Secondary{text: "提交官方日历请求" enabled: !calendar_agent_busy && calendar_agent_writable && (calendar_agent_state.status == "idle" || calendar_agent_state.status == "blocked") on_click: || calendar_agent_submit(ui.calendar_agent_input.text())}

@@ -1,0 +1,88 @@
+{
+  "source_commit": "961d05ec9755abb3436aa2c6c38914427ae20f5d",
+  "source_main_sha256": "dabfe65bbb859e51db5cc2b9eea59855024af927f8bfbe548fa86f50ded95a6d",
+  "status": "SIGNED_AND_PACKAGED_NOT_FULL_CHAIN_VERIFIED",
+  "commands": [
+    [
+      "python3",
+      "official_muse/integrated_release/prepare_bundle.py",
+      "--out",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/candidate"
+    ],
+    [
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/official-hub-rc2-target/release/hub",
+      "stamp",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/candidate/bundle"
+    ],
+    [
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/official-hub-rc2-target/release/hub",
+      "sign-manifest",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/candidate/bundle",
+      "--key",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/muse-integrated-0.4.0-rc1/signing-private/publisher.key",
+      "--key-id",
+      "muse-integrated-local"
+    ],
+    [
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/official-hub-rc2-target/release/examples/muse_local_catalog",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/candidate/bundle",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/mirror",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/muse-integrated-0.4.0-rc1/signing-private/working.key",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/muse-integrated-0.4.0-rc1/working-certificate.txt",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/muse-integrated-0.4.0-rc1/anchor-public.txt",
+      "961d05ec9755abb3436aa2c6c38914427ae20f5d"
+    ],
+    [
+      "python3",
+      "official_muse/integrated_release/package_app.py",
+      "--sdk",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/runtime-closure-full-shell-r1/sdk",
+      "--host",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/mail-lifecycle-host-r1/octosense",
+      "--kernel",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/muse-integrated-0.4.0-rc6-standalone-r2/Muse.app/Contents/Resources/host-runtime/octos-kernel",
+      "--kernel-receipt",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/muse-integrated-0.4.0-rc6-standalone-r2/Muse.app/Contents/Resources/host-runtime/octos-kernel.json",
+      "--mirror",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/mirror",
+      "--out",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/package",
+      "--model-mode",
+      "hybrid",
+      "--model-source",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/muse-integrated-0.4.0-rc5-app-r1/Muse.app/Contents/Resources/local-model",
+      "--state-root",
+      "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/rc7-integrated-candidate-r1/state"
+    ]
+  ],
+  "results": [
+    {
+      "step": 0,
+      "exit_code": 0,
+      "elapsed_seconds": 1.69
+    },
+    {
+      "step": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 0.144
+    },
+    {
+      "step": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 0.133
+    },
+    {
+      "step": 3,
+      "exit_code": 0,
+      "elapsed_seconds": 0.199
+    },
+    {
+      "step": 4,
+      "exit_code": 0,
+      "elapsed_seconds": 42.992
+    }
+  ],
+  "compact_main_sha256": "e5949844283846a9b2fe2bd26b55468b5082528d6bc8ced6e2bc4f53f11088ab",
+  "manifest_sha256": "b22f20847e997a3d40763fa8a60a5e5424e3b0192e41107bf034350980be22f5",
+  "catalog_sha256": "f6c1decf6d181170ea2d4a90a36ff40fae3927ba7c3b99c14eb0cbb7f18f4ecf"
+}

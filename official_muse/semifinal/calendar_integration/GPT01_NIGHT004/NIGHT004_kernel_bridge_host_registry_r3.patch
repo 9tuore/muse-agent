@@ -1,0 +1,17 @@
+--- a/crates/shell/src/host_tools/real_kernel_tests.rs
++++ b/crates/shell/src/host_tools/real_kernel_tests.rs
+@@ -819,6 +819,14 @@
+     assert!(!crate::dev_mode::grants_all("muse-goals"));
+     crate::approvals::with(|a|a.consent.set(&crate::approvals::rules::ApprovalGesture::sheet_tap(),"muse-goals",true,crate::approvals::now())).unwrap();
+     octosense_calendar_service::register();super::script_apps::load("os.calendar").expect("genuine owner load");
++    // The public candidate also requires Mail APIs. Use the real service
++    // registration used by production startup, without dispatching Mail calls.
++    octosense_mail_service::register();
++    assert!(octosense_appstore::services::has_service("mail"),"real Mail service must be present");
++    let host_apis=octosense_appstore::host_api::available_versions();
++    for method in ["mail.compose","mail.compose_status","mail.review_send"]{
++        assert_eq!(host_apis.get(method),Some(&1),"missing real supported Host API {method}");
++    }
+     super::script_apps::load("muse-goals").expect("actual public bundle/catalog signature admission");
+     let offered=super::ShellToolHost.declarations("card.muse-goals",crate::ai_host::contained::ACCOUNT).unwrap();
+     for tool in ["calendar.events","calendar.get_event","calendar.add_event","calendar.update_event","calendar.remove_event","calendar.notify"]{

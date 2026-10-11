@@ -1,0 +1,54 @@
+{
+  "migration": "Owned build source -> tracked isolated check namespace; original evidence unchanged",
+  "files": [
+    {
+      "original": "build/gpt05-night004-coldstart-r1/coldstart.py",
+      "original_sha256": "d1eca924c0316d8d1d53b6225d6a81e5da8cb0929a0afee0155e3df597983adf",
+      "new": "official_muse/integrated_release/night004_checks/coldstart.py",
+      "new_sha256": "9cd2a123086d94e7d210e51b8dcf628c118e21d8626809d5306bc690d106c0d0",
+      "path_only_edits": [
+        "repo ROOT for tracked namespace",
+        "identity checker beside driver"
+      ]
+    },
+    {
+      "original": "build/gpt05-night004-signature-r1/check_host_identity.py",
+      "original_sha256": "84cb33dd0e2f34759eaf85309959c7c99838dfa4d6a4027fa5f164284a0979f7",
+      "new": "official_muse/integrated_release/night004_checks/check_host_identity.py",
+      "new_sha256": "84cb33dd0e2f34759eaf85309959c7c99838dfa4d6a4027fa5f164284a0979f7",
+      "path_only_edits": []
+    },
+    {
+      "original": "build/gpt05-night004-signature-r1/signature_probe.c",
+      "original_sha256": "4368aecc020990e03c34677ce94379b8729bd3f8e8148286f213f39859f49362",
+      "new": "official_muse/integrated_release/night004_checks/signature_probe.c",
+      "new_sha256": "4368aecc020990e03c34677ce94379b8729bd3f8e8148286f213f39859f49362",
+      "path_only_edits": []
+    },
+    {
+      "original": "build/gpt05-night004-coldstart-r1/owned_main_window_id.c",
+      "original_sha256": "e0f8440bfa93d6a9f9c78cc0848464726a1e5046cf9a98904447547b28bc7df2",
+      "new": "official_muse/integrated_release/night004_checks/owned_main_window_id.c",
+      "new_sha256": "e0f8440bfa93d6a9f9c78cc0848464726a1e5046cf9a98904447547b28bc7df2",
+      "path_only_edits": []
+    },
+    {
+      "original": "build/gpt05-night004-side-effects-r1/read_mail_counts.py",
+      "original_sha256": "4c2bf993a5772a8f97b4bc447b3f2fcdedd1805e71e66ad57504cca333aea65b",
+      "new": "official_muse/integrated_release/night004_checks/read_mail_counts.py",
+      "new_sha256": "b35ad35cf087cfdd60d96c9004102807b434e3ee3bae404d5339febca23e6bbd",
+      "path_only_edits": [
+        "repo ROOT parents[3]"
+      ]
+    },
+    {
+      "original": "build/gpt05-night004-side-effects-r1/check_reader_fixtures.py",
+      "original_sha256": "b3f3b7edf33a87e678aa9197fa076516c527257b53f672ada10f095f1f9a360a",
+      "new": "official_muse/integrated_release/night004_checks/check_reader_fixtures.py",
+      "new_sha256": "892b9e27bac520ce518324be0e9e56230e3488508e592e794a916c548c07ce5b",
+      "path_only_edits": [
+        "sample fixture base relative to repository"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+最终组合源 e7d665dd：88fe5fb1完结补丁+中央native恢复按钮/证据完成投影/文案及成功清理旧错误。中央同源码344项真实官方Splash VM检查通过（194关键+150受影响回归），外部IO/模型/授权/CalendarHistory/Mailtransport为明确fixture。中央基线10项有4业务失败已保存。GPT04 8ad9源独立16项持久化重载恢复通过，不与最终源拼成全链。真正同签名候选Kernel/Mail/receiver/新进程恢复待后续L3。

@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC-00；codex/muse-pivot-20261010 基线52f639f0；NIGHT-004原生改期/空状态/Goal归属集成。
+ZC-00，codex/muse-pivot-20261010，基线961d05ec；NIGHT-004 native完结与同签名真实环境准备。
 
 ## Result
-PARTIAL。组合main dabfe65b中央311项Splash VM通过；真实同候选L3尚待运行。
+PARTIAL。e7d665dd同源344项官方Splash VM通过；基线4业务失败已复现。真实完整Muse正常AppHub Open/导航与一次冷启动通过。
 
 ## Changed
-main.splash改期journal/严格get-update-get/latest authority，六行候选Goal归属，nil binding guard。接收GPT01 test-only Kernel桥和GPT02真实Mail组件驱动。
+接88fe5fb1完结补丁，native恢复按钮/状态说明/旧错误清理；test-only真实服务及policy ABI完整准入初始化，外owner受限helper；真实VM/Kernel/GUI原始证据。
 
 ## Tests
-中央官方VM：99改期、11归属、22安全、23创建、6墙时、150受影响回归通过；前3c7源真实Rust Mail dispatch+MockTransport23/16重启。早期c183包AppHub真Install/Open/Muse导航三图；两个冷启动预检失败保留。证据official_muse/semifinal/evidence/night004-native-update-central/。
+194关键+150受影响回归PASS；GPT04另8ad9源持久化重载恢复16项PASS。真实Kernel R5/R6各1项PASS。公开签名桥两次初始化admission失败保留，R7编译中。源dabfe/e594rc7真实GUI四图、单次冷启动15.890s，Calendar数0；不是final20。
 
 ## Commit
-本次待本地提交；此前52f639f0普通开发分支push已独立核对。
+本单元待本地commit；此前961d05ec普通开发分支push独立核对。
 
 ## Remaining
-真实Kernel R5编译；同签名候选L3/L4、final GUI/20启动、持续AI。
+最终源签名L3/L4、新进程回忆/行动链、final GUI/20；持续AI。09:00冻结高风险，11:00截止。
 
 ## Important Boundaries
-日历官方服务真实持久化；模型/授权/邮件transport fixture，真实发信0。未正式发布/比赛提交。
+Calendar真实官方服务；模型/授权/收件transport fixture，真实SMTP0。生产收件核验仍本人声明。未发布/比赛提交。

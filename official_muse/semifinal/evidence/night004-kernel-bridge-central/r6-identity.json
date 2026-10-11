@@ -1,0 +1,26 @@
+{
+  "command": [
+    "nice",
+    "-n",
+    "10",
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--release",
+    "-p",
+    "octosense-shell",
+    "--lib",
+    "--no-default-features",
+    "--features",
+    "app-hub,octos-core,app-muse-native-prototype",
+    "host_tools::real_kernel_tests::real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture",
+    "--",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "source_sha256": "3c59e9ff85c934f73e9dc7cbd2433c370bc8e1e90d0281cd327388ea679f6999",
+  "kernel_sha256": "56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270",
+  "lock_sha256": "5b58c5f5a89da1faa9de75e48d9d90d8bc6eb81365360e3a71eeaebdef27d68c",
+  "test_only": true
+}

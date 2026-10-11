@@ -64,6 +64,17 @@ fn night004_kernel_jsonl_bridge_fixture_driver(){
     assert!(!crate::dev_mode::grants_all("muse-goals"));
     crate::approvals::with(|a|a.consent.set(&crate::approvals::rules::ApprovalGesture::sheet_tap(),"muse-goals",true,crate::approvals::now())).unwrap();
     octosense_calendar_service::register();super::script_apps::load("os.calendar").expect("genuine owner load");
+    // The public candidate also requires Mail APIs. Use the real service
+    // registration used by production startup, without dispatching Mail calls.
+    octosense_mail_service::register();
+    assert!(octosense_appstore::services::has_service("mail"),"real Mail service must be present");
+    // The patched production Card/AppStore runner registers this policy ABI.
+    // Its feature guard stays authoritative; never advertise it by hand.
+    octosense_appstore::register_policy_runtime_features();
+    let host_apis=octosense_appstore::host_api::available_versions();
+    let api_manifest=octosense_app_policy::AppManifest::parse(
+        &std::fs::read_to_string(source.join("manifest.json")).unwrap()).expect("actual public manifest");
+    api_manifest.check_host_apis(&host_apis).expect("all actual public manifest explicit and implicit Host APIs");
     super::script_apps::load("muse-goals").expect("actual public bundle/catalog signature admission");
     let offered=super::ShellToolHost.declarations("card.muse-goals",crate::ai_host::contained::ACCOUNT).unwrap();
     for tool in ["calendar.events","calendar.get_event","calendar.add_event","calendar.update_event","calendar.remove_event","calendar.notify"]{

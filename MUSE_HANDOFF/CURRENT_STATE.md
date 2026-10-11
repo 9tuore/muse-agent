@@ -1,3 +1,11 @@
+## ZC-00 NIGHT-004 完结与真实入口：2026-10-12 02:51 北京时间
+
+当前组合main e7d665dd已补native Calendar→Mail核验后的Run/Goal/完成Memory，修恢复按钮、完成行动链说明及成功清空旧错误。中央基线10项4失败；同一最新源344项真实官方Splash VM通过（33完结、99改期、11归属、22安全、23创建、6墙时、150回归）。GPT04另在8ad9源16项生产持久化重载恢复通过，不重发、不重复Run/Memory。独立收件产物由parent先核对，生产入口仍为本人核验声明，不能宣称自动投递证明。证据semifinal/evidence/night004-completion-central/。
+
+已打包961d05ec/dabfe源rc7集成候选，真实AppHub Install/Open完整Muse及Chat/Calendar/Memory输入导航通过；正常Library→Open一次冷启动完整Muse15.890s（Host4.120s），三动态SecCode0，真实Calendar前后0，native图已人工查看。不是final20，GUI Mail store未设置账号，缺资料计数0不计Mail业务通过。证据semifinal/evidence/night004-rc7-integrated-preflight/。
+
+真实Kernel R5与R6 CRUD+实际destructive-update Deny各1/1通过。公开Muse bridge先缺Mail注册、再缺device_consent ABI而准入失败；原日志保留。R7按e6036b6f补真实生产policy注册及完整manifest.check_host_apis，唯一target串行编译中。接收GPT01外owner受限helper，GPT02 L4准备中。下一项最终源签名→同候选L3/全进程重启→L4→最终GUI/20冷启动；09:00冻结高风险，11:00截止。
+
 ## ZC-00 NIGHT-004 同源改期与正式UI组件：2026-10-12 02:28 北京时间
 
 main dabfe65b集成 native同ID改期、Goal归属六行guard、nil Calendar绑定guard。中央同源码真实Splash VM 311项全部通过（外部IO/审批/模型/输运明确fixture）；前一3c7源Mail真实Rust dispatch与独立MockTransport23项+实际三进程重启16项通过。源函数SHA及原始失败日志保留，不把组件结果拼作L3。

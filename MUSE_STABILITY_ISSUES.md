@@ -23,3 +23,12 @@
 main dabfe65b已集成GPT03 d6e2107e同ID改期、8b8e0a21 Goal归属、GPT02 e4dab023 nil绑定防护。中央311项真实官方Splash VM合成边界全通过：改期99、归属11、安全22、创建回执23、墙时6、Goal10、Memory58+新进程8、Mail19+回执8、Calendar恢复10、行动链37。组件Mail真实Rust dispatch与独立MockTransport/收件端23项及跨进程重启16项源为3c7a2661；最终dabfe65b全链仍待运行。完整Muse经真实AppHub隔离fixture Install/Open与记忆导航、输入读回成功，有三张native PNG；属于早期c183组件包。冷启动预检两次失败：第一查询未归一，第二归一后匹配Muse但Return没有launch记录，保留证据并定位真实菜单路径，不计20通过。
 
 Kernel R4首次add/retry/get真执行，拟拒绝add也执行：官方add为act且outward:false，无强制Host审批，不是Once陈旧授权证据。R5改用官方destructive update的真实Deny，并加入全signed Muse JSONL bridge，按fb74bd8e精确应用cfg(test)源；中央唯一release编译中，尚未PASS。
+
+## 2026-10-12 02:51 中央更新
+
+| ID | 等级 | 观察与根因 | 修复与证据 | 状态 |
+|---|---|---|---|---|
+| N004-10 | P0 | native已核验Mail Action和声明，但原native完结分支只返回Calendar绑定；中央基线新建/改期均无Run/完成Memory，10项4失败 | 88fe5fb1只换两个业务函数及三个完结helper；中央e7d同源344项VM通过，恢复按钮/证据完成说明已接线 | VM_PASS_FULL_CHAIN_PENDING |
+| N004-11 | P1 测试环境 | 公开签名Muse bridge缺生产Mail注册后缺device_consent ABI，真实admission失败，未派发Calendar | fc768及2d927只补cfgtest真实service/policy初始化并完整manifest API预检；R7编译中，未弱化准入 | TEST_DRIVER_FIXED_RUNTIME_PENDING |
+
+旧冷启动两失败保留；最新同dabfe signed candidate真实AppHub Library→Open一次通过，有native照片与三SecCode0。仍不计最终20或L3通过。

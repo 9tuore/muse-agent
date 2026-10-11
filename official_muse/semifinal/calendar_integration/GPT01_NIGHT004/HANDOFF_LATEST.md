@@ -2,28 +2,28 @@
 
 ## Task
 
-NIGHT-004 ZC01，Kernel denial案例与JSONL桥接联合修补。
+NIGHT-004 GPT01：完整Host API初始化与外owner CAS helper。
 
 ## Result
 
-PARTIAL。中央R4实际create/retry/get通过后deny-add失败；R5及bridge R2补丁准备，未typecheck/运行。
+PARTIAL。policy增量补丁已交；外owner helper本机12步PASS。中央admission/full-chain CAS尚待总控运行。
 
 ## Changed
 
-deny改为官方destructive update并断言新Deny/bytes不变。bridge add需显式fixture once，否则派发前协议拒绝；不造Kernel拒绝。联合/分步patch与协议已更新。
+真实policy注册＋实际manifest全要求预检查；独立受限owner binary/wrapper，只改现有合成event；marker/ID校验、执行协议与GPT02待发送文案。
 
 ## Tests
 
-读取中央原日志和官方声明：add为act，无强制Host sheet，未观察Deny，不支持遗留Once假设。b9765284到单独R5 3ae543a8、联合fb74bd8e，三个补丁应用/逐字/syn通过；Python语法保持通过。无Cargo/共享写。
+3c59→e603 patch/bytes/syn/5项静态PASS。自有小build1.38秒；12实际owner步骤通过，6guard拒绝、外进程更新、stale CAS拒绝且store不变/新事件保留。4生产服务文件与SDK逐字相同。旧reader SHA不变，未写中央state/共享target。
 
 ## Commit
 
-桥接R1 f64398a0；本单元local commit见Git/聊天；未push。旧失败/R1-R4证据保留。
+policy 2d927bde，文档426d91b6；helper提交见Git/聊天。未push。
 
 ## Remaining
 
-中央接收联合r2 patch一次编译，并运行新旅程/ignored bridge；GPT02按kernel_bridge/CLI_PROTOCOL.md接VM，之后判L3。
+总控policy重编/正式包验收、按EXTERNAL_OWNER_PROTOCOL执行中央CAS。GPT02同步需要直接本人消息授权。
 
 ## Important Boundaries
 
-signed公开候选必填；原prompt不替换。计划/手势fixture，History真实且不重建收据。生产gates/风险/schema不变。
+服务真实，模型/权限/手势fixture；helper无Kernel/History/receipt，不读个人profile/Secret。

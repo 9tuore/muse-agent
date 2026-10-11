@@ -1,0 +1,5 @@
+给已有聊天《Muse 官方邮箱真实联调》（GPT02）的待发送同步文案：
+
+外部 Calendar owner CAS helper 已准备，不需要重编共享 bridge/SDK/Host。现有 gpt01-night004-calendar 对中央路径仅只读；新增独立 binary：/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-calendar-history/target/debug/gpt01-night004-external-owner（SHA256 e7dc890860d1a17d2fbc08e68ed98aa39c75eaee370bb18a6eb2281b2ed6c265）。wrapper：同自有worktree/official_muse/semifinal/calendar_integration/GPT01_NIGHT004/external_calendar_update.py。config.fixture_root映射apps/.host/calendar/events.json，目标必须是指定event_id及其实际fixture request_id，双FIXTURE_ONLY及EXTERNAL_CALENDAR_OWNER_WRITE_OK.json须由总控预先标记并准确绑定host/id/request_id。完整执行例和marker格式见EXTERNAL_OWNER_PROTOCOL.md。
+
+本机自有临时fixture12步PASS；真实4文件与当前SDK逐字相同。实际中央写入留总控。先Kernel get保存原event，等idle后外owner真实update一次并等待退出，再Kernel get证实新notes；随后Kernel update必须携带此前原snapshot expected，不能采用这次fresh get，否则CAS应合法成功。真实拒绝后核对store bytes/count和新notes保留、实际History错误收据，不手造receipt。helper --check-only仅真实读；没有重试、add/delete、个人profile访问。旧readonly binary b603e254保持。源码已本地提交，commit见本聊天交付。

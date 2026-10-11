@@ -1,3 +1,11 @@
+> 外部owner CAS受限helper已准备并本机验证：独立gpt01-night004-external-owner/脚本只接受指定fixture_root→apps/.host、双FIXTURE_ONLY及绑定host/event_id/request_id的写marker；真实CalendarService update_event，不手写store/History。自有小build1.38秒，12实际步骤PASS，6guard、只读preflight、外进程更新、真实stale CAS拒绝后新事件保留。binary e7dc8908，旧reader b603e254未变。中央store/full-chain未运行；协议EXTERNAL_OWNER_PROTOCOL.md，实际执行留总控。GPT02同步文案备妥，待本人直接发送授权。
+
+> Bridge policy registry R4：实际正式包requires host-api-v1隐式要求app_policy.device_consent@1；生产Card/AppStore入口register_policy_runtime_features按原feature guard登记。增量patch调用真实入口并用实际AppManifest::check_host_apis检查全部explicit+implicit：Mail3/runtime.list/device_consent共5项。3c59e9ff→e6036b6f；应用/逐字/full syn及全部requirements静态核对PASS，尚未typecheck/运行。公开signed包/门禁不变；原L3 failure保留。代码commit2d927bde。外部owner CAS helper第二优先。
+
+> History/异步准备已补：kernel_bridge/BRIDGE_HISTORY_ASYNC_PREP.md，9条JSON请求解析/唯一ID通过，仅PREPARED_NOT_RUN。原始历史/重启当前context与RAM receipt边界、同步archive只能idle、interrupt竞态和180秒unknown均据实际源码说明；无driver改动/新build/运行。
+
+> GPT01 NIGHT-004 Bridge Host registry R3：中央R5真实Kernel CRUD/Deny/revocation result=PASS（fixture模型/授权，非产品L3）；首次signed public bridge实际失败于缺三项Mail API，原日志保留。自有test-only最小补丁调用生产同源真实MailService::register并检查service/实际supported versions，不注入描述、不改manifest/gates，不调Mail、不访问Secret。fb74bd8e→3c59e9ff，patch replay/逐字/full syn通过；新补丁未typecheck/运行，待中央唯一编译。证据KERNEL_BRIDGE_HOST_REGISTRY_R3_RESULT.json。
+
 > R5 denial与Bridge R2联合单元：已读中央R4真实失败日志，create/stable retry/get确实经Kernel保存；deny add无sheet仍保存第二条。官方add是act且无Host确认，未见遗留Once证据。只把deny改为真实destructive update并核对新Deny/原事件不变；bridge未获显式fixture once的add在dispatch前报协议错，不能叫Kernel Deny。b9765284到联合fb74bd8e，patch/完整syn通过，未typecheck/运行。联合补丁便于中央一次编译；R1原证据保留。
 
 > Kernel JSONL桥接补丁（2026-10-12）：ignored test-only driver及Python协议wrapper/local plan model已准备；只读当前R4 Debug修正基线b9765284，append后25afb61a。实际signed public Muse bundle/mirror/main SHA必填，官方Calendar factory/admission、真实Broker/Relay/Kernel History；原VM prompt不替换，tool plan/审批为fixture。异步turn/interrupt与owner诊断、实际历史session回读/quit；不重建RAM收据。patch/完整Rust syn/Python语法通过；尚未typecheck/运行，无共享写/大build。协议kernel_bridge/CLI_PROTOCOL.md。

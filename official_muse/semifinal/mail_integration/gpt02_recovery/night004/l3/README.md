@@ -2,6 +2,8 @@
 
 结果为 **PARTIAL**。真实官方 ScriptVm→生产 Muse函数→实际Rust Mail service→独立合成收件进程已接通。同一拟议候选3c7a2661的初始轮23/23、真正新进程重启轮16/16；完整L3/Calendar联动仍 **NOT_TESTED**。
 
+新增native父驱动见[KERNEL_PARENT.md](KERNEL_PARENT.md)。四个显式Kernel参数、实际签名compact/upstream映射、第二封Mail原chat入口、native改期/邮件/必选完成检查已准备。dabfe定向无Kernel轮到真实chat建Goal后正确blocked，15项plan parser及actual compact重放通过；后半程与真实Kernel仍待中央执行。这不替换下列3c7组件证据。
+
 中央d065ad15初次创建候选后，ac_projection→calendar_agent_project→calendar_agent_binding_current(nil) 读取plan_revision真实报错。nil-binding-guard.patch仅给包装函数加非对象检查。独立check/apply/readback及其余570函数字节一致性已验证，d065ad15→3c7a2661，本聊天未修改中央main。evidence/native-d065-error-r6保留原stderr和请求/回包。此前ebbc50b8初始通过、capabilities缺失及账号池未加载的两次恢复失败也保留。最小同名参数转发和短路检查实际通过，nil field检查实际报错；不把曾考虑的错误原因当结论。
 
 ## 固定源码入口
