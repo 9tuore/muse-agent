@@ -1,6 +1,6 @@
 # Muse NIGHT-004 中央验收记录
 
-更新：2026-10-12 06:03，北京时间。用户允许最晚11:00交付，09:00停止新增高风险开发。固定 R5 候选在本轮隔离模拟范围内为 **SIMULATION_PASS**；生产端到端为 **NOT_TESTED**。这是已验证的开发候选，尚非公开正式发布或比赛提交。
+更新：2026-10-12 06:10，北京时间。用户允许最晚11:00交付，09:00停止新增高风险开发。固定 R5 候选在本轮隔离模拟范围内为 **SIMULATION_PASS**；生产端到端为 **NOT_TESTED**。这是已验证的开发候选，尚非公开正式发布或比赛提交。
 
 ## 固定候选与打开方式
 
@@ -9,7 +9,7 @@
 - 已签 Main：ef58430fef4b2f707b78a12f4c4bcd2403b8404c092f5cd73239e5d128a9e750；manifest：7b746fb0871e9e40f30819e4f6d851cda9c61d9ccb595468373cf622307f9714；catalog：1ea34df14b36ddf3ddb5727a17d6ef4c3bf22fdbdac709de4417bb76cf86c7a9。
 - 包：build/night-004/rc7-integrated-candidate-r5/package/Muse.app。实际 Intel x86_64，沿用原 WorkBuddy 的 LaunchServices open → 原 Launcher → Intel Host → App Hub Library/Open。没有替换为直接编辑窗口或专用 Calendar 启动副本。
 - Host 输入 a9fc8ca3f39a626bb1bc1fae3cb99b359f5a07c7c3c50f45cd73b21d885c397a；包内重签 Host 1eb1887b7e89e1f3adebd750a4afff278d3ad7a942f35ae89a04fa70103cf0f7；Kernel 56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270；原 Launcher acfd9a99f8bbf43ccd8b0b957285d5989c8a059c33ede5f45130e05f0f314ef6。
-- 已安装 Main/manifest 与候选逐字节相等。06:02 留开的完整 Muse 为 PID26569，动态三项 SecCode 状态均0，实际 executable 为包内 muse-host。保存图片 narrow-and-ready/04-ready-for-trial.png。
+- 已安装 Main/manifest 与候选逐字节相等。06:02 留开的完整 Muse 为 PID26569，动态三项 SecCode 状态均0，实际 executable 为包内 muse-host。06:08再次只读核完整输入/聊天按钮，原生实审仍正常；最新图片delivery-ready/latest-muse.png。
 
 ## 同 R5 实际验证
 
@@ -51,6 +51,6 @@ R5大数据最终20：Muse可交互中位21.652秒、范围20.923–24.280秒；
 
 统一归档：official_muse/semifinal/evidence/night004-r5-candidate/，包含固定身份、各层原始回执、60启动图、7日历图、4窄窗口图、执行过的驱动、旧失败和中央acceptance。evidence-manifest.json逐文件SHA256核验；组件证据保持各自已提交的candidate-caa99-r1目录。旧R4报告另存report-before-r5.md。
 
-开发分支codex/muse-pivot-20261010。产品提交0c3aa9b1固定，报告与证据另做本地checkpoint后普通推送，并独立ls-remote核对最终SHA；实际同步结果保存在独立git-sync目录。06:01只读预检远端仍cdc37f773e5fdc68503ea26a763176ec631dcacd，不据预检宣称新候选已同步。旧r9连接失败记录保留。
+开发分支codex/muse-pivot-20261010。产品提交0c3aa9b1固定，验收证据本地checkpoint10e1ba27878126b11ca46a7136fbdcc123062d61。r11普通直连push失败、独立ls-remote超时，原始回执保留git-sync/r11-direct-failure。实际系统HTTP/HTTPS代理127.0.0.1:7897已启用，而Git有效代理/环境为空；r12仅在命令中使用该既有系统端点，独立预检0.987秒返回远端cdc37f773e5fdc68503ea26a763176ec631dcacd。没有修改全局/仓库网络配置，继续普通推送并独立核对，不据预检宣称成功。旧网络失败记录保留。
 
 未做main推送、强推、公开发布或比赛提交；四项既有他人未提交源码/文档改动保留，未纳入本轮checkpoint。最新R5模拟窗口保持打开，供用户后续试用。
