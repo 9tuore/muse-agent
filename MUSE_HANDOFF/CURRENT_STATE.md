@@ -1,3 +1,11 @@
+## 2026-10-12 05:18 NIGHT-004 R4真实整链通过，规模GUI恢复阻塞已定位
+
+R4源8227bbb3/产品提交197d16d7、签名Main a040d63b、manifest b69168fb、catalog24b2d795已实际打包并在隔离App Hub安装。原WorkBuddy入口Open完整Muse、输入读回与清空、Host三项动态SecCode=0通过。新同候选真实Kernel/Calendar初始/恢复：full33+15、Deny29+12、CAS28+11、delete23+13，共164检查PASS。重叠same20、contained20、adjacent20 PASS；原事件字节/ID不变，首次只query，相邻第二次选择才创建。contained-r1的官方含端点查询预期读反，失败原始记录保留，测试修正已24f131c5接收，不改产品权限或Calendar契约。
+
+GPT03新源实际SDK坏JSON54、Mail故障107、Memory/行动链实测14均已接收，中央逐文件/原始证据verifier通过；不把证据复核额外计为runtime测试。8个生产save输出白名单在停止的双marker GUI fixture原字节导入后，64Memory/128Sources/32Goal/32Run/128Action规模验收实际失败：主8unknown/120in_flight、备7unknown；Host.log269行script time budget exceeded定位core_commit_goals6779。45秒仍只挂载初始框架，最终20尚未跑。GPT03正提最小一次恢复提交补丁；Root唯一改Main、重签下一候选并实跑。R3/c892历史20仍只是回退证据。
+
+新R4分层证据official_muse/semifinal/evidence/night004-r4-candidate/保留真实164/60结果和规模GUI失败。当前总体PARTIAL，不能因Kernel整链通过授予SIMULATION_PASS；生产SMTP/IMAP/真实模型与私人日历仍未进行。11:00截止，09:00冻结高风险；下一最高价值任务是修规模启动恢复并固定新候选最终20。
+
 ## 2026-10-12 04:14 NIGHT-004 固定候选启动、删除与故障恢复中央验收
 
 同 c892/cdb R3 固定候选的最终 20 次 WorkBuddy 正式入口启动全部通过，60 张原生 Chat/Memory/Chat 图经四张联系表实际复核，无黑主体；Host 动态 SecCode 全部 0、包八文件及已安装 Main/manifest 前后 SHA 不变、真实 Calendar 前后均 0。可交互 Muse 中位 16.243 秒、范围 15.389–17.541 秒；采样最大 RSS 468.996 MiB。GUI Mail 为空，只记空状态计数，不算投递或防重发业务通过。原 raw result 视觉 pending 不改，另有中央 acceptance/native-review。

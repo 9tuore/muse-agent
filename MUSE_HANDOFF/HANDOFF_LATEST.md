@@ -1,5 +1,16 @@
 # Handoff
 
+## Latest Task / Result
+ZC-00 NIGHT-004，2026-10-12 05:18，11:00截止。R4产品197d16d7/Main8227/签名a040已正式隔离安装，完整Muse/输入/动态身份通过；同候选真实Kernel整链及恢复164、重叠60 PASS。总体PARTIAL：大量未结束动作的启动恢复真实超64ms，不能计最终20通过。
+
+## Latest Changed / Tests
+接收GPT03五个自有组件/性能commit与GPT01 bounded契约修正24f131c5。新source54坏JSON/107Mail故障/14实际计时组件通过且中央verifier核对；Root实际full33+15、Deny29+12、CAS28+11、delete23+13、same/contained/adjacent各20。失效测试预期的contained-r1原记录保留；SDK正式events含端点，Main仍半开区间，审批边界不改。证据night004-r4-candidate。旧R3 final20仍只作回退。
+
+## Latest Remaining / Boundaries
+N004-16实际GUI45秒未完成：主8unknown/120in_flight、备7unknown、Host.log269 timebudget在core_commit_goals6779。GPT03正交付最小一次恢复提交，Root唯一改Main/重签下一候选/大GUI/受影响整链/最终20。剩余生产SMTP、真实模型与私人资料业务不在Night隔离模拟声明内。原WorkBuddy入口固定，生产资料/Secret/旧证据保留，不发布或比赛提交。
+
+## Previous checkpoint
+
 ## Task
 ZC-00 NIGHT-004；截止11:00，09:00冻结高风险。R3 c892/cdb为已验回退。新Main8227已接入preflight，R4待重签/真实同候选验收。
 

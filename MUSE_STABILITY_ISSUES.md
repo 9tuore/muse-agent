@@ -1,5 +1,11 @@
 # Muse NIGHT-004 故障台账
 
+2026-10-12 05:18更新：N004-15已在R4/8227/a040实际same、contained、adjacent各20检查通过，首次query不写，包含显示重叠，相邻独立第二次选择创建；列表200上限/未知字段仍UNKNOWN，查询不预约。官方events的from/to是含端点重叠，不是完整包含；contained-r1预期错误与真实失败保留，修正测试后新r2通过。新增N004-16见下；总体PARTIAL。
+
+| ID | 等级 | 复现 / 实际结果 | 预期 | 原因证据 | 修复 / 回归 | 状态 |
+|---|---|---|---|---|---|---|
+| N004-16 | P1 | R4导入真实生产save的64Memory/128Source/32Goal/32Run/128Action；GUI45秒仍只初始挂载，主8unknown/120in_flight，备7unknown | 恢复全部丢失回调为UNKNOWN，主备可读、完整界面可交互，不重发或伪造完成 | actual Host.log269: script time budget exceeded；Main6779重复保存整份备份。core_boot_goals逐个parse/commit整个83KiB库 | GPT03提最小单次恢复提交；Root待实际集成/新签名GUI/重启回归 | ROOT_REPRODUCED_FIX_PENDING |
+
 截至本轮开始：2026-10-12 01:08 北京时间。截止延长至11:00，09:00停止新增高风险开发。
 只记录已观察的问题。状态和通过项必须绑定同一候选；本轮模拟不操作生产邮箱、私人日历或用户资料。
 

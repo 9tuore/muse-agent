@@ -1,0 +1,19 @@
+{
+  "action": "READ_ONLY_REMOTE_SHA_CHECK",
+  "command": [
+    "git",
+    "-c",
+    "http.version=HTTP/1.1",
+    "-c",
+    "http.lowSpeedLimit=1024",
+    "-c",
+    "http.lowSpeedTime=10",
+    "ls-remote",
+    "--heads",
+    "origin",
+    "refs/heads/codex/muse-pivot-20261010"
+  ],
+  "exit_code": 0,
+  "seconds": 1.9769727739999998,
+  "observed_remote_sha": "83681918e02c6c519a324366a8d584a070f7131b"
+}
