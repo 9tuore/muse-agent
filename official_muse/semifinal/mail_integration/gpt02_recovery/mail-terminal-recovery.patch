@@ -1,0 +1,28 @@
+--- a/official_muse/app/source/main.splash
++++ b/official_muse/app/source/main.splash
+@@ -4698,0 +4699,17 @@
++// Reconcile only an exact terminal Host attempt; never authorize a retry.
++fn mail_host_receipt_status(data){
++    if !gm_object(data) || !gm_array(data["attempts"]) || data.attempts.len() == 0 { return "unknown" }
++    let attempt = data.attempts[data.attempts.len() - 1]
++    if !gm_object(attempt) || !gm_string(attempt["operation_id"],128) || attempt.operation_id == ""
++        || attempt["revision"] != data["revision"] || attempt["status"] != data["status"]
++        || !gm_object(attempt["payload"]) || attempt.payload["to"] != data["to"]
++        || attempt.payload["subject"] != data["subject"] || attempt.payload["body"] != data["body"] { return "unknown" }
++    if data["status"] == "accepted" && gm_object(attempt["receipt"])
++        && attempt.receipt["accepted"] == true { return "accepted" }
++    if data["status"] == "failed_before_delivery" {
++        if gm_object(attempt["receipt"]) && attempt.receipt["accepted"] == true { return "unknown" }
++        return "failed_before_delivery"
++    }
++    return "unknown"
++}
++
+@@ -4713 +4730,2 @@
+-        if r.data["status"] != "accepted" { mail_notice = "原记录尚未确认受理；继续保留，不自动重发。" mail_redraw() return }
++        let terminal = mail_host_receipt_status(r.data)
++        if terminal == "unknown" { mail_notice = "原记录尚未确认受理；继续保留，不自动重发。" mail_redraw() return }
+@@ -4715 +4733,2 @@
+-            snapshot: snapshot accepted: true unsent: false}
++            snapshot: snapshot accepted: terminal == "accepted" unsent: terminal == "failed_before_delivery"
++            notice: "官方回执确认投递前失败，正文仍保留；不会自动重发。"}
