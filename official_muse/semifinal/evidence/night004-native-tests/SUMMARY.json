@@ -1,0 +1,28 @@
+{
+  "status": "MAIL_LIFECYCLE_FULL_SHELL_AND_BASELINE_RELAY_KERNEL_TESTS_PASS",
+  "counts": {
+    "mail-shell-tests-r1/test.log": {
+      "passed": 49,
+      "failed": 0,
+      "ignored": 0
+    },
+    "kernel-relay-baseline-r1/test-0.log": {
+      "passed": 43,
+      "failed": 0,
+      "ignored": 0
+    },
+    "kernel-relay-baseline-r1/test-1.log": {
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "sdk_source_sha256": {
+    "crates/shell/src/app_storage/lifecycle.rs": "e0183d8b40ea57910fd51dd8062ebec54f3ef1c9400f6978ef5e3ff896c369c8",
+    "crates/shell/src/app_storage/lifecycle_tests.rs": "d54f09021addf7129e58b55ede034c2ccb116f94708bc41edad1493200c6fe88",
+    "crates/shell/src/host_tools/relay.rs": "411fa8c3fd351d0d8d63a9c9b72750fee8c2dfcc4161491f0665f740ba48bf7e",
+    "crates/shell/src/host_tools/real_kernel_tests.rs": "bc44d2d124fe373b3cffe0474d6363f6dc1dbc218399763a577ff92a1261fb83",
+    "apps/calendar/host-service/src/lib.rs": "81b904807a886397cdf9401fb1b5e66cd25befbb3d11bef8cb99bde51979dd86"
+  },
+  "boundary": "Actual complete SDK Rust tests; isolated synthetic accounts/permissions. Three baseline production Kernel journeys use a scripted localhost model and pinned Kernel. No SMTP or Muse-specific Agent full-chain claim. New production Host compilation is pending."
+}

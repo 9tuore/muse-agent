@@ -1,4 +1,8 @@
-## NIGHT-004 Calendar 服务证据接收：2026-10-12 01:27 北京时间
+## NIGHT-004 Mail 完整SDK检查通过
+
+真实完整Shell定向49/49 PASS，含新设备生命周期guard及审阅、撤销、防重复；同一Shell测试二进制43 Relay gates和3真实固定Kernel基础旅程PASS（本地脚本模型/合成consent，未skip）。证据official_muse/semifinal/evidence/night004-native-tests/。新Intel production Host正在唯一target单jobs1构建。Mail模拟受理/独立收件端、Muse→Calendar Kernel旅程、更新与固定候选L3仍未完成，未发真实邮件。
+
+## NIGHT-004 Calendar 服务证据接收：2026-10-12 NIGHT-004
 
 接收ZC01开发单元30bc0fdc的隔离CalendarService九进程生命周期证据，四个生产服务源码SHA与中央SDK逐项一致。实际新建、同ID改期、旧expected/外owner拒绝、删除及跨进程精确不存在回读通过；只有传输/权限为fixture，属L1，不是Muse Agent/GUI全链。完整逐步输入输出见official_muse/semifinal/calendar_integration/GPT01_NIGHT004/OWNER_RESULT.json。中央完整Shell mail_测试继续编译，隔离官方owner GUI runner已准备，尚未运行。
 

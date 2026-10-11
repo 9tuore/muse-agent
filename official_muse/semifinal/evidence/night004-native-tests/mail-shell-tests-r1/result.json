@@ -1,0 +1,23 @@
+{
+  "exit_code": 0,
+  "type": "FULL_SDK_RUST_TESTS_ISOLATED_SYNTHETIC_ACCOUNTS",
+  "command": [
+    "nice",
+    "-n",
+    "10",
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--release",
+    "-p",
+    "octosense-shell",
+    "--lib",
+    "--no-default-features",
+    "--features",
+    "app-hub,octos-core,app-muse-native-prototype",
+    "mail_",
+    "--",
+    "--test-threads=1"
+  ]
+}
