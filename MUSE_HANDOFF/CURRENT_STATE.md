@@ -1,4 +1,8 @@
-## ZC-00 NIGHT-004 启动修复收口：2026-10-12 01:23 北京时间
+## NIGHT-004 Calendar 服务证据接收：2026-10-12 01:27 北京时间
+
+接收ZC01开发单元30bc0fdc的隔离CalendarService九进程生命周期证据，四个生产服务源码SHA与中央SDK逐项一致。实际新建、同ID改期、旧expected/外owner拒绝、删除及跨进程精确不存在回读通过；只有传输/权限为fixture，属L1，不是Muse Agent/GUI全链。完整逐步输入输出见official_muse/semifinal/calendar_integration/GPT01_NIGHT004/OWNER_RESULT.json。中央完整Shell mail_测试继续编译，隔离官方owner GUI runner已准备，尚未运行。
+
+## ZC-00 NIGHT-004 启动修复收口：2026-10-12 01:18 北京时间
 
 用户延长目标至11:00；09:00冻结高风险变更。新一轮使用隔离合成数据，日历调用官方os.calendar真实服务和持久化，邮件使用真实官方服务+MockTransport，不向真实邮箱投递。
 

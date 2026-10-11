@@ -1,0 +1,284 @@
+{
+  "state": "REAL_CALENDAR_SERVICE_ISOLATED_RESTART_PASS",
+  "command": [
+    "nice",
+    "-n",
+    "10",
+    "cargo",
+    "build",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-night004-calendar/service/Cargo.toml",
+    "--target-dir",
+    "/Users/mima0000/.codex/worktrees/gpt01-calendar-history/Agent APP黑客松/build/gpt01-calendar-history/target",
+    "-j",
+    "1",
+    "--bin",
+    "gpt01-night004-calendar"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 14.481,
+  "binary_sha256": "372d450064862b3fdd5d49250c48ce94435560fc6181f6b03590fcd6c913e29d",
+  "steps": [
+    {
+      "step": "create",
+      "request": {
+        "owner": "os.calendar",
+        "method": "add_event",
+        "args": {
+          "title": "NIGHT004 synthetic",
+          "start": "2026-10-13T15:00",
+          "timezone": "Asia/Shanghai",
+          "request_id": "night004-synthetic-1"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44117,
+        "result": {
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791767497020",
+            "start": "2026-10-13T15:00"
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "step": "restart_read_same_id",
+      "request": {
+        "owner": "os.calendar",
+        "method": "get_event",
+        "args": {
+          "id": "ev-1791767497020"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44119,
+        "result": {
+          "data": {
+            "event": {
+              "end": null,
+              "id": "ev-1791767497020",
+              "location": "",
+              "notes": "",
+              "request_id": "night004-synthetic-1",
+              "start": "2026-10-13T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 synthetic"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "step": "update_same_id",
+      "request": {
+        "owner": "os.calendar",
+        "method": "update_event",
+        "args": {
+          "id": "ev-1791767497020",
+          "expected": {
+            "end": null,
+            "id": "ev-1791767497020",
+            "location": "",
+            "notes": "",
+            "request_id": "night004-synthetic-1",
+            "start": "2026-10-13T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "NIGHT004 synthetic"
+          },
+          "title": "NIGHT004 revised",
+          "start": "2026-10-13T16:00",
+          "timezone": "Asia/Shanghai"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44121,
+        "result": {
+          "data": {
+            "card_warning": null,
+            "event": {
+              "end": null,
+              "id": "ev-1791767497020",
+              "location": "",
+              "notes": "",
+              "request_id": "night004-synthetic-1",
+              "start": "2026-10-13T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 revised"
+            }
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "step": "restart_read_updated",
+      "request": {
+        "owner": "os.calendar",
+        "method": "get_event",
+        "args": {
+          "id": "ev-1791767497020"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44123,
+        "result": {
+          "data": {
+            "event": {
+              "end": null,
+              "id": "ev-1791767497020",
+              "location": "",
+              "notes": "",
+              "request_id": "night004-synthetic-1",
+              "start": "2026-10-13T16:00",
+              "timezone": "Asia/Shanghai",
+              "title": "NIGHT004 revised"
+            },
+            "found": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "step": "old_expected_rejected",
+      "request": {
+        "owner": "os.calendar",
+        "method": "remove_event",
+        "args": {
+          "id": "ev-1791767497020",
+          "expected": {
+            "end": null,
+            "id": "ev-1791767497020",
+            "location": "",
+            "notes": "",
+            "request_id": "night004-synthetic-1",
+            "start": "2026-10-13T15:00",
+            "timezone": "Asia/Shanghai",
+            "title": "NIGHT004 synthetic"
+          }
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44124,
+        "result": {
+          "error": "This event changed elsewhere. Reload before deleting it.",
+          "ok": false
+        }
+      }
+    },
+    {
+      "step": "foreign_owner_rejected",
+      "request": {
+        "owner": "muse-goals",
+        "method": "remove_event",
+        "args": {
+          "id": "ev-1791767497020",
+          "expected": {
+            "end": null,
+            "id": "ev-1791767497020",
+            "location": "",
+            "notes": "",
+            "request_id": "night004-synthetic-1",
+            "start": "2026-10-13T16:00",
+            "timezone": "Asia/Shanghai",
+            "title": "NIGHT004 revised"
+          }
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44128,
+        "result": {
+          "error": "calendar is Calendar's own service",
+          "ok": false
+        }
+      }
+    },
+    {
+      "step": "remove_current_snapshot",
+      "request": {
+        "owner": "os.calendar",
+        "method": "remove_event",
+        "args": {
+          "id": "ev-1791767497020",
+          "expected": {
+            "end": null,
+            "id": "ev-1791767497020",
+            "location": "",
+            "notes": "",
+            "request_id": "night004-synthetic-1",
+            "start": "2026-10-13T16:00",
+            "timezone": "Asia/Shanghai",
+            "title": "NIGHT004 revised"
+          }
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44129,
+        "result": {
+          "data": {
+            "removed": true
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "step": "get_absent",
+      "request": {
+        "owner": "os.calendar",
+        "method": "get_event",
+        "args": {
+          "id": "ev-1791767497020"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44131,
+        "result": {
+          "data": {
+            "event": null,
+            "found": false
+          },
+          "ok": true
+        }
+      }
+    },
+    {
+      "step": "restart_get_absent",
+      "request": {
+        "owner": "os.calendar",
+        "method": "get_event",
+        "args": {
+          "id": "ev-1791767497020"
+        }
+      },
+      "response": {
+        "fixture_authorization": true,
+        "process_id": 44133,
+        "result": {
+          "data": {
+            "event": null,
+            "found": false
+          },
+          "ok": true
+        }
+      }
+    }
+  ],
+  "distinct_processes": 9,
+  "authorization": "Synthetic fixture only; not real Agent/person consent",
+  "scope": "Actual unchanged SDK CalendarService::call/handle/storage/ui/cards. Replier/ServiceHost and transport are explicit fixture adapters. No GUI/Host/Kernel/provider build or production profile."
+}
