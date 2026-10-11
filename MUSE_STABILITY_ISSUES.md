@@ -55,3 +55,8 @@ Kernel R4首次add/retry/get真执行，拟拒绝add也执行：官方add为act�
 - N004-15仍为P1 OPEN，已获得实际缺口证据：c892原生首次候选提交在官方Calendar新增同时间事件，原事件全字段保持。Root保存owner before/after、真实Broker回执与原非法JSONstdout；测试报告FAIL不重写。最小预查询/单独确认修复尚未集成。
 - 坏模型JSON证据缺口已补齐：中央真实SDK解析器和Main回调54/54 PASS，原SDK保持原样，无Calendar/Mail写动作。仍不代表真实云端调用压力测试。
 - APFS复制中央测试首次因/var别名比较失败；仅修正测试路径canonical比较，原工具失败保留。后续5/5 PASS，原入口/Host/Kernel/Main未变。
+# N004-15 最小实现已集成，真实候选仍待验证
+
+Root Main8227已集成官方events(limit200)预查询、快照重叠说明、单独第二次候选确认。中央纯VM/真实旧收据离线回放49/49 PASS：错session/digest/turn/重复或额外记录拒绝，半开区间/上限/字段unknown正确，账号、用户、Goal/版本/候选/后续查询/重启失效。状态 IMPLEMENTED_VM_PASS_REAL_KERNEL_PENDING，未将该项标为真实全链修复。
+
+现有工具声明含写工具，提示词不提供每Turn权限隔离；额外实际mutation记录阻止后续create但不能撤回已发生副作用。查询快照不预约时段，原Host批准规则保持。R3正式入口当前可见/可输入，原始照片实审通过；R4验收完成后替换。

@@ -1260,3 +1260,10 @@ ZIP 为489,595,070字节（489.60 MB），SHA256：000b2815c6072d2b8033bea42ddc6
 打包复制增加可选 --apfs-clone，默认行为与正式入口不变；中央5/5小型打包测试PASS。旧测试因macOS /var与/private/var别名比较失败已保存，修正两侧canonical path后通过。没有启动模型或进行Host/Cargo大型构建。
 
 Git最新已本地保存0ea882bc、6e175cf8。网络push/checkpoint r6 HTTP2错误、r7连接github443失败保留；当前远端只核验到83681918，未宣称已同步最新SHA。继续完成新Main、同候选回归、最终报告和窗口留开。
+# 原生重叠预查询已接入，真实新候选验收待执行
+
+Root接收GPT01 87d3b6d3→5d6cd7fa后，最小补丁已真实应用Main；源码SHA8227bbb38637aeba28cfe67e5d120a704bfcaf579910610b6b64a6d414acde0d。首次候选操作查询官方events(limit200)，严格唯一当前持久化tool row/session/digest；显示快照重叠及原标题时间；结清查询后的第二次明确操作才调用原add/get。未知字段/上限停止后续创建，范围变化和重启失效；不把提示词当权限隔离，不承诺查询与创建原子。
+
+Root同Main中央49/49纯VM/真实旧收据离线回放PASS，RPC0；新limit200真实Kernel查询与签名R4/L3/最终20仍待执行。GPT02已并行适配full-chain/Deny/CAS/delete的两次手势探针，GPT03复验新Source的54/107组件。已验证R3原WorkBuddy入口完整Muse重新打开，PID86501，原生图实审/输入读回通过；只在新候选验收通过后替换。
+
+Git网络恢复：cdc37f773e5fdc68503ea26a763176ec631dcacd已普通push并独立ls-remote核SHA一致；r6/r7原失败日志保留。新Main与后续集成不继承R3/c892的最终20。
