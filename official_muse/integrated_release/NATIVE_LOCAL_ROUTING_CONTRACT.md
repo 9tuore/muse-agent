@@ -1,13 +1,13 @@
 # GPT-03：Native 本地 provider 与弱任务路由
 
-2026-10-11。**READ_ONLY / PROPOSED_NOT_IMPLEMENTED**。黑屏工作按中央新安排停止；未改 Launcher、SDK、profile，未启动 GUI、Cargo、模型或网络。当前 Launcher 代码仍为 `332bf7e96d2af06870dcd9e483ee62cc011897c3`。
+2026-10-11。下文保留只读提案基线；后续已交付实际可应用单元 [routing/README.md](routing/README.md)，仍未应用到共享SDK或构建Host。黑屏工作按中央新安排停止；未改 Launcher、SDK、profile，未启动 GUI、Cargo、模型或网络。当前 Launcher 代码仍为 `332bf7e96d2af06870dcd9e483ee62cc011897c3`。
 
 ## 已核对的官方入口
 
 - SDK：中央 `build/runtime-closure-full-shell-r1/sdk` 的实际文件；Makepad 构建归另一 AI，本文不申请或占用构建权。
 - `apps/ai-providers/config/src/registry.rs:91` 已有 `local` family，无必需 key，默认端点 `http://127.0.0.1:8080/v1`。Launcher 实际使用动态 loopback 端口，不能照抄默认 8080。
 - `apps/ai-providers/host-service/src/lib.rs:1122` 的 `llm.add_provider` 打开官方 Host sheet；`llm.sheet.submit` 只接受该 sheet。调用方不能直接传 provider JSON 绕过它。
-- 添加 local 使用自定义模型 `Qwen2.5-0.5B-Instruct-Q4_0-offline`、custom route、`openai` 协议、当前 `state/local-model.json` 的 `base_url`，不填 key。alias 与 Launcher `--alias` 一致。已有 MiniMax primary 保留，新 provider 在尾部追加；已有相同 route 会拒绝重复。
+- 添加 local 使用自定义模型 `Qwen2.5-0.5B-Instruct-Q4_0-offline`、custom route、`openai` 协议、当前 `state/local-model.json` 的 `route_base_url`（带 `/v1`；`base_url` 仅健康检查根地址），不填 key。alias 与 Launcher `--alias` 一致。已有 MiniMax primary 保留，新 provider 在尾部追加；已有相同 route 会拒绝重复。
 - 保存 profile 后 `changed()` 重启现有 Kernel。配置应在启用持续任务前完成；不要在活动回合中反复调整 provider。
 - Launcher 332bf 只刷新这个精确 local alias 的既有 route，不自动添加 provider；Model 页不会启动 Qwen。要添加时保持正常 hybrid 启动的本地服务存活，再进入 Models；否则测试不能成功。此次未操作 GUI。
 

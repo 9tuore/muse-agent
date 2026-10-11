@@ -1,0 +1,17 @@
+--- a/apps/ai-providers/config/data/model_catalog.json
++++ b/apps/ai-providers/config/data/model_catalog.json
+@@ -1892,6 +1892,14 @@
+       "max_output": 131072
+     },
+     {
++      "provider": "local/Qwen2.5-0.5B-Instruct-Q4_0-offline",
++      "type": "fast",
++      "default": false,
++      "cost_in": 0,
++      "cost_out": 0,
++      "context_window": 4096
++    },
++    {
+       "provider": "local/local-default",
+       "type": "strong",
+       "default": true,

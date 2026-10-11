@@ -3,6 +3,14 @@
 用户将黑屏修复交给外部应用 WorkBuddy。中央停止 owned GUI/Cargo，Metal 数字诊断构建因交接主动中断，未产生新 Host；SDK metal.rs 已核对恢复原 SHA47db4d10。实际 rc3-ui-r1 两轮 Remote 与 OS 专窗均深色，多个 pass draw_calls_done=0，根因尚未确认。完整失败/诊断证据与独占构建边界见 BLACK_SCREEN_HANDOFF_20261011.md；项目根目录另有同名交接副本，当前工具无 WorkBuddy 聊天发送通道。
 
 中央继续业务：hybrid 启动器代码和16项 fixture、Calendar19项和Mail37项真实参考VM合成恢复已接收；官方 Mail 固定SDK预检已合入 b95b7b23。正在实现连接邮箱后保留本人暂停、Qwen精确fast alias目录覆盖、Native官方loop控制。源准备/签名目录和整包验签已通过，但正式Muse Relay、实际Mail投递、两端推理、持续任务与最终T18/20次均未通过。源代码集成与真实业务验收分开记录，不宣布正式版完成。
+## GPT-03 Qwen fast 可应用单元：2026-10-11
+
+已在独立 integrated_release/routing 交付一文件 catalog patch及精确SHA应用/核验脚本，追加命名Qwen fast，保留原模型与排序算法。baseline65ee8b16→patched744ae46b。
+12项离线临时副本测试通过，含实际脚本及git patch应用、漂移/重复/篡改拒绝与原子写保护。
+Launcher alias与ctx4096静态匹配；Native设置必须使用route_base_url（带/v1），base_url是健康根。必要字段校验允许中央rc4版本号同步，不锁Launcher整文件SHA。
+仅交付可应用单元，未改共享SDK、Launcher或profile，未构建/GUI/实调。一般对话strong与限定弱任务fast由中央main处理，黑屏由WorkBuddy负责。
+fast仍可回退已配置云provider，不扩大费用授权，不改变持续Agent路径。详见routing/README.md。
+
 ## GPT-03 Native 路由只读核对：2026-10-11
 
 黑屏工作按中央新安排停止，构建/GUI 交另一 AI。Hybrid 332bf 代码未改。

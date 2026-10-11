@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "target": "apps/ai-providers/config/data/model_catalog.json",
+  "baseline_sha256": "65ee8b16156b33705e9937b8c9dc926e27aa247e30c7689f5ce3185313b91bf6",
+  "patched_sha256": "744ae46b6026ddd152b6c86f63f6acb918b05115d239eecbcb06064e271945a9",
+  "patch_sha256": "cf881e50ee6b22cd7b83ff673eb421e54f1218eeb0426aebd0cc997801d71a53",
+  "entry": {
+    "provider": "local/Qwen2.5-0.5B-Instruct-Q4_0-offline",
+    "type": "fast",
+    "default": false,
+    "cost_in": 0,
+    "cost_out": 0,
+    "context_window": 4096
+  },
+  "launcher_source_sha256": "d436e7c2bea400cbf0c90c145b7638487df33ceef4a71092be2757aad4534024",
+  "endpoint_field": "route_base_url",
+  "boundary": "One product catalog entry; no profile mutation or sorting algorithm change. Fast is a preference; provider failure can fall back to a configured cloud provider under existing authorization."
+}
