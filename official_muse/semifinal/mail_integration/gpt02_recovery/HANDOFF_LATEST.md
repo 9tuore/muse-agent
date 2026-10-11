@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02，codex/gpt02-mail-memory-recovery；正式source0c7f9812。制作Calendar→Mail绑定的真实Splash VM合成probe供中央执行。
+GPT-02；修Calendar→Mail VM r1 probe缺少runner截断后生产定义。正式source0c7f9812不改。
 
 ## Result
-PARTIAL：probe与适配/预期已交，VM执行未做。
+PARTIAL：fixture依赖修复已交，中央新out真实VM重跑未做。
 
 ## Changed
-calendar_mail_vm_probe.splash、calendar-mail-vm-expectations.json、CALENDAR_MAIL_VM_PROBE.md。仅自有目录；正式0c7源码未改。
+仅probe/expectations及自有说明。逐字补7个真实action-chain全局和ac_field/ac_goal_allowed/ac_current_goal，登记SHA；40预期不变，不删当前事项检查。
 
 ## Tests
-只离线核source SHA、现有runner替换规则及widget、508其他prefix函数字节不变、13 probe函数无覆盖。未执行VM/GUI/Cargo/Node，无新测试结果报告。预期仅5次合成transport、无legacy send或model；完整check集合见expectations。
+中央r1实际log报ac_selected_chat缺失；原report/log/state保留。离线核508其他prefix函数不变、3尾部函数与生产字节一致、114可达函数调用/裸赋值声明。不把离线检查称VM测试，未运行VM/Host/Node/GUI/Cargo。
 
 ## Commit
 本地提交见最终回复，未push。
 
 ## Remaining
-中央用已有run_official_api.py/已编译referenceHost协调执行，比较完整预期checks并保留实际report/log/state。
+中央新out重跑完整40集合。当前正式源实际符号ac_current_goal，不存在current_action_goal。
 
 ## Important Boundaries
-Calendar verified是合成seed，不是真实add/get证明；Mail/core原函数实际路径由中央VM验证。仅UI三函数/transport适配，隔离jail、真实timer/JSON读回。Expectations不是PASS，未真实审批、发送、模型或秘密操作。
+r1是probe截取依赖缺口，不是正式main缺变量；未动main/runner/Host。期待值非PASS；真实Calendar/Mail批准与投递未验证。

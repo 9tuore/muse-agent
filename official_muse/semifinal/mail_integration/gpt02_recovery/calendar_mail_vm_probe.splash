@@ -1,3 +1,43 @@
+// BEGIN VERBATIM PRODUCTION TAIL DEPENDENCIES (0c7f9812 source)
+// Existing runner excludes these declarations after its first boot marker.
+let ac_tab = "auto"
+let ac_expanded = ""
+let ac_dsl_open = false
+let ac_light = false
+let ac_selected_id = ""
+let ac_selected_chat = ""
+let ac_picker_open = false
+
+fn ac_field(record,key){
+    if !gm_object(record) || !gm_string(record[key],2000) { return "" }
+    return record[key]
+}
+fn ac_goal_allowed(goal){
+    if !gm_object(goal) || gm_project == "" || gm_owner == "" { return false }
+    if ac_field(goal,"project_id") != gm_project || ac_field(goal,"owner_id") != gm_owner { return false }
+    if gm_object(goal["mail_source"]) {
+        let account = ac_field(goal.mail_source,"account_id")
+        return account != "" && gm_account_allowed(account) && mail_watch_account(account) != nil
+    }
+    return gm_account_allowed("local")
+}
+fn ac_current_goal(){
+    if !core_storage_ready || !gm_ready || !gm_array(goals) || !gm_array(chat_sessions) { return nil }
+    let id = ""
+    for index in min(chat_sessions.len(),16) {
+        let session = chat_sessions[index]
+        if gm_object(session) && ac_field(session,"id") == chat_selected_id
+            && ac_field(session,"focus_project") == gm_project && ac_field(session,"focus_owner") == gm_owner {
+            id = ac_field(session,"goal_id")
+        }
+    }
+    if page == "Goal Detail" && gm_object(task) { id = ac_field(task,"id") }
+    if ac_selected_chat == chat_selected_id && ac_selected_id != "" { id = ac_selected_id }
+    for index in min(goals.len(),64) { let goal = goals[index] if gm_object(goal) && ac_field(goal,"id") == id && ac_goal_allowed(goal) { return goal } }
+    return nil
+}
+// END VERBATIM PRODUCTION TAIL DEPENDENCIES
+
 // Real production functions; synthetic verified Calendar seed and Mail transport.
 // Runner must supply the actual source prefix and the three Mail TextInput widgets.
 let cm_checks = {} let cm_calls = [] let cm_observed = []

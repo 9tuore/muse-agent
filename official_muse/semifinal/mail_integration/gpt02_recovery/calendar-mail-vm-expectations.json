@@ -2,7 +2,7 @@
   "kind": "EXPECTATIONS_ONLY_REAL_SPLASH_VM_SYNTHETIC_PROBE",
   "execution_status": "NOT_EXECUTED_BY_GPT02",
   "source_sha256": "0c7f9812cf7319cf5120557ddef7caacfe49326c0dcbc5759e689fcac38ce9eb",
-  "probe_sha256": "ff7e463f563fb5d9060275534f92f26c9d05824544ee3aa2aa267edff12c988e",
+  "probe_sha256": "6c18b03fc8386c7c1e54d3b9a965efc0292d8211335408be166bb554426a5a4a",
   "observed_runner_sha256": "5c5b6b135387f908b1095aa1a8e9a942837053b6e5e9fbff12281a1cc1044bc8",
   "required_suite": "production",
   "expected_check_count": 40,
@@ -82,5 +82,28 @@
     "UI TextInputs are runner fixtures, not full Muse GUI.",
     "No real account, grant, credentials, SMTP, model, native consent, Calendar mutation, Cargo or GUI launch.",
     "Expectations are not an execution report or pass result."
-  ]
+  ],
+  "verbatim_production_tail_globals": [
+    "ac_tab",
+    "ac_expanded",
+    "ac_dsl_open",
+    "ac_light",
+    "ac_selected_id",
+    "ac_selected_chat",
+    "ac_picker_open"
+  ],
+  "verbatim_production_tail_functions": {
+    "ac_field": "35f42a6c518bc60dd76128dbc66025a6e77155965fe9bcbc4f9f4ceb0e500a73",
+    "ac_goal_allowed": "64cf6f921168740ea96a90c15ecb816b07b8c8bc0e3a1e8a0aba6d512739db17",
+    "ac_current_goal": "1c02b6d547ea8b9e8840f37fc9a19cd5081041fbb7297d48fe568b35b6b0edbb"
+  },
+  "verbatim_tail_block_sha256": "88a3cf3e882aea703fb3c0baa519d017278186f9dac1d85e19e0949559ff3a7d",
+  "runner_prefix_gap": "First boot marker excludes action-chain declarations. Probe appends seven exact production globals and three exact source functions; none override prefix definitions.",
+  "previous_vm_fixture_failure": {
+    "central_out": "build/muse-integrated-calendar-mail-rc4-vm-r1",
+    "runtime_log_sha256": "c449fe7aa5105b902ac282e8f52550f30511e5d97c1cf222fcdf6b3e39c7cb4f",
+    "error": "variable ac_selected_chat not found in scope",
+    "classification": "probe omitted production tail dependencies; not a formal-source absence or current-binding bypass"
+  },
+  "offline_dependency_audit": "114 reachable function bodies: free function calls and bare variable assignments checked against actual prefix plus copied tail declarations; not a VM compiler or execution."
 }

@@ -38,4 +38,13 @@ python3 official_muse/semifinal/tests/run_official_api.py \
   --port <中央协调的空闲端口>
 ```
 
-离线仅确认 source SHA、runner 替换规则、508 个其他 prefix 函数字节一致、13 个 probe 函数不覆盖生产定义、fixture 函数调用均有当前定义，以及现有三个 TextInput 注入。离线合成执行文本放在 GPT02 ignored build 副本，不写 Bundle 或正式源码；这不是 Splash 解析/执行验证。真实 VM 结果由中央记录，reference VM 通过也不能升级为完整 Host/native/SMTP 成功。
+离线仅确认 source SHA、runner 替换规则、508 个其他 prefix 函数字节一致、13 个 fixture 函数不覆盖 prefix 定义，以及现有三个 TextInput 注入。首轮检查漏查 runner 截取后的声明，已按下述修复补入真实尾部依赖；离线函数调用检查不能当作 VM 验证。离线合成执行文本放在 GPT02 ignored build 副本，不写 Bundle 或正式源码；这不是 Splash 解析/执行验证。真实 VM 结果由中央记录，reference VM 通过也不能升级为完整 Host/native/SMTP 成功。
+
+
+## 首轮 VM fixture 失败及修复
+
+中央真实执行 r1 未产生完整检查结果，runtime.log 报 `variable ac_selected_chat not found in scope`。正式源中两个选择变量在 9771/9772，ac_field/ac_goal_allowed/ac_current_goal 在 9809/9830/9839，均在 runner 的首次 boot 截取标记之后。首轮 probe 漏带这段生产依赖；不是正式 main 缺少变量。原 r1 report/log/state 保留在中央 `build/muse-integrated-calendar-mail-rc4-vm-r1`，未覆盖或删除。
+
+修复仅在 probe 前置逐字复制该源码七个 action-chain 全局 let，以及 ac_field/ac_goal_allowed/ac_current_goal 三个真实函数，不复制完整 UI、不替换或简化当前事项检查。当前 0c7 正式源没有 current_action_goal 这个符号；实际被调用的是 ac_current_goal。三个函数与全局 block 的来源 SHA 在 expectations 中登记。
+
+修复后离线核 508 个其他 prefix 函数不变、新增三函数不重名且与正式源字节相同；从 fixture 入口/transport 递归检查 114 个可达函数的自由函数调用和裸变量赋值声明。40 个预期断言、调用次序与负向 scope 检查均未删除。此检查不是 Splash 语义编译器，没有重新执行 VM、Node 或启动 Host；等待中央新 out 实测完整 40 项。
