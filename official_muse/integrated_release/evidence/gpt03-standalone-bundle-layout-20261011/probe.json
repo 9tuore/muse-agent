@@ -1,0 +1,52 @@
+{
+  "scope": "Signed Foundation fixture only, not Host/GUI/security-service execution",
+  "initial_fixture_error": "mkdir parent Resources missing; corrected to parents=True before obtaining any case results",
+  "probe_source": "#import <Foundation/Foundation.h>\nint main(void){@autoreleasepool { NSBundle *b=NSBundle.mainBundle; puts(b.bundlePath.UTF8String ?: \"<nil>\"); puts(b.bundleIdentifier.UTF8String ?: \"<nil>\"); puts(b.resourcePath.UTF8String ?: \"<nil>\"); } return 0;}\n",
+  "outer_info_source": "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/official_muse/integrated_release/workbuddy_info.plist",
+  "cases": [
+    {
+      "exit_code": 0,
+      "stdout": "<temporary>/artifacts\n<nil>\n<temporary>/artifacts\n",
+      "stderr": "",
+      "case": "bare_outside"
+    },
+    {
+      "exit_code": 0,
+      "stdout": "<temporary>/Muse.app/Contents/Resources/host-runtime\n<nil>\n<temporary>/Muse.app/Contents/Resources/host-runtime\n",
+      "stderr": "",
+      "case": "resources_host_runtime_direct_unsigned_outer"
+    },
+    {
+      "exit_code": 0,
+      "stdout": "<temporary>/Muse.app/Contents/Resources/host-runtime\n<nil>\n<temporary>/Muse.app/Contents/Resources/host-runtime\n",
+      "stderr": "",
+      "case": "outer_shell_exec_resources_unsigned_outer"
+    },
+    {
+      "exit_code": 0,
+      "stdout": "<temporary>/Muse.app/Contents/Resources/host-runtime\n<nil>\n<temporary>/Muse.app/Contents/Resources/host-runtime\n",
+      "stderr": "",
+      "case": "outer_shell_exec_resources_signed_outer"
+    }
+  ],
+  "embedded_strict_verify_before_outer_sign": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "<temporary>/Muse.app/Contents/Resources/host-runtime/octosense: valid on disk\n<temporary>/Muse.app/Contents/Resources/host-runtime/octosense: satisfies its Designated Requirement\n"
+  },
+  "outer_sign": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "embedded_strict_verify_after_outer_sign": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "<temporary>/Muse.app/Contents/Resources/host-runtime/octosense: valid on disk\n<temporary>/Muse.app/Contents/Resources/host-runtime/octosense: satisfies its Designated Requirement\n"
+  },
+  "outer_strict_verify": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "<temporary>/Muse.app: valid on disk\n<temporary>/Muse.app: satisfies its Designated Requirement\n"
+  }
+}

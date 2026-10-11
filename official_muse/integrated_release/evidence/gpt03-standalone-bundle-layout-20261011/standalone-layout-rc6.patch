@@ -1,0 +1,140 @@
+--- a/official_muse/integrated_release/package_app.py
++++ b/official_muse/integrated_release/package_app.py
+@@ -5,10 +5,10 @@
+ import json
+ import os
+ from pathlib import Path
+-import plistlib
+ import re
+ import shutil
+ import subprocess
++import tempfile
+ 
+ from build_host import FEATURES, packaging
+ 
+@@ -30,7 +30,7 @@
+     parser.add_argument('--model-mode', choices=('offline', 'gpt', 'hybrid'), default='hybrid')
+     parser.add_argument('--model-source', type=Path)
+     parser.add_argument('--paired-host-app', type=Path,
+-        help='Copy an already signed matching Host/Kernel app and resources; no Cargo or re-signing of the pair')
++        help='Copy matching verified app resources/Kernel; sign the staged Host as standalone; no Cargo')
+     parser.add_argument('--state-root', type=Path,
+         help='Reference an existing absolute state root in launcher.json; never copy its contents')
+     args = parser.parse_args()
+@@ -79,6 +79,12 @@
+         shutil.copy2(args.kernel, inner / 'MacOS/octos-kernel')
+         shutil.copy2(args.kernel_receipt, inner / 'Resources/octos-kernel.json')
+     assert sha(inner / 'MacOS/octosense') == source_host_sha256, 'Host input changed while staging'
++    # Foundation treats this directory as the bare executable's resource root.
++    runtime = resources / 'host-runtime'
++    shutil.copytree(inner / 'Resources', runtime, symlinks=True)
++    shutil.copy2(inner / 'MacOS/octosense', runtime / 'octosense')
++    shutil.copy2(inner / 'MacOS/octos-kernel', runtime / 'octos-kernel')
++    shutil.rmtree(inner.parent)
+     if args.model_mode != 'gpt':
+         shutil.copytree(args.model_source, resources / 'local-model', symlinks=True)
+     shutil.copytree(args.mirror, resources / 'mirror', symlinks=True)
+@@ -88,13 +94,6 @@
+     shutil.copy2(HERE / 'workbuddy_info.plist', app / 'Contents/Info.plist')
+     (resources / 'launcher.json').write_text(json.dumps({'version': '0.4.0-rc6',
+         'model_mode': args.model_mode, 'state_root': str(args.state_root) if args.state_root else None}, indent=2) + '\n')
+-    if not args.paired_host_app:
+-        host_plist = dict(CFBundleName='OctoSense', CFBundleDisplayName='OctoSense',
+-            CFBundleExecutable='octosense', CFBundleIdentifier='org.xinghai.muse.paired-host',
+-            CFBundlePackageType='APPL', CFBundleShortVersionString='0.4.0', CFBundleVersion='5',
+-            LSMinimumSystemVersion='14.0', NSHighResolutionCapable=True)
+-        with (inner / 'Info.plist').open('wb') as stream:
+-            plistlib.dump(host_plist, stream)
+     shutil.copy2(HERE / 'workbuddy_launcher.sh', executable / 'Launcher')
+     (executable / 'Launcher').chmod(0o755)
+     run(['clang', '-fobjc-arc', '-O2', '-framework', 'AppKit', HERE / 'muse_launcher.m',
+@@ -103,33 +102,40 @@
+     # Sign only our staged copy, then ask the official staging helper to
+     # re-attest the same pinned revision and the resulting binary bytes.
+     if not args.paired_host_app:
+-        run(['codesign', '--force', '--sign', '-', inner / 'MacOS/octos-kernel'])
++        run(['codesign', '--force', '--sign', '-', runtime / 'octos-kernel'])
+         kernel_tool = package.kernel_tool()
+-        signed_receipt = kernel_tool.stage(inner / 'MacOS/octos-kernel', output / 'signed-kernel',
++        signed_receipt = kernel_tool.stage(runtime / 'octos-kernel', output / 'signed-kernel',
+             kernel_tool.octos_revision(), 'prebuilt')
+-        shutil.copy2(output / 'signed-kernel/octos-kernel.json', inner / 'Resources/octos-kernel.json')
+-        run(['codesign', '--force', '--sign', '-', inner.parent])
++        shutil.copy2(output / 'signed-kernel/octos-kernel.json', runtime / 'octos-kernel.json')
+     else:
+         signed_receipt = receipt
++    # Sign outside every .app so the original Info/resource special slots are removed.
++    with tempfile.TemporaryDirectory(prefix='standalone-host-', dir=output) as staging:
++        standalone = Path(staging) / 'octosense'
++        shutil.copy2(runtime / 'octosense', standalone)
++        run(['codesign', '--force', '--sign', '-', '--identifier',
++            'org.xinghai.muse.paired-host', standalone])
++        run(['codesign', '--verify', '--strict', standalone])
++        shutil.copy2(standalone, runtime / 'octosense')
+     run(['codesign', '--force', '--sign', '-', app])
+     run(['codesign', '--verify', '--deep', '--strict', app])
+-    assert sha(inner / 'MacOS/octos-kernel') == signed_receipt['sha256'], 'Packaging changed the pinned kernel'
++    assert sha(runtime / 'octos-kernel') == signed_receipt['sha256'], 'Packaging changed the pinned kernel'
+     if args.paired_host_app:
+-        assert sha(inner / 'MacOS/octosense') == source_host_sha256, 'Packaging changed the working Host'
+-        assert sha(inner / 'MacOS/octos-kernel') == source_kernel_sha256, 'Packaging changed the working Kernel'
++        assert sha(runtime / 'octos-kernel') == source_kernel_sha256, 'Packaging changed the working Kernel'
+     run([executable / 'muse-launcher', '--check'])
+     shutil.copy2(HERE / 'launch_muse.sh', output / 'launch_muse.sh')
+     (output / 'launch_muse.sh').chmod(0o755)
+-    inventory = {p.relative_to(inner / 'Resources').as_posix(): sha(p)
+-        for p in sorted((inner / 'Resources').rglob('*')) if p.is_file()}
++    inventory = {p.relative_to(runtime).as_posix(): sha(p)
++        for p in sorted(runtime.rglob('*')) if p.is_file() and p not in (runtime / 'octosense', runtime / 'octos-kernel')}
+     (output / 'HOST_RESOURCES.json').write_text(json.dumps(inventory, indent=2) + '\n')
+     assert sha(executable / 'Launcher') == sha(HERE / 'workbuddy_launcher.sh'), 'Packaged entry differs from source script'
+     assert (app / 'Contents/Info.plist').read_bytes() == (HERE / 'workbuddy_info.plist').read_bytes(), 'Working App Info changed'
+     record = {'version': '0.4.0-rc6', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
+         'signature': 'AD_HOC_LOCAL_ONLY', 'source_host_sha256': source_host_sha256,
+         'source_kernel_sha256': source_kernel_sha256,
+-        'reused_signed_pair': bool(args.paired_host_app),
+-        'host_launch_method': 'outer CFBundleExecutable shell -> exec Host; no NSWorkspace',
++        'reused_signed_pair': False, 'reused_signed_kernel': bool(args.paired_host_app),
++        'standalone_host': True,
++        'host_launch_method': 'outer CFBundleExecutable shell -> exec Resources/host-runtime/octosense',
+         'outer_info_plist_sha256': sha(app / 'Contents/Info.plist'),
+         'source_launcher_sha256': sha(HERE / 'workbuddy_launcher.sh'),
+         'packaged_launcher_sha256': sha(executable / 'Launcher'),
+@@ -139,9 +145,9 @@
+         'state_root_reference': str(args.state_root) if args.state_root is not None else None,
+         'catalog_sha256': sha(resources / 'mirror/catalog.json'),
+         'muse_main_sha256': sha(resources / 'mirror/artifacts/muse-goals-0.4.0-rc6.bundle/main.splash'),
+-        'host_sha256': sha(inner / 'MacOS/octosense'),
++        'host_sha256': sha(runtime / 'octosense'),
+         'host_hash_boundary': 'source_host_sha256 is the input; host_sha256 is the packaged executable after signing',
+-        'kernel_sha256': sha(inner / 'MacOS/octos-kernel'),
++        'kernel_sha256': sha(runtime / 'octos-kernel'),
+         'production_data_included': False, 'calendar_shared_tools_granted': False,
+         'model': {'gpt': 'native OpenAI GPT; user setup required; no bundled model',
+             'offline': 'Qwen2.5-0.5B basic offline fallback',
+--- a/official_muse/integrated_release/workbuddy_launcher.sh
++++ b/official_muse/integrated_release/workbuddy_launcher.sh
+@@ -57,5 +57,5 @@
+     sleep 0.1
+ done
+ PORT=${MUSE_INTEGRATED_REMOTE:-9696}
+-exec "$RESOURCES/OctoSense Host.app/Contents/MacOS/octosense" "--remote=$PORT" \
++exec "$RESOURCES/host-runtime/octosense" "--remote=$PORT" \
+     --test-action launch-muse-native-prototype >> "$STATE/logs/host.log" 2>&1
+--- a/official_muse/integrated_release/muse_launcher.m
++++ b/official_muse/integrated_release/muse_launcher.m
+@@ -111,11 +111,11 @@
+     @autoreleasepool {
+         NSString *resources = NSBundle.mainBundle.resourcePath;
+         NSFileManager *files = NSFileManager.defaultManager;
+-        NSArray *required = @[@"OctoSense Host.app/Contents/MacOS/octosense", @"mirror/catalog.json",
++        NSArray *required = @[@"host-runtime/octosense", @"mirror/catalog.json",
+             @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle/manifest.json",
+             @"mirror/artifacts/muse-goals-0.4.0-rc6.bundle.pack.json",
+-            @"OctoSense Host.app/Contents/MacOS/octos-kernel",
+-            @"OctoSense Host.app/Contents/Resources/octos-kernel.json"];
++            @"host-runtime/octos-kernel",
++            @"host-runtime/octos-kernel.json"];
+         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
+         BOOL gptCheck = argc == 2 && strcmp(argv[1], "--gpt-check") == 0;
+         BOOL supervise = (argc == 3 || argc == 4) && strcmp(argv[1], "--supervise") == 0;
