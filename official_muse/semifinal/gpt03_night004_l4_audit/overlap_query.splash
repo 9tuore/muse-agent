@@ -1,0 +1,44 @@
+// PREPARED_NOT_EXECUTED. Run only with Root's actual Kernel bridge and a copy
+// of the same-candidate L3 Main state/checkpoint. No Calendar result is fabricated.
+let checks={} let observations={}
+checks.production_boot=core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot() && chat_boot_data()
+mail_accounts_load() mail_account=mail_accounts[0] gm_set_accounts(["local",mail_account.id])
+boot_restore("")
+let checkpoint=storage_read("l3-native-checkpoint.json").parse_json()
+let expected=checkpoint.event
+let before_owner=fixture_rpc("fixture/owner-store-sha",{}).data
+let before_goals=goals.to_json() let before_runs=runs.to_json() let before_memory=memory.to_json()
+if calendar_agent_state.request_id!="" { calendar_agent_keep_previous() }
+checks.original_request_preserved_before_query=calendar_agent_state.status=="idle"
+calendar_agent_submit("仅查询官方日历事件列表；核对与已保存原事件同起止的候选是否重叠。不新增、改期、删除、通知或发送邮件。精确 calendar.events 参数：{}")
+checks.actual_query_turn_completed=calendar_agent_state.status=="turn_completed" && calendar_agent_state["binding"]==nil
+let history=fixture_rpc("octos.session.history",{})
+let receipts=0 let mutations=0 let matching=0 let receipt=nil
+if history.is_ok && gm_array(history.data["messages"]) {
+    for row in history.data.messages {
+        if gm_object(row) && row["role"]=="tool" {
+            let turn=row["turn_id"] if turn==nil { turn=row["thread_id"] }
+            if turn==calendar_agent_state.turn_id {
+                if calendar_agent_tool_name(row["tool_name"])!="calendar.events" { mutations=mutations+1 }
+                else if row["lane"]=="person" && calendar_agent_receipt_status(row)=="ok"
+                    && row.host_calendar_receipt["args_digest"]=="sha256:"+fs.sha256("{}") {
+                    receipts=receipts+1 receipt=row.host_calendar_receipt
+                    if gm_array(receipt.result.data["events"]) {
+                        for event in receipt.result.data.events {
+                            if calendar_agent_event_json(event)==calendar_agent_event_json(expected) { matching=matching+1 }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+checks.actual_persisted_query_receipt=receipts==1 && mutations==0
+checks.same_time_existing_event_visible=matching==1
+checks.owner_bytes_unchanged=fixture_rpc("fixture/owner-store-sha",{}).data.sha256==before_owner.sha256
+checks.query_no_goal_run_memory_change=goals.to_json()==before_goals && runs.to_json()==before_runs && memory.to_json()==before_memory
+let receiver=fixture_rpc("fixture.receiver",{}).data
+checks.no_transport=receiver.transport_calls==0 && receiver.real_smtp_calls==0
+observations={expected_same_time_event:expected actual_receipt:receipt history:history production_conflicts:calendar_conflicts
+    notice:calendar_agent_notice receiver:receiver}
+({checks:checks observations:observations boundary:"Actual native events query visibility only. Passing does not prove native overlap warning, a creation gate, or stale approval TTL. No Kernel execution performed by GPT03."}).to_json()
