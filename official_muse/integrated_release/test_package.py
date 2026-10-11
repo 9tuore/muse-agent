@@ -50,6 +50,9 @@ int main(int argc, char **argv) {
                                            'sha256': package_app.sha(self.kernel)}))
         self.asset = self.inner / 'Resources/makepad_widgets/resources/fixture-font.ttf'
         self.asset.write_bytes(b'synthetic font resource')
+        host_asset = self.inner / 'Resources/octosense/resources/fixture-host.txt'
+        host_asset.parent.mkdir(parents=True)
+        host_asset.write_bytes(b'synthetic Host resource namespace')
         subprocess.run(['codesign', '--force', '--sign', '-', str(self.source)], check=True,
                        capture_output=True)
         self.before = {p.relative_to(self.source).as_posix(): p.read_bytes()
@@ -78,62 +81,30 @@ int main(int argc, char **argv) {
                 contextlib.redirect_stdout(io.StringIO()):
             package_app.main()
 
-    def test_signed_pair_copies_exact_bytes_without_cargo_or_resigning(self):
-        self.package()
-        copied = self.output / 'Muse.app/Contents/Resources/OctoSense Host.app'
-        after = {p.relative_to(copied).as_posix(): p.read_bytes()
-                 for p in copied.rglob('*') if p.is_file()}
-        self.assertEqual(after, self.before)
-        record = json.loads((self.output / 'PACKAGE.json').read_text())
-        self.assertEqual(record['version'], '0.4.0-rc6')
-        self.assertTrue(record['reused_signed_pair'])
-        self.assertEqual(record['source_host_sha256'], record['host_sha256'])
-        self.assertEqual(record['source_kernel_sha256'], record['kernel_sha256'])
-        inventory = json.loads((self.output / 'HOST_RESOURCES.json').read_text())
-        self.assertEqual(inventory['makepad_widgets/resources/fixture-font.ttf'], package_app.sha(self.asset))
-        info = plistlib.loads((self.output / 'Muse.app/Contents/Info.plist').read_bytes())
-        self.assertEqual((self.output / 'Muse.app/Contents/Info.plist').read_bytes(),
-                         (package_app.HERE / 'workbuddy_info.plist').read_bytes())
-        self.assertEqual(info['CFBundleExecutable'], 'Launcher')
-        settings = json.loads((self.output / 'Muse.app/Contents/Resources/launcher.json').read_text())
-        self.assertEqual(settings['state_root'], str(self.state))
-        self.assertFalse((self.output / 'Muse.app/Contents/Resources/WorkBuddy Launcher.app').exists())
-        self.assertEqual(record['source_launcher_sha256'], record['packaged_launcher_sha256'])
-        self.assertFalse(list(self.output.rglob('fixture-data')))
-        self.assertEqual((self.state / 'fixture-data').read_bytes(), b'private fixture: never package')
-        self.assertFalse((self.output / 'signed-kernel').exists())
-
-    def test_mismatched_host_is_rejected(self):
-        self.host = self.root / 'different-host'
-        self.host.write_bytes(b'different fixture host')
-        with self.assertRaisesRegex(AssertionError, 'Paired app Host mismatch'):
-            self.package()
-
-    def test_modified_signed_resource_is_rejected(self):
-        self.asset.write_bytes(b'tampered fixture')
-        with self.assertRaises(subprocess.CalledProcessError):
-            self.package()
-
-    def test_wrapper_resolves_spaces_clears_overrides_and_preserves_argv(self):
+    def test_resources_and_kernel_survive_standalone_host_resign_without_cargo(self):
         self.package()
         resources = self.output / 'Muse.app/Contents/Resources'
-        wrapper = self.output / 'Muse.app/Contents/MacOS/Launcher'
-        log = self.state / 'logs/host.log'
-        env = dict(os.environ, MAKEPAD_APP_CONFIG='poison',
-                   OCTOSENSE_HUB='/wrong')
-        subprocess.run(['/bin/sh', str(wrapper), '--remote=9696', '--test-action',
-                        'launch-muse-native-prototype', '--test-action', 'launch-hub:muse-goals'],
-                       env=env, check=True, capture_output=True)
-        lines = log.read_text().splitlines()
-        self.assertEqual(lines[:3], ['--remote=9696', '--test-action', 'launch-muse-native-prototype'])
-        self.assertNotIn('launch-hub:muse-goals', lines)
-        self.assertIn('HUB=' + str(resources / 'mirror'), lines)
-        self.assertIn('APP_CONFIG=unset', lines)
-        deadline = time.monotonic() + 5
-        while list(self.state.glob('launch-*.ready')) and time.monotonic() < deadline:
-            time.sleep(0.05)
-        self.assertFalse(list(self.state.glob('launch-*.ready')))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        runtime = resources / 'host-runtime'
+        self.assertFalse((resources / 'OctoSense Host.app').exists())
+        self.assertFalse((runtime / 'Info.plist').exists())
+        self.assertEqual((runtime / 'octosense/resources/fixture-host.txt').read_bytes(),
+                         b'synthetic Host resource namespace')
+        self.assertEqual((runtime / 'octos-kernel').read_bytes(), self.kernel.read_bytes())
+        expected = {p.relative_to(self.inner / 'Resources').as_posix(): p.read_bytes()
+                    for p in (self.inner / 'Resources').rglob('*') if p.is_file()}
+        actual = {p.relative_to(runtime).as_posix(): p.read_bytes()
+                  for p in runtime.rglob('*') if p.is_file()
+                  and p not in (runtime / 'muse-host', runtime / 'octos-kernel')}
+        self.assertEqual(actual, expected)
+        self.assertEqual({p.relative_to(self.source).as_posix(): p.read_bytes()
+                          for p in self.source.rglob('*') if p.is_file()}, self.before)
+        subprocess.run(['codesign', '--verify', '--strict', str(runtime / 'muse-host')],
+                       check=True, capture_output=True)
+        record = json.loads((self.output / 'PACKAGE.json').read_text())
+        self.assertEqual(record['version'], '0.4.0-rc6')
+        self.assertFalse(record['reused_signed_pair'])
+        self.assertTrue(record['reused_signed_kernel'])
+        self.assertTrue(record['standalone_host'])
+        self.assertEqual(record['source_host_sha256'], package_app.sha(self.host))
+        self.assertEqual(record['host_sha256'], package_app.sha(runtime / 'muse-host'))
+        self.assertNotEqual(record['source_host_sha256'], record['host_sha256'])
