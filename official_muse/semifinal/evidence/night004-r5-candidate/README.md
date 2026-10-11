@@ -8,4 +8,4 @@ acceptance-summary.json列明同源各层级；evidence-manifest.json逐文件SH
 
 另外已提交的同caa99组件证据：semifinal/evidence/night004-boot-recovery-central；semifinal/gpt03_night004_model_json/evidence/candidate-caa99-r1；semifinal/gpt03_night004_l4_audit/evidence/candidate-caa99-r1；semifinal/gpt03_night004_perf/evidence/candidate-caa99-r1。各自真实测试46/54/107/14，不以中央复核额外计数。
 
-独立git-sync回执将记录普通推送及ls-remote SHA核验，不将远端预检视为推送成功。
+git-sync/r13-system-proxy-verified已记录实际普通push和独立ls-remote一致SHA76bb9d1f。先前直连失败和成功代理预检仍保留；按实际系统代理端点命令执行，没有改全局配置。最后归档提交另核本机build/night-004/git-checkpoint-r14-final/receipt.json，产品未变。

@@ -1,10 +1,10 @@
-## 2026-10-12 06:03 NIGHT-004 R5固定候选模拟验收通过
+## 2026-10-12 06:14 NIGHT-004 R5固定候选模拟验收通过
 
 当前结论SIMULATION_PASS（隔离模拟），生产REAL_E2E_NOT_TESTED。产品0c3aa9b1/Main caa99c57、签名ef58430f、manifest7b746fb0固定。原WorkBuddy→AppHub Library/Open在Intel机器实际可用，完整Muse留开PID26569；06:02动态身份三项0。
 
 R5实际结果：官方Kernel/Calendar/Mail整链及重启164检查、重叠三种各20、Kernel L4五场景、启动恢复46、SDK坏JSON54、Mail故障107、规模组件14通过；最终20次大数据启动/60原生图、官方Calendar GUI6检查/12读回/3Host/7图、412点窄窗口输入/行动链/返回4图均实审PASS。128原in_flight一次恢复为UNKNOWN，原始备份、32Goal/Run与负载不变，64Memory可浏览。旧失败照录，不拼跨版本结果。
 
-唯一支持入口和冻结包：build/night-004/rc7-integrated-candidate-r5/package/Muse.app。统一证据official_muse/semifinal/evidence/night004-r5-candidate，最终报告MUSE_STABILIZATION_20261012_REPORT.md。本地checkpoint和普通push/独立远端SHA记录在独立git-sync目录；不自动发正式版或提交比赛。生产资料/Secret及四项原有未提交改动保留。
+唯一支持入口和冻结包：build/night-004/rc7-integrated-candidate-r5/package/Muse.app。统一证据official_muse/semifinal/evidence/night004-r5-candidate，最终报告MUSE_STABILIZATION_20261012_REPORT.md。验收checkpoint10e1ba27，后续76bb9d1f已普通push并独立核远端一致，git-sync/r13-system-proxy-verified有原始回执；现有系统代理仅按命令使用。最后归档commit另核build/night-004/git-checkpoint-r14-final/receipt.json；不自动发正式版或提交比赛。生产资料/Secret及四项原有未提交改动保留。
 
 下一最高价值任务是白天真实账号/模型业务验收：官方Mail登录、原生Review、SMTP自发自收与独立收件，当前R5宿主Agent授权及生产Calendar业务。本輪Mail输运/模型/审批为fixture，官方Calendar服务和owner是真实但仅隔离合成资料；不宣称生产端到端或长期稳定性已通过。早期测试副本黑底根因仍未知，支持的原入口已有固定候选20次GUI覆盖。
 

@@ -1,6 +1,6 @@
 # Muse NIGHT-004 中央验收记录
 
-更新：2026-10-12 06:10，北京时间。用户允许最晚11:00交付，09:00停止新增高风险开发。固定 R5 候选在本轮隔离模拟范围内为 **SIMULATION_PASS**；生产端到端为 **NOT_TESTED**。这是已验证的开发候选，尚非公开正式发布或比赛提交。
+更新：2026-10-12 06:14，北京时间。用户允许最晚11:00交付，09:00停止新增高风险开发。固定 R5 候选在本轮隔离模拟范围内为 **SIMULATION_PASS**；生产端到端为 **NOT_TESTED**。这是已验证的开发候选，尚非公开正式发布或比赛提交。
 
 ## 固定候选与打开方式
 
@@ -51,6 +51,6 @@ R5大数据最终20：Muse可交互中位21.652秒、范围20.923–24.280秒；
 
 统一归档：official_muse/semifinal/evidence/night004-r5-candidate/，包含固定身份、各层原始回执、60启动图、7日历图、4窄窗口图、执行过的驱动、旧失败和中央acceptance。evidence-manifest.json逐文件SHA256核验；组件证据保持各自已提交的candidate-caa99-r1目录。旧R4报告另存report-before-r5.md。
 
-开发分支codex/muse-pivot-20261010。产品提交0c3aa9b1固定，验收证据本地checkpoint10e1ba27878126b11ca46a7136fbdcc123062d61。r11普通直连push失败、独立ls-remote超时，原始回执保留git-sync/r11-direct-failure。实际系统HTTP/HTTPS代理127.0.0.1:7897已启用，而Git有效代理/环境为空；r12仅在命令中使用该既有系统端点，独立预检0.987秒返回远端cdc37f773e5fdc68503ea26a763176ec631dcacd。没有修改全局/仓库网络配置，继续普通推送并独立核对，不据预检宣称成功。旧网络失败记录保留。
+开发分支codex/muse-pivot-20261010。产品提交0c3aa9b1固定，验收证据本地checkpoint10e1ba27878126b11ca46a7136fbdcc123062d61。r11普通直连push失败、独立ls-remote超时，原始回执保留git-sync/r11-direct-failure。实际系统HTTP/HTTPS代理127.0.0.1:7897已启用，而Git有效代理/环境为空；r12仅在命令中使用该既有系统端点，独立预检0.987秒返回远端cdc37f773e5fdc68503ea26a763176ec631dcacd。没有修改全局/仓库网络配置。普通推送成功，独立ls-remote核对远端76bb9d1ff28eda672cd127500ef3524bd347118b与本地完全一致；实际202.932秒。回执git-sync/r13-system-proxy-verified/receipt.json，保留r11直连失败及r12代理预检。后续回执/交接归档commit不改变产品，另做普通push和独立SHA核对，最终本机原始结果见build/night-004/git-checkpoint-r14-final/receipt.json。
 
 未做main推送、强推、公开发布或比赛提交；四项既有他人未提交源码/文档改动保留，未纳入本轮checkpoint。最新R5模拟窗口保持打开，供用户后续试用。
