@@ -1,29 +1,29 @@
-# GPT-02 Mail recovery handoff
+# Handoff
 
 ## Task
 
-基线e962e4183d844002a22e4f8c91268dfb5b004b19；独立worktree/branch codex/gpt02-mail-memory-recovery。只改本目录。
+GPT-02，基线e962e418；branch codex/gpt02-mail-memory-recovery。bca63c00交付提案后，按中央要求真实VM补验回执分phase持久化。
 
 ## Result
 
-PARTIAL：source→claim中断重复问题未复现；原core_add_source已有幂等复用。转向已复现的Host failed_before_delivery只读回执始终被留UNKNOWN，生成最小正式源码补丁提案。
+PASS（实际reference Splash函数链限定范围）：before-r3 33/37，投递前失败四项失败；after-r1 37/37。
 
 ## Changed
 
-mail-terminal-recovery.patch新增严格terminal分类并沿原receipt phases恢复未投递状态；正式main未改。prepare_patch.py/patch_identity.json可重建；test_recovery.py与evidence保存前后结果；host_receipt_status_probe.splash供中央真实VM补验，未运行。
+新增receipt_chain_probe.splash、复用run_official_api的隔离cleanup wrapper、real_vm_summary/REAL_VM.md和四轮最小证据。正式main/Bundle/SDK未改。
 
 ## Tests
 
-2026-10-11：before-r3 26/27，唯一失败before_delivery_reconciles_unsent；after-r4 44/44通过。source/claim重启后各1条，cancel/DRAFT、UNKNOWN、accepted未收件与身份/正文保留。before-r2另为投影适配器语法错误，原stderr保留。
+2026-10-11端口9695隐藏运行，Host78ab9efc，源66ea3932→cc3f17cd；PID69017/69199均quit0、退出后无Script错误。actual callback→receipt phases→draft/action/run/goal/activity与磁盘回读，UNKNOWN/payload/revision错配保留；每轮5次compose_status，compose/review/send=0。前两轮fixture错误保留，不称产品失败。
 
 ## Commit
 
-本地提交由交付回复列出；不push。
+补丁提交bca63c00；本证据提交号由交付回复列出，未push。
 
 ## Remaining
 
-中央应用补丁后用配套官方Splash/Host验证；Node投影不是官方VM、native审批或live SMTP证据。本人登录/真实批准留中央串行。
+统一候选完整Host/Muse准入、账号许可、本人native批准与SMTP尚未验收。source→claim幂等仅原Node投影证据，不借此宣称Memory VM通过。
 
 ## Important Boundaries
 
-无GUI/Cargo/模型/真实账户/发送。patch只read status，新增无Host调用、不重compose/review，不伪造审批。
+真实Splash/native jailed fs，合成status transport；无Cargo/模型/真实账号/审批/发送，不抢GUI。重跑入口与完整SHA见REAL_VM.md。

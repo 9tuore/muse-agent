@@ -1,0 +1,89 @@
+// Real production callback and persistence phases; synthetic status transport only.
+let chain_checks = {} let chain_calls = [] let chain_observed = []
+let chain_mode = "" let chain_snapshot = nil let chain_request = "" let chain_goal = "" let chain_run = ""
+fn probe_transport(method,args,cb){
+    chain_calls.push({method: method args: args})
+    if method != "mail.compose_status" { cb({is_ok: false error: "This fixture permits readonly status only"}) return }
+    let status = "failed_before_delivery"
+    if chain_mode == "unknown" { status = "outcome_unknown" }
+    if chain_mode == "accepted" { status = "accepted" }
+    let data = {account: chain_snapshot.account compose_id: mail_draft.host_compose_id revision: 1
+        to: chain_snapshot.to subject: chain_snapshot.subject body: chain_snapshot.body status: status
+        attempts: [{operation_id: "fixture-operation-" + chain_mode revision: 1 status: status
+            payload: {to: chain_snapshot.to subject: chain_snapshot.subject body: chain_snapshot.body}
+            receipt: {accepted: status == "accepted"}}]}.to_json().parse_json()
+    if chain_mode == "wrong-payload" { data.body = "Different returned body" }
+    if chain_mode == "wrong-revision" { data.revision = 2 data.attempts[0].revision = 2 }
+    cb({is_ok: true data: data})
+}
+fn chain_begin(){
+    core_boot_goals() core_boot_activity()
+    chain_case("before-delivery")
+}
+fn chain_case(mode){
+    chain_mode = mode chain_goal = "fixture-mail-goal-" + mode chain_request = "fixture-mail-action-" + mode
+    chain_snapshot = {account: "synthetic-account" to: "self@example.invalid" subject: "Synthetic " + mode body: "Keep this synthetic handwritten body"}.to_json().parse_json()
+    let goal = {schema: 1 id: chain_goal version: 1 goal: "Synthetic receipt recovery" source: "Synthetic source" items: ["Synthetic source"]
+        project_id: "synthetic-project" owner_id: "synthetic-owner" status: "planned" phase: "mail" approved_at: 0
+        model_summary: "" result_path: "results/" + chain_goal + ".json" updated_at: time_now() archived: false
+        goal_spec: mail_goal_spec(chain_goal,1,"Synthetic receipt recovery","results/" + chain_goal + ".json",chain_snapshot.to_json())}
+    let added = core_add_goal(goal)
+    chain_run = core_start_run(chain_goal,1,chain_request)
+    chain_checks[mode + "_goal_run_setup"] = added && chain_run != nil
+    if chain_run == nil { chain_finish() return }
+    mail_account = {id: chain_snapshot.account}
+    mail_draft = {account: chain_snapshot.account to: chain_snapshot.to subject: chain_snapshot.subject body: chain_snapshot.body status: "unknown"
+        preview: chain_snapshot.to_json() attempt: chain_snapshot.to_json() request_id: chain_request
+        accepted_at: 0 verified_at: 0 verified_id: "" link_goal_id: chain_goal link_event_id: "" link_run_id: chain_run incoming_key: ""
+        host_compose_id: "compose-fixture-" + mode host_revision: 1}.to_json().parse_json()
+    mail_sending = false mail_pending = false
+    chain_checks[mode + "_action_setup"] = core_begin_action(chain_goal,chain_run,1,"mail.send",chain_snapshot.account,chain_request,chain_snapshot.to_json())
+        && core_finish_action(chain_request,"unknown") && mail_save()
+    if !chain_checks[mode + "_action_setup"] { chain_observed.push({mode: mode setup_error: core_error mail_error: mail_error}) chain_finish() return }
+    mail_check_host_status()
+    start_timeout(0.5,|| chain_result())
+}
+fn chain_result(){
+    let terminal = chain_mode == "before-delivery"
+    let accepted = chain_mode == "accepted"
+    let expected_draft = "unknown" let expected_action = "unknown" let expected_run = "running"
+    if terminal { expected_draft = "DRAFT" expected_action = "failed" expected_run = "failed" }
+    if accepted { expected_draft = "accepted" expected_action = "accepted" }
+    let action = actions[core_action_index(chain_request)]
+    let run = runs[core_run_index(chain_run)]
+    let goal = goals[core_goal_index(chain_goal)]
+    let saved_draft = storage_read("mail-draft.json").parse_json()
+    let saved_goals = storage_read("goals.json").parse_json()
+    let saved_action = nil let saved_run = nil
+    for item in saved_goals.actions { if item.id == chain_request { saved_action = item } }
+    for item in saved_goals.runs { if item.id == chain_run { saved_run = item } }
+    chain_checks[chain_mode + "_draft_state"] = mail_draft.status == expected_draft && saved_draft.status == expected_draft
+    chain_checks[chain_mode + "_action_state"] = action.status == expected_action && saved_action.status == expected_action
+    chain_checks[chain_mode + "_run_goal_state"] = run.status == expected_run && saved_run.status == expected_run && goal.status == expected_run
+    chain_checks[chain_mode + "_body_identity_preserved"] = saved_draft.body == chain_snapshot.body && mail_draft.body == chain_snapshot.body
+        && saved_draft.host_compose_id == "compose-fixture-" + chain_mode && saved_draft.host_revision == 1
+        && action.payload_json == chain_snapshot.to_json()
+    chain_checks[chain_mode + "_not_received_or_verified"] = saved_draft.verified_at == 0 && saved_draft.verified_id == ""
+    if terminal {
+        let found = false
+        if fs.exists("activity.json") {
+            let saved_activity = storage_read("activity.json").parse_json()
+            for item in saved_activity { if item.kind == "MAIL_NOT_SENT" && item.request_id == chain_request { found = true } }
+        }
+        chain_checks["before-delivery_not_sent_activity"] = found
+    }
+    chain_observed.push({mode: chain_mode draft: mail_draft.status action: action.status run: run.status goal: goal.status
+        notice: mail_notice error: mail_error core_error: core_error})
+    if chain_mode == "before-delivery" { chain_case("unknown") return }
+    if chain_mode == "unknown" { chain_case("wrong-payload") return }
+    if chain_mode == "wrong-payload" { chain_case("wrong-revision") return }
+    if chain_mode == "wrong-revision" { chain_case("accepted") return }
+    chain_finish()
+}
+fn chain_finish(){
+    let allowed = chain_calls.len() == 5
+    for call in chain_calls { if call.method != "mail.compose_status" { allowed = false } }
+    chain_checks.only_readonly_status_calls = allowed
+    fs.write("probe.json",{checks: chain_checks calls: chain_calls observations: chain_observed}.to_json())
+}
+start_timeout(0.05,|| chain_begin())
