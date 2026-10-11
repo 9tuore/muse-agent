@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC-00 统一 Muse，开发分支 codex/muse-pivot-20261010。用户要求先完善官方接口、联通和内置 Calendar，再真实验收；GPT 高速并行，三专项独立 worktree。
+ZC-00 统一 Muse，codex/muse-pivot-20261010；黑屏已交外部 WorkBuddy。
 
 ## Result
-PARTIAL。History配套 Host30d4d356完整构建成功；四工具准入安全测试通过。尚未整包运行/真实业务通过。用户最新要求产品Qwen+云端MiniMax协同、内置持续事务AI，GPT-only仅开发团队。
+PARTIAL。完整Host30d4d356/签名包ec83a4f9已构建，但真实OS窗口黑屏。中央释放GUI与Cargo，Metal恢复47db4d10；数字诊断构建主动中断，非编译失败。
 
 ## Changed
-有界源准备/冷开/签名目录脚本；模型迟到身份校验；GPT 原生设置与无 Qwen 打包模式；Calendar 页官方应用级会话接线、请求持久化、未知结果不重试、原 ID 保留。Calendar Broker 终态/History 和 Mail 恢复单元在专项工作区开发。
+hybrid携带Qwen且保留MiniMax主配置；官方Calendar会话、History终态绑定与未知请求保护；Mail异步恢复与固定SDK预检。WorkBuddy交接见BLACK_SCREEN_HANDOFF_20261011.md。
 
 ## Tests
-真实 reference VM 合成模型身份6、Calendar会话/恢复/回执19、Mail完整异步恢复37项通过，外部调用 0；VM 准备 1、streaming 5、硬时限 1、样式 6 通过，原失败保留。GPT 启动器专项 clang/9 项签名 stub Host fixture 通过。以上不是本机真实 Relay/SMTP/GPT 实调。
+Calendar19、Mail37、身份6项真实参考VM合成测试通过，外部调用0；launcher16项fixture、签名目录/整包验签通过。旧失败全部保留。以上不证明真实Relay、推理或投递。
 
 ## Commit
-e962e418 已普通推送并独立核对远端相同；GPT-03 3c5fcd17 接收为 66cf2948。中央 Calendar 单元待本次提交。
+交接前b95b7b23；本次文档另提交。开发分支最近远端核验e962e418。
 
 ## Remaining
-hybrid启动器与官方持续任务契约；签名单包 GUI；同 Muse ID 原生助手授权与 Calendar 真实工具回执/读回；Mail 原生本人登录/审阅与真实状态；同候选行动链、T18、最终20次。
+WorkBuddy修可见UI；中央实现暂停保留、Qwen fast目录、Native持续loop。随后真实Calendar四工具/独立读回、本人Mail登录审阅状态、同候选行动链与最终T18/20次。
 
 ## Important Boundaries
-保留根 rc17、生产资料与原 dirty；旧 r8 空白证据保留。官方会话是应用级共享历史，不注入私人 Muse Memory，不宣称独立项目/上游遗忘。未知外部动作不自动重做；本人输入与可信批准不能模拟。
+仅中央整合正式源/Bundle；不触生产/旧dirty。未知动作不自动重做，Secret与可信批准不模拟，未正式发布。
