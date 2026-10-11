@@ -1,0 +1,102 @@
+let fixture_clock=1700000000
+let fixture_serial=0
+fn time_now(){return fixture_clock}
+fn random_u32(){fixture_serial=fixture_serial+1 return fixture_serial}
+let fs={exists: |path| fixture_files[path]!=nil sha256: |value| mod.fixture.sha256(value)}
+let checks={}
+let states={}
+fn seed(){
+ fixture_files={} fixture_write_fail=false fixture_write_fail_path="" fixture_read_fail=false fixture_pending=[] fixture_serial=0
+ core_storage_ready=true gm_ready=true chat_ready=true
+ gm_user_id="fixture-user" gm_accounts=["local"] gm_project="fixture-project" gm_owner="fixture-owner"
+ goals=[] runs=[] actions=[] core_last_goals="" task=nil
+ chat_selected_id="chat:fixture" ac_selected_chat=chat_selected_id ac_selected_id=""
+ chat_last_state="" messages=[] page="Chat"
+ chat_sessions=[{id:chat_selected_id title:"fixture" created_at:fixture_clock updated_at:fixture_clock
+  messages:[] proposals:[] focus_project:gm_project focus_owner:gm_owner goal_id:""}]
+ calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+ calendar_agent_busy=false calendar_agent_writable=true calendar_agent_history_settle=false
+ calendar_agent_history_epoch=0 calendar_agent_candidate=nil
+ calendar_agent_reply="" calendar_agent_evidence="" calendar_agent_input_text="" calendar_agent_details=false
+ calendar_agent_delete_state={schema:1 records:[]} calendar_agent_delete_writable=true
+}
+fn fixture_start(){
+ seed()
+ let card={id:"card:fixture" action:"calendar_candidate" state:"candidate" session_id:chat_selected_id
+  project:gm_project owner:gm_owner account_id:"local" revision:1
+  payload:{to:"" subject:"" body:"" objective:"" source:"" title:"fixture meeting"
+   start:"2030-12-12T10:00:00+08:00" end:"2030-12-12T11:00:00+08:00" time_zone:"Asia/Shanghai" location:"fixture"}}
+ chat_sessions[0].proposals.push(card)
+ calendar_agent_ensure_matter(card)
+ calendar_agent_prepare_candidate(card)
+ // Wall fields come from the unchanged production candidate preparation.
+ calendar_agent_submit_candidate()
+ fixture_pending[0].callback({is_ok:true data:{open:true}})
+ return true
+}
+fn fixture_finish_turn(){
+ fixture_start()
+ fixture_pending[1].callback({is_ok:true data:{turn_id:"turn:fixture" text:"fixture reply is not proof"}})
+}
+fn fixture_event(){
+ let event=calendar_agent_state.binding.payload.to_json().parse_json()
+ event.id="ev:fixture"
+ return event
+}
+fn fixture_add_digest(){
+ let p=calendar_agent_state.binding.payload
+ return "sha256:"+fs.sha256("{\"end\":"+p.end.to_json()+",\"location\":"+p.location.to_json()
+  +",\"notes\":"+p.notes.to_json()+",\"request_id\":"+p.request_id.to_json()+",\"start\":"+p.start.to_json()
+  +",\"timezone\":"+p.timezone.to_json()+",\"title\":"+p.title.to_json()+"}")
+}
+fn fixture_row(tool,suffix,data){
+ let digest=fixture_add_digest()
+ if tool=="calendar.get_event"{digest="sha256:"+fs.sha256("{\"id\":\"ev:fixture\"}")}
+ return {role:"tool" lane:"person" turn_id:calendar_agent_state.turn_id thread_id:calendar_agent_state.turn_id
+  tool_name:tool tool_call_id:"tc:"+suffix
+  host_calendar_receipt:{source:"broker_tool_result" owner:"os.calendar" caller:"card.muse-goals" kernel_persisted:true
+   session_id:"kernel:fixture" turn_id:calendar_agent_state.turn_id tool_call_id:"tc:"+suffix
+   call_id:"call:"+suffix tool:tool args_digest:digest terminal:"ok" result:{"ok":true data:data}}}
+}
+fn fixture_rows(){
+ return [fixture_row("calendar.add_event","add",{id:"ev:fixture" start:calendar_agent_state.binding.payload.start})
+  fixture_row("calendar.get_event","get",{found:true event:fixture_event()})]
+}
+fn observe(name,rows,baseline){
+ let result=calendar_agent_link_result(rows)
+ states[name]=result
+ if baseline{checks[name]=result.status=="verified"}else{checks[name]=result.status!="verified"}
+}
+fixture_finish_turn() observe("baseline_exact_add_then_get",fixture_rows(),true)
+fixture_finish_turn() let rows=fixture_rows() observe("get_before_add",[rows[1],rows[0]],false)
+fixture_finish_turn() rows=fixture_rows() observe("two_add_same_id",[rows[0],fixture_row("calendar.add_event","second-add",rows[0].host_calendar_receipt.result.data),rows[1]],false)
+fixture_finish_turn() rows=fixture_rows() observe("two_add_different_id",[rows[0],fixture_row("calendar.add_event","second-add",{id:"ev:other" start:calendar_agent_state.binding.payload.start}),rows[1]],false)
+for tool in ["calendar.update_event","calendar.remove_event","calendar.events","calendar.notify"]{
+ fixture_finish_turn() rows=fixture_rows()
+ observe("extra_"+tool,[rows[0],fixture_row(tool,"extra",{id:"ev:other" removed:true event:fixture_event() events:[]}),rows[1]],false)
+}
+fixture_finish_turn() rows=fixture_rows() rows[1].host_calendar_receipt.session_id="kernel:foreign" observe("mixed_kernel_session",rows,false)
+fixture_finish_turn() rows=fixture_rows() rows[0].host_calendar_receipt.args_digest="sha256:wrong" observe("wrong_add_args_digest",rows,false)
+fixture_finish_turn() rows=fixture_rows() rows[1].host_calendar_receipt.args_digest="sha256:wrong" observe("wrong_get_args_digest",rows,false)
+fixture_finish_turn() rows=fixture_rows() rows[1].host_calendar_receipt.call_id=rows[0].host_calendar_receipt.call_id observe("duplicate_call_id",rows,false)
+fixture_finish_turn() rows=fixture_rows() rows[1].tool_call_id=rows[0].tool_call_id rows[1].host_calendar_receipt.tool_call_id=rows[0].tool_call_id observe("duplicate_tool_call_id",rows,false)
+fixture_finish_turn() rows=fixture_rows() observe("duplicate_get_matching_snapshot",[rows[0],rows[1],fixture_row("calendar.get_event","second-get",rows[1].host_calendar_receipt.result.data)],false)
+fixture_finish_turn() rows=fixture_rows() rows[0].host_calendar_receipt.caller="card.foreign" rows[1].host_calendar_receipt.caller="card.foreign" observe("same_request_id_foreign_caller",rows,false)
+fixture_finish_turn() rows=fixture_rows() rows[0].host_calendar_receipt.kernel_persisted=false rows[1].host_calendar_receipt.kernel_persisted=false observe("same_request_id_not_kernel_persisted",rows,false)
+fixture_finish_turn() rows=fixture_rows() rows[1].host_calendar_receipt.result.data.event.request_id="request:foreign" observe("wrong_event_request_id",rows,false)
+fixture_finish_turn() rows=fixture_rows() gm_user_id="foreign-user" observe("identity_changed_before_verifier",rows,false)
+fixture_finish_turn() rows=fixture_rows() goals[0].version=goals[0].version+1 observe("goal_version_changed_before_verifier",rows,false)
+fixture_finish_turn() rows=fixture_rows() gm_user_id="foreign-user" fixture_pending[2].callback({is_ok:true data:{messages:rows}})
+states.late_history_identity={status:calendar_agent_state.status receipt_status:calendar_agent_state.binding.receipt_status}
+checks.late_history_identity=calendar_agent_state.binding.receipt_status!="verified"
+fixture_finish_turn() rows=fixture_rows() goals[0].version=goals[0].version+1 fixture_pending[2].callback({is_ok:true data:{messages:rows}})
+states.late_history_goal_version={status:calendar_agent_state.status receipt_status:calendar_agent_state.binding.receipt_status}
+checks.late_history_goal_version=calendar_agent_state.binding.receipt_status!="verified"
+fixture_start() gm_user_id="foreign-user" fixture_pending[1].callback({is_ok:true data:{turn_id:"late:fixture" text:"done"}})
+states.late_turn_identity={status:calendar_agent_state.status turn_id:calendar_agent_state.turn_id pending:fixture_pending.len()}
+checks.late_turn_identity=calendar_agent_state.status=="unknown" && calendar_agent_state.turn_id=="late:fixture" && fixture_pending.len()==2
+fixture_start() goals[0].version=goals[0].version+1 fixture_pending[1].callback({is_ok:true data:{turn_id:"late:fixture" text:"done"}})
+states.late_turn_goal_version={status:calendar_agent_state.status turn_id:calendar_agent_state.turn_id pending:fixture_pending.len()}
+checks.late_turn_goal_version=calendar_agent_state.status=="unknown" && calendar_agent_state.turn_id=="late:fixture" && fixture_pending.len()==2
+let diagnostics={display:calendar_display_time("2030-12-12T10:00:00+08:00") wall:calendar_agent_wall("2030-12-12T10:00:00+08:00")}
+({checks:checks states:states diagnostics:diagnostics synthetic_valid_wall_payload:true external_calls:0 goals_completed:false}).to_json()

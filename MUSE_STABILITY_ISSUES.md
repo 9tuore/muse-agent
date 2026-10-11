@@ -11,4 +11,7 @@
 | N004-04 | P1 | 包内官方资源目录octosense与可执行文件同名，首轮pack报IsADirectoryError | 资源保留原路径，裸Host独立签名后可执行 | rc6-standalone-r1失败保留；r2改muse-host后签名及实际GUI通过 | 3处basename修正；本轮绑定源码28/28签名stub/包fixture通过，真实rc6-r2 GUI来自此前记录 | FIXTURE_PASS_RUNTIME_RECORDED |
 | N004-05 | P0 | 尚无同一最终候选Mail→Calendar同ID改期→草稿→回执→重启→Memory/行动链全链证据 | 同候选L3完整模拟及L4故障注入验证最终状态/副作用数 | 既有组件和跨版本记录只属局部通过 | 已接收30bc0fdc真实CalendarService九进程L1，SHA与中央SDK一致；L3真实VM/Relay/Mail边界继续统一验收 | OPEN |
 
+| N004-06 | P0 | 合法ISO候选经wall转换start/end为空；真实CalendarService拒绝旧VM参数 | 候选生成非空精确墙时 | display返回date time +08:00三段，wall要求两段；4/6 VM失败 | wall三段且+08:00；6/6 VM，新参数真实保存、独立同ID读回、删除不存在，共6个进程 | VM_AND_REAL_SERVICE_PASS |
+| N004-07 | P0 | 12个错序/重复/混Kernel/错摘要回执被误verified | 严格单add后单get，同Kernel/精确摘要/调用唯一 | 同冻结源真实VM23例，12个负例误verified | 最小link_result严格两阶段；中央23/23，Wall6/6、Safety22/22；真实Muse整链待做 | VM_PASS_FULL_CHAIN_PENDING |
+
 真实日历测试使用隔离资料内的官方os.calendar事件持久化，并单独记录创建、同ID读回、改期、删除和重启；模拟工具选择/测试授权不标为真实模型或本人consent。

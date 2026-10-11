@@ -1,3 +1,9 @@
+## NIGHT-004 Calendar真实新建时间与回执核验修复
+
+main SHA ebbc50b8：修复wall分段错误，合法ISO原生成空start/end；真实VM前4失败后6/6。VM实际参数送入未改官方CalendarService，旧参数拒绝、新参数保存，独立进程按同ID精确回读，删除后独立不存在验证，共6个进程。创建link_result严格单add→单get，同Kernel、调用唯一、精确参数摘要；原23例有12个负例误verified，中央修复后23/23，候选参数由生产wall生成。原Safety22/22复跑通过。证据official_muse/semifinal/evidence/night004-calendar-create/。
+
+新Intel rc7组件包已验签准入与打包；官方Calendar GUI显示、三个动态SecCode API返回0。首轮GUI脚本在屏下Notes字段输入受阻，未点击Save，退出及失败证据保留；去掉可选Notes输入后以新隔离资料重跑。真实Kernel专项编译6m34s通过，运行因fixture未安装os.calendar manifest缺tool而FAIL，GPT01修初始化；没有计PASS。
+
 ## NIGHT-004 rc7 打包入口准备
 
 统一六处候选版本rc7、本地catalog sequence4；WorkBuddy Launcher环境和Info身份保持原字节。对应28/28Launcher/Package fixture通过26.49s，非GUI或模型测试。publisher example从锁定SDK workspace离线编译通过10.15s；从独立Hub workspace的locked拒绝日志保留，未改lock。Intel production Host含Mail lifecycle修复构建通过324.61s，unsigned a9fc8ca3；尚未正式打包/运行。Calendar owner GUI验收脚本syntax/help通过，待固定rc7候选运行，输出独立读回、7图及每次实际Host动态签名；不操作生产资料。证据official_muse/integrated_release/evidence/night004-rc7-preparation/。
