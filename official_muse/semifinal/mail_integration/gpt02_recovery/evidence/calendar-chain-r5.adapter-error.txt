@@ -1,0 +1,17 @@
+[stdin]:85
+    if (card.session_id != chat_selected_id || card.project != gm_project || card.owner != gm_owner
+                                                                                        ^
+
+ReferenceError: gm_has is not defined
+    at calendar_agent_prepare_candidate ([stdin]:85:89)
+    at [stdin]:402:54
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [stdin]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_stdin:51:5
+    at Socket.<anonymous> (node:internal/process/execution:205:5)
+
+Node.js v24.16.0

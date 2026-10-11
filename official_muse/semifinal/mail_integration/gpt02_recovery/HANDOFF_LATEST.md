@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02；codex/gpt02-mail-memory-recovery；中央观测HEAD f4f54f8e，固定源码SHA见watch-pause-identity.json。修复账号登录覆盖本人暂停。
+GPT-02，codex/gpt02-mail-memory-recovery；中央8279a606/源码271b1beb。接官方Calendar候选到当前事项行动链。
 
 ## Result
-PARTIAL：最小patch已备，源码绑定Node fixture通过；正式源码/真实Splash VM未改未测。
+PARTIAL：实际patch和定向测试已交，中央正式main/VM/GUI未改未测。
 
 ## Changed
-watch-pause.patch只删mail_add_account成功分支的隐式toggle与旧注释（2行），保留账号刷新/失败/取消。identity固定前后SHA。test_watch_pause.py及evidence保存before/after和适配器错误。CURRENT_STATE追加。
+calendar-chain.patch仅6个既有函数及Calendar UI+绑定/精确回执helper；identity固定271b1beb→0c17e4cc。生成器、test、CALENDAR_CHAIN.md和证据。旧私有日历、Mail暂停与模型选择字节保持。
 
 ## Tests
-2026-10-11：提取4个实际函数Node fixture，before15/19（4个暂停失败），after19/19；覆盖保存暂停、登录期间暂停、迟到账号刷新/选择、默认开启后timer、迟到poll、失败/取消、只读/重复/能力守卫。临时副本git apply --check --unidiff-zero与预期SHA通过。零外部调用。
+2026-10-11：Node提取17实际函数，最终r7 65/65；临时JSON回读、精确add/get、身份/版本迟到、错配/错误/取消、重启未知不重发、归档完整绑定、写入失败等。git apply --check --unidiff-zero通过；只有6个旧函数变化。五次适配器错误保留，不算产品失败。
 
 ## Commit
 本地提交见最终回复，未push。
 
 ## Remaining
-中央先核完整source SHA，零上下文patch禁止偏移应用；漂移则按具名函数重准备。中央正式包真实VM/GUI验证待协调。
+中央真实VM/正式包GUI/本人批准。候选联动限上海整分钟；Mail确认依赖、改期和整体完成未接通，UI如实提示。
 
 ## Important Boundaries
-默认enabled=true与30秒schedule已存在；登录成功不额外poll，因mail_accounts_load设置pending，立即poll也被守卫跳过。新账号由既有timer读最新授权列表；登录回调不修改enabled或选中账号。没有GUI/Cargo/模型/SMTP/秘密；Node结果不是官方VM验收。
+用户选择事项后才绑定候选，派发前存goal/plan/project/owner/account/request，回调存turn；只Host broker精确配对可verified，模型text不算成功。历史保留、unknown不重派、旧身份版本不投射。零GUI/Cargo/外部模型/SMTP/秘密，不伪装owner，不恢复旧EventKit。
