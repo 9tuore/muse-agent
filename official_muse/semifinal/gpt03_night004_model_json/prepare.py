@@ -11,7 +11,7 @@ from run import functions_in
 
 p = argparse.ArgumentParser()
 p.add_argument('--source', type=Path, required=True)
-p.add_argument('--source-sha', required=True)
+p.add_argument('--source-sha', default='c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4')
 p.add_argument('--probe', type=Path, nargs='+', default=[HERE / 'initial.splash'])
 p.add_argument('--out', type=Path, required=True)
 a = p.parse_args()

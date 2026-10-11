@@ -27,6 +27,7 @@ python3 "$TASK_SCOPE/prepare.py" \
   --out "$TASK_OUT/restart-prepare"
 
 python3 "$TASK_SCOPE/run.py" \
+  --source-sha "$TASK_SOURCE_SHA" \
   --runner '/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP黑客松/build/gpt03-night004/target/debug/gpt03-night004-vm' \
   --mail-binary "$TASK_ROOT/build/night-004/mail-fault-central-final-r2/accepted/mail-bin" \
   --receiver-script "$TASK_ROOT/official_muse/semifinal/mail_integration/gpt02_recovery/night004/receiver.py" \
@@ -43,6 +44,10 @@ GPT03 的实际结果在自有 `build/gpt03-night004-l4-audit/run-r1/`，包含 
 原三场景`executed-parent-r1.py`保持原字节；新增实际网关由`executed-parent-gateway-r1.py`运行，report记录parent/receiver SHA。两批summary保留78/29计数，`summary-all.json`列合计107。新增实际计时不改旧立即timeout注入的边界。
 
 仅复验新增网关时，在上面run命令追加`--modes gateway-timeout`，使用新out；预期2 phases/29 checks。仅复验原三场景用`--modes crash-after-review receipt-os-error review-cancel`，预期6 phases/78。fixture网关不改变生产超时，也不称实际SMTP断连。
+
+prepare和run的`--source-sha`默认均固定c892。新候选复验须显式设置已核对的`TASK_SOURCE_SHA`，使用全新out，并将同值传给两个prepare及run；parent在创建out、读取binary或启动子进程前校验initial/restart的source身份和executed字节SHA，两者须属于同一候选。phase/summary记录本次显式SHA，不抓当前HEAD/源码SHA、不覆盖旧报告。`verify_evidence.py`仍只验证归档c892的107项，不为新候选授予PASS。参数身份检查见`source-sha-contract.json`。
+
+旧107项的initial直接测试Mail；restart经`boot_restore`静态提取Calendar启动闭包，但fixture只声明mail能力，探针不执行Calendar创建，也没有NativeCreate定义。新preflight若被该闭包调用，重新prepare会带入新增函数/global。若它新增函数/global之外的类型声明、UI端口或实际backend调用，适配范围仅是本目录prepare的声明提取、boundaries的显式端口及parent的fixture能力/dispatch；必须以实际新源或报错确定，不预先伪造Calendar响应、receipt或修改Main。目前不需要这些适配，也不能把仅prepare成功计为新候选107项PASS。
 
 ## 尚未执行的 native overlap query
 

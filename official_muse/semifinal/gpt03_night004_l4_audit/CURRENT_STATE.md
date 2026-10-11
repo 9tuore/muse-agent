@@ -9,3 +9,5 @@
 L4缺口：无效model JSON经SDK decoder到Main的机制；native Calendar重叠冲突行为。overlap query仅prepare。网关实际计时已通过，不称生产SDK/SMTP/network timeout。批准版本/内容失效有证据，不臆造TTL。
 
 复验及对照见README.md、RESULT.md；交接见HANDOFF_LATEST.md。仅本目录本地提交，无关gui_smoke.py保留。共享MUSE_HANDOFF及中央Main/SDK/target未改。
+
+接续：prepare/run显式--source-sha默认c892；执行前同时校验initial/restart prepared的source/executed身份。新候选须新out重prepare/rerun；旧107项未改版本。NativeCreate未被当前探针调用，未来闭包适配边界见README。参数契约20项PASS，见source-sha-contract.json，仅身份fixture，无新Mail/VM运行。

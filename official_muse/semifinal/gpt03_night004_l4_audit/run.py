@@ -24,8 +24,15 @@ sha = lambda data: hashlib.sha256(data).hexdigest()
 def write_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
 
+def validate_prepared(prepared, source_sha):
+    assert len(source_sha)==64 and all(c in '0123456789abcdef' for c in source_sha), '--source-sha must be a lowercase SHA-256'
+    identity=json.loads(prepared.with_name('identity.json').read_text())
+    assert identity['source_sha256']==source_sha, 'prepared source identity mismatch'
+    assert sha(prepared.read_bytes())==identity['executed_sha256'], 'prepared execution identity mismatch'
+    return identity
+
 def run_phase(mode, phase, out, state, mail_state, prepared, vm_bin, mail_bin, receiver_script,
-              gateway_deadline_ms, gateway_delay_ms):
+              gateway_deadline_ms, gateway_delay_ms, source_sha):
     out.mkdir()
     state.relative_to(ROOT / 'build')
     mail_state.relative_to(ROOT / 'build')
@@ -35,9 +42,7 @@ def run_phase(mode, phase, out, state, mail_state, prepared, vm_bin, mail_bin, r
     else:
         state.mkdir(parents=True)
         marker.write_text('NIGHT004 CLI VM fixture only\n')
-    identity = json.loads(prepared.with_name('identity.json').read_text())
-    assert identity['source_sha256'] == SOURCE_SHA
-    assert sha(prepared.read_bytes()) == identity['executed_sha256']
+    identity = validate_prepared(prepared, source_sha)
     env = dict(os.environ, NIGHT004_TMP_ROOT=str(ROOT / 'build'),
                NIGHT004_L3_ROOT=str(mail_state), NIGHT004_RECEIVER_SCRIPT=str(receiver_script))
     mail_log = (out / 'mail-stdout.log').open('w')
@@ -245,7 +250,7 @@ def run_phase(mode, phase, out, state, mail_state, prepared, vm_bin, mail_bin, r
         trace=trace, helper_trace=helper_trace, faults=faults, crash_proof=crash_proof,
         processes=dict(vm_pid=vm.pid, mail_pid=mail.pid, recipient_child_pids=receiver_pids,
             vm_exit_code=exit_code, mail_exit_code=mail.returncode),
-        source_identity=identity, source_sha256=SOURCE_SHA, runner_sha256=sha(vm_bin.read_bytes()), mail_binary_sha256=sha(mail_bin.read_bytes()),
+        source_identity=identity, source_sha256=source_sha, runner_sha256=sha(vm_bin.read_bytes()), mail_binary_sha256=sha(mail_bin.read_bytes()),
         receiver_script_sha256=sha(receiver_script.read_bytes()), parent_script_sha256=sha(Path(__file__).read_bytes()),
         state_sha256={str(path.relative_to(state)): sha(path.read_bytes()) for path in sorted(state.rglob('*')) if path.is_file()},
         state_root=str(state), mail_root=str(mail_state), full_chain_status='NOT_TESTED',
@@ -256,6 +261,7 @@ def run_phase(mode, phase, out, state, mail_state, prepared, vm_bin, mail_bin, r
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--source-sha', default=SOURCE_SHA)
     parser.add_argument('--runner', type=Path, required=True)
     parser.add_argument('--mail-binary', type=Path, required=True)
     parser.add_argument('--receiver-script', type=Path, required=True)
@@ -267,6 +273,8 @@ def main():
     parser.add_argument('--gateway-deadline-ms', type=int, default=50)
     parser.add_argument('--gateway-delay-ms', type=int, default=250)
     args = parser.parse_args()
+    for prepared in (args.initial_prepared,args.restart_prepared):
+        validate_prepared(prepared.resolve(),args.source_sha)
     out = args.out.resolve(); out.relative_to(ROOT / 'build'); out.mkdir(parents=True, exist_ok=False)
     assert sha(args.runner.read_bytes()) == VM_SHA
     assert sha(args.mail_binary.read_bytes()) == MAIL_SHA
@@ -279,11 +287,11 @@ def main():
     for mode in args.modes:
         case = out / mode; case.mkdir()
         initial = run_phase(mode, 'initial', case / 'initial', case / 'state', case / 'mail-state',
-            args.initial_prepared.resolve(), vm_bin, mail_bin, args.receiver_script.resolve(), args.gateway_deadline_ms, args.gateway_delay_ms)
+            args.initial_prepared.resolve(), vm_bin, mail_bin, args.receiver_script.resolve(), args.gateway_deadline_ms, args.gateway_delay_ms,args.source_sha)
         rows.append(initial)
         if initial['status'] != 'PASS': continue
         restart = run_phase(mode, 'restart', case / 'restart', case / 'state', case / 'mail-state',
-            args.restart_prepared.resolve(), vm_bin, mail_bin, args.receiver_script.resolve(), args.gateway_deadline_ms, args.gateway_delay_ms)
+            args.restart_prepared.resolve(), vm_bin, mail_bin, args.receiver_script.resolve(), args.gateway_deadline_ms, args.gateway_delay_ms,args.source_sha)
         before, after = initial['processes'], restart['processes']
         restart['checks']['new_vm_mail_recipient_processes'] = (before['vm_pid'] != after['vm_pid']
             and before['mail_pid'] != after['mail_pid'] and len(before['recipient_child_pids']) == 1
@@ -296,7 +304,7 @@ def main():
         write_json(case / 'restart' / 'report.json', restart)
         rows.append(restart)
     report = dict(status='PASS' if len(rows) == 2 * len(args.modes) and all(row['status'] == 'PASS' for row in rows) else 'FAIL',
-        source_sha256=SOURCE_SHA, checks=sum(len(row['checks']) for row in rows), phases=[dict(mode=row['mode'], phase=row['phase'],
+        source_sha256=args.source_sha, checks=sum(len(row['checks']) for row in rows), phases=[dict(mode=row['mode'], phase=row['phase'],
             status=row['status'], failed=row['failed'], checks=len(row['checks'])) for row in rows],
         full_chain_status='NOT_TESTED', boundary='Focused Mail durability component probes; actual process and OS faults, synthetic transport/approval. No Kernel or GUI.')
     write_json(out / 'summary.json', report)

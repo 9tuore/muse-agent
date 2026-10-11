@@ -26,14 +26,20 @@ CASES = [
     ('valid-control', '请解释这条合成说明。', b'{"reply":"synthetic decoded control"}'),
 ]
 
-def run_case(mode, query, raw_model, case, prepared, vm_binary, mail_binary, model_binary, receiver):
+def validate_prepared(prepared, source_sha):
+    assert len(source_sha)==64 and all(c in '0123456789abcdef' for c in source_sha), '--source-sha must be a lowercase SHA-256'
+    identity=json.loads(prepared.with_name('identity.json').read_text())
+    assert identity['source_sha256']==source_sha, 'prepared source identity mismatch'
+    assert sha(prepared.read_bytes())==identity['executed_sha256'], 'prepared execution identity mismatch'
+    return identity
+
+def run_case(mode, query, raw_model, case, prepared, vm_binary, mail_binary, model_binary, receiver, source_sha):
     case.mkdir()
     state = case / 'main-state'; state.mkdir(); (state/'FIXTURE_ONLY').write_text('NIGHT004 Main model fixture only\n')
     model_root = case / 'model-state'; model_root.mkdir(); (model_root/'FIXTURE_ONLY').write_text('NIGHT004 model JSON fixture only\n')
     (model_root/'.host').mkdir()
     (case/'raw-model-output.bin').write_bytes(raw_model)
-    identity = json.loads(prepared.with_name('identity.json').read_text())
-    assert identity['source_sha256'] == SOURCE_SHA and sha(prepared.read_bytes()) == identity['executed_sha256']
+    identity = validate_prepared(prepared, source_sha)
     env = dict(os.environ, NIGHT004_MODEL_ALLOWED_ROOT=str(ROOT/'build'))
     model_error = (case/'sdk-stderr.log').open('w')
     model = subprocess.Popen([str(model_binary), str(model_root)], env=env, text=True,
@@ -152,7 +158,7 @@ def run_case(mode, query, raw_model, case, prepared, vm_binary, mail_binary, mod
     report=dict(status='PASS' if data and checks and not failed else 'FAIL',mode=mode,checks=checks,failed=failed,
         exit_code=exit_code,error=error,probe=data,counters=dict(counters),trace=trace,helper_trace=helper_trace,
         actual_sdk_observation=sdk_observation,raw_model_sha256=sha(raw_model),raw_model_bytes=len(raw_model),
-        source_identity=identity,source_sha256=SOURCE_SHA,
+        source_identity=identity,source_sha256=source_sha,
         processes=dict(vm_pid=vm.pid,model_sdk_pid=model.pid,mail_pid=mail.pid,model_exit_code=model.returncode,mail_exit_code=mail.returncode),
         source_files_sha256={str(path.relative_to(case)):sha(path.read_bytes()) for path in sorted(case.rglob('*'))
             if path.is_file() and path.name!='report.json'},
@@ -163,6 +169,7 @@ def run_case(mode, query, raw_model, case, prepared, vm_binary, mail_binary, mod
 
 def main():
     parser=argparse.ArgumentParser()
+    parser.add_argument('--source-sha',default=SOURCE_SHA)
     parser.add_argument('--prepared',type=Path,required=True)
     parser.add_argument('--runner',type=Path,required=True)
     parser.add_argument('--mail-binary',type=Path,required=True)
@@ -170,7 +177,9 @@ def main():
     parser.add_argument('--sdk-driver',type=Path,required=True)
     parser.add_argument('--sdk-build-identity',type=Path,required=True)
     parser.add_argument('--out',type=Path,required=True)
-    args=parser.parse_args();out=args.out.resolve();out.relative_to(ROOT/'build');out.mkdir(parents=True,exist_ok=False)
+    args=parser.parse_args()
+    validate_prepared(args.prepared.resolve(),args.source_sha)
+    out=args.out.resolve();out.relative_to(ROOT/'build');out.mkdir(parents=True,exist_ok=False)
     sdk_identity=json.loads(args.sdk_build_identity.read_text())
     assert sdk_identity['status']=='LINKED_NOT_RUNTIME_TESTED' and sha(args.sdk_driver.read_bytes())==sdk_identity['driver_binary_sha256']
     assert sha(Path(sdk_identity['library']).read_bytes())==sdk_identity['library_sha256']
@@ -178,11 +187,11 @@ def main():
     binaries={}
     for name,path in [('vm-bin',args.runner),('mail-bin',args.mail_binary),('sdk-model-bin',args.sdk_driver)]:
         shutil.copy2(path,out/name);binaries[name]=out/name
-    rows=[run_case(mode,query,raw,out/mode,args.prepared.resolve(),binaries['vm-bin'],binaries['mail-bin'],binaries['sdk-model-bin'],args.receiver_script.resolve())
+    rows=[run_case(mode,query,raw,out/mode,args.prepared.resolve(),binaries['vm-bin'],binaries['mail-bin'],binaries['sdk-model-bin'],args.receiver_script.resolve(),args.source_sha)
         for mode,query,raw in CASES]
     library_unchanged=sha(Path(sdk_identity['library']).read_bytes())==sdk_identity['library_sha256']
     report=dict(status='PASS' if library_unchanged and all(row['status']=='PASS' for row in rows) else 'FAIL',
-        source_sha256=SOURCE_SHA,checks=sum(len(row['checks']) for row in rows),cases=[dict(mode=row['mode'],status=row['status'],
+        source_sha256=args.source_sha,checks=sum(len(row['checks']) for row in rows),cases=[dict(mode=row['mode'],status=row['status'],
             checks=len(row['checks']),failed=row['failed']) for row in rows],sdk_build_identity=sdk_identity,
         sdk_library_unchanged=library_unchanged,runner_sha256=VM_SHA,mail_binary_sha256=MAIL_SHA,
         parent_sha256=sha(Path(__file__).read_bytes()),full_chain_status='NOT_TESTED',
