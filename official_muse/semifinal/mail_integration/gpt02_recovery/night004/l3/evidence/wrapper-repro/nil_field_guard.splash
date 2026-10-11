@@ -1,0 +1,4 @@
+use mod.std.*
+fn fixture_target(binding,revision){return false}
+fn fixture_wrapper(binding){return fixture_target(binding,binding["plan_revision"])}
+({checks:{nil_binding_fails_closed:fixture_wrapper(nil)==false}}).to_json()

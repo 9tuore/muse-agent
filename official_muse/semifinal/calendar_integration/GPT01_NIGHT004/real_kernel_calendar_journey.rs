@@ -73,7 +73,7 @@ fn real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture() {
     let preflight=super::ShellToolHost.declarations("card.muse-goals",crate::ai_host::contained::ACCOUNT)
         .expect("real signed Muse admission and owner declarations");
     for tool in six {assert!(preflight.iter().any(|d|d["app"]=="os.calendar"&&d["name"]==tool),
-        "real owner must offer {tool} before starting the model: {preflight}");}
+        "real owner must offer {tool} before starting the model: {preflight:?}");}
     eprintln!("NIGHT004_OWNER_INITIALIZED {}",json!({"owner":"os.calendar","bundle":calendar_bundle,"declarations":preflight}));
     let offered_log = dir.join("offered.jsonl");
     let model = start_model(&offered_log);
@@ -150,14 +150,19 @@ fn real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture() {
     let get=turn("calendar.get_event",json!({"id":id}),Answer::Once);
     assert!(get["text"].as_str().unwrap().contains(&id));
     let before_denial=std::fs::read(host_dir.join("calendar/events.json")).unwrap();
-    let denied_args=json!({"title":"DENIED fixture","start":"2026-10-13T17:00","end":"2026-10-13T17:30",
-        "timezone":"Asia/Shanghai","location":"Synthetic denied room","notes":"Synthetic denied notes","request_id":"night004-denied"});
-    let denied=run(ContextOp::Turn{text:format!("CALL_TOOL:calendar_add_event {}",denied_args)},
-        Some(("calendar.add_event",denied_args,Answer::Deny)));
+    // add_event is act, with no required Host sheet in the official declaration.
+    // Exercise Deny on update_event's real destructive + confirm:host boundary.
+    let approvals_before_denial=approvals.lock().unwrap().len();
+    let denied_args=json!({"id":id,"expected":old,"title":"DENIED fixture","start":"2026-10-13T17:00","end":"2026-10-13T17:30",
+        "timezone":"Asia/Shanghai","location":"Synthetic denied room","notes":"Synthetic denied notes"});
+    let denied=run(ContextOp::Turn{text:format!("CALL_TOOL:calendar_update_event {}",denied_args)},
+        Some(("calendar.update_event",denied_args,Answer::Deny)));
     eprintln!("NIGHT004_KERNEL_DENIED {denied:?}");
-    assert!(approvals.lock().unwrap().iter().any(|r|r["approved"]==false),"real Router answered this fixture deny");
+    assert!(approvals.lock().unwrap()[approvals_before_denial..].iter().any(|r|
+        r["approved"]==false&&r["tool"]=="calendar.update_event"&&r["args"]["id"]==id),
+        "this real destructive update must receive a new Router Deny");
     assert_eq!(std::fs::read(host_dir.join("calendar/events.json")).unwrap(),before_denial);
-    assert_eq!(read(json!({"request_id":"night004-denied"}))["found"],false);
+    assert_eq!(read(json!({"id":id}))["event"],old);
     let update=json!({"id":id,"expected":old,"title":"NIGHT004 revised","start":"2026-10-13T16:00","end":"2026-10-13T16:45",
         "timezone":"Asia/Shanghai","location":"Synthetic room B","notes":"Synthetic revised notes"});
     turn("calendar.update_event",update.clone(),Answer::Once);

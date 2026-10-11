@@ -1,3 +1,11 @@
+## ZC-00 NIGHT-004 同源改期与正式UI组件：2026-10-12 02:28 北京时间
+
+main dabfe65b集成 native同ID改期、Goal归属六行guard、nil Calendar绑定guard。中央同源码真实Splash VM 311项全部通过（外部IO/审批/模型/输运明确fixture）；前一3c7源Mail真实Rust dispatch与独立MockTransport23项+实际三进程重启16项通过。源函数SHA及原始失败日志保留，不把组件结果拼作L3。
+
+新Intel Host工作入口实际AppHub安装/Open完整Muse，记忆导航、回聊天及输入读回成功；三张native PNG保存。包主源仍c183早期组件，尚非冻结final。两次冷启动预检失败保留：未归一查询→修正后匹配Muse但Return未launch，正在定位正常入口，不计20。
+
+真实Kernel R5改用destructive update验证Deny（官方add无强制Hostsheet），并接full signed Muse JSONL桥；cfg(test)源SHAfb74bd8e中央串行编译中。下一项同签名候选Mail→真实Kernel/Calendar同ID改期→最新草稿→回执→全重启Memory/行动链；09:00冻结高风险，11:00截止。证据semifinal/evidence/night004-native-update-central/。
+
 ## NIGHT-004 官方Calendar GUI组件验收通过
 
 新Intel Host signed SHA1eb1887b、固定Kernel56761a9f，在rc7安全组件包的隔离资料实际操作官方Calendar owner界面：19:00–19:30新建、同ID改期20:00–20:30、重启保持更新、确认删除、独立不存在读回、重启仍不存在，6/6检查通过。3次启动实际动态SecCode全部0且精确路径一致；7张实际窗口PNG与12次独立CalendarService读回保存。Root按PID捕获真实窗口；remote /g会遗漏合成卡片层，未改渲染代码。R1屏下Notes/R2屏下title失败保留；测试driver增加正常滚动。证据official_muse/semifinal/evidence/night004-calendar-gui-component/。此为官方日历owner GUI组件，包主源c183a5c4，不能算最终Muse Agent/Mail/L3候选PASS。

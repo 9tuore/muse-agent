@@ -18,6 +18,8 @@ stdin每行一个JSON，stdout逐行一个JSON并flush；进程支持多个请�
 
 三种写方法必须显式fixture_approval:once或deny。实际Event::Approval→真实Router pending sheet→TEST sheet_tap→实际Decision→ApprovalAnswer；没有standing/developer blanket approval。只有当前owner/tool/完整args匹配且实际批准为true才提交Event::Call。revoke_after_approval:true在真实Router答Once后撤掉Catalog grant，再由实际Relay拒绝dispatch。deny/refusal不执行owner服务。
 
+此L4组件harness显式注入fixture host approval，覆盖所有写方法。官方Kernel中的add_event声明为act，没有强制Host sheet；真实Kernel deny应使用destructive+confirm:host的update/remove。不能把此组件的add deny证据等同于Kernel会对create弹sheet。
+
 返回字段：
 
 - is_ok/data/error：可直接给GPT03 VM callback；data仅来自实际ToolOutcome或服务结果。error含kind/message。

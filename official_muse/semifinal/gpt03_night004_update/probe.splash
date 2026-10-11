@@ -1,0 +1,403 @@
+let fixture_clock = 1700000000
+let fixture_serial = 0
+fn time_now(){return fixture_clock}
+fn random_u32(){fixture_serial=fixture_serial+1 return fixture_serial}
+let fs = {exists: |path| fixture_files[path] != nil sha256: |value| mod.fixture.sha256(value)}
+let checks = {}
+fn seed(){
+    calendar_agent_delete_state={schema:1 records:[]} calendar_agent_delete_writable=true calendar_agent_delete_selected="" calendar_agent_delete_epoch=0
+    calendar_agent_update_state={schema:1 records:[]} calendar_agent_update_writable=true calendar_agent_update_selected="" calendar_agent_update_epoch=0
+    mail_draft={account:"" to:"" subject:"" body:"" status:"DRAFT" preview:"" attempt:"" request_id:""
+        accepted_at:0 verified_at:0 verified_id:"" link_goal_id:"" link_event_id:"" link_run_id:"" incoming_key:""}
+    mail_draft_writable=true mail_draft_last_state="" mail_sending=false mail_pending=false mail_model_pending=false
+    mail_accounts=[{id:"fixture-account"}] mail_account=mail_accounts[0] activity=[] core_activity_ready=true core_last_activity=""
+    chat_requests=[]
+    fixture_files={} fixture_write_fail=false fixture_write_fail_path="" fixture_read_fail=false fixture_pending=[]
+    core_storage_ready=true gm_ready=true chat_ready=true
+    gm_user_id="fixture-user" gm_accounts=["local","fixture-account"] gm_project="fixture-project" gm_owner="fixture-owner"
+    goals=[] runs=[] actions=[] core_last_goals="" task=nil
+    chat_selected_id="chat:fixture" ac_selected_chat=chat_selected_id ac_selected_id=""
+    chat_last_state="" messages=[] page="Chat"
+    chat_sessions=[{id:chat_selected_id title:"fixture" created_at:fixture_clock updated_at:fixture_clock
+        messages:[] proposals:[] focus_project:gm_project focus_owner:gm_owner goal_id:""}]
+    calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+    calendar_agent_busy=false calendar_agent_writable=true calendar_agent_history_settle=false
+    calendar_agent_history_epoch=0 calendar_agent_candidate=nil
+    calendar_agent_reply="" calendar_agent_evidence="" calendar_agent_input_text="" calendar_agent_details=false
+}
+fn fixture_card(){return {id:"card:fixture" action:"calendar_candidate" state:"candidate" session_id:chat_selected_id
+    project:gm_project owner:gm_owner account_id:"fixture-account" revision:1
+    payload:{to:"" subject:"" body:"" objective:"" source:"synthetic-mail:first:meeting"
+        title:"fixture meeting" start:"2030-12-12T10:00:00+08:00" end:"2030-12-12T11:00:00+08:00" time_zone:"Asia/Shanghai" location:"fixture"}}}
+fn fixture_bound(){
+    let card=fixture_card()
+    chat_sessions[0].proposals.push(card)
+    if !calendar_agent_ensure_matter(card){return false}
+    return calendar_agent_prepare_candidate(card)
+}
+fn fixture_turn(){
+    calendar_agent_state={schema:1 request_id:"request:fixture" turn_id:"turn:fixture" status:"turn_completed"
+        user_id:gm_user_id accounts:gm_accounts.to_json() previous_requests:[]}
+    calendar_agent_save()
+}
+fn fixture_row(tool,terminal,result_ok){
+    let reply={} reply["ok"]=result_ok reply.data={}
+    return {role:"tool" lane:"person" turn_id:"turn:fixture" tool_name:tool tool_call_id:"tool:fixture"
+    host_calendar_receipt:{source:"broker_tool_result" owner:"os.calendar" caller:"muse-goals" kernel_persisted:true
+        turn_id:"turn:fixture" tool_call_id:"tool:fixture" call_id:"call:fixture" tool:tool terminal:terminal result:reply}}}
+
+let fixture_to="" let fixture_subject="" let fixture_body=""
+let ui={mail_to:{text:||fixture_to set_text:|value|{fixture_to=value}}
+    mail_subject:{text:||fixture_subject set_text:|value|{fixture_subject=value}}
+    mail_body:{text:||fixture_body set_text:|value|{fixture_body=value}}}
+fn receipt_row(tool,turn,serial,digest,data){
+    let reply={} reply["ok"]=true reply.data=data
+    return {role:"tool" lane:"person" turn_id:turn thread_id:turn tool_name:tool tool_call_id:"tool:"+serial
+        host_calendar_receipt:{source:"broker_tool_result" owner:"os.calendar" caller:"muse-goals" kernel_persisted:true
+            turn_id:turn tool_call_id:"tool:"+serial call_id:"call:"+serial tool:calendar_agent_tool_name(tool)
+            session_id:"kernel:fixture" args_digest:digest terminal:"ok" result:reply}}
+}
+fn verified_create(){
+    if !fixture_bound(){return false}
+    calendar_agent_submit_candidate()
+    fixture_pending[0].callback({is_ok:true data:{open:true}})
+    fixture_pending[1].callback({is_ok:true data:{turn_id:"turn:create" text:"created"}})
+    let payload=calendar_agent_state.binding.payload
+    let event={end:payload.end id:"event:stable" location:payload.location notes:payload.notes
+        request_id:payload.request_id start:payload.start timezone:payload.timezone title:payload.title}
+    let add_json="{\"end\":"+payload.end.to_json()+",\"location\":"+payload.location.to_json()
+        +",\"notes\":"+payload.notes.to_json()+",\"request_id\":"+payload.request_id.to_json()
+        +",\"start\":"+payload.start.to_json()+",\"timezone\":"+payload.timezone.to_json()+",\"title\":"+payload.title.to_json()+"}"
+    let add_digest="sha256:"+fs.sha256(add_json)
+    let get_digest="sha256:"+fs.sha256("{\"id\":"+event.id.to_json()+"}")
+    fixture_pending[2].callback({is_ok:true data:{messages:[
+        receipt_row("calendar.add_event","turn:create","create",add_digest,{id:event.id start:event.start})
+        receipt_row("calendar.get_event","turn:create","create-get",get_digest,{found:true event:event})]}})
+    fixture_pending=[]
+    return calendar_agent_state.binding.receipt_status=="verified"
+}
+fn second_mail_candidate(){
+    let card=fixture_card() card.id="card:second-mail" card.goal_id=goals[0].id
+    card.payload.source="synthetic-mail:second:reschedule" card.payload.start="2030-12-13T14:00:00+08:00"
+    card.payload.end="2030-12-13T15:00:00+08:00" card.payload.location="second room"
+    chat_sessions[0].proposals.push(card)
+    return calendar_agent_ensure_matter(card) && calendar_agent_prepare_candidate(card)
+}
+fn prepared_update(){
+    if !verified_create() || !second_mail_candidate(){return false}
+    calendar_agent_update_select()
+    return calendar_agent_update_state.records.len()==1 && calendar_agent_update_selected!=""
+}
+fn completed_update(){
+    if !prepared_update(){return false}
+    calendar_agent_update_confirm()
+    fixture_pending[0].callback({is_ok:true data:{open:true}})
+    fixture_pending[1].callback({is_ok:true data:{turn_id:"turn:update" text:"updated"}})
+    return calendar_agent_update_state.records[0].status=="turn_completed" && fixture_pending.len()==3
+}
+fn update_rows(record){return [
+    receipt_row("calendar.get_event",record.turn_id,"before",record.get_digest,{found:true event:record.expected.to_json().parse_json()})
+    receipt_row("calendar.update_event",record.turn_id,"update",record.update_digest,{event:record.event.to_json().parse_json()})
+    receipt_row("calendar.get_event",record.turn_id,"after",record.get_digest,{found:true event:record.event.to_json().parse_json()})]}
+fn make_link(authority){
+    let link={request_id:authority.creation_request_id turn_id:authority.creation_turn_id mail_account:mail_account.id
+        binding:authority.binding.to_json().parse_json()}
+    if gm_has(authority,"update"){link.authority=authority.to_json().parse_json()}
+    return link
+}
+fn linked_draft(authority){
+    mail_draft.account=mail_account.id mail_draft.to="person@example.invalid" mail_draft.subject="Original subject" mail_draft.body="My handwritten body"
+    mail_draft.official_calendar=make_link(authority)
+    mail_draft.link_goal_id=authority.binding.goal_id mail_draft.link_event_id=authority.event.id mail_draft.link_run_id=""
+    return mail_calendar_current(mail_draft)
+}
+fn finish_update(){
+    let record=calendar_agent_update_state.records[0]
+    fixture_pending[2].callback({is_ok:true data:{messages:update_rows(record)}})
+    return record.receipt_status=="verified"
+}
+seed()
+checks.create_actual_wall_parameters_nonempty=verified_create() && calendar_agent_state.binding.payload.start=="2030-12-12T10:00"
+    && calendar_agent_state.binding.payload.end=="2030-12-12T11:00"
+let original_creation=calendar_agent_state.to_json()
+let first_authority=calendar_agent_authority()
+checks.original_mail_link_current=linked_draft(first_authority)
+mail_draft.status="waiting_user" mail_draft.preview="old-approved-preview"
+let old_draft=mail_draft.to_json().parse_json()
+let old_context={request_id:mail_draft.request_id official_calendar_json:mail_draft.official_calendar.to_json()}
+let original_goal=goals[0].to_json()
+checks.second_synthetic_mail_candidate_same_goal=second_mail_candidate() && goals.len()==1
+calendar_agent_update_select()
+let record=calendar_agent_update_state.records[0]
+checks.prepare_requires_second_confirmation=record.status=="prepared" && fixture_pending.len()==0 && calendar_agent_update_selected==record.to_json()
+checks.plan_revision_invalidates_old_plan=goals[0].version==2 && goals[0].approved_at==0 && goals[0].goal_spec==nil
+    && record.prior_goal_json==original_goal && record.goal_json==goals[0].to_json()
+checks.original_creation_and_source_unchanged=calendar_agent_state.to_json()==original_creation && record.creation_binding.to_json()==first_authority.binding.to_json()
+    && goals[0].source==record.prior_goal_json.parse_json().source
+checks.old_mail_preview_invalidated_on_prepare=mail_draft.status=="DRAFT" && mail_draft.preview=="" && mail_draft.body==old_draft.body
+    && !mail_calendar_current(old_draft) && !mail_calendar_context_current(old_context)
+let before_stale=fixture_pending.len()
+mail_preview() mail_send_confirmed() mail_review_host(old_context) mail_compose_before_review(old_context)
+checks.old_preview_send_review_compose_no_dispatch=fixture_pending.len()==before_stale && mail_draft.body==old_draft.body
+checks.pending_update_blocks_old_delete_and_mail=calendar_agent_delete_target()==nil && !mail_calendar_verified() && calendar_agent_update_target()==nil
+checks.update_actual_wall_parameters=record.event.start=="2030-12-13T14:00" && record.event.end=="2030-12-13T15:00"
+let args=calendar_agent_update_args(record.expected,record.event)
+let dto=args.json.parse_json()
+checks.full_update_dto_preserves_id_original_request=record.event.id==record.expected.id && record.event.request_id==record.creation_request_id
+    && !gm_has(dto,"request_id") && dto.expected.request_id==record.creation_request_id
+    && dto.title==record.event.title && dto.start==record.event.start && dto.end==record.event.end
+    && dto.timezone==record.event.timezone && dto.location==record.event.location && dto.notes==record.event.notes
+calendar_agent_update_confirm()
+checks.journal_read_back_before_session=fixture_pending.len()==1 && record.status=="in_flight"
+    && storage_read("calendar-agent-update.json")==calendar_agent_update_state.to_json()
+fixture_pending[0].callback({is_ok:true data:{open:true}})
+checks.one_turn_with_exact_dto=fixture_pending.len()==2 && fixture_pending[1].method=="octos.turn.start"
+    && fixture_pending[1].payload.text.search(args.json)>=0
+fixture_pending[1].callback({is_ok:true data:{turn_id:"turn:update" text:"updated"}})
+checks.completed_turn_reads_history=record.status=="turn_completed" && fixture_pending.len()==3
+checks.three_phase_verified=finish_update()
+let current_authority=calendar_agent_authority()
+checks.new_authority_retains_creation_proof=current_authority!=nil && current_authority.event.id==first_authority.event.id
+    && current_authority.event.request_id==first_authority.event.request_id && current_authority.event.start==record.event.start
+    && current_authority.binding.to_json()==first_authority.binding.to_json() && current_authority.revision==2
+checks.delete_uses_latest_expected=calendar_agent_delete_target().expected.to_json()==record.event.to_json()
+checks.old_mail_stays_invalid_after_verified=!mail_calendar_current(old_draft) && !mail_calendar_context_current(old_context)
+mail_compose_from_agent_calendar()
+checks.new_draft_binds_new_authority=mail_calendar_current(mail_draft) && mail_draft.body.search(record.event.start)>=0
+    && mail_draft.official_calendar.authority.update.request_id==record.request_id
+checks.handwriting_preserved_in_archive=storage_read("mail-draft-archive.json").parse_json().drafts[0].draft.body==old_draft.body
+let count=fixture_pending.len()
+calendar_agent_update_confirm()
+checks.repeat_confirm_never_dispatches=fixture_pending.len()==count
+let proof_snapshot=record.to_json()
+calendar_agent_update_history(0)
+checks.verified_history_does_not_rewrite_proof=record.to_json()==proof_snapshot && fixture_pending.len()==count
+let happy_record=record.to_json().parse_json()
+let happy_args=args.to_json().parse_json()
+
+// Strict receipt checks are the production update verifier, with only Host
+// history responses supplied by this fixture.
+seed()
+checks.completed_fixture=completed_update()
+record=calendar_agent_update_state.records[0]
+let rows=update_rows(record)
+checks.dotted_tools_verified=calendar_agent_update_result(rows,record).status=="verified"
+rows[1].tool_name="calendar_update_event"
+checks.underscore_tool_normalizes=calendar_agent_update_result(rows,record).status=="verified"
+rows=update_rows(record)
+checks.update_without_readback_at_most_accepted=calendar_agent_update_result([rows[0],rows[1]],record).status=="accepted"
+checks.get_before_update_required=calendar_agent_update_result([rows[1],rows[0],rows[2]],record).status!="verified"
+checks.get_old_only_unknown=calendar_agent_update_result([rows[0]],record).status=="unknown"
+checks.empty_history_unknown=calendar_agent_update_result([],record).status=="unknown"
+checks.after_get_before_update_rejected=calendar_agent_update_result([rows[0],rows[2],rows[1]],record).status!="verified"
+checks.duplicate_update_rejected=calendar_agent_update_result([rows[0],rows[1],rows[1],rows[2]],record).status!="verified"
+checks.duplicate_after_get_rejected=calendar_agent_update_result([rows[0],rows[1],rows[2],rows[2]],record).status!="verified"
+for extra_tool in ["calendar.add_event","calendar.remove_event","calendar.events","calendar.notify"] {
+    let extra=receipt_row(extra_tool,record.turn_id,"extra",record.get_digest,{})
+    checks["extra_"+extra_tool+"_not_verified"]=calendar_agent_update_result([rows[0],rows[1],extra,rows[2]],record).status!="verified"
+}
+rows=update_rows(record) rows[1].host_calendar_receipt.session_id="kernel:other"
+checks.mixed_kernel_session_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.session_id=""
+checks.empty_kernel_session_rejected=calendar_agent_update_result(rows,record).status!="verified"
+for index in 3 {
+    rows=update_rows(record) rows[index].host_calendar_receipt.args_digest="sha256:wrong"
+    checks["wrong_digest_phase_"+index+"_rejected"]=calendar_agent_update_result(rows,record).status!="verified"
+}
+rows=update_rows(record) rows[1].host_calendar_receipt.call_id=rows[0].host_calendar_receipt.call_id
+checks.reused_call_id_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].tool_call_id=rows[0].tool_call_id rows[2].host_calendar_receipt.tool_call_id=rows[0].tool_call_id
+checks.reused_tool_call_id_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.owner="wrong-owner"
+checks.wrong_owner_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.caller="wrong-caller"
+checks.wrong_caller_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].host_calendar_receipt.result_omitted=true
+checks.omitted_result_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].host_calendar_receipt.kernel_persisted=false
+checks.unpersisted_receipt_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].host_calendar_receipt.turn_id="other-turn"
+checks.wrong_receipt_turn_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].thread_id="other-turn"
+checks.wrong_thread_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].role="assistant"
+checks.assistant_text_not_verified=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[0].host_calendar_receipt.result.data.event.start="external-change"
+checks.expected_mismatch_stops_verification=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.result.data={updated:true id:record.event.id}
+checks.fake_root_updated_not_verified=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.result.data.event.id="other-id"
+checks.update_wrong_id_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.result.data.event.request_id="new-request"
+checks.update_changed_original_request_id_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].host_calendar_receipt.result.data.event=record.expected.to_json().parse_json()
+checks.after_old_value_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[2].host_calendar_receipt.result.data.event.end=nil
+checks.after_null_end_rejected=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.terminal="cancelled"
+checks.cancelled_not_verified=calendar_agent_update_result(rows,record).status!="verified"
+rows=update_rows(record) rows[1].host_calendar_receipt.terminal="error" rows[1].host_calendar_receipt.result["ok"]=false
+checks.error_not_verified=calendar_agent_update_result(rows,record).status!="verified"
+let many=[] for i in 201 {many.push(rows[0])}
+checks.over_history_cap_rejected=calendar_agent_update_result(many,record).status!="verified"
+
+// Every mutation of the frozen identity/candidate/plan blocks dispatch or the
+// result projection; callbacks retain their original turn for reconciliation.
+for changed in ["user","accounts","project","owner","selection","version","candidate","refs","goal_source"] {
+    seed() prepared_update() record=calendar_agent_update_state.records[0]
+    calendar_agent_update_confirm()
+    if changed=="user"{gm_user_id="another-user"}
+    if changed=="accounts"{gm_accounts=["local"]}
+    if changed=="project"{gm_project="another-project"}
+    if changed=="owner"{gm_owner="another-owner"}
+    if changed=="selection"{ac_selected_id="another-goal"}
+    if changed=="version"{goals[0].version=3}
+    if changed=="candidate"{chat_sessions[0].proposals[1].payload.location="edited"}
+    if changed=="refs"{chat_sessions[0].proposals[1].memory_refs=[]}
+    if changed=="goal_source"{goals[0].source="edited source"}
+    fixture_pending[0].callback({is_ok:true data:{open:true}})
+    checks["pre_dispatch_"+changed+"_blocks"]=fixture_pending.len()==1 && record.status=="blocked" && !calendar_agent_busy
+}
+seed() prepared_update() record=calendar_agent_update_state.records[0]
+calendar_agent_update_confirm() fixture_pending[0].callback({is_ok:true data:{open:true}})
+gm_user_id="another-user"
+fixture_pending[1].callback({is_ok:true data:{turn_id:"late-update-turn" text:"done"}})
+checks.turn_callback_identity_change_unknown=record.status=="unknown" && record.turn_id=="late-update-turn" && fixture_pending.len()==2
+let old_user="fixture-user" gm_user_id=old_user
+calendar_agent_update_history(0)
+fixture_pending[2].callback({is_ok:true data:{messages:update_rows(record)}})
+checks.original_unknown_turn_readonly_reconciliation=record.receipt_status=="verified" && record.status=="turn_completed" && fixture_pending.len()==3
+
+seed() prepared_update() record=calendar_agent_update_state.records[0]
+fixture_write_fail_path="calendar-agent-update.json"
+calendar_agent_update_confirm()
+checks.journal_write_failure_no_dispatch=fixture_pending.len()==0 && !calendar_agent_update_writable
+fixture_write_fail_path="" calendar_agent_update_confirm()
+checks.write_failure_cannot_retry=fixture_pending.len()==0
+seed() prepared_update() record=calendar_agent_update_state.records[0]
+fixture_read_fail=true calendar_agent_update_confirm()
+checks.journal_read_failure_no_dispatch=fixture_pending.len()==0 && !calendar_agent_update_writable
+seed() verified_create() second_mail_candidate()
+fixture_write_fail_path="goals.json" calendar_agent_update_select()
+checks.second_store_goal_failure_no_dispatch=fixture_pending.len()==0 && calendar_agent_update_state.records[0].status=="blocked"
+    && calendar_agent_update_selected=="" && calendar_agent_update_target()==nil
+seed() prepared_update() calendar_agent_update_confirm()
+let interrupted_id=calendar_agent_update_state.records[0].request_id
+calendar_agent_update_state={schema:1 records:[]} calendar_agent_update_selected="" calendar_agent_busy=false fixture_pending=[]
+calendar_agent_update_boot()
+checks.restart_inflight_unknown_no_dispatch=calendar_agent_update_state.records[0].request_id==interrupted_id
+    && calendar_agent_update_state.records[0].status=="unknown" && fixture_pending.len()==0 && calendar_agent_update_selected==""
+calendar_agent_update_confirm() calendar_agent_update_select()
+checks.restart_unknown_no_repeat_update=fixture_pending.len()==0 && calendar_agent_update_state.records.len()==1
+seed() prepared_update()
+calendar_agent_update_state={schema:1 records:[]} calendar_agent_update_selected="" fixture_pending=[]
+calendar_agent_update_boot()
+checks.restart_prepared_no_auto_dispatch=calendar_agent_update_state.records[0].status=="unknown" && fixture_pending.len()==0
+seed() completed_update() record=calendar_agent_update_state.records[0]
+let late=fixture_pending[2]
+calendar_agent_update_history(0)
+late.callback({is_ok:true data:{messages:update_rows(record)}})
+checks.history_epoch_discards_stale_callback=record.receipt_status=="unknown"
+fixture_pending[3].callback({is_ok:true data:{messages:update_rows(record)}})
+checks.latest_history_callback_verifies=record.receipt_status=="verified"
+let journal=calendar_agent_update_state.to_json()
+late.callback({is_ok:true data:{messages:[]}})
+checks.late_history_cannot_downgrade_new_authority=calendar_agent_update_state.to_json()==journal
+
+seed() verified_create() linked_draft(calendar_agent_authority())
+mail_draft.status="sending" mail_draft.request_id="mail:inflight" mail_draft.attempt="accepted-maybe" mail_draft.preview="accepted-maybe"
+second_mail_candidate() calendar_agent_update_select()
+checks.inflight_mail_held_unknown_without_resend=mail_draft.status=="unknown" && mail_draft.body=="My handwritten body" && !mail_sending && fixture_pending.len()==0
+for status in ["accepted","verified"] {
+    seed() verified_create() linked_draft(calendar_agent_authority()) mail_draft.status=status
+    mail_draft.accepted_at=123 mail_draft.verified_id="user-declaration"
+    second_mail_candidate() calendar_agent_update_select()
+    checks["old_mail_"+status+"_fact_retained"]=mail_draft.status==status && mail_draft.accepted_at==123 && mail_draft.verified_id=="user-declaration"
+        && mail_draft.body=="My handwritten body" && !mail_calendar_current(mail_draft)
+}
+
+// A further explicit candidate advances another version using the last verified
+// event, without another add_event and without overwriting previous journals.
+seed() completed_update() finish_update()
+let previous=calendar_agent_update_state.records[0].to_json()
+let third=fixture_card() third.id="card:third-mail" third.goal_id=goals[0].id
+third.payload.start="2030-12-14T16:00:00+08:00" third.payload.end="2030-12-14T17:00:00+08:00"
+chat_sessions[0].proposals.push(third)
+calendar_agent_prepare_candidate(third)
+calendar_agent_update_select()
+let third_record=calendar_agent_update_state.records[1]
+checks.next_explicit_update_uses_latest_authority=third_record.prior_update_request_id==calendar_agent_update_state.records[0].request_id
+    && third_record.expected.to_json()==calendar_agent_update_state.records[0].event.to_json() && goals[0].version==3
+    && calendar_agent_update_state.records[0].to_json()==previous
+let pending_count=fixture_pending.len()
+calendar_agent_submit_candidate()
+checks.mutation_candidate_not_duplicated_as_create=fixture_pending.len()==pending_count
+
+seed() completed_update() finish_update()
+record=calendar_agent_update_state.records[0]
+fixture_clock=2000000000
+checks.retained_update_proof_valid_after_meeting_date=calendar_agent_update_valid(record) && calendar_agent_authority()!=nil
+fixture_clock=1700000000
+let forged=record.to_json().parse_json() forged.event.start="2030-12-13T13:00" forged.binding.payload.start=forged.event.start
+let forged_args=calendar_agent_update_args(forged.expected,forged.event)
+forged.get_digest=forged_args.get_digest forged.update_digest=forged_args.update_digest
+checks.journal_event_must_derive_from_frozen_candidate=!calendar_agent_update_valid(forged)
+
+// Deletion after a verified update consumes the new authority, while the
+// creation proof and earlier update journal remain intact.
+seed() completed_update() finish_update() record=calendar_agent_update_state.records[0]
+fixture_pending=[]
+let creation_before_delete=calendar_agent_state.to_json()
+calendar_agent_delete_select()
+calendar_agent_delete_confirm()
+let deletion=calendar_agent_delete_state.records[0]
+checks.delete_after_update_dispatches_with_new_expected=fixture_pending.len()==1 && deletion.expected.to_json()==record.event.to_json()
+    && calendar_agent_delete_valid(deletion) && calendar_agent_delete_current(deletion)
+fixture_pending[0].callback({is_ok:true data:{open:true}})
+fixture_pending[1].callback({is_ok:true data:{turn_id:"turn:delete" text:"removed"}})
+let delete_rows=[receipt_row("calendar.get_event",deletion.turn_id,"delete-before",deletion.get_digest,{found:true event:deletion.expected})
+    receipt_row("calendar.remove_event",deletion.turn_id,"delete-remove",deletion.remove_digest,{removed:true})
+    receipt_row("calendar.get_event",deletion.turn_id,"delete-after",deletion.get_digest,{found:false event:nil})]
+fixture_pending[2].callback({is_ok:true data:{messages:delete_rows}})
+checks.delete_after_update_three_phase_verified=deletion.receipt_status=="verified" && calendar_agent_state.to_json()==creation_before_delete
+checks.deleted_updated_event_blocks_mail_and_further_update=!mail_calendar_verified() && calendar_agent_update_target()==nil
+
+seed() completed_update() record=calendar_agent_update_state.records[0]
+let same_record=record.to_json().parse_json()
+same_record.expected.extra="unapproved"
+checks.expected_extra_field_rejected=!calendar_agent_update_valid(same_record)
+let missing_fields=record.to_json().parse_json() missing_fields.expected={}
+checks.missing_expected_fields_fail_closed=!calendar_agent_update_valid(missing_fields)
+let missing_event=record.to_json().parse_json() missing_event.event={}
+checks.missing_event_fields_fail_closed=!calendar_agent_update_valid(missing_event)
+let bad_file="{\"schema\":1,\"records\":[{}]}"
+fixture_files["calendar-agent-update.json"]=bad_file
+calendar_agent_update_boot()
+checks.corrupt_journal_preserved_and_blocks_authority=!calendar_agent_update_writable && fixture_files["calendar-agent-update.json"]==bad_file
+    && calendar_agent_authority()==nil && !mail_calendar_verified() && calendar_agent_delete_target()==nil
+
+seed() verified_create()
+chat_sessions[0].proposals[0].state="opened"
+let original_card=chat_sessions[0].proposals[0].to_json()
+let old_native=calendar_agent_state.to_json()
+chat_requests=[{id:"chat:reschedule-request" session_id:chat_selected_id status:"running" editing:true
+    project:gm_project owner:gm_owner candidate_id:chat_sessions[0].proposals[0].id
+    candidate_payload:chat_sessions[0].proposals[0].payload.to_json() candidate_state:chat_sessions[0].proposals[0].state memory_refs:[]}]
+let model_candidate={intent:"calendar_candidate" proposal:{title:"fixture meeting" start:"2030-12-13T14:00:00+08:00"
+    end:"2030-12-13T15:00:00+08:00" time_zone:"Asia/Shanghai" location:"second room"}}
+let added=chat_add_proposal(chat_selected_id,"chat:reschedule-request","fixture-account","把日程改到2030年12月13日14:00至15:00",model_candidate)
+checks.actual_chat_edit_appends_new_candidate=added && chat_sessions[0].proposals.len()==2
+    && chat_sessions[0].proposals[1].id=="chat:reschedule-request" && chat_sessions[0].proposals[1].goal_id==goals[0].id
+checks.actual_chat_edit_preserves_creation_candidate=chat_sessions[0].proposals[0].to_json()==original_card
+    && calendar_agent_state.to_json()==old_native && calendar_agent_authority()!=nil
+let new_card=chat_sessions[0].proposals[1]
+checks.actual_chat_edit_prepares_same_id_update=calendar_agent_ensure_matter(new_card) && calendar_agent_prepare_candidate(new_card)
+calendar_agent_update_select()
+checks.actual_chat_path_frozen_original_id=calendar_agent_update_state.records.len()==1
+    && calendar_agent_update_state.records[0].event.id=="event:stable" && calendar_agent_update_selected!=""
+let after_append=chat_sessions[0].proposals.len()
+chat_requests[0].id="chat:blocked-edit"
+let blocked=chat_add_proposal(chat_selected_id,"chat:blocked-edit","fixture-account","把日程改到2030年12月13日14:00至15:00",model_candidate)
+checks.pending_update_does_not_mutate_creation_card=!blocked && chat_sessions[0].proposals.len()==after_append
+    && chat_sessions[0].proposals[0].to_json()==original_card
+({checks:checks happy_record:happy_record happy_args:happy_args}).to_json()

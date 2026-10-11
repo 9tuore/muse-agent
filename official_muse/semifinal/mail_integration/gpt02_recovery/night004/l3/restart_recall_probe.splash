@@ -1,0 +1,53 @@
+let bridge_checks = {}
+let bridge_observations = {}
+fn bridge_restart_recall(){
+    bridge_checks.production_boot = core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot() && chat_boot_data()
+    let checkpoint = storage_read("l3-checkpoint.json").parse_json()
+    mail_accounts_load()
+    let accounts = mail_accounts
+    mail_account = accounts[0] gm_set_accounts(["local",mail_account.id])
+    let active = chat_sessions[chat_session_index(chat_selected_id)]
+    gm_set_focus(active.focus_project,active.focus_owner)
+    calendar_agent_boot()
+    boot_restore("")
+    bridge_checks.app_draft_restored_verified = mail_draft.status == "verified" && mail_draft.host_compose_id == checkpoint.compose_id
+    let status = fixture_rpc("mail.compose_status",{account:mail_account.id compose_id:checkpoint.compose_id})
+    let receiver = fixture_rpc("fixture.receiver",{}).data
+    bridge_checks.service_restored_same_message_id = status.is_ok && status.data.compose_id == checkpoint.compose_id && status.data.status == "accepted"
+        && status.data.attempts.len() == 1 && status.data.attempts[0].payload.message_id == checkpoint.message_id
+    bridge_checks.new_service_process_no_resend = receiver.transport_calls == 0 && receiver.received.len() == 1 && receiver.received[0].message_id == checkpoint.message_id
+    mail_send_confirmed()
+    bridge_checks.verified_draft_cannot_resubmit = fixture_rpc("fixture.receiver",{}).data.transport_calls == 0
+    bridge_checks.retained_one_goal_and_external_memory = goals.len() == 1 && goals[0].id == checkpoint.goal_id && goals[0].status == "planned" && memory.len() == 1
+    let old_chat = chat_selected_id
+    bridge_checks.new_chat_created = chat_new_session() && chat_selected_id != old_chat
+    let context = gm_context("合成日程",chat_selected_id,"")
+    bridge_checks.new_chat_recalls_source_with_hash = context.hits.len() == 1 && context.hits[0].id == checkpoint.memory_id && context.hits[0].source_ids.len() == 1
+    bridge_checks.new_chat_action_chain_not_old_goal = ac_current_goal() == nil && ac_projection().nodes.len() == 0
+    let restored_chat = chat_select_session(old_chat)
+    ac_choose_matter(checkpoint.goal_id)
+    bridge_checks.original_chat_restored = restored_chat && ac_current_goal().id == checkpoint.goal_id
+    let session = chat_sessions[chat_session_index(old_chat)]
+    let card = session.proposals[0]
+    bridge_checks.original_candidate_reprepared_same_goal = calendar_agent_ensure_matter(card) && calendar_agent_prepare_candidate(card) && goals.len() == 1
+    // Explicit fixture model output opens a Memory-dependent draft through the production UI action.
+    let reply = {id:"fixture-stale-mail-card" action:"mail_compose" state:"candidate" session_id:old_chat
+        project:gm_project owner:gm_owner account_id:mail_account.id revision:1 memory_refs:card.memory_refs
+        payload:{to:"receiver@example.invalid" subject:"MUSE-R2-L3 stale draft" body:"手写回复：15点见。"
+            title:"" start:"" end:"" time_zone:"" location:"" objective:"" source:""}}
+    session.proposals.push(reply) chat_save() chat_apply_proposal(reply.id) mail_preview()
+    let original_body = mail_draft.body
+    bridge_checks.memory_dependent_preview_ready = mail_draft.status == "waiting_user" && chat_reply_context_valid(mail_draft)
+    bridge_checks.memory_correction_saved = gm_correct(checkpoint.memory_id,"合成日程已更正：2026-10-13 16:00至16:30。","one",old_chat)
+    bridge_checks.old_candidate_memory_refs_invalid = !calendar_agent_binding_current(calendar_agent_candidate) && !chat_reply_context_valid(card)
+    mail_send_confirmed()
+    bridge_checks.old_draft_refused_body_preserved = !chat_reply_context_valid(mail_draft) && mail_draft.body == original_body && mail_draft.preview == ""
+        && fixture_rpc("fixture.receiver",{}).data.transport_calls == 0
+    let view = ac_projection()
+    bridge_checks.action_chain_still_original_goal = view.title == goals[0].goal && goals.len() == 1
+    bridge_observations = {checkpoint:checkpoint receiver:receiver restored_host_status:status.data memory:memory
+        goals:goals draft:mail_draft new_chat_recall:context action_chain:view background_timeouts_queued:fixture_timers.len()
+        boundary:"Fresh VM/Mail/recipient processes; production boot_restore ran. Background polling timers were queued and left unexecuted in this restore probe."}
+}
+bridge_restart_recall()
+({checks:bridge_checks observations:bridge_observations boundary:"Actual process restart and production restore/recall/invalidation; native Kernel/Calendar chain still awaits the central backend."}).to_json()

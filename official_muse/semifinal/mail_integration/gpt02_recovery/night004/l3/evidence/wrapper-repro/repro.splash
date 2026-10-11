@@ -1,0 +1,4 @@
+use mod.std.*
+fn fixture_target(binding,revision){return revision}
+fn fixture_wrapper(binding){return fixture_target(binding,binding["plan_revision"])}
+({checks:{same_name_two_argument_forwarding:fixture_wrapper({plan_revision:1})==1}}).to_json()

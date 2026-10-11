@@ -1,3 +1,7 @@
+> R5 denial与Bridge R2联合单元：已读中央R4真实失败日志，create/stable retry/get确实经Kernel保存；deny add无sheet仍保存第二条。官方add是act且无Host确认，未见遗留Once证据。只把deny改为真实destructive update并核对新Deny/原事件不变；bridge未获显式fixture once的add在dispatch前报协议错，不能叫Kernel Deny。b9765284到联合fb74bd8e，patch/完整syn通过，未typecheck/运行。联合补丁便于中央一次编译；R1原证据保留。
+
+> Kernel JSONL桥接补丁（2026-10-12）：ignored test-only driver及Python协议wrapper/local plan model已准备；只读当前R4 Debug修正基线b9765284，append后25afb61a。实际signed public Muse bundle/mirror/main SHA必填，官方Calendar factory/admission、真实Broker/Relay/Kernel History；原VM prompt不替换，tool plan/审批为fixture。异步turn/interrupt与owner诊断、实际历史session回读/quit；不重建RAM收据。patch/完整Rust syn/Python语法通过；尚未typecheck/运行，无共享写/大build。协议kernel_bridge/CLI_PROTOCOL.md。
+
 > Kernel R4（2026-10-12）：中央R2及import修正release实际runtime FAILED，非skip。已读原日志并记SHA；CalendarService已注册但官方system pack registry未初始化，owner lazy load只log错误。自有R4使用官方factory、真实system::prepare、显式owner/Muse加载及六工具preflight。267f5f16已提交补丁；当前962b87ec用r4_init.patch，最终0f519651；应用检查/逐字比对/syn通过，未编译运行R4。未写共享SDK/target。L4单元d9e99025保持已提交。文档更新脚本UTF-8读取失败后改用文件补丁补齐交接，代码不受影响。
 
 > JSONL/L4单元（2026-10-12）：真实Relay/Schema/审批Router/CalendarService JSONL helper已建成，自有小target增量9.75秒+3.03秒。写/读只接受自有或中央build/night-004内已有FIXTURE_ONLY根；协议CLI_PROTOCOL.md。L4_RESULT.json首轮25步PASS（3次helper进程）：外部真实owner-service修改、stale expected、审批后撤grant、deny/缺consent/撤下、坏输入与坏存储JSON、实际文件写失败/恢复、重启稳定request_id无重复、删后重启无记录。最终event count=0，稳定重试count=1。权限/账号/手势均fixture；没有KernelHistory/Muse receipt。首编译E0277/E0382日志保留，修正后通过。Kernel R3只同步中央发现的Answer导入错误，最终SDK文件SHA962b87ec…匹配；运行仍由中央核验。

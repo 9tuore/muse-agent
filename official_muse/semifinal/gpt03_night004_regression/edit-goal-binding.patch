@@ -1,0 +1,15 @@
+--- a/official_muse/app/source/main.splash
++++ b/official_muse/app/source/main.splash
+@@ -9634,6 +9634,12 @@
+         if authority == nil || chat_sessions[index].proposals.len() >= 8
+             || payload.to_json() == request.candidate_payload
+             || (account != "" && account != authority.current_binding.account_id) { return false }
++        let active = chat_active_candidate(session_id)
++        if active == nil || active.id != request.candidate_id
++            || (gm_has(request,"goal_id") && request.goal_id != "" && request.goal_id != authority.current_binding.goal_id)
++            || (gm_has(active,"goal_id") && active.goal_id != "" && active.goal_id != authority.current_binding.goal_id)
++            || (active.id != authority.current_binding.candidate_id
++                && (!gm_has(active,"goal_id") || active.goal_id != authority.current_binding.goal_id)) { return false }
+         chat_sessions[index].proposals.push({id: request_id session_id: session_id
+             account_id: authority.current_binding.account_id action: action payload: payload state: "candidate"
+             memory_refs: refs revision: 1 project: authority.current_binding.project_id owner: authority.current_binding.owner_id

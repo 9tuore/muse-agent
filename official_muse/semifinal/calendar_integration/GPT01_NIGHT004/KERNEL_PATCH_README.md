@@ -1,5 +1,7 @@
 # NIGHT-004 real Kernel Calendar journey
 
+R5最新接入：中央R4真实Kernel已完成create/stable retry(1 event)/get，随后deny-add案例实际保存第二event并失败；官方add是act、不强制Host sheet，未观察到Deny决定，不支持遗留Once grant假设。R5只把deny案例改为官方destructive+confirm:host的update，要求新Router Deny和原事件/bytes不变。单独修补NIGHT004_kernel_denial_r5.patch；若同次编译桥接，使用NIGHT004_kernel_and_bridge_r2.patch。b9765284基线→联合fb74bd8e。patch/syn通过，未运行新版本。原失败日志及SHA、全部指纹在KERNEL_DENIAL_AND_BRIDGE_R2_RESULT.json。
+
 状态PARTIAL：中央R2及Answer导入修正已release编译，实际Kernel runtime失败，非skip。已读取run-r2/test.log：os.calendar system bundle未注册，被当作未安装store app，模型收到NO TOOL。R4初始化补丁的应用检查、逐字比对和syn语法解析通过；本聊天未编译运行R4，中央负责重新运行。
 
 R4根因：CalendarService::register只注册服务。App Hub system_apps首次调用才注册编译system packs；system::system_app只读取已有registry。原fixture没有调用factory，script_apps::load(Muse)中的owner ensure_loaded失败只记日志，留下空offer。修补参照已有prepare_news：官方factory找到Calendar pack，真实system::prepare校验digest/policy，显式load os.calendar和签名Muse，再用实际ShellToolHost.declarations断言六工具都有os.calendar owner，最后启动model。

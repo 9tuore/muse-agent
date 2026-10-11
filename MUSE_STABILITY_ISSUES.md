@@ -13,5 +13,13 @@
 
 | N004-06 | P0 | 合法ISO候选经wall转换start/end为空；真实CalendarService拒绝旧VM参数 | 候选生成非空精确墙时 | display返回date time +08:00三段，wall要求两段；4/6 VM失败 | wall三段且+08:00；6/6 VM，新参数真实保存、独立同ID读回、删除不存在，共6个进程 | VM_AND_REAL_SERVICE_PASS |
 | N004-07 | P0 | 12个错序/重复/混Kernel/错摘要回执被误verified | 严格单add后单get，同Kernel/精确摘要/调用唯一 | 同冻结源真实VM23例，12个负例误verified | 最小link_result严格两阶段；中央23/23，Wall6/6、Safety22/22；真实Muse整链待做 | VM_PASS_FULL_CHAIN_PENDING |
+| N004-08 | P1 | 同聊天第二合法Goal的候选编辑，被新native update入口接到已有event的原Goal | 请求候选与Goal明确归属，不能改其它事项事件 | GPT04真实VM第二Goal控制通过、两负例失败；d065ad15 chat_add_proposal分支未核对归属 | GPT03 8b8e0a21六行guard；中央组合源dabfe65b归属11/11、原改期99/99、行动链37/37；其它回归全通过 | VM_PASS_FULL_CHAIN_PENDING |
+| N004-09 | P1 | 无Calendar binding时行动链首次投影，将nil传入新包装函数后取plan_revision报错 | 无绑定返回false，正常展示行动链 | GPT02在d065ad15同候选实际VM首次投影暴露；增加对象guard后23项及重启16项通过 | GPT02 e4dab023对象guard已接收；中央Mail 23/23与真实进程重启16/16；组合源行动链37/37 | VM_PASS_FULL_CHAIN_PENDING |
 
 真实日历测试使用隔离资料内的官方os.calendar事件持久化，并单独记录创建、同ID读回、改期、删除和重启；模拟工具选择/测试授权不标为真实模型或本人consent。
+
+## 同源码 Native改期与空状态修复中央复验
+
+main dabfe65b已集成GPT03 d6e2107e同ID改期、8b8e0a21 Goal归属、GPT02 e4dab023 nil绑定防护。中央311项真实官方Splash VM合成边界全通过：改期99、归属11、安全22、创建回执23、墙时6、Goal10、Memory58+新进程8、Mail19+回执8、Calendar恢复10、行动链37。组件Mail真实Rust dispatch与独立MockTransport/收件端23项及跨进程重启16项源为3c7a2661；最终dabfe65b全链仍待运行。完整Muse经真实AppHub隔离fixture Install/Open与记忆导航、输入读回成功，有三张native PNG；属于早期c183组件包。冷启动预检两次失败：第一查询未归一，第二归一后匹配Muse但Return没有launch记录，保留证据并定位真实菜单路径，不计20通过。
+
+Kernel R4首次add/retry/get真执行，拟拒绝add也执行：官方add为act且outward:false，无强制Host审批，不是Once陈旧授权证据。R5改用官方destructive update的真实Deny，并加入全signed Muse JSONL bridge，按fb74bd8e精确应用cfg(test)源；中央唯一release编译中，尚未PASS。

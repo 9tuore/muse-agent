@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC-00 NIGHT-004启动/包资源修复收口。基线codex/muse-pivot-20261010，8a80b8ed。
+ZC-00；codex/muse-pivot-20261010 基线52f639f0；NIGHT-004原生改期/空状态/Goal归属集成。
 
 ## Result
-PASS：签名stub/包fixture 28/28。真实业务整体仍PARTIAL。
+PARTIAL。组合main dabfe65b中央311项Splash VM通过；真实同候选L3尚待运行。
 
 ## Changed
-Launcher/helper/packager统一执行host-runtime/muse-host，避开官方octosense资源目录；更新当前状态和故障台账。外部main未提交修改保留。
+main.splash改期journal/严格get-update-get/latest authority，六行候选Goal归属，nil binding guard。接收GPT01 test-only Kernel桥和GPT02真实Mail组件驱动。
 
 ## Tests
-2026-10-12，nice -n10 python3 -m unittest test_launcher test_package，exit0，49.346s。源码SHA/结果/日志见official_muse/integrated_release/evidence/night004-launcher-20261012/。
+中央官方VM：99改期、11归属、22安全、23创建、6墙时、150受影响回归通过；前3c7源真实Rust Mail dispatch+MockTransport23/16重启。早期c183包AppHub真Install/Open/Muse导航三图；两个冷启动预检失败保留。证据official_muse/semifinal/evidence/night004-native-update-central/。
 
 ## Commit
-以本文档所在提交为修复节点。本单元尚未push。
+本次待本地提交；此前52f639f0普通开发分支push已独立核对。
 
 ## Remaining
-Mail修复完整Shell测试/新Host，Native日历同ID更新和真实Relay，固定候选全链、Memory/重启/20次冷开。目标11:00，09:00冻结高风险变更。
+真实Kernel R5编译；同签名候选L3/L4、final GUI/20启动、持续AI。
 
 ## Important Boundaries
-本单元为合成签名可执行文件/模型health fixture，无真实GUI、推理、Calendar或SMTP。新夜测保护生产资料，旧失败证据保留；不公开发布。
+日历官方服务真实持久化；模型/授权/邮件transport fixture，真实发信0。未正式发布/比赛提交。

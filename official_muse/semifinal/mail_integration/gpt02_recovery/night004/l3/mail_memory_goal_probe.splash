@@ -1,0 +1,62 @@
+// Append after mail_probe: incoming data/model candidate/user choice are explicit fixtures.
+fn bridge_memory_goal(){
+    let incoming = {id:"synthetic-incoming-001" uid:"synthetic-incoming-001" sender:"Synthetic sender"
+        address:"receiver@example.invalid" subject:"合成日程来源" preview:"合成日程"
+        body:"合成日程：2026-10-13 15:00至15:30，地点为合成会议室。外部声明，未经事实核验。"
+        date:"2026-10-12T02:00:00+08:00" time:"Oct 12" unread:true}
+    let seeded = fixture_rpc("fixture.incoming",{messages:[incoming] state:{}})
+    let read = fixture_rpc("mail.message",{account:mail_account.id folder:"INBOX" message:incoming.id})
+    bridge_checks.actual_cached_incoming_read = seeded.is_ok && read.is_ok && read.data.id == incoming.id && read.data.body == incoming.body
+    mail_selected = read.data mail_scope_project = gm_project mail_scope_owner = gm_owner
+    memory_remember_mail()
+    let mid = "memory:mail:" + mail_account.id + ":" + incoming.id
+    let mi = core_memory_index(mid,mail_account.id)
+    bridge_checks.mail_memory_external_claim = mi >= 0 && memory[mi].document.payload.epistemic_type == "external_claim"
+        && !gm_completed_receipt(memory[mi].document)
+    if mi >= 0 {
+        let doc = memory[mi].document let si = core_source_index(doc.payload.source_ids[0],mail_account.id)
+        bridge_checks.mail_memory_exact_source_hash = si >= 0 && memory_sources[si].content_sha256 == fs.sha256(incoming.body)
+        bridge_checks.mail_memory_scope = doc["scope"].account == "one" && doc["scope"].project_id == gm_project && doc["scope"].owner_id == gm_owner
+    }
+    bridge_checks.chat_boot = chat_boot_data()
+    let chat = chat_sessions[chat_session_index(chat_selected_id)]
+    chat.focus_project = gm_project chat.focus_owner = gm_owner
+    chat_save()
+    let context = gm_context("合成日程",chat_selected_id,"")
+    let refs = chat_context_refs(context.hits)
+    bridge_checks.source_recalled_with_refs = context.hits.len() == 1 && refs.len() == 1
+    let card = {id:"fixture-calendar-card-001" action:"calendar_candidate" state:"candidate"
+        session_id:chat_selected_id project:gm_project owner:gm_owner account_id:mail_account.id revision:1 memory_refs:refs
+        payload:{to:"" subject:"" body:"" objective:"" source:"" title:"合成日程"
+            start:"2026-10-13T15:00:00+08:00" end:"2026-10-13T15:30:00+08:00" time_zone:"Asia/Shanghai" location:"合成会议室"}}
+    chat.proposals.push(card) chat_save()
+    chat_apply_proposal(card.id)
+    fixture_rpc("fixture.observe",{checkpoint:"native_create_candidate" candidate:calendar_agent_candidate
+        state:calendar_agent_state ui_error:ui_error goals:goals})
+    if calendar_agent_candidate == nil {
+        bridge_checks.native_candidate_creates_one_goal = false
+        bridge_observations.candidate_error = ui_error
+        bridge_observations.native_candidate = calendar_agent_candidate
+        bridge_observations.calendar_notice = calendar_agent_notice
+        bridge_observations.goals = goals
+        return
+    }
+    bridge_checks.native_candidate_creates_one_goal = goals.len() == 1 && goals[0].status == "planned" && calendar_agent_binding_current(calendar_agent_candidate)
+    bridge_checks.goal_candidate_scope = calendar_agent_candidate.project_id == gm_project && calendar_agent_candidate.owner_id == gm_owner
+        && calendar_agent_candidate.account_id == "one" && calendar_agent_candidate.session_id == chat_selected_id
+    let view = ac_projection()
+    bridge_checks.action_chain_projects_selected_goal = view.title == goals[0].goal && view.nodes.len() >= 1
+    bridge_observations.memory = memory bridge_observations.sources = memory_sources
+    bridge_observations.goals = goals bridge_observations.candidate = calendar_agent_candidate bridge_observations.action_chain = view
+    storage_write("l3-checkpoint.json",{chat_id:chat_selected_id goal_id:goals[0].id memory_id:mid
+        compose_id:bridge_observations.draft.host_compose_id message_id:bridge_observations.receiver.received[0].message_id
+        candidate:calendar_agent_candidate}.to_json())
+    // The real Kernel adapter is supplied centrally. A missing adapter must fail closed.
+    calendar_agent_submit_candidate()
+    bridge_checks.missing_kernel_does_not_complete_goal = calendar_agent_state.status == "blocked" && goals[0].status == "planned"
+        && runs.len() == 0 && memory.len() == 1
+    bridge_observations.calendar_agent = calendar_agent_state
+    bridge_observations.pending_backend = "actual central Kernel JSONL driver; no history rows invented"
+}
+bridge_memory_goal()
+({checks:bridge_checks observations:bridge_observations boundary:"Mail service and Memory/Goal/native candidate production functions executed. Actual Kernel backend unavailable; no Calendar result or completed native Goal claimed."}).to_json()
