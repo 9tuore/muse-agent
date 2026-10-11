@@ -17,6 +17,41 @@ static BOOL saveJSON(NSDictionary *value, NSString *path, NSError **error) {
     if (!data || ![data writeToFile:path options:NSDataWritingAtomic error:error]) return NO;
     return [NSFileManager.defaultManager setAttributes:@{NSFilePosixPermissions:@0600} ofItemAtPath:path error:error];
 }
+// Extract only provider metadata; never load config.env_vars or resolve Keychain entries.
+static NSDictionary *modelMetadata(NSString *profilePath) {
+    NSTask *task = [NSTask new];
+    task.executableURL = [NSURL fileURLWithPath:@"/usr/bin/plutil"];
+    task.arguments = @[@"-extract", @"config.llm", @"json", @"-o", @"-", @"--", profilePath];
+    NSPipe *pipe = [NSPipe pipe];
+    task.standardOutput = pipe;
+    task.standardError = NSFileHandle.fileHandleWithNullDevice;
+    if (![task launchAndReturnError:nil]) return nil;
+    NSData *data = [pipe.fileHandleForReading readDataToEndOfFile];
+    [task waitUntilExit];
+    if (task.terminationStatus != 0) return nil;
+    id value = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    return [value isKindOfClass:NSDictionary.class] ? value : nil;
+}
+static BOOL nativeGPT(NSDictionary *llm) {
+    if (![llm[@"primary"] isKindOfClass:NSDictionary.class]) return NO;
+    id fallbacks = llm[@"fallbacks"];
+    if (fallbacks && ![fallbacks isKindOfClass:NSArray.class]) return NO;
+    NSMutableArray *selections = [NSMutableArray arrayWithObject:llm[@"primary"]];
+    if (fallbacks) [selections addObjectsFromArray:fallbacks];
+    for (id selection in selections) {
+        if (![selection isKindOfClass:NSDictionary.class] || ![selection[@"family_id"] isEqual:@"openai"]
+            || ![selection[@"model_id"] isKindOfClass:NSString.class]
+            || ![selection[@"model_id"] hasPrefix:@"gpt-"]) return NO;
+        id route = selection[@"route"];
+        if (route && ![route isKindOfClass:NSDictionary.class]) return NO;
+        // OpenAI-compatible transport alone does not establish an OpenAI provider.
+        id base = route[@"base_url"];
+        if (base && ![base isEqual:@"https://api.openai.com/v1"] && ![base isEqual:@"https://api.openai.com/v1/"]) return NO;
+        id type = route[@"api_type"];
+        if (type && ![type isEqual:@"openai"] && ![type isEqual:@"responses"]) return NO;
+    }
+    return YES;
+}
 static int localPort(void) {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in address = {0};
@@ -64,15 +99,22 @@ int main(int argc, const char *argv[]) {
             @"mirror/artifacts/muse-goals-0.4.0-rc3.bundle/manifest.json",
             @"mirror/artifacts/muse-goals-0.4.0-rc3.bundle.pack.json",
             @"OctoSense Host.app/Contents/MacOS/octos-kernel",
-            @"OctoSense Host.app/Contents/Resources/octos-kernel.json",
-            @"local-model/llama/llama-server", @"local-model/qwen2.5-0.5b-instruct-q4_0.gguf"];
+            @"OctoSense Host.app/Contents/Resources/octos-kernel.json"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
         BOOL models = argc == 2 && strcmp(argv[1], "--models") == 0;
-        if (argc > 1 && !check && !models) { fprintf(stderr, "使用方式：muse-launcher [--check|--models]\n"); return 2; }
+        BOOL gptCheck = argc == 2 && strcmp(argv[1], "--gpt-check") == 0;
+        BOOL gpt = gptCheck || (argc == 2 && strcmp(argv[1], "--gpt") == 0)
+            || [NSBundle.mainBundle.infoDictionary[@"MuseModelMode"] isEqual:@"gpt"];
+        BOOL headless = check || gptCheck;
+        if (argc > 1 && !check && !models && !gptCheck && strcmp(argv[1], "--gpt") != 0) {
+            fprintf(stderr, "使用方式：muse-launcher [--check|--models|--gpt|--gpt-check]\n"); return 2;
+        }
+        if (!gpt && !models) required = [required arrayByAddingObjectsFromArray:
+            @[@"local-model/llama/llama-server", @"local-model/qwen2.5-0.5b-instruct-q4_0.gguf"]];
         for (NSString *relative in required) {
             if (![files fileExistsAtPath:join(resources, relative)]) {
                 NSString *message = [NSString stringWithFormat:@"包内文件缺失：%@。请重新解压完整 ZIP。", relative];
-                if (check) fprintf(stderr, "%s\n", message.UTF8String); else fail(message);
+                if (headless) fprintf(stderr, "%s\n", message.UTF8String); else fail(message);
                 return 1;
             }
         }
@@ -84,20 +126,34 @@ int main(int argc, const char *argv[]) {
         signature.standardError = NSFileHandle.fileHandleWithNullDevice;
         NSError *signatureError = nil;
         if (![signature launchAndReturnError:&signatureError]) {
-            if (check) fprintf(stderr, "Muse 签名检查无法启动。\n"); else fail(@"Muse 签名检查无法启动。");
+            if (headless) fprintf(stderr, "Muse 签名检查无法启动。\n"); else fail(@"Muse 签名检查无法启动。");
             return 1;
         }
         [signature waitUntilExit];
         if (signature.terminationStatus != 0) {
-            if (check) fprintf(stderr, "Muse 包文件检查失败。\n"); else fail(@"Muse 包文件检查失败，请重新解压完整 ZIP。");
+            if (headless) fprintf(stderr, "Muse 包文件检查失败。\n"); else fail(@"Muse 包文件检查失败，请重新解压完整 ZIP。");
             return 1;
         }
         if (check) {
-            puts("PASS：Muse 0.4.0-rc3 / 内置基础离线模型；未启动窗口或创建配置。");
+            puts("PASS：Muse 0.4.0-rc3 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
             return 0;
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
         NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: join(NSHomeDirectory(), @"Library/Application Support/Muse Integrated 0.4");
+        if (![state isAbsolutePath]) {
+            if (headless) fprintf(stderr, "MUSE_INTEGRATED_STATE 必须是绝对路径。\n");
+            else fail(@"MUSE_INTEGRATED_STATE 必须是绝对路径。");
+            return 2;
+        }
+        NSString *core = join(state, @"home/octos-home/.octos");
+        NSString *profilePath = join(core, @"profiles/_main.json");
+        if (gpt) {
+            BOOL configured = nativeGPT(modelMetadata(profilePath));
+            puts(configured ? "GPT_CONFIG_ONLY：已识别原生 OpenAI GPT 配置；凭证、连通性与实调尚未验证。"
+                : "GPT_SETUP_REQUIRED：请在宿主 Models 面板选择 OpenAI/GPT，设置官方路由并由本人输入凭证；移除非 GPT 回退后重开。启动器不复制凭证。");
+            if (gptCheck) return configured ? 0 : 3;
+            if (!configured) models = YES;
+        }
         NSError *error = nil;
         if (![files createDirectoryAtPath:state withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:&error]) {
             fail([NSString stringWithFormat:@"无法建立数据目录：%@\n%@", state, error.localizedDescription]); return 1;
@@ -108,13 +164,13 @@ int main(int argc, const char *argv[]) {
         }
         fcntl(lock, F_SETFD, FD_CLOEXEC);
         signal(SIGTERM, stop); signal(SIGINT, stop);
-        NSString *core = join(state, @"home/octos-home/.octos");
         for (NSString *path in @[join(core, @"profiles"), join(state, @"apps"), join(state, @"logs"), join(state, @"rinx"), join(state, @"config"), join(state, @"data"), join(state, @"cache")]) {
             if (![files createDirectoryAtPath:path withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:&error]) {
                 fail(error.localizedDescription); return 1;
             }
         }
-        NSString *profilePath = join(core, @"profiles/_main.json");
+        NSTask *model = nil;
+        if (!gpt && !models) {
         BOOL first = ![files fileExistsAtPath:profilePath];
         NSMutableDictionary *profile = first ? [@{@"id":@"_main", @"name":@"Muse 整合版本", @"enabled":@YES,
             @"config":@{@"llm":@{@"primary":@{@"family_id":@"local", @"model_id":@"Qwen2.5-0.5B-Instruct-Q4_0-offline",
@@ -133,7 +189,6 @@ int main(int argc, const char *argv[]) {
         for (NSDictionary *selection in selections) {
             if ([selection[@"family_id"] isEqual:@"local"] && [selection[@"model_id"] isEqual:modelID]) bundled = YES;
         }
-        NSTask *model = nil;
         if (bundled) {
             int port = localPort();
             if (!port) { fail(@"无法分配本地模型端口。"); return 1; }
@@ -189,11 +244,13 @@ int main(int argc, const char *argv[]) {
             saveJSON(@{@"model_id":modelID, @"quality":@"basic offline fallback; not a strong model",
                 @"base_url":base, @"pid":@(model.processIdentifier)}, join(state, @"local-model.json"), nil);
         }
+        }
         NSMutableDictionary *environment = [inherited mutableCopy];
         for (NSString *key in @[@"MAKEPAD_REMOTE", @"MAKEPAD_HIDE_WINDOWS", @"MAKEPAD_APP_CONFIG", @"OCTOSENSE_HOME", @"OCTOSENSE_APP_DATA", @"OCTOS_APP_CORE_DIR", @"OCTOSENSE_HUB", @"OCTOSENSE_HUB_ANCHOR", @"OCTOSENSE_HUB_CATALOG", @"OCTOSENSE_KERNEL_BIN", @"OCTOSENSE_ALLOW_ANY_KERNEL_REVISION", @"OCTOSENSE_DEV_MODE", @"OCTOSENSE_CONTAINED_APPS", @"MAKEPAD_WM_TEST_APP", @"MAKEPAD_SPLASH_BUDGET_MS", @"MAKEPAD_SPLASH_THEME", @"MAKEPAD_STYLE", @"MAKEPAD_DISABLE_GAUSS", @"MAKEPAD_NO_FOCUS"]) {
             [environment removeObjectForKey:key];
         }
         environment[@"OCTOSENSE_HOME"] = join(state, @"home");
+        environment[@"HOME"] = state;
         environment[@"OCTOSENSE_APP_DATA"] = join(state, @"apps");
         environment[@"OCTOS_APP_CORE_DIR"] = core;
         environment[@"OCTOSENSE_HUB"] = join(resources, @"mirror");

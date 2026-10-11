@@ -1,3 +1,13 @@
+## GPT-03 启动器交付：2026-10-11
+
+独立 worktree 从 e962e418 开发，仅修改 integrated_release launcher/package 及其窄 fixture。
+新增 --gpt/--gpt-check 与打包 --model-mode gpt，GPT 包无 Qwen；缺配置走真实 Models 入口，
+仅识别 config.llm metadata，要求 OpenAI/GPT 官方路由且无非 GPT 回退，配置识别不代表实调。
+--models 不写离线 profile；子 Host HOME 也指向独立 state。clang 编译通过，9 项签名 stub Host
+fixture 通过；首轮测试 helper 重复 mkdir 错误已修复，非产品失败。现场默认独立目录无 profile。
+中央最终 Host/整包 GUI、本人凭证与 GPT 实调仍待验证，未生成最终 app、未 push。
+交接 HANDOFF_GPT03_LAUNCHER_20261011.md。
+
 ## ZC-00 统一候选接续：2026-10-11 13:28（北京时间）
 
 用户最新要求“先接通，完善后再验收”，当前继续工程集成，状态 PARTIAL，未交付为正式版。开发 HEAD8e70991e，根rc17/90351cba与主工作区旧dirty保留。r8加载最新完整Splash出现64ms时限导致空白，失败截图/log保留在build/muse-integrated-0.4.0-rc1；owned试验窗口正常关闭。

@@ -25,9 +25,13 @@ def sha(path):
 
 def main():
     parser = argparse.ArgumentParser()
-    for name in ('sdk', 'host', 'kernel', 'kernel-receipt', 'model-source', 'mirror', 'out'):
+    for name in ('sdk', 'host', 'kernel', 'kernel-receipt', 'mirror', 'out'):
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--model-mode', choices=('offline', 'gpt'), default='offline')
+    parser.add_argument('--model-source', type=Path)
     args = parser.parse_args()
+    if args.model_mode == 'offline' and args.model_source is None:
+        parser.error('--model-source is required for offline mode')
     output = args.out.resolve()
     output.mkdir(parents=True, exist_ok=False)
     app = output / 'Muse.app'
@@ -57,14 +61,15 @@ def main():
     shutil.copy2(args.host, inner / 'MacOS/octosense')
     shutil.copy2(args.kernel, inner / 'MacOS/octos-kernel')
     shutil.copy2(args.kernel_receipt, inner / 'Resources/octos-kernel.json')
-    shutil.copytree(args.model_source, resources / 'local-model', symlinks=True)
+    if args.model_mode == 'offline':
+        shutil.copytree(args.model_source, resources / 'local-model', symlinks=True)
     shutil.copytree(args.mirror, resources / 'mirror', symlinks=True)
     # Local signing keys and account data are not inputs to this packager.
     assert not list(resources.rglob('*.key')), 'A private key entered the package'
     plist = dict(CFBundleName='Muse', CFBundleDisplayName='Muse', CFBundleExecutable='muse-launcher',
         CFBundleIdentifier='org.xinghai.muse.integrated', CFBundlePackageType='APPL',
         CFBundleShortVersionString='0.4.0', CFBundleVersion='3', LSMinimumSystemVersion='14.0',
-        NSHighResolutionCapable=True)
+        NSHighResolutionCapable=True, MuseModelMode=args.model_mode)
     with (app / 'Contents/Info.plist').open('wb') as stream:
         plistlib.dump(plist, stream)
     host_plist = dict(plist, CFBundleName='OctoSense', CFBundleDisplayName='OctoSense',
@@ -89,7 +94,10 @@ def main():
         'signature': 'AD_HOC_LOCAL_ONLY', 'host_sha256': sha(inner / 'MacOS/octosense'),
         'kernel_sha256': sha(inner / 'MacOS/octos-kernel'),
         'production_data_included': False, 'calendar_shared_tools_granted': False,
-        'model': 'Qwen2.5-0.5B basic offline fallback', 'upstream_host': 'paired pending-review build'}
+        'model': 'native OpenAI GPT; user setup required; no bundled model' if args.model_mode == 'gpt'
+            else 'Qwen2.5-0.5B basic offline fallback',
+        'model_mode': args.model_mode, 'model_runtime_verified': False,
+        'upstream_host': 'paired pending-review build'}
     (output / 'PACKAGE.json').write_text(json.dumps(record, indent=2) + '\n')
     print(json.dumps(record))
 

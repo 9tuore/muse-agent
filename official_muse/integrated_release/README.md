@@ -41,6 +41,22 @@ ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。只使用本任务新生成的私钥；私�
 首启走普通 App Hub 安装，后续从相同签名入口启动 Muse。既有来源不匹配时回普通更新流程。
 包内 Qwen2.5-0.5B 是基础离线回退，不代表强模型工具调用能力；模型配置由宿主原生界面处理。
 
+GPT 开发验证包使用 `package_app.py --model-mode gpt`，省略 `--model-source`，不包含或启动
+Qwen。双击该包默认走 GPT 入口；未配置时打开真实 `os.ai-providers` Models 面板，
+本人选择 OpenAI/GPT 官方路由、输入凭证并保存，退出后重开。启动器不复制任何已有凭证。
+`--models` 直接打开该面板，不再先写离线 profile 或启动 Qwen。
+
+`Muse.app/Contents/MacOS/muse-launcher --gpt-check` 只检查包签名/资源与独立目录的
+`config.llm` metadata，不读取 `config.env_vars`、不解析 Keychain、不调用网络或写配置。
+返回 0 / `GPT_CONFIG_ONLY` 仅代表主提供方及全部回退为官方 OpenAI/GPT 配置；
+返回 3 / `GPT_SETUP_REQUIRED` 表示需要本人配置，2 表示数据路径参数错误，1 表示包检查失败。
+兼容 API 的本地端点、第三方路由和非 GPT 回退不计通过。已有离线包也可显式 `--gpt`。
+子 Host 的 HOME、core、apps、XDG 路径均指向独立目录；已有配置保持原字节。
+
+本机 `python3 official_muse/integrated_release/test_launcher.py -v` 使用真实编译启动器、
+临时 ad-hoc 签名包与 stub Host 验证九项启动/保留/隔离行为；不代表最终 Host 的 GUI、
+凭证有效性或 GPT 实调通过。2026-10-11 现场默认独立目录无 profile，仍需本人配置。
+
 官方助手从宿主「询问 Muse」/Shift+F8 进入，实际 Muse ID 的首次本人启用不可模拟。
 多 Chat 的结构化 model.complete 路径保留。Contained 的应用共享历史没有项目隔离/上游遗忘
 契约，不能直接替换全部 Chat，也不向其自动注入私人 Memory。
