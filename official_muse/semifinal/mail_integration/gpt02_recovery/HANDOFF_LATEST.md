@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-GPT-02，codex/gpt02-mail-memory-recovery；中央8279a606/源码271b1beb。接官方Calendar候选到当前事项行动链。
+GPT-02，codex/gpt02-mail-memory-recovery；中央691bf7c4/源码0c17e4cc。接已精确读回官方Calendar到同事项的可选Mail草稿。
 
 ## Result
-PARTIAL：实际patch和定向测试已交，中央正式main/VM/GUI未改未测。
+PARTIAL：提案与定向fixture完成，正式main/Bundle/VM/GUI未改未测。
 
 ## Changed
-calendar-chain.patch仅6个既有函数及Calendar UI+绑定/精确回执helper；identity固定271b1beb→0c17e4cc。生成器、test、CALENDAR_CHAIN.md和证据。旧私有日历、Mail暂停与模型选择字节保持。
+calendar-mail.patch/identity、生成器/test/CALENDAR_MAIL.md及证据；14个既有函数、Calendar可选入口和绑定helper，0c17e4cc→0c7f9812。复用原compose/review_send/compose_status，Mail action独立，事项计划与整体完成不改。
 
 ## Tests
-2026-10-11：Node提取17实际函数，最终r7 65/65；临时JSON回读、精确add/get、身份/版本迟到、错配/错误/取消、重启未知不重发、归档完整绑定、写入失败等。git apply --check --unidiff-zero通过；只有6个旧函数变化。五次适配器错误保留，不算产品失败。
+2026-10-11 Node投影31实际函数，最终r9 100/100；身份版本、精确事件、迟到回调、UNKNOWN禁重放、只读对账、归档原文与存储失败。临时副本apply --check及完整SHA通过，509个旧函数字节不变。6次适配器错误保留，不算产品失败；旧r6/r7非最终SHA。
 
 ## Commit
 本地提交见最终回复，未push。
 
 ## Remaining
-中央真实VM/正式包GUI/本人批准。候选联动限上海整分钟；Mail确认依赖、改期和整体完成未接通，UI如实提示。
+中央按完整SHA应用并协调真实VM/Host/GUI；原生本人审阅、独立收件端验收。改期和整体事项完成尚未接通。
 
 ## Important Boundaries
-用户选择事项后才绑定候选，派发前存goal/plan/project/owner/account/request，回调存turn；只Host broker精确配对可verified，模型text不算成功。历史保留、unknown不重派、旧身份版本不投射。零GUI/Cargo/外部模型/SMTP/秘密，不伪装owner，不恢复旧EventKit。
+准备草稿不自动发送；账号/goal/plan/chat/candidate/request/turn/event/proof绑定，迟到结果保留但不完成当前事项。31函数为Nodefixture，核心日志/Host为适配器，非真实投递。零正式源码、GUI、Cargo、模型、SMTP、秘密操作。
