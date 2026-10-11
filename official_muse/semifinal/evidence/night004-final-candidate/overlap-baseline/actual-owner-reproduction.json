@@ -1,0 +1,104 @@
+{
+  "status": "NATIVE_OVERLAP_FIRST_GESTURE_WRITE_REPRODUCED",
+  "main_source_sha256": "c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4",
+  "signed_main_sha256": "cdb1412b14a25fdbb8f97681e7fe344c855a0adaac50c26ded5eb17f876108d7",
+  "owner_before": [
+    {
+      "id": "ev-1791775730787",
+      "title": "\u5408\u6210\u65e5\u5386\u5b89\u6392",
+      "start": "2026-10-13T16:00",
+      "end": "2026-10-13T16:30",
+      "location": "\u7b2c\u4e8c\u5408\u6210\u4f1a\u8bae\u5ba4",
+      "notes": "",
+      "request_id": "muse-calendar-1791741568-7",
+      "timezone": "Asia/Shanghai"
+    }
+  ],
+  "owner_after": [
+    {
+      "id": "ev-1791775730787",
+      "title": "\u5408\u6210\u65e5\u5386\u5b89\u6392",
+      "start": "2026-10-13T16:00",
+      "end": "2026-10-13T16:30",
+      "location": "\u7b2c\u4e8c\u5408\u6210\u4f1a\u8bae\u5ba4",
+      "notes": "",
+      "request_id": "muse-calendar-1791741568-7",
+      "timezone": "Asia/Shanghai"
+    },
+    {
+      "id": "ev-1791779456406",
+      "title": "NIGHT004 overlap same",
+      "start": "2026-10-13T16:00",
+      "end": "2026-10-13T16:30",
+      "location": "Synthetic overlap room",
+      "notes": "",
+      "request_id": "muse-calendar-1791741568-15",
+      "timezone": "Asia/Shanghai"
+    }
+  ],
+  "owner_after_sha256": "aa86c92ee37c7765026b08feb47370ab1723fb0c17119238814ba252792a5792",
+  "actual_add_event_receipt_occurrences": 2,
+  "actual_add_event_receipts": [
+    {
+      "turn_id": null,
+      "tool_name": "calendar_add_event",
+      "receipt": {
+        "args_digest": "sha256:53a2cb0a4e23034f5f90617dba0ad784ac71a7cc9d51e19cd87ce4cfc7d4d523",
+        "call_id": "ptc-498e74952559409093f39d21445de6dc",
+        "caller": "card.muse-goals",
+        "context_id": "7113637d-p1-night004-vm-bridge",
+        "kernel_persisted": true,
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "ptc-498e74952559409093f39d21445de6dc",
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791779456406",
+            "start": "2026-10-13T16:00"
+          },
+          "ok": true
+        },
+        "result_bytes": 140,
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.7113637d-p1-night004-vm-bridge",
+        "source": "broker_tool_result",
+        "terminal": "ok",
+        "tool": "calendar.add_event",
+        "tool_call_id": "fixture_call_3",
+        "turn_id": "3709b7e6-be08-42eb-80cc-850e7d8c0350"
+      }
+    },
+    {
+      "turn_id": null,
+      "tool_name": "calendar_add_event",
+      "receipt": {
+        "args_digest": "sha256:53a2cb0a4e23034f5f90617dba0ad784ac71a7cc9d51e19cd87ce4cfc7d4d523",
+        "call_id": "ptc-498e74952559409093f39d21445de6dc",
+        "caller": "card.muse-goals",
+        "context_id": "7113637d-p1-night004-vm-bridge",
+        "kernel_persisted": true,
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "ptc-498e74952559409093f39d21445de6dc",
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791779456406",
+            "start": "2026-10-13T16:00"
+          },
+          "ok": true
+        },
+        "result_bytes": 140,
+        "session_id": "_main:api:octosense#peerctx-muse-fixture-bridge-22a12f906cd27b73.7113637d-p1-night004-vm-bridge",
+        "source": "broker_tool_result",
+        "terminal": "ok",
+        "tool": "calendar.add_event",
+        "tool_call_id": "fixture_call_3",
+        "turn_id": "3709b7e6-be08-42eb-80cc-850e7d8c0350"
+      }
+    }
+  ],
+  "driver_report_status": "FAIL",
+  "driver_error": "Expecting property name enclosed in double quotes: line 1 column 17479 (char 17478)",
+  "driver_stderr_bytes": 0,
+  "interpretation": "Actual owner/service receipt proves overlapping event was added after first candidate gesture. Original raw final VM JSON is invalid and is not repaired or counted as parsed assertion PASS. Probe made no second overlap choice.",
+  "raw_report": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/night-004/gpt01-overlap-same-r2/run/report.json"
+}

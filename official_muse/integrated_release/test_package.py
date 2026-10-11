@@ -69,12 +69,17 @@ int main(int argc, char **argv) {
         self.state.mkdir()
         (self.state / 'fixture-data').write_bytes(b'private fixture: never package')
 
-    def package(self):
+    def package(self, apfs_clone=False, model_source=None):
         args = ['package_app.py', '--sdk', str(self.root / 'fixture-sdk'),
                 '--host', str(self.host), '--kernel', str(self.kernel),
                 '--kernel-receipt', str(self.receipt), '--mirror', str(self.mirror),
                 '--out', str(self.output), '--model-mode', 'gpt',
                 '--paired-host-app', str(self.source), '--state-root', str(self.state)]
+        if apfs_clone:
+            args.append('--apfs-clone')
+        if model_source is not None:
+            args[args.index('--model-mode') + 1] = 'hybrid'
+            args.extend(['--model-source', str(model_source)])
         helper = SimpleNamespace(kernel_tool=lambda: SimpleNamespace(octos_revision=lambda: 'fixture-pin'))
         with patch.object(sys, 'argv', args), patch.object(package_app, 'packaging', return_value=helper), \
                 patch.object(package_app.subprocess, 'check_output', side_effect=AssertionError('Cargo forbidden')), \
@@ -124,6 +129,45 @@ int main(int argc, char **argv) {
         self.assertFalse(list(self.output.rglob('fixture-data')))
         self.assertEqual((self.state / 'fixture-data').read_bytes(), b'private fixture: never package')
         self.assertFalse((self.output / 'signed-kernel').exists())
+
+    @unittest.skipUnless(sys.platform == 'darwin', 'Explicit APFS clone requires macOS')
+    def test_apfs_clone_hybrid_model_and_resources_are_independent(self):
+        model = self.root / 'synthetic model'
+        (model / 'llama').mkdir(parents=True)
+        server = model / 'llama/llama-server'
+        server.write_bytes(b'#!/bin/sh\nexit 99 # fixture, never invoked\n')
+        server.chmod(0o751)
+        weight = model / 'qwen2.5-0.5b-instruct-q4_0.gguf'
+        weight.write_bytes(b'synthetic weight: no inference')
+        alias = model / 'existing-weight-link'
+        alias.symlink_to(weight.name)
+        model_before = {p.relative_to(model).as_posix(): package_app.sha(p)
+                        for p in model.rglob('*') if p.is_file()}
+        self.package(apfs_clone=True, model_source=model)
+        resources = self.output / 'Muse.app/Contents/Resources'
+        copied_model = resources / 'local-model'
+        runtime = resources / 'host-runtime'
+        record = json.loads((self.output / 'PACKAGE.json').read_text())
+        self.assertEqual(record['directory_copy_mode'], 'apfs_clone_requested')
+        self.assertEqual(len(record['directory_copies']), 4)
+        self.assertTrue(all(r['filesystem'] == 'apfs' and r['returncode'] == 0
+                            for r in record['directory_copies']))
+        for source, target in [(weight, copied_model / weight.name),
+                               (server, copied_model / 'llama/llama-server'),
+                               (self.asset, runtime / 'makepad_widgets/resources/fixture-font.ttf')]:
+            self.assertEqual(package_app.sha(target), package_app.sha(source))
+            self.assertNotEqual(source.stat().st_ino, target.stat().st_ino)
+            self.assertEqual(target.stat().st_nlink, 1)
+            self.assertEqual(source.stat().st_mode, target.stat().st_mode)
+        self.assertTrue((copied_model / alias.name).is_symlink())
+        self.assertEqual(os.readlink(copied_model / alias.name), weight.name)
+        self.assertEqual((copied_model / alias.name).resolve(), (copied_model / weight.name).resolve())
+        (copied_model / weight.name).write_bytes(b'fixture copy mutation')
+        (runtime / 'makepad_widgets/resources/fixture-font.ttf').write_bytes(b'fixture resource copy mutation')
+        self.assertEqual({p.relative_to(model).as_posix(): package_app.sha(p)
+                          for p in model.rglob('*') if p.is_file()}, model_before)
+        self.assertEqual({p.relative_to(self.source).as_posix(): p.read_bytes()
+                          for p in self.source.rglob('*') if p.is_file()}, self.before)
 
     def test_mismatched_host_is_rejected(self):
         self.host = self.root / 'different-host'

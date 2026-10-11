@@ -50,3 +50,8 @@ Kernel R4首次add/retry/get真执行，拟拒绝add也执行：官方add为act�
 - N004-14：原样 WorkBuddy 入口→普通 AppsMenu Calendar 三次真实 Host，CRUD/重启6项、12read和7张native图实审PASS；source未改。旧直接测试副本首绘黑底/部分绘制证据保留，根因仍未确定，不能宣称用等待修好了生产绘制。正式支持的入口有实测覆盖。
 - N004-15，P1：native候选新建没有已验证的重叠查询/冲突提示；旧冲突按钮调用禁用calendar.list，官方events from/to只筛完整包含事件。只读代码证据由GPT01核实，Root实际重叠probe/最小修复待接收，状态 OPEN_NATIVE_OVERLAP。
 - 无效原始模型JSON：原 Main 拒绝注入 invalid_output 有组件证据，但原SDK decoder机制尚未实测，保持L4未完成；不把证据缺口自动记作产品缺陷。
+# 2026-10-12 04:33 增量证据
+
+- N004-15仍为P1 OPEN，已获得实际缺口证据：c892原生首次候选提交在官方Calendar新增同时间事件，原事件全字段保持。Root保存owner before/after、真实Broker回执与原非法JSONstdout；测试报告FAIL不重写。最小预查询/单独确认修复尚未集成。
+- 坏模型JSON证据缺口已补齐：中央真实SDK解析器和Main回调54/54 PASS，原SDK保持原样，无Calendar/Mail写动作。仍不代表真实云端调用压力测试。
+- APFS复制中央测试首次因/var别名比较失败；仅修正测试路径canonical比较，原工具失败保留。后续5/5 PASS，原入口/Host/Kernel/Main未变。

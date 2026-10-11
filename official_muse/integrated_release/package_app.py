@@ -4,10 +4,12 @@ import argparse
 import hashlib
 import json
 import os
+import plistlib
 from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 from build_host import FEATURES, packaging
@@ -23,12 +25,40 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def copy_tree(source, destination, apfs_clone=False):
+    if not apfs_clone:
+        shutil.copytree(source, destination, symlinks=True)
+        return {'mode': 'shutil.copytree'}
+    if sys.platform != 'darwin':
+        raise ValueError('Explicit APFS clone requires macOS')
+    source, destination = Path(source).resolve(), Path(destination).absolute()
+    if destination.exists() or destination.is_symlink():
+        raise ValueError('APFS clone destination must not exist')
+    if os.stat(source).st_dev != os.stat(destination.parent).st_dev:
+        raise ValueError('APFS clone source and destination must be on the same volume')
+    volume = subprocess.run(['/bin/df', '-P', str(source)], check=True,
+                            capture_output=True, text=True).stdout
+    device = volume.splitlines()[-1].split()[0]
+    info = plistlib.loads(subprocess.run(['/usr/sbin/diskutil', 'info', '-plist', device],
+                                       check=True, capture_output=True).stdout)
+    if info.get('FilesystemType') != 'apfs':
+        raise ValueError('Explicit APFS clone requires an APFS volume')
+    command = ['/bin/cp', '-c', '-R', '-p', '-P', str(source), str(destination)]
+    result = subprocess.run(command, check=True, capture_output=True, text=True)
+    return {'mode': 'apfs_clone_requested', 'command': command,
+            'filesystem': info['FilesystemType'], 'device': device,
+            'returncode': result.returncode, 'stderr': result.stderr,
+            'boundary': 'cp -c requests clonefile and may fall back to copyfile; physical shared blocks are not measured. Existing source symlinks are preserved; source links are not created.'}
+
+
 def main():
     parser = argparse.ArgumentParser()
     for name in ('sdk', 'host', 'kernel', 'kernel-receipt', 'mirror', 'out'):
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--model-mode', choices=('offline', 'gpt', 'hybrid'), default='hybrid')
     parser.add_argument('--model-source', type=Path)
+    parser.add_argument('--apfs-clone', action='store_true',
+        help='Request independent APFS CoW directory copies via cp -c; requires macOS and the same APFS volume')
     parser.add_argument('--paired-host-app', type=Path,
         help='Copy matching verified app resources/Kernel; sign the staged Host as standalone; no Cargo')
     parser.add_argument('--state-root', type=Path,
@@ -38,6 +68,7 @@ def main():
         parser.error('--model-source is required for offline/hybrid mode')
     if args.state_root is not None and not args.state_root.is_absolute():
         parser.error('--state-root must be absolute')
+    directory_copies = []
     source_host_sha256 = sha(args.host)
     source_kernel_sha256 = sha(args.kernel)
     output = args.out.resolve()
@@ -59,7 +90,7 @@ def main():
         assert (source / 'Resources/octos-kernel.json').read_bytes() == args.kernel_receipt.read_bytes(), 'Paired app receipt mismatch'
         assert receipt['revision'] == package.kernel_tool().octos_revision(), 'Kernel revision is not the SDK pin'
         run(['codesign', '--verify', '--deep', '--strict', source.parent])
-        shutil.copytree(source.parent, inner.parent, symlinks=True)
+        directory_copies.append(copy_tree(source.parent, inner.parent, args.apfs_clone))
     else:
         (inner / 'MacOS').mkdir(parents=True)
         env = dict(os.environ, CARGO_NET_OFFLINE='true')
@@ -81,13 +112,13 @@ def main():
     assert sha(inner / 'MacOS/octosense') == source_host_sha256, 'Host input changed while staging'
     # Foundation treats this directory as the bare executable's resource root.
     runtime = resources / 'host-runtime'
-    shutil.copytree(inner / 'Resources', runtime, symlinks=True)
+    directory_copies.append(copy_tree(inner / 'Resources', runtime, args.apfs_clone))
     shutil.copy2(inner / 'MacOS/octosense', runtime / 'muse-host')
     shutil.copy2(inner / 'MacOS/octos-kernel', runtime / 'octos-kernel')
     shutil.rmtree(inner.parent)
     if args.model_mode != 'gpt':
-        shutil.copytree(args.model_source, resources / 'local-model', symlinks=True)
-    shutil.copytree(args.mirror, resources / 'mirror', symlinks=True)
+        directory_copies.append(copy_tree(args.model_source, resources / 'local-model', args.apfs_clone))
+    directory_copies.append(copy_tree(args.mirror, resources / 'mirror', args.apfs_clone))
     # Local signing keys and account data are not inputs to this packager.
     assert not list(resources.rglob('*.key')), 'A private key entered the package'
     # Preserve the original working LaunchServices identity and shell executable.
@@ -154,6 +185,8 @@ def main():
             'hybrid': 'existing Native cloud provider (including MiniMax) plus bundled Qwen service; local selection and collaboration not verified'}[args.model_mode],
         'model_mode': args.model_mode, 'model_runtime_verified': False,
         'upstream_host': 'paired pending-review build'}
+    if args.apfs_clone:
+        record.update(directory_copy_mode='apfs_clone_requested', directory_copies=directory_copies)
     (output / 'PACKAGE.json').write_text(json.dumps(record, indent=2) + '\n')
     print(json.dumps(record))
 

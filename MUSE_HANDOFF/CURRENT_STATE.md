@@ -1251,3 +1251,12 @@ ZIP 为489,595,070字节（489.60 MB），SHA256：000b2815c6072d2b8033bea42ddc6
 ## 截止后rc17增量补证
 
 路由修补已在新私有rc17(90351cba)集成，实际Shell Goal模型建议/批准/存储/readback/重启/新会话结果Memory引用通过；合成transport链20+新进程重启10项通过，参考Host46a4与Shell276b区分。冻结rc16及原七小时PARTIAL不改。局限：两资料合并为一条items，真实Mail缺登录/Calendar未决定，1UNKNOWN不重发；手机r7APK验签通过，官方模拟器分区空间不足，实体未测。最小Host补丁及原始Rust测试已复核，未宣称上游接受。无push/Tag/发布/新费用。
+# 2026-10-12 04:33 中央增量
+
+当前产品仍是 fee00c9 / c892 / rc7 R3，不为下一候选继承本轮结果。中央独立复验原始坏模型 JSON：真实 SDK decoder → 原 Main 回调 54/54 PASS，未触发日历或邮件动作；实际 Mail 故障107项与显式 Main SHA复验工具已接收，6e175cf8。
+
+官方 Calendar 重叠缺口已真实复现：marked fixture 中原事项16:00–16:30不变，首次提交新增同时间事项；未作第二次重叠确认。baseline owner与Broker回执已归档。探针最终JSON输出非法，原driver FAIL保留，不计为已解析检查结果。GPT01准备最小预查询/独立确认修复，Root尚未改Main。
+
+打包复制增加可选 --apfs-clone，默认行为与正式入口不变；中央5/5小型打包测试PASS。旧测试因macOS /var与/private/var别名比较失败已保存，修正两侧canonical path后通过。没有启动模型或进行Host/Cargo大型构建。
+
+Git最新已本地保存0ea882bc、6e175cf8。网络push/checkpoint r6 HTTP2错误、r7连接github443失败保留；当前远端只核验到83681918，未宣称已同步最新SHA。继续完成新Main、同候选回归、最终报告和窗口留开。
