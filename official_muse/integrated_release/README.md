@@ -16,6 +16,8 @@ Calendar 的三个 INTEGRATED patch 位于 `../semifinal/calendar_integration/`�
 离线、锁定依赖、Release 构建，features 为 app-hub、octos-core、app-muse-native-prototype。
 中央串行运行 Cargo。`prepare_bundle.py` 从当前主源创建新目录并压缩，保留稳定根 bundle。
 `package_app.py` 用显式 Host、Kernel receipt、公开模型和签名镜像输入生成一个 Muse.app。
+PACKAGE.json 的 source_host_sha256 是输入 Host，host_sha256 是包内签名后的实际可执行文件；
+签名可能改变字节，验收最终运行文件必须使用后者。暂存副本在签名前与输入 SHA 比对。
 它只签名 Kernel 的包内副本，再由官方 staging helper 为相同锁定 revision 重建 receipt；
 原 Kernel 和 receipt 不改。签名为本机 ad-hoc，不能作为 Developer ID/公证或公开 App Hub 发布。
 
@@ -41,37 +43,15 @@ ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。只使用本任务新生成的私钥；私�
 首启走普通 App Hub 安装，后续从相同签名入口启动 Muse。既有来源不匹配时回普通更新流程。
 包内 Qwen2.5-0.5B 是基础离线回退，不代表强模型工具调用能力；模型配置由宿主原生界面处理。
 
-产品默认继续携带 Qwen，并保留已有 MiniMax 等云端配置。开发团队使用 GPT；产品云端选择与开发模型分别配置。hybrid 模式接线正在实现，尚不宣称持续协同实机通过。
+产品默认 `package_app.py --model-mode hybrid --model-source ...`，继续携带 Qwen。
+运行时接受 Native 注册表的云端主提供方，包括已有 MiniMax，不将其替换成 GPT。
+云端主配置缺失时进入真实 Models；此设置入口及 `--models` 均不启动 Qwen、不改 profile。
+已有云端主配置时，hybrid 启动本机 loopback 轻量服务，保持到 Host 退出；未配置本地提供方时
+云端 profile 原字节保留。只有既存 `local/Qwen2.5-0.5B-Instruct-Q4_0-offline` 回退的端点会
+通过系统 plutil 就地更新，云端 primary、其他提供方与凭证字段不改，不解析或迁移 Keychain。
+`local-model.json` 给出实际 route_base_url、pid、ready/failed/stopped 与 native_local_selected；
+它是服务状态，inference_verified 始终为 false，不能当作模型推理或持续 AI 成功证据。
+需要本地 Native 回退时，由本人在仍运行的 Host Models 面板添加 local、上述模型 ID 和实际端点。
+此模式不自动添加提供方、不启动付费轮询、不执行邮件或日历动作。旧 `--model-mode offline` 保留。
 
-可选 GPT 开发验证包使用 `package_app.py --model-mode gpt`，省略 `--model-source`，不包含或启动
-Qwen。双击该包默认走 GPT 入口；未配置时打开真实 `os.ai-providers` Models 面板，
-本人选择 OpenAI/GPT 官方路由、输入凭证并保存，退出后重开。启动器不复制任何已有凭证。
-`--models` 直接打开该面板，不再先写离线 profile 或启动 Qwen。
-
-`Muse.app/Contents/MacOS/muse-launcher --gpt-check` 只检查包签名/资源与独立目录的
-`config.llm` metadata，不读取 `config.env_vars`、不解析 Keychain、不调用网络或写配置。
-返回 0 / `GPT_CONFIG_ONLY` 仅代表主提供方及全部回退为官方 OpenAI/GPT 配置；
-返回 3 / `GPT_SETUP_REQUIRED` 表示需要本人配置，2 表示数据路径参数错误，1 表示包检查失败。
-兼容 API 的本地端点、第三方路由和非 GPT 回退不计通过。已有离线包也可显式 `--gpt`。
-子 Host 的 HOME、core、apps、XDG 路径均指向独立目录；已有配置保持原字节。
-
-本机 `python3 official_muse/integrated_release/test_launcher.py -v` 使用真实编译启动器、
-临时 ad-hoc 签名包与 stub Host 验证九项启动/保留/隔离行为；不代表最终 Host 的 GUI、
-凭证有效性或 GPT 实调通过。2026-10-11 现场默认独立目录无 profile，仍需本人配置。
-
-Calendar 页使用已核实的 session.open → turn.start(trigger:app) → session.history 接口；
-持久化当前请求 ID，未知结果不自动重做，不允许新 ID 覆盖旧待核对请求。
-显式保留记录后可另写不同事项，旧 ID 仍保留用于对账。输入草稿在重绘后保留，
-切换账号不显示旧结果，工具详情默认折叠；模型文本不改变业务成功状态。
-官方助手也可从宿主「询问 Muse」/Shift+F8 进入，实际 Muse ID 的首次本人启用不可模拟。
-多 Chat 的结构化 model.complete 路径保留。Contained 的应用共享历史没有项目隔离/上游遗忘
-契约，不能直接替换全部 Chat，也不向其自动注入私人 Memory。
-Calendar 四工具须取得实际授予和相同回合工具结果；正文回复、调用映射和窗口出现均不证明成功。
-本页自动安排/改期/行动链回执联动、Muse update/remove、真实 Mail 登录/发送/收件仍须单独验证。
-UNKNOWN 只读对账，不自动重发。
-
-实际窄测试在 `evidence/`：model wrapper 六项合成回归与当前函数字节一致性；
-VM 准备、streaming、硬限额和 Splash 样式日志保留在 build/muse-integrated-0.4.0-rc1/rc2。
-编译、签名、fixture 和最终包业务验收分别记录。核心冻结后才进行同一候选 20 次冷启动。
-
-Calendar 接线与回执19项真实参考VM合成协议检查通过，旧解析失败保留；Mail终态恢复完整异步真实VM37/37通过，首轮预算失败与探针错误保留。最新History配套Host30d4d356完整构建和四工具准入安全测试通过；这些结果不能替代同候选真实Calendar/Mail/模型业务通过。
+GPT 开发验证包可选 `package_app.py --model-mode gpt`，省略 `--model-source`，不包含或启动

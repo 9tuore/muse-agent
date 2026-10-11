@@ -52,6 +52,50 @@ static BOOL nativeGPT(NSDictionary *llm) {
     }
     return YES;
 }
+static BOOL cloudPrimary(NSDictionary *llm) {
+    id primary = llm[@"primary"];
+    if (![primary isKindOfClass:NSDictionary.class]) return NO;
+    // Canonical cloud families in the paired Native registry. No inference or key validation here.
+    NSArray *families = @[@"anthropic", @"openai", @"gemini", @"vertex", @"r9s", @"openrouter",
+        @"deepseek", @"groq", @"moonshot-coding", @"moonshot", @"dashscope", @"minimax-cn",
+        @"minimax", @"zai-coding", @"zhipu", @"zai", @"nvidia", @"vllm"];
+    if (![families containsObject:primary[@"family_id"] ?: @""]) return NO;
+    id route = primary[@"route"];
+    if (route && ![route isKindOfClass:NSDictionary.class]) return NO;
+    id base = route[@"base_url"];
+    if (base) {
+        if (![base isKindOfClass:NSString.class]) return NO;
+        NSURL *url = [NSURL URLWithString:base];
+        if (!url.host.length || [url.host isEqual:@"localhost"] || [url.host hasPrefix:@"127."]
+            || [url.host isEqual:@"::1"] || [url.host isEqual:@"[::1]"]) return NO;
+    } else if ([primary[@"family_id"] isEqual:@"vllm"]) return NO;
+    return YES;
+}
+static BOOL updateLocalRoute(NSString *profilePath, NSDictionary *llm, NSString *base) {
+    NSArray *fallbacks = [llm[@"fallbacks"] isKindOfClass:NSArray.class] ? llm[@"fallbacks"] : @[];
+    for (NSUInteger i = 0; i < fallbacks.count; i++) {
+        NSDictionary *selection = fallbacks[i];
+        if (![selection isKindOfClass:NSDictionary.class] || ![selection[@"family_id"] isEqual:@"local"]
+            || ![selection[@"model_id"] isEqual:@"Qwen2.5-0.5B-Instruct-Q4_0-offline"]) continue;
+        NSString *path = [NSString stringWithFormat:@"config.llm.fallbacks.%lu.route", (unsigned long)i];
+        NSTask *task = [NSTask new];
+        task.executableURL = [NSURL fileURLWithPath:@"/usr/bin/plutil"];
+        id route = selection[@"route"];
+        if ([route isKindOfClass:NSDictionary.class]) {
+            task.arguments = @[route[@"base_url"] ? @"-replace" : @"-insert", [path stringByAppendingString:@".base_url"],
+                @"-string", base, @"--", profilePath];
+        } else if (!route) {
+            NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"base_url":base, @"api_type":@"openai", @"label":@"内置基础离线模型"} options:0 error:nil];
+            task.arguments = @[@"-insert", path, @"-json", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], @"--", profilePath];
+        } else return NO;
+        task.standardOutput = NSFileHandle.fileHandleWithNullDevice;
+        task.standardError = NSFileHandle.fileHandleWithNullDevice;
+        if (![task launchAndReturnError:nil]) return NO;
+        [task waitUntilExit];
+        if (task.terminationStatus != 0) return NO;
+    }
+    return YES;
+}
 static int localPort(void) {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in address = {0};
@@ -103,11 +147,14 @@ int main(int argc, const char *argv[]) {
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
         BOOL models = argc == 2 && strcmp(argv[1], "--models") == 0;
         BOOL gptCheck = argc == 2 && strcmp(argv[1], "--gpt-check") == 0;
-        BOOL gpt = gptCheck || (argc == 2 && strcmp(argv[1], "--gpt") == 0)
-            || [NSBundle.mainBundle.infoDictionary[@"MuseModelMode"] isEqual:@"gpt"];
+        NSString *mode = NSBundle.mainBundle.infoDictionary[@"MuseModelMode"] ?: @"offline";
+        if (argc == 2 && strcmp(argv[1], "--gpt") == 0) mode = @"gpt";
+        if (argc == 2 && strcmp(argv[1], "--hybrid") == 0) mode = @"hybrid";
+        BOOL gpt = gptCheck || [mode isEqual:@"gpt"];
+        BOOL hybrid = !gpt && [mode isEqual:@"hybrid"];
         BOOL headless = check || gptCheck;
-        if (argc > 1 && !check && !models && !gptCheck && strcmp(argv[1], "--gpt") != 0) {
-            fprintf(stderr, "使用方式：muse-launcher [--check|--models|--gpt|--gpt-check]\n"); return 2;
+        if (argc > 1 && !check && !models && !gptCheck && strcmp(argv[1], "--gpt") != 0 && strcmp(argv[1], "--hybrid") != 0) {
+            fprintf(stderr, "使用方式：muse-launcher [--check|--models|--gpt|--gpt-check|--hybrid]\n"); return 2;
         }
         if (!gpt && !models) required = [required arrayByAddingObjectsFromArray:
             @[@"local-model/llama/llama-server", @"local-model/qwen2.5-0.5b-instruct-q4_0.gguf"]];
@@ -154,6 +201,14 @@ int main(int argc, const char *argv[]) {
             if (gptCheck) return configured ? 0 : 3;
             if (!configured) models = YES;
         }
+        if (hybrid && !models) {
+            NSDictionary *llm = modelMetadata(profilePath);
+            BOOL cloud = cloudPrimary(llm);
+            if (!cloud) {
+                puts("HYBRID_SETUP_REQUIRED：请在 Models 中由本人配置云端主模型（保留已有 MiniMax 等提供方）；现有配置保留，本次设置入口不启动 Qwen。");
+                models = YES;
+            }
+        }
         NSError *error = nil;
         if (![files createDirectoryAtPath:state withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:&error]) {
             fail([NSString stringWithFormat:@"无法建立数据目录：%@\n%@", state, error.localizedDescription]); return 1;
@@ -170,9 +225,15 @@ int main(int argc, const char *argv[]) {
             }
         }
         NSTask *model = nil;
+        NSDictionary *localStatus = nil;
         if (!gpt && !models) {
         BOOL first = ![files fileExistsAtPath:profilePath];
-        NSMutableDictionary *profile = first ? [@{@"id":@"_main", @"name":@"Muse 整合版本", @"enabled":@YES,
+        NSMutableDictionary *profile = nil;
+        if (hybrid) {
+            NSDictionary *metadata = modelMetadata(profilePath);
+            if (!metadata) { fail(@"现有云端模型元数据无法读取，启动器不会覆盖配置。"); return 1; }
+            profile = [@{@"config":@{@"llm":metadata}} mutableCopy];
+        } else profile = first ? [@{@"id":@"_main", @"name":@"Muse 整合版本", @"enabled":@YES,
             @"config":@{@"llm":@{@"primary":@{@"family_id":@"local", @"model_id":@"Qwen2.5-0.5B-Instruct-Q4_0-offline",
                 @"context_window":@4096}, @"fallbacks":@[]}, @"env_vars":@{}}} mutableCopy] :
             [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:profilePath]
@@ -185,11 +246,11 @@ int main(int argc, const char *argv[]) {
         NSMutableArray *selections = [NSMutableArray new];
         if ([llm[@"primary"] isKindOfClass:NSDictionary.class]) [selections addObject:llm[@"primary"]];
         if ([llm[@"fallbacks"] isKindOfClass:NSArray.class]) [selections addObjectsFromArray:llm[@"fallbacks"]];
-        BOOL bundled = NO;
+        BOOL localSelected = NO;
         for (NSDictionary *selection in selections) {
-            if ([selection[@"family_id"] isEqual:@"local"] && [selection[@"model_id"] isEqual:modelID]) bundled = YES;
+            if ([selection[@"family_id"] isEqual:@"local"] && [selection[@"model_id"] isEqual:modelID]) localSelected = YES;
         }
-        if (bundled) {
+        if (localSelected || hybrid) {
             int port = localPort();
             if (!port) { fail(@"无法分配本地模型端口。"); return 1; }
             NSString *base = [NSString stringWithFormat:@"http://127.0.0.1:%d", port];
@@ -240,9 +301,17 @@ int main(int argc, const char *argv[]) {
             NSString *now = [[NSISO8601DateFormatter new] stringFromDate:NSDate.date];
             if (first) profile[@"created_at"] = now;
             profile[@"updated_at"] = now;
-            if (!saveJSON(profile, profilePath, &error)) { finishTask(model); fail(@"无法保存本机离线模型配置。"); return 1; }
-            saveJSON(@{@"model_id":modelID, @"quality":@"basic offline fallback; not a strong model",
-                @"base_url":base, @"pid":@(model.processIdentifier)}, join(state, @"local-model.json"), nil);
+            // A cloud-only profile is byte-preserved. Only a pre-existing bundled-local selection needs a route update.
+            if (localSelected && !(hybrid ? updateLocalRoute(profilePath,llm,[base stringByAppendingString:@"/v1"])
+                : saveJSON(profile, profilePath, &error))) { finishTask(model); fail(@"无法保存本机离线模型路由，现有云端主配置保留。"); return 1; }
+            localStatus = @{@"model_id":modelID, @"quality":@"basic offline fallback; not a strong model",
+                @"base_url":base, @"route_base_url":[base stringByAppendingString:@"/v1"],
+                @"pid":@(model.processIdentifier), @"service_status":@"ready",
+                @"native_local_selected":@(localSelected), @"inference_verified":@NO};
+            saveJSON(localStatus, join(state, @"local-model.json"), nil);
+            if (hybrid) puts(localSelected
+                ? "HYBRID_LOCAL_READY_ONLY：云端主配置保留；已配置的本地路由更新，尚未验证协同推理或持续代理运行。"
+                : "HYBRID_LOCAL_READY_ONLY：云端配置原字节保留；本地服务已就绪但未进入 Native 提供方列表。可在 Models 添加 local 回退；路由见本机 local-model.json。尚未验证协同推理。");
         }
         }
         NSMutableDictionary *environment = [inherited mutableCopy];
@@ -293,10 +362,25 @@ int main(int argc, const char *argv[]) {
             [output closeFile]; finishTask(model); fail([NSString stringWithFormat:@"宿主未启动：%@\n日志：%@", error.localizedDescription, log]); return 1;
         }
         [output closeFile];
-        while (host.running && !stopping) [NSThread sleepForTimeInterval:0.2];
+        BOOL localStopped = NO;
+        while (host.running && !stopping) {
+            if (model && !model.running && !localStopped) {
+                localStopped = YES;
+                NSMutableDictionary *status = [localStatus mutableCopy];
+                status[@"service_status"] = @"failed";
+                saveJSON(status, join(state, @"local-model.json"), nil);
+                fprintf(stderr, "Muse 本地服务已退出；云端配置保留，不能称本地持续运行。\n");
+            }
+            [NSThread sleepForTimeInterval:0.2];
+        }
         if (host.running) [host terminate];
         [host waitUntilExit];
         finishTask(model);
+        if (localStatus && !localStopped) {
+            NSMutableDictionary *status = [localStatus mutableCopy];
+            status[@"service_status"] = @"stopped";
+            saveJSON(status, join(state, @"local-model.json"), nil);
+        }
         flock(lock, LOCK_UN); close(lock);
         return host.terminationStatus;
     }
