@@ -1,0 +1,179 @@
+{
+  "cases": [
+    {
+      "case": "accepted",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 13,
+      "transport_calls": 1,
+      "recipient_rows": 1,
+      "report": "fault-evidence/accepted/report.json"
+    },
+    {
+      "case": "accepted-restart",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 7,
+      "transport_calls": 0,
+      "recipient_rows": 1,
+      "report": "fault-evidence/accepted-restart/report.json"
+    },
+    {
+      "case": "before",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 13,
+      "transport_calls": 1,
+      "recipient_rows": 0,
+      "report": "fault-evidence/before/report.json"
+    },
+    {
+      "case": "before-restart",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 7,
+      "transport_calls": 0,
+      "recipient_rows": 0,
+      "report": "fault-evidence/before-restart/report.json"
+    },
+    {
+      "case": "unknown",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 13,
+      "transport_calls": 1,
+      "recipient_rows": 1,
+      "report": "fault-evidence/unknown/report.json"
+    },
+    {
+      "case": "unknown-restart",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 7,
+      "transport_calls": 0,
+      "recipient_rows": 1,
+      "report": "fault-evidence/unknown-restart/report.json"
+    },
+    {
+      "case": "parent-timeout",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 13,
+      "transport_calls": 1,
+      "recipient_rows": 1,
+      "report": "fault-evidence/parent-timeout/report.json"
+    },
+    {
+      "case": "parent-timeout-restart",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 7,
+      "transport_calls": 0,
+      "recipient_rows": 1,
+      "report": "fault-evidence/parent-timeout-restart/report.json"
+    },
+    {
+      "case": "parent-bad-json",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 13,
+      "transport_calls": 1,
+      "recipient_rows": 1,
+      "report": "fault-evidence/parent-bad-json/report.json"
+    },
+    {
+      "case": "parent-bad-json-restart",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 7,
+      "transport_calls": 0,
+      "recipient_rows": 1,
+      "report": "fault-evidence/parent-bad-json-restart/report.json"
+    },
+    {
+      "case": "actual-os-write-failure",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 8,
+      "transport_calls": 0,
+      "recipient_rows": 0,
+      "report": "fault-evidence/actual-os-write-failure/report.json"
+    },
+    {
+      "case": "actual-bad-store-setup",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 2,
+      "transport_calls": null,
+      "recipient_rows": null,
+      "report": "fault-evidence/actual-bad-store-setup/report.json"
+    },
+    {
+      "case": "actual-bad-store-restart",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PASS",
+      "checks": 7,
+      "transport_calls": 0,
+      "recipient_rows": 0,
+      "report": "fault-evidence/actual-bad-store-restart/report.json"
+    },
+    {
+      "case": "native_cas_fault",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PREPARED_NOT_TESTED",
+      "checks": [
+        "actual_cas_refusal_keeps_owner_bytes",
+        "actual_kernel_persisted_cas_error_receipt",
+        "actual_mail_account",
+        "external_same_event_not_overwritten",
+        "failed_update_no_completed_goal_run",
+        "failed_update_no_completed_memory",
+        "first_candidate_actual_chat_entry",
+        "first_mail_actual_read_and_memory",
+        "independent_actual_owner_edit",
+        "native_duplicate_create_no_new_turn",
+        "native_duplicate_update_or_create_no_turn",
+        "native_stale_expected_not_verified",
+        "no_old_or_new_mail_transport",
+        "old_creation_journal_retained",
+        "old_draft_cannot_send",
+        "old_draft_invalid_handwriting_retained",
+        "old_draft_waits_without_delivery",
+        "one_goal_before_kernel",
+        "production_boot",
+        "real_kernel_create_verified",
+        "repeated_incoming_keeps_one_memory",
+        "second_mail_actual_read_and_memory",
+        "second_mail_appends_same_goal",
+        "update_prepared_old_plan_invalid"
+      ],
+      "real_kernel_required": true,
+      "owner_helper_required": true,
+      "owner_binary_sha256": "e7dc890860d1a17d2fbc08e68ed98aa39c75eaee370bb18a6eb2281b2ed6c265"
+    },
+    {
+      "case": "native_cas_restart",
+      "source_sha256": "8ad9a79987a651909a653a6a5b3798bdfd086096ea8842450685b879170c3ff1",
+      "status": "PREPARED_NOT_TESTED",
+      "checks": [
+        "actual_checkpoint_present",
+        "actual_external_event_retained",
+        "actual_owner_store_bytes_retained",
+        "actual_saved_cas_failure_not_verified",
+        "actual_source_memory_recalled",
+        "new_chat_created",
+        "new_process_no_turn_or_mail_resubmit",
+        "no_completed_memory_invented",
+        "old_handwritten_draft_preserved_blocked",
+        "original_chat_selected",
+        "original_goal_not_completed",
+        "production_boot"
+      ],
+      "real_kernel_required": true,
+      "owner_helper_required": false,
+      "owner_binary_sha256": null
+    }
+  ],
+  "full_chain_status": "NOT_TESTED",
+  "no_completed_state_injected": true
+}

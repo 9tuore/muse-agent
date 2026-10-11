@@ -1,0 +1,12 @@
+let bridge_checks = {}
+fn bad_store_setup(){
+    bridge_checks.production_initial_boot = core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot()
+    let raw = "{NIGHT004 deliberately broken owned fixture store"
+    let written = true
+    for path in ["goals.json","goals.backup.json","memory.json","memory.backup.json","calendar-agent-update.json","mail-draft.json"] {
+        if storage_write(path,raw) != nil || storage_read(path) != raw { written = false }
+    }
+    bridge_checks.owned_bad_json_bytes_actually_written = written
+}
+bad_store_setup()
+({kind:"NIGHT004_BAD_STORE_FIXTURE_SETUP" checks:bridge_checks boundary:"Only own marked fixture files corrupted; no Calendar/Kernel history or completed Goal written."}).to_json()

@@ -1,22 +1,19 @@
 # Handoff
 
 ## Task
-ZC-00，codex/muse-pivot-20261010，基线961d05ec；NIGHT-004 native完结与同签名真实环境准备。
+ZC-00 NIGHT004稳定性攻坚；09:00高风险冻结，11:00截止。
 
 ## Result
-PARTIAL。e7d665dd同源344项官方Splash VM通过；基线4业务失败已复现。真实完整Muse正常AppHub Open/导航与一次冷启动通过。
-
-## Changed
-接88fe5fb1完结补丁，native恢复按钮/状态说明/旧错误清理；test-only真实服务及policy ABI完整准入初始化，外owner受限helper；真实VM/Kernel/GUI原始证据。
+e7d/签名643009实际正式GUI正常；R8桥正式conversation/trigger通过。native初始22/22，全进程恢复13/14，Night整体PARTIAL。
 
 ## Tests
-194关键+150受影响回归PASS；GPT04另8ad9源持久化重载恢复16项PASS。真实Kernel R5/R6各1项PASS。公开签名桥两次初始化admission失败保留，R7编译中。源dabfe/e594rc7真实GUI四图、单次冷启动15.890s，Calendar数0；不是final20。
+Mail同e7d故障13场景117/117；真实Kernel CRUD1/1；CAS初始23/23。恢复故障有原始report及只读诊断；4native图已查看，三SecCode0。
 
 ## Commit
-本单元待本地commit；此前961d05ec普通开发分支push独立核对。
+本单元最终回复/本地commit；不触旧4项未提交改动，普通dev同步。
 
 ## Remaining
-最终源签名L3/L4、新进程回忆/行动链、final GUI/20；持续AI。09:00冻结高风险，11:00截止。
+修两个产物结构比较→同签名query全链/新进程→L4→最终20启动。
 
-## Important Boundaries
-Calendar真实官方服务；模型/授权/收件transport fixture，真实SMTP0。生产收件核验仍本人声明。未发布/比赛提交。
+## Boundaries
+官方os.calendar实际服务/Kernel；Mail MockTransport与独立模拟收件，SMTP0。生产资料/Secret/主稳定版不动；不公开发布或比赛提交。证据semifinal/evidence/night004-closure-progress。

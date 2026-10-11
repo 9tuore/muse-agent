@@ -2,28 +2,28 @@
 
 ## Task
 
-NIGHT-004 GPT01：完整Host API初始化与外owner CAS helper。
+NIGHT-004 GPT01，0426/643009实际bridge L4 parent准备。
 
 ## Result
 
-PARTIAL。policy增量补丁已交；外owner helper本机12步PASS。中央admission/full-chain CAS尚待总控运行。
+PARTIAL/PREPARED_NOT_RUN。5必要case驱动及Root命令就绪；尚无本驱动Kernel运行结果。
 
 ## Changed
 
-真实policy注册＋实际manifest全要求预检查；独立受限owner binary/wrapper，只改现有合成event；marker/ID校验、执行协议与GPT02待发送文案。
+run_l4_bridge.py/L4_EXECUTION.md/静态证据：稳定request重试/重启，update/remove真实sheet Deny，真实interrupt只读对账，签名caller withdrawal。未改driver/生产Main。
 
 ## Tests
 
-3c59→e603 patch/bytes/syn/5项静态PASS。自有小build1.38秒；12实际owner步骤通过，6guard拒绝、外进程更新、stale CAS拒绝且store不变/新事件保留。4生产服务文件与SDK逐字相同。旧reader SHA不变，未写中央state/共享target。
+Python compile/AST/CLI help/JSON与真实Router审计/Relay确认/admission/interrupt contract静态PASS。固定Main643009、testsource0426、Kernel56761；R8 binary SHA由实际Root build提供。未启动Kernel/GUI/Cargo/中央state写。
 
 ## Commit
 
-policy 2d927bde，文档426d91b6；helper提交见Git/聊天。未push。
+本单元local commit见Git/聊天，未push；8391/ad3与全部旧日志保留。
 
 ## Remaining
 
-总控policy重编/正式包验收、按EXTERNAL_OWNER_PROTOCOL执行中央CAS。GPT02同步需要直接本人消息授权。
+Root按L4_EXECUTION运行新标记empty fixture。全PASS必需公开same-anchor高sequence withdrawal catalog；竞态或缺输入记NOT_TESTED/PARTIAL，不替代为坏catalog或create协议拒绝。
 
 ## Important Boundaries
 
-服务真实，模型/权限/手势fixture；helper无Kernel/History/receipt，不读个人profile/Secret。
+服务/Kernel/审计真实运行后才判；模型/手势fixture，无Main VM验收/假lane/receipt/可信手势。

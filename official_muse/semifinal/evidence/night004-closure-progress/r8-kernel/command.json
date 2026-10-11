@@ -1,0 +1,20 @@
+[
+  "nice",
+  "-n",
+  "10",
+  "cargo",
+  "test",
+  "--offline",
+  "--locked",
+  "--release",
+  "-p",
+  "octosense-shell",
+  "--lib",
+  "--no-default-features",
+  "--features",
+  "app-hub,octos-core,app-muse-native-prototype",
+  "host_tools::real_kernel_tests::real_kernel_muse_calendar_crud_exact_readback_and_revocation_fixture",
+  "--",
+  "--test-threads=1",
+  "--nocapture"
+]

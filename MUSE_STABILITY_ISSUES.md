@@ -32,3 +32,6 @@ Kernel R4首次add/retry/get真执行，拟拒绝add也执行：官方add为act�
 | N004-11 | P1 测试环境 | 公开签名Muse bridge缺生产Mail注册后缺device_consent ABI，真实admission失败，未派发Calendar | fc768及2d927只补cfgtest真实service/policy初始化并完整manifest API预检；R7编译中，未弱化准入 | TEST_DRIVER_FIXED_RUNTIME_PENDING |
 
 旧冷启动两失败保留；最新同dabfe signed candidate真实AppHub Library→Open一次通过，有native照片与三SecCode0。仍不计最终20或L3通过。
+
+| N004-12 | P0 test harness | 实际Kernel成功add/get且署名准入通过，但桥open_context历史没有person lane，Muse正确不核验 | 测试桥沿用正式无client的conversation/TurnFrom | r2 raw actualhistory及SDK peer_link/link.rs | 两行cfg(test)增量0426；R8实际编译/CRUD通过；r3实际native initial22/22 | REAL_KERNEL_BRIDGE_FIX_PASS |
+| N004-13 | P0 | 真正全进程重启13/14，原聊天行动链缺官方Calendar/Mail节点 | 同来源、账号、事项、版本和完整产物一致时展示已核验节点；不重发 | r3 restore+diagnostic：所有binding/card/权限/版本有效，仅completion matcher拒绝；实际artifact/Goal/Run/Action/source SHA一致，对象键顺序不同 | GPT03定位最小两个完整结构比较修复，尚未接收/运行 | OPEN |

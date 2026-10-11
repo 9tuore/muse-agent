@@ -1,0 +1,25 @@
+let bridge_checks = {}
+let bridge_observations = {}
+fn bad_store_restart(){
+    bridge_checks.corrupt_goal_storage_refused = !core_boot_goals() && !core_storage_ready && goals.len() == 0
+    bridge_checks.corrupt_memory_storage_refused = !core_boot_memory() && !core_memory_ready && memory.len() == 0
+    calendar_agent_update_boot()
+    bridge_checks.corrupt_update_journal_refused = !calendar_agent_update_writable && calendar_agent_update_state.records.len() == 0
+    boot_restore("")
+    bridge_checks.corrupt_mail_blocks_send = !mail_draft_writable
+    mail_send_confirmed()
+    let receiver = fixture_rpc("fixture.receiver",{}).data
+    let counts = fixture_rpc("fixture/call-counts",{}).data
+    bridge_checks.no_service_or_kernel_write = receiver.transport_calls == 0 && receiver.received.len() == 0
+        && counts["mail.compose"] == nil && counts["mail.review_send"] == nil && counts["octos.turn.start"] == nil
+    let raw = "{NIGHT004 deliberately broken owned fixture store" let preserved = true
+    for path in ["goals.json","goals.backup.json","memory.json","memory.backup.json","calendar-agent-update.json","mail-draft.json"] {
+        if storage_read(path) != raw { preserved = false }
+    }
+    bridge_checks.all_original_bad_json_bytes_preserved = preserved
+    bridge_checks.no_completed_goal_run_memory = goals.len() == 0 && runs.len() == 0 && memory.len() == 0
+    bridge_observations = {core_error:core_error mail_error:mail_error receiver:receiver counters:counts
+        background_timers_not_drained:fixture_timers.len()}
+}
+bad_store_restart()
+({kind:"NIGHT004_NATIVE_BAD_STORE_REAL_PROCESS_RESTART" checks:bridge_checks observations:bridge_observations}).to_json()

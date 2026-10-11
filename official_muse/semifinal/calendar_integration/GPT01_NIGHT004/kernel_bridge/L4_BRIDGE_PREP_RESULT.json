@@ -1,0 +1,39 @@
+{
+  "state": "PREPARED_NOT_RUN",
+  "python_compile": true,
+  "ast_parse": true,
+  "cli_help": true,
+  "json_request_parse": true,
+  "scope": "Actual bridge L4 prepared only; no Kernel/GUI/central build/service write",
+  "required_cases": [
+    "stable_retry_restart",
+    "destructive_update_deny",
+    "destructive_remove_deny",
+    "interrupt_reconcile",
+    "signed_caller_withdrawal"
+  ],
+  "pins": {
+    "signed_main_sha256": "643009fed5065fd0cb43c2b2210c175cd162f31a9eb6bf5f67004f8f504223dc",
+    "sdk_test_source_sha256": "0426f4db13d86b577166b334c4686668c81cf8c7fa62d0f05e44e43c54eee1b9",
+    "kernel_sha256": "56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270",
+    "test_binary_sha256": "REQUIRED_FROM_ACTUAL_ROOT_R8_BUILD"
+  },
+  "resources_sha256": {
+    "run_l4_bridge.py": "061b2f423088e7bf7354255bdf6618f753718b1274ced53c60895dc302af0417",
+    "L4_EXECUTION.md": "58fde00dc30405324442374f72c2c5a2299b3ffe8cb407afe257e1f75e1dfe04",
+    "bridge.py": "9a36325c417193f20607e49009c76c3e11dc2f408478083a32f7c761a636d777",
+    "driver.rs": "b1d1b8f4eee9f15c34c8e1dc6ee60bcd7544f34a4b503e4a6dcd90d682a363f5",
+    "plan_model.py": "46d452766a177a51ce253996f41ba8fea5250e21048fef72d6fa7e64df67dcd9"
+  },
+  "required_missing_external_input": "Public same-anchor signed higher-sequence withdrawal catalog is required for overall PASS",
+  "runtime": false,
+  "shared_writes": false,
+  "actual_sdk_contract_static_cross_check": "PASS",
+  "actual_sdk_sources_sha256": {
+    "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/runtime-closure-full-shell-r1/sdk/crates/shell/src/approvals/router.rs": "daf69fdde5b7794c81c8fe835ca3a5a235d3d925dc396a6278025ada5253af26",
+    "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/runtime-closure-full-shell-r1/sdk/crates/shell/src/approvals/audit.rs": "8b859258d6776ac8e58cf2f29b06f6c4f7fb18ab0998a60f59e43aff9ea2c1ef",
+    "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/runtime-closure-full-shell-r1/sdk/crates/shell/src/host_tools/relay.rs": "411fa8c3fd351d0d8d63a9c9b72750fee8c2dfcc4161491f0665f740ba48bf7e",
+    "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/runtime-closure-full-shell-r1/sdk/crates/shell/src/host_tools/admission.rs": "86aa919d50734857e028799969db429935cb9fbcc7d8b6fb21cd6d9b03ff5e6d",
+    "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP\u9ed1\u5ba2\u677e/build/runtime-closure-full-shell-r1/sdk/crates/app-peers/src/broker.rs": "e36e12685777f7abf287ab75761936d29b5ecdc063639826ca8a740bd54cb002"
+  }
+}

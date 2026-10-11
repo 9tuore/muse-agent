@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-ZC-02 NIGHT-004 Mail/Memory；own基线8b6eb613，独立worktree。
+ZC02修CAS fixture notes；基线bd44e5c0，同e7d。
 
 ## Result
-PASS（组件fixture范围）；完整Host/L3未测。生产Rust Mail与真实VM Memory门禁通过。
+输入已修正；实际CAS重跑待Root。query已bd44e5c0交付。
 
 ## Changed
-night004/test-only patch、helper、runners、SHA与原日志；CURRENT_STATE。生产业务函数未改。
+仅native_cas_fault_probe新notes表达式包.trim()；5项静态报告/244函数字节identity及文档。
 
 ## Tests
-2026-10-12 Cargo offline+locked：15/15；持久helper26/26含真实进程重启/独立收件子进程/0重发。reference78ab9efc VM：Memory61/61、完成门禁33/33。证据night004/evidence；旧断言/适配器/预算失败保留。补丁独立apply/check+SHA通过。
+现场r1 actual owner success同ID/request；请求首空格被官方text.trim去掉，旧期待不符。静态5/5和prepare逐字通过。原expected/回执/副作用所有检查不变；Kernel调用0，未重跑真实CAS。
 
 ## Commit
 见最终回复，未push。
 
 ## Remaining
-中央/ZC-03按night004/README接helper完成L3；完整Shell/native/真实收件未验。UNKNOWN不重发。
+Root保留CAS r1 FAIL后新fixture重跑；query/R8按QUERY_PARENT.md，不重复旧步骤。
 
 ## Important Boundaries
-实际Mail crate/VM逻辑，Vault/审阅/Transport为合成；SMTP/Keychain0。无共享main/SDK/target/用户资料写入；未push。
+无main/service/SDK/Host/GUI/资料/SMTP改动；不放松回执/digest/bytes/count门禁，不造history/lane/Goal完成。

@@ -1,0 +1,61 @@
+{
+  "kind": "STATIC_FIXTURE_NOTES_INPUT_CANONICALIZATION",
+  "status": "PASS",
+  "checks": {
+    "original_fixture_mismatch_reproduced": true,
+    "actual_success_same_event_request": true,
+    "canonical_input_matches_actual_reply": true,
+    "only_fixture_input_changed": true,
+    "expected_and_all_receipt_sideeffect_checks_unchanged": true
+  },
+  "original_central_status": "FAIL",
+  "original_central_failed": [
+    "independent_actual_owner_edit"
+  ],
+  "original_report_sha256": "536821f4b3cdc519de73aa353ed191612bad6343e496428697c16bd3e0e81700",
+  "source_main_sha256": "e7d665dd7f466e454aeca071895273e81549af169f8613c3490671a3cf8cca20",
+  "actual_owner_request": {
+    "id": "ev-1791774819613",
+    "expected": {
+      "end": "2026-10-13T15:30",
+      "id": "ev-1791774819613",
+      "location": "合成会议室",
+      "notes": "",
+      "request_id": "muse-calendar-1791741568-6",
+      "start": "2026-10-13T15:00",
+      "timezone": "Asia/Shanghai",
+      "title": "合成日历安排"
+    },
+    "title": "合成日历安排",
+    "start": "2026-10-13T15:00",
+    "end": "2026-10-13T15:30",
+    "timezone": "Asia/Shanghai",
+    "location": "合成会议室",
+    "notes": " 外部合成编辑"
+  },
+  "actual_owner_reply": {
+    "is_ok": true,
+    "data": {
+      "card_warning": null,
+      "event": {
+        "end": "2026-10-13T15:30",
+        "id": "ev-1791774819613",
+        "location": "合成会议室",
+        "notes": "外部合成编辑",
+        "request_id": "muse-calendar-1791741568-6",
+        "start": "2026-10-13T15:00",
+        "timezone": "Asia/Shanghai",
+        "title": "合成日历安排"
+      }
+    },
+    "error": null
+  },
+  "corrected_fixture_notes": "外部合成编辑",
+  "sdk_source_sha256": {
+    "lib.rs": "81b904807a886397cdf9401fb1b5e66cd25befbb3d11bef8cb99bde51979dd86",
+    "ui.rs": "941b6f3d133bc24f06b0b4dd437a908aa676d590e3ea4c852060718445b39439"
+  },
+  "runtime_retest": false,
+  "kernel_calendar_calls_this_turn": 0,
+  "full_chain_status": "NOT_TESTED"
+}

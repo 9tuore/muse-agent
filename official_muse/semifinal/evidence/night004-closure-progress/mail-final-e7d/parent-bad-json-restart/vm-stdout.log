@@ -1,0 +1,29 @@
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"goals.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"goals.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"goals.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"activity.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"activity.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"activity.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"memory.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"memory.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"global-memory-settings.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"global-memory-settings.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"chat-sessions.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"chat-sessions.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"chat.json"}}
+MUSE_VM_REQUEST {"method":"fixture.clock","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.random","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.clock","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"chat-sessions.json","data":"{\"schema\":1,\"selected_id\":\"chat:1791741568-6\",\"sessions\":[{\"id\":\"chat:1791741568-6\",\"title\":\"新对话\",\"created_at\":1791741600,\"updated_at\":1791741600,\"messages\":[],\"proposals\":[],\"focus_project\":\"\",\"focus_owner\":\"\",\"goal_id\":\"\"}]}"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"chat-sessions.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"mail-fault-checkpoint.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"mail-fault-checkpoint.json"}}
+MUSE_VM_REQUEST {"method":"mail.accounts","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"mail-draft.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"mail-draft.json"}}
+MUSE_VM_REQUEST {"method":"mail.compose_status","payload":{"account":"one","compose_id":"compose-de06bc407cde26cf7bc19afa04d70fec"}}
+MUSE_VM_REQUEST {"method":"fixture.receiver","payload":{}}
+MUSE_VM_REQUEST {"method":"mail.review_send","payload":{"account":"one","compose_id":"compose-de06bc407cde26cf7bc19afa04d70fec","expected_revision":1,"to":"receiver@example.invalid","subject":"MUSE-R2-L3-FAULT-001","body":"MUSE-R2-L3-FAULT-001 exact synthetic fault payload"}}
+MUSE_VM_REQUEST {"method":"fixture.receiver","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.receiver","payload":{}}
+MUSE_VM_RESULT {"kind":"NIGHT004_NATIVE_MAIL_FAULT_COMPONENT_RESTART","checks":{"production_boot":true,"native_same_persisted_draft":true,"actual_engine_same_id_status_attempts":true,"new_process_no_automatic_resend":true,"actual_restored_engine_duplicate_refused":true,"readonly_check_never_repeats_transport":true,"no_completed_goal_run_memory":true},"observations":{"draft":{"request_id":"mail-1791741568-5","body":"MUSE-R2-L3-FAULT-001 exact synthetic fault payload","subject":"MUSE-R2-L3-FAULT-001","proposed":null,"preview":"{\"account\":\"one\",\"to\":\"receiver@example.invalid\",\"subject\":\"MUSE-R2-L3-FAULT-001\",\"body\":\"MUSE-R2-L3-FAULT-001 exact synthetic fault payload\"}","attempt":"{\"account\":\"one\",\"to\":\"receiver@example.invalid\",\"subject\":\"MUSE-R2-L3-FAULT-001\",\"body\":\"MUSE-R2-L3-FAULT-001 exact synthetic fault payload\"}","verified_id":"","account":"one","accepted_at":1791741600,"verified_at":0,"link_event_id":"","link_run_id":"","incoming_key":"","host_compose_id":"compose-de06bc407cde26cf7bc19afa04d70fec","link_goal_id":"","host_revision":1,"to":"receiver@example.invalid","status":"accepted"},"actual_host_status":{"data":{"body":"MUSE-R2-L3-FAULT-001 exact synthetic fault payload","subject":"MUSE-R2-L3-FAULT-001","draft_id":"composer-0951900699b646df77418642e6c2a789-0323a24f0608f9041def3b9e365a3fff","email":{},"from":"sender@example.invalid","references":"","account":"one","attempts":[{"operation_id":"send-c6ad7c8f0dff0e6ba76a124b1e14ac51","payload":{"body":"MUSE-R2-L3-FAULT-001 exact synthetic fault payload","from":"sender@example.invalid","in_reply_to":"","message_id":"<send-c6ad7c8f0dff0e6ba76a124b1e14ac51@example.invalid>","references":"","subject":"MUSE-R2-L3-FAULT-001","to":"receiver@example.invalid"},"prior_attempt":null,"receipt":{"accepted":true,"message_id":"<send-c6ad7c8f0dff0e6ba76a124b1e14ac51@example.invalid>"},"revision":1,"status":"accepted"}],"in_reply_to":"","kind":"public_compose","publisher":"muse-goals","source_message":{"folder":null,"generation":null,"message":null},"suggestions":[],"body_origin":"app","chat_thread":"reply-8354c8aa9784ae2b710cf174","to":"receiver@example.invalid","revision":1,"status":"accepted","compose_id":"compose-de06bc407cde26cf7bc19afa04d70fec"},"is_ok":true},"receiver":{"real_smtp_calls":0,"received":[{"body":"MUSE-R2-L3-FAULT-001 exact synthetic fault payload","from":"sender@example.invalid","in_reply_to":"","message_id":"<send-c6ad7c8f0dff0e6ba76a124b1e14ac51@example.invalid>","references":"","subject":"MUSE-R2-L3-FAULT-001","to":"receiver@example.invalid"}],"transport_calls":0},"duplicate_reply":{"error":"This message has a submission attempt; inspect its receipt instead of composing again","is_ok":false},"background_timers_not_drained":1}}

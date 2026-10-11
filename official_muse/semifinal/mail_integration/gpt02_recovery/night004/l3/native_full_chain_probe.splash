@@ -17,6 +17,46 @@ fn native_read_remember(message,mailbox){
     let doc = memory[mi].document let si = core_source_index(doc.payload.source_ids[0],"one")
     return doc.payload.epistemic_type == "external_claim" && si >= 0 && memory_sources[si].content_sha256 == fs.sha256(message.body)
 }
+fn native_query_before_create(){
+    let goals_before = goals.to_json() let runs_before = runs.to_json() let memory_before = memory.to_json()
+    // Explicit fixture user read request; original production entry builds its own prompt.
+    calendar_agent_submit("仅查询官方日历事件列表，不新增、改期、删除、通知或发送邮件。精确 calendar.events 参数：{}")
+    bridge_checks.real_kernel_query_turn_completed = calendar_agent_state.status == "turn_completed"
+        && calendar_agent_state.turn_id != "" && calendar_agent_state["binding"] == nil
+    bridge_observations.query_state = calendar_agent_state.to_json().parse_json()
+    bridge_observations.query_notice = calendar_agent_notice
+    if !bridge_checks.real_kernel_query_turn_completed { return false }
+    let history = fixture_rpc("octos.session.history",{})
+    let count = 0 let other = 0 let receipt = nil
+    if history.is_ok && gm_array(history.data["messages"]) {
+        for row in history.data.messages {
+            if gm_object(row) && row["role"] == "tool" {
+                let turn = row["turn_id"] if turn == nil { turn = row["thread_id"] }
+                if turn == calendar_agent_state.turn_id {
+                    if calendar_agent_tool_name(row["tool_name"]) != "calendar.events" { other = other + 1 }
+                    else if row["lane"] == "person" && calendar_agent_receipt_status(row) == "ok" {
+                        let actual = row.host_calendar_receipt
+                        if actual["args_digest"] == "sha256:" + fs.sha256("{}") && gm_array(actual.result.data["events"]) {
+                            count = count + 1 receipt = actual
+                        }
+                    }
+                }
+            }
+        }
+    }
+    bridge_checks.real_query_persisted_events_receipt = count == 1 && other == 0
+    bridge_checks.query_does_not_write_goal_run_memory = goals.to_json() == goals_before && runs.to_json() == runs_before && memory.to_json() == memory_before
+    bridge_checks.query_keeps_fresh_owner_empty = fixture_rpc("fixture/logsideeffects",{}).data.events.len() == 0
+    bridge_observations.query_history = history bridge_observations.query_receipt = receipt
+    if !bridge_checks.real_query_persisted_events_receipt { return false }
+    // Same gesture as 回读并结清: production history callback alone may archive a resolved query.
+    calendar_agent_history_settle = true calendar_agent_history()
+    let previous = calendar_agent_state.previous_requests
+    bridge_checks.query_archived_by_production_history = calendar_agent_state.status == "idle" && previous.len() == 1
+        && previous[0].request_id == bridge_observations.query_state.request_id
+        && previous[0].turn_id == bridge_observations.query_state.turn_id && previous[0].status == "turn_completed"
+    return bridge_checks.query_archived_by_production_history
+}
 fn native_full_chain(){
     bridge_checks.production_boot = core_boot_goals() && core_boot_activity() && core_boot_memory() && gm_boot() && chat_boot_data()
     mail_accounts_load()
@@ -36,12 +76,16 @@ fn native_full_chain(){
     chat_save() chat_apply_proposal("fixture-model-first")
     bridge_checks.one_goal_before_kernel = goals.len() == 1 && goals[0].status == "planned" && calendar_agent_candidate != nil
     if !bridge_checks.one_goal_before_kernel { bridge_observations.error = ui_error return }
+    if !native_query_before_create() { return }
     calendar_agent_submit_candidate()
     bridge_checks.real_kernel_create_verified = calendar_agent_state.status == "turn_completed"
         && calendar_agent_state["binding"] != nil && calendar_agent_state.binding.receipt_status == "verified"
     bridge_observations.create_state = calendar_agent_state.to_json().parse_json()
     bridge_observations.create_notice = calendar_agent_notice
     if !bridge_checks.real_kernel_create_verified { return }
+    bridge_checks.query_and_create_distinct_requests_turns = calendar_agent_state.request_id != bridge_observations.query_state.request_id
+        && calendar_agent_state.turn_id != bridge_observations.query_state.turn_id
+        && calendar_agent_state.previous_requests[0].request_id == bridge_observations.query_state.request_id
     let original = calendar_agent_authority()
     let creation_json = calendar_agent_state.to_json()
     let old_card_json = chat.proposals[0].to_json()
@@ -123,6 +167,7 @@ fn native_full_chain(){
     }
     bridge_checks.action_chain_contains_calendar_and_mail = has_calendar && has_mail
     storage_write("l3-native-checkpoint.json",{chat_id:chat_selected_id goal_id:goals[0].id event:authority.event
+        query_request_id:bridge_observations.query_state.request_id query_turn_id:bridge_observations.query_state.turn_id
         compose_id:mail_draft.host_compose_id message_id:receiver.received[0].message_id request_id:mail_draft.request_id
         memory_ids:["memory:mail:one:synthetic-incoming-001","memory:mail:one:synthetic-incoming-002"]}.to_json())
     bridge_observations.latest_authority = authority bridge_observations.owner_read = independent.data

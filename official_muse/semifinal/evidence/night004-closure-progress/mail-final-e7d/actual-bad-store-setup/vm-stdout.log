@@ -1,0 +1,27 @@
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"goals.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"goals.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"current.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"activity.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"activity.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"memory.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"memory.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.exists","payload":{"path":"global-memory-settings.json"}}
+MUSE_VM_REQUEST {"method":"fixture.random","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.random","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.random","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.random","payload":{}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"global-memory-settings.json","data":"{\"schema\":1,\"enabled\":true,\"forget_pending\":false,\"user_id\":\"user:profile:1-2-3-4\"}"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"global-memory-settings.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"goals.json","data":"{NIGHT004 deliberately broken owned fixture store"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"goals.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"goals.backup.json","data":"{NIGHT004 deliberately broken owned fixture store"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"goals.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"memory.json","data":"{NIGHT004 deliberately broken owned fixture store"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"memory.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"memory.backup.json","data":"{NIGHT004 deliberately broken owned fixture store"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"memory.backup.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"calendar-agent-update.json","data":"{NIGHT004 deliberately broken owned fixture store"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"calendar-agent-update.json"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.write","payload":{"path":"mail-draft.json","data":"{NIGHT004 deliberately broken owned fixture store"}}
+MUSE_VM_REQUEST {"method":"fixture.fs.read","payload":{"path":"mail-draft.json"}}
+MUSE_VM_RESULT {"kind":"NIGHT004_BAD_STORE_FIXTURE_SETUP","checks":{"production_initial_boot":true,"owned_bad_json_bytes_actually_written":true},"boundary":"Only own marked fixture files corrupted; no Calendar/Kernel history or completed Goal written."}

@@ -1,0 +1,20 @@
+--- a/crates/shell/src/host_tools/real_kernel_tests.rs
++++ b/crates/shell/src/host_tools/real_kernel_tests.rs
+@@ -846,7 +846,7 @@
+     let mut cfg=BrokerConfig::new(Deployment::Hosted,"_main","_main:api:octosense#system","card.muse-goals","Muse fixture bridge",OCTOS_SERVICES.iter().map(|s|s.to_string()).collect());
+     cfg.state_dir=Some(root.join("broker-state"));cfg.tool_host=Some(ToolHostHandle(Arc::new(super::ShellToolHost) as Arc<dyn ToolHost>));
+     let muse=Broker::new(cfg,Arc::new(CoreConnector::shared(core.clone())));muse.set_account(Some(crate::ai_host::contained::ACCOUNT));
+-    let ctx=muse.open_context(ContextSpec{account:crate::ai_host::contained::ACCOUNT.into(),instance:"night004-vm-bridge".into(),services:OCTOS_SERVICES.iter().map(|s|s.to_string()).collect()}).unwrap();
++    let ctx=muse.open_conversation(ContextSpec{account:crate::ai_host::contained::ACCOUNT.into(),instance:"night004-vm-bridge".into(),services:OCTOS_SERVICES.iter().map(|s|s.to_string()).collect()}).unwrap();
+     night004_bridge_emit(&root,&json!({"method":"fixture.ready"}),Ok(json!({"fixture_authorization":true,"fixture_model":true,
+         "source_main_sha256":main_sha,"source_version":manifest["version"],"source_bundle":source,"mirror":mirror,
+         "owner_bundle":owner_bundle,"kernel_sha256":"56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270"})));
+@@ -875,7 +875,7 @@
+                             night004_bridge_emit(&root,&request,Err("Fixture add requires explicit once before dispatch; official add_event has no mandatory Host sheet".into()));continue;}
+                         plan_seq+=1;active_plan=format!("bridge-{}-{plan_seq}",std::process::id());approve=payload["fixture_approval"]=="once";
+                         std::fs::write(&plan_file,json!({"plan_id":active_plan,"steps":steps}).to_string()).unwrap();
+-                        Some(ContextOp::Turn{text:text.into()}) // Original prompt, never replaced by plan markers/results.
++                        Some(ContextOp::TurnFrom{text:text.into(),trigger:crate::ai_host::app_peers::TurnTrigger::from_args(&payload)}) // Original prompt, never replaced by plan markers/results.
+                     },
+                     "fixture/read-owner"|"fixture/logsideeffects"=>{
+                         let name=if method=="fixture/logsideeffects"{"events"}else{payload["method"].as_str().unwrap_or("get_event")};

@@ -1,5 +1,14 @@
 ## ZC-00 NIGHT-004 完结与真实入口：2026-10-12 02:51 北京时间
 
+## ZC-00 NIGHT-004 真实整链及重启定位：2026-10-12 03:20 北京时间
+
+最终主源e7d665dd/签名compact643009，Intel正式包已实际AppHub Install/Open，Chat→Calendar→Memory→Chat和输入读回通过，4张native窗口PNG已查看，Host三动态SecCode0。原WorkBuddy外层入口保持。唯一R8 cfg(test)桥0426f4db采用正式open_conversation+原trigger parser，393.468s编译及真实CRUD1/1通过；冻结独立binary270617f0。
+
+同实际VM/Mail/Kernel初始创建→同ID改期→独立收件→Goal/Run/完成Memory/行动链22/22通过，owner1事件、Mail1attempt。真正全进程重启13/14通过：事件/核验邮件/完成Memory/新聊天召回保持、恢复transport0；原聊天行动链少Calendar/Mail节点，定位完整改期记录JSON键顺序比较，GPT03最小修复中。前置query已bd44e5c0交付，实际未跑；整体Night L3继续PARTIAL，不能据初始原报告称全通。
+
+同e7d生产Mail故障13场景117/117复测；实际外owner编辑notes后Kernel拒绝旧expected，CAS初始23/23，恢复待执行。旧r1因官方trim与fixture首空格期待不一致FAIL保留，只修合成输入，未放松CAS/error/digest/owner bytes/count门禁。公开单独withdrawal测试catalog离线签名/verify0、序列4→5，正式offered镜像不变；实际5场景bridge L4准备完。证据semifinal/evidence/night004-closure-progress。09:00停高风险，11:00截止；下一项恢复最小修复→同签名query全链及重启→L4→固定候选20次启动。
+
+
 当前组合main e7d665dd已补native Calendar→Mail核验后的Run/Goal/完成Memory，修恢复按钮、完成行动链说明及成功清空旧错误。中央基线10项4失败；同一最新源344项真实官方Splash VM通过（33完结、99改期、11归属、22安全、23创建、6墙时、150回归）。GPT04另在8ad9源16项生产持久化重载恢复通过，不重发、不重复Run/Memory。独立收件产物由parent先核对，生产入口仍为本人核验声明，不能宣称自动投递证明。证据semifinal/evidence/night004-completion-central/。
 
 已打包961d05ec/dabfe源rc7集成候选，真实AppHub Install/Open完整Muse及Chat/Calendar/Memory输入导航通过；正常Library→Open一次冷启动完整Muse15.890s（Host4.120s），三动态SecCode0，真实Calendar前后0，native图已人工查看。不是final20，GUI Mail store未设置账号，缺资料计数0不计Mail业务通过。证据semifinal/evidence/night004-rc7-integrated-preflight/。

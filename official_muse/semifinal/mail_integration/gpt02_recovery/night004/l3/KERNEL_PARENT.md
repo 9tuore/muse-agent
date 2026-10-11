@@ -24,6 +24,8 @@ Root重新签名completion新候选后，重新prepare其实际upstream源码和
 
 ## 实际协议处理
 
+故障父驱动和显式冻结二进制复用见[FAULT_PARENT.md](FAULT_PARENT.md)。默认复制行为保留；Root提供独立只读副本及FROZEN_TEST_BINARY.json、传--kernel-test-frozen时，逐次前后核SHA，避免每case复制118MB。真实L3结果仍由本页必选检查决定。
+
 kernel_rpc.py冻结GP01 bridge.py/plan_model.py与实际Shell test binary。fixture.ready必须带正确compact source SHA及固定Kernel56761a9f。每个request_id关联实际reply；父进程仅去除传输method/request_id，is_ok/data/error、历史及回执值不修改。原payload.text/trigger/绑定字段保持；只在父请求增加fixture_tool_plan/fixture_approval，完整原payload和实际发出请求都写kernel-parent-requests.jsonl。
 
 创建plan取原生产prompt的精确add JSON，随后get(id)的id引用实际前一个tool message返回值。改期plan取原prompt完整update DTO，按get旧→update同ID→get新。expected是本人所选并已核验的旧八字段原快照；不把第一次get发现的外部变化替换进expected，真实CAS应拒绝差异。失败tool消息由GPT01实际模型fixture停止，不合成结果。所有历史都来自实际octos.session.history；重启后原Kernel hydrate仅作为独立历史证据，不插入当前Broker回执，不写kernel_persisted。
@@ -40,3 +42,5 @@ kernel_rpc.py冻结GP01 bridge.py/plan_model.py与实际Shell test binary。fixt
 - 上述公开候选实际compact重放逐字通过；旧L2 binary6b67963a和实际Mail runtime ba37b915 SHA未变。
 
 kernel-driver-evidence保留10个report/stdout/stderr文件与SHA清单；初始整链、第二封信、真实Kernel回包、实际重启整链尚未执行，不可称全链PASS。源码交付让中央立即接入已编译bridge；completion生产缺口归GPT03，不在本单元改动。
+
+新增独立query → create步骤见[QUERY_PARENT.md](QUERY_PARENT.md)：正式无binding submit、实际history、原回读结清/归档后单独创建，parent query计划只有events。静态验证通过，实际R8待中央执行；旧全链/CAS和严格create守卫保留。

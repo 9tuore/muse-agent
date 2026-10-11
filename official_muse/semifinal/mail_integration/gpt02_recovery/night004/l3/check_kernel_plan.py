@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Directed fixture-plan contract checks; no Kernel or Calendar success simulated."""
-import argparse, copy, hashlib, json, sys
+import argparse, copy, hashlib, json, re, sys
 from pathlib import Path
 sys.dont_write_bytecode = True
 from kernel_rpc import fixture_turn_payload
@@ -29,6 +29,14 @@ checks['update_exact_cas_snapshot_preserved'] = steps[1]['args'] == update_args 
 checks['update_get_old_then_update_then_get_new'] = [s['tool'] for s in steps]==['calendar.get_event','calendar.update_event','calendar.get_event']
 checks['same_id_all_three_steps'] = all(s['args']['id']==expected['id'] for s in steps)
 checks['escaped_json_notes_and_prompt_preserved'] = steps[1]['args']['notes']==update_args['notes'] and updated['text']==update_payload['text']
+native_probe = Path(__file__).with_name('native_full_chain_probe.splash').read_text()
+query_text = re.search(r'calendar_agent_submit\("([^\n]+)"\)',native_probe).group(1)
+query_payload = {'text':'本次日历请求 ID：synthetic-parser-query。\n用户请求：'+query_text,'trigger':'app','opaque':'unchanged'}
+query_before = copy.deepcopy(query_payload); query = fixture_turn_payload(query_payload)
+checks['query_one_read_only_events_step'] = query['fixture_tool_plan']==[{'tool':'calendar.events','args':{}}]
+checks['query_native_user_text_trigger_opaque_preserved'] = query_payload==query_before and all(query[k]==v for k,v in query_payload.items())
+checks['create_does_not_contain_query_events'] = all(s['tool']!='calendar.events' for s in create['fixture_tool_plan'])
+checks['query_before_create_via_production_entries'] = native_probe.index('if !native_query_before_create()') < native_probe.index('    calendar_agent_submit_candidate()') and 'calendar_agent_history_settle = true calendar_agent_history()' in native_probe
 
 def refuses(value):
     try: fixture_turn_payload(value)
@@ -43,10 +51,19 @@ checks['mismatched_update_id_refused'] = refuses({'text':'2. calendar.update_eve
 bad = dict(update_args,request_id='replacement')
 checks['update_replacing_creation_request_refused'] = refuses({'text':'2. calendar.update_event 精确参数：'+json.dumps(bad)})
 checks['missing_text_refused'] = refuses({'trigger':'app'})
+checks['mixed_query_create_markers_refused'] = refuses({'text':query_text+'\n'+payload['text'],'trigger':'app'})
+checks['duplicate_query_marker_refused'] = refuses({'text':query_text+'\n'+query_text})
+checks['query_write_arguments_refused'] = refuses({'text':'精确 calendar.events 参数：'+json.dumps({'request_id':'not-a-query'})})
+checks['query_boolean_limit_refused'] = refuses({'text':'精确 calendar.events 参数：'+json.dumps({'limit':True})})
+checks['query_invalid_limits_refused'] = all(refuses({'text':'精确 calendar.events 参数：'+json.dumps({'limit':n})}) for n in [0,201,1.5,'50'])
+checks['query_invalid_time_filter_types_lengths_refused'] = all(refuses({'text':'精确 calendar.events 参数：'+json.dumps(args)}) for args in [{'from':4},{'to':'x'*33}])
+filtered_args = {'from':'2026-10-13','to':'2026-10-14','limit':200}
+filtered = fixture_turn_payload({'text':'精确 calendar.events 参数：'+json.dumps(filtered_args)})
+checks['query_official_optional_filters_preserved'] = filtered['fixture_tool_plan']==[{'tool':'calendar.events','args':filtered_args}]
 result = {'kind':'FIXTURE_PLAN_PARSER_ONLY','checks':checks,'status':'PASS' if all(checks.values()) else 'FAIL',
     'observed_report_sha256':hashlib.sha256(a.observed_report.read_bytes()).hexdigest(),
     'source_main_sha256':report['source_identity']['source_sha256'],
-    'kernel_calendar_calls':0,'full_chain_status':'NOT_TESTED','plans':{'create':create,'update':updated}}
+    'kernel_calendar_calls':0,'full_chain_status':'NOT_TESTED','plans':{'query':query,'create':create,'update':updated}}
 (out/'report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({'status':result['status'],'checks':len(checks),'failed':[k for k,v in checks.items() if not v]}))
 raise SystemExit(0 if result['status']=='PASS' else 1)

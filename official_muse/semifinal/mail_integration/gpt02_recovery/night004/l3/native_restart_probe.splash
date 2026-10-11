@@ -8,6 +8,12 @@ fn native_restart(){
     mail_accounts_load() mail_account = mail_accounts[0] gm_set_accounts(["local",mail_account.id])
     let chat = chat_sessions[chat_session_index(chat_selected_id)] gm_set_focus(chat.focus_project,chat.focus_owner)
     calendar_agent_boot() calendar_agent_update_boot() calendar_agent_delete_boot() boot_restore("")
+    let query_preserved = false
+    for previous in calendar_agent_state.previous_requests {
+        if previous.request_id == checkpoint["query_request_id"] && previous.turn_id == checkpoint["query_turn_id"]
+            && previous.status == "turn_completed" && previous["binding"] == nil { query_preserved = true }
+    }
+    bridge_checks.actual_saved_query_request_preserved = query_preserved
     bridge_checks.actual_saved_update_verified = calendar_agent_update_state.records.len() == 1 && calendar_agent_update_state.records[0].receipt_status == "verified"
     let status = fixture_rpc("mail.compose_status",{account:"one" compose_id:checkpoint.compose_id})
     let receiver = fixture_rpc("fixture.receiver",{}).data

@@ -6,6 +6,23 @@ PINNED_KERNEL = '56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee394827
 CENTRAL_FIXTURES = Path('/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/night-004')
 
 
+def frozen_test_binary(path):
+    """Explicit immutable copy only; never share a recompilable target inode."""
+    requested = path.absolute()
+    assert not requested.is_symlink(), 'Frozen test binary must not be a symlink'
+    binary = requested.resolve(strict=True)
+    owned = Path(__file__).resolve().parents[6]/'build'
+    assert any(binary.is_relative_to(base.resolve()) and binary != base.resolve()
+               for base in (owned,CENTRAL_FIXTURES)), 'Frozen binary must be under owned/central fixture build'
+    assert not binary.stat().st_mode & 0o222, 'Frozen test binary must have no writable permission bits'
+    assert binary.stat().st_nlink == 1, 'Frozen test binary must be a separate copy, not a hardlink'
+    marker = binary.with_name('FROZEN_TEST_BINARY.json')
+    expected = json.loads(marker.read_text())
+    actual = hashlib.sha256(binary.read_bytes()).hexdigest()
+    assert expected == {'filename':binary.name,'sha256':actual}, 'Frozen marker/file SHA mismatch'
+    return binary,actual,hashlib.sha256(marker.read_bytes()).hexdigest()
+
+
 def prompt_object(prompt, marker):
     if prompt.count(marker) != 1:
         raise ValueError('Expected one production prompt marker: '+marker)
@@ -20,7 +37,20 @@ def fixture_turn_payload(payload):
     if not isinstance(payload.get('text'), str) or any(k.startswith('fixture_') for k in payload):
         raise ValueError('Original VM text required; fixture fields belong to parent only')
     text = payload['text']
-    if '精确 calendar.add_event 参数：' in text:
+    markers = ['精确 calendar.events 参数：','精确 calendar.add_event 参数：','2. calendar.update_event 精确参数：']
+    if sum(marker in text for marker in markers) != 1:
+        raise ValueError('Exactly one native query/create/update prompt marker required')
+    if '精确 calendar.events 参数：' in text:
+        args = prompt_object(text, '精确 calendar.events 参数：')
+        if set(args) - {'from','to','limit'}:
+            raise ValueError('Unknown official events query arguments')
+        for field in ('from','to'):
+            if field in args and (not isinstance(args[field],str) or len(args[field]) > 32):
+                raise ValueError('Official query time filters must be bounded strings')
+        if 'limit' in args and (type(args['limit']) is not int or not 1 <= args['limit'] <= 200):
+            raise ValueError('Official query limit must be an integer from 1 to 200')
+        steps = [dict(tool='calendar.events',args=args)]
+    elif '精确 calendar.add_event 参数：' in text:
         args = prompt_object(text, '精确 calendar.add_event 参数：')
         if set(args) != {'title','start','end','timezone','location','notes','request_id'} or not args['request_id']:
             raise ValueError('Incomplete production create arguments')
@@ -39,7 +69,7 @@ def fixture_turn_payload(payload):
                  dict(tool='calendar.update_event', args=args),
                  dict(tool='calendar.get_event', args={'id': args['id']})]
     else:
-        raise ValueError('No supported native create/update production prompt')
+        raise ValueError('No supported native query/create/update production prompt')
     result = dict(payload, fixture_tool_plan=steps, fixture_approval='once')
     assert result['text'] == payload['text'] and result.get('trigger') == payload.get('trigger')
     return result
@@ -76,7 +106,7 @@ def validate_candidate(settings, out, source_sha, source_file):
 
 
 class KernelBridge:
-    def __init__(self, *, bridge, test_binary, kernel, config, out, source_sha, source_file):
+    def __init__(self, *, bridge, test_binary, kernel, config, out, source_sha, source_file, use_frozen_test_binary=False):
         self.out, self.serial, self.pending, self.lock = out, 0, {}, threading.Lock()
         self.frames, self.reader_error = [], None
         config = config.resolve(strict=True)
@@ -90,16 +120,24 @@ class KernelBridge:
         for name in ('bridge.py','plan_model.py'):
             shutil.copy2(bridge.parent/name, helper/name)
         shutil.copy2(config, helper/'config.json')
-        shutil.copy2(test_binary.resolve(strict=True), helper/'shell-test-bin')
+        self.frozen_binary = None
+        if use_frozen_test_binary:
+            selected_test_binary,test_sha,marker_sha = frozen_test_binary(test_binary)
+            self.frozen_binary = selected_test_binary
+        else:
+            selected_test_binary = helper/'shell-test-bin'
+            shutil.copy2(test_binary.resolve(strict=True),selected_test_binary)
+            test_sha,marker_sha = hashlib.sha256(selected_test_binary.read_bytes()).hexdigest(),None
         self.identity = dict(source_sha256=source_sha, kernel_sha256=PINNED_KERNEL,
-            test_binary_sha256=hashlib.sha256((helper/'shell-test-bin').read_bytes()).hexdigest(),
+            test_binary_sha256=test_sha,test_binary_path=str(selected_test_binary),frozen_test_binary=use_frozen_test_binary,
+            frozen_marker_sha256=marker_sha,
             bridge_sha256=hashlib.sha256((helper/'bridge.py').read_bytes()).hexdigest(),
             model_sha256=hashlib.sha256((helper/'plan_model.py').read_bytes()).hexdigest(),
             config_sha256=hashlib.sha256(config.read_bytes()).hexdigest(), fixture_root=str(fixture_root),candidate_mapping=mapping)
         self.log = (out/'kernel-wrapper-stderr.log').open('w')
         self.ready_queue = queue.Queue()
         self.process = subprocess.Popen([sys.executable,str(helper/'bridge.py'),
-            '--test-binary',str(helper/'shell-test-bin'),'--kernel',str(kernel.resolve()),
+            '--test-binary',str(selected_test_binary),'--kernel',str(kernel.resolve()),
             '--config',str(helper/'config.json')], stdin=subprocess.PIPE,stdout=subprocess.PIPE,
             stderr=self.log,text=True,bufsize=1)
         self.thread = threading.Thread(target=self._read,daemon=True); self.thread.start()
@@ -163,3 +201,10 @@ class KernelBridge:
         self.thread.join(timeout=5)
         self.log.close()
         self.identity['reader_error'] = self.reader_error
+        if self.frozen_binary is not None:
+            try:
+                _,after,_ = frozen_test_binary(self.frozen_binary)
+                self.identity['frozen_binary_unchanged'] = after == self.identity['test_binary_sha256']
+            except Exception as error:
+                self.identity['frozen_binary_unchanged'] = False
+                self.identity['frozen_binary_error'] = str(error)
