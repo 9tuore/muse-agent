@@ -108,3 +108,54 @@ int main(int argc, char **argv) {
         self.assertEqual(record['source_host_sha256'], package_app.sha(self.host))
         self.assertEqual(record['host_sha256'], package_app.sha(runtime / 'muse-host'))
         self.assertNotEqual(record['source_host_sha256'], record['host_sha256'])
+        self.assertEqual(record['source_kernel_sha256'], record['kernel_sha256'])
+        inventory = json.loads((self.output / 'HOST_RESOURCES.json').read_text())
+        self.assertEqual(inventory['makepad_widgets/resources/fixture-font.ttf'], package_app.sha(self.asset))
+        self.assertNotIn('muse-host', inventory)
+        self.assertNotIn('octos-kernel', inventory)
+        info = plistlib.loads((self.output / 'Muse.app/Contents/Info.plist').read_bytes())
+        self.assertEqual((self.output / 'Muse.app/Contents/Info.plist').read_bytes(),
+                         (package_app.HERE / 'workbuddy_info.plist').read_bytes())
+        self.assertEqual(info['CFBundleExecutable'], 'Launcher')
+        settings = json.loads((self.output / 'Muse.app/Contents/Resources/launcher.json').read_text())
+        self.assertEqual(settings['state_root'], str(self.state))
+        self.assertFalse((self.output / 'Muse.app/Contents/Resources/WorkBuddy Launcher.app').exists())
+        self.assertEqual(record['source_launcher_sha256'], record['packaged_launcher_sha256'])
+        self.assertFalse(list(self.output.rglob('fixture-data')))
+        self.assertEqual((self.state / 'fixture-data').read_bytes(), b'private fixture: never package')
+        self.assertFalse((self.output / 'signed-kernel').exists())
+
+    def test_mismatched_host_is_rejected(self):
+        self.host = self.root / 'different-host'
+        self.host.write_bytes(b'different fixture host')
+        with self.assertRaisesRegex(AssertionError, 'Paired app Host mismatch'):
+            self.package()
+
+    def test_modified_signed_resource_is_rejected(self):
+        self.asset.write_bytes(b'tampered fixture')
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.package()
+
+    def test_wrapper_resolves_spaces_clears_overrides_and_preserves_argv(self):
+        self.package()
+        resources = self.output / 'Muse.app/Contents/Resources'
+        wrapper = self.output / 'Muse.app/Contents/MacOS/Launcher'
+        log = self.state / 'logs/host.log'
+        env = dict(os.environ, MAKEPAD_APP_CONFIG='poison',
+                   OCTOSENSE_HUB='/wrong')
+        subprocess.run(['/bin/sh', str(wrapper), '--remote=9696', '--test-action',
+                        'launch-muse-native-prototype', '--test-action', 'launch-hub:muse-goals'],
+                       env=env, check=True, capture_output=True)
+        lines = log.read_text().splitlines()
+        self.assertEqual(lines[:3], ['--remote=9696', '--test-action', 'launch-muse-native-prototype'])
+        self.assertNotIn('launch-hub:muse-goals', lines)
+        self.assertIn('HUB=' + str(resources / 'mirror'), lines)
+        self.assertIn('APP_CONFIG=unset', lines)
+        deadline = time.monotonic() + 5
+        while list(self.state.glob('launch-*.ready')) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertFalse(list(self.state.glob('launch-*.ready')))
+
+
+if __name__ == '__main__':
+    unittest.main()
