@@ -1,0 +1,170 @@
+let fixture_clock = 1700000000
+let fixture_serial = 0
+fn time_now(){return fixture_clock}
+fn random_u32(){fixture_serial=fixture_serial+1 return fixture_serial}
+let fs = {exists: |path| fixture_files[path] != nil sha256: |value| mod.fixture.sha256(value)}
+let checks = {}
+fn seed(){
+    fixture_files={} fixture_write_fail=false fixture_write_fail_path="" fixture_read_fail=false fixture_pending=[]
+    core_storage_ready=true gm_ready=true chat_ready=true
+    gm_user_id="fixture-user" gm_accounts=["local"] gm_project="fixture-project" gm_owner="fixture-owner"
+    goals=[] runs=[] actions=[] core_last_goals="" task=nil
+    chat_selected_id="chat:fixture" ac_selected_chat=chat_selected_id ac_selected_id=""
+    chat_last_state="" messages=[] page="Chat"
+    chat_sessions=[{id:chat_selected_id title:"fixture" created_at:fixture_clock updated_at:fixture_clock
+        messages:[] proposals:[] focus_project:gm_project focus_owner:gm_owner goal_id:""}]
+    calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+    calendar_agent_busy=false calendar_agent_writable=true calendar_agent_history_settle=false
+    calendar_agent_history_epoch=0 calendar_agent_candidate=nil
+    calendar_agent_reply="" calendar_agent_evidence="" calendar_agent_input_text="" calendar_agent_details=false
+}
+fn fixture_card(){return {id:"card:fixture" action:"calendar_candidate" state:"candidate" session_id:chat_selected_id
+    project:gm_project owner:gm_owner account_id:"local" revision:1
+    payload:{to:"" subject:"" body:"" objective:"" source:""
+        title:"fixture meeting" start:"2030-12-12T10:00:00+08:00" end:"2030-12-12T11:00:00+08:00" time_zone:"Asia/Shanghai" location:"fixture"}}}
+fn fixture_bound(){
+    let card=fixture_card()
+    chat_sessions[0].proposals.push(card)
+    if !calendar_agent_ensure_matter(card){return false}
+    return calendar_agent_prepare_candidate(card)
+}
+fn fixture_turn(){
+    calendar_agent_state={schema:1 request_id:"request:fixture" turn_id:"turn:fixture" status:"turn_completed"
+        user_id:gm_user_id accounts:gm_accounts.to_json() previous_requests:[]}
+    calendar_agent_save()
+}
+fn fixture_row(tool,terminal,result_ok){
+    let reply={} reply["ok"]=result_ok reply.data={}
+    return {role:"tool" lane:"person" turn_id:"turn:fixture" tool_name:tool tool_call_id:"tool:fixture"
+    host_calendar_receipt:{source:"broker_tool_result" owner:"os.calendar" caller:"muse-goals" kernel_persisted:true
+        turn_id:"turn:fixture" tool_call_id:"tool:fixture" call_id:"call:fixture" tool:tool terminal:terminal result:reply}}}
+
+seed()
+checks.no_goal_candidate_builds_one_matter=fixture_bound() && goals.len()==1 && fixture_pending.len()==0
+let selected=ac_selected_id
+checks.repeated_prepare_keeps_one_matter=calendar_agent_ensure_matter(chat_sessions[0].proposals[0]) && goals.len()==1 && ac_selected_id==selected
+ac_selected_id="" ac_selected_chat="different-chat"
+checks.linked_matter_restores_explicit_selection=calendar_agent_ensure_matter(chat_sessions[0].proposals[0])
+    && ac_selected_id==selected && ac_selected_chat==chat_selected_id
+ac_selected_id=selected ac_selected_chat=chat_selected_id
+calendar_agent_submit_candidate()
+checks.bound_submit_waits_for_session=fixture_pending.len()==1 && fixture_pending[0].method=="octos.session.open" && calendar_agent_busy
+gm_accounts=["local","different-account"]
+fixture_pending[0].callback({is_ok:true data:{open:true}})
+checks.account_change_before_dispatch_blocks_turn=fixture_pending.len()==1 && calendar_agent_state.status=="blocked" && !calendar_agent_busy
+
+seed()
+fixture_turn()
+calendar_agent_submit("another request")
+checks.turn_completed_blocks_submit=fixture_pending.len()==0 && calendar_agent_state.request_id=="request:fixture"
+calendar_agent_state.status="unknown"
+calendar_agent_submit("another request")
+checks.unknown_blocks_submit=fixture_pending.len()==0 && calendar_agent_state.status=="unknown"
+calendar_agent_keep_previous()
+checks.explicit_archive_keeps_unknown_record=calendar_agent_state.previous_requests.len()==1
+    && calendar_agent_state.previous_requests[0].request_id=="request:fixture"
+    && calendar_agent_state.previous_requests[0].status=="unknown"
+
+seed()
+fixture_bound()
+calendar_agent_submit_candidate()
+fixture_pending[0].callback({is_ok:true data:{open:true}})
+checks.current_binding_dispatches_one_turn=fixture_pending.len()==2 && fixture_pending[1].method=="octos.turn.start"
+let dispatched=calendar_agent_state.request_id
+gm_user_id="different-user"
+fixture_pending[1].callback({is_ok:true data:{turn_id:"late-turn" text:"done"}})
+checks.late_identity_change_stays_unknown=calendar_agent_state.status=="unknown" && calendar_agent_state.request_id==dispatched
+    && calendar_agent_state.turn_id=="late-turn" && fixture_pending.len()==2 && goals[0].status=="planned"
+
+seed()
+fixture_bound()
+calendar_agent_submit_candidate()
+calendar_agent_state.status="unknown" calendar_agent_busy=false
+calendar_agent_keep_previous()
+fixture_pending=[]
+calendar_agent_submit_candidate()
+checks.archived_same_bound_candidate_not_dispatched=fixture_pending.len()==0 && calendar_agent_state.previous_requests.len()==1
+
+seed()
+fixture_write_fail=true
+calendar_agent_submit("query calendar")
+checks.initial_storage_failure_never_dispatches=fixture_pending.len()==0 && !calendar_agent_writable && calendar_agent_state.request_id!=""
+
+seed()
+let recovery_card=fixture_card()
+chat_sessions[0].proposals.push(recovery_card)
+chat_save()
+fixture_write_fail_path="chat-sessions.json"
+let ensured=calendar_agent_ensure_matter(recovery_card)
+checks.second_store_failure_keeps_one_goal_and_no_dispatch=!ensured && goals.len()==1 && !chat_ready && fixture_pending.len()==0
+let original_goal_id=goals[0].id
+fixture_write_fail_path=""
+goals=[] runs=[] actions=[] task=nil core_last_goals=""
+chat_sessions=[] messages=[] chat_selected_id="" chat_last_state=""
+ac_selected_id="" ac_selected_chat=""
+let restored_goals=core_boot_goals()
+let restored_chat=chat_boot_data()
+checks.goal_and_chat_reload_after_second_store_failure=restored_goals && restored_chat && goals.len()==1
+    && chat_sessions[0].goal_id==""
+ensured=false
+if restored_chat && chat_sessions.len()>0 && chat_sessions[0].proposals.len()>0 {
+    ensured=calendar_agent_ensure_matter(chat_sessions[0].proposals[0])
+}
+checks.recovered_same_candidate_does_not_add_second_goal=ensured && goals.len()==1 && goals[0].id==original_goal_id
+    && chat_sessions[0].goal_id==original_goal_id && fixture_pending.len()==0
+let recovery_goal_count=goals.len()
+
+seed()
+calendar_agent_submit("query calendar")
+let interrupted_id=calendar_agent_state.request_id
+fixture_pending=[] calendar_agent_busy=false
+calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+calendar_agent_boot()
+checks.interrupted_request_boots_unknown_without_dispatch=calendar_agent_state.request_id==interrupted_id
+    && calendar_agent_state.status=="unknown" && fixture_pending.len()==0
+
+seed()
+fixture_turn()
+calendar_agent_history_settle=true calendar_agent_history()
+calendar_agent_keep_previous()
+calendar_agent_submit("different query")
+let next_request=calendar_agent_state.request_id
+fixture_pending[0].callback({is_ok:true data:{messages:[fixture_row("calendar.events","ok",true)]}})
+checks.late_history_cannot_settle_next_request=calendar_agent_state.request_id==next_request
+    && calendar_agent_state.status=="in_flight" && calendar_agent_busy && fixture_pending.len()==2
+
+seed()
+fixture_turn()
+let original=calendar_agent_state.to_json()
+fixture_write_fail=true
+let settled=calendar_agent_settle("settled")
+checks.settle_write_failure_preserves_current_request=!settled && calendar_agent_state.to_json()==original && !calendar_agent_writable
+
+seed()
+fixture_turn()
+original=calendar_agent_state.to_json()
+fixture_read_fail=true
+settled=calendar_agent_settle("settled")
+checks.settle_read_failure_preserves_current_request=!settled && calendar_agent_state.to_json()==original && !calendar_agent_writable
+
+seed()
+fixture_turn()
+calendar_agent_history_settle=true calendar_agent_history()
+fixture_pending[0].callback({is_ok:true data:{messages:[fixture_row("calendar.add_event","ok",true)]}})
+checks.unbound_write_receipt_does_not_count_as_query_settlement=calendar_agent_state.request_id=="request:fixture"
+
+seed()
+fixture_turn()
+let rows=[fixture_row("calendar.events","error",false)]
+for i in 12 {rows.push(fixture_row("calendar.events","ok",true))}
+calendar_agent_history_settle=true calendar_agent_history()
+fixture_pending[0].callback({is_ok:true data:{messages:rows}})
+checks.history_failure_beyond_display_cap_blocks_settlement=calendar_agent_state.request_id=="request:fixture"
+
+seed()
+fixture_turn()
+calendar_agent_history_settle=true calendar_agent_history()
+fixture_pending[0].callback({is_ok:true data:{messages:[fixture_row("calendar.events","ok",true)]}})
+checks.fully_accounted_query_can_settle=calendar_agent_state.request_id=="" && calendar_agent_state.previous_requests.len()==1
+
+({checks:checks recovery_goal_count:recovery_goal_count external_calls:0 goals_completed:false}).to_json()

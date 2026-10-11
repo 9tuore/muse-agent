@@ -1,0 +1,23 @@
+{
+  "unit": "NIGHT-004 calendar safety",
+  "baseline_sha256": "768e295df55316c037f61181b25e47191ef452eb3deed60d518361df699c5b7b",
+  "patched_sha256": "c183a5c4e7fcb5d543fb7b43ea72cced03a46819827e5b7ee0db1e80be968539",
+  "patch_sha256": "5dd7cd72a33c6c055aa3123ad7fb0518bb98fb71a749eb1ce0e20a846eb14c54",
+  "runner_sha256": "f48060d9a6f10d6be1148e93afc1819ce583bc69ec80f24a70d41316d28c5351",
+  "checks": 22,
+  "before_failed": [
+    "recovered_same_candidate_does_not_add_second_goal",
+    "settle_read_failure_preserves_current_request",
+    "linked_matter_restores_explicit_selection",
+    "unbound_write_receipt_does_not_count_as_query_settlement",
+    "history_failure_beyond_display_cap_blocks_settlement",
+    "settle_write_failure_preserves_current_request"
+  ],
+  "before_goal_side_effect_count": 2,
+  "after_goal_side_effect_count": 1,
+  "patch_apply_check": "PASS; exact bytes equal patched source",
+  "runtime_errors": 0,
+  "next_unit_baseline": "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-night004/safety-main.splash",
+  "raw_logs": "/Users/mima0000/.codex/worktrees/gpt03-launcher-preflight/Agent APP\u9ed1\u5ba2\u677e/build/gpt03-night004",
+  "source_boundary": "Only own patch/probe/CLI. Central baseline main, bundle, SDK, targets and GUI untouched."
+}

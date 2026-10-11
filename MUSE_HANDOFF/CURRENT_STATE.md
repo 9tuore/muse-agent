@@ -1,3 +1,7 @@
+## NIGHT-004 Calendar 安全修复接收与中央复跑
+
+接收 GPT03 b6ee81ee，main原冻结SHA768e295d→c183a5c4；保留原已落盘外部修改后再应用最小patch，逐字核对。基线真实Splash VM22项有6失败，修复后22/22，中央独立复跑同SHA22/22。修复请求结清写/读失败恢复、超显示上限回执统计、非查询写回执防误结清、候选预校验、原事项选择恢复、重启绑定失败的稳定事项ID。真实业务函数；存储/transport/绘制是fixture，不计正式Host GUI或L3。Native同ID改期仍在下一单元。证据official_muse/semifinal/gpt03_night004/evidence/central/。新Intel Mail Host已构建a9fc8ca3，待最终同候选打包运行。
+
 ## NIGHT-004 Mail 完整SDK检查通过
 
 真实完整Shell定向49/49 PASS，含新设备生命周期guard及审阅、撤销、防重复；同一Shell测试二进制43 Relay gates和3真实固定Kernel基础旅程PASS（本地脚本模型/合成consent，未skip）。证据official_muse/semifinal/evidence/night004-native-tests/。新Intel production Host正在唯一target单jobs1构建。Mail模拟受理/独立收件端、Muse→Calendar Kernel旅程、更新与固定候选L3仍未完成，未发真实邮件。
