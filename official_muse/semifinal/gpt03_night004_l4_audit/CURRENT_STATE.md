@@ -1,5 +1,7 @@
 # GPT03 NIGHT-004 L4 当前状态
 
+最新2026-10-12：Root明确8227bbb3…acde0d源码已核对，新prepare及8阶段实际107/107 PASS。SIGKILL−9、receipt errno21、Review cancel、真实wait52.204ms/late259.614ms独立归档在evidence/candidate-8227-r1。144/65与285/155函数/global摘要同c892，无NativeCreate适配。新旧归档复核PASS；中央命令见CANDIDATE_8227，旧107原字节保留，整链NOT_TESTED。
+
 2026-10-12（Asia/Shanghai）。只读审查＋自有探针，状态PARTIAL。
 
 实际c892 Mail组件8阶段107项PASS（78＋29）：pending review回执前SIGKILL−9；accepted后receipt OS写错errno21；实际Review取消；fixture网关50msdeadline实际等57.603ms后Queue.Empty，250ms回包255.908ms才入队并丢弃。各自新VM/Mail/recipient恢复，同request/compose/message/payload保留，恢复transport/review均0。未改生产代码，未Kernel/GUI/SMTP/push。

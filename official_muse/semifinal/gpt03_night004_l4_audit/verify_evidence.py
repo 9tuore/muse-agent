@@ -1,18 +1,30 @@
 #!/usr/bin/env python3
 """Verify the retained actual observations without repeating processes or side effects."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-evidence = HERE / 'evidence'
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--evidence',type=Path,default=HERE/'evidence')
+parser.add_argument('--source-sha',default='c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4')
+parser.add_argument('--combined',action='store_true',help='Four modes in one actual 107-check run; default preserves the archived 78+29 layout')
+args=parser.parse_args()
+evidence=args.evidence.resolve();evidence.relative_to(HERE/'evidence')
 load = lambda path: json.loads(path.read_text())
 sha = lambda data: hashlib.sha256(data).hexdigest()
 summary = load(evidence / 'summary.json')
-assert summary['status'] == 'PASS' and summary['checks'] == 78 and len(summary['phases']) == 6
-gateway_summary = load(evidence / 'gateway-summary.json')
-assert gateway_summary['status'] == 'PASS' and gateway_summary['checks'] == 29 and len(gateway_summary['phases']) == 2
-source = 'c892bff3a0148e78727d257acc8bb381258b6b01c3f6dcfb9b4888a0aac22ae4'
+if args.combined:
+    assert summary['status']=='PASS' and summary['checks']==107 and len(summary['phases'])==8
+    prepared_names=('initial','restart')
+else:
+    assert summary['status'] == 'PASS' and summary['checks'] == 78 and len(summary['phases']) == 6
+    gateway_summary = load(evidence / 'gateway-summary.json')
+    assert gateway_summary['status'] == 'PASS' and gateway_summary['checks'] == 29 and len(gateway_summary['phases']) == 2
+    prepared_names=('initial','restart','overlap','gateway-initial')
+source=args.source_sha
+assert summary['source_sha256']==source
 results = {}
 for mode in ('crash-after-review', 'receipt-os-error', 'review-cancel', 'gateway-timeout'):
     initial = load(evidence / mode / 'initial' / 'report.json')
@@ -69,7 +81,8 @@ for mode in ('crash-after-review', 'receipt-os-error', 'review-cancel', 'gateway
             assert before['draft']['status'] == 'unknown' and before['persisted_draft']['status'] == 'unknown'
             assert before['actions'][0]['status'] == 'unknown'
             assert initial['counters']['mail.review_send'] == 1
-            assert sha((evidence / 'executed-parent-gateway-r1.py').read_bytes()) == initial['parent_script_sha256']
+            parent_name='executed-parent-r1.py' if args.combined else 'executed-parent-gateway-r1.py'
+            assert sha((evidence / parent_name).read_bytes()) == initial['parent_script_sha256']
     else:
         before = initial['probe']['observations']
         assert before['receiver']['transport_calls'] == 0 and before['receiver']['received'] == []
@@ -79,7 +92,7 @@ for mode in ('crash-after-review', 'receipt-os-error', 'review-cancel', 'gateway
         assert len(reviews) == 1 and reviews[0]['request']['decision'] == 'cancel'
         assert reviews[0]['reply']['is_ok'] is False and 'cancelled' in reviews[0]['reply']['error']
     results[mode] = 'PASS'
-for name in ('initial', 'restart', 'overlap', 'gateway-initial'):
+for name in prepared_names:
     prepared = evidence / (name + '-prepare')
     identity = load(prepared / 'identity.json')
     assert identity['source_sha256'] == source

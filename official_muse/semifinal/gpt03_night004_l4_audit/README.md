@@ -1,5 +1,7 @@
 # Root 接收与最小复验命令
 
+最新：Root明确8227候选已新prepare/新进程实际复验107/107 PASS，独立归档与中央完整命令见[CANDIDATE_8227.md](CANDIDATE_8227.md)。下方c892为旧baseline，不改版本。verifier默认保持旧78＋29布局；新合并107用显式`--evidence/--source-sha --combined`。
+
 本目录仅含探针、父驱动、证据和审查，生产代码没有变化。读取 [RESULT.md](RESULT.md) 的状态边界。`verify_evidence.py` 可直接核对已保留的107项及故障时序，无新进程/副作用：
 
 ```sh
