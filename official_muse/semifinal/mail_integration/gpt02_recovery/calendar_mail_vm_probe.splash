@@ -1,0 +1,248 @@
+// Real production functions; synthetic verified Calendar seed and Mail transport.
+// Runner must supply the actual source prefix and the three Mail TextInput widgets.
+let cm_checks = {} let cm_calls = [] let cm_observed = []
+let cm_mode = "" let cm_goal = "" let cm_late_request = "" let cm_late_payload = ""
+let cm_composer = nil let cm_late_result_seen = false
+fn probe_transport(method,args,cb){
+    cm_calls.push({method: method args: args.to_json().parse_json()})
+    if method == "runtime.list" {
+        let methods = []
+        for name in ["mail.compose","mail.review_send","mail.compose_status"] {
+            methods.push({implemented: true supported: true descriptor: {name: name version: 1}})
+        }
+        cb({is_ok: true data: {schema: 1 methods: methods runtime_features: {}}}) return
+    }
+    if method == "mail.compose" {
+        cm_composer = args.to_json().parse_json()
+        cm_composer.compose_id = "compose-cm-" + cm_mode
+        cm_composer.revision = 1 cm_composer.status = "draft"
+        if cm_mode == "late" {
+            // Identity changes after dispatch, before the original callback arrives.
+            start_timeout(0.04,|| {
+                gm_user_id = "synthetic-other-user"
+                cb({is_ok: true data: cm_composer.to_json().parse_json()})
+                start_timeout(0.04,|| cm_late_result())
+            }) return
+        }
+        cb({is_ok: true data: cm_composer.to_json().parse_json()}) return
+    }
+    if method == "mail.compose_status" {
+        let data = cm_composer.to_json().parse_json()
+        data.status = "outcome_unknown" data.attempts = []
+        cb({is_ok: true data: data}) return
+    }
+    if method == "mail.review_send" && cm_mode == "ordinary" {
+        cb({is_ok: false error: "Review cancelled; nothing was sent"}) return
+    }
+    cm_checks.no_unexpected_transport = false
+    cb({is_ok: false error: "Synthetic transport refuses this method"})
+}
+fn cm_count(method){
+    let count = 0
+    for call in cm_calls { if call.method == method { count = count + 1 } }
+    return count
+}
+fn cm_action_state(id){
+    let ai = core_action_index(id)
+    if ai < 0 { return "missing" }
+    return actions[ai].status
+}
+fn cm_seed(mode){
+    cm_mode = mode cm_goal = "synthetic-cm-goal-" + mode
+    page = "Calendar"
+    gm_ready = true gm_user_id = "synthetic-user"
+    gm_project = "synthetic-project" gm_owner = "synthetic-owner"
+    gm_accounts = ["local","synthetic-account"]
+    mail_accounts = [{id: "synthetic-account"}]
+    mail_account = mail_accounts[0]
+    chat_selected_id = "synthetic-chat-" + mode
+    ac_selected_chat = chat_selected_id ac_selected_id = cm_goal
+    let card = {id: "synthetic-candidate-" + mode session_id: chat_selected_id
+        account_id: "synthetic-account" project: gm_project owner: gm_owner
+        action: "calendar_candidate" state: "opened" revision: 1
+        payload: {title: "Synthetic meeting " + mode start: "2030-01-02T15:00:00+08:00"
+            end: "2030-01-02T16:00:00+08:00" time_zone: "Asia/Shanghai" location: "Synthetic room"}}.to_json().parse_json()
+    chat_sessions = [{id: chat_selected_id focus_project: gm_project focus_owner: gm_owner
+        goal_id: cm_goal proposals: [card]}].to_json().parse_json()
+    let goal = {schema: 1 id: cm_goal version: 1 goal: "Synthetic Calendar matter " + mode
+        source: "Synthetic source" items: ["Synthetic source"] project_id: gm_project owner_id: gm_owner
+        status: "planned" approved_at: 0 model_summary: "" result_path: "results/" + cm_goal + ".json"
+        updated_at: time_now() archived: false}.to_json().parse_json()
+    let added = core_add_goal(goal)
+    let payload = {request_id: "synthetic-calendar-request-" + mode title: card.payload.title
+        start: "2030-01-02T15:00" end: "2030-01-02T16:00" timezone: "Asia/Shanghai"
+        location: card.payload.location notes: ""}.to_json().parse_json()
+    let event = payload.to_json().parse_json()
+    event.id = "synthetic-event-" + mode
+    let binding = {goal_id: cm_goal plan_revision: 1 project_id: gm_project owner_id: gm_owner
+        user_id: gm_user_id accounts: gm_accounts.to_json() account_id: "synthetic-account"
+        session_id: chat_selected_id candidate_id: card.id candidate_revision: card.revision
+        candidate_json: card.payload.to_json() payload: payload receipt_status: "verified"
+        verification: {status: "verified" event_id: event.id add_call_id: "synthetic-add-" + mode
+            get_call_id: "synthetic-get-" + mode event: event}}.to_json().parse_json()
+    calendar_agent_state = {schema: 1 request_id: payload.request_id turn_id: "synthetic-turn-" + mode
+        status: "turn_completed" user_id: gm_user_id accounts: gm_accounts.to_json()
+        previous_requests: [] binding: binding}.to_json().parse_json()
+    calendar_agent_writable = true calendar_agent_busy = false
+    mail_draft = {account: mail_account.id to: "" subject: "" body: "" status: "DRAFT"
+        preview: "" attempt: "" request_id: "" accepted_at: 0 verified_at: 0 verified_id: ""
+        link_goal_id: "" link_event_id: "" link_run_id: "" incoming_key: ""}.to_json().parse_json()
+    mail_draft_writable = true mail_sending = false mail_pending = false mail_model_pending = false
+    mail_error = "" mail_notice = ""
+    ui.mail_to.set_text("") ui.mail_subject.set_text("") ui.mail_body.set_text("")
+    let saved = calendar_agent_save() && mail_save()
+    cm_checks[mode + "_fixture_seed_persisted"] = added && saved && mail_calendar_verified()
+    if !cm_checks[mode + "_fixture_seed_persisted"] {
+        cm_observed.push({mode: mode core_error: core_error mail_error: mail_error})
+        cm_finish() return false
+    }
+    return true
+}
+fn cm_start(){
+    cm_checks.no_unexpected_transport = true
+    cm_checks.real_core_boot = core_boot_goals() && core_boot_activity()
+    if !cm_checks.real_core_boot { cm_finish() return }
+    if !cm_seed("valid") { return }
+    mail_compose_from_agent_calendar()
+    let saved = storage_read("mail-draft.json").parse_json()
+    cm_checks.valid_draft_recipient_empty_no_host = mail_draft.status == "DRAFT" && mail_draft.to == ""
+        && saved.to == "" && cm_calls.len() == 0
+    cm_checks.valid_binding_and_event_persisted = gm_object(saved["official_calendar"])
+        && saved.official_calendar.binding.to_json() == calendar_agent_state.binding.to_json()
+        && saved.link_goal_id == cm_goal && saved.link_event_id == "synthetic-event-valid"
+        && saved.official_calendar.turn_id == "synthetic-turn-valid" && saved.link_run_id == ""
+    ui.mail_body.set_text("Synthetic handwritten confirmation")
+    mail_edit()
+    let hand = mail_draft.to_json()
+    mail_compose_from_agent_calendar()
+    cm_checks.reopen_keeps_exact_hand_draft = mail_draft.to_json() == hand
+        && storage_read("mail-draft.json") == hand && mail_draft.body == "Synthetic handwritten confirmation"
+    ui.mail_to.set_text("self@example.invalid")
+    mail_preview()
+    cm_checks.preview_only_waits_no_host = mail_draft.status == "waiting_user" && cm_calls.len() == 0
+    if !cm_seed("not-verified") { return }
+    calendar_agent_state.binding.receipt_status = "accepted"
+    calendar_agent_save()
+    mail_compose_from_agent_calendar()
+    cm_checks.unverified_calendar_refuses_draft = mail_draft.subject == "" && mail_draft.body == ""
+        && !gm_has(mail_draft,"official_calendar") && cm_calls.len() == 0
+    // Each scope refusal runs in a separate timer slice, using original guards.
+    start_timeout(0.04,|| cm_scope_case("matter"))
+}
+fn cm_scope_case(mode){
+    if !cm_seed(mode) { return }
+    mail_compose_from_agent_calendar()
+    ui.mail_to.set_text("self@example.invalid")
+    mail_preview()
+    let before = mail_draft.to_json() let calls_before = cm_calls.len()
+    let actions_before = actions.len()
+    if mode == "matter" { ac_selected_id = "synthetic-other-matter" }
+    if mode == "identity" { gm_user_id = "synthetic-other-user" }
+    if mode == "project" { gm_project = "synthetic-other-project" }
+    if mode == "owner" { gm_owner = "synthetic-other-owner" }
+    if mode == "plan" {
+        let revised = goals[core_goal_index(cm_goal)].to_json().parse_json()
+        revised.version = 2
+        cm_checks.plan_change_persisted = core_upsert_goal(revised)
+    }
+    mail_send_confirmed()
+    mail_compose_from_agent_calendar()
+    cm_checks[mode + "_old_confirmation_refused"] = mail_draft.to_json() == before
+        && mail_draft.status == "waiting_user" && !mail_calendar_current(mail_draft)
+    cm_checks[mode + "_no_action_or_transport"] = cm_calls.len() == calls_before && actions.len() == actions_before
+    if mode == "matter" { start_timeout(0.04,|| cm_scope_case("identity")) return }
+    if mode == "identity" { start_timeout(0.04,|| cm_scope_case("project")) return }
+    if mode == "project" { start_timeout(0.04,|| cm_scope_case("owner")) return }
+    if mode == "owner" { start_timeout(0.04,|| cm_scope_case("plan")) return }
+    start_timeout(0.04,|| cm_late_start())
+}
+fn cm_late_start(){
+    cm_late_result_seen = false
+    if !cm_seed("late") { return }
+    mail_compose_from_agent_calendar()
+    ui.mail_to.set_text("self@example.invalid")
+    mail_preview()
+    mail_send_confirmed()
+    cm_late_request = mail_draft.request_id cm_late_payload = mail_draft.attempt
+    cm_checks.late_send_started_after_explicit_preview = mail_draft.status == "sending"
+        && cm_late_request != "" && cm_late_payload != ""
+    start_timeout(0.04,|| cm_wait_late(0))
+}
+fn cm_wait_late(tries){
+    if cm_late_result_seen { return }
+    if tries >= 100 { cm_checks.late_compose_arrived = false cm_finish() return }
+    start_timeout(0.04,|| cm_wait_late(tries+1))
+}
+fn cm_late_result(){
+    cm_late_result_seen = true cm_checks.late_compose_arrived = true
+    let ai = core_action_index(cm_late_request)
+    let saved = storage_read("mail-draft.json").parse_json()
+    let journal = storage_read("goals.json").parse_json()
+    let persisted_action = nil
+    for item in journal.actions { if item.id == cm_late_request { persisted_action = item } }
+    cm_checks.late_compose_keeps_host_id_and_unknown = ai >= 0 && mail_draft.status == "unknown"
+        && saved.status == "unknown" && saved.host_compose_id == "compose-cm-late" && saved.host_revision == 1
+        && saved.attempt == cm_late_payload && saved.request_id == cm_late_request
+    cm_checks.late_action_unknown_independent_persisted = persisted_action != nil && persisted_action.status == "unknown"
+        && persisted_action.goal_id == "" && persisted_action.run_id == "" && persisted_action.plan_revision == 0
+        && persisted_action.payload_json == cm_late_payload && actions[ai].status == "unknown"
+    cm_checks.late_receipt_retained_no_native_review = gm_string(saved["calendar_late_host_receipt"],16000)
+        && saved.calendar_late_host_receipt.parse_json().data.compose_id == "compose-cm-late"
+        && cm_count("mail.compose") == 1 && cm_count("mail.review_send") == 0
+    let before = cm_calls.len()
+    mail_preview() mail_send_confirmed() mail_check_host_status()
+    cm_checks.changed_identity_unknown_not_replayed = cm_calls.len() == before && mail_draft.status == "unknown"
+    // Restore the synthetic identity only to permit the original readonly query.
+    gm_user_id = "synthetic-user"
+    mail_check_host_status()
+    start_timeout(0.04,|| cm_late_readback())
+}
+fn cm_late_readback(){
+    cm_checks.unknown_status_reads_exact_original_composer = cm_count("mail.compose_status") == 1
+        && cm_calls[cm_calls.len()-1].args.compose_id == "compose-cm-late"
+        && cm_calls[cm_calls.len()-1].args.account == "synthetic-account" && mail_draft.status == "unknown"
+    let before = cm_calls.len()
+    mail_send_confirmed()
+    cm_checks.same_identity_unknown_not_replayed = cm_calls.len() == before && cm_count("mail.compose") == 1
+        && cm_count("mail.review_send") == 0 && mail_payload_pending(cm_late_payload)
+    cm_observed.push({mode: "late" request_id: cm_late_request draft: mail_draft.status
+        compose_id: mail_draft.host_compose_id action: cm_action_state(cm_late_request)})
+    start_timeout(0.04,|| cm_ordinary_start())
+}
+fn cm_ordinary_start(){
+    if !cm_seed("ordinary") { return }
+    ui.mail_to.set_text("self@example.invalid") ui.mail_subject.set_text("Synthetic ordinary email")
+    ui.mail_body.set_text("Keep synthetic ordinary handwritten body")
+    mail_edit() mail_preview()
+    cm_checks.ordinary_preview_has_no_calendar_link = mail_draft.status == "waiting_user"
+        && !gm_has(mail_draft,"official_calendar") && mail_draft.link_goal_id == ""
+    mail_send_confirmed()
+    start_timeout(0.04,|| cm_ordinary_result(0))
+}
+fn cm_ordinary_result(tries){
+    if mail_sending && tries < 100 { start_timeout(0.04,|| cm_ordinary_result(tries+1)) return }
+    let ai = core_action_index(mail_draft.request_id)
+    let saved = storage_read("mail-draft.json").parse_json()
+    cm_checks.ordinary_cancel_uses_real_receipt_chain = !mail_sending && ai >= 0 && actions[ai].status == "failed"
+        && mail_draft.status == "DRAFT" && saved.status == "DRAFT" && mail_draft.body == "Keep synthetic ordinary handwritten body"
+    cm_checks.ordinary_compose_review_no_legacy_send = cm_count("mail.compose") == 2
+        && cm_count("mail.review_send") == 1 && cm_count("mail.send") == 0
+    cm_observed.push({mode: "ordinary" draft: mail_draft.status action: cm_action_state(mail_draft.request_id)})
+    cm_finish()
+}
+fn cm_finish(){
+    let allowed = true
+    for call in cm_calls {
+        if call.method != "runtime.list" && call.method != "mail.compose"
+            && call.method != "mail.compose_status" && call.method != "mail.review_send" { allowed = false }
+    }
+    cm_checks.only_declared_synthetic_transport = allowed
+    let saved = storage_read("goals.json").parse_json()
+    let planned = gm_object(saved) && core_goals_valid(saved) && saved.runs.len() == 0
+    if gm_object(saved) {
+        for goal in saved.goals { if goal.status != "planned" { planned = false } }
+    }
+    cm_checks.no_goal_or_run_completion = planned
+    fs.write("probe.json",{checks: cm_checks calls: cm_calls observations: cm_observed}.to_json())
+}
+start_timeout(0.05,|| cm_start())
