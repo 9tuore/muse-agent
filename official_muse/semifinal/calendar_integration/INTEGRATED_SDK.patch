@@ -1,0 +1,31 @@
+--- a/crates/shell/src/apps.rs
++++ b/crates/shell/src/apps.rs
+@@ -223,6 +223,8 @@
+     register_mail_services();
+     static ONCE: std::sync::Once = std::sync::Once::new();
+     ONCE.call_once(|| {
++        #[cfg(any(feature = "app-hub", native_mobile))]
++        octosense_appstore::set_muse_calendar_integration_enabled(true);
+         crate::ai_host::set_model_grants(|app, host_dir| {
+             crate::host_tools::script_apps::admitted_bundle(app)
+                 .and_then(|(root, bundle)| {
+--- a/crates/shell/src/host_tools/admission.rs
++++ b/crates/shell/src/host_tools/admission.rs
+@@ -38,6 +38,7 @@
+     octosense_app_hub_app::catalog::check_verified_catalog_floor(
+         root, anchor, store.catalog().map(|catalog| catalog.sequence),
+     )?;
++    octosense_appstore::configure_muse_calendar_offers(&mut store)?;
+     store.may_run(app).map_err(|e| format!("App agent is unavailable: {e}"))?;
+     Ok(store.install_dir(app))
+ }
+--- a/crates/shell/src/glance_card.rs
++++ b/crates/shell/src/glance_card.rs
+@@ -1358,6 +1358,7 @@
+             octosense_app_hub_app::catalog::check_verified_catalog_floor(
+                 &root, &anchor, store.catalog().map(|catalog| catalog.sequence),
+             )?;
++            octosense_appstore::configure_muse_calendar_offers(&mut store)?;
+             store.may_run(app)?
+         }
+     };

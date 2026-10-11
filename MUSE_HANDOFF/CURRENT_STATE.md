@@ -1,3 +1,11 @@
+## ZC-00 统一候选接续：2026-10-11 13:33（北京时间）
+
+用户最新要求“先接通，完善后再验收”，当前继续工程集成，状态 PARTIAL，未交付为正式版。开发 HEAD8e70991e，根rc17/90351cba与主工作区旧dirty保留。r8加载最新完整Splash出现64ms时限导致空白，失败截图/log保留在build/muse-integrated-0.4.0-rc1；owned试验窗口正常关闭。
+
+新增 official_muse/integrated_release：有界准备patch与配套Host构建/整包脚本，使用官方资源打包参数、锁定Kernel与基础离线模型；0.4.0-rc3 compact6f3c20d5已准备，尚未准入/运行。官方Agent manifest申请四项Calendar工具，与Muse多Chat结构化model流程并存；不向共享Agent注入私人Memory，不宣称上游遗忘/项目隔离。新Hub/SDK接线在catalog验证/floor后配置Muse exact-four ceiling，保持原Gate、consent、Relay和owner身份；只是已应用未编译，完整包构建正在串行执行。
+
+实际窄回归：VM准备1、streaming5、硬时限1、Splash样式6通过；首轮样式1失败保留后修复。新增model回调重验请求/账号/用户/启用快照，真实reference VM合成transport6/6通过，无外部调用；证据在integrated_release/evidence。正式同IDCalendar工具、原生Mail登录/审阅/收件、真实模型、安装包运行与固定候选20次均待测。已复用三个真实聊天获取INTEGRATED专项交接，无子智能体。本轮不push，不发布，下一步Host构建/授权fixture→新签名目录→便携包真实运行；用户本人操作等界面准备后再提出。
+
 ## 最新接续：2026-10-11 06:41（北京时间）
 
 状态 **PARTIAL**。开发分支普通push已独立核对 `f43aa420f9203142b073e0526313a44049a71908`，main5126afc4未变。新隔离完整Desktop r8真实release构建、运行；Host SHA baf55d24，Kernel9c3d4b94，SDK4ccf8e06/Hub95e4831，有待审补丁，不是官方安装升级。

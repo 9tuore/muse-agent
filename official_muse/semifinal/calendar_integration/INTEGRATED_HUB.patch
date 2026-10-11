@@ -1,0 +1,56 @@
+--- a/crates/appstore/src/lib.rs
++++ b/crates/appstore/src/lib.rs
+@@ -53,6 +53,35 @@
+     Store::new(anchor, root, HostLimits::default())
+         .with_host_api_versions(crate::host_api::available_versions())
+         .with_agent_tool_offers(STORE_AGENT_OFFERS.get_or_init(Default::default).clone())
++}
++
++// A compiled host ceiling, separate from the person's agent consent. The
++// embedding explicitly enables it at startup; standalone AppStore stays off.
++static MUSE_CALENDAR_ENABLED: std::sync::atomic::AtomicBool =
++    std::sync::atomic::AtomicBool::new(false);
++const MUSE_CALENDAR_TOOLS: &[&str] = &[
++    "calendar.events", "calendar.get_event", "calendar.add_event", "calendar.notify",
++];
++
++pub fn set_muse_calendar_integration_enabled(enabled: bool) {
++    MUSE_CALENDAR_ENABLED.store(enabled, std::sync::atomic::Ordering::Release);
++}
++
++/// Call only after catalog authentication and the embedding's sequence floor.
++/// Every agent admission recomputes this ceiling, including when disabled.
++/// This neither sets consent nor grants a raw Calendar service capability.
++pub fn configure_muse_calendar_offers(store: &mut Store) -> Result<(), String> {
++    const APP: &str = "muse-goals";
++    if !MUSE_CALENDAR_ENABLED.load(std::sync::atomic::Ordering::Acquire)
++        || !store.entry(APP).is_some_and(|entry| entry.status.is_offered())
++    {
++        return store.set_agent_tool_offers(APP, &[]);
++    }
++    if let Err(error) = store.set_agent_tool_offers(APP, MUSE_CALENDAR_TOOLS) {
++        store.set_agent_tool_offers(APP, &[])?;
++        return Err(error);
++    }
++    Ok(())
+ }
+ 
+ pub fn set_data_root(root: PathBuf) {
+--- a/crates/app-hub-app/src/catalog.rs
++++ b/crates/app-hub-app/src/catalog.rs
+@@ -201,6 +201,7 @@
+                     .store
+                     .accept_catalog(&json)
+                     .and_then(|()| self.remember_sequence(self.store.catalog().unwrap().sequence))
++                    .and_then(|()| octosense_appstore::configure_muse_calendar_offers(&mut self.store))
+                 {
+                     self.warning = Some(format!("Could not accept the cached catalog: {error}"));
+                 } else {
+@@ -242,6 +243,7 @@
+                 self.persistence_failed = true;
+                 return Err(error);
+             }
++            octosense_appstore::configure_muse_calendar_offers(&mut candidate)?;
+             self.store = candidate;
+             self.persistence_failed = false;
+             Ok(())

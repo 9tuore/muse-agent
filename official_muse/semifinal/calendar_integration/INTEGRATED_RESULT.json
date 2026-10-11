@@ -1,0 +1,118 @@
+{
+  "state": "PATCHCHECK_PASS_SHARED_TARGET_BYTES_MATCH_NOT_COMPILED_NOT_LIVE",
+  "checks": [
+    {
+      "group": "hub",
+      "dry_run_exit": 0,
+      "apply_exit": 0,
+      "byte_match": true,
+      "files": [
+        {
+          "tree": "hub",
+          "path": "crates/appstore/src/lib.rs",
+          "before_sha256": "07b1069fd9fe1bdfeda37a23771197ec91cc2bdfdc5d8ceb4f5ac40fa601ff67",
+          "after_sha256": "c3fe71806e6c9cb09dfb601af81f85664de3dbbd696fe46c7d64c926b44a28df"
+        },
+        {
+          "tree": "hub",
+          "path": "crates/app-hub-app/src/catalog.rs",
+          "before_sha256": "0163ef82fad149b4e88cf03eeb68cf0c2e1d810bff19640bdf1965a7cf4145b3",
+          "after_sha256": "85211fa1754b2cb60872e7cb96f6a3ade4ee0d60cc5086683aabc07c3fd00c9c"
+        }
+      ]
+    },
+    {
+      "group": "sdk",
+      "dry_run_exit": 0,
+      "apply_exit": 0,
+      "byte_match": true,
+      "files": [
+        {
+          "tree": "sdk",
+          "path": "crates/shell/src/apps.rs",
+          "before_sha256": "ee6d3f8846fe82efb59c24d2a4a9b2aba74510a7802c28e5cb973f91592ba7da",
+          "after_sha256": "76e39e9c6dbc32605f6b614d674a3bd477ba4a8c040f132b9df8481b0101412f"
+        },
+        {
+          "tree": "sdk",
+          "path": "crates/shell/src/host_tools/admission.rs",
+          "before_sha256": "7970eb5cb470ac5954b4db262ef586b27c928569f7ee83a55358afa11b564527",
+          "after_sha256": "86aa919d50734857e028799969db429935cb9fbcc7d8b6fb21cd6d9b03ff5e6d"
+        },
+        {
+          "tree": "sdk",
+          "path": "crates/shell/src/glance_card.rs",
+          "before_sha256": "303081272d2e095efe50acfb9422df26f633dd1f8479814beae0347d87b4e2b0",
+          "after_sha256": "b849934a34d21d6975808aa63d17808a08a147b0bcd5e745d2380edc77e0ec26"
+        }
+      ]
+    },
+    {
+      "group": "witness",
+      "dry_run_exit": 0,
+      "apply_exit": 0,
+      "byte_match": true,
+      "files": [
+        {
+          "tree": "sdk",
+          "path": "crates/shell/src/host_tools/mod.rs",
+          "before_sha256": "9114207a4ec49489bf3f94448a2394da83b36ef78b94e6c50f5a44a97be33da2",
+          "after_sha256": "2773676fbbc7eea83a6acba9484b0467d1a03205558f6aa27ad4dacc42ec8775"
+        }
+      ]
+    }
+  ],
+  "patches": {
+    "INTEGRATED_HUB.patch": "4d42b57d5a99e060b7e1ff62eb5cadc84d8f4454aa7f345934818f3009a66be8",
+    "INTEGRATED_SDK.patch": "2e6719575b6f07a19ab8b416cd6f6007b2d70509ae8de8840f9b5f300b7d014c",
+    "INTEGRATED_WITNESS.patch": "71cd9f970a698a0e25cbfe5176b0b06a5c0174232aaaa3b149b65b835c256f9a"
+  },
+  "writes": "only new INTEGRATED_* under calendar_integration",
+  "cargo_gui_model_calendar_git_executed": false,
+  "source_baselines_after_generation": [
+    {
+      "tree": "hub",
+      "path": "crates/appstore/src/lib.rs",
+      "sha256": "c3fe71806e6c9cb09dfb601af81f85664de3dbbd696fe46c7d64c926b44a28df",
+      "matches_before": false,
+      "matches_proposed_after": true
+    },
+    {
+      "tree": "hub",
+      "path": "crates/app-hub-app/src/catalog.rs",
+      "sha256": "85211fa1754b2cb60872e7cb96f6a3ade4ee0d60cc5086683aabc07c3fd00c9c",
+      "matches_before": false,
+      "matches_proposed_after": true
+    },
+    {
+      "tree": "sdk",
+      "path": "crates/shell/src/apps.rs",
+      "sha256": "76e39e9c6dbc32605f6b614d674a3bd477ba4a8c040f132b9df8481b0101412f",
+      "matches_before": false,
+      "matches_proposed_after": true
+    },
+    {
+      "tree": "sdk",
+      "path": "crates/shell/src/host_tools/admission.rs",
+      "sha256": "86aa919d50734857e028799969db429935cb9fbcc7d8b6fb21cd6d9b03ff5e6d",
+      "matches_before": false,
+      "matches_proposed_after": true
+    },
+    {
+      "tree": "sdk",
+      "path": "crates/shell/src/glance_card.rs",
+      "sha256": "b849934a34d21d6975808aa63d17808a08a147b0bcd5e745d2380edc77e0ec26",
+      "matches_before": false,
+      "matches_proposed_after": true
+    },
+    {
+      "tree": "sdk",
+      "path": "crates/shell/src/host_tools/mod.rs",
+      "sha256": "2773676fbbc7eea83a6acba9484b0467d1a03205558f6aa27ad4dacc42ec8775",
+      "matches_before": false,
+      "matches_proposed_after": true
+    }
+  ],
+  "source_change_at_final_check": "Concurrent source changes observed; this chat wrote only INTEGRATED_*.",
+  "handoff_sha256": "4271a976b74482da6c2d0d08371592ed86dacb34780c2477a24ac8ec5889701b"
+}

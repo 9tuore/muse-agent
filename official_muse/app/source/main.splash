@@ -8210,6 +8210,11 @@ fn muse_model_request(query,session_id,goal_id,current,args,callback){
                 }
             }
             storage_write("model-last-response.json",trace.to_json())
+            if !current() || gm_accounts.to_json() != account_binding
+                || gm_user_id != user_binding || gm_enabled != enabled_binding {
+                callback({is_ok: false error: "cancelled: 请求、账号授权或当前用户已变化，旧模型结果未采用。"})
+                return
+            }
             if !chat_reply_context_valid({memory_refs: captured_refs}) {
                 callback({is_ok: false error: "memory_conflict: 相关记忆已更改，旧模型结果未采用。"})
                 return
@@ -10239,8 +10244,8 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
             calendar_panel := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
                 if !calendar_enabled() {
                     SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 5 draw_bg.color: panel
-                        Label{text: "官方日历联动待接通" draw_text.color: #xff9c94 draw_text.text_style: theme.font_bold{font_size: 14}}
-                        Label{width: Fill text: "使用 OctoSense 内置日历。共享工具联动尚未完成，当前不会创建或修改安排；历史记录继续保留。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        Label{text: "官方助手与内置日历" draw_text.color: blue draw_text.text_style: theme.font_bold{font_size: 14}}
+                        Label{width: Fill text: "按 Shift+F8 打开宿主的「询问 Muse」，首次使用请本人启用助手。日历查询与新建结果以官方工具回执为准。本页自动安排、改期和行动链回执联动尚待完成；历史记录继续保留。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     }
                 }
                 if calendar_enabled() {
