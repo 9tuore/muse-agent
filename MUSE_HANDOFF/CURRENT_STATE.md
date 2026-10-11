@@ -1,3 +1,11 @@
+## ZC-00 GPT 高速集成：2026-10-11（最新工程状态）
+
+用户要求先完善联通与内置 Calendar，再进行真实验收；GPT 主导开发，现有三聊天均已设置 GPT 6.1-sol 并创建独立 worktree。开发分支 e962e418 已普通 push，独立 ls-remote 一致；main、根 rc17、生产资料与原 dirty 保留。新基础宿主 f5eb2574 完整构建成功（37m56s），exact-four/签名/撤销/他应用拒绝测试通过；已接收 Calendar History 终态补丁并在同一 target 增量构建，尚未交付正式版。
+
+中央已接收 GPT-03 原生 GPT 启动/打包单元，整包可不携带 Qwen，缺配置打开 Models；metadata 检查不代表实调。新增 Calendar 页应用级接线：octos.session.open → octos.turn.start(trigger:app) → octos.session.history，保留请求 ID，当前回合/lane/精确工具过滤，不把模型文本当成功。未知或已结束请求不得被新 ID 覆盖；显式保留原请求后才能另写不同事项。重启只标未知，不自动派发。真实参考 Splash VM 合成协议 14 项通过，外部调用 0；不是新宿主或真实 Calendar Relay 通过。
+
+剩余：完整宿主运行与冷开；Calendar 官方终态回执补丁/真实四工具；Mail 官方中断恢复补丁、原生登录/审阅/投递；同候选行动链与最终回归。源准备、工具上限和签名检查不能替代本人 consent 与实际业务结果。正式比赛提交/公开发布未执行。现有 GPT 配置、本人凭证与实际 GPT 模型调用待新宿主界面准备后核验。
+
 ## GPT-03 启动器交付：2026-10-11
 
 独立 worktree 从 e962e418 开发，仅修改 integrated_release launcher/package 及其窄 fixture。

@@ -1,0 +1,72 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FIXTURE_PASS",
+  "suite": "production",
+  "source_sha256": "22f0fac91a30c6ad89ee90db1a59e5f345f1877339097a04b779df226e07f27d",
+  "host_sha256": "78ab9efce55cb692552a3566e7b579d2e8c304eadfd6b107c51b2efb027e34db",
+  "runner_sha256": "5c5b6b135387f908b1095aa1a8e9a942837053b6e5e9fbff12281a1cc1044bc8",
+  "probe_sha256": "b041f8f5c2087d47feb8510c5b06adb0df845218a13545331e7536b7440331aa",
+  "executed_sha256": "d2e3bafc7b61f8de2cab3929f1425fd15843926b96bb71b55300f7b2a6b0b822",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [],
+  "checks": {
+    "application_trigger": true,
+    "stable_request_id_in_prompt": true,
+    "exact_three_services": true,
+    "turn_is_not_tool_success": true,
+    "exact_current_tool_body": true,
+    "changed_identity_blocks_history": true,
+    "no_turn_after_open_refusal": true,
+    "failed_turn_unknown_no_replay": true,
+    "unknown_blocks_new_id_and_dispatch": true,
+    "explicit_archive_preserves_unknown_id": true,
+    "one_pending_turn": true,
+    "late_identity_reply_dropped": true,
+    "restart_marks_unknown_without_replay": true,
+    "unwritable_record_blocks_dispatch": true
+  },
+  "calls": [
+    {
+      "case": 0,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 0,
+      "method": "octos.turn.start"
+    },
+    {
+      "case": 0,
+      "method": "octos.session.history"
+    },
+    {
+      "case": 1,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 2,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 2,
+      "method": "octos.turn.start"
+    },
+    {
+      "case": 3,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 3,
+      "method": "octos.turn.start"
+    }
+  ],
+  "observations": {},
+  "runtime_errors": [],
+  "runtime_log_sha256": "18e70d686f00be5d67ea8e95e537d5fa1f5275024fe10077dddcc5ef1d55b41b"
+}

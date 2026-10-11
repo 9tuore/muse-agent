@@ -458,6 +458,153 @@ fn muse_calendar_request(method,payload,callback){
     callback({is_ok: false error: "官方内置日历需要通过已授权的 Calendar 共享工具执行；当前联动接入尚未完成。"})
 }
 
+// Application-level official conversation; never inject private Muse Memory.
+// A completed model turn is not a Calendar tool success receipt.
+let calendar_agent_state = {schema: 1 request_id: "" turn_id: "" status: "idle" user_id: "" accounts: "" previous_requests: []}
+let calendar_agent_writable = true
+let calendar_agent_busy = false
+let calendar_agent_history_epoch = 0
+let calendar_agent_notice = "首次使用请在宿主「询问 Muse」中本人启用助手并配置模型。"
+let calendar_agent_reply = ""
+let calendar_agent_evidence = ""
+let calendar_agent_input_text = ""
+let calendar_agent_details = false
+fn calendar_agent_save(){
+    let text = calendar_agent_state.to_json()
+    if !calendar_agent_writable || storage_write("calendar-agent-state.json",text) != nil
+        || storage_read("calendar-agent-state.json") != text {
+        calendar_agent_writable = false
+        calendar_agent_notice = "请求记录保存或回读失败，已停止新请求；请保留记录并核对宿主历史。"
+        return false
+    }
+    return true
+}
+fn calendar_agent_boot(){
+    if !fs.exists("calendar-agent-state.json") { return }
+    let saved = storage_read("calendar-agent-state.json").parse_json()
+    if saved != nil && saved.is_object() && saved["previous_requests"] == nil { saved.previous_requests = [] }
+    if saved == nil || !saved.is_object() || saved["schema"] != 1
+        || !saved["request_id"].is_string() || !saved["turn_id"].is_string()
+        || !saved["status"].is_string() || !saved["user_id"].is_string() || !saved["accounts"].is_string()
+        || !saved["previous_requests"].is_array() || saved.previous_requests.len() > 32
+        || saved.request_id.len() > 160 || saved.turn_id.len() > 160 || saved.accounts.len() > 8000 {
+        calendar_agent_writable = false
+        calendar_agent_notice = "官方助手请求记录不可读，原文件保留；新请求已停止。"
+        return
+    }
+    calendar_agent_state = saved
+    if saved.status == "in_flight" {
+        calendar_agent_state.status = "unknown"
+        calendar_agent_notice = "上次请求在运行中中断，结果待核对；不会自动重做。请求 ID：" + saved.request_id
+        calendar_agent_save()
+    }
+}
+fn calendar_agent_history(){
+    if calendar_agent_state.user_id != gm_user_id || calendar_agent_state.accounts != gm_accounts.to_json() {
+        calendar_agent_notice = "当前账号与请求记录不一致，未读取旧回合；请在宿主助手核对原请求。"
+        redraw() return
+    }
+    calendar_agent_history_epoch = calendar_agent_history_epoch + 1
+    let epoch = calendar_agent_history_epoch let binding = calendar_agent_state.to_json()
+    host.request("octos.session.history",{},fn(r){
+        if epoch != calendar_agent_history_epoch || binding != calendar_agent_state.to_json()
+            || calendar_agent_state.user_id != gm_user_id || calendar_agent_state.accounts != gm_accounts.to_json() { return }
+        if !r.is_ok || !r.data.is_object() || !r.data["messages"].is_array() {
+            calendar_agent_notice = "官方历史未返回，请在宿主助手中核对；不会重发请求。"
+            redraw() return
+        }
+        let evidence = "" let count = 0
+        for offset in min(r.data.messages.len(),200) {
+            let row = r.data.messages[r.data.messages.len()-1-offset]
+            if row.is_object() {
+            let turn = row["turn_id"] let thread = row["thread_id"]
+            if turn == nil { turn = thread }
+            let tool = row["tool_name"]
+            let calendar_tool = tool == "calendar.events" || tool == "calendar_events"
+                || tool == "calendar.get_event" || tool == "calendar_get_event"
+                || tool == "calendar.add_event" || tool == "calendar_add_event"
+                || tool == "calendar.notify" || tool == "calendar_notify"
+            if calendar_agent_state.turn_id != "" && calendar_tool
+                && row["lane"] == "person" && turn == calendar_agent_state.turn_id
+                && (thread == nil || thread == turn) && row["role"] == "tool"
+                && row["tool_call_id"].is_string() && row.tool_call_id != "" {
+                let text = row.to_json()
+                if count < 12 && evidence.len() + text.len() <= 16000 {
+                    evidence = text + "\n" + evidence count = count + 1
+                }
+            }
+            }
+        }
+        calendar_agent_evidence = evidence
+        if evidence == "" {
+            calendar_agent_notice = "尚无可关联当前回合的工具记录；请用请求 ID 核对宿主历史，不能据回复认定执行成功。"
+        } else {
+            calendar_agent_notice = "已读取当前回合的官方工具记录；执行结果以正文和终态回执为准。"
+        }
+        redraw()
+    })
+}
+fn calendar_agent_submit(text){
+    if calendar_agent_busy || !calendar_agent_writable { return }
+    if calendar_agent_state.status != "idle" && calendar_agent_state.status != "blocked" {
+        calendar_agent_notice = "请先核对当前请求。其结果不会自动重做；另写不同事项前请保留下方待核对记录。"
+        redraw() return
+    }
+    text = text.trim()
+    if text == "" || text.len() > 6000 {
+        calendar_agent_notice = "请输入日历请求，最多 6000 字节；新建请写明标题、开始、结束和时区。"
+        redraw() return
+    }
+    let id = "muse-calendar-" + floor(time_now()) + "-" + random_u32()
+    let user = gm_user_id let accounts = gm_accounts.to_json()
+    calendar_agent_state = {schema: 1 request_id: id turn_id: "" status: "in_flight" user_id: user accounts: accounts previous_requests: calendar_agent_state.previous_requests}
+    calendar_agent_reply = "" calendar_agent_evidence = "" calendar_agent_details = false
+    if !calendar_agent_save() { redraw() return }
+    calendar_agent_busy = true calendar_agent_notice = "正在等待官方助手；需要批准时请在宿主界面本人决定。"
+    redraw()
+    host.request("octos.session.open",{},fn(opened){
+        if calendar_agent_state.request_id != id { return }
+        if !opened.is_ok || !opened.data.is_object() || opened.data["open"] != true
+            || user != gm_user_id || accounts != gm_accounts.to_json() {
+            calendar_agent_busy = false calendar_agent_state.status = "blocked"
+            calendar_agent_notice = "官方会话未打开或账号已变化；未派发日历请求。请检查宿主助手授权与模型。"
+            calendar_agent_save() redraw() return
+        }
+        let prompt = "本次日历请求 ID：" + id + "。仅使用已授权的官方 Calendar 工具。新建时使用此 request_id，并通过 calendar.get_event 读回；缺少时间或时区请先询问。不要把模型文字当作执行回执。\n用户请求：" + text
+        host.request("octos.turn.start",{text: prompt trigger: "app"},fn(r){
+            if calendar_agent_state.request_id != id { return }
+            calendar_agent_busy = false
+            calendar_agent_state.status = "unknown"
+            if r.is_ok && r.data.is_object() && r.data["turn_id"].is_string()
+                && r.data.turn_id != "" && r.data.turn_id.len() <= 160
+                && user == gm_user_id && accounts == gm_accounts.to_json() {
+                calendar_agent_state.turn_id = r.data.turn_id
+                calendar_agent_state.status = "turn_completed"
+                if r.data["text"].is_string() && r.data.text.len() <= 24000 { calendar_agent_reply = r.data.text }
+                calendar_agent_notice = "官方回合结束，正在读取工具记录；尚未认定日历操作成功。"
+            } else {
+                calendar_agent_notice = "请求失败或身份已变化，外部结果待核对；不会自动重做。请求 ID：" + id
+            }
+            if calendar_agent_save() && calendar_agent_state.status == "turn_completed" { calendar_agent_history() }
+            redraw()
+        })
+    })
+}
+fn calendar_agent_keep_previous(){
+    if calendar_agent_busy || !calendar_agent_writable || calendar_agent_state.request_id == "" { return }
+    if calendar_agent_state.previous_requests.len() >= 32 {
+        calendar_agent_notice = "待核对请求记录已达上限，请先核对宿主历史；原记录继续保留。"
+        redraw() return
+    }
+    let previous = calendar_agent_state.previous_requests.to_json().parse_json()
+    previous.push({request_id: calendar_agent_state.request_id turn_id: calendar_agent_state.turn_id
+        status: calendar_agent_state.status user_id: calendar_agent_state.user_id accounts: calendar_agent_state.accounts})
+    calendar_agent_state = {schema: 1 request_id: "" turn_id: "" status: "idle" user_id: "" accounts: "" previous_requests: previous}
+    calendar_agent_reply = "" calendar_agent_evidence = "" calendar_agent_input_text = "" calendar_agent_details = false
+    calendar_agent_notice = "原请求 ID 已保留，结果仍待核对。现在只提交不同事项，不重复原操作。"
+    calendar_agent_save() redraw()
+}
+
 fn calendar_sync_invalidate(){
     calendar_preview = "" calendar_preview_binding = "" calendar_checked = ""
     calendar_checked_events = [] calendar_conflicts = []
@@ -4696,6 +4843,23 @@ fn mail_review_host(context){
     })
 }
 
+// Reconcile only an exact terminal Host attempt; never authorize a retry.
+fn mail_host_receipt_status(data){
+    if !gm_object(data) || !gm_array(data["attempts"]) || data.attempts.len() == 0 { return "unknown" }
+    let attempt = data.attempts[data.attempts.len() - 1]
+    if !gm_object(attempt) || !gm_string(attempt["operation_id"],128) || attempt.operation_id == ""
+        || attempt["revision"] != data["revision"] || attempt["status"] != data["status"]
+        || !gm_object(attempt["payload"]) || attempt.payload["to"] != data["to"]
+        || attempt.payload["subject"] != data["subject"] || attempt.payload["body"] != data["body"] { return "unknown" }
+    if data["status"] == "accepted" && gm_object(attempt["receipt"])
+        && attempt.receipt["accepted"] == true { return "accepted" }
+    if data["status"] == "failed_before_delivery" {
+        if gm_object(attempt["receipt"]) && attempt.receipt["accepted"] == true { return "unknown" }
+        return "failed_before_delivery"
+    }
+    return "unknown"
+}
+
 fn mail_check_host_status(){
     if mail_sending || mail_pending || mail_account == nil || mail_account.id != mail_draft.account
         || mail_draft.status != "unknown" || !gm_string(mail_draft["host_compose_id"],128) { return }
@@ -4710,9 +4874,11 @@ fn mail_check_host_status(){
             || r.data["to"] != snapshot.to || r.data["subject"] != snapshot.subject || r.data["body"] != snapshot.body {
             mail_error = "原宿主记录无法核对，保留待核对状态；不会重发。" mail_redraw() return
         }
-        if r.data["status"] != "accepted" { mail_notice = "原记录尚未确认受理；继续保留，不自动重发。" mail_redraw() return }
+        let terminal = mail_host_receipt_status(r.data)
+        if terminal == "unknown" { mail_notice = "原记录尚未确认受理；继续保留，不自动重发。" mail_redraw() return }
         let context = {request_id: requested goal_id: mail_draft.link_goal_id run_id: mail_draft.link_run_id
-            snapshot: snapshot accepted: true unsent: false}
+            snapshot: snapshot accepted: terminal == "accepted" unsent: terminal == "failed_before_delivery"
+            notice: "官方回执确认投递前失败，正文仍保留；不会自动重发。"}
         start_timeout(0.05,|| mail_send_receipt_step(context,0))
     })
 }
@@ -8778,7 +8944,7 @@ fn boot_load(step,boot_error){
         boot_goals_then_calendar(boot_error)
         return
     }
-    if step == 4 { calendar_cursor = calendar_display_today() }
+    if step == 4 { calendar_cursor = calendar_display_today() calendar_agent_boot() }
     if step == 4 && !calendar_boot() {
         if boot_error != "" { boot_error = boot_error + "；" }
         boot_error = boot_error + "日历关联：" + calendar_error
@@ -10245,7 +10411,22 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                 if !calendar_enabled() {
                     SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 5 draw_bg.color: panel
                         Label{text: "官方助手与内置日历" draw_text.color: blue draw_text.text_style: theme.font_bold{font_size: 14}}
-                        Label{width: Fill text: "按 Shift+F8 打开宿主的「询问 Muse」，首次使用请本人启用助手。日历查询与新建结果以官方工具回执为准。本页自动安排、改期和行动链回执联动尚待完成；历史记录继续保留。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        Label{width: Fill text: "在这里向官方助手查询或新建日历事项。此会话与宿主「询问 Muse」共享；本地多会话记忆不会自动带入。新建请写明开始、结束和时区，需要批准时由本人在宿主决定。自动改期尚未开放。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        calendar_agent_input := TextInput{width: Fill height: 90 text: calendar_agent_input_text empty_text: "例如：查询今天的日程；或新建事项并写明标题、起止时间、时区"
+                            on_change: || { calendar_agent_input_text = ui.calendar_agent_input.text() }}
+                        Secondary{text: "提交官方日历请求" enabled: !calendar_agent_busy && calendar_agent_writable && (calendar_agent_state.status == "idle" || calendar_agent_state.status == "blocked") on_click: || calendar_agent_submit(ui.calendar_agent_input.text())}
+                        Secondary{text: "回读当前请求的官方记录" enabled: !calendar_agent_busy on_click: || calendar_agent_history()}
+                        if calendar_agent_state.request_id != "" && !calendar_agent_busy { Secondary{text: "保留待核对记录，另写不同事项" enabled: calendar_agent_writable on_click: || calendar_agent_keep_previous()} }
+                        Label{width: Fill text: calendar_agent_notice draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        if calendar_agent_state.request_id != "" { Label{width: Fill text: "请求 ID · " + calendar_agent_state.request_id draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
+                        if calendar_agent_state.user_id == gm_user_id && calendar_agent_state.accounts == gm_accounts.to_json() {
+                            if calendar_agent_reply != "" { Label{width: Fill text: calendar_agent_reply draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12} }
+                            if calendar_agent_evidence != "" { Secondary{text: "查看官方工具回执" on_click: || { calendar_agent_details = !calendar_agent_details redraw() }} }
+                            if calendar_agent_details && calendar_agent_evidence != "" { Label{width: Fill text: calendar_agent_evidence draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
+                        }
+                        for previous in calendar_agent_state.previous_requests {
+                            if previous.user_id == gm_user_id && previous.accounts == gm_accounts.to_json() { Label{width: Fill text: "保留请求 · " + previous.request_id + " · " + previous.status draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
+                        }
                     }
                 }
                 if calendar_enabled() {

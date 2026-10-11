@@ -1,0 +1,74 @@
+// Synthetic official transport in a real Splash VM. Zero model/tool calls.
+let agent_checks = {}
+let agent_calls = []
+let agent_all_calls = []
+let agent_case = 0
+let agent_held = nil
+fn probe_transport(method,args,callback){
+    agent_calls.push(method)
+    agent_all_calls.push({case: agent_case method: method})
+    if method == "octos.session.open" {
+        if agent_case == 1 { callback({is_ok: false error: "Synthetic consent refusal"}) return }
+        callback({is_ok: true data: {open: true shared_history: true}}) return
+    }
+    if method == "octos.turn.start" {
+        if agent_case == 2 { callback({is_ok: false error: "Synthetic interrupted turn"}) return }
+        if agent_case == 3 { agent_held = callback return }
+        agent_checks.application_trigger = args.trigger == "app"
+        agent_checks.stable_request_id_in_prompt = args.text.search(calendar_agent_state.request_id) >= 0
+        callback({is_ok: true data: {turn_id: "t1" text: "MODEL_CLAIM"}}) return
+    }
+    if method == "octos.session.history" {
+        callback({is_ok: true data: {messages: [
+            {role: "assistant" lane: "person" turn_id: "t1" content: "MODEL_CLAIM"}
+            {role: "tool" lane: "person" thread_id: "t1" tool_name: "calendar_events" tool_call_id: "c1" content: "TOOL_BODY"}
+            {role: "tool" lane: "system_agent" turn_id: "t1" tool_name: "calendar.events" tool_call_id: "c2" content: "OTHER_LANE"}
+            {role: "tool" lane: "person" turn_id: "old" tool_name: "calendar.events" tool_call_id: "c3" content: "OLD_TURN"}
+            {role: "tool" lane: "person" turn_id: "t1" thread_id: "wrong" tool_name: "calendar.events" tool_call_id: "c4" content: "CONFLICTING_TURN"}
+        ]}}) return
+    }
+    callback({is_ok: false error: "Unexpected synthetic request"})
+}
+fn agent_reset(){
+    gm_user_id = "synthetic-user" gm_accounts = ["local"]
+    calendar_agent_busy = false calendar_agent_writable = true
+    calendar_agent_state = {schema: 1 request_id: "" turn_id: "" status: "idle" user_id: "" accounts: "" previous_requests: []}
+    calendar_agent_reply = "" calendar_agent_evidence = "" agent_calls = []
+}
+fn agent_run(){
+    agent_reset()
+    calendar_agent_submit("查询测试日历")
+    agent_checks.exact_three_services = agent_calls.to_json() == ["octos.session.open","octos.turn.start","octos.session.history"].to_json()
+    agent_checks.turn_is_not_tool_success = calendar_agent_state.status == "turn_completed"
+    agent_checks.exact_current_tool_body = calendar_agent_evidence.search("TOOL_BODY") >= 0
+        && calendar_agent_evidence.search("MODEL_CLAIM") < 0 && calendar_agent_evidence.search("OTHER_LANE") < 0
+        && calendar_agent_evidence.search("OLD_TURN") < 0 && calendar_agent_evidence.search("CONFLICTING_TURN") < 0
+    let count = agent_calls.len()
+    gm_user_id = "other-user" calendar_agent_history()
+    agent_checks.changed_identity_blocks_history = agent_calls.len() == count
+    agent_case = 1 agent_reset() calendar_agent_submit("查询测试日历")
+    agent_checks.no_turn_after_open_refusal = agent_calls.len() == 1 && calendar_agent_state.status == "blocked"
+    agent_case = 2 agent_reset() calendar_agent_submit("查询测试日历")
+    count = agent_calls.len() calendar_agent_boot()
+    agent_checks.failed_turn_unknown_no_replay = calendar_agent_state.status == "unknown" && agent_calls.len() == count
+    let original_id = calendar_agent_state.request_id
+    calendar_agent_submit("不能覆盖未知请求")
+    agent_checks.unknown_blocks_new_id_and_dispatch = calendar_agent_state.request_id == original_id && agent_calls.len() == count
+    calendar_agent_keep_previous()
+    agent_checks.explicit_archive_preserves_unknown_id = calendar_agent_state.status == "idle"
+        && calendar_agent_state.previous_requests.len() == 1 && calendar_agent_state.previous_requests[0].request_id == original_id
+    agent_case = 3 agent_reset() calendar_agent_submit("查询测试日历") calendar_agent_submit("不要重复")
+    agent_checks.one_pending_turn = agent_calls.len() == 2 && calendar_agent_busy
+    gm_user_id = "other-user"
+    agent_held({is_ok: true data: {turn_id: "t1" text: "LATE_REPLY"}})
+    agent_checks.late_identity_reply_dropped = calendar_agent_state.status == "unknown"
+        && calendar_agent_reply == "" && agent_calls.len() == 2
+    agent_reset()
+    calendar_agent_state = {schema: 1 request_id: "interrupted" turn_id: "" status: "in_flight" user_id: gm_user_id accounts: gm_accounts.to_json() previous_requests: []}
+    calendar_agent_save() calendar_agent_boot()
+    agent_checks.restart_marks_unknown_without_replay = calendar_agent_state.status == "unknown" && agent_calls.len() == 0
+    calendar_agent_writable = false calendar_agent_submit("不能派发")
+    agent_checks.unwritable_record_blocks_dispatch = agent_calls.len() == 0
+    fs.write("probe.json",{checks: agent_checks calls: agent_all_calls}.to_json())
+}
+start_timeout(0.05,|| agent_run())

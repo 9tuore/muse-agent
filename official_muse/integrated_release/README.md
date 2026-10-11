@@ -57,7 +57,11 @@ Qwen。双击该包默认走 GPT 入口；未配置时打开真实 `os.ai-provid
 临时 ad-hoc 签名包与 stub Host 验证九项启动/保留/隔离行为；不代表最终 Host 的 GUI、
 凭证有效性或 GPT 实调通过。2026-10-11 现场默认独立目录无 profile，仍需本人配置。
 
-官方助手从宿主「询问 Muse」/Shift+F8 进入，实际 Muse ID 的首次本人启用不可模拟。
+Calendar 页使用已核实的 session.open → turn.start(trigger:app) → session.history 接口；
+持久化当前请求 ID，未知结果不自动重做，不允许新 ID 覆盖旧待核对请求。
+显式保留记录后可另写不同事项，旧 ID 仍保留用于对账。输入草稿在重绘后保留，
+切换账号不显示旧结果，工具详情默认折叠；模型文本不改变业务成功状态。
+官方助手也可从宿主「询问 Muse」/Shift+F8 进入，实际 Muse ID 的首次本人启用不可模拟。
 多 Chat 的结构化 model.complete 路径保留。Contained 的应用共享历史没有项目隔离/上游遗忘
 契约，不能直接替换全部 Chat，也不向其自动注入私人 Memory。
 Calendar 四工具须取得实际授予和相同回合工具结果；正文回复、调用映射和窗口出现均不证明成功。
@@ -67,3 +71,5 @@ UNKNOWN 只读对账，不自动重发。
 实际窄测试在 `evidence/`：model wrapper 六项合成回归与当前函数字节一致性；
 VM 准备、streaming、硬限额和 Splash 样式日志保留在 build/muse-integrated-0.4.0-rc1/rc2。
 编译、签名、fixture 和最终包业务验收分别记录。核心冻结后才进行同一候选 20 次冷启动。
+
+Calendar 接线14项真实参考VM合成协议检查通过；Mail终态恢复已实现，首轮参考VM启动预算失败保留，完整异步流程待验证。基础配套Host真实完整构建和四工具准入安全测试通过，History回执补丁正在增量编译；这些结果不能替代真实Calendar/Mail/GPT业务通过。
