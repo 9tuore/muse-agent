@@ -1,0 +1,149 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FIXTURE_PASS",
+  "suite": "production",
+  "source_sha256": "0c7f9812cf7319cf5120557ddef7caacfe49326c0dcbc5759e689fcac38ce9eb",
+  "host_sha256": "78ab9efce55cb692552a3566e7b579d2e8c304eadfd6b107c51b2efb027e34db",
+  "runner_sha256": "5c5b6b135387f908b1095aa1a8e9a942837053b6e5e9fbff12281a1cc1044bc8",
+  "probe_sha256": "3d0868dc226b6a610aadf13367cfb3ccea09fe7f22f9ed0bf76c2f22e7a24121",
+  "executed_sha256": "85551aabc2473e58244f72b51d3e80082cfaf9106400313a77f23fd11c687770",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [],
+  "checks": {
+    "wrong-revision_goal_run_setup": true,
+    "wrong-revision_not_received_or_verified": true,
+    "wrong-revision_action_setup": true,
+    "wrong-revision_body_identity_preserved": true,
+    "wrong-revision_run_goal_state": true,
+    "before-delivery_goal_run_setup": true,
+    "wrong-revision_draft_state": true,
+    "wrong-revision_action_state": true,
+    "before-delivery_action_setup": true,
+    "wrong-payload_action_setup": true,
+    "accepted_action_setup": true,
+    "accepted_draft_state": true,
+    "wrong-payload_goal_run_setup": true,
+    "accepted_action_state": true,
+    "accepted_run_goal_state": true,
+    "accepted_body_identity_preserved": true,
+    "accepted_goal_run_setup": true,
+    "accepted_not_received_or_verified": true,
+    "before-delivery_draft_state": true,
+    "before-delivery_action_state": true,
+    "before-delivery_run_goal_state": true,
+    "before-delivery_body_identity_preserved": true,
+    "before-delivery_not_received_or_verified": true,
+    "before-delivery_not_sent_activity": true,
+    "wrong-payload_run_goal_state": true,
+    "wrong-payload_action_state": true,
+    "wrong-payload_draft_state": true,
+    "unknown_goal_run_setup": true,
+    "unknown_not_received_or_verified": true,
+    "unknown_action_setup": true,
+    "unknown_body_identity_preserved": true,
+    "unknown_run_goal_state": true,
+    "unknown_action_state": true,
+    "unknown_draft_state": true,
+    "wrong-payload_body_identity_preserved": true,
+    "wrong-payload_not_received_or_verified": true,
+    "only_readonly_status_calls": true
+  },
+  "calls": [
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-account",
+        "compose_id": "compose-fixture-before-delivery"
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-account",
+        "compose_id": "compose-fixture-unknown"
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-account",
+        "compose_id": "compose-fixture-wrong-payload"
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-account",
+        "compose_id": "compose-fixture-wrong-revision"
+      }
+    },
+    {
+      "method": "mail.compose_status",
+      "args": {
+        "account": "synthetic-account",
+        "compose_id": "compose-fixture-accepted"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "mode": "before-delivery",
+      "draft": "DRAFT",
+      "action": "failed",
+      "run": "failed",
+      "goal": "failed",
+      "notice": "官方回执确认投递前失败，正文仍保留；不会自动重发。",
+      "error": "",
+      "core_error": ""
+    },
+    {
+      "mode": "unknown",
+      "draft": "unknown",
+      "action": "unknown",
+      "run": "running",
+      "goal": "running",
+      "notice": "原记录尚未确认受理；继续保留，不自动重发。",
+      "error": "",
+      "core_error": ""
+    },
+    {
+      "mode": "wrong-payload",
+      "draft": "unknown",
+      "action": "unknown",
+      "run": "running",
+      "goal": "running",
+      "notice": "正在只读核对原发送记录，不会重发。",
+      "error": "原宿主记录无法核对，保留待核对状态；不会重发。",
+      "core_error": ""
+    },
+    {
+      "mode": "wrong-revision",
+      "draft": "unknown",
+      "action": "unknown",
+      "run": "running",
+      "goal": "running",
+      "notice": "正在只读核对原发送记录，不会重发。",
+      "error": "原宿主记录无法核对，保留待核对状态；不会重发。",
+      "core_error": ""
+    },
+    {
+      "mode": "accepted",
+      "draft": "accepted",
+      "action": "accepted",
+      "run": "running",
+      "goal": "running",
+      "notice": "正在只读核对原发送记录，不会重发。",
+      "error": "原宿主记录无法核对，保留待核对状态；不会重发。",
+      "core_error": ""
+    }
+  ],
+  "runtime_errors": [],
+  "runtime_log_sha256": "36faa50ebca49e95fece2cb77b1eb566cd457fb718a7e147d905f9ae0fc35060"
+}
