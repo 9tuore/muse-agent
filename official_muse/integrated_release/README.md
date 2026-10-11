@@ -41,7 +41,9 @@ ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。只使用本任务新生成的私钥；私�
 首启走普通 App Hub 安装，后续从相同签名入口启动 Muse。既有来源不匹配时回普通更新流程。
 包内 Qwen2.5-0.5B 是基础离线回退，不代表强模型工具调用能力；模型配置由宿主原生界面处理。
 
-GPT 开发验证包使用 `package_app.py --model-mode gpt`，省略 `--model-source`，不包含或启动
+产品默认继续携带 Qwen，并保留已有 MiniMax 等云端配置。开发团队使用 GPT；产品云端选择与开发模型分别配置。hybrid 模式接线正在实现，尚不宣称持续协同实机通过。
+
+可选 GPT 开发验证包使用 `package_app.py --model-mode gpt`，省略 `--model-source`，不包含或启动
 Qwen。双击该包默认走 GPT 入口；未配置时打开真实 `os.ai-providers` Models 面板，
 本人选择 OpenAI/GPT 官方路由、输入凭证并保存，退出后重开。启动器不复制任何已有凭证。
 `--models` 直接打开该面板，不再先写离线 profile 或启动 Qwen。
@@ -72,4 +74,4 @@ UNKNOWN 只读对账，不自动重发。
 VM 准备、streaming、硬限额和 Splash 样式日志保留在 build/muse-integrated-0.4.0-rc1/rc2。
 编译、签名、fixture 和最终包业务验收分别记录。核心冻结后才进行同一候选 20 次冷启动。
 
-Calendar 接线14项真实参考VM合成协议检查通过；Mail终态恢复已实现，首轮参考VM启动预算失败保留，完整异步流程待验证。基础配套Host真实完整构建和四工具准入安全测试通过，History回执补丁正在增量编译；这些结果不能替代真实Calendar/Mail/GPT业务通过。
+Calendar 接线与回执19项真实参考VM合成协议检查通过，旧解析失败保留；Mail终态恢复完整异步真实VM37/37通过，首轮预算失败与探针错误保留。最新History配套Host30d4d356完整构建和四工具准入安全测试通过；这些结果不能替代同候选真实Calendar/Mail/模型业务通过。

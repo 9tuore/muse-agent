@@ -1,0 +1,86 @@
+{
+  "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
+  "status": "FAIL",
+  "suite": "production",
+  "source_sha256": "86f86e3ee0263bb3d34bfb92d3ed7f9d2952e3fdc949cf4b9699085846552c09",
+  "host_sha256": "78ab9efce55cb692552a3566e7b579d2e8c304eadfd6b107c51b2efb027e34db",
+  "runner_sha256": "5c5b6b135387f908b1095aa1a8e9a942837053b6e5e9fbff12281a1cc1044bc8",
+  "probe_sha256": "f2d352d7d33194560329d92c4f499b21adca5ae3d02998ac123ddcf674cb2926",
+  "executed_sha256": "2e2b1e9cfa37d25d4bf65c100308696121cd8a58e42b950836b8fa43464e7a3e",
+  "substitutions": [
+    "mail_redraw",
+    "set_page",
+    "redraw"
+  ],
+  "all_other_functions_byte_equal": true,
+  "external_service_calls": 0,
+  "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
+  "failed": [
+    "actual_error_remains_error",
+    "bound_host_terminal_is_ok",
+    "runtime_errors"
+  ],
+  "checks": {
+    "unwritable_record_blocks_dispatch": true,
+    "actual_error_remains_error": false,
+    "stable_request_id_in_prompt": true,
+    "exact_three_services": true,
+    "changed_identity_blocks_history": true,
+    "failed_turn_unknown_no_replay": true,
+    "bound_host_terminal_is_ok": false,
+    "late_identity_reply_dropped": true,
+    "restart_marks_unknown_without_replay": true,
+    "omitted_result_unverified": true,
+    "unknown_blocks_new_id_and_dispatch": true,
+    "wrong_call_cannot_supply_terminal": true,
+    "application_trigger": true,
+    "host_without_kernel_row_unverified": true,
+    "turn_is_not_tool_success": true,
+    "exact_current_tool_body": true,
+    "explicit_archive_preserves_unknown_id": true,
+    "no_turn_after_open_refusal": true,
+    "one_pending_turn": true
+  },
+  "calls": [
+    {
+      "case": 0,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 0,
+      "method": "octos.turn.start"
+    },
+    {
+      "case": 0,
+      "method": "octos.session.history"
+    },
+    {
+      "case": 1,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 2,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 2,
+      "method": "octos.turn.start"
+    },
+    {
+      "case": 3,
+      "method": "octos.session.open"
+    },
+    {
+      "case": 3,
+      "method": "octos.turn.start"
+    }
+  ],
+  "observations": {},
+  "runtime_errors": [
+    "[E] splash:140311784702976:9413:109 - Expected expression after [EndStmt { last: 20 }, EndProto, EndStmt { last: 85522 }, EndFnBlock { fn_slot: 78103, last_was_sep: false, index: 85526 }, EndStmt { last: 85909 }, EmitLetDyn { index: 85909, name: row }, EndBare, EndStmt { last: 85919 }, EmitOp { what_op: :, index: 85920, slot_assign: None }, EndBare, EndStmt { last: 85949 }, EmitOp { what_op: :, index: 85950, slot_assign: None }, EndBare, EndStmt { last: 85952 }, OkTestExpr { ok_start: 78504 }] found Operator(:) (from: /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/.local-state/hub-contract-sdk/makepad/platform/script/src/parser.rs:4231)",
+    "[E] splash:140311784702976:9413:109 - Parser stuck on character Operator(:), skipping (from: /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/.local-state/hub-contract-sdk/makepad/platform/script/src/parser.rs:4798)",
+    "[E] splash:140311784702976:9420:44 - Expected expression after [EndStmt { last: 20 }, EndProto, EndStmt { last: 85522 }, EndFnBlock { fn_slot: 78103, last_was_sep: false, index: 85526 }, EndStmt { last: 86031 }, EmitFieldAssign { what_op: =, index: 86036 }, EndBare, EndStmt { last: 86038 }, OkTestExpr { ok_start: 78588 }] found Operator(:) (from: /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/.local-state/hub-contract-sdk/makepad/platform/script/src/parser.rs:4231)",
+    "[E] splash:140311784702976:9420:44 - Parser stuck on character Operator(:), skipping (from: /Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/.local-state/hub-contract-sdk/makepad/platform/script/src/parser.rs:4798)"
+  ],
+  "runtime_log_sha256": "a2b50ce28aa56912077887e02e5d0549801521f4e028c0929b2e418af4c3cbe8"
+}

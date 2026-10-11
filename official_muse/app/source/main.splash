@@ -469,6 +469,27 @@ let calendar_agent_reply = ""
 let calendar_agent_evidence = ""
 let calendar_agent_input_text = ""
 let calendar_agent_details = false
+fn calendar_agent_tool_name(name){
+    if name == "calendar.events" || name == "calendar_events" { return "calendar.events" }
+    if name == "calendar.get_event" || name == "calendar_get_event" { return "calendar.get_event" }
+    if name == "calendar.add_event" || name == "calendar_add_event" { return "calendar.add_event" }
+    if name == "calendar.notify" || name == "calendar_notify" { return "calendar.notify" }
+    return ""
+}
+fn calendar_agent_receipt_status(row){
+    let receipt = row["host_calendar_receipt"]
+    if !receipt.is_object() || receipt["source"] != "broker_tool_result"
+        || receipt["owner"] != "os.calendar" || (receipt["caller"] != "muse-goals" && receipt["caller"] != "card.muse-goals")
+        || receipt["kernel_persisted"] != true || receipt["turn_id"] != calendar_agent_state.turn_id
+        || receipt["tool_call_id"] != row["tool_call_id"] || !receipt["call_id"].is_string() || receipt.call_id == ""
+        || receipt["tool"] != calendar_agent_tool_name(row["tool_name"])
+        || receipt["result_omitted"] == true { return "unverified" }
+    if receipt["terminal"] == "cancelled" { return "cancelled" }
+    if !receipt["result"].is_object() { return "unverified" }
+    if receipt.terminal == "error" && receipt.result["ok"] == false { return "error" }
+    if receipt.terminal == "ok" && receipt.result["ok"] == true { return "ok" }
+    return "unverified"
+}
 fn calendar_agent_save(){
     let text = calendar_agent_state.to_json()
     if !calendar_agent_writable || storage_write("calendar-agent-state.json",text) != nil
@@ -513,17 +534,14 @@ fn calendar_agent_history(){
             calendar_agent_notice = "官方历史未返回，请在宿主助手中核对；不会重发请求。"
             redraw() return
         }
-        let evidence = "" let count = 0
+        let evidence = "" let count = 0 let completed = 0 let failed = 0 let unverified = 0
         for offset in min(r.data.messages.len(),200) {
             let row = r.data.messages[r.data.messages.len()-1-offset]
             if row.is_object() {
             let turn = row["turn_id"] let thread = row["thread_id"]
             if turn == nil { turn = thread }
             let tool = row["tool_name"]
-            let calendar_tool = tool == "calendar.events" || tool == "calendar_events"
-                || tool == "calendar.get_event" || tool == "calendar_get_event"
-                || tool == "calendar.add_event" || tool == "calendar_add_event"
-                || tool == "calendar.notify" || tool == "calendar_notify"
+            let calendar_tool = calendar_agent_tool_name(tool) != ""
             if calendar_agent_state.turn_id != "" && calendar_tool
                 && row["lane"] == "person" && turn == calendar_agent_state.turn_id
                 && (thread == nil || thread == turn) && row["role"] == "tool"
@@ -531,6 +549,10 @@ fn calendar_agent_history(){
                 let text = row.to_json()
                 if count < 12 && evidence.len() + text.len() <= 16000 {
                     evidence = text + "\n" + evidence count = count + 1
+                    let terminal = calendar_agent_receipt_status(row)
+                    if terminal == "ok" { completed = completed + 1 }
+                    else if terminal == "error" || terminal == "cancelled" { failed = failed + 1 }
+                    else { unverified = unverified + 1 }
                 }
             }
             }
@@ -539,7 +561,7 @@ fn calendar_agent_history(){
         if evidence == "" {
             calendar_agent_notice = "尚无可关联当前回合的工具记录；请用请求 ID 核对宿主历史，不能据回复认定执行成功。"
         } else {
-            calendar_agent_notice = "已读取当前回合的官方工具记录；执行结果以正文和终态回执为准。"
+            calendar_agent_notice = "当前回合工具回执：完成 " + completed + "，失败或取消 " + failed + "，未核验 " + unverified + "。新建事项还需精确读回，详情可展开核对。"
         }
         redraw()
     })

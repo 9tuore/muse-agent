@@ -69,6 +69,20 @@ fn agent_run(){
     agent_checks.restart_marks_unknown_without_replay = calendar_agent_state.status == "unknown" && agent_calls.len() == 0
     calendar_agent_writable = false calendar_agent_submit("不能派发")
     agent_checks.unwritable_record_blocks_dispatch = agent_calls.len() == 0
+    calendar_agent_state.turn_id = "t1"
+    let row = {tool_name: "calendar_events" tool_call_id: "c1" host_calendar_receipt: {
+        source: "broker_tool_result" owner: "os.calendar" caller: "card.muse-goals" kernel_persisted: true
+        turn_id: "t1" tool_call_id: "c1" call_id: "ptc1" tool: "calendar.events" terminal: "ok" result: "{\"ok\":true,\"data\":{\"events\":[]}}".parse_json()}}
+    agent_checks.bound_host_terminal_is_ok = calendar_agent_receipt_status(row) == "ok"
+    row.host_calendar_receipt.kernel_persisted = false
+    agent_checks.host_without_kernel_row_unverified = calendar_agent_receipt_status(row) == "unverified"
+    row.host_calendar_receipt.kernel_persisted = true row.host_calendar_receipt.tool_call_id = "other"
+    agent_checks.wrong_call_cannot_supply_terminal = calendar_agent_receipt_status(row) == "unverified"
+    row.host_calendar_receipt.tool_call_id = "c1" row.host_calendar_receipt.terminal = "error"
+    row.host_calendar_receipt.result = "{\"ok\":false,\"error\":{\"kind\":\"not_granted\",\"message\":\"Synthetic refusal\"}}".parse_json()
+    agent_checks.actual_error_remains_error = calendar_agent_receipt_status(row) == "error"
+    row.host_calendar_receipt.result_omitted = true
+    agent_checks.omitted_result_unverified = calendar_agent_receipt_status(row) == "unverified"
     fs.write("probe.json",{checks: agent_checks calls: agent_all_calls}.to_json())
 }
 start_timeout(0.05,|| agent_run())

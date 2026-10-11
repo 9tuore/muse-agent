@@ -2,11 +2,11 @@
   "kind": "OFFICIAL_PROTOCOL_FIXTURE_REAL_SPLASH_VM",
   "status": "FIXTURE_PASS",
   "suite": "production",
-  "source_sha256": "22f0fac91a30c6ad89ee90db1a59e5f345f1877339097a04b779df226e07f27d",
+  "source_sha256": "86f86e3ee0263bb3d34bfb92d3ed7f9d2952e3fdc949cf4b9699085846552c09",
   "host_sha256": "78ab9efce55cb692552a3566e7b579d2e8c304eadfd6b107c51b2efb027e34db",
   "runner_sha256": "5c5b6b135387f908b1095aa1a8e9a942837053b6e5e9fbff12281a1cc1044bc8",
-  "probe_sha256": "b041f8f5c2087d47feb8510c5b06adb0df845218a13545331e7536b7440331aa",
-  "executed_sha256": "d2e3bafc7b61f8de2cab3929f1425fd15843926b96bb71b55300f7b2a6b0b822",
+  "probe_sha256": "9faf44a557bae33ed6f073a21f6cf47ac006bd18c66827979cabfb7ff6c8d779",
+  "executed_sha256": "13febaf7bb80f322b2c573ea4565c4ef771077a2c8a5cd84a0862ff51dbbd736",
   "substitutions": [
     "mail_redraw",
     "set_page",
@@ -17,20 +17,25 @@
   "boundary": "Old reference VM validates Muse logic and persistence. Synthetic protocol responses do not prove new official Host admission, native consent, EventKit or SMTP.",
   "failed": [],
   "checks": {
-    "application_trigger": true,
+    "unwritable_record_blocks_dispatch": true,
+    "actual_error_remains_error": true,
     "stable_request_id_in_prompt": true,
     "exact_three_services": true,
-    "turn_is_not_tool_success": true,
-    "exact_current_tool_body": true,
     "changed_identity_blocks_history": true,
-    "no_turn_after_open_refusal": true,
     "failed_turn_unknown_no_replay": true,
-    "unknown_blocks_new_id_and_dispatch": true,
-    "explicit_archive_preserves_unknown_id": true,
-    "one_pending_turn": true,
+    "bound_host_terminal_is_ok": true,
     "late_identity_reply_dropped": true,
     "restart_marks_unknown_without_replay": true,
-    "unwritable_record_blocks_dispatch": true
+    "omitted_result_unverified": true,
+    "unknown_blocks_new_id_and_dispatch": true,
+    "wrong_call_cannot_supply_terminal": true,
+    "application_trigger": true,
+    "host_without_kernel_row_unverified": true,
+    "turn_is_not_tool_success": true,
+    "exact_current_tool_body": true,
+    "explicit_archive_preserves_unknown_id": true,
+    "no_turn_after_open_refusal": true,
+    "one_pending_turn": true
   },
   "calls": [
     {
@@ -68,5 +73,5 @@
   ],
   "observations": {},
   "runtime_errors": [],
-  "runtime_log_sha256": "18e70d686f00be5d67ea8e95e537d5fa1f5275024fe10077dddcc5ef1d55b41b"
+  "runtime_log_sha256": "e162f6e81b44c2fab618ac7f52a0dbc3e9ac84ae7dc50729384938c6da9c6cd3"
 }
