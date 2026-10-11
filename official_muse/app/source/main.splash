@@ -508,6 +508,9 @@ fn calendar_agent_boot(){
         || !saved["request_id"].is_string() || !saved["turn_id"].is_string()
         || !saved["status"].is_string() || !saved["user_id"].is_string() || !saved["accounts"].is_string()
         || !saved["previous_requests"].is_array() || saved.previous_requests.len() > 32
+        || (saved["binding"] != nil && (!calendar_agent_binding_valid(saved.binding)
+            || saved.binding.user_id != saved.user_id || saved.binding.accounts != saved.accounts
+            || saved.binding.payload.request_id != saved.request_id))
         || saved.request_id.len() > 160 || saved.turn_id.len() > 160 || saved.accounts.len() > 8000 {
         calendar_agent_writable = false
         calendar_agent_notice = "官方助手请求记录不可读，原文件保留；新请求已停止。"
@@ -521,7 +524,8 @@ fn calendar_agent_boot(){
     }
 }
 fn calendar_agent_history(){
-    if calendar_agent_state.user_id != gm_user_id || calendar_agent_state.accounts != gm_accounts.to_json() {
+    if calendar_agent_state.user_id != gm_user_id || calendar_agent_state.accounts != gm_accounts.to_json()
+        || (calendar_agent_state["binding"] != nil && !calendar_agent_binding_current(calendar_agent_state.binding)) {
         calendar_agent_notice = "当前账号与请求记录不一致，未读取旧回合；请在宿主助手核对原请求。"
         redraw() return
     }
@@ -529,7 +533,8 @@ fn calendar_agent_history(){
     let epoch = calendar_agent_history_epoch let binding = calendar_agent_state.to_json()
     host.request("octos.session.history",{},fn(r){
         if epoch != calendar_agent_history_epoch || binding != calendar_agent_state.to_json()
-            || calendar_agent_state.user_id != gm_user_id || calendar_agent_state.accounts != gm_accounts.to_json() { return }
+            || calendar_agent_state.user_id != gm_user_id || calendar_agent_state.accounts != gm_accounts.to_json()
+            || (calendar_agent_state["binding"] != nil && !calendar_agent_binding_current(calendar_agent_state.binding)) { return }
         if !r.is_ok || !r.data.is_object() || !r.data["messages"].is_array() {
             calendar_agent_notice = "官方历史未返回，请在宿主助手中核对；不会重发请求。"
             redraw() return
@@ -557,6 +562,12 @@ fn calendar_agent_history(){
             }
             }
         }
+        if calendar_agent_state["binding"] != nil {
+            let linked = calendar_agent_link_result(r.data.messages)
+            calendar_agent_state.binding.receipt_status = linked.status
+            if linked.status == "verified" { calendar_agent_state.binding.verification = linked }
+            if !calendar_agent_save() { redraw() return }
+        }
         calendar_agent_evidence = evidence
         if evidence == "" {
             calendar_agent_notice = "尚无可关联当前回合的工具记录；请用请求 ID 核对宿主历史，不能据回复认定执行成功。"
@@ -566,7 +577,193 @@ fn calendar_agent_history(){
         redraw()
     })
 }
-fn calendar_agent_submit(text){
+// Selected candidate only; never mint owner access or replay an unknown turn.
+let calendar_agent_candidate = nil
+fn calendar_agent_event_matches(event,payload){
+    if !gm_object(event) || !gm_object(payload) || !gm_string(event["id"],64) || event.id == "" { return false }
+    for key in ["request_id","title","start","end","timezone","location","notes"] {
+        if event[key] != payload[key] { return false }
+    }
+    return true
+}
+fn calendar_agent_binding_valid(binding){
+    if !gm_object(binding) || !gm_object(binding["payload"]) { return false }
+    for key in ["goal_id","project_id","owner_id","user_id","account_id","session_id","candidate_id"] {
+        if !gm_string(binding[key],200) || binding[key] == "" { return false }
+    }
+    if !gm_string(binding["accounts"],8000) || !gm_string(binding["candidate_json"],6000)
+        || !gm_number(binding["plan_revision"]) || binding.plan_revision < 1 || floor(binding.plan_revision) != binding.plan_revision
+        || !gm_number(binding["candidate_revision"]) || binding.candidate_revision < 1 || floor(binding.candidate_revision) != binding.candidate_revision { return false }
+    for key in ["request_id","title","start","end","timezone","location","notes"] {
+        if !gm_string(binding.payload[key],200) { return false }
+    }
+    if binding["receipt_status"] != "unknown" && binding["receipt_status"] != "accepted"
+        && binding["receipt_status"] != "failed" && binding["receipt_status"] != "verified" { return false }
+    if binding.receipt_status == "verified" {
+        let proof = binding["verification"]
+        if !gm_object(proof) || !calendar_agent_event_matches(proof["event"],binding.payload)
+            || proof["event_id"] != proof.event.id || !gm_string(proof["add_call_id"],256) || proof.add_call_id == ""
+            || !gm_string(proof["get_call_id"],256) || proof.get_call_id == "" { return false }
+    }
+    return true
+}
+fn calendar_agent_binding_current(binding){
+    if !calendar_agent_binding_valid(binding) || !core_storage_ready || !gm_ready || binding.user_id != gm_user_id
+        || binding.accounts != gm_accounts.to_json() || binding.project_id != gm_project || binding.owner_id != gm_owner
+        || !gm_account_allowed(binding.account_id) || binding.session_id != chat_selected_id
+        || ac_selected_chat != chat_selected_id || ac_selected_id != binding.goal_id { return false }
+    let goal = ac_current_goal()
+    if goal == nil || goal.id != binding.goal_id || goal.version != binding.plan_revision
+        || !ac_goal_allowed(goal) || goal.archived || goal.status == "cancelled" { return false }
+    let si = chat_session_index(binding.session_id)
+    if si < 0 || !gm_array(chat_sessions[si]["proposals"]) { return false }
+    for card in chat_sessions[si].proposals {
+        if card.id == binding.candidate_id {
+            return card.action == "calendar_candidate" && (card.state == "candidate" || card.state == "opened")
+                && (card.account_id == binding.account_id || (card.account_id == "" && binding.account_id == "local"))
+                && card.revision == binding.candidate_revision && card.payload.to_json() == binding.candidate_json
+                && chat_card_scope_current(chat_sessions[si],card) && chat_reply_context_valid(card)
+        }
+    }
+    return false
+}
+fn calendar_agent_wall(value){
+    let parts = calendar_display_time(value).split(" ")
+    if parts.len() != 2 { return "" }
+    return parts[0] + "T" + parts[1]
+}
+fn calendar_agent_prepare_candidate(card){
+    let goal = ac_current_goal()
+    if goal == nil || ac_selected_chat != chat_selected_id || ac_selected_id != goal.id
+        || !ac_goal_allowed(goal) || goal.status != "planned" || goal.archived {
+        ui_error = "请先在行动链中本人选择当前事项，再核对日程候选。" redraw() return false
+    }
+    if card.session_id != chat_selected_id || card.project != gm_project || card.owner != gm_owner
+        || (gm_has(card,"goal_id") && card.goal_id != goal.id) || !gm_number(card["revision"]) || card.revision < 1 {
+        ui_error = "候选与当前事项或版本不一致，未准备官方请求。" redraw() return false
+    }
+    let error = chat_payload_error("calendar_candidate",card.payload)
+    if error != "" { ui_error = error redraw() return false }
+    let start = calendar_iso_epoch(card.payload.start) let end = calendar_iso_epoch(card.payload.end)
+    if card.payload.time_zone != "Asia/Shanghai" || start != floor(start / 60) * 60 || end != floor(end / 60) * 60
+        || card.payload.title.trim().len() > 80 || card.payload.location.trim().len() > 120 {
+        ui_error = "当前候选联动支持 Asia/Shanghai、整分钟时间、80字节标题和120字节地点；其他请求请在官方助手中单独核对。" redraw() return false
+    }
+    let binding = {}
+    binding.goal_id = goal.id
+    binding.plan_revision = goal.version
+    binding.project_id = gm_project
+    binding.owner_id = gm_owner
+    binding.user_id = gm_user_id
+    binding.accounts = gm_accounts.to_json()
+    binding.account_id = "local"
+    if card.account_id != "" { binding.account_id = card.account_id }
+    binding.session_id = chat_selected_id
+    binding.candidate_id = card.id
+    binding.candidate_revision = card.revision
+    binding.candidate_json = card.payload.to_json()
+    binding.payload = {}
+    binding.payload.title = card.payload.title.trim()
+    binding.payload.start = calendar_agent_wall(card.payload.start)
+    binding.payload.end = calendar_agent_wall(card.payload.end)
+    binding.payload.timezone = card.payload.time_zone
+    binding.payload.location = card.payload.location.trim()
+    binding.payload.request_id = ""
+    binding.payload.notes = ""
+    binding.receipt_status = "unknown"
+    if !calendar_agent_binding_current(binding) { ui_error = "候选已变化，未准备官方请求。" redraw() return false }
+    calendar_agent_candidate = binding
+    calendar_agent_notice = "候选已关联当前事项；请核对后单独提交官方请求，需要批准时由本人在宿主决定。"
+    return true
+}
+fn calendar_agent_same_candidate(a,b){
+    if !calendar_agent_binding_valid(a) || !calendar_agent_binding_valid(b) { return false }
+    for key in ["goal_id","project_id","owner_id","user_id","account_id","accounts"] {
+        if a[key] != b[key] { return false }
+    }
+    for key in ["title","start","end","timezone","location","notes"] {
+        if a.payload[key] != b.payload[key] { return false }
+    }
+    return true
+}
+fn calendar_agent_submit_candidate(){
+    if !calendar_agent_binding_current(calendar_agent_candidate)
+        || chat_payload_error("calendar_candidate",calendar_agent_candidate.candidate_json.parse_json()) != "" {
+        calendar_agent_notice = "事项、账号或候选版本已变化，未派发旧请求。" redraw() return
+    }
+    for previous in calendar_agent_state.previous_requests {
+        if previous.status != "blocked" && calendar_agent_same_candidate(previous["binding"],calendar_agent_candidate) {
+            calendar_agent_notice = "原候选已有保留请求，不能再次派发；请按原请求核对宿主记录。" redraw() return
+        }
+    }
+    calendar_agent_submit_bound("仅创建下列精确候选，不改期、不发送邮件。",calendar_agent_candidate)
+}
+fn calendar_agent_link_result(rows){
+    let result = {status: "unknown"}
+    let binding = calendar_agent_state["binding"]
+    if !calendar_agent_binding_current(binding) || !gm_array(rows) || rows.len() > 200
+        || calendar_agent_state.turn_id == "" || binding.payload.request_id != calendar_agent_state.request_id { return result }
+    let added = "" let readback = nil let add_call = "" let get_call = ""
+    let uncertain = false let failed = false
+    for row in rows {
+        if gm_object(row) {
+        let turn = row["turn_id"]
+        if turn == nil { turn = row["thread_id"] }
+        if row["role"] == "tool" && row["lane"] == "person" && turn == calendar_agent_state.turn_id
+            && (row["thread_id"] == nil || row.thread_id == turn) {
+            let tool = calendar_agent_tool_name(row["tool_name"])
+            if tool == "calendar.add_event" || tool == "calendar.get_event" {
+                let terminal = calendar_agent_receipt_status(row)
+                if terminal == "error" || terminal == "cancelled" { failed = true }
+                else if terminal != "ok" || !gm_string(row.host_calendar_receipt["call_id"],256) { uncertain = true }
+                else {
+                    let data = row.host_calendar_receipt.result["data"]
+                    if tool == "calendar.add_event" {
+                        if !gm_object(data) || !gm_string(data["id"],64) || data.id == "" || data["start"] != binding.payload.start
+                            || (added != "" && added != data.id) { uncertain = true }
+                        else { added = data.id add_call = row.host_calendar_receipt.call_id }
+                    } else {
+                        if !gm_object(data) || data["found"] != true || !gm_object(data["event"]) { uncertain = true }
+                        else {
+                            let event = data.event
+                            if !calendar_agent_event_matches(event,binding.payload)
+                                || (readback != nil && readback.to_json() != event.to_json()) { uncertain = true }
+                            else { readback = event get_call = row.host_calendar_receipt.call_id }
+                        }
+                    }
+                }
+            }
+        }
+        }
+    }
+    if uncertain { return result }
+    if added != "" {
+        result.status = "accepted"
+        result.event_id = added
+        if !failed && readback != nil && readback.id == added {
+            result.status = "verified"
+            result.add_call_id = add_call
+            result.get_call_id = get_call
+            result.event = readback
+        }
+    } else if failed { result.status = "failed" }
+    return result
+}
+fn calendar_agent_project(view,goal){
+    let binding = calendar_agent_state["binding"]
+    if !calendar_agent_binding_current(binding) || goal.id != binding.goal_id { return false }
+    let status = calendar_agent_state.status
+    if status == "turn_completed" { status = binding.receipt_status }
+    ac_add(view,"官方日历请求",status,"请求与当前事项版本绑定；模型回复不算工具回执",calendar_agent_state.request_id)
+    if status == "verified" {
+        ac_add(view,"官方日历精确读回","verified","新建稳定 ID 与精确事件字段一致 · " + binding.verification.event_id,calendar_agent_state.request_id)
+        view.next = "日历已精确核验；关联确认邮件和改期尚未接通，事项尚未整体完成。"
+    } else { view.next = "核对官方请求记录；未知结果不重发，尚未完成当前事项。" }
+    return true
+}
+
+fn calendar_agent_submit(text){ calendar_agent_submit_bound(text,nil) }
+fn calendar_agent_submit_bound(text,binding){
     if calendar_agent_busy || !calendar_agent_writable { return }
     if calendar_agent_state.status != "idle" && calendar_agent_state.status != "blocked" {
         calendar_agent_notice = "请先核对当前请求。其结果不会自动重做；另写不同事项前请保留下方待核对记录。"
@@ -580,6 +777,10 @@ fn calendar_agent_submit(text){
     let id = "muse-calendar-" + floor(time_now()) + "-" + random_u32()
     let user = gm_user_id let accounts = gm_accounts.to_json()
     calendar_agent_state = {schema: 1 request_id: id turn_id: "" status: "in_flight" user_id: user accounts: accounts previous_requests: calendar_agent_state.previous_requests}
+    if binding != nil {
+        calendar_agent_state.binding = binding.to_json().parse_json()
+        calendar_agent_state.binding.payload.request_id = id
+    }
     calendar_agent_reply = "" calendar_agent_evidence = "" calendar_agent_details = false
     if !calendar_agent_save() { redraw() return }
     calendar_agent_busy = true calendar_agent_notice = "正在等待官方助手；需要批准时请在宿主界面本人决定。"
@@ -587,19 +788,23 @@ fn calendar_agent_submit(text){
     host.request("octos.session.open",{},fn(opened){
         if calendar_agent_state.request_id != id { return }
         if !opened.is_ok || !opened.data.is_object() || opened.data["open"] != true
-            || user != gm_user_id || accounts != gm_accounts.to_json() {
+            || user != gm_user_id || accounts != gm_accounts.to_json()
+            || (binding != nil && !calendar_agent_binding_current(binding)) {
             calendar_agent_busy = false calendar_agent_state.status = "blocked"
             calendar_agent_notice = "官方会话未打开或账号已变化；未派发日历请求。请检查宿主助手授权与模型。"
             calendar_agent_save() redraw() return
         }
+        if binding != nil { text = text + "\n精确 calendar.add_event 参数：" + calendar_agent_state.binding.payload.to_json() + "\n新建返回稳定 id 后，以该 id 调用 calendar.get_event 精确读回，并核对 request_id 与全部候选字段。" }
         let prompt = "本次日历请求 ID：" + id + "。仅使用已授权的官方 Calendar 工具。新建时使用此 request_id，并通过 calendar.get_event 读回；缺少时间或时区请先询问。不要把模型文字当作执行回执。\n用户请求：" + text
         host.request("octos.turn.start",{text: prompt trigger: "app"},fn(r){
             if calendar_agent_state.request_id != id { return }
             calendar_agent_busy = false
             calendar_agent_state.status = "unknown"
+            if r.is_ok && r.data.is_object() && r.data["turn_id"].is_string() && r.data.turn_id != "" && r.data.turn_id.len() <= 160 { calendar_agent_state.turn_id = r.data.turn_id }
             if r.is_ok && r.data.is_object() && r.data["turn_id"].is_string()
                 && r.data.turn_id != "" && r.data.turn_id.len() <= 160
-                && user == gm_user_id && accounts == gm_accounts.to_json() {
+                && user == gm_user_id && accounts == gm_accounts.to_json()
+                && (binding == nil || calendar_agent_binding_current(binding)) {
                 calendar_agent_state.turn_id = r.data.turn_id
                 calendar_agent_state.status = "turn_completed"
                 if r.data["text"].is_string() && r.data.text.len() <= 24000 { calendar_agent_reply = r.data.text }
@@ -620,7 +825,7 @@ fn calendar_agent_keep_previous(){
     }
     let previous = calendar_agent_state.previous_requests.to_json().parse_json()
     previous.push({request_id: calendar_agent_state.request_id turn_id: calendar_agent_state.turn_id
-        status: calendar_agent_state.status user_id: calendar_agent_state.user_id accounts: calendar_agent_state.accounts})
+        status: calendar_agent_state.status user_id: calendar_agent_state.user_id accounts: calendar_agent_state.accounts binding: calendar_agent_state["binding"]})
     calendar_agent_state = {schema: 1 request_id: "" turn_id: "" status: "idle" user_id: "" accounts: "" previous_requests: previous}
     calendar_agent_reply = "" calendar_agent_evidence = "" calendar_agent_input_text = "" calendar_agent_details = false
     calendar_agent_notice = "原请求 ID 已保留，结果仍待核对。现在只提交不同事项，不重复原操作。"
@@ -8537,6 +8742,10 @@ fn chat_apply_proposal(id){
     } else if card.action == "calendar_list" {
         set_page("Calendar") calendar_refresh_view()
     } else if card.action == "calendar_candidate" {
+        if !calendar_enabled() {
+            if !calendar_agent_prepare_candidate(card) { return }
+            set_page("Calendar")
+        } else {
         if calendar_pending { ui_error = "日历正在处理中，请稍后核对候选。" redraw() return }
         set_page("Calendar") calendar_form_open = true
         if gm_has(card,"goal_id") { calendar_selected_goal = card.goal_id }
@@ -8547,6 +8756,7 @@ fn chat_apply_proposal(id){
         ui.calendar_timezone.set_text(payload.time_zone) ui.calendar_location.set_text(payload.location)
         calendar_edit()
         // Conflict query and exact preview/confirmation are explicit, never automatic writes.
+        }
     } else if card.action == "goal_plan" {
         if payload.objective.trim() == "" || payload.source.trim() == "" { ui_error = "目标或资料还不明确，请补充后建立计划。" redraw() return }
         if gm_project == "" || gm_owner == "" { ui_error = "请先选择本次任务的项目与归属。" chat_focus_open = true redraw() return }
@@ -9594,9 +9804,10 @@ fn ac_projection(){
             }
         }
     }
-    if !calendar_enabled() && is_calendar_goal(goal) {
-        ac_add(view,"日历能力","blocked","官方内置日历联动尚未接通；历史回执保留，未发起新写入",goal.id)
-        view.next = "日历通道受阻。先查看事项与草稿，不能把计划当成完成。"
+    let official_link = calendar_agent_project(view,goal)
+    if !calendar_enabled() && is_calendar_goal(goal) && !official_link {
+        ac_add(view,"日历能力","blocked","请本人选择当前事项并打开日程候选，再单独提交官方助手请求；历史回执保留",goal.id)
+        view.next = "请核对并提交绑定当前事项的官方日历候选；计划尚未执行。"
     }
     if gm_array(calendar_receipts) {
         let count = 0
@@ -10433,6 +10644,11 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                     SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 5 draw_bg.color: panel
                         Label{text: "官方助手与内置日历" draw_text.color: blue draw_text.text_style: theme.font_bold{font_size: 14}}
                         Label{width: Fill text: "在这里向官方助手查询或新建日历事项。此会话与宿主「询问 Muse」共享；本地多会话记忆不会自动带入。新建请写明开始、结束和时区，需要批准时由本人在宿主决定。自动改期尚未开放。" draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        if calendar_agent_binding_current(calendar_agent_candidate) {
+                            Label{width: Fill text: "当前事项候选 · " + calendar_agent_candidate.payload.title + "\n" + calendar_agent_candidate.payload.start + " → " + calendar_agent_candidate.payload.end + " · " + calendar_agent_candidate.payload.timezone draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                            Secondary{text: "核对后提交当前事项候选" enabled: !calendar_agent_busy && calendar_agent_writable && calendar_agent_binding_current(calendar_agent_candidate) && (calendar_agent_state.status == "idle" || calendar_agent_state.status == "blocked") on_click: || calendar_agent_submit_candidate()}
+                        }
+                        Label{width: Fill text: "候选联动目前支持新建与精确读回；关联确认邮件、改期和整体事项完成尚未接通。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                         calendar_agent_input := TextInput{width: Fill height: 90 text: calendar_agent_input_text empty_text: "例如：查询今天的日程；或新建事项并写明标题、起止时间、时区"
                             on_change: || { calendar_agent_input_text = ui.calendar_agent_input.text() }}
                         Secondary{text: "提交官方日历请求" enabled: !calendar_agent_busy && calendar_agent_writable && (calendar_agent_state.status == "idle" || calendar_agent_state.status == "blocked") on_click: || calendar_agent_submit(ui.calendar_agent_input.text())}
@@ -10440,13 +10656,15 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                         if calendar_agent_state.request_id != "" && !calendar_agent_busy { Secondary{text: "保留待核对记录，另写不同事项" enabled: calendar_agent_writable on_click: || calendar_agent_keep_previous()} }
                         Label{width: Fill text: calendar_agent_notice draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                         if calendar_agent_state.request_id != "" { Label{width: Fill text: "请求 ID · " + calendar_agent_state.request_id draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
-                        if calendar_agent_state.user_id == gm_user_id && calendar_agent_state.accounts == gm_accounts.to_json() {
+                        if calendar_agent_state.user_id == gm_user_id && calendar_agent_state.accounts == gm_accounts.to_json()
+                            && (calendar_agent_state["binding"] == nil || calendar_agent_binding_current(calendar_agent_state.binding)) {
                             if calendar_agent_reply != "" { Label{width: Fill text: calendar_agent_reply draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                             if calendar_agent_evidence != "" { Secondary{text: "查看官方工具回执" on_click: || { calendar_agent_details = !calendar_agent_details redraw() }} }
                             if calendar_agent_details && calendar_agent_evidence != "" { Label{width: Fill text: calendar_agent_evidence draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
                         }
                         for previous in calendar_agent_state.previous_requests {
-                            if previous.user_id == gm_user_id && previous.accounts == gm_accounts.to_json() { Label{width: Fill text: "保留请求 · " + previous.request_id + " · " + previous.status draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
+                            if previous.user_id == gm_user_id && previous.accounts == gm_accounts.to_json()
+                                && (previous["binding"] == nil || (previous.binding.project_id == gm_project && previous.binding.owner_id == gm_owner)) { Label{width: Fill text: "保留请求 · " + previous.request_id + " · " + previous.status draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11} }
                         }
                     }
                 }
