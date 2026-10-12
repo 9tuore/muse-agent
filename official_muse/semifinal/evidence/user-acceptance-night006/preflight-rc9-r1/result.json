@@ -1,0 +1,88 @@
+{
+  "stage": "DEVELOPMENT_PREFLIGHT_NOT_FINAL_ACCEPTANCE",
+  "status": "PARTIAL_PREFLIGHT",
+  "final_acceptance_credit": 0,
+  "gui_input_owner_released": true,
+  "gui_released_to": "ZC-00",
+  "observed": [
+    "Native window renders",
+    "Chinese input and no-model error",
+    "Project selection",
+    "Chat remember action",
+    "Memory create/search/correct with independent JSON readback",
+    "Sidebar scroll reaches Memory and More",
+    "Empty Mail account page",
+    "Calendar empty validation and native agent-consent prompt"
+  ],
+  "not_tested": [
+    "Memory forget/conflict",
+    "Project retrieval isolation",
+    "New/history sessions",
+    "Restart recovery",
+    "Account add/remove/second account",
+    "Mail compose/long body/send",
+    "Calendar owner CRUD",
+    "Narrow resize",
+    "Model setup",
+    "Final three rounds"
+  ],
+  "issues": [
+    {
+      "id": "UA-N006-GUI-001",
+      "severity": "P1",
+      "title": "Memory save lacks visible completion feedback",
+      "steps": [
+        "Memory > Add",
+        "Fill key/value/project/owner",
+        "Scroll and save"
+      ],
+      "expected": "Visible result or saved feedback",
+      "actual": "Empty form remains; close Add to see saved item",
+      "screenshots": [
+        "08-memory-added-native.png",
+        "09-memory-query-native.png"
+      ],
+      "readback": "09-readback-memory.json"
+    },
+    {
+      "id": "UA-N006-GUI-002",
+      "severity": "P2",
+      "title": "Dark-form inconsistency and technical metadata",
+      "actual": "Project/Memory/Calendar input white; cards show local and raw ISO time",
+      "screenshots": [
+        "03-project-form-native.png",
+        "06-memory-form-native.png",
+        "09-memory-query-native.png",
+        "15-calendar-entry-native.png"
+      ]
+    },
+    {
+      "id": "UA-N006-OBS-003",
+      "severity": "NEEDS_SCOPE_REVIEW",
+      "title": "Project change retains previous memory editor",
+      "actual": "Project B label with Project A memory and editor; no further mutation",
+      "screenshots": [
+        "13-project-isolation-native.png"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "feature": "AI conversation",
+      "reason": "No model configured",
+      "screenshot": "02-chat-send-native.png"
+    },
+    {
+      "feature": "Calendar query",
+      "reason": "Native agent enablement requires approval",
+      "screenshot": "17-calendar-query-native.png"
+    }
+  ],
+  "driver_failure": {
+    "operation": "Find More after Calendar query",
+    "error": "More widget missing after native consent overlay opened",
+    "classification": "HARNESS_STOP_ON_MODAL_NOT_PRODUCT_BUG",
+    "retried": false
+  },
+  "evidence_preparation_failure": "Initial shell heredoc with non-ASCII text was rejected as non-UTF-8. No evidence was overwritten. Rewritten through UTF-8 file tool."
+}
