@@ -40,10 +40,14 @@ python3 official_muse/semifinal/sprint005/zc02/prepare_profile.py --root "$ROOT"
 python3 official_muse/semifinal/sprint005/zc02/readback.py --root "$ROOT" --out "$ROOT/snapshot.json"
 ```
 
-prepare_profile依照SDK config/profile.rs及实际real_kernel_tests::write_profile的完整_main envelope：id/name/enabled/created_at/updated_at/config.llm.primary(family_id=local,model_id,route)，不含key或keychain marker。已有文件拒绝覆盖。显式OCTOS_APP_CORE_DIR指向新root/octos-home/.octos，SDK dirs.rs因此不迁移个人共享profile；OCTOSENSE_LLM_VAULT=file与MAIL_VAULT=file均为已有官方模式。核心业务库没有预写，所有聊天/记忆/事项由真实GUI创建。
+prepare_profile依照SDK config/profile.rs及实际real_kernel_tests::write_profile的完整_main envelope：id/name/enabled/created_at/updated_at/config.llm.primary(family_id=local,model_id,route)，不含key或keychain marker。已有文件拒绝覆盖。实际WorkBuddy launcher无条件将OCTOS_APP_CORE_DIR设为新root/kernel/.octos，prep已按此正式路径生成，SDK dirs.rs因此不迁移个人共享profile；OCTOSENSE_LLM_VAULT=file与MAIL_VAULT=file均为已有官方模式。核心业务库没有预写，所有聊天/记忆/事项由真实GUI创建。首个13:41前版本用了通用octos-home/.octos，已按Root现场路径修正；旧自有测试目录保留，不能使用旧路径作为GUI配置。
 
 同模型服务支持Kernel stream SSE及只从原native prompt选择实际offered Calendar工具，创建get使用实际上一条tool result的ID，update/delete保留原expected；实际error立即停止。仅选择工具，不创建Broker history/receipt或批准。原NIGHT004 Rust bridge是CLI且限制旧root，不把它冒充本GUI入口；这里只复用其公开profile与plan_model算法。formal-r3的真实Kernel仍走原GUI/apphub准入及审批。
 
 **formal-r3 Host保持不变时：Mail可信CA接入是HUMAN_REQUIRED/专门fixtureHost依赖。** 不能让现有WebPKI接受本地自签名证书，不能通过seed账号/grant或明文来跳过登录。模型、只读工具及服务器协议已可独立使用；TLS补丁只是Root可选择的隔离Host提案，未应用/编译。default launch-environment不带该TLS override；只有tls-proposal-environment供接受提案后的专门Host使用。9799由Root后续分配，本服务当前OS动态分配端口，不触碰9696。
 
 首个实际本机服务检查17/17、真实HTTP SSE及公开profile匹配4/4通过，均为新fixture组件；Kernel/SDK GUI NOT_TESTED。readback当前只验证snapshot-only出口，进一步定向validator验证与完整接收记录继续在本目录记录。
+
+另已核官方SDK无编译mail_demo开关：Shell apps.rs register_mail_services读取MAKEPAD_APP_CONFIG.mail_demo并调用register_demo；口令demo、三封固定合成INBOX及Sent样本，FileVault、零网络、发送去往无处。原登录sheet、SDK draft/review/批准路径仍走GUI。它不能证明独立收件/UNKNOWN，也不能修改来信内容。**实际WorkBuddy launcher会unset MAKEPAD_APP_CONFIG**，故不能仅传env宣称启用；需Root的隔离launcher明确保留该官方配置，且双marker约束，生产launcher默认不改。现有R8 JSONL测试driver没有native GUI事件循环，其MockTransport/内部sheet调用不能替代GUI验收。
+
+tls-fixture.patch改为零context：Root先核tls-patch-identity的完整before SHA，再在隔离SDK执行git apply --check --unidiff-zero；这里只提案，未编译或写共享源。

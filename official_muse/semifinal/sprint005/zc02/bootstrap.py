@@ -47,7 +47,7 @@ subjectAltName=IP:127.0.0.1,DNS:localhost
         if result.returncode: raise RuntimeError('Synthetic certificate generation failed; no key material printed')
     for name in ('ca.key','server.key'):(private/name).chmod(0o600)
     atomic_json(root/'mail-fixture.json',{'protocol':'SPRINT005_MAIL_TLS_FIXTURE_V1','ca_sha256':digest((public/'mail-fixture-ca.der').read_bytes())})
-    atomic_json(root/'launch-environment.json',{'MUSE_INTEGRATED_STATE':str(root),'OCTOSENSE_MAIL_VAULT':'file','OCTOSENSE_LLM_VAULT':'file','OCTOS_APP_CORE_DIR':str(root/'octos-home/.octos')})
+    atomic_json(root/'launch-environment.json',{'MUSE_INTEGRATED_STATE':str(root),'OCTOSENSE_MAIL_VAULT':'file','OCTOSENSE_LLM_VAULT':'file','OCTOS_APP_CORE_DIR':str(root/'kernel/.octos')})
     return root
 
 if __name__=='__main__':

@@ -59,7 +59,7 @@ def main():
         let config'''
     assert old in after;after=after.replace(old,new,1)
     rel='apps/mail/host-service/src/network.rs'
-    (HERE/'tls-fixture.patch').write_text(''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='a/'+rel,tofile='b/'+rel)))
+    (HERE/'tls-fixture.patch').write_text(''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='a/'+rel,tofile='b/'+rel,n=0)))
     (HERE/'tls-patch-identity.json').write_text(json.dumps({'before_sha256':record['sha256'],'after_sha256':hashlib.sha256(after.encode()).hexdigest(),'scope':'proposal only; Root applies/builds isolated Host','tls_chain_name_verifier_unchanged':True,'compiled':False},indent=2)+'\n')
     return after
 

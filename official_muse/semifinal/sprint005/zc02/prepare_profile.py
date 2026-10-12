@@ -8,7 +8,8 @@ from fixture_scope import scope,atomic_json
 def prepare(root):
     root=scope(root);ready=json.loads((root/'ready.json').read_text());url=ready['model_base_url'];parsed=urlsplit(url)
     if parsed.scheme!='http' or parsed.hostname!='127.0.0.1' or parsed.path!='/v1':raise ValueError('Explicit loopback fixture endpoint required')
-    core=root/'octos-home/.octos';path=core/'profiles/_main.json'
+    # The actual WorkBuddy launcher overrides OCTOS_APP_CORE_DIR to this path.
+    core=root/'kernel/.octos';path=core/'profiles/_main.json'
     if path.exists():raise ValueError('Do not replace an existing GUI provider selection')
     profile={'id':'_main','name':'SPRINT005 Synthetic LocalFixture','enabled':True,'created_at':'2026-10-12T05:11:25Z','updated_at':'2026-10-12T05:11:25Z',
              'config':{'llm':{'primary':{'family_id':'local','model_id':'sprint005-fixture','route':{'base_url':url,'api_type':'openai'}}},'env_vars':{}}}
