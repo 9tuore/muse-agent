@@ -28,7 +28,7 @@ calendar_agent_adopt_mail_result calendar_agent_mail_context_current
 calendar_agent_input_changed calendar_agent_short_text calendar_agent_prepare_edit
 calendar_agent_creation_proof calendar_agent_request_context_current
 calendar_agent_capture_request_source calendar_agent_adopt_request_matter
-calendar_agent_add_digest_matches'''.split()
+calendar_agent_add_digest_matches calendar_agent_identity_current'''.split()
 
 
 def main():

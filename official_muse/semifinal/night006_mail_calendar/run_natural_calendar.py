@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--vm', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--suite', choices=['natural', 'account-scope'], default='natural')
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=False)
     raw = args.source.read_bytes()
@@ -32,16 +33,22 @@ def main():
     names = list(dict.fromkeys(runner.FUNCTIONS + runner.OPTIONAL + [
         'calendar_agent_history', 'calendar_agent_settle_if_resolved',
         'calendar_agent_creation_proof', 'calendar_agent_request_context_current',
-        'calendar_agent_capture_request_source', 'calendar_agent_adopt_request_matter']))
+        'calendar_agent_capture_request_source', 'calendar_agent_adopt_request_matter',
+        'calendar_agent_identity_current']))
     names = [name for name in names if name in functions]
+    if args.suite == 'account-scope':
+        names += ['gm_set_accounts']
     prefix = (HERE / 'linkage.splash').read_text().split('// PRODUCT_FUNCTIONS')[0]
     prefix = prefix.replace('fn calendar_agent_history(){}', '')
     prefix = prefix.replace('if method=="octos.session.open"',
         'if method=="octos.session.history"{cb({is_ok:true data:{messages:history_rows}})}\n if method=="octos.session.open"')
     prefix += '\nfn calendar_agent_preflight_history(value){}\nfn calendar_agent_preflight_current(){return false}\n'
+    if args.suite == 'account-scope':
+        prefix += '\nlet gm_error=""\n'
     prefix += (HERE / 'history.splash').read_text().split('seed()')[0]
     production = '\n'.join(functions[name].replace('host.request(', 'fixture_transport(') for name in names)
-    code = prefix + '\n' + production + '\n' + (HERE / 'natural_calendar.splash').read_text()
+    harness = 'account_scope.splash' if args.suite == 'account-scope' else 'natural_calendar.splash'
+    code = prefix + '\n' + production + '\n' + (HERE / harness).read_text()
     (args.out / 'executed.splash').write_text(code)
     sha = lambda value: hashlib.sha256(value).hexdigest()
     identity = {'source_sha256': sha(raw), 'vm_sha256': sha(args.vm.read_bytes()),
