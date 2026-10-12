@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-修复发完第一封后无法继续写信，放宽Muse跨邮件重复拦截。基线codex/muse-pivot-20261010/721f4b49。
+NIGHT-006 UI清理、连续操作与rc9入口；基线e15902b3，Root集成。
 
 ## Result
-PARTIAL：源码和定向测试完成，桌面部署与GUI核验进行中。
+PARTIAL。新版业务源和开发预检包已准备；最新官方rc.6的Intel统一构建与最终GUI验收进行中。
 
 ## Changed
-Main新建自动保留旧回执、解锁accepted/unknown邮件后的新建/换账号/移除，取消历史相同内容永久拦截；发送按钮直接进入官方审阅。新增连续发信VM测试，更新账号管理预期。
+main.splash/AGENT.md减少手工前置和技术小字、增加明确邮件日历按钮与诊断页；打包/启动器版本rc9、官方Host特性去掉旧prototype。
 
 ## Tests
-2026-10-12真实Splash VM30/30、账号管理24/24 FIXTURE_PASS；旧Main复现21项失败。完整报告及原失败在integrated_release/evidence/mail-continuation-20261012。
+实际VM Mail30/30、账号24/24、Calendar17/17 FIXTURE_PASS。Mail首轮缺subject属性已修复，原失败保留。Launcher/打包首次19fail+1error源于运行中Host的单实例锁，待停GUI重跑。预检包签名和资源检查通过，原生AppHub已显示。证据build/night006。
 
 ## Commit
-本地提交，未推送；部署后另记运行证据。
+本次本地提交，尚未推送。
 
 ## Remaining
-同桌面应用签名更新、实际GUI烟测；真实SMTP连续发送尚未复验。
+最新Host/Kernel干净编译；日历持久绑定修复；同候选三轮真实GUI、最后构建启动和Git同步。
 
 ## Important Boundaries
-fixture不等于真实发送。沿用用户刚配置的资料；无Secret输出、无真实邮件自动发送、未改Host审批。
+开发预检沿用旧Host，不是最终干净构建；fixture不是真实SMTP/日历验收；原应用和用户资料保留。用户睡眠期间不申请权限。

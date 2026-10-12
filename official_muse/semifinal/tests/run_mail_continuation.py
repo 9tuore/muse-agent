@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--source', type=Path, default=ROOT / 'official_muse/app/source/main.splash')
     parser.add_argument('--vm', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--suite', choices=['mail', 'calendar'], default='mail')
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=False)
     source = args.source.read_text()
@@ -33,8 +34,10 @@ def main():
     # Baseline has the same two user actions, but no convenience wrapper yet.
     functions.setdefault('mail_submit', 'fn mail_submit(){ mail_preview() if mail_draft.status == "waiting_user" && mail_error == "" { mail_send_confirmed() } }')
     names = FUNCTIONS + (['mail_payload_pending'] if 'mail_payload_pending' in functions else [])
+    if args.suite == 'calendar':
+        names = 'gm_object gm_array gm_text gm_string gm_get gm_has calendar_agent_save calendar_agent_settle calendar_agent_submit_bound calendar_agent_submit_candidate calendar_agent_same_candidate mail_prepare_calendar'.split()
     production = '\n'.join(functions[name].replace('host.request(', 'fixture_transport(') for name in names)
-    code = (HERE / 'mail_continuation.splash').read_text().replace('// PRODUCT_FUNCTIONS', production)
+    code = (HERE / (args.suite + '_continuation.splash')).read_text().replace('// PRODUCT_FUNCTIONS', production)
     executed = args.out / 'executed.splash'
     executed.write_text(code)
     sha = lambda data: hashlib.sha256(data).hexdigest()

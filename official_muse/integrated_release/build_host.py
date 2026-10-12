@@ -10,7 +10,7 @@ import shutil
 import subprocess
 import time
 
-FEATURES = 'app-hub,octos-core,app-muse-native-prototype'
+FEATURES = 'app-hub,octos-core'
 
 
 def packaging(sdk):
