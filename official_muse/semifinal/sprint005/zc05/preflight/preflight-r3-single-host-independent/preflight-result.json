@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "phase": "PRE_FLIGHT_BUG_DISCOVERY_NOT_THREE_ROUND_ACCEPTANCE",
+  "candidate_id": "sprint005-preflight-r5-single-host",
+  "started_at_utc": "2026-10-12T07:10:56.941078+00:00",
+  "ended_at_utc": "2026-10-12T08:10:18.878262+00:00",
+  "status": "PRE_FLIGHT_COMPLETE_WITH_TWO_VISIBLE_BUGS",
+  "formal_rounds_counted": 0,
+  "native_images_captured_and_viewed": 35,
+  "observed_functions": [
+    "visible Muse single Host",
+    "project and owner save",
+    "real fixture model chat",
+    "new conversation",
+    "cross-conversation scoped memory retrieval",
+    "local memory command",
+    "Memory page correction",
+    "forget cancellation",
+    "explicit forget and persistent content clearing",
+    "Goal candidate/open",
+    "pause/restore",
+    "model suggestion without execution",
+    "single approval and independently read local result",
+    "results/action-chain tabs",
+    "native result notification"
+  ],
+  "bugs": [
+    "UA-PREFLIGHT-002",
+    "UA-PREFLIGHT-003"
+  ],
+  "not_tested": [
+    "Calendar request/session/turn/tools; entered request only, never submitted",
+    "Calendar create/get/update/delete",
+    "project P2 isolation",
+    "normal restart and recovery",
+    "Mail account and transport pending CA Host"
+  ],
+  "calendar_status": "NOT_TESTED_NOT_SUBMITTED",
+  "result_limits": [
+    "Model responses are fixture simulation; no claims about model reasoning quality",
+    "Local storage and UI are actual real runtime observations, but only one PRE_FLIGHT run",
+    "No result counted toward the final 243 slots",
+    "No business database/API write or production9696 call"
+  ],
+  "normal_quit_sent_once": true,
+  "listener_absent_after_quit": true,
+  "gui_ownership": "RELEASED_TO_ZC-00"
+}

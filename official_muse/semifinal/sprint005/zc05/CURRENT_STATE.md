@@ -15,3 +15,7 @@
 身份纠正：Root已交接R5 transform后的实际可读/已签Bundle均为0.4.0-rc7，旧source rc18字串被transform替换；不将旧字串差异列为产品版本Bug。旧系统日历路径与窄范围自动安排的可见实现仍以最终冻结GUI发现为准。
 
 PRE_FLIGHT独立原生发现已完成：9799/PID22287/native663交接后自行捕获并view_image查看3张原生图，顶部ShellBar和主题菜单可见，Muse/AppHub正文全黑。只点了两次可见非敏感顶栏；未点隐藏业务控件、未重启、未改软件/DB。窗口已回交ZC-00，不再访问。此诊断noGauss包非最终冻结；正式243格保持NOT_TESTED。详见preflight目录Bug UA-PREFLIGHT-001。
+
+后续single-host PRE_FLIGHT：PID49780/native786实际正文可见。完成真实GUI Chat/scope/新会话检索、记忆更正/取消遗忘/确认遗忘、Goal候选/暂停恢复/模型建议/单次批准与独立真实产物读回。35原生图逐张查看，发现002候选指引及003本地已核验Goal链投影问题。Calendar仅填写查询，未提交，NOT_TESTED；Root要求切freeze后在16:10:18正常/quit且9799无LISTEN PID，GUI已回交。正式243格未改。证据为preflight/preflight-r3-single-host-independent/。
+
+外部清理聊天删除本树历史跟踪文件；仅按Root允许恢复本Agent已有文件并使用Root现有remote.py，保留其他删除且不stage它们。后续commit须精确stage本Agent路径。

@@ -10,6 +10,8 @@
 
 独立PRE_FLIGHT已完成并回交9799窗口：3张未修改原生截图全部view_image查看；初始正文全黑，OctoSense顶栏主题下拉能绘制，Muse标签点击后菜单关闭且正文仍黑。仅2次真实非敏感UI输入，无业务/权限/账号/重启/DB动作。preflight/保存身份、3snapshot、UI日志、逐图观察、Bug UA-PREFLIGHT-001及SHA manifest；正式结果矩阵未改。诊断noGauss启动包不是最终三轮候选，不据本轮宣称最终产品失败或通过。版本实际为0.4.0-rc7，不记录旧source字符串版本Bug。
 
+single-host PRE_FLIGHT追加：35张实际原生图及真实鼠标键盘记录；Chat/Memory与Goal的UI及独立合成存储观察，002/003可见Bug票。Calendar只填只读查询未发turn，NOT_TESTED。已核/s PID49780后单次/quit，16:10:18无9799监听，GUI回交Root。此批不计243正式格，不能复用为新冻结rc8/更高候选的三轮。原生图检查时间有工具调用与后续视觉proof记录；无精确钟表记录的图明确列捕获时间及归档时间，不伪造检查时间。
+
 边界：root 基线 8da96cfdf582fc7e7e1e8a7eda4e902f75090f6a；生产端口 9696 从未访问；没有读取生产账号、凭据或私有资料，也未使用开发者 PASS 作为依据。根 CURRENT_STATE/HANDOFF 不在本 Agent 文件所有权内，本目录保存自己的状态与交接。
 
 未完成：固定候选包/host/plugin 哈希和专属 fixture GUI 交接；原生 helper 的实际运行验证；全部 243 GUI 验收格；最终实现范围、失败 Bug、独立读回与限制结论。交接模板本身不授予窗口权限。

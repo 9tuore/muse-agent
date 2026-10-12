@@ -18,7 +18,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
 sys.dont_write_bytecode = True
-sys.path.insert(0, str(ROOT / "official_muse/phase2/tests"))
+REMOTE_DRIVER_DIR = ROOT / "official_muse/phase2/tests"
+if not (REMOTE_DRIVER_DIR / "remote.py").is_file():
+    # ZC-00 explicitly handed over this existing shared UI driver after an
+    # unrelated cleanup removed historical files from the acceptance checkout.
+    REMOTE_DRIVER_DIR = Path("/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/official_muse/phase2/tests")
+sys.path.insert(0, str(REMOTE_DRIVER_DIR))
 from remote import Remote
 
 
