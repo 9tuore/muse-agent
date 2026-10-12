@@ -183,14 +183,14 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         result = self.launch('--models')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.profile.read_bytes(), before)
-        self.assertIn('launch-muse-native-prototype', (self.state / 'logs/host.log').read_text())
+        self.assertIn('launch-hub:muse-goals', (self.state / 'logs/host.log').read_text())
         self.assertFalse((self.state / 'logs/model.log').exists())
 
     def test_gpt_missing_profile_keeps_native_entry_without_default_profile(self):
         result = self.launch('--gpt')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse(self.profile.exists())
-        self.assertIn('launch-muse-native-prototype', (self.state / 'logs/host.log').read_text())
+        self.assertIn('launch-hub:muse-goals', (self.state / 'logs/host.log').read_text())
 
     def test_gpt_launch_uses_isolated_paths_and_no_gate_overrides(self):
         before = self.write_profile({'family_id': 'openai', 'model_id': 'gpt-4o',
@@ -198,7 +198,7 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         result = self.launch('--gpt')
         self.assertEqual(result.returncode, 0, result.stderr)
         log = (self.state / 'logs/host.log').read_text()
-        self.assertIn('launch-muse-native-prototype', log)
+        self.assertIn('launch-hub:muse-goals', log)
         self.assertIn('HOME=' + str(self.owner_home), log)
         self.assertIn('OCTOS_APP_CORE_DIR=' + str(self.state / 'kernel/.octos'), log)
         self.assertIn('OCTOSENSE_APP_DATA=' + str(self.state / 'apps'), log)
@@ -215,7 +215,7 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         result = self.launch('--gpt')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.profile.read_text(), 'invalid fixture')
-        self.assertIn('launch-muse-native-prototype', (self.state / 'logs/host.log').read_text())
+        self.assertIn('launch-hub:muse-goals', (self.state / 'logs/host.log').read_text())
 
     def test_previous_installed_main_is_preserved_by_native_only_startup(self):
         self.write_profile({'family_id': 'openai', 'model_id': 'gpt-4o'})
@@ -225,7 +225,7 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         installed.write_bytes(previous)
         result = self.launch('--gpt')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('launch-muse-native-prototype', (self.state / 'logs/host.log').read_text())
+        self.assertIn('launch-hub:muse-goals', (self.state / 'logs/host.log').read_text())
         self.assertEqual(installed.read_bytes(), previous)
 
     def test_relative_state_rejected_without_creation(self):
@@ -240,7 +240,7 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.assertIn('HYBRID_SETUP_REQUIRED', self.messages(result))
         self.assertFalse(self.profile.exists())
         self.assertFalse((self.state / 'synthetic-local-started').exists())
-        self.assertIn('launch-muse-native-prototype', (self.state / 'logs/host.log').read_text())
+        self.assertIn('launch-hub:muse-goals', (self.state / 'logs/host.log').read_text())
 
     def test_hybrid_gpt_profile_preserved_and_local_service_lifecycle(self):
         before = self.write_profile({'family_id': 'openai', 'model_id': 'gpt-4o'})
@@ -291,7 +291,7 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.profile.read_bytes(), before)
         self.assertIn('HYBRID_LOCAL_READY_ONLY', self.messages(result))
-        self.assertIn('launch-muse-native-prototype', (self.state / 'logs/host.log').read_text())
+        self.assertIn('launch-hub:muse-goals', (self.state / 'logs/host.log').read_text())
         self.assertTrue((self.state / 'synthetic-local-started').exists())
 
     def test_hybrid_minimax_existing_local_route_preserves_primary(self):
@@ -314,8 +314,9 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         result = self.launch('--models', env_updates=env)
         self.assertEqual(result.returncode, 0, result.stderr)
         lines = (self.state / 'logs/host.log').read_text().splitlines()
-        self.assertEqual(lines[:3], ['--remote=9693', '--test-action', 'launch-muse-native-prototype'])
-        self.assertIn('ARGC=4', lines)
+        self.assertEqual(lines[:5], ['--remote=9693', '--test-action', 'launch-apphub',
+                                    '--test-action', 'launch-hub:muse-goals'])
+        self.assertIn('ARGC=6', lines)
         for key in removed:
             self.assertIn(key + '=<unset>', lines)
         expected = {'HOME': self.owner_home, 'OCTOSENSE_HOME': self.state / 'shell',
@@ -408,7 +409,7 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
             duplicate = subprocess.run([str(self.launcher), '--models'], env=env,
                                        capture_output=True, text=True, timeout=5)
             self.assertNotEqual(duplicate.returncode, 0)
-            self.assertEqual(log.read_text().splitlines().count('launch-muse-native-prototype'), 1)
+            self.assertEqual(log.read_text().splitlines().count('launch-hub:muse-goals'), 1)
             with (self.state / 'launch.flock').open('r') as lock:
                 with self.assertRaises(BlockingIOError):
                     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)

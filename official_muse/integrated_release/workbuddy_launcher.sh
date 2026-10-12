@@ -58,4 +58,4 @@ while [ ! -f "$READY" ]; do
 done
 PORT=${MUSE_INTEGRATED_REMOTE:-9696}
 exec "$RESOURCES/host-runtime/muse-host" "--remote=$PORT" \
-    --test-action launch-muse-native-prototype >> "$STATE/logs/host.log" 2>&1
+    --test-action launch-apphub --test-action launch-hub:muse-goals >> "$STATE/logs/host.log" 2>&1
