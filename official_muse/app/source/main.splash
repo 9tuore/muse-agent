@@ -10352,6 +10352,9 @@ fn chat_focus_save(){
     let project = ui.session_focus_project.text().trim() let owner = ui.session_focus_owner.text().trim()
     if project.len() > 120 || owner.len() > 120 { ui_error = "焦点名称过长。" redraw() return }
     if project != chat_sessions[i].focus_project || owner != chat_sessions[i].focus_owner {
+        memory_selected_id = ""
+        memory_forget_pending = ""
+        memory_correction_value = ""
         for j in chat_requests.len() {
             if chat_requests[j].session_id == chat_selected_id && chat_requests[j].status == "running" { chat_requests[j].status = "cancelled" }
         }

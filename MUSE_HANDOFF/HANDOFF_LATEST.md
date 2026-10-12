@@ -1,22 +1,7 @@
-# Handoff
+# Muse NIGHT-006 交接
 
-## Task
-NIGHT-006统一rc9候选集成，截止05:00、04:30冻结高风险。
+2026-10-13 01:37，北京。正式统一候选正在构建；最新rc.6 Intel Host ef4e903a、Kernel fe5259f6、Hub e99033a6。Root负责包与主源，独立ZC05等待新窗口进行最终三轮。
 
-## Result
-PARTIAL，最新Host/Kernel/Hub已编成，准备签名统一包。
+启动器/打包31项通过（旧Host退出后）；40联动、9历史、30邮件VM通过；65真实Rust组件测试通过。这些均不替代最终GUI。旧失败日志和旧包保留，用户原资料不改。
 
-## Changed
-Mail/Calendar持久来源、历史请求恢复、改期候选失效及完整结构比较；记忆保存反馈和深色输入；fresh local Qwen bootstrap保留已有profile；打包收集依赖许可证。
-
-## Tests
-Agent同源131项VM通过，中央集成后40+9+30通过；本地模型16项fixture及实际Qwen两次启动推理通过。新SDK真实服务65项通过，旧Calendar ID重复FAIL→同复现PASS。GUI预检Memory新增/查询/更正读回通过；最终三轮未完成。原失败保留。
-
-## Commit
-本地有效单元提交，待最后Git同步。
-
-## Remaining
-新包Native Host/Qwen与真实GUI、同候选三轮、启动器复测、最终启动。
-
-## Important Boundaries
-不把VM/独立Qwen或旧Host预检计最终GUI；保留旧包和所有生产资料，用户睡眠期间不申请权限。
+刚补切换项目清除记忆旧编辑选择；需GUI复测。下一步统一包启动、身份核验、独立三轮，04:30停止高风险开发，05:00交付。用户休息，不发权限申请。
