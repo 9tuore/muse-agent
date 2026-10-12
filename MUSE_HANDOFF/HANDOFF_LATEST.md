@@ -1,22 +1,29 @@
 # Handoff
 
 ## Task
-ZC-00 NIGHT-004；2026-10-12 06:14。最晚11:00，09:00冻结高风险。产品0c3aa9b1/Main caa99c57。
+
+ZC-00：用户最新要求独立Intel APP、移除模拟环境、补账号删除/第二账号。
 
 ## Result
-PASS，限隔离SIMULATION。Intel原WorkBuddy入口R5完整Muse留开26569，动态三项0。
+
+PARTIAL。桌面Muse-rc8-正式版-20261012.app已启动、x86_64、PID80429/native1718，三动态SecCode0。旧fixture Host21195已正常退出；未带入模拟账号。
 
 ## Changed
-Main一次恢复提交；启动判据/输入检查、日历GUI单次派发等待；台账、报告与统一证据。
+
+d550b975/source c4dc95e2：官方mail.remove_account、确认取消、多账号添加入口。独立包指向原正式资料，无凭据复制。
 
 ## Tests
-R5整链及重启164、重叠60、Kernel5场景、恢复46、SDK JSON54、Mail故障107、性能14通过。真实最终20启动/60图、日历GUI6检查/12read/7图、窄412/4图实审通过。128UNKNOWN及原始备份完整；失败不改。证据night004-r5-candidate及GPT03 candidate-caa99-r1。
+
+24实际VM FIXTURE_PASS，失败保留；codesign strict/deep及LaunchServices真实通过。新账号GUI/真实收发未验证。旧seq8 Calendar读回存在，但证据清单需修复，不计完整PASS。
 
 ## Commit
-产品0c3aa9b1；验收10e1ba27。76bb9d1f已普通push且独立远端SHA相等，见git-sync/r13-system-proxy-verified。最后归档另核本机git-checkpoint-r14-final。
+
+产品d550b975，证据19482520、90928ca0；最后归档SHA以git log/同步回执为准。
 
 ## Remaining
-白天真实Mail登录/Review/SMTP收件、模型与R5权限、生产Calendar闭环；早期测试副本绘制根因未定。
+
+生产安装仍rc7，rc8权限页已打开但本人Install未完成。模拟账号旧隔离存储未删除；新版删除/第二账号需实际UI验证。三轮、邮件日历、自发自收未完成。
 
 ## Important Boundaries
-真实官方Calendar仅隔离资料；模型/授权/Mail输运fixture。无生产Secret/资料改写，无main推送、发布或比赛提交。原未提交改动保留。
+
+不模拟可信批准、不读Secret、不直接写生产DB。延长截至21:11:25仍未全通；最新独立包请求另行收口，不发布/比赛提交。

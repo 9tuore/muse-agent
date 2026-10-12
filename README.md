@@ -1,3 +1,7 @@
+## 最新本机独立APP
+
+桌面 `Muse-rc8-正式版-20261012.app` 已实际启动，配套Host为Intel x86_64；嵌入产品提交d550b975，包含邮箱账号移除与多账号入口。保留原正式资料，不含模拟账号/生产数据。正式资料当前已安装仍rc7，App Hub已打开rc8更新权限页；最新模块尚未完成原生Install和GUI验收。24项账号管理定向VM通过仅为fixture，不能称真实邮箱通过。详情见 [当前状态](MUSE_HANDOFF/CURRENT_STATE.md)。
+
 ## 当前交付边界：0.4.0-rc8 seq8 本机候选，独立验收尚未完成
 
 最新产品冻结提交 `9a61040c86efbe967b207a058f717733df422391`，可读Main SHA-256 `c09836478cdd5fe58f34634002400ebc517185deb30fe4a29a469705c1ac6bd7`；签名compact Main `58b97a56…`、manifest `8d2f8ee9…`、catalog `b05b01b8…`/seq8。Intel本机候选 `build/sprint005/rc8-candidate-r4/Muse.app` 使用统一WorkBuddy Launcher入口和原配套Host。独立GUI验收包 `build/sprint005/zc05-final-r4/Muse.app` 使用限定双marker/loopback CA的专用测试Host，实际窗口已显示，日历query/create有真实owner回执和独立保存读回；合成模型/账号/数据只计 `SIMULATION_PASS`。

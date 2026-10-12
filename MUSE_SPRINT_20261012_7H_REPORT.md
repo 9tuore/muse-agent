@@ -1,3 +1,15 @@
+# 最新独立APP与实际限制
+
+## 最新独立包与邮箱管理 · 2026-10-12 收口
+
+桌面 /Users/mima0000/Desktop/Muse-rc8-正式版-20261012.app 已独立打包、codesign strict/deep验证、LaunchServices真实启动；Host x86_64，PID80429/native1718/9696，动态SecCode三项0。保持WorkBuddy同Launcher与原Host1eb/Kernel567、本地Qwen资源；不含模拟账号或任何生产资料。launcher只指向原正式资料build/live-acceptance-003/home，不复制凭据。
+
+最新代码d550b975/source c4dc95e2/compact022f4460，新增官方mail.remove_account接口与每账号移除确认取消、多账号添加入口。独立真实VM24项FIXTURE_PASS，原4项父断言失败保留，未宣称GUI已移除/第二账号已添加。模拟Host21195已正常quit，模拟账号仍只在旧隔离目录，并未实际删除其存储。
+
+当前生产资料已安装仍rc7/Main ef58430f，最新rc8更新权限页已真实打开，尚未完成本人Install；不能声称最新模块已加载或真实邮箱已测通。原正式资料和R5保留，未读/复制secret。邮箱发送、账号移除、多账号、邮件联动日历与新版三轮均未真实验收通过。
+
+用户授权延长至21:11:25；仍未达全功能三轮。旧c098候选实际Calendar query/create有owner结果，但ZC03检查发现日志/后加文件SHA及新图视察缺失，证据计为EVIDENCE_INCOMPLETE待独立修复，不把2个原matrix SIMULATION_PASS写成完整验收。新d550不能继承旧候选轮次。完整身份与边界见integrated_release/evidence/sprint005-standalone-mail-accounts/；本机包不等于官方发布，未Tag/提交比赛。
+
 # Muse SPRINT-005 七小时报告
 
 当前收口结论：**PARTIAL_3_ROUND_ACCEPTANCE**。截至2026-10-12 19:59北京时间；任务13:11:25开始，19:11:25停止新增高风险产品改动，20:11:25截止，不自动延长。最新正式矩阵与逐轮截图以独立ZC05报告为准。

@@ -1,3 +1,13 @@
+## 最新独立包与邮箱管理 · 2026-10-12 收口
+
+桌面 /Users/mima0000/Desktop/Muse-rc8-正式版-20261012.app 已独立打包、codesign strict/deep验证、LaunchServices真实启动；Host x86_64，PID80429/native1718/9696，动态SecCode三项0。保持WorkBuddy同Launcher与原Host1eb/Kernel567、本地Qwen资源；不含模拟账号或任何生产资料。launcher只指向原正式资料build/live-acceptance-003/home，不复制凭据。
+
+最新代码d550b975/source c4dc95e2/compact022f4460，新增官方mail.remove_account接口与每账号移除确认取消、多账号添加入口。独立真实VM24项FIXTURE_PASS，原4项父断言失败保留，未宣称GUI已移除/第二账号已添加。模拟Host21195已正常quit，模拟账号仍只在旧隔离目录，并未实际删除其存储。
+
+当前生产资料已安装仍rc7/Main ef58430f，最新rc8更新权限页已真实打开，尚未完成本人Install；不能声称最新模块已加载或真实邮箱已测通。原正式资料和R5保留，未读/复制secret。邮箱发送、账号移除、多账号、邮件联动日历与新版三轮均未真实验收通过。
+
+用户授权延长至21:11:25；仍未达全功能三轮。旧c098候选实际Calendar query/create有owner结果，但ZC03检查发现日志/后加文件SHA及新图视察缺失，证据计为EVIDENCE_INCOMPLETE待独立修复，不把2个原matrix SIMULATION_PASS写成完整验收。新d550不能继承旧候选轮次。完整身份与边界见integrated_release/evidence/sprint005-standalone-mail-accounts/；本机包不等于官方发布，未Tag/提交比赛。
+
 ## SPRINT-005 19:59 收口检查点：seq8 日历真 owner 查询、新建已读回
 
 产品冻结9a61040c86efbe967b207a058f717733df422391，source c09836478cdd5fe58f34634002400ebc517185deb30fe4a29a469705c1ac6bd7；Main58b97a56、manifest8d2f8ee9、catalogb05b01b8/seq8。实际Intel GUI包build/sprint005/zc05-final-r4/Muse.app已通过WorkBuddy同Launcher入口显示，PID21195/native819，独立ZC05单独操作9799；Root不并发点击。正式输运候选rc8-candidate-r4保留原Host1eb，GUI专用Hostcea8，两者边界不能混报。
