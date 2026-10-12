@@ -180,19 +180,21 @@ int main(int argc, char **argv) {
         with self.assertRaises(subprocess.CalledProcessError):
             self.package()
 
-    def test_wrapper_resolves_spaces_clears_overrides_and_preserves_argv(self):
+    def test_wrapper_resolves_spaces_clears_overrides_and_ignores_extra_args(self):
         self.package()
         resources = self.output / 'Muse.app/Contents/Resources'
         wrapper = self.output / 'Muse.app/Contents/MacOS/Launcher'
         log = self.state / 'logs/host.log'
         env = dict(os.environ, MAKEPAD_APP_CONFIG='poison',
                    OCTOSENSE_HUB='/wrong')
-        subprocess.run(['/bin/sh', str(wrapper), '--remote=9696', '--test-action',
-                        'launch-muse-native-prototype', '--test-action', 'launch-hub:muse-goals'],
+        subprocess.run(['/bin/sh', str(wrapper), '--remote=9798', '--test-action',
+                        'launch-muse-native-prototype', '--test-action', 'launch-forbidden-fixture-app'],
                        env=env, check=True, capture_output=True)
         lines = log.read_text().splitlines()
-        self.assertEqual(lines[:3], ['--remote=9696', '--test-action', 'launch-muse-native-prototype'])
-        self.assertNotIn('launch-hub:muse-goals', lines)
+        self.assertEqual(lines[:5], ['--remote=9696', '--test-action', 'launch-apphub', '--test-action', 'launch-hub:muse-goals'])
+        self.assertNotIn('launch-forbidden-fixture-app', lines)
+        self.assertNotIn('launch-muse-native-prototype', lines)
+        self.assertNotIn('--remote=9798', lines)
         self.assertIn('HUB=' + str(resources / 'mirror'), lines)
         self.assertIn('APP_CONFIG=unset', lines)
         deadline = time.monotonic() + 5
