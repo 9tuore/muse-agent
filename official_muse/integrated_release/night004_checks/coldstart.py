@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prepare/execute fixed-candidate cold starts through the WorkBuddy .app entry.
 
-Execution requires an existing marked NIGHT-004 state; this tool never installs,
+Execution requires an existing marked NIGHT-004 or NIGHT-006 state; this tool never installs,
 copies profiles, creates consent, rebuilds packages, or writes Calendar/Mail.
 """
 import argparse
@@ -19,7 +19,7 @@ from urllib.error import URLError
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-FIXTURES = ROOT / 'build/night-004'
+FIXTURES = (ROOT / 'build/night-004', ROOT / 'build/night006')
 sys.path.insert(0, str(ROOT / 'official_muse/phase2/tests'))
 from remote import Remote
 
@@ -152,9 +152,11 @@ def main():
                                                args.expected_source_identities)), 'All input/output paths must be absolute')
     app, state, out = (path.resolve() for path in (args.candidate_app, args.state_root, args.out))
     require(app.is_dir() and app.suffix == '.app', 'Candidate must be an existing .app')
-    require(state.is_relative_to(FIXTURES) and state != FIXTURES and state.is_dir(), 'State must already exist below central build/night-004')
+    require(any(state.is_relative_to(base) and state != base for base in FIXTURES) and state.is_dir(),
+            'State must already exist below central build/night-004 or build/night006')
     require((state / 'FIXTURE_ONLY').is_file() and (state / 'apps/.host/FIXTURE_ONLY').is_file(), 'State and owner root must both be explicitly FIXTURE_ONLY')
-    require(out.is_relative_to(FIXTURES) and out != FIXTURES and not out.exists(), 'Output must be a new central build/night-004 directory')
+    require(any(out.is_relative_to(base) and out != base for base in FIXTURES) and not out.exists(),
+            'Output must be a new central build/night-004 or build/night006 directory')
     require(not state.is_relative_to(out) and not out.is_relative_to(state), 'Evidence and persistent state must be separate directories')
     expected = json.loads(args.expected_source_identities.read_text())
     critical = ('Contents/Info.plist', 'Contents/MacOS/Launcher', 'Contents/MacOS/muse-launcher',
@@ -253,7 +255,7 @@ def main():
         # the actual restored chat list and rendered navigation before input.
         buttons = {item.get('t') for item in widgets
                    if item.get('ty') == 'Button' and item.get('r', [0, 0, 0, 0])[3] >= 24}
-        return widgets if {'新对话', '对话', '切换事项'}.issubset(buttons) else None
+        return widgets if {'对话', '切换事项'}.issubset(buttons) and {'新对话', '＋ 新对话'} & buttons else None
 
     def open_formal(pid, row):
         if formal_shell():
@@ -442,7 +444,7 @@ def main():
                     navigate('对话')
                     page('对话')
                     require(full_muse(), 'Full Muse widgets disappeared after navigation')
-                    text = f'NIGHT004 cold start {number} input readback'
+                    text = f'Muse cold start {number} input readback'
                     remote.set_text('goal_input', text)
                     require(remote.find('goal_input').get('val') == text, 'Actual input readback differs')
                     remote.set_text('goal_input', '')
