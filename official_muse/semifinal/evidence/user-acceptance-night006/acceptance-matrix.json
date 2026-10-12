@@ -1,15 +1,22 @@
 {
   "schema": 2,
-  "stage": "PREPARATION_ONLY",
+  "stage": "IN_PROGRESS",
   "status": "PARTIAL_3_ROUND_ACCEPTANCE",
   "prepared_at_utc": "2026-10-12T15:53:08.509614+00:00",
-  "candidate": null,
+  "candidate": {
+    "candidate_key": "5acb4815f42cca983c1214d9c30fbe148d47898ef22024fcc55356c507ea57ca",
+    "git_commit": "ab30195c862906527782fd4d82573ca2b6ff7c46",
+    "version": "0.4.0-rc9",
+    "octosense_revision": "f9f6fea90b52182790cb2641fd0145c425af4d84",
+    "candidate_name": "night006-rc9-r5",
+    "host_source_commit": "8569e0ce"
+  },
   "source_review": {
     "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/official_muse/app/source/main.splash",
     "sha256": "1edfe7cfcef05116878484e4665e09fc71d651bf9761984fff2955548daf4aec",
     "note": "Mutable development source. This hash is not the final candidate."
   },
-  "discovered_gui_features": 0,
+  "discovered_gui_features": 3,
   "planned_features": 90,
   "features": [
     {
@@ -189,7 +196,7 @@
       "group": "BASE",
       "feature": "中文输入与多轮聊天",
       "priority": "P0",
-      "discovery": "SOURCE_ONLY_GUI_PENDING",
+      "discovery": "GUI_OBSERVED",
       "applicability": "PENDING_GUI_DISCOVERY",
       "scope_note": "",
       "readback_required": true,
@@ -203,7 +210,8 @@
             "保存本次原生截图并实际查看；涉及持久化或外部动作时独立读回。"
           ],
           "status": "NOT_TESTED",
-          "attempts": []
+          "attempts": [],
+          "partial_observation": "round-01/UA-BASE-05/attempt-01/UA-BASE-05-partial.json"
         },
         {
           "round": 2,
@@ -490,8 +498,8 @@
       "group": "MEM",
       "feature": "新增偏好",
       "priority": "P0",
-      "discovery": "SOURCE_ONLY_GUI_PENDING",
-      "applicability": "PENDING_GUI_DISCOVERY",
+      "discovery": "GUI_OBSERVED",
+      "applicability": "APPLICABLE",
       "scope_note": "",
       "readback_required": true,
       "expected": "保存用户最终输入，查询及持久化内容一致。",
@@ -503,8 +511,11 @@
             "记忆页添加偏好“验收称呼=星海测试员-R1”，搜索确认。",
             "保存本次原生截图并实际查看；涉及持久化或外部动作时独立读回。"
           ],
-          "status": "NOT_TESTED",
-          "attempts": []
+          "status": "PASS",
+          "attempts": [
+            "round-01/UA-MEM-01/attempt-01/result.json"
+          ],
+          "execution_level": "LOCAL_REAL_STORAGE"
         },
         {
           "round": 2,
@@ -748,7 +759,7 @@
       "group": "MEM",
       "feature": "更正",
       "priority": "P0",
-      "discovery": "SOURCE_ONLY_GUI_PENDING",
+      "discovery": "GUI_OBSERVED",
       "applicability": "PENDING_GUI_DISCOVERY",
       "scope_note": "",
       "readback_required": true,
@@ -762,7 +773,8 @@
             "保存本次原生截图并实际查看；涉及持久化或外部动作时独立读回。"
           ],
           "status": "NOT_TESTED",
-          "attempts": []
+          "attempts": [],
+          "partial_observation": "round-01/UA-BASE-05/attempt-01/UA-MEM-07-partial.json"
         },
         {
           "round": 2,
@@ -5817,5 +5829,14 @@
     "independent_readback_when_mutating": true,
     "fixture_success": "SIMULATION_PASS",
     "trusted_gesture_or_login": "HUMAN_REQUIRED"
-  }
+  },
+  "gui_session": {
+    "pid": 80014,
+    "native_window_id": 1781,
+    "port": 9696,
+    "ownership_returned_to_root": true,
+    "cutoff_note": "Root subsequent Calendar/Mail/cold-start evidence excluded."
+  },
+  "actual_gui_touched_features": 3,
+  "unresolved_bugs": []
 }

@@ -128,7 +128,10 @@ class GUI:
         pid = self.cfg['pid']
         owner = subprocess.check_output(['/usr/sbin/lsof', '-nP', '-t', '-iTCP:' + str(self.cfg['port']), '-sTCP:LISTEN'], text=True).split()
         require(owner == [str(pid)], 'Remote port is not exclusively owned by expected Host')
-        executable = subprocess.check_output(['/bin/ps', '-p', str(pid), '-o', 'comm='], text=True).strip()
+        # macOS ps escapes non-ASCII paths; lsof reports reversible UTF-8 hex escapes.
+        paths = subprocess.check_output(['/usr/sbin/lsof', '-a', '-p', str(pid), '-d', 'txt', '-Fn'], text=True).splitlines()
+        raw = next((line[1:] for line in paths if line.startswith('n') and 'muse-host' in line), '')
+        executable = re.sub(r'\\x([0-9a-fA-F]{2})', lambda m: chr(int(m.group(1), 16)), raw).encode('latin1').decode('utf-8')
         require(Path(executable).resolve() == Path(self.cfg['executable']).resolve(), 'Unexpected running executable')
         status = json.loads(self.request('/s'))
         require(status.get('pid') == pid, 'Remote PID mismatch')
