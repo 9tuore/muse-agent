@@ -1,0 +1,144 @@
+let host={capabilities:||["mail","storage","model"]}
+let fixture_clock=1700000000
+let fixture_serial=0
+fn time_now(){return fixture_clock}
+fn random_u32(){fixture_serial=fixture_serial+1 return fixture_serial}
+let fs={exists: |path| fixture_files[path]!=nil sha256: |value| mod.fixture.sha256(value)}
+let checks={}
+let states={}
+fn seed(){
+ fixture_files={} fixture_write_fail=false fixture_write_fail_path="" fixture_read_fail=false fixture_pending=[] fixture_serial=0
+ core_storage_ready=true gm_ready=true chat_ready=true
+ gm_user_id="fixture-user" gm_accounts=["local"] gm_project="fixture-project" gm_owner="fixture-owner"
+ goals=[] runs=[] actions=[] core_last_goals="" task=nil
+ chat_selected_id="chat:fixture" ac_selected_chat=chat_selected_id ac_selected_id=""
+ chat_last_state="" messages=[] page="Chat"
+ chat_sessions=[{id:chat_selected_id title:"fixture" created_at:fixture_clock updated_at:fixture_clock
+  messages:[] proposals:[] focus_project:gm_project focus_owner:gm_owner goal_id:""}]
+ calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+ calendar_agent_busy=false calendar_agent_writable=true calendar_agent_history_settle=false
+ calendar_agent_history_epoch=0 calendar_agent_candidate=nil
+ calendar_agent_reply="" calendar_agent_evidence="" calendar_agent_input_text="" calendar_agent_details=false
+ calendar_agent_delete_state={schema:1 records:[]} calendar_agent_delete_writable=true
+}
+fn fixture_start(){
+ seed()
+ let card={id:"card:fixture" action:"calendar_candidate" state:"candidate" session_id:chat_selected_id
+  project:gm_project owner:gm_owner account_id:"local" revision:1
+  payload:{to:"" subject:"" body:"" objective:"" source:"" title:"fixture meeting"
+   start:"2030-12-12T10:00:00+08:00" end:"2030-12-12T11:00:00+08:00" time_zone:"Asia/Shanghai" location:"fixture"}}
+ chat_sessions[0].proposals.push(card)
+ calendar_agent_ensure_matter(card)
+ calendar_agent_prepare_candidate(card)
+ // Wall fields come from the unchanged production candidate preparation.
+ calendar_agent_submit_candidate()
+ fixture_pending[0].callback({is_ok:true data:{open:true}})
+ return true
+}
+fn fixture_finish_turn(){
+ fixture_start()
+ fixture_pending[1].callback({is_ok:true data:{turn_id:"turn:fixture" text:"fixture reply is not proof"}})
+}
+fn fixture_event(){
+ let event=calendar_agent_state.binding.payload.to_json().parse_json()
+ event.id="ev:fixture"
+ return event
+}
+fn fixture_add_digest(){
+ let p=calendar_agent_state.binding.payload
+ return "sha256:"+fs.sha256("{\"end\":"+p.end.to_json()+",\"location\":"+p.location.to_json()
+  +",\"notes\":"+p.notes.to_json()+",\"request_id\":"+p.request_id.to_json()+",\"start\":"+p.start.to_json()
+  +",\"timezone\":"+p.timezone.to_json()+",\"title\":"+p.title.to_json()+"}")
+}
+fn fixture_row(tool,suffix,data){
+ let digest=fixture_add_digest()
+ if tool=="calendar.get_event"{digest="sha256:"+fs.sha256("{\"id\":\"ev:fixture\"}")}
+ return {role:"tool" lane:"person" turn_id:calendar_agent_state.turn_id thread_id:calendar_agent_state.turn_id
+  tool_name:tool tool_call_id:"tc:"+suffix
+  host_calendar_receipt:{source:"broker_tool_result" owner:"os.calendar" caller:"card.muse-goals" kernel_persisted:true
+   session_id:"kernel:fixture" turn_id:calendar_agent_state.turn_id tool_call_id:"tc:"+suffix
+   call_id:"call:"+suffix tool:tool args_digest:digest terminal:"ok" result:{"ok":true data:data}}}
+}
+fn fixture_rows(){
+ return [fixture_row("calendar.add_event","add",{id:"ev:fixture" start:calendar_agent_state.binding.payload.start})
+  fixture_row("calendar.get_event","get",{found:true event:fixture_event()})]
+}
+fn observe(name,rows,baseline){
+ let result=calendar_agent_link_result(rows)
+ states[name]=result
+ if baseline{checks[name]=result.status=="verified"}else{checks[name]=result.status!="verified"}
+}
+
+seed()
+mail_account={id:"fixture-mail"} mail_accounts=[mail_account]
+gm_accounts=["local","fixture-mail"]
+mail_selected={id:"message-fixture" subject:"Team meeting" body:"2030年12月12日10点至11点开团队会。" address:"self@fixture.invalid"}
+mail_prepare_calendar()
+checks.source_goal_persisted=goals.len()==1 && goals[0].mail_source.message_id=="message-fixture" && fs.exists("goals.json")
+checks.source_chat_persisted=chat_sessions[0].goal_id==goals[0].id && fs.exists("chat-sessions.json")
+checks.no_external_action_from_prepare=fixture_pending.len()==0
+calendar_agent_submit_bound(calendar_agent_input_text,nil)
+fixture_pending[0].callback({is_ok:true data:{open:true}})
+fixture_pending[1].callback({is_ok:true data:{turn_id:"turn:mail-fixture" text:"fixture reply is not proof"}})
+let native_event={id:"event-from-mail" request_id:calendar_agent_state.request_id title:"Team meeting" start:"2030-12-12T10:00" end:"2030-12-12T11:00" timezone:"Asia/Shanghai" location:"" notes:""}
+let native_args="{\"end\":"+native_event.end.to_json()+",\"location\":"+native_event.location.to_json()+",\"notes\":"+native_event.notes.to_json()
+ +",\"request_id\":"+native_event.request_id.to_json()+",\"start\":"+native_event.start.to_json()+",\"timezone\":"+native_event.timezone.to_json()+",\"title\":"+native_event.title.to_json()+"}"
+let rows=[]
+for tool in ["calendar.add_event","calendar.get_event"]{
+ let call="add" let data={id:native_event.id start:native_event.start} let args=native_args
+ if tool=="calendar.get_event"{call="get" data={found:true event:native_event} args="{\"id\":"+native_event.id.to_json()+"}"}
+ rows.push({role:"tool" lane:"person" turn_id:calendar_agent_state.turn_id thread_id:calendar_agent_state.turn_id tool_name:tool tool_call_id:"tool:"+call
+  host_calendar_receipt:{source:"broker_tool_result" owner:"os.calendar" caller:"muse-goals" kernel_persisted:true turn_id:calendar_agent_state.turn_id
+   tool_call_id:"tool:"+call call_id:"call:"+call tool:tool terminal:"ok" session_id:"session-fixture" args_digest:"sha256:"+fs.sha256(args) result:{"ok":true data:data}}})
+}
+fixture_pending[2].callback({is_ok:true data:{messages:rows}})
+checks.real_store_history_linked=calendar_agent_state["binding"]!=nil && calendar_agent_state.binding.receipt_status=="verified"
+let saved_calendar=fixture_read("calendar-agent-state.json").parse_json()
+let saved_chat=fixture_read("chat-sessions.json").parse_json()
+checks.calendar_readback_exact=saved_calendar["binding"]!=nil && saved_calendar.binding.verification.event.id=="event-from-mail"
+checks.generated_chat_passes_schema=chat_state_valid(saved_chat)
+checks.actual_authority_and_delete_target=calendar_agent_authority()!=nil && calendar_agent_delete_target()!=nil
+let goal_count=goals.len() let request_count=fixture_pending.len()
+mail_prepare_calendar()
+checks.repeat_button_no_duplicate=goals.len()==goal_count && fixture_pending.len()==request_count && calendar_agent_mail_source==nil
+calendar_agent_submit_bound("查询今天",nil)
+let q=fixture_pending.len()-1
+fixture_pending[q].callback({is_ok:true data:{open:true}})
+fixture_pending[q+1].callback({is_ok:true data:{turn_id:"turn:query" text:"fixture query"}})
+fixture_pending[q+2].callback({is_ok:true data:{messages:[]}})
+checks.actual_query_preserves_delete=calendar_agent_delete_target()!=nil
+let original_goal=goals[0].id
+goals=[] runs=[] actions=[] core_last_goals="" task=nil
+core_boot_goals()
+chat_sessions=fixture_read("chat-sessions.json").parse_json().sessions
+calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+calendar_agent_boot()
+checks.actual_goal_boot_restores_mail_source=goals.len()==1 && goals[0].id==original_goal && goals[0].mail_source.message_id=="message-fixture"
+checks.actual_boot_restores_event_authority=calendar_agent_authority()!=nil && calendar_agent_authority().event.id=="event-from-mail"
+// Drive the actual model wrapper using synthetic Host account/model replies.
+let fixture_timers=[]
+fn start_timeout(delay,callback){fixture_timers.push(callback)}
+let edit_rpc=fixture_pending.len()
+calendar_agent_submit("把日程改到12点")
+let edit_trace=[]
+for tick in 12 {
+ if fixture_timers.len()>0{
+  let callback=fixture_timers[0] let rest=[] for j in fixture_timers.len(){if j>0{rest.push(fixture_timers[j])}}
+  fixture_timers=rest callback()
+ }
+ if edit_rpc<fixture_pending.len(){
+  let request=fixture_pending[edit_rpc]
+  if request.method=="mail.accounts"{
+   edit_trace.push(request.method) edit_rpc=edit_rpc+1
+   request.callback({is_ok:true data:mail_accounts})
+  }else if request.method=="model.complete"{
+   edit_trace.push(request.method) edit_rpc=edit_rpc+1
+   request.callback({is_ok:true data:{output:{title:"Team meeting" start:"2030-12-12T12:00:00+08:00" end:"2030-12-12T13:00:00+08:00" time_zone:"Asia/Shanghai" location:""}}})
+  }
+ }
+}
+checks.typed_edit_actual_update_record=calendar_agent_update_state.records.len()==1 && calendar_agent_update_state.records[0].expected.id=="event-from-mail"
+checks.typed_edit_same_id_new_time=calendar_agent_update_state.records.len()==1 && calendar_agent_update_state.records[0].event.id=="event-from-mail" && calendar_agent_update_state.records[0].event.start=="2030-12-12T12:00"
+checks.typed_edit_chat_schema_valid=chat_state_valid(fixture_read("chat-sessions.json").parse_json())
+checks.typed_edit_durable_record=fs.exists("calendar-agent-update.json") && calendar_agent_update_state.records.len()==1 && fixture_read("calendar-agent-update.json").parse_json().records[0].expected.id=="event-from-mail"
+({checks:checks observed:{notice:calendar_agent_notice error:ui_error pending:fixture_pending.len() edit_trace:edit_trace} boundary:"Complete production function set and actual Goal/Chat/Calendar persistence logic; fixture filesystem and Host replies only. No GUI or external owner."}).to_json()

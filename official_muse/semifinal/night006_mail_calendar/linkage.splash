@@ -1,0 +1,207 @@
+use mod.math.*
+use mod.std.*
+use mod.fixture.*
+let files={} let calls=[] let serial=0 let fail_store="" let history_rows=[]
+let fs={exists:|path| files[path]!=nil sha256:|text| sha256(text)}
+let gm_user_id="fixture-user" let gm_accounts=["local","A"] let gm_project="personal" let gm_owner="me"
+let gm_time_cache={}
+let gm_ready=true let core_storage_ready=true let chat_ready=true let core_error="" let ui_error=""
+let calendar_agent_state={} let calendar_agent_busy=false let calendar_agent_writable=true
+let calendar_agent_reply="" let calendar_agent_evidence="" let calendar_agent_input_text="" let calendar_agent_notice=""
+let calendar_agent_details=false let calendar_agent_mail_source=nil let calendar_agent_candidate=nil
+let calendar_agent_preflight={status:"empty"} let calendar_agent_update_state={records:[]}
+let calendar_agent_update_writable=true let calendar_agent_delete_writable=true let calendar_agent_delete_state={records:[]}
+let calendar_agent_history_epoch=0 let calendar_agent_history_settle=false
+let chat_selected_id="chat-a" let chat_sessions=[] let ac_selected_id="goal-a" let ac_selected_chat="chat-a"
+let goals=[] let runs=[] let actions=[] let selected_id="" let task=nil let result=nil
+let mail_account={id:"A"} let mail_selected=nil let mail_scope_project="personal" let mail_scope_owner="me"
+let mail_error="" let page="Mail" let notices=[]
+let model_calls=[] let model_pending=nil let hold_model=false let model_reply=nil let update_selection=nil let update_submissions=[]
+fn time_now(){return 1791907200}
+fn random_u32(){serial=serial+1 return serial}
+fn redraw(){} fn mail_redraw(){} fn set_page(value){page=value}
+fn storage_read(path){return files[path]}
+fn storage_write(path,value){if path==fail_store{return "fixture write failure"} files[path]=value return nil}
+fn storage_hash_valid(value){return value.is_string() && value.len()==64}
+fn gm_account_allowed(value){for a in gm_accounts{if a==value{return true}} return false}
+fn gm_set_focus(project,owner){gm_project=project gm_owner=owner}
+fn core_goal_index(id){for i in goals.len(){if goals[i].id==id{return i}}return -1}
+fn ac_current_goal(){let i=core_goal_index(ac_selected_id) if i<0{return nil}return goals[i]}
+fn ac_goal_allowed(goal){return goal.project_id==gm_project && goal.owner_id==gm_owner}
+fn ac_choose_matter(id){ac_selected_id=id ac_selected_chat=chat_selected_id}
+fn ac_add(view,title,status,detail,id){view.rows.push({title:title status:status detail:detail id:id})}
+fn chat_session_index(id){for i in chat_sessions.len(){if chat_sessions[i].id==id{return i}}return -1}
+fn chat_card_scope_current(session,card){return card.project==session.focus_project && card.owner==session.focus_owner}
+fn chat_reply_context_valid(card){return true}
+fn chat_save(){return storage_write("fixture-chat.json",chat_sessions.to_json())==nil}
+fn chat_bind_goal(id){let i=chat_session_index(chat_selected_id) if i<0{return false}chat_sessions[i].goal_id=id return chat_save()}
+fn chat_select_session(id){let i=chat_session_index(id) if i<0{return false}chat_selected_id=id gm_set_focus(chat_sessions[i].focus_project,chat_sessions[i].focus_owner)return true}
+fn mail_watch_account(id){if id=="A"{return {id:"A"}}return nil}
+fn core_add_goal(goal){if core_goal_index(goal.id)>=0{return false}goals.push(goal) selected_id=goal.id return storage_write("fixture-goals.json",goals.to_json())==nil}
+fn core_upsert_goal(goal){let i=core_goal_index(goal.id) if i<0{return false}goals[i]=goal return storage_write("fixture-goals.json",goals.to_json())==nil}
+fn goal_spec(id,revision,objective,path){return {id:id revision:revision objective:objective path:path}}
+fn core_utc_iso(value){return "2026-10-13T16:00:00Z"}
+fn calendar_agent_history(){}
+fn calendar_agent_update_boot(){} fn calendar_agent_delete_boot(){}
+fn calendar_agent_update_project(view,goal){return false}
+fn calendar_agent_delete_project(view,goal){}
+fn calendar_agent_update_current(record){return false}
+fn calendar_agent_update_valid(record){return false}
+fn mail_native_completion_matches(goal,record){return false}
+fn chat_edit_request(text){return text.search("改")>=0}
+fn muse_model_request(query,session,goal,current,args,cb){
+ model_calls.push({query:query session:session goal:goal args:args})
+ if hold_model{model_pending=cb return}
+ if current(){cb(model_reply)}else{cb({is_ok:false error:"fixture stale model"})}
+}
+fn calendar_agent_update_select(){update_selection=calendar_agent_update_target()}
+fn calendar_agent_update_confirm(){if update_selection!=nil{update_submissions.push(update_selection)}}
+fn calendar_agent_session_notice(opened,operation,fallback){return fallback}
+fn fixture_transport(method,args,cb){calls.push({method:method args:args})
+ if method=="octos.session.open"{cb({is_ok:true data:{open:true}})}
+ if method=="octos.turn.start"{cb({is_ok:true data:{turn_id:"turn-"+serial text:"合成结果"}})}
+}
+fn seed(){
+ files={} calls=[] serial=0 fail_store="" history_rows=[]
+ gm_user_id="fixture-user" gm_accounts=["local","A"] gm_project="personal" gm_owner="me"
+ calendar_agent_busy=false calendar_agent_writable=true calendar_agent_update_writable=true calendar_agent_delete_writable=true
+ calendar_agent_reply="" calendar_agent_evidence="" calendar_agent_input_text="" calendar_agent_notice="" calendar_agent_mail_source=nil
+ calendar_agent_candidate=nil calendar_agent_update_state={records:[]} calendar_agent_delete_state={records:[]} calendar_agent_preflight={status:"empty"}
+ chat_selected_id="chat-a" ac_selected_chat="chat-a" ac_selected_id="goal-a"
+ goals=[{id:"goal-a" version:1 status:"planned" archived:false project_id:gm_project owner_id:gm_owner goal:"Calendar fixture"}]
+ let payload={title:"Fixture event" start:"2026-10-14T15:00" end:"2026-10-14T16:00" timezone:"Asia/Shanghai" location:"" notes:"" request_id:"create-a"}
+ let candidate={title:payload.title start:payload.start+":00+08:00" end:payload.end+":00+08:00" time_zone:payload.timezone location:""}
+ let event=payload.to_json().parse_json() event.id="event-a"
+ let binding={goal_id:"goal-a" plan_revision:1 project_id:gm_project owner_id:gm_owner user_id:gm_user_id accounts:gm_accounts.to_json()
+  account_id:"A" session_id:chat_selected_id candidate_id:"card-a" candidate_revision:1 candidate_json:candidate.to_json() payload:payload receipt_status:"verified"
+  verification:{status:"verified" event_id:"event-a" event:event add_call_id:"add-a" get_call_id:"get-a"}}
+ chat_sessions=[{id:chat_selected_id focus_project:gm_project focus_owner:gm_owner goal_id:"goal-a" proposals:[{id:"card-a" action:"calendar_candidate" state:"opened" payload:candidate account_id:"A" revision:1 project:gm_project owner:gm_owner}]}]
+ calendar_agent_state={schema:1 request_id:"create-a" turn_id:"turn-a" status:"turn_completed" user_id:gm_user_id accounts:gm_accounts.to_json()
+  binding:binding mail_source:{account_id:"A" message_id:"mail-a" subject:"Fixture invitation" address:"self@fixture.invalid"} previous_requests:[]}
+ mail_account={id:"A"} mail_selected={id:"mail-b" subject:"Project meeting" body:"2026年10月14日下午3点项目会，持续1小时。" address:"self@fixture.invalid"}
+ page="Mail" mail_error=""
+ model_calls=[] model_pending=nil hold_model=false update_selection=nil update_submissions=[]
+ model_reply={is_ok:true data:{output:{title:"Fixture event" start:"2026-10-14T17:00:00+08:00" end:"2026-10-14T18:00:00+08:00" time_zone:"Asia/Shanghai" location:""}}}
+}
+// PRODUCT_FUNCTIONS
+let checks=[]
+fn check(name,passed){checks.push({name:name passed:passed})}
+seed()
+check("baseline-selected-event-authority",calendar_agent_authority()!=nil)
+let view={rows:[] next:""}
+check("baseline-selected-event-action-chain",calendar_agent_project(view,goals[0]) && view.rows.len()==2)
+calendar_agent_submit_bound("查询今天的日程",nil)
+check("query-preserves-selected-event-authority",calendar_agent_authority()!=nil)
+check("query-preserves-delete-target",calendar_agent_delete_target()!=nil)
+view={rows:[] next:""}
+check("query-preserves-action-chain",calendar_agent_project(view,goals[0]) && view.rows.len()==2)
+check("archive-preserves-mail-source",calendar_agent_state.previous_requests[0]["mail_source"]!=nil)
+let persisted=files["calendar-agent-state.json"]
+calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+calendar_agent_boot()
+check("restart-after-query-preserves-authority",calendar_agent_authority()!=nil)
+seed()
+calendar_agent_candidate=calendar_agent_state.binding.to_json().parse_json()
+calendar_agent_input_changed("将开始时间改为16点")
+check("editing-input-invalidates-old-candidate",calendar_agent_candidate==nil)
+seed()
+let prior_goals=goals.len()
+mail_prepare_calendar()
+check("mail-button-prepares-without-host-action",page=="Calendar" && calls.len()==0)
+check("mail-button-establishes-distinct-matter",goals.len()==prior_goals+1 && ac_selected_id!="goal-a")
+check("mail-source-persists-with-goal",calendar_agent_mail_source!=nil && calendar_agent_mail_source["goal_id"]==ac_selected_id && files["fixture-goals.json"]!=nil)
+fn native_row(tool,args,result,call){
+ let turn=calendar_agent_state.turn_id
+ return {role:"tool" lane:"person" turn_id:turn thread_id:turn tool_name:tool tool_call_id:"tool-"+call
+  host_calendar_receipt:{source:"broker_tool_result" owner:"os.calendar" caller:"muse-goals" kernel_persisted:true
+   turn_id:turn tool_call_id:"tool-"+call call_id:call tool:tool terminal:"ok" session_id:"native-fixture-session"
+   args_digest:"sha256:"+fs.sha256(args) result:{"ok":true data:result}}}
+}
+fn creation_rows(){
+ let e={id:"created-from-mail" request_id:calendar_agent_state.request_id title:"Project meeting" start:"2026-10-14T15:00"
+  end:"2026-10-14T16:00" timezone:"Asia/Shanghai" location:"" notes:""}
+ let args="{\"end\":"+e.end.to_json()+",\"location\":"+e.location.to_json()+",\"notes\":"+e.notes.to_json()
+  +",\"request_id\":"+e.request_id.to_json()+",\"start\":"+e.start.to_json()+",\"timezone\":"+e.timezone.to_json()+",\"title\":"+e.title.to_json()+"}"
+ return [native_row("calendar.add_event",args,{id:e.id start:e.start},"native-add"),native_row("calendar.get_event","{\"id\":"+e.id.to_json()+"}",{found:true event:e},"native-get")]
+}
+fn submit_mail(){seed() mail_prepare_calendar() calendar_agent_submit_bound(calendar_agent_input_text,nil)}
+submit_mail()
+let rows=creation_rows()
+let linked=calendar_agent_adopt_mail_result(rows)
+check("mail-add-get-receipts-bind-original-matter",linked && calendar_agent_state["binding"]!=nil && calendar_agent_state.binding.goal_id==ac_selected_id)
+check("mail-calendar-authority-is-readback-event",calendar_agent_authority()!=nil && calendar_agent_authority().event.id=="created-from-mail")
+view={rows:[] next:""}
+check("mail-calendar-shown-in-action-chain",calendar_agent_project(view,ac_current_goal()) && view.rows.len()==2)
+calendar_agent_save()
+calendar_agent_submit_bound("查询今天",nil)
+check("mail-calendar-survives-subsequent-query",calendar_agent_authority()!=nil && calendar_agent_delete_target()!=nil)
+let goal_count=goals.len() let call_count=calls.len()
+mail_prepare_calendar()
+check("repeat-mail-button-keeps-existing-event",goals.len()==goal_count && calls.len()==call_count && calendar_agent_mail_source==nil && calendar_agent_authority()!=nil)
+calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+if files["fixture-goals.json"]!=nil{goals=files["fixture-goals.json"].parse_json()}
+if files["fixture-chat.json"]!=nil{chat_sessions=files["fixture-chat.json"].parse_json()}
+calendar_agent_boot()
+check("mail-calendar-recovers-persisted-linkage",calendar_agent_authority()!=nil && calendar_agent_delete_target()!=nil)
+for fault in ["missing-add","missing-get","wrong-owner","wrong-turn","wrong-request","wrong-digest","wrong-account","different-matter"] {
+ submit_mail() rows=creation_rows()
+ if fault=="missing-add"{rows=[rows[1]]}
+ if fault=="missing-get"{rows=[rows[0]]}
+ if fault=="wrong-owner"{rows[1].host_calendar_receipt.owner="foreign.calendar"}
+ if fault=="wrong-turn"{rows[1].host_calendar_receipt.turn_id="wrong-turn"}
+ if fault=="wrong-request"{rows[1].host_calendar_receipt.result.data.event.request_id="other-request"}
+ if fault=="wrong-digest"{rows[0].host_calendar_receipt.args_digest="sha256:wrong"}
+ if fault=="wrong-account"{gm_accounts=["local","B"]}
+ if fault=="different-matter"{ac_selected_id="goal-a"}
+ check("reject-unproven-link-"+fault,!calendar_agent_adopt_mail_result(rows) && calendar_agent_state["binding"]==nil)
+}
+submit_mail() rows=creation_rows()
+rows=[native_row("calendar.events","{}",{events:[]},"native-query"),rows[0],rows[1]]
+check("query-before-create-still-verifies",calendar_agent_adopt_mail_result(rows))
+submit_mail() rows=creation_rows() fail_store="fixture-chat.json"
+check("failed-chat-save-does-not-invent-link",!calendar_agent_adopt_mail_result(rows) && calendar_agent_state["binding"]==nil)
+seed()
+let reply_draft={account:"A" link_goal_id:"goal-a" link_event_id:"event-a" link_run_id:""
+ official_calendar:{request_id:calendar_agent_state.request_id turn_id:calendar_agent_state.turn_id mail_account:"A" binding:calendar_agent_state.binding.to_json().parse_json()}}
+check("baseline-confirmation-mail-current",mail_calendar_current(reply_draft))
+calendar_agent_submit_bound("查询今天",nil)
+check("query-does-not-invalidate-confirmation-draft",mail_calendar_current(reply_draft))
+let authority=calendar_agent_authority()
+if authority!=nil{
+ let b=authority.current_binding.to_json().parse_json()
+ let p=b.candidate_json.parse_json() p.start="2026-10-14T17:00:00+08:00" p.end="2026-10-14T18:00:00+08:00"
+ b.candidate_id="edited-card" b.candidate_json=p.to_json() b.payload.start="2026-10-14T17:00" b.payload.end="2026-10-14T18:00" b.receipt_status="unknown"
+ chat_sessions[0].proposals.push({id:b.candidate_id action:"calendar_candidate" state:"candidate" payload:p account_id:"A" revision:1 project:gm_project owner:gm_owner})
+ calendar_agent_candidate=b
+}
+check("query-preserves-update-target",calendar_agent_update_target()!=nil)
+seed()
+for i in 34 {calendar_agent_submit_bound("读取日程 "+i,nil)}
+check("oldest-matter-authority-survives-rollover",calendar_agent_authority()!=nil && calendar_agent_delete_target()!=nil)
+gm_accounts=["local","B"]
+check("archived-matter-respects-account-scope",calendar_agent_authority()==nil)
+seed()
+calendar_agent_submit_bound("查询今天",nil)
+calendar_agent_submit("把这个日程改到17点")
+check("typed-reschedule-resolves-original-event",model_calls.len()==1 && model_calls[0].args.input.original_event.id=="event-a")
+check("typed-reschedule-delegates-same-id-update",update_submissions.len()==1 && update_submissions[0].event.id=="event-a" && update_submissions[0].event.start=="2026-10-14T17:00")
+check("typed-reschedule-does-not-create-event",calls.len()==2)
+seed() hold_model=true
+calendar_agent_submit("把这个日程改到17点")
+gm_accounts=["local","B"]
+if model_pending!=nil{model_pending(model_reply)}
+check("late-reschedule-after-account-change-no-mutation",!calendar_agent_busy && update_submissions.len()==0 && calls.len()==0)
+seed() model_reply={is_ok:false error:"fixture unavailable"}
+calendar_agent_submit("把这个日程改到17点")
+check("failed-model-leaves-event-unchanged",!calendar_agent_busy && update_submissions.len()==0 && calendar_agent_authority()!=nil)
+seed() model_reply.data.output.start=""
+calendar_agent_submit("把这个日程改到下午")
+check("ambiguous-reschedule-no-mutation",update_submissions.len()==0 && calls.len()==0 && !calendar_agent_busy)
+seed() hold_model=true
+calendar_agent_submit("把这个日程改到17点")
+calendar_agent_submit("把这个日程改到18点")
+check("double-click-reschedule-only-one-model",model_calls.len()==1 && calendar_agent_busy)
+seed() mail_selected.body=nil
+mail_prepare_calendar()
+check("incomplete-mail-body-has-clean-error",page=="Mail" && goals.len()==1 && calls.len()==0 && mail_error!="")
+checks.to_json()
