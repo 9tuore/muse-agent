@@ -1,5 +1,5 @@
 """Kernel tool choice fixture. Actual results only; no approval or receipt creation."""
-import json
+import json,re
 MARKERS=['精确 calendar.events 参数：','精确 calendar.add_event 参数：','2. calendar.update_event 精确参数：','2. calendar.remove_event 参数：']
 READ_QUERY_PREFIX='新的只读查询：调用 calendar.events，精确参数 '
 READ_QUERY_SUFFIX='。仅返回当前官方 Calendar 事件列表；不新建、不改期、不删除，不发送邮件。'
@@ -7,6 +7,33 @@ READ_QUERY_SUFFIX='。仅返回当前官方 Calendar 事件列表；不新建、
 def text_of(message):
     value=message.get('content')
     return ' '.join(v.get('text','') for v in value if isinstance(v,dict)) if isinstance(value,list) else (value or '')
+
+def request_text(message):
+    text=text_of(message).strip()
+    if text.startswith('[from '):
+        origin=re.match(r'^\[from (the person|the system agent|the app)(?:: ([^\[\]\r\n]+))?\] ',text)
+        if not origin or len((origin.group(2) or '').encode())>64:
+            raise ValueError('Invalid kernel origin marker')
+        text=text[origin.end():].lstrip()
+    if not text.startswith('{'):return text
+    objects=[];decoder=json.JSONDecoder()
+    while text:
+        value,end=decoder.raw_decode(text)
+        if not isinstance(value,dict) or len(objects)>=2:
+            raise ValueError('One request wrapper required')
+        objects.append(value);text=text[end:].lstrip()
+    if len(objects)==2:
+        guidance=objects[0]
+        if set(guidance)!={'kind','boundary','instructions','skills'} or guidance['kind']!='octosense_host_guidance' or not isinstance(guidance['boundary'],str) or not isinstance(guidance['instructions'],str) or not isinstance(guidance['skills'],list):
+            raise ValueError('Invalid host guidance wrapper')
+        if any(not isinstance(s,dict) or set(s)!={'name','text'} or not all(isinstance(v,str) for v in s.values()) for s in guidance['skills']):
+            raise ValueError('Invalid host guidance skills')
+    request=objects[-1]
+    if set(request)!={'kind','text'} or request['kind']!='octosense_request' or not isinstance(request['text'],str) or len(request['text'].encode())>32768:
+        raise ValueError('Invalid app request wrapper')
+    if request['text'].lstrip().startswith(('{','[from ')):
+        raise ValueError('Nested request wrapper refused')
+    return request['text']
 
 def plan_from_prompt(text):
     if text.strip().startswith(READ_QUERY_PREFIX):
@@ -38,7 +65,7 @@ def plan_from_prompt(text):
 def decision(body):
     messages=body.get('messages',[]);last=max((i for i,m in enumerate(messages) if m.get('role')=='user'),default=-1)
     if last<0:return None
-    plan=plan_from_prompt(text_of(messages[last]))
+    plan=plan_from_prompt(request_text(messages[last]))
     if plan is None:return None
     results=[]
     for row in messages[last+1:]:

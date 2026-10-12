@@ -1,5 +1,7 @@
 # ZC02 SPRINT-005
 
+R4 fixture parser包装修复：实际UI参数ASCII34/无backslash；Root原生详情JSONDecode。现场guidance.rs109–132将host_guidance及octosense_request分别JSON TEXT化，固定Kernel换行拼接并前置origin，旧parser误扫guidance中转义示例。request_text只解一层、精确kind/字段、最多1 guidance+1 request，不扫描guidance/不修非法JSON；实际SDK wrapper无app/account，scope仍由broker绑定，额外伪造字段拒绝。10/10定向本地case，无HTTP/GUI/ownerPASS；具体wire未capture，归因为源码推断。Root服务未重启；REQUEST_WRAPPER.md给schema及部署边界，evidence/request-wrapper-contract.json保存源SHA。准备中的新instrumentation已撤回，没有新日志/请求全文捕获；原失败保留。
+
 UA-CAL-02 attempt-02输运定位/修复：UI日志156行实际输入“新的只读查询：调用 calendar.events，精确参数 {limit:200}…”（原文JSON见证据），无旧matcher marker，旧plan返回None。Root实际model.request SHA24c57cc…/41435bytes，但旧日志未捕获wire prompt/tools，不能证明当前工具offer。planner仅增该明确只读句式/limit200/完整禁止变更后缀，仍检查实际offered tool、遇真实tool错误停止。定向11/11，仅本地合成offer测试，无HTTP/GUI/ownerPASS。serve日志增公开offered_tool_names，便于下个实际请求定位，不记录prompt/密钥。Root运行服务未改/重启，须由Root部署后新请求才生效；证据ua-cal-02-attempt02-matcher，原失败保留。
 
 S005UA Mail R1公开输入已准备，未注入：working/s005ua-mail-r1/incoming.json现有四字段schema，收件gui-reader/发件receiver，标题SPRINT005-ZC05-S005UA-MAIL-R1、明确2026-10-14 15:00–15:30 Asia/Shanghai。chat-mail和mail-calendar-policy为对应工作副本，原39样本未变。现有incoming只生成时间戳Message-ID，不支持请求的固定s005ua-r1-mail头；正文追踪标签不冒充该头，README要求Root保存实际返回ID/UID/SHA，未改服务/SDK存储/GUI。证据s005ua-mail-r1-working-inputs，0控制写端点/网络测试，未重跑78。
