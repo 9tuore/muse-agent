@@ -1,6 +1,8 @@
 # ZC05可直接使用的模型控制与关键GUI流程
 
-全部响应均为明确fixture，实际GUI/SDK/Kernel/存储结果独立验收。当前Root Source已变为`947c52915c507f9a7a7a896c554b43f1c1e0a9ec11bee490bed5304d054b642b`，只改变gm_validate_indexed_part；本文件依赖的18个流程/schema函数与caa逐字一致，身份见flows/source-function-identities.json。首轮生成器因旧SHA而拒绝，没有静默套用；后按947冻结源重新生成。
+全部响应均为明确fixture，实际GUI/SDK/Kernel/存储结果独立验收。当前rc8 Root Source为`f00c963bcdf0a9a8b614083a40134de570a92ff08a9b53af47b151a48afaa50f`，身份见flows/source-function-identities.json。与旧947比较，本文件依赖的18个函数中17个逐字未变，send_chat仅两条候选提示改为明确打开「来信与结果」；其余源码差异仅ResultContent选中标签颜色。模型schema所在函数全部未变，39个样本内容保持不变，新静态核验78/78见evidence/flow-sample-contract-f00.json；未执行GUI。候选生成后按提示打开「来信与结果」再核对内容，不能只看到行动链就判定候选缺失。
+
+旧947初始生成器拒绝旧SHA的记录、原始身份和78/78报告保留：evidence/flow-catalog-947.json、flow-source-functions-947.json、flow-manifest-947.json和flow-sample-contract.json；947时18个相关函数与caa逐字一致。新旧实际比较见evidence/rc8-f00-source-schema.json，不覆盖旧失败或原始记录。
 
 ## 控制与三轮重复
 

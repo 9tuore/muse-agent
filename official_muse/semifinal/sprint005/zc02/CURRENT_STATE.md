@@ -1,5 +1,7 @@
 # ZC02 SPRINT-005
 
+rc8身份补记：当前f00c963b与冻结947比较，18个流程函数17 unchanged/1 changed；send_chat只改两条提示为打开「来信与结果」，其余源码差异仅ResultContent标签选中颜色。模型schema所在函数逐字未变，39个样本响应文件SHA不变；catalog/当前函数身份绑定f00，新静态字段核验78/78。旧947 catalog/函数身份/manifest另存evidence，原flow-sample-contract.json及旧失败记录不覆盖。证据rc8-f00-source-schema.json、flow-sample-contract-f00.json；0服务测试/GUI/Kernel/Cargo/Root target操作，UA-PREFLIGHT-002修复效果仍由实际GUI验收。
+
 ZC05关键模型流程交付：flows/catalog含39显式控制样本，按3次验收repeat及单轮t1/t2/t3区分；实际chat reply、Goal objective/source、Goal summary、Chat Calendar五字段、Chat Mail三字段、Mail editor两字段及MailCalendar policy分别处理。静态78/78，新增晚回包HTTP绑定4/4；response_bound可定位捕获后GUI变化，配置改动不改变旧响应。Root源本轮漂移到947c5291，旧SHA生成被正确拒绝后明确freeze947；18个相关流程/schema函数与caa逐字一致。ZC05_MODEL_WORKFLOWS.md给可直接CLI/GUI步骤、scope/更正/遗忘/候选/手写/迟到/错误验收；PRODUCT_PATH_GAPS仅源码指出自动AI记忆卡与opened Goal聊天编辑未实现，不称真实GUI复现，不写生产补丁。未重跑17/107、未构建SDK、未操作GUI/Kernel/业务DB；Root模型管理Connected仅其实际回报，不升级本轮检查。
 
 读回/计划新unit最终21/21（旧18保留）：scopeA/B错召回、遗忘history残留、unknown新attempt/收件、错profile、空expectation、链接/缺文件拒绝，SDK mailbox正文Source SHA一致/变化/缺失检查。RootGUI profile从未seed业务库；unit数据只在独立test root。Root所需实际build_host命令/packaged resource closure/新CA exact-test提案在BUILD_CA_HOST.md；CA patch静态scratch/SHA与原verifier六项通过，未编译，Root独立testHost才可采用；registry/git缓存存在但warm target未定位。R8不可作为GUI入口。实际Main普通chat schema仅reply，默认服务已修正，多action模型样本按真实字段准备，control.py可在旧服务显式设置，不改GUI业务数据。共享源码/Root9799/生产9696/Kernel/GUI/Cargo/Keychain/真实发送均0。
