@@ -93,6 +93,7 @@ let mail_compose_open = false
 let mail_original_open = ""
 let mail_accounts = []
 let mail_account = nil
+let mail_remove_confirm = ""
 let mail_folder = "INBOX"
 let mail_folders_data = []
 let mail_messages = []
@@ -5714,6 +5715,33 @@ fn mail_accounts_load(){
             mail_error = ""
         } else { gm_set_accounts([]) mail_notice = "账号读取未完成。" mail_host_error(r.error) }
         mail_redraw()
+    })
+}
+
+fn mail_remove_account(account_id){
+    if !mail_enabled() || mail_pending || mail_sending || mail_model_pending || mail_calendar_link_pending { return }
+    if mail_draft.account == account_id && (mail_draft.status == "sending" || mail_draft.status == "accepted" || mail_draft.status == "unknown") {
+        mail_error = "此账号仍有提交结果待核对，请先核对邮件状态再移除。"
+        mail_redraw() return
+    }
+    let found = false
+    for account in mail_accounts { if account.id == account_id { found = true } }
+    if !found || mail_remove_confirm != account_id { return }
+    mail_remove_confirm = ""
+    mail_pending = true
+    mail_notice = "正在从 Muse 移除此邮箱授权。"
+    mail_redraw()
+    host.request("mail.remove_account", {account: account_id}, fn(r){
+        mail_pending = false
+        if !r.is_ok { mail_host_error(r.error) mail_redraw() return }
+        if mail_account != nil && mail_account.id == account_id {
+            mail_account = nil mail_selected = nil mail_messages = [] mail_folders_data = []
+            mail_folder = "INBOX" mail_total = 0 mail_offset = 0 mail_connection_verified = false
+            mail_compose_open = false
+        }
+        mail_error = ""
+        mail_notice = "宿主已处理移除申请；正在重新读取账号。原有邮件记录保留。"
+        mail_accounts_load()
     })
 }
 
@@ -11729,13 +11757,24 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                 if mail_enabled() {
                     View{width: Fill height: Fit flow: Right spacing: 5
                         Secondary{text: "查看账号" width: 82 on_click: || mail_accounts_load()}
-                        Secondary{text: "连接账号" width: 82 on_click: || mail_add_account()}
+                        Secondary{text: "添加邮箱" width: 82 on_click: || mail_add_account()}
                     }
                     if mail_accounts.len() == 0 && !mail_pending {
                         Label{width: Fill text: "尚无已授权邮箱。连接时由 OctoSense 宿主面板接收凭据。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     }
+                    Label{width: Fill text: "可添加多个邮箱，点击地址切换账号。凭据仅由宿主保管。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
                     for account in mail_accounts {
-                        Secondary{text: account.address on_click: || mail_select_account(account)}
+                        SolidView{width: Fill height: Fit flow: Down padding: 7 spacing: 4 draw_bg.color: panel
+                            Secondary{width: Fill text: account.address on_click: || mail_select_account(account)}
+                            Secondary{text: "移除此邮箱" on_click: || { mail_remove_confirm = account.id mail_redraw() }}
+                            if mail_remove_confirm == account.id {
+                                Label{width: Fill text: "从 Muse 移除此账号授权；历史记录保留。确认后可重新添加。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                                View{width: Fill height: Fit flow: Right spacing: 6
+                                    Secondary{text: "确认移除" on_click: || mail_remove_account(account.id)}
+                                    Secondary{text: "取消" on_click: || { mail_remove_confirm = "" mail_redraw() }}
+                                }
+                            }
+                        }
                     }
                     if mail_draft.to != "" || mail_draft.subject != "" || mail_draft.body != "" {
                         Secondary{text: "继续编辑草稿" on_click: || mail_compose()}
