@@ -1,0 +1,37 @@
+let stored = storage_read("memory.json")
+let saved = stored.parse_json()
+let index = gm_validation_index(saved,true)
+let valid = index != nil && gm_validate_indexed_part(saved,true,"all",0,128,index)
+fixture_rpc("fixture.check",{name:"initial_valid" value:valid})
+// Exactly the current boot workload: same 128 sources/64 claims, batch 2.
+for phase in ["sources","claims"] {
+    let count = saved.sources.len()
+    if phase == "claims" { count = saved.claims.len() }
+    for slice in count/2 {
+        let start = slice*2
+        fixture_rpc("fixture.mark",{phase:phase start:start edge:"start"})
+        let accepted = gm_validate_indexed_part(saved,true,phase,start,start+2,index)
+        fixture_rpc("fixture.mark",{phase:phase start:start edge:"end"})
+        fixture_rpc("fixture.check",{name:phase+":"+start value:accepted})
+    }
+}
+// Preserve existing slice filtering, including unusual bounds and correction.
+for test in [{phase:"all" start:0 end:128}, {phase:"sources" start:-1 end:3},
+             {phase:"claims" start:1.5 end:4.5}, {phase:"claims" start:9 end:2},
+             {phase:"sources" start:129 end:132}, {phase:"correction" start:0 end:0}] {
+    let outcome = gm_validate_indexed_part(saved,true,test.phase,test.start,test.end,index)
+    fixture_rpc("fixture.outcome",{name:test.to_json() accepted:outcome})
+}
+for kind in ["source","claim"] {
+    let altered = stored.parse_json()
+    if kind == "source" { altered.sources[0].kind = "invalid_fixture_kind" }
+    if kind == "claim" { altered.claims[0].confidence = 2 }
+    for phase in ["all","sources","claims","correction"] {
+        for start in [0,2] {
+            let outcome = gm_validate_indexed_part(altered,true,phase,start,start+2,index)
+            fixture_rpc("fixture.outcome",{name:kind+":"+phase+":"+start accepted:outcome})
+        }
+    }
+}
+fixture_rpc("fixture.check",{name:"validation_is_read_only" value:stored==storage_read("memory.json")})
+({completed:true sources:saved.sources.len() claims:saved.claims.len()}).to_json()
