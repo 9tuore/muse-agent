@@ -1,3 +1,15 @@
+## NIGHT-006 期限收口 · 2026-10-13T05:32:20.522108+08:00
+
+桌面 `Muse-正式候选-20261013/Muse.app` 已经从全新资料目录正常 Get/Install/Open 并保持显示。rc9-unified-r5，产品源码 ab30195c，Main 45847985，签后 Host 5058b395；10项包文件和已安装Bundle字节核对一致，动态SecCode通过。首次打开的聊天消息和记忆内容为空。实际打开晚于05:00期限，不能声称按时交付。上一应用、原资料与旧证据保留。
+
+真实MiniMax原资料已正常从rc8更新到同一r5；通过Muse GUI创建 `MUSE-N006-QA-20261013`，内置Calendar持久化同ID读回为2026-10-14 16:00至17:00。改期审批在回答前随turn结束撤销，owner未更新；Muse错误地留下空turn_id unknown，并隐藏后续操作，尚待修。测试事件仍在原资料中，未声称删除成功。删除输入因自动化清空读回失败未派发，不作产品删除失败结论。云端凭证未读取复制。私有截图/业务记录仅留本机build目录。
+
+独立ZC05 r5矩阵90功能270格：1首轮记忆新增PASS、269 NOT_TESTED；3功能触达、0项完成三轮。正式状态PARTIAL_3_ROUND_ACCEPTANCE。Root真实日历结果没有拼进独立统计。20冷启动计划首轮在导航记忆断言失败后停止，0/20通过，原因未进一步判定；不能计20成功。邮箱连续真实发送、邮件日历双向闭环仍未完成本候选真实验收。
+
+已修复最新官方rc.6脚本冷加载超预算和fs.sha256缺失，统一重建Intel Host/Kernel/Hub，4项原生hash专项通过；自然语言日历29、联动40、账号scope25为VM fixture。普通页技术字收纳、邮件正文和编辑器高度限制已实现。实际宿主为desktop-v0.1.0-rc.6源码f9f6fea9加Muse兼容补丁，不是未修改的官方二进制。GitHub be82e5ab对应启动/打包CI已通过。
+
+证据：`build/night006/rc9-unified-r5/desktop-final/result.json`、`final-local-evidence-manifest.json`、`root-live-cloud-private/calendar-create-readback.json`；独立报告 `official_muse/semifinal/evidence/user-acceptance-night006/MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md`。后续优先修复审批结束后的Calendar恢复和验证连续邮件；本轮停止新增开发。
+
 ## NIGHT-006 r5 真实界面验收开始 · 2026-10-13 03:20
 
 独立r4 GUI抓到新rc.6缺少fs.sha256/sha256_file，导致聊天检索与记忆保存同步中断；旧失败图和原日志完整保留。现已恢复jailed原生摘要绑定，真实Script VM 4项专项通过；依赖检查和补丁干净重放通过。新Host8569e0ce、Hub6964ce05、helperf581f42f、原配对Kernel fe5259f6已统一重建。
