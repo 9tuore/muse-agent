@@ -1,12 +1,20 @@
 """Kernel tool choice fixture. Actual results only; no approval or receipt creation."""
 import json
 MARKERS=['精确 calendar.events 参数：','精确 calendar.add_event 参数：','2. calendar.update_event 精确参数：','2. calendar.remove_event 参数：']
+READ_QUERY_PREFIX='新的只读查询：调用 calendar.events，精确参数 '
+READ_QUERY_SUFFIX='。仅返回当前官方 Calendar 事件列表；不新建、不改期、不删除，不发送邮件。'
 
 def text_of(message):
     value=message.get('content')
     return ' '.join(v.get('text','') for v in value if isinstance(v,dict)) if isinstance(value,list) else (value or '')
 
 def plan_from_prompt(text):
+    if text.strip().startswith(READ_QUERY_PREFIX):
+        tail=text.strip()[len(READ_QUERY_PREFIX):]
+        args,end=json.JSONDecoder().raw_decode(tail)
+        if type(args) is not dict or set(args)!={'limit'} or type(args['limit']) is not int or args['limit']!=200 or tail[end:]!=READ_QUERY_SUFFIX:
+            raise ValueError('Exact read-only query arguments and suffix required')
+        return [('calendar.events',args)]
     found=[m for m in MARKERS if m in text]
     if not found:return None
     if len(found)!=1 or text.count(found[0])!=1:raise ValueError('Ambiguous native prompt')

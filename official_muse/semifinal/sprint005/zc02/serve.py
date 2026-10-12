@@ -198,7 +198,8 @@ class HTTP(BaseHTTPRequestHandler):
             if not 0<n<=1_000_000:raise ValueError('Bounded request required')
             raw=self.rfile.read(n);v=json.loads(raw)
             if self.path=='/v1/chat/completions':
-                s.event('model.request',request_sha256=digest(raw),bytes=len(raw))
+                offered_tools=[t['function']['name'] for t in v.get('tools',[]) or [] if isinstance(t,dict) and isinstance(t.get('function'),dict) and isinstance(t['function'].get('name'),str)]
+                s.event('model.request',request_sha256=digest(raw),bytes=len(raw),offered_tool_names=offered_tools)
                 with s.lock:
                     mode=s.model_mode;response=s.model_response;delay=s.delay_ms;case=s.case_id
                     binding={'case_id':case,'request_sha256':digest(raw),'response_sha256':digest(json.dumps(response,ensure_ascii=False).encode()),'delay_ms':delay,'mode':mode,'at_ns':time.time_ns()}

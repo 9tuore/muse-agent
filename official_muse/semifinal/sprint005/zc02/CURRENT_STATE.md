@@ -1,5 +1,7 @@
 # ZC02 SPRINT-005
 
+UA-CAL-02 attempt-02输运定位/修复：UI日志156行实际输入“新的只读查询：调用 calendar.events，精确参数 {limit:200}…”（原文JSON见证据），无旧matcher marker，旧plan返回None。Root实际model.request SHA24c57cc…/41435bytes，但旧日志未捕获wire prompt/tools，不能证明当前工具offer。planner仅增该明确只读句式/limit200/完整禁止变更后缀，仍检查实际offered tool、遇真实tool错误停止。定向11/11，仅本地合成offer测试，无HTTP/GUI/ownerPASS。serve日志增公开offered_tool_names，便于下个实际请求定位，不记录prompt/密钥。Root运行服务未改/重启，须由Root部署后新请求才生效；证据ua-cal-02-attempt02-matcher，原失败保留。
+
 S005UA Mail R1公开输入已准备，未注入：working/s005ua-mail-r1/incoming.json现有四字段schema，收件gui-reader/发件receiver，标题SPRINT005-ZC05-S005UA-MAIL-R1、明确2026-10-14 15:00–15:30 Asia/Shanghai。chat-mail和mail-calendar-policy为对应工作副本，原39样本未变。现有incoming只生成时间戳Message-ID，不支持请求的固定s005ua-r1-mail头；正文追踪标签不冒充该头，README要求Root保存实际返回ID/UID/SHA，未改服务/SDK存储/GUI。证据s005ua-mail-r1-working-inputs，0控制写端点/网络测试，未重跑78。
 
 冻结rc8身份补记：当前f9e94877与冻结f00比较，18个模型流程/schema函数全部逐字未变；实际新增ac_local_run_readback，仅修改已有ac_projection。catalog及函数身份已绑定f9，39响应SHA不变；f00 catalog/身份/manifest另存evidence，原f00核验与失败记录不覆盖。新证据rc8-f9-source-identity.json仅记录现场比较和已有f00报告适用性，本次没有重跑78样本/网络协议、没有GUI/业务DB/shared target操作。新服务与正式三轮由Root/ZC05负责。

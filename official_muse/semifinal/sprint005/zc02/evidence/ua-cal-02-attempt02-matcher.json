@@ -1,0 +1,30 @@
+{
+  "kind": "UA_CAL_02_ATTEMPT02_FIXTURE_MATCHER_DIRECTED_CHECK",
+  "status": "PASS",
+  "observed_UI_log": "/Users/mima0000/.codex/worktrees/muse-zc05-acceptance/Agent APP黑客松/official_muse/semifinal/evidence/user-acceptance-3rounds/round-01/UA-CAL-02/attempt-02/ui-actions.jsonl",
+  "observed_UI_line": 156,
+  "observed_UI_prompt": "新的只读查询：调用 calendar.events，精确参数 {\"limit\":200}。仅返回当前官方 Calendar 事件列表；不新建、不改期、不删除，不发送邮件。",
+  "observed_UI_at_utc": "2026-10-12T09:54:10.813488+00:00",
+  "old_matcher_result_for_observed_prompt": "None (no original marker present)",
+  "actual_request_sha256": "24c57cc14251b318d91f9220c32d1eae7c2b0cfb86b0a27c96228f0c3a638422",
+  "actual_request_bytes": 41435,
+  "wire_prompt_and_tools": "NOT_CAPTURED; UI entered text is observed, HTTP log only hashes/counts",
+  "tool_offer_test_input": "synthetic calendar_events offer; not evidence of live wire tools",
+  "checks": {
+    "observed_UI_prompt_matches_events_limit200": true,
+    "old_marker_absent_in_observed_UI_prompt": true,
+    "synthetic_offered_tool_selects_only_calendar_events": true,
+    "absent_tool_still_refused": true,
+    "actual_tool_error_stops": true,
+    "one_result_stops_without_mutation": true,
+    "limit201_refused": true,
+    "extra_args_refused": true,
+    "added_mutation_instruction_refused": true,
+    "unrelated_free_query_unmatched": true,
+    "existing_exact_marker_kept": true
+  },
+  "root_running_service_patched": false,
+  "network_requests_sent": 0,
+  "sdk_gui_status": "NOT_TESTED",
+  "owner_receipts": "NOT_PROVEN"
+}
