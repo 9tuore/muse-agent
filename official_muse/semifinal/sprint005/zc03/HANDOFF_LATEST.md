@@ -2,24 +2,24 @@
 
 ## Task
 
-UA-PREFLIGHT-003新增本地Run读回及投影，Root源码只读、自有VM定向验证。
+Root Calendar 首用授权提示最小VM回归。
 
 ## Result
 
-FIXTURE_PASS：70合成案例；Main f9e94877a4f1eb4f4f9d442b16adc01a4c74af815e3611ef8aaecfcba318e891，归档时Root同SHA。VM337cbba7沿用，22fn/23global原文提取。
+FIXTURE_PASS，25实际合成案例；Main c09836478cdd5fe58f34634002400ebc517185deb30fe4a29a469705c1ac6bd7，VM337cbba7沿用，无重编。
 
 ## Tests
 
-completed同Goal/Run/版本/path/storage单步/time读回正向及边界；planned/failed/unknown/accepted与错绑定/缺字段/时间/spec、Mail/Calendar不得本地verified；父scope隔离、64记录范围、4Run/12node、每例记录不变。无VM错误。
+16个helper精确/类型/超长/未知/近似/成功边界；9个真实create函数路径：拒绝blocked/no turn、成功open→turn→history、user变化阻止、busy零服务。三处create/update/delete去掉提示替换后与旧f9函数逐字相同；update/delete仅静态检查。首次执行PASS、stderr空。
 
 ## Evidence
 
-LOCAL_PROJECTION.md、evidence/local-projection。r2父解析器路径错误，未启动VM；r3实际VM失败为fixture误期望1读回，12节点正确为2，原始结果保留；r4七十例PASS。
+CALENDAR_CONSENT.md及evidence/calendar-consent-r1，源/VM/父脚本/实际命令/原始日志/逐例结果齐全。
 
 ## Commit
 
-本次SHA见回复；前序898cd210/881fabb7/3c947e31保留。无push。
+本次SHA见回复；前序本地投影70例与旧Memory证据保留，无重跑、无push。
 
 ## Remaining
 
-Root GUI/存储真实验收与候选冻结；本次无GUI、Host、存储、网络、官方服务测试。现存316删除dirty不纳入提交。
+Root GUI/Kernel授权及官方业务验收。本次save/transport是fixture；不改Main、shared targets、业务存储。其他316删除dirty不纳入提交。

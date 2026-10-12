@@ -36,3 +36,7 @@ Root已接Memory947，当前Root现场HEAD16fa2cc5（继c716886f/25bb163e）；r
 ## UA-PREFLIGHT-003 本地投影
 
 Root委托只读冻结Main f9e94877；既有VM实际70案例FIXTURE_PASS，22生产fn/23global逐字提取。planned/failed/unknown/accepted、错绑定/时间/spec/非本地能力、scope及4Run/12node否定检查通过，记录未修改。原始失败与结果见LOCAL_PROJECTION及evidence/local-projection；不操作GUI或真实存储、不重编、不复跑Memory。
+
+## Calendar 首用授权提示
+
+Root c0983647定向25个真实VM案例FIXTURE_PASS，首轮无VM错误。NO_CONSENT精确类型/字符串及否定提示边界通过，真实创建函数blocked/no turn、success三次合成调用、身份变化阻止通过。三处旧guard/body除提示调用外逐字保持，改期/删除未动态运行。详见CALENDAR_CONSENT；无GUI、Kernel、真实存储、SDK重编或旧全测试。
