@@ -11864,7 +11864,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
             Nav{text: "邮箱" on_click: || set_page("Mail")}
             Nav{text: "日历" on_click: || set_page("Calendar")}
             Nav{text: "记忆" on_click: || set_page("Memory")}
-            Nav{text: "更多" on_click: || { sidebar_more_open = !sidebar_more_open ui.shortcuts.render() }}
+            Nav{text: if sidebar_more_open {"收起更多 ▴"} else {"更多 ▾"} on_click: || { sidebar_more_open = !sidebar_more_open ui.shortcuts.render() }}
             if sidebar_more_open {
                 Nav{text: "操作记录" on_click: || set_page("Activity")}
                 Nav{text: "设置" on_click: || set_page("Settings")}
