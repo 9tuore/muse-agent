@@ -1,0 +1,33 @@
+{
+  "kernel_source_commit": "b0759a57719fd35b3a2da1c5d969bc67538ed516",
+  "public_fixture_profile_metadata": [
+    {
+      "case": "zc05-final-r1",
+      "id": "_main",
+      "enabled": true,
+      "family_id": "local",
+      "model_id": "sprint005-fixture",
+      "api_type": "openai",
+      "base_url": "http://127.0.0.1:51198/v1"
+    },
+    {
+      "case": "zc05-release-r4",
+      "id": "_main",
+      "enabled": true,
+      "family_id": "local",
+      "model_id": "sprint005-fixture",
+      "api_type": "openai",
+      "base_url": "http://127.0.0.1:50845/v1"
+    }
+  ],
+  "wire_source": "octos-llm/src/openai.rs:673-691: tools omitted iff passed tool definitions empty; otherwise sends function.name/description/parameters. No catalog capability branch in this serialization.",
+  "kernel_name_mapping": "octos-cli/src/peers/host_tools.rs:307 maps dots to underscores, e.g. calendar.events -> calendar_events; registers decl.model_name at594-604",
+  "model_capability_hypothesis": "No source evidence that unknown local/sprint005-fixture causes this wire constructor to omit nonempty tools; do not invent supports_tools/tool_calling profile fields or relabel a model.",
+  "fixture_server": "serve.py:202 now records offered_tool_names;214 calls planner decision only if request tools nonempty; old request hashes without this field cannot distinguish no tools from planner selection failure",
+  "minimum_next": "Root/ZC05 already owns new isolated attempt: inspect its offered_tool_names. If calendar_events present, use exact offered name and actual schema in fixture planner; if no tools, inspect Host peer/tools registration and owner declaration/grants/account/consent on the same session/link before altering provider metadata. Do not grant more tools or auto-replay.",
+  "status": "SOURCE_CONTRACT_LOCATED_RUNTIME_TOOL_OFFER_PENDING",
+  "writes_to_root": false,
+  "gui_actions": 0,
+  "model_calls": 0,
+  "secrets_or_private_db_read": false
+}

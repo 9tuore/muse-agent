@@ -23,3 +23,5 @@ Root已接收635ca8d1，并报告providers实际GUI找到、loopback TestConnect
 Root最新要求尽快提交此已确认小单元，不扩大审计、不阻塞冻结。Root新CA fixture Host raw e4e8f5ac/签名cea8ca71属于独立fixture，生产1eb/R5不改；ZC05 Memory实际GUI四项通过为Root提供结果，Goal/Calendar仍进行中。本站无GUI/真实模型/生产/Root target动作；316个本轮开始前已存在的namespace外媒体删除保持原样，没有恢复或提交。
 
 P0 session.open只读小单元：p0_session_open_r1/evidence.json。成功契约open:true正确；请求blocked/turn空且persisted user与settings相同。首用gate立即NO_CONSENT、后Allow仅prepare不replay符合Root现场；原始opened.error未捕获，不能证明具体失败分支。建议明确新只读attempt保留旧FAIL，不自动重放；共享产品未改。
+
+P0 tools wire：p0_tool_offer_r1/evidence.json。OpenAI adapter只因传入tools空而省略，未发现unknown local能力过滤该wire；Kernel将calendar.events映射calendar_events。公开fixture profile为local/OpenAI/sprint005-fixture。等Root新logger offered_tool_names分支定位，不猜字段、不改Root配置、不重编或GUI操作。
