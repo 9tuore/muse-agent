@@ -1,0 +1,140 @@
+// Actual product functions are inserted by run_mail_continuation.py.
+// Only storage, rendering, timeouts, Calendar context and Host transport are fixtures.
+use mod.math.*
+use mod.std.*
+let fixture_files = {} let fixture_tasks = [] let fixture_cursor = 0
+let fixture_calls = [] let fixture_events = [] let fixture_reply = "accepted"
+let fixture_count = 0 let fixture_serial = 0 let fixture_fail_archive = false
+let field_to = "" let field_subject = "" let field_body = ""
+let fs = {exists: |path| fixture_files[path] != nil}
+let ui = {
+    mail_to: {set_text: |value| {field_to = value} text: || field_to}
+    mail_subject: {set_text: |value| {field_subject = value} text: || field_subject}
+    mail_body: {set_text: |value| {field_body = value} text: || field_body}
+}
+let mail_draft = {} let mail_draft_last_state = "" let mail_draft_writable = true
+let mail_account = {id: "A" address: "a@fixture.invalid"}
+let mail_sending = false let mail_pending = false let mail_model_pending = false
+let mail_error = "" let mail_notice = "" let mail_reply_error = "" let mail_compose_open = false
+let mail_connection_verified = false let mail_folder = "INBOX" let mail_folders_data = []
+let mail_offset = 0 let mail_messages = [] let mail_total = 0 let mail_selected = nil
+let actions = [] let goals = [] let runs = [] let selected_id = "" let core_error = ""
+fn storage_write(path,value){
+    if fixture_fail_archive && path == "mail-draft-archive.json" { return "fixture disk failure" }
+    fixture_files[path] = value return nil
+}
+fn storage_read(path){ return fixture_files[path] }
+fn start_timeout(delay,callback){ fixture_tasks.push(callback) }
+fn time_now(){ return 1791840000 }
+fn random_u32(){ fixture_serial = fixture_serial + 1 return fixture_serial }
+fn mail_redraw(){}
+fn mail_compose(){ mail_compose_open = true }
+fn mail_folders(){}
+fn mail_list(){}
+fn mail_attach_reply_headers(snapshot){}
+fn chat_refs_valid(refs){ return true }
+fn chat_reply_context_valid(draft){ return true }
+fn mail_calendar_link_valid(link){ return true }
+fn mail_calendar_current(draft){ return true }
+fn mail_calendar_context_current(context){ return true }
+fn official_discover(callback){ callback() }
+fn official_method_available(method){ return true }
+fn core_record_event(kind,detail,goal_id,run_id,request_id,account_scope){
+    fixture_events.push({kind: kind request_id: request_id}) return true
+}
+fn core_commit_goals(next_goals,next_runs,next_actions,next_selected){
+    goals = next_goals runs = next_runs actions = next_actions selected_id = next_selected return true
+}
+fn fixture_transport(method,args,callback){
+    fixture_calls.push({method: method args: args.to_json().parse_json()})
+    if method == "mail.compose" {
+        fixture_count = fixture_count + 1
+        let data = args.to_json().parse_json()
+        data.compose_id = "compose-fixture-" + fixture_count data.revision = 1
+        callback({is_ok: true data: data})
+    } else if method == "mail.review_send" {
+        let reply = {is_ok: true data: {accepted: true status: "accepted"
+            compose_id: args.compose_id revision: args.expected_revision operation_id: "op-" + fixture_count}}
+        if fixture_reply == "cancel" { reply = {is_ok: false error: "Review cancelled; nothing was sent"} }
+        if fixture_reply == "unknown" { reply = {is_ok: false error: "fixture transport timeout"} }
+        start_timeout(0.05,|| callback(reply))
+    }
+}
+fn fixture_pump(){
+    let guard = 0
+    while fixture_cursor < fixture_tasks.len() && guard < 100 {
+        let callback = fixture_tasks[fixture_cursor]
+        fixture_cursor = fixture_cursor + 1 guard = guard + 1 callback()
+    }
+}
+fn fixture_seed(status){
+    fixture_files = {} fixture_tasks = [] fixture_cursor = 0 fixture_calls = [] fixture_events = []
+    fixture_count = 0 fixture_reply = "accepted" fixture_fail_archive = false
+    actions = [] goals = [] runs = [] core_error = ""
+    mail_account = {id: "A" address: "a@fixture.invalid"}
+    mail_draft = {account: "A" to: "self@fixture.invalid" subject: "continuation fixture" body: "synthetic body"
+        status: status preview: "" attempt: "" request_id: "old-request" accepted_at: 0 verified_at: 0 verified_id: ""
+        link_goal_id: "" link_event_id: "" link_run_id: "" incoming_key: ""}
+    if status == "accepted" || status == "unknown" || status == "verified" {
+        let payload = {account: "A" to: mail_draft.to subject: mail_draft.subject body: mail_draft.body}.to_json()
+        mail_draft.attempt = payload mail_draft.preview = payload
+        actions = [{id: "old-request" service: "mail.send" target_scope: "A" payload_json: payload status: status}]
+    }
+    field_to = mail_draft.to field_subject = mail_draft.subject field_body = mail_draft.body
+    mail_draft_last_state = "" mail_draft_writable = true mail_sending = false mail_pending = false mail_model_pending = false
+    mail_error = "previous error" mail_notice = "previous notice" mail_reply_error = "" mail_compose_open = false
+    mail_selected = nil mail_save()
+}
+fn fixture_fill(){
+    field_to = "self@fixture.invalid" field_subject = "continuation fixture" field_body = "synthetic body"
+    mail_edit()
+}
+// PRODUCT_FUNCTIONS
+let results = []
+fn check(name,passed){ results.push({name: name passed: passed}) }
+for status in ["accepted","unknown","verified","waiting_user","DRAFT"] {
+    fixture_seed(status)
+    let original = mail_draft.to_json()
+    mail_new_draft()
+    check("new-after-" + status,mail_draft.status == "DRAFT" && mail_draft.request_id == "" && mail_draft.attempt == "" && mail_draft.body == "" && mail_error == "")
+    let archived = nil
+    if fs.exists("mail-draft-archive.json") { archived = storage_read("mail-draft-archive.json").parse_json() }
+    check("archive-" + status,archived != nil && archived.drafts[0].draft.to_json() == original && fixture_calls.len() == 0)
+}
+fixture_seed("sending") let original = mail_draft.to_json() mail_new_draft()
+check("active-send-not-replaced",mail_draft.to_json() == original && fixture_calls.len() == 0)
+fixture_seed("accepted") mail_sending = true original = mail_draft.to_json() mail_new_draft()
+check("receipt-persistence-not-interrupted",mail_draft.to_json() == original)
+fixture_seed("accepted") fixture_fail_archive = true original = mail_draft.to_json() mail_new_draft()
+check("archive-failure-keeps-message",mail_draft.to_json() == original && fixture_calls.len() == 0 && mail_error != "")
+for status in ["accepted","unknown"] {
+    fixture_seed(status) mail_new_draft() fixture_fill() mail_submit()
+    let first_id = mail_draft.request_id
+    mail_submit() // A second click while dispatch is pending must not submit twice.
+    fixture_pump()
+    check("same-content-new-after-" + status,mail_draft.status == "accepted" && fixture_calls.len() == 2 && first_id != "old-request")
+    check("old-action-kept-" + status,actions[0].id == "old-request" && actions[0].status == status)
+    mail_new_draft() fixture_fill() mail_submit() fixture_pump()
+    check("third-identical-message-" + status,mail_draft.status == "accepted" && fixture_calls.len() == 4 && mail_draft.request_id != first_id && fixture_calls[1].args.compose_id != fixture_calls[3].args.compose_id)
+    check("one-native-review-per-message-" + status,fixture_calls.len() == 4 && fixture_calls[0].method == "mail.compose" && fixture_calls[1].method == "mail.review_send" && fixture_calls[2].method == "mail.compose" && fixture_calls[3].method == "mail.review_send")
+}
+fixture_seed("DRAFT") mail_error = "" mail_draft.request_id = "" fixture_reply = "cancel"
+mail_submit() fixture_pump()
+check("cancel-keeps-body",mail_draft.status == "DRAFT" && mail_draft.body == "synthetic body" && !mail_sending && actions[0].status == "failed")
+fixture_reply = "accepted" mail_submit() fixture_pump()
+check("cancel-then-retry",mail_draft.status == "accepted" && fixture_calls.len() == 4 && actions.len() == 2 && actions[0].id != actions[1].id)
+fixture_seed("DRAFT") mail_error = "" mail_draft.request_id = "" fixture_reply = "unknown"
+mail_submit() fixture_pump()
+check("uncertain-response-releases-busy",mail_draft.status == "unknown" && !mail_sending && actions[0].status == "unknown")
+fixture_reply = "accepted" mail_new_draft() fixture_fill() mail_submit() fixture_pump()
+check("uncertain-then-new-message",mail_draft.status == "accepted" && fixture_calls.len() == 4 && actions.len() == 2)
+for status in ["accepted","unknown","verified"] {
+    fixture_seed(status) mail_select_account({id: "B" address: "b@fixture.invalid"})
+    check("switch-account-after-" + status,mail_account.id == "B" && mail_draft.account == "B" && mail_draft.request_id == "" && mail_error == "" && !mail_compose_open)
+}
+fixture_seed("accepted") mail_selected = {id: "incoming-B" address: "sender@fixture.invalid"} mail_use_sender()
+check("reply-after-send",mail_draft.to == "sender@fixture.invalid" && mail_draft.status == "DRAFT" && mail_draft.request_id == "")
+fixture_seed("DRAFT") mail_draft.request_id = "" mail_error = "" mail_preview()
+field_body = "edited after preview" mail_send_confirmed() fixture_pump()
+check("changed-preview-not-dispatched",fixture_calls.len() == 0 && mail_draft.status == "DRAFT")
+results.to_json()

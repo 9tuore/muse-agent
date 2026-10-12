@@ -1,3 +1,11 @@
+## 邮箱连续发送修复 · 2026-10-12
+
+用户在全新桌面实例确认邮箱可用，随后实报第二封被“请先处理原动作”阻塞。现场运行Main022f4460，资料位于桌面Muse-全新空白-20261012-224837/Muse Data；不重置账号。根因是accepted/unknown/waiting_user状态锁住新建、换账号及历史相同内容，且每封重复应用确认与官方审阅。
+
+Main现已按用户要求放宽：新建先保存旧草稿/回执再独立创建；历史受理/未知不锁后续邮件、账号切换或移除；明确新建可发相同内容；发信一键进入原生审阅；编辑器直接显示下一封入口与回执。仍保留真正发送中的单次动作防双击、正文变化检查和原生Host审阅，不自动重放旧邮件。
+
+实际Splash VM定向30/30、账号管理24/24 FIXTURE_PASS；旧Main同测试21项失败复现，失败及脚本初版错误保留。证据official_muse/integrated_release/evidence/mail-continuation-20261012。当前正在打包部署，暂不把VM结果写作真实SMTP或GUI已验证。
+
 ## 最新独立包与邮箱管理 · 2026-10-12 收口
 
 桌面 /Users/mima0000/Desktop/Muse-rc8-正式版-20261012.app 已独立打包、codesign strict/deep验证、LaunchServices真实启动；Host x86_64，PID80429/native1718/9696，动态SecCode三项0。保持WorkBuddy同Launcher与原Host1eb/Kernel567、本地Qwen资源；不含模拟账号或任何生产资料。launcher只指向原正式资料build/live-acceptance-003/home，不复制凭据。

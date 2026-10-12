@@ -5122,8 +5122,8 @@ fn mail_watch_prepare(key,use_model){
     if use_model && (intent == "" || intent.len() > 800) { mail_reply_error = "请说明希望回复的内容，最多 800 字。" mail_watch_refresh() return }
     let account = mail_watch_account(alert.account_id)
     if account == nil { mail_reply_error = "此账号目前未授权，请先到邮箱页检查连接。" mail_watch_refresh() return }
-    if mail_draft.status == "sending" || mail_draft.status == "unknown" {
-        mail_reply_error = "上一封邮件仍在发送或结果未知，请先核对收件端；不会重复发送。"
+    if mail_draft.status == "sending" {
+        mail_reply_error = "当前邮件正在发送，请稍候。"
         mail_watch_refresh()
         return
     }
@@ -5160,12 +5160,10 @@ fn mail_watch_prepare(key,use_model){
         mail_watch.alerts[current].reply_mode = "ai"
         if !use_model { mail_watch.alerts[current].reply_mode = "manual" }
         mail_watch.alerts[current].draft_intent = intent
-        if !mail_watch_archive_current() { mail_watch_refresh() return }
         mail_account = account
         mail_folder = "INBOX"
         mail_selected = r.data
-        mail_draft.status = "DRAFT"
-        mail_new_draft()
+        if !mail_new_draft() { mail_watch_refresh() return }
         mail_draft.incoming_key = key
         ui.mail_to.set_text(r.data.address)
         let subject = r.data.subject
@@ -5309,8 +5307,8 @@ fn mail_watch_send(key,displayed){
     }
     let account = mail_watch_account(draft.account)
     if account == nil { mail_reply_error = "发送账号当前未授权，未发送。" mail_watch_refresh() return }
-    if mail_draft.status == "sending" || mail_draft.status == "unknown" {
-        mail_reply_error = "上一封邮件仍在发送或结果未知，请先核对收件端；没有重复发送。"
+    if mail_draft.status == "sending" {
+        mail_reply_error = "当前邮件正在发送，请稍候。"
         mail_watch_refresh()
         return
     }
@@ -5323,8 +5321,7 @@ fn mail_watch_send(key,displayed){
     ui.mail_body.set_text(draft.body)
     mail_reply_error = ""
     mail_error = ""
-    mail_preview()
-    if mail_draft.status == "waiting_user" && mail_error == "" { mail_send_confirmed() }
+    mail_submit()
     mail_watch_refresh()
 }
 
@@ -5443,13 +5440,14 @@ fn mail_compose(){
 }
 
 fn mail_new_draft(){
-    if !mail_draft_writable { mail_error = "邮件记录不可写，未创建草稿。" mail_redraw() return }
-    if mail_draft.status == "sending" || mail_draft.status == "waiting_user"
-        || (mail_draft.status == "accepted" && mail_draft.incoming_key == "") || mail_draft.status == "unknown" {
-        mail_error = "已有发送待确认或待对账；请先处理原动作。"
+    if !mail_draft_writable { mail_error = "邮件记录不可写，未创建草稿。" mail_redraw() return false }
+    if mail_sending || mail_draft.status == "sending" {
+        mail_error = "当前邮件正在发送，请稍候。"
         mail_redraw()
-        return
+        return false
     }
+    // Receipts belong to the previous message, not to the entire mailbox.
+    if !mail_watch_archive_current() { mail_error = mail_reply_error mail_redraw() return false }
     mail_draft = {account: "" to: "" subject: "" body: "" status: "DRAFT"
         preview: "" attempt: "" request_id: "" accepted_at: 0 verified_at: 0 verified_id: ""
         link_goal_id: "" link_event_id: "" link_run_id: "" incoming_key: ""}
@@ -5457,8 +5455,10 @@ fn mail_new_draft(){
     ui.mail_to.set_text("")
     ui.mail_subject.set_text("")
     ui.mail_body.set_text("")
-    mail_save()
+    mail_error = "" mail_notice = "" mail_reply_error = ""
+    if !mail_save() { mail_redraw() return false }
     mail_compose()
+    return true
 }
 
 // Optional follow-up draft; calendar success never requires sending Mail.
@@ -5537,19 +5537,16 @@ fn mail_compose_from_agent_calendar(){
     if binding.account_id != "local" && binding.account_id != mail_account.id {
         mail_error = "发送账号与当前事项来源账号不同，未创建关联草稿。" calendar_agent_notice = mail_error mail_redraw() return
     }
-    if gm_has(mail_draft,"official_calendar") && mail_calendar_current(mail_draft) {
+    if gm_has(mail_draft,"official_calendar") && mail_calendar_current(mail_draft)
+        && (mail_draft.status == "DRAFT" || mail_draft.status == "waiting_user" || mail_draft.status == "sending") {
         mail_compose()
         set_page("Mail")
         return
     }
-    if !mail_draft_writable || mail_sending || mail_pending || mail_model_pending
-        || mail_draft.status == "waiting_user" || mail_draft.status == "sending"
-        || mail_draft.status == "accepted" || mail_draft.status == "unknown" {
-        mail_error = "已有邮件待确认或待对账；保留原文，请先处理原动作。" calendar_agent_notice = mail_error mail_redraw() return
+    if !mail_draft_writable || mail_sending || mail_pending || mail_model_pending || mail_draft.status == "sending" {
+        mail_error = "邮箱正在处理，请稍候。" calendar_agent_notice = mail_error mail_redraw() return
     }
-    if !mail_watch_archive_current() { mail_error = mail_reply_error calendar_agent_notice = mail_error mail_redraw() return }
-    mail_new_draft()
-    if !mail_draft_writable { return }
+    if !mail_new_draft() { return }
     mail_draft.official_calendar = {request_id: calendar_agent_state.request_id turn_id: calendar_agent_state.turn_id
         mail_account: mail_account.id binding: binding.to_json().parse_json()}
     if gm_has(authority,"update") { mail_draft.official_calendar.authority = authority.to_json().parse_json() }
@@ -5569,9 +5566,8 @@ fn mail_compose_from_agent_calendar(){
 }
 
 fn mail_compose_from_calendar(goal_id){
-    if mail_draft.status == "sending" || mail_draft.status == "waiting_user"
-        || mail_draft.status == "accepted" || mail_draft.status == "unknown" {
-        mail_error = "已有邮件发送待确认或待对账；请先处理原动作。"
+    if mail_sending || mail_draft.status == "sending" {
+        mail_error = "当前邮件正在发送，请稍候。"
         redraw()
         return
     }
@@ -5586,7 +5582,7 @@ fn mail_compose_from_calendar(goal_id){
     }
     let confirmed = calendar_links[li].candidate
     if calendar_links[li]["original_event"] != nil { confirmed = calendar_links[li].original_event }
-    mail_compose()
+    if !mail_new_draft() { return }
     mail_draft.link_goal_id = goal_id
     mail_draft.link_event_id = calendar_links[li].event_id
     mail_draft.link_run_id = ""
@@ -5649,10 +5645,10 @@ fn right_choose(next){
 fn mail_select_account(account){
     if mail_sending || mail_model_pending { return }
     let same_draft_account = mail_draft.account == account.id
-    if !same_draft_account && (mail_draft.status == "waiting_user" || mail_draft.status == "accepted" || mail_draft.status == "unknown") {
-        mail_error = "上封邮件仍待确认或对账，暂不能切换发送账号。"
-        mail_redraw()
-        return
+    if !same_draft_account && (mail_draft.status == "accepted" || mail_draft.status == "unknown" || mail_draft.status == "verified") {
+        let composing = mail_compose_open
+        if !mail_new_draft() { return }
+        mail_compose_open = composing
     }
     mail_account = account
     mail_error = ""
@@ -5720,8 +5716,8 @@ fn mail_accounts_load(){
 
 fn mail_remove_account(account_id){
     if !mail_enabled() || mail_pending || mail_sending || mail_model_pending || mail_calendar_link_pending { return }
-    if mail_draft.account == account_id && (mail_draft.status == "sending" || mail_draft.status == "accepted" || mail_draft.status == "unknown") {
-        mail_error = "此账号仍有提交结果待核对，请先核对邮件状态再移除。"
+    if mail_draft.account == account_id && mail_draft.status == "sending" {
+        mail_error = "此账号正在发送邮件，请稍候再移除。"
         mail_redraw() return
     }
     let found = false
@@ -5844,7 +5840,9 @@ fn mail_open(message_id){
 
 fn mail_use_sender(){
     if mail_selected == nil || mail_selected.address == nil { return }
-    ui.mail_to.set_text(mail_selected.address)
+    let address = mail_selected.address
+    if !mail_new_draft() { return }
+    ui.mail_to.set_text(address)
     mail_edit()
 }
 
@@ -6011,11 +6009,11 @@ fn mail_preview(){
     let snapshot = {account: mail_account.id to: mail_draft.to subject: mail_draft.subject body: mail_draft.body}
     mail_attach_reply_headers(snapshot)
     let payload = snapshot.to_json()
-    if mail_draft.attempt == payload || mail_payload_pending(payload) { mail_error = "相同内容已有发送尝试；请先在收件端核对，不会再次发送。" mail_redraw() return }
+    if mail_draft.attempt == payload { mail_error = "这封邮件已提交，请点“写新邮件”继续。" mail_redraw() return }
     mail_draft.preview = payload
     mail_draft.status = "waiting_user"
     if !mail_save() { mail_redraw() return }
-    mail_notice = "请核对下方精确内容，再单独确认发送。"
+    mail_notice = "请在官方邮件窗口核对并发送。"
     mail_redraw()
 }
 
@@ -6029,12 +6027,9 @@ fn mail_abort_before_host(message){
     mail_redraw()
 }
 
-fn mail_payload_pending(payload){
-    for action in actions {
-        if action.service == "mail.send" && action.payload_json == payload
-            && (action.status == "in_flight" || action.status == "unknown" || action.status == "accepted") { return true }
-    }
-    return false
+fn mail_submit(){
+    mail_preview()
+    if mail_draft.status == "waiting_user" && mail_error == "" { mail_send_confirmed() }
 }
 
 fn mail_send_confirmed(){
@@ -6046,7 +6041,7 @@ fn mail_send_confirmed(){
         subject: ui.mail_subject.text().trim() body: ui.mail_body.text().trim()}
     mail_attach_reply_headers(snapshot)
     let payload = snapshot.to_json()
-    if payload != mail_draft.preview || payload == mail_draft.attempt || mail_payload_pending(payload) {
+    if payload != mail_draft.preview || payload == mail_draft.attempt {
         mail_error = "草稿或账号已变化，请重新预览。" mail_draft.status = "DRAFT" mail_draft.preview = "" mail_save() mail_redraw() return
     }
     mail_draft.status = "sending"
@@ -6276,39 +6271,15 @@ fn mail_send_receipt_step(context,phase){
     }
     if phase < 4 { start_timeout(0.05,|| mail_send_receipt_step(context,phase+1)) return }
     mail_sending = false
-    if context.accepted { mail_notice = "邮箱服务已受理；收件端投递尚未核验。" }
+    if context.accepted { mail_error = "" mail_notice = "邮件服务已接受发送，可以继续写下一封。" }
     else if context["unsent"] == true { mail_error = "" mail_notice = context.notice }
-    else { mail_error = "发送结果未知，请人工核对收件端；不会自动重发。" }
+    else { mail_error = "上封发送结果未确定，记录已保留；可以另写新邮件。" }
     mail_redraw()
 }
 
-// Release the editor while preserving the pending action and its full draft.
-// mail_payload_pending still blocks the same exact payload after a new draft.
+// Keep the previous receipt without making reconciliation a prerequisite.
 fn mail_keep_pending(){
-    if (mail_draft.status != "unknown" && mail_draft.status != "accepted") || mail_sending || !mail_draft_writable { return }
-    let requested_id = mail_draft.request_id
-    let pending_status = mail_draft.status
-    if !mail_watch_archive_current() { mail_redraw() return }
-    start_timeout(0.05,|| mail_keep_pending_step(requested_id,pending_status,0))
-}
-
-fn mail_keep_pending_step(requested_id,pending_status,phase){
-    if mail_draft.request_id != requested_id || mail_draft.status != pending_status { return }
-    if phase == 0 {
-        let ai = core_action_index(requested_id)
-        if ai < 0 { mail_error = "原动作记录不可读，请先核对；原邮件仍保留。" mail_redraw() return }
-        if pending_status == "accepted" && actions[ai].status != "accepted" {
-            mail_error = "发送回执尚未完整保存，原邮件仍保留。" mail_redraw() return
-        }
-        if pending_status == "unknown" && actions[ai].status == "in_flight" && !core_finish_action(requested_id,"unknown") { mail_redraw() return }
-    }
-    if phase == 1 {
-        mail_draft.status = "failed"
-        mail_new_draft()
-        mail_notice = "原尝试已保留为待核对，不会重发相同内容。"
-        return
-    }
-    start_timeout(0.05,|| mail_keep_pending_step(requested_id,pending_status,1))
+    mail_new_draft()
 }
 
 // Native Calendar keeps its verified authority after this same-revision,
@@ -10068,12 +10039,9 @@ fn chat_apply_proposal(id){
     let payload = card.payload
     if card.action == "mail_compose" {
         if !mail_enabled() || mail_sending || mail_pending || mail_model_pending { ui_error = "邮箱暂不可用，请稍后核对。" redraw() return }
-        if mail_draft.status == "accepted" || mail_draft.status == "unknown" || mail_draft.status == "waiting_user" {
-            ui_error = "现有邮件需要先完成确认或核对，草稿已保留。" redraw() return
-        }
         if card.account_id != "" { let account = mail_watch_account(card.account_id) if account == nil { return } mail_select_account(account) }
         if mail_account == nil { set_page("Mail") return }
-        mail_new_draft()
+        if !mail_new_draft() { return }
         ui.mail_to.set_text(payload.to) ui.mail_subject.set_text(payload.subject) ui.mail_body.set_text(payload.body)
         mail_edit()
         let card_refs = [] if gm_has(card,"memory_refs") { card_refs = card.memory_refs }
@@ -11954,10 +11922,11 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                 Secondary{text: "返回收件箱" on_click: || mail_inbox()}
                 if mail_account != nil && !mail_sending && mail_draft.status != "waiting_user"
                     && mail_draft.status != "accepted" && mail_draft.status != "verified" && mail_draft.status != "unknown" {
-                    Primary{text: "发送邮件" on_click: || mail_preview()}
+                    Primary{text: "发送邮件" on_click: || mail_submit()}
                 } else {
                     Secondary{text: "发送邮件" enabled: false draw_text.color: muted}
                 }
+                Secondary{text: "写新邮件" enabled: !mail_sending on_click: || mail_new_draft()}
             }}
             mail_confirmation_scroll := ScrollYView{visible: false width: Fill height: Fill flow: Down spacing: 8
                 mail_confirmation_panel := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
@@ -12002,6 +11971,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                     Secondary{text: "采用新稿" on_click: || mail_adopt_proposed()}
                 }
                 mail_preview_panel := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
+                    if mail_notice != "" { Label{width: Fill text: mail_notice draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_error != "" { Label{width: Fill text: "错误 · " + mail_error draw_text.color: #xff9c94 draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_error != "" && mail_error == mail_error_detail_user && mail_error_detail != "" {
                         Secondary{text: "查看邮箱技术详情" on_click: || { mail_error_detail_open = !mail_error_detail_open mail_redraw() }}
@@ -12022,7 +11992,6 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                     if mail_draft.status == "verified" { Label{width: Fill text: "已记录本人独立收件端核验声明。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_draft.status == "unknown" { Label{width: Fill text: "上次发送结果未知，不会自动重发。请人工核对收件端。" draw_text.color: #xff9c94 draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                     if mail_draft.status == "unknown" && mail_draft["host_compose_id"] != nil { Secondary{text: "核对原发送记录" on_click: || mail_check_host_status()} }
-                    if mail_draft.status == "unknown" || mail_draft.status == "accepted" { Secondary{text: "保留待核对记录，另写不同的邮件" on_click: || mail_keep_pending()} }
                     if mail_draft.status == "accepted" {
                         Label{width: Fill text: "仅在你确实从独立收件端找到这封测试邮件后，输入邮件中的测试 ID 并记录核验。" draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 11}
                         Secondary{text: "我已在收件端核对测试 ID" enabled: !mail_verifying on_click: || mail_verify_received()}
