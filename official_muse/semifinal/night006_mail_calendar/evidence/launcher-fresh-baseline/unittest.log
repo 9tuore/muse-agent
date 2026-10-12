@@ -1,0 +1,91 @@
+test_bootstrap_explicit_hybrid (__main__.main.<locals>.FreshLocal) ... FAIL
+test_bootstrap_default_hybrid (__main__.main.<locals>.FreshLocal) ... FAIL
+test_fresh_restart_preserves_bytes_and_port (__main__.main.<locals>.FreshLocal) ... FAIL
+test_existing_local_primary_starts_without_cloud (__main__.main.<locals>.FreshLocal) ... FAIL
+test_cloud_and_local_fallback_keep_both_and_port (__main__.main.<locals>.FreshLocal) ... FAIL
+test_cloud_without_local_is_byte_preserved (__main__.main.<locals>.FreshLocal) ... ok
+test_existing_empty_profile_is_not_bootstrapped (__main__.main.<locals>.FreshLocal) ... ok
+test_models_fresh_skips_local_and_profile (__main__.main.<locals>.FreshLocal) ... ok
+test_occupied_port_is_actionable_and_keeps_profile (__main__.main.<locals>.FreshLocal) ... FAIL
+test_remote_local_route_never_retargeted (__main__.main.<locals>.FreshLocal) ... FAIL
+test_broken_symlink_profile_is_not_missing (__main__.main.<locals>.FreshLocal) ... ok
+test_corrupt_profile_is_preserved (__main__.main.<locals>.FreshLocal) ... ok
+test_hybrid_models_entry_does_not_start_or_modify_local_profile (__main__.main.<locals>.FreshLocal) ... ok
+test_explicit_gpt_overrides_hybrid_package_without_local_start (__main__.main.<locals>.FreshLocal) ... ok
+test_gpt_missing_profile_keeps_native_entry_without_default_profile (__main__.main.<locals>.FreshLocal) ... ok
+test_check_is_read_only_without_bundled_model (__main__.main.<locals>.FreshLocal) ... ok
+
+======================================================================
+FAIL: test_bootstrap_explicit_hybrid (__main__.main.<locals>.FreshLocal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 81, in test_bootstrap_explicit_hybrid
+    self.check_fresh('--hybrid')
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 58, in check_fresh
+    self.assertTrue(self.profile.exists(), self.messages(result))
+AssertionError: False is not true : HYBRID_SETUP_REQUIRED：请在 Models 中由本人配置云端主模型（保留已有 MiniMax 等提供方）；现有配置保留，本次设置入口不启动 Qwen。
+
+
+======================================================================
+FAIL: test_bootstrap_default_hybrid (__main__.main.<locals>.FreshLocal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 84, in test_bootstrap_default_hybrid
+    self.check_fresh(None)
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 58, in check_fresh
+    self.assertTrue(self.profile.exists(), self.messages(result))
+AssertionError: False is not true : HYBRID_SETUP_REQUIRED：请在 Models 中由本人配置云端主模型（保留已有 MiniMax 等提供方）；现有配置保留，本次设置入口不启动 Qwen。
+
+
+======================================================================
+FAIL: test_fresh_restart_preserves_bytes_and_port (__main__.main.<locals>.FreshLocal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 87, in test_fresh_restart_preserves_bytes_and_port
+    self.check_fresh(None)
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 58, in check_fresh
+    self.assertTrue(self.profile.exists(), self.messages(result))
+AssertionError: False is not true : HYBRID_SETUP_REQUIRED：请在 Models 中由本人配置云端主模型（保留已有 MiniMax 等提供方）；现有配置保留，本次设置入口不启动 Qwen。
+
+
+======================================================================
+FAIL: test_existing_local_primary_starts_without_cloud (__main__.main.<locals>.FreshLocal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 102, in test_existing_local_primary_starts_without_cloud
+    self.assertTrue((self.state / 'synthetic-local-started').exists())
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_cloud_and_local_fallback_keep_both_and_port (__main__.main.<locals>.FreshLocal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 114, in test_cloud_and_local_fallback_keep_both_and_port
+    self.assertEqual(status['route_base_url'], f'http://127.0.0.1:{port}/v1')
+AssertionError: 'http://127.0.0.1:62856/v1' != 'http://127.0.0.1:62854/v1'
+- http://127.0.0.1:62856/v1
+?                      ^
++ http://127.0.0.1:62854/v1
+?                      ^
+
+
+======================================================================
+FAIL: test_occupied_port_is_actionable_and_keeps_profile (__main__.main.<locals>.FreshLocal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 143, in test_occupied_port_is_actionable_and_keeps_profile
+    self.assertNotEqual(result.returncode, 0)
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_remote_local_route_never_retargeted (__main__.main.<locals>.FreshLocal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mima0000/.codex/worktrees/muse-mail-calendar-night/Agent APP黑客松/official_muse/semifinal/night006_mail_calendar/test_fresh_local_launcher.py", line 154, in test_remote_local_route_never_retargeted
+    self.assertNotEqual(result.returncode, 0)
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 16 tests in 11.150s
+
+FAILED (failures=7)
