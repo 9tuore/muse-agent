@@ -1,6 +1,6 @@
-# Muse 统一候选 0.4.0-rc8
+# Muse 统一候选 0.4.0-rc9
 
-SPRINT-005 的 rc8 正在准备签名与独立 GUI 验收。NIGHT-004 的 rc7/R5 固定包保留为回退；其隔离验收不自动计入 rc8，也不代表生产账号全链通过。当前运行、候选身份和证据以 [CURRENT_STATE](../../MUSE_HANDOFF/CURRENT_STATE.md) 与 [三轮报告](../../MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md) 为准。
+NIGHT-006 的 rc9 基于官方 desktop-v0.1.0-rc.6 源码和 Muse 兼容补丁，统一构建 Intel Host、配套 Kernel、签名界面及本地模型。旧 rc8/rc7/R5 与用户资料保留；旧版本或组件测试不自动计入本候选三轮，也不代表生产账号全链通过。当前运行、候选身份和证据以 [CURRENT_STATE](../../MUSE_HANDOFF/CURRENT_STATE.md) 与 [三轮报告](../../MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md) 为准。
 
 ## 唯一启动方法
 
@@ -10,7 +10,7 @@ SPRINT-005 的 rc8 正在准备签名与独立 GUI 验收。NIGHT-004 的 rc7/R5
 ./official_muse/integrated_release/launch_muse.sh '/absolute/path/Muse.app'
 ```
 
-脚本通过 `/usr/bin/open -n -W` 进入应用的 `CFBundleExecutable=Launcher`。外层 shell 在自己的 Contents 中定位资源，等待签名检查和 guardian 就绪，然后由原 PID 直接 exec `Contents/Resources/host-runtime/muse-host`。保留已验证的 WorkBuddy Info.plist 和外层 shell 身份，不直接运行裸 Host。
+脚本通过 `/usr/bin/open -n -W` 进入应用的 `CFBundleExecutable=Launcher`。外层 shell 在自己的 Contents 中定位资源，等待签名检查和 guardian 就绪，然后由原 PID 直接 exec `Contents/Resources/host-runtime/muse-host`。保留已验证的 WorkBuddy 启动身份及外层 shell，显示名称为 Muse，不直接运行裸 Host。
 
 Host 默认接收实际 SDK 支持的参数：
 
@@ -28,24 +28,24 @@ Host 默认接收实际 SDK 支持的参数：
 
 测试可设置 `MUSE_INTEGRATED_REMOTE` 为单独端口；生产默认 9696。`--check` 检查签名/资源；`--gpt-check` 仅检查包与原生 config.llm 的提供方 metadata。配置检查通过不证明凭据、模型实调或工具操作成功。
 
-产品使用 `--model-mode hybrid --model-source ...`，携带 Qwen2.5-0.5B 基础本地服务，沿用宿主的 MiniMax 等云端主配置。guardian 只管理自己启动的本地进程，不改 Native 路由/profile、不迁移 Keychain、不发付费轮询请求。`local-model.json` 是服务就绪状态，`inference_verified=false` 不能作为本地推理或持续 AI 验收证据。云端主配置缺失时保留配置并抑制 Qwen，用户在原生 AI providers 界面完成设置。宿主 AppsMenu 搜索 `providers` 可找到该实际内置页面。
+产品使用 `--model-mode hybrid --model-source ...`，携带 Qwen2.5-0.5B 基础本地服务。已有 Native profile 原样保留，包括 MiniMax 等云端路由；只在 profile 完全不存在的全新资料目录创建无凭证的 local 主模型配置，指向自己启动的 loopback Qwen 服务。存在但损坏的 profile 不覆盖。guardian 只管理自己的模型进程，不迁移 Keychain，也不发付费轮询。模型服务就绪与真实推理、工具调用分别验收；小型离线模型不等于已验证的云端协同。宿主 AppsMenu 搜索 `providers` 可打开原生 AI providers 页面。
 
 GPT 专用开发包可选 `--model-mode gpt` 并省略 `--model-source`；`--models` 仅抑制 Qwen，仍使用相同正式入口。开发 Agent 使用 GPT 不意味着替换产品已有 MiniMax 配置。
 
 ## 构建与打包
 
-`build_host.py` 通过 SDK 的 `desktop/scripts/package.py` 设置打包资源、路径重映射和锁定 Kernel 环境。实际构建为离线、locked、Release、`octosense` binary，features `app-hub,octos-core,app-muse-native-prototype`。SDK 准备源码包含待审 Calendar、Mail 和冷启动修复；不能把未修改 vanilla SDK 的编译结果当成当前配套 Host。
+先用 `prepare_official_host.py --sdk` 核对官方 rc.6 源码及兼容补丁，再使用 `build_official_host.py --sdk ... --work ... --phase {check,tests,host,kernel,hub} --offline` 逐阶段构建。实际 features 为 `app-hub,octos-core`，保留官方 `.cargo/config.toml`，打入真实 Mail/Calendar 系统应用。脚本记录 tag、各源码 revision、补丁 SHA、锁文件与产物 SHA。完整界面的有界冷加载补丁也必须纳入统一源码；不能混用旧 Host。
 
 `prepare_bundle.py` 从 `official_muse/app/source/main.splash` 创建新的可读/压缩 bundle；根 `bundle/` 当前保留历史 rc17，不能混用版本。签名后不修改清单或文件；需要修复时生成新候选。
 
-`package_app.py` 输入显式 SDK、Host、Kernel receipt、签名 mirror 及公共本地模型目录。输出新目录与 `Muse.app`、`PACKAGE.json`、`HOST_RESOURCES.json`、`launch_muse.sh`。普通模式按同一 features 的 Cargo closure 收集资源，并由官方 staging helper 为签名后的相同 Kernel revision 重建 receipt。原输入不改。
+`package_app.py` 输入显式 SDK、Host、Kernel receipt、签名 mirror 及公共本地模型目录；`--licenses` 加入收集的第三方声明。若 Host 旁存在 `.release-identity.json`，先核对其 SHA，再把源版本与输入 SHA 写入打包记录；签名后的实际 SHA 单列。输出新目录与 `Muse.app`、`PACKAGE.json`、`HOST_RESOURCES.json`、`launch_muse.sh`。普通模式按同一 features 的 Cargo closure 收集资源，并由官方 staging helper 为签名后的相同 Kernel revision 重建 receipt。原输入不改。
 
 ```sh
 : "${MUSE_SDK:?explicit SDK preparation tree}"
 : "${MUSE_HOST:?built Host executable}"
 : "${MUSE_KERNEL:?pinned Kernel executable}"
 : "${MUSE_KERNEL_RECEIPT:?matching public receipt}"
-: "${MUSE_MIRROR:?new signed rc8 mirror}"
+: "${MUSE_MIRROR:?new signed rc9 mirror}"
 : "${MUSE_LOCAL_MODEL:?public model directory}"
 : "${MUSE_OUTPUT:?new output directory}"
 python3 official_muse/integrated_release/package_app.py \
@@ -61,7 +61,7 @@ python3 official_muse/integrated_release/package_app.py \
 
 ## 签名目录与官方接口
 
-`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc8`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 7，高于 R5 的 4。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
+`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc9`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 9。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
 
 将 helper 放在对应 Hub 的 `crates/app-hub/examples/`，按实际 SDK workspace 锁定依赖构建。六个参数依次为 BUNDLE、NEW_MIRROR、WORKING_KEY、CERTIFICATE_FILE、ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。新目录不可已存在，提交号须完整；私钥只作为本机签名工具输入，不作为成品、日志或 Git 输入。使用官方 Hub stamp/sign-manifest 后，再运行 helper 准入与目录验签。
 
@@ -71,6 +71,6 @@ Mail 保留官方 account、draft、review、send 状态与 UNKNOWN 不重发恢
 
 ## 必要检查与 GitHub
 
-本机 `python3 official_muse/integrated_release/test_launcher.py -v` 实际编译、签名并运行 stub Host。rc8 当前 26 项通过，含跨资料互斥和旧 packaged Host 检测；不是真实 GUI 或模型检查。打包检查从该目录执行 `python3 test_package.py`，防止错误 import cwd。当前四个未改用例通过，修订的正式 argv 用例单独通过；原失败记录见 [打包证据](evidence/sprint005-rc8-packager/result.json)。
+本机 `python3 -m unittest discover -s official_muse/integrated_release -p "test_*.py"` 执行启动器和打包 fixture。运行前须正常退出 Muse，避免测试与真实 Host 的单实例锁冲突。NIGHT-006 首次含锁冲突的失败证据保留；退出 Host 后原 31 项全部通过，新增源版本收据防混用后 6 项打包检查通过。以上不是真实 GUI、账号、模型或日历验收。
 
 `.github/workflows/muse-launcher.yml` 在此开发分支相关变更或手动运行时，使用相同 launcher 源码和脚本检查，依次运行启动器与打包 fixture。它不发布成品、不使用账号秘密、不请求模型。远端实际执行结果需独立核对，不能用本机结果代替；真实 Intel Host GUI 和同候选三轮另有原生证据。

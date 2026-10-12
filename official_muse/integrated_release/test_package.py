@@ -130,6 +130,13 @@ int main(int argc, char **argv) {
         self.assertEqual((self.state / 'fixture-data').read_bytes(), b'private fixture: never package')
         self.assertFalse((self.output / 'signed-kernel').exists())
 
+    def test_mismatched_host_release_receipt_is_rejected_before_packaging(self):
+        receipt = self.host.with_name(self.host.name + '.release-identity.json')
+        receipt.write_text(json.dumps({'release_tag': 'desktop-fixture', 'sha256': '0' * 64}))
+        with self.assertRaisesRegex(AssertionError, 'Host release receipt mismatch'):
+            self.package()
+        self.assertFalse(self.output.exists())
+
     @unittest.skipUnless(sys.platform == 'darwin', 'Explicit APFS clone requires macOS')
     def test_apfs_clone_hybrid_model_and_resources_are_independent(self):
         model = self.root / 'synthetic model'

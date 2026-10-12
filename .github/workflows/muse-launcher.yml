@@ -23,7 +23,7 @@ jobs:
       - name: Validate the shared package and repository launcher
         run: |
           sh -n official_muse/integrated_release/launch_muse.sh
-          python3 -m py_compile official_muse/integrated_release/build_host.py official_muse/integrated_release/prepare_bundle.py official_muse/integrated_release/package_app.py
+          python3 -m py_compile official_muse/integrated_release/build_host.py official_muse/integrated_release/prepare_official_host.py official_muse/integrated_release/build_official_host.py official_muse/integrated_release/prepare_bundle.py official_muse/integrated_release/package_app.py
           python3 official_muse/integrated_release/test_launcher.py -v
       - name: Validate signed package resource and entry preservation
         working-directory: official_muse/integrated_release

@@ -73,6 +73,13 @@ def main():
     directory_copies = []
     source_host_sha256 = sha(args.host)
     source_kernel_sha256 = sha(args.kernel)
+    source_release = None
+    release_identity = args.host.with_name(args.host.name + '.release-identity.json')
+    if release_identity.is_file():
+        identity = json.loads(release_identity.read_text())
+        assert identity.get('sha256') == source_host_sha256, 'Host release receipt mismatch'
+        assert isinstance(identity.get('release_tag'), str) and identity['release_tag'], 'Host release tag missing'
+        source_release = {'release_tag': identity['release_tag'], 'sha256': source_host_sha256}
     output = args.out.resolve()
     output.mkdir(parents=True, exist_ok=False)
     app = output / 'Muse.app'
@@ -167,6 +174,7 @@ def main():
     assert (app / 'Contents/Info.plist').read_bytes() == (HERE / 'workbuddy_info.plist').read_bytes(), 'Working App Info changed'
     record = {'version': '0.4.0-rc9', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
         'signature': 'AD_HOC_LOCAL_ONLY', 'source_host_sha256': source_host_sha256,
+        'source_host_release': source_release,
         'source_kernel_sha256': source_kernel_sha256,
         'reused_signed_pair': False, 'reused_signed_kernel': bool(args.paired_host_app),
         'standalone_host': True,
@@ -188,7 +196,8 @@ def main():
             'offline': 'Qwen2.5-0.5B basic offline fallback',
             'hybrid': 'existing Native cloud provider (including MiniMax) plus bundled Qwen service; local selection and collaboration not verified'}[args.model_mode],
         'model_mode': args.model_mode, 'model_runtime_verified': False,
-        'upstream_host': 'paired pending-review build'}
+        'upstream_host': ('source-built ' + source_release['release_tag']
+            if source_release else 'explicit Host input without release receipt')}
     if args.apfs_clone:
         record.update(directory_copy_mode='apfs_clone_requested', directory_copies=directory_copies)
     (output / 'PACKAGE.json').write_text(json.dumps(record, indent=2) + '\n')
