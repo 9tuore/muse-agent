@@ -57,6 +57,8 @@ def main():
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--model-mode', choices=('offline', 'gpt', 'hybrid'), default='hybrid')
     parser.add_argument('--model-source', type=Path)
+    parser.add_argument('--licenses', type=Path,
+        help='Copy collected dependency license documents into the signed app')
     parser.add_argument('--apfs-clone', action='store_true',
         help='Request independent APFS CoW directory copies via cp -c; requires macOS and the same APFS volume')
     parser.add_argument('--paired-host-app', type=Path,
@@ -119,6 +121,8 @@ def main():
     if args.model_mode != 'gpt':
         directory_copies.append(copy_tree(args.model_source, resources / 'local-model', args.apfs_clone))
     directory_copies.append(copy_tree(args.mirror, resources / 'mirror', args.apfs_clone))
+    if args.licenses:
+        directory_copies.append(copy_tree(args.licenses, resources / 'Licenses', args.apfs_clone))
     # Local signing keys and account data are not inputs to this packager.
     assert not list(resources.rglob('*.key')), 'A private key entered the package'
     # Preserve the original working LaunchServices identity and shell executable.
@@ -170,7 +174,7 @@ def main():
         'outer_info_plist_sha256': sha(app / 'Contents/Info.plist'),
         'source_launcher_sha256': sha(HERE / 'workbuddy_launcher.sh'),
         'packaged_launcher_sha256': sha(executable / 'Launcher'),
-        'profile_modified_by_launcher': False,
+        'existing_profile_preserved': True, 'fresh_local_profile_bootstrap': True,
         'qwen_supervision': 'background guardian watches original shell/Host parent PID; runtime not verified',
         'host_resources_files': len(inventory),
         'state_root_reference': str(args.state_root) if args.state_root is not None else None,

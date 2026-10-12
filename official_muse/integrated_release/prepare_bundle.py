@@ -29,6 +29,7 @@ def main():
     assert manifest['id'] == 'muse-goals' and manifest['agent'] is None
     manifest['version'] = VERSION
     manifest['integrity'] = {'bundle_blake3': ''}
+    manifest.pop('github', None)
     manifest['capabilities'] = ['storage', 'model', 'mail', 'glance', 'runtime',
         'octos.session.open', 'octos.session.history', 'octos.turn.start', 'octos.turn.interrupt']
     manifest['requires'] = ['host-api-v1']
@@ -42,14 +43,10 @@ def main():
     (readable / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
     shutil.copyfile(Path(__file__).with_name('AGENT.md'), readable / 'AGENT.md')
     listing = json.loads((readable / 'listing.json').read_text())
-    listing['description'] = ('Muse 将中文对话、全局记忆、长期事务和行动链整合在同一界面。'
-        '邮件使用配套 OctoSense 原生登录、起草、审阅和状态接口；发送需要本人批准。'
-        '全局记忆支持来源、范围、更正和遗忘。官方助手申请内置日历查询、回读、新建、更新、删除和通知，'
-        '使用前需要宿主本人启用；更新与删除仍需 Host 本人批准；真实调动须经过同身份验收。'
-        '本候选保留历史记录并明确显示能力状态。配套宿主基于官方源码，包含待审修复。')
-    listing['release_notes'] = (VERSION + '：统一应用入口、宿主、锁定内核、界面和本地模型启动器。'
-        '移植有界源码准备，保留 64ms 脚本限额；新增官方 Agent 声明，首次使用仍需宿主本人授权。'
-        '日历工具和真实邮件全链仍需同身份验收，候选状态不代表正式公开发布。')
+    listing['description'] = ('Muse 让对话、记忆和行动连在一起。用中文整理想法，保存和更正重要记忆，'
+        '查看来信、起草回复，把邮件里的安排添加到日历。行动链显示事情进行到哪一步，重启后继续处理。')
+    listing['release_notes'] = (VERSION + '：精简界面；支持连续撰写邮件；提供明确的回复和添加日历按钮；'
+        '优化邮件正文与写信区域的滚动；保留日程与原事项的关联。')
     (readable / 'listing.json').write_text(json.dumps(listing, ensure_ascii=False, indent=2) + '\n')
     compact = subprocess.run([sys.executable, str(ROOT / 'official_muse/ui_memory/compact_bundle.py'),
         '--source', str(readable), '--out', str(output / 'bundle')], check=True,

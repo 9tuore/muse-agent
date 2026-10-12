@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-NIGHT-006 UI清理、连续操作与rc9入口；基线e15902b3，Root集成。
+NIGHT-006统一rc9候选集成，截止05:00、04:30冻结高风险。
 
 ## Result
-PARTIAL。新版业务源和开发预检包已准备；最新官方rc.6的Intel统一构建与最终GUI验收进行中。
+PARTIAL，最新Host/Kernel/Hub已编成，准备签名统一包。
 
 ## Changed
-main.splash/AGENT.md减少手工前置和技术小字、增加明确邮件日历按钮与诊断页；打包/启动器版本rc9、官方Host特性去掉旧prototype。
+Mail/Calendar持久来源、历史请求恢复、改期候选失效及完整结构比较；记忆保存反馈和深色输入；fresh local Qwen bootstrap保留已有profile；打包收集依赖许可证。
 
 ## Tests
-实际VM Mail30/30、账号24/24、Calendar17/17 FIXTURE_PASS。Mail首轮缺subject属性已修复，原失败保留。Launcher/打包首次19fail+1error源于运行中Host的单实例锁，待停GUI重跑。预检包签名和资源检查通过，原生AppHub已显示。证据build/night006。
+Agent同源131项VM通过，中央集成后40+9+30通过；本地模型16项fixture及实际Qwen两次启动推理通过。新SDK真实服务65项通过，旧Calendar ID重复FAIL→同复现PASS。GUI预检Memory新增/查询/更正读回通过；最终三轮未完成。原失败保留。
 
 ## Commit
-本次本地提交，尚未推送。
+本地有效单元提交，待最后Git同步。
 
 ## Remaining
-最新Host/Kernel干净编译；日历持久绑定修复；同候选三轮真实GUI、最后构建启动和Git同步。
+新包Native Host/Qwen与真实GUI、同候选三轮、启动器复测、最终启动。
 
 ## Important Boundaries
-开发预检沿用旧Host，不是最终干净构建；fixture不是真实SMTP/日历验收；原应用和用户资料保留。用户睡眠期间不申请权限。
+不把VM/独立Qwen或旧Host预检计最终GUI；保留旧包和所有生产资料，用户睡眠期间不申请权限。
