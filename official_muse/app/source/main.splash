@@ -9292,6 +9292,11 @@ fn chat_select_session(id){
     if !chat_ready { ui_error = "对话记录不可写，暂不能切换对话。" redraw() return false }
     let index = chat_session_index(id)
     if index < 0 { ui_error = "未找到这个对话。" redraw() return false }
+    if gm_project != chat_sessions[index].focus_project || gm_owner != chat_sessions[index].focus_owner {
+        memory_selected_id = ""
+        memory_forget_pending = ""
+        memory_correction_value = ""
+    }
     chat_selected_id = id
     messages = chat_sessions[index].messages
     gm_set_focus(chat_sessions[index].focus_project,chat_sessions[index].focus_owner)
