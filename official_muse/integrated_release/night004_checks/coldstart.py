@@ -253,7 +253,9 @@ def main():
         # This readiness applies on every restored page, not only Chat.
         buttons = {item.get('t') for item in widgets
                    if item.get('ty') == 'Button' and item.get('r', [0, 0, 0, 0])[3] >= 24}
-        return widgets if {'对话', '切换事项'}.issubset(buttons) and {'新对话', '＋ 新对话'} & buttons else None
+        # 切换事项 belongs to the optional results pane; a collapsed pane
+        # must not turn an otherwise restored Chat/Memory page into a timeout.
+        return widgets if '对话' in buttons and {'新对话', '＋ 新对话'} & buttons else None
 
     def full_muse():
         # Chat deliberately hides page_header/page_title in the real source.
