@@ -1,0 +1,16 @@
+--- a/README.md
++++ b/README.md
+@@ -1,8 +1,10 @@
+-## 当前开发基线：0.3.27-rc17（复赛整改）
++## 当前固定验收入口：0.4.0-rc7（NIGHT-004 R5，隔离模拟）
+ 
+-唯一应用包在根目录 [bundle/](bundle/)，本轮从实际活动 rc17 包按字节迁移，`main.splash` SHA-256 为 `90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc`。旧 `official_muse/app/bundle` 是同目录的相对 symlink；可读源码仍在原位置。
++本机固定验收产物是 `build/night-004/rc7-integrated-candidate-r5/package/Muse.app`，必须通过随包 Launcher 与配套 OctoSense Host 打开。它基于官方源码并包含待审修复；此路径是本机未跟踪的构建产物，干净检出需要重新准备、签名并按同身份验收，不能假定已有安装或公开发布。
+ 
+-当前整体状态仍为 PARTIAL。本轮只整改目录与发布前检查，不新增业务验收或公开发布。[复赛布局与发布边界](docs/semifinal-release-layout.md)。旧 [rc10 实测与缺项](official_muse/rc/final-contest-20261006-r1/FINAL_REPORT.md) 保留历史版本身份。
++当前产品主源 `official_muse/app/source/main.splash` SHA-256 为 `caa99c570744d36a5e3b3d890fe56baf6337f506b8e37353e5d79bca9e3e7cce`。准备脚本按 manifest 将设置标签 stamp 为 `0.4.0-rc7`；可读源、stamped readable 和签名 compact 是不同层，不能直接按字节相等判断版本一致。
++
++根目录 [bundle/](bundle/) 保留 `0.3.27-rc17` 历史保底（Main `90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc`），旧别名仍指向它。它不是上述 R5 的当前验收／发布入口；本轮不覆盖该签名包。R5 结论是 `SIMULATION_PASS`，生产 `REAL_E2E_NOT_TESTED`；详见 [当前状态](MUSE_HANDOFF/CURRENT_STATE.md) 和 [NIGHT-004 最终报告](MUSE_STABILIZATION_20261012_REPORT.md)。[复赛布局与发布边界](docs/semifinal-release-layout.md) 与旧版证据保留。
+ 
+ # Muse · 让记忆推动行动
+ 

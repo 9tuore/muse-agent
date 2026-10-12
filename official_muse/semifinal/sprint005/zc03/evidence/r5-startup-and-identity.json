@@ -1,0 +1,84 @@
+{
+  "startup": {
+    "raw_status": "MUSE_20_STARTUP_INTERACTION_CHECKS_PASS_NATIVE_REVIEW_PENDING",
+    "cycles": 20,
+    "observed_seconds": {
+      "host_ready_seconds": {
+        "samples": 20,
+        "median": 3.7985527845000036,
+        "min": 3.435467076000009,
+        "max": 6.035790463000012
+      },
+      "muse_ready_seconds": {
+        "samples": 20,
+        "median": 21.652427822999996,
+        "min": 20.923191066000015,
+        "max": 24.279799112000035
+      },
+      "interactivity_seconds": {
+        "samples": 20,
+        "median": 1.874154220499987,
+        "min": 1.666544431000034,
+        "max": 2.5005940210000404
+      },
+      "total_seconds": {
+        "samples": 20,
+        "median": 25.963706484000006,
+        "min": 25.06745404000003,
+        "max": 28.304843490999986
+      }
+    },
+    "png_mtime_intervals_seconds": {
+      "menu-before-open.png -> menu-after-return.png": {
+        "samples": 20,
+        "median": 1.099948707,
+        "min": 0.996315954,
+        "max": 1.302001943
+      },
+      "menu-after-return.png -> apphub-library-before-open.png": {
+        "samples": 20,
+        "median": 0.8237609340000001,
+        "min": 0.674540246,
+        "max": 1.095154672
+      },
+      "apphub-library-before-open.png -> apphub-after-open.png": {
+        "samples": 20,
+        "median": 1.250965659,
+        "min": 1.16672259,
+        "max": 1.754845554
+      },
+      "apphub-after-open.png -> native-initial.png": {
+        "samples": 20,
+        "median": 12.9584846685,
+        "min": 12.673161057,
+        "max": 13.567918661
+      }
+    },
+    "evidence_result_sha256": "6175977af6d77447635d3078b300d63074cd037f3b6ef52eb1df76b968cbfd44",
+    "boundary": "Offline old actual R5 evidence. PNG mtimes include polling, input and capture work; they do not isolate a function or prove a new speedup. Raw native-review-pending status is preserved."
+  },
+  "identity": {
+    "status": "PASS",
+    "checks": {
+      "upstream_source_matches": true,
+      "version_matches": true,
+      "stamped_readable_matches": true,
+      "transform_source_matches": true,
+      "signed_artifact_matches": true,
+      "readable_ui_version_matches": true,
+      "signed_ui_version_matches": true
+    },
+    "source_sha256": "caa99c570744d36a5e3b3d890fe56baf6337f506b8e37353e5d79bca9e3e7cce",
+    "source_template_version": "0.3.27-rc18",
+    "candidate_version": "0.4.0-rc7",
+    "candidate_ui_version": "0.4.0-rc7",
+    "candidate_manifest_sha256": "7b746fb0871e9e40f30819e4f6d851cda9c61d9ccb595468373cf622307f9714",
+    "signed_artifact_sha256": "ef58430fef4b2f707b78a12f4c4bcd2403b8404c092f5cd73239e5d128a9e750",
+    "legacy_root_bundle": {
+      "version": "0.3.27-rc17",
+      "main_sha256": "90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc"
+    },
+    "delivery_entry_assessment": "Root bundle is a distinct historical artifact; document the supported paired R5 entry instead of silently replacing it.",
+    "boundary": "Source template, stamped readable source and signed artifact are different layers. No private profile, credentials, signing keys, installation, signing or publishing accessed."
+  }
+}
