@@ -9655,10 +9655,10 @@ fn send_chat(){
         }
         let request = chat_requests[request_index]
         if state == "success" && gm_has(request,"editing") && request.editing {
-            if changed { text = "候选已更新，请核对右侧内容。尚未发送邮件或写入日历。" }
+            if changed { text = "候选已更新，请打开「来信与结果」核对。尚未发送邮件或写入日历。" }
             else { text = "这次修改没有形成有效候选，原内容未改动。请补充具体修改内容后重试。" state = "error" }
         } else if state == "success" && config.action != "" {
-            if changed { text = "候选已准备，请核对右侧内容。尚未执行外部操作。" }
+            if changed { text = "候选已准备，请打开「来信与结果」核对。尚未执行外部操作。" }
             else {
                 text = chat_candidate_input_error(config.action,r.data.output,candidate_message,false)
                 if text == "" { text = "原请求已变化，未创建新动作。请核对后重试。" }
@@ -11192,9 +11192,11 @@ fn ac_projection(){
 let ResultContent = ScrollYView{width: Fill height: Fill flow: Down spacing: 10 on_render: || {
     let results_title = "来信与结果"
     if mail_watch_pending() > 0 { results_title = "来信 · " + mail_watch_pending() }
+    let chain_tab_color = muted let results_tab_color = blue
+    if ac_show_chain() { chain_tab_color = blue results_tab_color = muted }
     View{width: Fill height: 32 flow: Right spacing: 6
-        Secondary{text: "行动链" width: Fill draw_text.color: blue on_click: || ac_choose("chain")}
-        Secondary{text: results_title width: Fill on_click: || ac_choose("results")}
+        Secondary{text: "行动链" width: Fill draw_text.color: chain_tab_color on_click: || ac_choose("chain")}
+        Secondary{text: results_title width: Fill draw_text.color: results_tab_color on_click: || ac_choose("results")}
     }
     if ac_show_chain() {
     let chain = ac_projection()

@@ -61,7 +61,7 @@ python3 official_muse/integrated_release/package_app.py \
 
 ## 签名目录与官方接口
 
-`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc8`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 5，高于 R5 的 4。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
+`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc8`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 6，高于 R5 的 4。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
 
 将 helper 放在对应 Hub 的 `crates/app-hub/examples/`，按实际 SDK workspace 锁定依赖构建。六个参数依次为 BUNDLE、NEW_MIRROR、WORKING_KEY、CERTIFICATE_FILE、ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。新目录不可已存在，提交号须完整；私钥只作为本机签名工具输入，不作为成品、日志或 Git 输入。使用官方 Hub stamp/sign-manifest 后，再运行 helper 准入与目录验签。
 

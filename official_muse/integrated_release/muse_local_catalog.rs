@@ -43,7 +43,7 @@ fn run() -> Result<(), String> {
     let working = HubKey::from_bytes(&bytes);
     let certificate = std::fs::read_to_string(&argv[3]).map_err(|_| "working certificate is unavailable")?;
     let anchor = std::fs::read_to_string(&argv[4]).map_err(|_| "anchor public key is unavailable")?;
-    let mut catalog = Catalog::new(5, &today(), vec![entry]);
+    let mut catalog = Catalog::new(6, &today(), vec![entry]);
     working.sign_catalog(&mut catalog, certificate.trim())?;
     verify_catalog(&catalog, anchor.trim())?;
     std::fs::create_dir(&output).map_err(|e| e.to_string())?;
