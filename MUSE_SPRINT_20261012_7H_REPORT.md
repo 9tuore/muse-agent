@@ -17,3 +17,5 @@ R5保底完整：产品0c3aa9b1、Main源caa99c57、签名ef58430f、manifest7b7
 2026-10-12 15:13:14：单Host完整窗口已交ZC05实际UI预检，Root未并发操作；准备rc8正式外层/新签名目录，CA专用测试Host编译中。rc8启动器26项与打包四项+修订单项分别真实PASS，原错误记录保留。三轮schema控制39样本及源路径限制已接收；未实现的自动AI记忆建议卡、已打开Goal聊天改计划路径不会伪装为已完成。
 
 16:20 rc8/seq7已冻结，实际完整GUI与三SecCode0；专用CA Host仅合成输运验收，生产候选保留原1eb。独立ZC05正式三轮开始，优先Calendar/Mail。旧35图预检两问题已修，投影70真实VM边界PASS，新增CA guard1PASS；这些不计三轮。最新身份和Root原生预检见sprint005-rc8-frozen，阶段结果持续按实际证据更新。
+
+17:44：独立GUI首次Calendar request实调停在session前置并保留FAIL；首用consent源码会拒绝当前调用而Allow只prepare，没有自动重放，原error未保存所以该次具体分支仍未证实。修复仅识别精确公开NO_CONSENT并提示授权后再次明确操作；9a61040c / c098源的25真实VM合成案例PASS。新seq8两候选签名校验完毕尚未启动，不能混算旧f9三轮。Mail用localhost首次遭fixture guard拒绝保留BLOCKED；127.0.0.1后实际原生连接和IMAP登录已出现。当前mailbox为空，不计正文、SMTP或联动成功。准备失败与30分钟被动PID采样均保留，后者不算功能soak。

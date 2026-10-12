@@ -1,3 +1,11 @@
+## SPRINT-005 17:44 检查点：日历首用提示修复、邮箱真实界面连接
+
+当前产品新增9a61040c / source c0983647；只区分官方首用NO_CONSENT提示，创建/改期/删除原拒绝保护与未知结果不重放保持。独立真实VM25定向合成案例通过，证据zc03/evidence/calendar-consent-r1；不是Calendar业务GUI通过。seq8 Main58b97a56、manifest8d2f8ee9、catalogb05b01b8的rc8-candidate-r4与zc05-final-r4已签名校验，尚未启动，Host/Kernel/Launcher分别与前包逐字保持。
+
+独立ZC05仍独占f9/seq7实际窗口，第一次日历query停在session前置，旧FAIL保留；Native Allow已在双marker合成环境实际点击，正在用新只读attempt核验，不能断言具体原opened.error。Mail首次localhost被严格fixture guard拒绝，单列BLOCKED_FIXTURE_CONFIGURATION；改127.0.0.1后原生表单连接、账号INBOX与同步入口实际可见，真实IMAP计数已出现。同步当前空测试mailbox为0封，不算原文/SMTP/日历联动通过。其结果不得拼成c098候选三轮。
+
+下一步优先授权后Calendar真owner调用，再用合成服务投递日程来信做Mail/Calendar联动及审阅收件。生产数据、稳定R5仍保护；用户离线不再请求权限，截止不变。Root准备过程两次metadata/path错误已保留；30分钟被动采样是OBSERVED_NOT_FUNCTIONAL_SOAK。公共证据integrated_release/evidence/sprint005-consent-notice-r4。
+
 ## SPRINT-005 rc8 冻结与独立三轮开始 · 2026-10-12 16:20 北京时间
 
 产品commit0ac85244，Source f9e94877，签名Main b2171fd9、manifest c78ff3ad、catalog82da19d3/seq7。正式默认输运候选 build/sprint005/rc8-candidate-r3/Muse.app 保留Host1eb1887b及Kernel56761a9f；专用GUI验收包 zc05-final-r3使用严格双marker/loopback CA Hostcea8ca71，不能混报生产SMTP或云模型。实际WorkBuddy LaunchServices完整Muse已原生查看，三动态SecCode0；ZC05独占9799/PID76257/native793，正式各轮以其新证据为准，冻结前0/243。
