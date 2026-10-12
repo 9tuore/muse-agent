@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "checks": {
+    "upstream_source_matches": true,
+    "version_matches": true,
+    "stamped_readable_matches": true,
+    "transform_source_matches": true,
+    "signed_artifact_matches": true,
+    "readable_ui_version_matches": true,
+    "signed_ui_version_matches": true
+  },
+  "source_sha256": "947c52915c507f9a7a7a896c554b43f1c1e0a9ec11bee490bed5304d054b642b",
+  "source_template_version": "0.3.27-rc18",
+  "candidate_version": "0.4.0-rc8",
+  "candidate_ui_version": "0.4.0-rc8",
+  "candidate_manifest_sha256": "971ad71b3a5f46de1bcf9bc9624ee548e55297c5a6f215560f031ae15bdffb1d",
+  "signed_artifact_sha256": "0491807b4d308f5fa0643d4a6c27f7b57df8ffda4e0cde7c272884e19fe19269",
+  "legacy_root_bundle": {
+    "version": "0.3.27-rc17",
+    "main_sha256": "90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc"
+  },
+  "delivery_entry_assessment": "Root bundle is a distinct historical artifact; document the fixed R5 fallback and rc8 preparation separately instead of silently replacing it.",
+  "boundary": "Source template, stamped readable source and signed artifact are different layers. No private profile, credentials, signing keys, installation, signing or publishing accessed.",
+  "stage_status": "PREPARED_NOT_ADMITTED",
+  "scope": "Preparation identity only; no rc8 installation/admission/three-round GUI/public listing claim.",
+  "stamped_readable_sha256": "a5af07e992dfe3ea874d4e1a457de3d0e66ddce7494b5c743401b1b1275dd31f"
+}

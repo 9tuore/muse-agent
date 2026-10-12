@@ -1,5 +1,5 @@
 # Current state
 
-2026-10-12 SPRINT005 ZC03，Root8da96cfd/Main caa99。Memory候选898cd210已提交，4实际VM/384区间/22边界结果一致与归档通过；24fn/6global仅目标函数变化。旧20/身份审计已完成，R5实际rc7 label正确stamp；入口README patch、7项工具检查、有界被动observer、75秒演示/复现稿完成。正式Main/Bundle未改。
+2026-10-12 14:52更新：Memory898cd210已被Root接入Main947；881fabb7工具文档交付保留。Rootrc8准备：upstream947/stamped a5af/compact049，preparation identity7项只读PASS，未三轮GUI/正式上架；R5/rc17分别固定保底/历史包，不改旧报告。新双启动单Host28170/native741合成图已看，完整Muse/Ocean/chrome可见；黑绘制ROOT_CAUSE_NOT_ESTABLISHED，暂停GPU/SDK改写，只有实际pass/texture/clip有界建议。Root/ZC05独占GUI。
 
-新黑桌面P0仍ROOT_CAUSE_NOT_ESTABLISHED；纯合成原图已看，Root单Host原型恢复可见但有共同变化，不能定GPU/并行根因。Root要求暂停GPU写改，仅WmDesk/module/clip/surface有界诊断建议；GUI归Root/ZC05。Host soak、正式GUI性能和演示成片未执行。详见RESULT/DIAGNOSTIC_PLAN/REPRO_GUIDE。
+最新root-entry-doc.patch、75秒演示/复现指南按R5保底＋rc8准备更新。被动observer仅工具7项/本测试PID2秒，Host soak NOT_TESTED，脚本NOT_RECORDED。当前Root现场16fa2cc5；不新权限/自动push/比赛提交，截止仍19:11高风险/20:11收口。其它目录316历史图片删除dirty与gui_smoke.py原样保留，不纳入本提交。

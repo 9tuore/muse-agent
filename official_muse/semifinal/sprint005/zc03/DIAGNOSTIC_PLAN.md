@@ -2,13 +2,19 @@
 
 当前状态 `ROOT_CAUSE_NOT_ESTABLISHED`。本文件不是已应用修复，ZC03没有操作任何窗口、写SDK或构建Host。Root/ZC05负责9799，生产原图不进入本目录或公开素材。
 
+## 14:52 更新：rc8准备与单Host新入口
+
+Root新双Startup/同合成state/单Host初始化的28170/native741原图已由ZC03实际查看，完整Muse/Ocean/chrome可见。它否定新入口必然黑，也不定并行/GPU根因；无新SDK/GPU修复。Root实际providers/Test Connection在loopback仅计数+1/Connected3ms，不是MiniMax或真实云业务。启动器跨profile互斥与退出等待26项是签名stub，不扩为长期稳定证明。
+
+Root已接Memory947，当前Root现场HEAD16fa2cc5（继c716886f/25bb163e）；rc8准备身份：upstream947c、stamped readable a5af07e9、compact0491807b。三层7项只读核对通过，stage仍PREPARED_NOT_ADMITTED，不称rc8已GUI三轮/正式上架。R5保底与原旧证据保留。CA测试Host由Root在独立SDK/target编译，诊断目前只建议有界实际pass/texture/clip绑定，不改GPU。
+
 ## 实际观察与不能推出的结论
 
 ZC03已查看纯合成r1的Consent、AppsMenu、关闭Consent后的原生图：顶栏与overlay可见，桌面壁纸、窗口chrome、AppHub/Muse正文黑；反射树存在且给出正常clipped布局。Host日志已有module create、字体安装、Main eval，无script time budget exceeded或[E]行。日志没有逐producer/consumer的texture/clip记录，不能宣布是哪一个pass失败。
 
 Root实际Omarchy及MAKEPAD_NO_GAUSS=1/MAKEPAD_SUPERSAMPLE=1对照仍黑，bar外观变化证明开关生效。它们不能称修复，不重复试。176个包内渲染资源与R5字节一致的核对发生在分工收窄前；资源/Models后续归ZC01。
 
-Root报告并由ZC03查看的native-original-one-process-restart原生图：同original R5/同合成state/同flags，在两个Host都graceful退出后重新启动一个Host，Ocean、chrome、原型正文可见。首次Deny也已持久化，这是带共同变化的条件，尚不足认定并行或GPU原因。它仅证明原型可见，不是AppHub/完整Muse或业务PASS。Root继续单Host新双启动clone对照，本文件不代替其结果。
+Root报告并由ZC03查看的native-original-one-process-restart原生图：同original R5/同合成state/同flags，在两个Host都graceful退出后重新启动一个Host，Ocean、chrome、原型正文可见。首次Deny也已持久化，这是带共同变化的条件，尚不足认定并行或GPU原因。它仅证明原型可见，不是AppHub/完整Muse或业务PASS。此为较早原型对照；上方14:52更新另记新双启动完整Muse的原生观察。
 
 Launcher有精确入口差异：R5 `launch-muse-native-prototype`，新clone `launch-apphub`＋`launch-hub:muse-goals`。shell/lib.rs run_test_actions在Startup初始化末尾直接launch；普通菜单路径则在运行后的输入事件中launch。记录这个变量，不能凭差异认定它是根因。
 

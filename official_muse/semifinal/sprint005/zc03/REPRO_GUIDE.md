@@ -1,16 +1,16 @@
 # ZC03复现与接入指南
 
-所有命令是本组件入口，不授予GUI所有权或新的权限。7小时窗口为北京时间2026-10-12 13:11:25–20:11:25；19:11:25停止高风险，20:11:25截止，不延期、不新申请权限、不自动push。
+所有命令是本组件入口，不授予GUI所有权或新的权限。7小时窗口为北京时间2026-10-12 13:11:25–20:11:25；19:11:25停止高风险，20:11:25截止，不延期、不新申请权限、不自动push。先前用户Oct13日期与组织方今天冻结规则冲突仅作待总控处理边界，不自行改日期、延期或提交。
 
 ## 固定身份与资料
 
-Root基线8da96cfdf582fc7e7e1e8a7eda4e902f75090f6a，Main caa99c57；R5 sealed Main ef58430f、manifest7b746fb0、配套Host1eb188、Kernel56761a。Root始终唯一接入Main/Bundle和正式包。source旧rc18是准备模板，prepare_bundle会stamp实际0.4.0-rc7，R5 UI已正确；根bundle90351cba/rc17是历史保底。不要对不同层直接比较字节或将旧包成绩改成新包成绩。
+性能证据基线Root8da96cfdf582fc7e7e1e8a7eda4e902f75090f6a/Main caa99；Root已接Memory，当前Main947c5291、rc8准备。R5历史 sealed Main ef58430f、manifest7b746fb0、配套Host1eb188、Kernel56761a。rc8准备的stamped readable为a5af07e9、compact0491807b，7项preparation identity核对通过，仍不代表三轮GUI/正式上架。Root始终唯一接入Main/Bundle和正式包。source旧rc18是准备模板，prepare_bundle按当前manifest stamp，R5 UI已正确为0.4.0-rc7、当前准备版本为0.4.0-rc8；根bundle90351cba/rc17是历史包。不要对不同层直接比较字节或将旧包成绩改成新包成绩。
 
 只读取本机明确的源码/签包/旧公开fixture证据。性能输入是此前由Main生产save API生成的64 Memory/128 Sources、空forget原字节文件，路径在自有build或已归档gpt03_night004_perf/evidence/candidate-caa99-r1/main-state/memory.json。与生产profile无关。数据SHA、VM SHA、函数/global SHA写入报告。
 
 ## Memory候选定向复验
 
-Root先审`skip-unrelated.patch`。它仅改gm_validate_indexed_part，batch=2、20ms、完整验证/all/correction/未知范围行为和动作恢复保持。Root接入后需重新冻结混合候选SHA，不能复用此caa99/947c报告为新混合版本。
+Root已接`skip-unrelated.patch`，当前Main947。以下命令仍专门复核保留的caa99→947独立证据，不为混合rc8/新Host继承结果。它仅改gm_validate_indexed_part，batch=2、20ms、完整验证/all/correction/未知范围行为和动作恢复保持。Root接入后需重新冻结混合候选SHA，不能复用此caa99/947c报告为新混合版本。
 
 本worktree已有actual新VM，源码与此前driver逐字相同，SDKscript163源文件构建前后不变。原缓存被清理后小型离线构建27.58秒、独立target63MiB；它不是GUI/Host构建，无共享target写入。
 
@@ -68,7 +68,7 @@ python3 -B official_muse/semifinal/sprint005/zc03/observe_owned.py \
 
 ## 入口一致性最小修复
 
-`root-entry-doc.patch`仅建议Root更新README开头：把本机未跟踪的R5配套App与历史rc17根bundle区分，写清SIMULATION_PASS/REAL_E2E_NOT_TESTED。不覆盖任一包，不自动重新签名或发布。源码旧label草稿已拒绝，因为它重复现有stamp且可能破坏将来版本替换；evidence/rejected-source-label.patch仅为拒绝记录，不可批量apply。
+`root-entry-doc.patch`更新为R5固定保底＋rc8准备中的候选＋历史rc17根bundle三层说明，写清R5 SIMULATION_PASS/生产REAL_E2E_NOT_TESTED、rc8三轮未过/未上架。不覆盖任一包，不自动重新签名或发布。源码旧label草稿已拒绝，因为它重复现有stamp且可能破坏将来版本替换；evidence/rejected-source-label.patch仅为拒绝记录，不可批量apply。
 
 如Root之后选择把新候选变成真实根发布bundle，需在独立输出准备/签名/准入、记录source→stamped→signed provenance，再由Root按已有授权替换并保留旧包。此步骤未执行，GUI与业务验收不得从R5继承。
 

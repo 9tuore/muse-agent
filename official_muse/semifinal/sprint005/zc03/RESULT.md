@@ -24,3 +24,11 @@ Root Omarchy/NoGauss/supersample对照仍黑，不能把开关当修复。Root�
 接收两个本地提交，唯一决定Main与README patch接入；同资料/方法测新统一候选GUI、处理single-host clone受控对照并预留ZC05三轮。演示前用真实API生成同身份合成记录，没实际核验成功记录就使用UNKNOWN分支。脚本SCRIPT_READY，未录制或发送模型/邮件/日历动作。长期采样未针对Host执行。
 
 本任务未自动push/发布、未申请新权限；19:11:25停止高风险、20:11:25截止，不延期。旧NIGHT004/R5证据和未提交gui_smoke.py保留。
+
+## 14:52 更新：rc8准备与单Host新入口
+
+Root新双Startup/同合成state/单Host初始化的28170/native741原图已由ZC03实际查看，完整Muse/Ocean/chrome可见。它否定新入口必然黑，也不定并行/GPU根因；无新SDK/GPU修复。Root实际providers/Test Connection在loopback仅计数+1/Connected3ms，不是MiniMax或真实云业务。启动器跨profile互斥与退出等待26项是签名stub，不扩为长期稳定证明。
+
+Root已接Memory947，当前Root现场HEAD16fa2cc5（继c716886f/25bb163e）；rc8准备身份：upstream947c、stamped readable a5af07e9、compact0491807b。三层7项只读核对通过，stage仍PREPARED_NOT_ADMITTED，不称rc8已GUI三轮/正式上架。R5保底与原旧证据保留。CA测试Host由Root在独立SDK/target编译，诊断目前只建议有界实际pass/texture/clip绑定，不改GPU。
+
+本更新只复核新控制原图和rc8准备身份、更新交付/演示边界；没有重跑VM性能、GUI、Host soak或三轮，未新权限/发布。检测到非本namespace316历史图片删除dirty和原gui_smoke.py，非本任务操作，不纳入提交/不擅自恢复。
