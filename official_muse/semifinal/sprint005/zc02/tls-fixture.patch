@@ -1,0 +1,66 @@
+--- a/apps/mail/host-service/src/network.rs
++++ b/apps/mail/host-service/src/network.rs
+@@ -86,12 +86,49 @@
+     Ok(())
+ }
+ 
++// Explicit synthetic GUI profile only. No production trust or consent change.
++fn sprint005_fixture_ca(host: &str) -> Result<Option<Vec<u8>>, String> {
++    let Some(requested) = std::env::var_os("OCTOSENSE_MAIL_TLS_FIXTURE_ROOT") else { return Ok(None) };
++    if host != "127.0.0.1" || std::env::var("OCTOSENSE_MAIL_VAULT").ok().as_deref() != Some("file") {
++        return Err("SPRINT005 fixture requires loopback and file-only synthetic vault".into());
++    }
++    let requested = std::path::PathBuf::from(requested);
++    let root = std::fs::canonicalize(&requested).map_err(|_| "Fixture root unavailable")?;
++    if root != requested { return Err("Canonical fixture root required".into()) }
++    let profile = std::env::var_os("MUSE_INTEGRATED_STATE").ok_or("Explicit fixture profile required")?;
++    if std::fs::canonicalize(profile).map_err(|_| "Fixture profile unavailable")? != root {
++        return Err("Fixture TLS root and active launcher profile differ".into());
++    }
++    for relative in ["FIXTURE_ONLY", "apps", "apps/.host", "apps/.host/FIXTURE_ONLY", "public", "public/mail-fixture-ca.der", "mail-fixture.json"] {
++        if std::fs::symlink_metadata(root.join(relative)).map_err(|_| "Fixture component missing")?.file_type().is_symlink() {
++            return Err("Fixture symlink refused".into());
++        }
++    }
++    if std::fs::read(root.join("FIXTURE_ONLY")).ok().as_deref() != Some(b"SPRINT005 isolated SDK GUI fixture only\n")
++        || std::fs::read(root.join("apps/.host/FIXTURE_ONLY")).ok().as_deref() != Some(b"SPRINT005 synthetic Calendar/Mail owner fixture only\n") {
++        return Err("Exact SPRINT005 double fixture markers required".into());
++    }
++    let cert_path = root.join("public/mail-fixture-ca.der");
++    if std::fs::metadata(&cert_path).map_err(|_| "Fixture CA unavailable")?.len() > 16384 {
++        return Err("Fixture CA too large".into());
++    }
++    let cert = std::fs::read(cert_path).map_err(|_| "Fixture CA unavailable")?;
++    let config: Value = serde_json::from_slice(&std::fs::read(root.join("mail-fixture.json")).map_err(|_| "Fixture configuration missing")?)
++        .map_err(|_| "Fixture configuration invalid")?;
++    let digest = format!("{:x}", Sha256::digest(&cert));
++    if config["protocol"] != "SPRINT005_MAIL_TLS_FIXTURE_V1" || config["ca_sha256"] != digest {
++        return Err("Fixture CA identity mismatch".into());
++    }
++    Ok(Some(cert))
++}
++
+ pub(crate) enum Wire {
+     Plain(BufReader<TcpStream>),
+     Tls(BufReader<rustls::StreamOwned<rustls::ClientConnection, TcpStream>>),
+ }
+ impl Wire {
+     pub(crate) fn connect(host: &str, port: u16) -> Result<Self, String> {
++        let _ = sprint005_fixture_ca(host)?; // Reject nonloopback before DNS/connect.
+         let addresses = (host, port)
+             .to_socket_addrs()
+             .map_err(|_| "Cannot resolve the mail server. Check Wi-Fi.")?;
+@@ -118,9 +155,12 @@
+         if !reader.buffer().is_empty() {
+             return Err("Unexpected bytes before TLS.".into());
+         }
+-        let roots = rustls::RootCertStore {
++        let mut roots = rustls::RootCertStore {
+             roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
+         };
++        if let Some(cert) = sprint005_fixture_ca(host)? {
++            roots.add(rustls::pki_types::CertificateDer::from(cert)).map_err(|_| "Fixture CA rejected")?;
++        }
+         let config = rustls::ClientConfig::builder_with_provider(Arc::new(
+             rustls::crypto::ring::default_provider(),
+         ))
