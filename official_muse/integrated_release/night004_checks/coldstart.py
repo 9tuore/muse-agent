@@ -202,11 +202,13 @@ def main():
         counts = {}
         if args.calendar_reader:
             reply = subprocess.run([str(args.calendar_reader.resolve()), str(state / 'apps/.host')],
-                                   input=json.dumps({'owner': 'os.calendar', 'method': 'events', 'args': {}}),
+                                   input=json.dumps({'owner': 'os.calendar', 'method': 'events', 'args': {'limit': 200}}),
                                    capture_output=True, text=True, timeout=15)
             require(reply.returncode == 0, 'Independent Calendar reader failed')
             data = json.loads(reply.stdout)['result']
             require(data.get('ok') is True and isinstance(data.get('data', {}).get('events'), list), 'Independent Calendar events response invalid')
+            require(len(data['data']['events']) < 200,
+                    'Calendar events page is saturated; use a complete owner-store counter before checking unchanged totals')
             counts['calendar_event_count'] = len(data['data']['events'])
         if args.side_effect_reader:
             reply = subprocess.run([str(args.side_effect_reader.resolve()), str(state)], capture_output=True, text=True, timeout=15)
@@ -214,7 +216,7 @@ def main():
             counts['supplied_counts'] = numeric_counts(json.loads(reply.stdout))
         return counts
 
-    def wait(test, seconds, message):
+    def wait(test, seconds, message, required=True):
         deadline = time.monotonic() + seconds
         while time.monotonic() < deadline:
             try:
@@ -224,7 +226,9 @@ def main():
             except (URLError, ConnectionError, TimeoutError, AssertionError, FileNotFoundError, json.JSONDecodeError):
                 pass
             time.sleep(.15)
-        raise RuntimeError(message)
+        if required:
+            raise RuntimeError(message)
+        return None
 
     def ready():
         files = list(state.glob('launch-*.ready'))
@@ -243,24 +247,32 @@ def main():
         widgets = remote.widgets()
         ids = {item.get('i') for item in widgets}
         texts = {item.get('t') for item in widgets}
-        return widgets if {'sidebar', 'central_main'}.issubset(ids) and expected['muse_title'] in texts else None
+        if not {'sidebar', 'central_main'}.issubset(ids) or expected['muse_title'] not in texts:
+            return None
+        # rc.6 mounts the shell before staged storage and navigation restore.
+        # This readiness applies on every restored page, not only Chat.
+        buttons = {item.get('t') for item in widgets
+                   if item.get('ty') == 'Button' and item.get('r', [0, 0, 0, 0])[3] >= 24}
+        return widgets if {'对话', '切换事项'}.issubset(buttons) and {'新对话', '＋ 新对话'} & buttons else None
 
     def full_muse():
         # Chat deliberately hides page_header/page_title in the real source.
         widgets = formal_shell()
         if not widgets or 'goal_input' not in {item.get('i') for item in widgets}:
             return None
-        # The input mounts before the staged storage restore finishes. Starting
-        # navigation at that point can capture an empty initial shell. Require
-        # the actual restored chat list and rendered navigation before input.
-        buttons = {item.get('t') for item in widgets
-                   if item.get('ty') == 'Button' and item.get('r', [0, 0, 0, 0])[3] >= 24}
-        return widgets if {'对话', '切换事项'}.issubset(buttons) and {'新对话', '＋ 新对话'} & buttons else None
+        return widgets
 
     def open_formal(pid, row):
-        if formal_shell():
-            row['open_route'] = 'Already visible formal Muse; exact installed source and widgets checked'
+        # The confirmed Launcher already asks to open Muse. Host /s and its
+        # ready file precede the bounded multi-frame Splash preparation.
+        # Wait without input before falling back; opening AppsMenu during
+        # preparation would interrupt the application being measured.
+        waiting = time.monotonic()
+        if wait(formal_shell, args.startup_timeout, 'Launcher Muse autoload did not settle', required=False):
+            row['autoload_wait_seconds'] = time.monotonic() - waiting
+            row['open_route'] = 'Launcher autoload; exact installed Muse source and restored navigation checked'
             return
+        row['autoload_wait_seconds'] = time.monotonic() - waiting
         remote.request('/k', k='press', c='Space', cmd=1, alt=1)
         time.sleep(.2)
         remote.request('/k', k='press', c='KeyU', ctrl=1)
@@ -344,7 +356,7 @@ def main():
         time.sleep(.2)
         row['apphub_after_open_capture'] = capture(pid, Path(row['directory']) / 'apphub-after-open.png')
         row['open_route'] = 'Actual AppsMenu apphub → App Hub Library → exact Muse row installed Open; worker may_open and Shell launch_app admission preserved'
-        wait(full_muse, args.startup_timeout, 'Full Muse restore did not become interactive; initial mount cannot pass')
+        wait(formal_shell, args.startup_timeout, 'Full Muse restore did not become interactive; initial mount cannot pass')
 
     def navigate(name):
         # The live Muse ScrollYView is shortcuts. App Hub also exposes nav,
