@@ -32,3 +32,7 @@ Root新双Startup/同合成state/单Host初始化的28170/native741原图已由Z
 Root已接Memory947，当前Root现场HEAD16fa2cc5（继c716886f/25bb163e）；rc8准备身份：upstream947c、stamped readable a5af07e9、compact0491807b。三层7项只读核对通过，stage仍PREPARED_NOT_ADMITTED，不称rc8已GUI三轮/正式上架。R5保底与原旧证据保留。CA测试Host由Root在独立SDK/target编译，诊断目前只建议有界实际pass/texture/clip绑定，不改GPU。
 
 本更新只复核新控制原图和rc8准备身份、更新交付/演示边界；没有重跑VM性能、GUI、Host soak或三轮，未新权限/发布。检测到非本namespace316历史图片删除dirty和原gui_smoke.py，非本任务操作，不纳入提交/不擅自恢复。
+
+## UA-PREFLIGHT-003 本地投影
+
+Root委托只读冻结Main f9e94877；既有VM实际70案例FIXTURE_PASS，22生产fn/23global逐字提取。planned/failed/unknown/accepted、错绑定/时间/spec/非本地能力、scope及4Run/12node否定检查通过，记录未修改。原始失败与结果见LOCAL_PROJECTION及evidence/local-projection；不操作GUI或真实存储、不重编、不复跑Memory。

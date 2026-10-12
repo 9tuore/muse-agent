@@ -17,3 +17,5 @@ Owner ZC03。仅本目录和自有build；Root唯一接入正式Main/Bundle，Ro
 python3 -B -m unittest discover -s official_muse/semifinal/sprint005/zc03 -p test_tools.py -v
 python3 -B official_muse/semifinal/sprint005/zc03/verify_memory_evidence.py
 ```
+
+- [本地读回投影定向验证](LOCAL_PROJECTION.md)：Root新增投影Main f9e94877，既有真实VM70案例PASS；失败和fixture边界完整保存，不继承GUI/存储结果。

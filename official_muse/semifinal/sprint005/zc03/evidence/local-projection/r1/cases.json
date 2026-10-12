@@ -1,0 +1,5303 @@
+[
+  {
+    "name": "valid-local-completed-readback",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": true,
+      "verified": true
+    }
+  },
+  {
+    "name": "goal-status-planned",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "planned",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-status-planned",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "planned",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "goal-status-failed",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "failed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-status-failed",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "failed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "goal-status-unknown",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "unknown",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-status-unknown",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "unknown",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "goal-status-accepted",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "accepted",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-status-accepted",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "accepted",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "goal-status-running",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "running",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-status-running",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "running",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-goal_id-wrong-goal",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "wrong-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-id-",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-plan_revision-1",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 1,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-plan_revision-2",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": "2",
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-result_path-results/wrong.json",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/wrong.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-started_at-100",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": "100",
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-finished_at-200",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": "200"
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-started_at-201",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 201,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-started_at--1",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": -1,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "readback-goal_id-wrong-goal",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "wrong-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "readback-run_id-wrong-run",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "wrong-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "readback-kind-write",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "write",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "readback-at-99",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 99
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "readback-at-201",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 201
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "readback-at-150",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": "150"
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "readback-at--1",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": -1
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "missing-readback",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "activity-unready",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": false,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "activity-wrong-type",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": {},
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "inclusive-at-100",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 100
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": true,
+      "verified": true
+    }
+  },
+  {
+    "name": "inclusive-at-200",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 200
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": true,
+      "verified": true
+    }
+  },
+  {
+    "name": "missing-run-time",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "goal-wrong-result-path",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/wrong.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "goal-empty-result-path",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "goal-bad-version",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": "2",
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "spec-wrong-goal",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "wrong-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "spec-old-revision",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 1,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "spec-wrong-path",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "wrong"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "spec-missing-args",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write"
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "spec-two-steps",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            },
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "spec-missing",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json"
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "nonlocal-spec-mail.send",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "mail.send",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false,
+      "local_nodes": 0
+    }
+  },
+  {
+    "name": "nonlocal-spec-calendar.create",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "calendar.create",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false,
+      "local_nodes": 0
+    }
+  },
+  {
+    "name": "nonlocal-spec-calendar.add_event",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "calendar.add_event",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false,
+      "local_nodes": 0
+    }
+  },
+  {
+    "name": "mail-source-never-local",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        },
+        "mail_source": {
+          "account_id": "fixture-mail",
+          "message_id": "fixture-message"
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false,
+      "local_nodes": 0
+    }
+  },
+  {
+    "name": "scope-project_id",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "other-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "scope-owner_id",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "other-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "scope-revoked-local",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "scope-session-owner",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "other-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "scope-session-project",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "other-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "scope-wrong-chat-goal",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "wrong-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "unready-storage",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": false,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "unready-memory",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": false,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "scope-selected-forbidden",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "forbidden",
+      "selected_chat": "fixture-chat",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": [
+        {
+          "id": "forbidden",
+          "goal": "不可见",
+          "version": 1,
+          "project_id": "fixture-project",
+          "owner_id": "other-owner",
+          "status": "completed"
+        }
+      ]
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "selection-other-chat-ignored",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "forbidden",
+      "selected_chat": "another-chat",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": true,
+      "verified": true
+    }
+  },
+  {
+    "name": "goal-detail-parent-scope",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "other-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Goal Detail",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": false,
+      "verified": false
+    }
+  },
+  {
+    "name": "activity-last64-bound",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        },
+        {
+          "kind": "noise"
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": false,
+      "visible": true,
+      "verified": false
+    }
+  },
+  {
+    "name": "run-last64-bound",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "fixture-run",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "other-0",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-1",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-2",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-3",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-4",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-5",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-6",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-7",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-8",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-9",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-10",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-11",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-12",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-13",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-14",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-15",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-16",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-17",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-18",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-19",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-20",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-21",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-22",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-23",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-24",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-25",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-26",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-27",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-28",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-29",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-30",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-31",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-32",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-33",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-34",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-35",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-36",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-37",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-38",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-39",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-40",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-41",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-42",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-43",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-44",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-45",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-46",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-47",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-48",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-49",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-50",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-51",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-52",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-53",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-54",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-55",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-56",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-57",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-58",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-59",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-60",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-61",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-62",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        },
+        {
+          "id": "other-63",
+          "goal_id": "other-goal",
+          "plan_revision": 2,
+          "status": "completed"
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "fixture-run",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": true,
+      "verified": false,
+      "local_nodes": 0,
+      "limited": true
+    }
+  },
+  {
+    "name": "four-local-runs-and-readbacks",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "run-0",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-1",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-2",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-3",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-4",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-5",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-0",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-1",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-2",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-3",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-4",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-5",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [],
+      "calendar_links": [],
+      "calendar_receipts": [],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": true,
+      "verified": true,
+      "local_nodes": 4,
+      "execution_nodes": 4,
+      "node_count": 9
+    }
+  },
+  {
+    "name": "global-twelve-node-cap",
+    "input": {
+      "goal": {
+        "id": "fixture-goal",
+        "goal": "合成本地资料",
+        "version": 2,
+        "status": "completed",
+        "project_id": "fixture-project",
+        "owner_id": "fixture-owner",
+        "result_path": "results/fixture-v2.json",
+        "goal_spec": {
+          "goal_id": "fixture-goal",
+          "revision": 2,
+          "steps": [
+            {
+              "capability": "storage.write",
+              "args": {
+                "path": "results/fixture-v2.json"
+              }
+            }
+          ]
+        }
+      },
+      "runs": [
+        {
+          "id": "run-0",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-1",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-2",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-3",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-4",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        },
+        {
+          "id": "run-5",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "completed",
+          "result_path": "results/fixture-v2.json",
+          "started_at": 100,
+          "finished_at": 200
+        }
+      ],
+      "activity": [
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-0",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-1",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-2",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-3",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-4",
+          "at": 150
+        },
+        {
+          "kind": "readback",
+          "goal_id": "fixture-goal",
+          "run_id": "run-5",
+          "at": 150
+        }
+      ],
+      "core_storage_ready": true,
+      "core_activity_ready": true,
+      "gm_ready": true,
+      "project": "fixture-project",
+      "owner": "fixture-owner",
+      "accounts": [
+        "local",
+        "fixture-mail"
+      ],
+      "page": "Chat",
+      "sessions": [
+        {
+          "id": "fixture-chat",
+          "focus_project": "fixture-project",
+          "focus_owner": "fixture-owner",
+          "goal_id": "fixture-goal"
+        }
+      ],
+      "selected_id": "",
+      "selected_chat": "",
+      "actions": [
+        {
+          "id": "action-0",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "accepted",
+          "service": "fixture"
+        },
+        {
+          "id": "action-1",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "accepted",
+          "service": "fixture"
+        },
+        {
+          "id": "action-2",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "accepted",
+          "service": "fixture"
+        },
+        {
+          "id": "action-3",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "accepted",
+          "service": "fixture"
+        },
+        {
+          "id": "action-4",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "accepted",
+          "service": "fixture"
+        },
+        {
+          "id": "action-5",
+          "goal_id": "fixture-goal",
+          "plan_revision": 2,
+          "status": "accepted",
+          "service": "fixture"
+        }
+      ],
+      "calendar_links": [],
+      "calendar_receipts": [
+        {
+          "goal_id": "fixture-goal",
+          "request_id": "receipt-0",
+          "status": "unknown",
+          "service": "fixture"
+        },
+        {
+          "goal_id": "fixture-goal",
+          "request_id": "receipt-1",
+          "status": "unknown",
+          "service": "fixture"
+        },
+        {
+          "goal_id": "fixture-goal",
+          "request_id": "receipt-2",
+          "status": "unknown",
+          "service": "fixture"
+        }
+      ],
+      "extra_goals": []
+    },
+    "expected": {
+      "proof": true,
+      "visible": true,
+      "verified": true,
+      "node_count": 12,
+      "limited": true
+    }
+  }
+]
