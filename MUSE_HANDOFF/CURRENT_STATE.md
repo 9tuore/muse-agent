@@ -1,3 +1,13 @@
+## 2026-10-12 13:33 SPRINT-005 与正式入口接回
+
+本轮13:11:25开始，19:11:25冻结高风险，20:11:25截止。最新HEAD含8da96cfd启动器修复和5d50286c独立验收准备。R5 Main源caa99/签名ef584/manifest7b746保持不变，保底Night包保留。
+
+用户反映日历未派发，Root实见夜间fixture无_main模型配置；原正式资料主模型metadata为minimax-cn/MiniMax-M3。用户已本人Install rc7，Main/manifest逐字节核对R5一致。新本机包build/muse-integrated-0.4.0-rc7-formal-r3/Muse.app默认原正式资料，Launcher使用SDK合法launch-apphub与launch-hub:muse-goals；24fixture启动器检查通过，正常open不env覆盖即完整Muse出现，PID9278/三SecCode0。没有凭据或生产资料复制；未做实际私人Calendar/Mail动作。
+
+独立ZC05准备81功能/243格全NOT_TESTED，具体受冻结GUI发现核对。正式三轮待最终候选/专门双marker fixture窗口。ZC01/02/03在独立旧worktree实际接手SDK/发布、隔离Mail与模型、UI/性能，Root唯一集成。生产9696仅Root，fixture后续专用9799。真实模型管理入口仍待核：实际AppsMenu ai-providers/models两次No matches，源码却存在相关route；不据profile存在声称实调通过。
+
+本轮报告MUSE_SPRINT_20261012_7H_REPORT.md；独立矩阵/报告MUSE_USER_ACCEPTANCE_MATRIX.md、MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md。新真实授权缺项只记HUMAN_REQUIRED，用户离线不催问、不批生产权限、不发真邮件或改私人日历；发布/Tag/比赛提交仍需本人确认。
+
 ## 2026-10-12 06:14 NIGHT-004 R5固定候选模拟验收通过
 
 当前结论SIMULATION_PASS（隔离模拟），生产REAL_E2E_NOT_TESTED。产品0c3aa9b1/Main caa99c57、签名ef58430f、manifest7b746fb0固定。原WorkBuddy→AppHub Library/Open在Intel机器实际可用，完整Muse留开PID26569；06:02动态身份三项0。
