@@ -1,0 +1,80 @@
+fn fresh_natural(){
+ seed() goals=[] ac_selected_id="" selected_id="" chat_sessions[0].goal_id="" chat_sessions[0].proposals=[]
+ calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+ calendar_agent_submit_bound("明天下午3点开项目会，持续1小时",nil)
+}
+fresh_natural()
+let before=storage_read("calendar-agent-state.json").parse_json()
+check("direct-request-source-saved-before-result",before["request_source"]!=nil && before.request_source.session_id=="chat-a" && before.request_source.project_id=="personal")
+check("no-result-does-not-create-matter",goals.len()==0 && calendar_agent_authority()==nil)
+history_rows=receipt_rows() calendar_agent_history()
+check("direct-add-get-establishes-matter",goals.len()==1 && calendar_agent_state["binding"]!=nil)
+check("direct-add-get-authority-has-exact-id",calendar_agent_authority()!=nil && calendar_agent_authority().event.id=="mail-event")
+check("direct-add-get-enables-delete",calendar_agent_delete_target()!=nil)
+let stored=storage_read("calendar-agent-state.json").parse_json()
+check("independent-readback-preserves-exact-event",stored["binding"]!=nil && stored.binding.verification.event.id=="mail-event")
+let count=goals.len() let cards=chat_sessions[0].proposals.len()
+calendar_agent_history()
+check("repeated-readback-does-not-duplicate-matter",goals.len()==count && chat_sessions[0].proposals.len()==cards)
+calendar_agent_submit_bound("查询今天",nil)
+check("subsequent-query-keeps-selected-event",calendar_agent_authority()!=nil && calendar_agent_authority().event.id=="mail-event")
+calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+calendar_agent_boot()
+check("restart-keeps-natural-language-event",calendar_agent_authority()!=nil && calendar_agent_delete_target()!=nil)
+fresh_natural() history_rows=[] calendar_agent_history()
+check("query-or-text-only-never-creates-matter",goals.len()==0 && calendar_agent_state["binding"]==nil)
+for fault in ["missing-add","missing-get","wrong-owner","wrong-request","wrong-digest","wrong-session","wrong-project"]{
+ fresh_natural() history_rows=receipt_rows()
+ if fault=="missing-add"{history_rows=[history_rows[1]]}
+ if fault=="missing-get"{history_rows=[history_rows[0]]}
+ if fault=="wrong-owner"{history_rows[1].host_calendar_receipt.owner="foreign.calendar"}
+ if fault=="wrong-request"{history_rows[1].host_calendar_receipt.result.data.event.request_id="wrong"}
+ if fault=="wrong-digest"{history_rows[0].host_calendar_receipt.args_digest="sha256:wrong"}
+ if fault=="wrong-session"{chat_selected_id="different-chat"}
+ if fault=="wrong-project"{gm_project="different-project"}
+ calendar_agent_history()
+ check("no-matter-on-"+fault,goals.len()==0 && calendar_agent_state["binding"]==nil)
+}
+fresh_natural() history_rows=receipt_rows()
+let query=history_rows[0].to_json().parse_json()
+query.tool_name="calendar.events" query.tool_call_id="query-before-create"
+query.host_calendar_receipt.tool="calendar.events" query.host_calendar_receipt.tool_call_id="query-before-create"
+query.host_calendar_receipt.call_id="query-before-create" query.host_calendar_receipt.result.data={events:[]}
+history_rows=[query,history_rows[0],history_rows[1]]
+calendar_agent_history()
+check("read-only-conflict-query-before-create-keeps-proof",calendar_agent_authority()!=nil)
+calendar_agent_submit("改到下午5点")
+check("natural-language-edit-uses-original-event",model_calls.len()==1 && model_calls[0].args.input.original_event.id=="mail-event")
+check("natural-language-edit-selects-same-id",update_submissions.len()==1 && update_submissions[0].authority.event.id=="mail-event")
+fresh_natural() history_rows=receipt_rows()
+calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+calendar_agent_boot() calendar_agent_history()
+check("restart-before-readback-restores-request-source",goals.len()==1 && calendar_agent_authority()!=nil)
+fresh_natural() history_rows=receipt_rows() fail_store="fixture-chat.json"
+calendar_agent_history()
+check("chat-save-failure-does-not-claim-authority",calendar_agent_state["binding"]==nil && calendar_agent_authority()==nil)
+fail_store="" calendar_agent_history()
+check("retry-readback-after-storage-failure-reuses-matter",goals.len()==1 && calendar_agent_authority()!=nil)
+seed() goals=[] ac_selected_id="" selected_id="" chat_sessions[0].goal_id="" chat_sessions[0].proposals=[]
+gm_project="" gm_owner="" chat_sessions[0].focus_project="" chat_sessions[0].focus_owner=""
+calendar_agent_state={schema:1 request_id:"" turn_id:"" status:"idle" user_id:"" accounts:"" previous_requests:[]}
+calendar_agent_submit_bound("明天下午3点开项目会，持续1小时",nil)
+check("first-use-gets-persisted-personal-scope",gm_project=="个人" && gm_owner=="我" && files["fixture-chat.json"]!=nil)
+history_rows=receipt_rows() calendar_agent_history()
+check("first-use-create-is-selectable",calendar_agent_authority()!=nil && calendar_agent_delete_target()!=nil)
+for omitted in ["location","notes","both"]{
+ fresh_natural() history_rows=receipt_rows()
+ let e=history_rows[1].host_calendar_receipt.result.data.event
+ let args="{\"end\":"+e.end.to_json()+","
+ if omitted=="notes"{args=args+"\"location\":\"\","}
+ if omitted=="location"{args=args+"\"notes\":\"\","}
+ args=args+"\"request_id\":"+e.request_id.to_json()+",\"start\":"+e.start.to_json()+",\"timezone\":"+e.timezone.to_json()+",\"title\":"+e.title.to_json()+"}"
+ history_rows[0].host_calendar_receipt.args_digest="sha256:"+fs.sha256(args)
+ calendar_agent_history()
+ check("official-empty-optional-omission-"+omitted,calendar_agent_authority()!=nil)
+}
+fresh_natural() history_rows=receipt_rows()
+history_rows[1].host_calendar_receipt.result.data.event.notes="changed after creation"
+calendar_agent_history()
+check("changed-readback-notes-cannot-be-defaulted",goals.len()==0 && calendar_agent_state["binding"]==nil)
+checks.to_json()

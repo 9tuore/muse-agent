@@ -1,0 +1,186 @@
+--- a/official_muse/app/source/main.splash
++++ b/official_muse/app/source/main.splash
+@@ -577,7 +577,8 @@
+             }
+         }
+         let association_notice = ""
+-        if calendar_agent_state["binding"] == nil && calendar_agent_mail_context_current(calendar_agent_state["mail_source"]) {
++        if calendar_agent_state["binding"] == nil && (calendar_agent_mail_context_current(calendar_agent_state["mail_source"])
++            || calendar_agent_request_context_current(calendar_agent_state["request_source"])) {
+             calendar_agent_notice = ""
+             if !calendar_agent_adopt_mail_result(r.data.messages) { association_notice = calendar_agent_notice }
+         }
+@@ -946,11 +947,28 @@
+     calendar_agent_submit_bound("仅创建下列精确候选，不改期、不发送邮件。",calendar_agent_candidate)
+ }
+ fn calendar_agent_link_result(rows){
++    let binding = calendar_agent_state["binding"]
++    if !calendar_agent_binding_current(binding) { return {status: "unknown"} }
++    return calendar_agent_creation_proof(rows,binding.payload,
++        calendar_agent_mail_context_current(calendar_agent_state["mail_source"])
++            || calendar_agent_request_context_current(calendar_agent_state["request_source"]))
++}
++// Calendar officially defaults omitted location/notes to empty strings.
++fn calendar_agent_add_digest_matches(digest,payload){
++    let head = "{\"end\":" + payload.end.to_json() + ","
++    let tail = "\"request_id\":" + payload.request_id.to_json() + ",\"start\":" + payload.start.to_json()
++        + ",\"timezone\":" + payload.timezone.to_json() + ",\"title\":" + payload.title.to_json() + "}"
++    let place = "\"location\":" + payload.location.to_json() + ","
++    let notes = "\"notes\":" + payload.notes.to_json() + ","
++    return digest == "sha256:" + fs.sha256(head + place + notes + tail)
++        || (payload.location == "" && digest == "sha256:" + fs.sha256(head + notes + tail))
++        || (payload.notes == "" && digest == "sha256:" + fs.sha256(head + place + tail))
++        || (payload.location == "" && payload.notes == "" && digest == "sha256:" + fs.sha256(head + tail))
++}
++fn calendar_agent_creation_proof(rows,payload,allow_query){
+     let result = {status: "unknown"}
+-    let binding = calendar_agent_state["binding"]
+-    if !calendar_agent_binding_current(binding) || !gm_array(rows) || rows.len() > 200
+-        || calendar_agent_state.turn_id == "" || binding.payload.request_id != calendar_agent_state.request_id { return result }
+-    let payload = binding.payload
++    if !gm_object(payload) || !gm_array(rows) || rows.len() > 200
++        || calendar_agent_state.turn_id == "" || payload.request_id != calendar_agent_state.request_id { return result }
+     let add_args = "{\"end\":" + payload.end.to_json() + ",\"location\":" + payload.location.to_json()
+         + ",\"notes\":" + payload.notes.to_json() + ",\"request_id\":" + payload.request_id.to_json()
+         + ",\"start\":" + payload.start.to_json() + ",\"timezone\":" + payload.timezone.to_json()
+@@ -966,13 +984,14 @@
+         if row["role"] == "tool" && row["lane"] == "person" && turn == calendar_agent_state.turn_id
+             && (row["thread_id"] == nil || row.thread_id == turn) {
+             let tool = calendar_agent_tool_name(row["tool_name"])
+-            if tool != "" && (tool != "calendar.events" || !calendar_agent_mail_context_current(calendar_agent_state["mail_source"])) {
++            if tool != "" && (tool != "calendar.events" || !allow_query) {
+                 let terminal = calendar_agent_receipt_status(row)
+                 let receipt = row["host_calendar_receipt"]
+                 let digest = add_digest
+                 if tool == "calendar.get_event" { digest = "sha256:" + fs.sha256("{\"id\":" + added.to_json() + "}") }
+                 if (tool != "calendar.add_event" && tool != "calendar.get_event") || !gm_object(receipt)
+-                    || receipt["args_digest"] != digest || !gm_string(receipt["session_id"],256) || receipt.session_id == ""
++                    || (receipt["args_digest"] != digest && (tool != "calendar.add_event"
++                        || !calendar_agent_add_digest_matches(receipt["args_digest"],payload))) || !gm_string(receipt["session_id"],256) || receipt.session_id == ""
+                     || !gm_string(receipt["call_id"],256) || receipt.call_id == ""
+                     || !gm_string(row["tool_call_id"],256) || row.tool_call_id == ""
+                     || (session != "" && session != receipt.session_id) { uncertain = true }
+@@ -1059,10 +1078,63 @@
+         && gm_object(goal["mail_source"]) && goal.mail_source.account_id == context.account_id
+         && goal.mail_source.message_id == context.message_id
+ }
+-// Bind only a genuine add + exact get receipt from this explicit mail action.
++// Capture the visible request's scope before dispatch, including on a fresh install.
++fn calendar_agent_capture_request_source(text){
++    let si = chat_session_index(chat_selected_id)
++    if !core_storage_ready || !chat_ready || !gm_ready || si < 0 || !gm_account_allowed("local") {
++        calendar_agent_notice = "暂时无法保存日程请求，请稍后重试。" return nil
++    }
++    let project = gm_project let owner = gm_owner
++    if project == "" { project = "个人" }
++    if owner == "" { owner = "我" }
++    if project != gm_project || owner != gm_owner {
++        chat_sessions[si].focus_project = project chat_sessions[si].focus_owner = owner
++        if !chat_save() { calendar_agent_notice = "日程归属未保存，请重试。" return nil }
++        gm_set_focus(project,owner)
++    }
++    return {session_id: chat_selected_id project_id: project owner_id: owner account_id: "local" user_input: text}
++}
++fn calendar_agent_request_context_current(context){
++    return gm_object(context) && context["session_id"] == chat_selected_id
++        && context["project_id"] == gm_project && context["owner_id"] == gm_owner
++        && context["account_id"] == "local" && gm_account_allowed("local")
++        && gm_string(context["user_input"],6000) && context.user_input != ""
++        && calendar_agent_state.user_id == gm_user_id && calendar_agent_state.accounts == gm_accounts.to_json()
++}
++// Called only after the actual add + exact get receipts have been verified.
++fn calendar_agent_adopt_request_matter(context,event){
++    if !calendar_agent_request_context_current(context) { return nil }
++    let fingerprint = fs.sha256(gm_user_id.to_json() + ":" + calendar_agent_state.request_id.to_json())
++    if !storage_hash_valid(fingerprint) { return nil }
++    let id = "calendar-request-" + fingerprint
++    let index = core_goal_index(id)
++    if index < 0 {
++        let source = context.user_input
++        if source.len() > 3500 { source = event.title + " · " + event.start + " — " + event.end }
++        let path = "results/result-" + id + ".json"
++        let goal = {schema: 1 id: id version: 1 goal: "日程 · " + event.title
++            project_id: context.project_id owner_id: context.owner_id source: source items: [event.title]
++            status: "planned" approved_at: 0 model_summary: "" result_path: path updated_at: time_now() archived: false}
++        goal.goal_spec = goal_spec(id,1,goal.goal,path)
++        if !core_add_goal(goal) { calendar_agent_notice = "日程已创建，事项暂未保存，请刷新结果。" return nil }
++        index = core_goal_index(id)
++    }
++    let goal = goals[index]
++    if goal.archived || goal.status != "planned" || !ac_goal_allowed(goal) {
++        calendar_agent_notice = "日程已创建，请从原事项继续处理。" return nil
++    }
++    if !chat_bind_goal(id) { calendar_agent_notice = "日程已创建，对话关联暂未保存，请刷新结果。" return nil }
++    ac_choose_matter(id)
++    let bound = context.to_json().parse_json()
++    bound.goal_id = id bound.plan_revision = goal.version
++    return bound
++}
++// Bind only a genuine add + exact get receipt from the saved explicit request.
+ fn calendar_agent_adopt_mail_result(rows){
+     let context = calendar_agent_state["mail_source"]
+-    if calendar_agent_state["binding"] != nil || !calendar_agent_mail_context_current(context)
++    let direct = context == nil && calendar_agent_request_context_current(calendar_agent_state["request_source"])
++    if direct { context = calendar_agent_state.request_source }
++    if calendar_agent_state["binding"] != nil || (!direct && !calendar_agent_mail_context_current(context))
+         || !gm_array(rows) || rows.len() > 200 || calendar_agent_state.turn_id == "" { return false }
+     let event = nil
+     for row in rows {
+@@ -1084,11 +1156,18 @@
+     if !gm_string(event.title,80) || !gm_string(event.location,120)
+         || !regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}$","").test(event.start)
+         || !regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}$","").test(event.end) { return false }
++    let proof = calendar_agent_creation_proof(rows,payload,true)
++    if proof.status != "verified" { return false }
++    if direct {
++        context = calendar_agent_adopt_request_matter(context,event)
++        if context == nil { return false }
++    }
+     let i = chat_session_index(context.session_id)
+     if i < 0 || !chat_ready { return false }
+     let card_payload = {to: "" subject: "" body: "" objective: "" source: "" title: event.title
+         start: event.start + ":00+08:00" end: event.end + ":00+08:00" time_zone: event.timezone location: event.location}
+     let card_id = "mail-calendar:" + calendar_agent_state.request_id
++    if direct { card_id = "calendar-result:" + calendar_agent_state.request_id }
+     let card = {id: card_id session_id: context.session_id account_id: context.account_id action: "calendar_candidate"
+         state: "opened" payload: card_payload memory_refs: [] revision: 1 project: context.project_id owner: context.owner_id goal_id: context.goal_id}
+     let previous = chat_sessions[i].proposals.to_json()
+@@ -1100,8 +1179,7 @@
+         user_id: gm_user_id accounts: gm_accounts.to_json() account_id: context.account_id session_id: context.session_id
+         candidate_id: card_id candidate_revision: 1 candidate_json: card_payload.to_json() payload: payload receipt_status: "unknown"}
+     calendar_agent_state.binding = binding
+-    let proof = calendar_agent_link_result(rows)
+-    if proof.status != "verified" {
++    if !calendar_agent_binding_current(binding) {
+         calendar_agent_state.binding = nil chat_sessions[i].proposals = previous.parse_json() return false
+     }
+     calendar_agent_state.binding.receipt_status = "verified"
+@@ -1196,12 +1274,18 @@
+         calendar_agent_notice = "请写下要查询或安排的日程。"
+         redraw() return
+     }
++    let request_source = nil
++    if binding == nil && calendar_agent_mail_source == nil {
++        request_source = calendar_agent_capture_request_source(text)
++        if request_source == nil { redraw() return }
++    }
+     // Preserve the last request automatically; it must not lock a new user action.
+     if calendar_agent_state.request_id != "" && !calendar_agent_settle("") { return }
+     let id = "muse-calendar-" + floor(time_now()) + "-" + random_u32()
+     let user = gm_user_id let accounts = gm_accounts.to_json()
+     calendar_agent_state = {schema: 1 request_id: id turn_id: "" status: "in_flight" user_id: user accounts: accounts previous_requests: calendar_agent_state.previous_requests}
+     if calendar_agent_mail_source != nil { calendar_agent_state.mail_source = calendar_agent_mail_source.to_json().parse_json() }
++    if request_source != nil { calendar_agent_state.request_source = request_source }
+     calendar_agent_mail_source = nil
+     if binding == nil && calendar_agent_preflight.status == "query" { calendar_agent_preflight.request_id = id }
+     if binding != nil {
+@@ -1947,7 +2031,8 @@
+         previous = recent
+     }
+     previous.push({request_id: calendar_agent_state.request_id turn_id: calendar_agent_state.turn_id
+-        status: calendar_agent_state.status user_id: calendar_agent_state.user_id accounts: calendar_agent_state.accounts binding: calendar_agent_state["binding"] mail_source: calendar_agent_state["mail_source"]})
++        status: calendar_agent_state.status user_id: calendar_agent_state.user_id accounts: calendar_agent_state.accounts binding: calendar_agent_state["binding"] mail_source: calendar_agent_state["mail_source"]
++        request_source: calendar_agent_state["request_source"]})
+     calendar_agent_state = {schema: 1 request_id: "" turn_id: "" status: "idle" user_id: "" accounts: "" previous_requests: previous}
+     calendar_agent_reply = "" calendar_agent_evidence = "" calendar_agent_input_text = "" calendar_agent_details = false
+     calendar_agent_notice = notice_text
