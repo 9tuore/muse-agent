@@ -1028,6 +1028,16 @@ fn calendar_agent_project(view,goal){
     return true
 }
 
+fn calendar_agent_session_notice(opened,operation,fallback){
+    // First-use consent declines this call; allowing the agent does not replay it.
+    // Recognize only the host's exact public error, never display raw diagnostics.
+    if gm_object(opened) && opened["is_ok"] == false && gm_string(opened["error"],512)
+        && opened.error == "Waiting for the person to allow this app's agent (OctoSense asks the first time)" {
+        return "宿主已发出启用 Muse 助手的申请；授权完成后，请重新" + operation
+            + "。本次尚未派发日历操作，不会自动重发。"
+    }
+    return fallback
+}
 fn calendar_agent_submit(text){ calendar_agent_submit_bound(text,nil) }
 fn calendar_agent_submit_bound(text,binding){
     if calendar_agent_busy || !calendar_agent_writable { return }
@@ -1058,7 +1068,7 @@ fn calendar_agent_submit_bound(text,binding){
             || user != gm_user_id || accounts != gm_accounts.to_json()
             || (binding != nil && !calendar_agent_binding_current(binding)) {
             calendar_agent_busy = false calendar_agent_state.status = "blocked"
-            calendar_agent_notice = "官方会话未打开或账号已变化；未派发日历请求。请检查宿主助手授权与模型。"
+            calendar_agent_notice = calendar_agent_session_notice(opened,"提交所选日历请求","官方会话未打开或账号已变化；未派发日历请求。请检查宿主助手授权与模型。")
             calendar_agent_save() redraw() return
         }
         if binding != nil { text = text + "\n精确 calendar.add_event 参数：" + calendar_agent_state.binding.payload.to_json() + "\n新建返回稳定 id 后，以该 id 调用 calendar.get_event 精确读回，并核对 request_id 与全部候选字段。" }
@@ -1382,7 +1392,7 @@ fn calendar_agent_update_confirm(){
             || calendar_agent_update_state.records[index].to_json() != snapshot { return }
         if !opened.is_ok || !gm_object(opened["data"]) || opened.data["open"] != true || !calendar_agent_update_current(record) {
             calendar_agent_busy = false calendar_agent_update_state.records[index].status = "blocked"
-            calendar_agent_update_save() calendar_agent_notice = "改期前身份、候选或会话已变化，未派发；不重发。" redraw() return
+            calendar_agent_update_save() calendar_agent_notice = calendar_agent_session_notice(opened,"选择并确认同ID改期","改期前身份、候选或会话已变化，未派发；不重发。") redraw() return
         }
         let args = calendar_agent_update_args(record.expected,record.event)
         let prompt = "本人明确选择并确认将已核验事件同ID改期。改期请求ID：" + id
@@ -1636,7 +1646,7 @@ fn calendar_agent_delete_confirm(){
         if calendar_agent_delete_state.records[index].request_id != id { return }
         if !opened.is_ok || !gm_object(opened["data"]) || opened.data["open"] != true || !calendar_agent_delete_current(record) {
             calendar_agent_busy = false calendar_agent_delete_state.records[index].status = "blocked"
-            calendar_agent_notice = "删除前会话或事项身份已变化，未派发；保留请求记录。" calendar_agent_delete_save() redraw() return
+            calendar_agent_notice = calendar_agent_session_notice(opened,"选择并确认删除该事件","删除前会话或事项身份已变化，未派发；保留请求记录。") calendar_agent_delete_save() redraw() return
         }
         let prompt = "本人明确选择并确认删除自己已核验的一个事件。删除请求ID：" + id
             + "。只使用以下三次官方Calendar调用，严格按顺序，不创建、修改、通知、发邮件，不删除其他ID。"
