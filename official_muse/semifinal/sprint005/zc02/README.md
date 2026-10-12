@@ -46,8 +46,19 @@ prepare_profile依照SDK config/profile.rs及实际real_kernel_tests::write_prof
 
 **formal-r3 Host保持不变时：Mail可信CA接入是HUMAN_REQUIRED/专门fixtureHost依赖。** 不能让现有WebPKI接受本地自签名证书，不能通过seed账号/grant或明文来跳过登录。模型、只读工具及服务器协议已可独立使用；TLS补丁只是Root可选择的隔离Host提案，未应用/编译。default launch-environment不带该TLS override；只有tls-proposal-environment供接受提案后的专门Host使用。9799由Root后续分配，本服务当前OS动态分配端口，不触碰9696。
 
-首个实际本机服务检查17/17、真实HTTP SSE及公开profile匹配4/4通过，均为新fixture组件；Kernel/SDK GUI NOT_TESTED。readback当前只验证snapshot-only出口，进一步定向validator验证与完整接收记录继续在本目录记录。
+首个实际本机服务检查17/17、真实HTTP SSE及公开profile匹配4/4、正式launcher路径5/5通过，均为新fixture组件；Kernel/SDK GUI NOT_TESTED。readback/planner新unit最终21/21，旧18项报告保留，新增SDK Mail缓存正文与Source哈希一致/变化/缺失拒绝。不重复协议17项或旧107测试。
 
 另已核官方SDK无编译mail_demo开关：Shell apps.rs register_mail_services读取MAKEPAD_APP_CONFIG.mail_demo并调用register_demo；口令demo、三封固定合成INBOX及Sent样本，FileVault、零网络、发送去往无处。原登录sheet、SDK draft/review/批准路径仍走GUI。它不能证明独立收件/UNKNOWN，也不能修改来信内容。**实际WorkBuddy launcher会unset MAKEPAD_APP_CONFIG**，故不能仅传env宣称启用；需Root的隔离launcher明确保留该官方配置，且双marker约束，生产launcher默认不改。现有R8 JSONL测试driver没有native GUI事件循环，其MockTransport/内部sheet调用不能替代GUI验收。
 
 tls-fixture.patch改为零context：Root先核tls-patch-identity的完整before SHA，再在隔离SDK执行git apply --check --unidiff-zero；这里只提案，未编译或写共享源。
+
+Root最新所需编译/packaged资源closure/新增CA exact-test提案见BUILD_CA_HOST.md。只修改network.rs的独立Host，原Main/Kernel及R5保底不变；资源stage与配对SHA/签名不能跳过。标准Rust缓存存在但未定位warm target，不保证增量时长。ca_guard_tests.rs未执行，不称CA runtime通过。
+
+模型样本已按当前Main chat_model_config真实schema准备：普通chat只{reply}，不能有额外intent；calendar五字段、mail三字段、goal objective/source两字段。旧服务进程若仍返回{intent,reply}，Root无需改业务数据或重启GUI，可显式配置：
+
+```sh
+python3 official_muse/semifinal/sprint005/zc02/control.py --root "$ROOT" model \
+  --json official_muse/semifinal/sprint005/zc02/model-chat.json
+```
+
+对应操作前用model-calendar.json/model-mail.json/model-goal.json；它们是显式模型输出fixture，不直接写候选或业务库。新的serve默认chat已只含reply。该控制仅输运配置，不是GUI动作或批准。

@@ -10,7 +10,7 @@ from planner import decision
 class State:
     def __init__(self,root):
         self.root=root;self.lock=threading.RLock();self.receiver_lock=threading.Lock()
-        self.case_id='initial';self.smtp_mode='accepted';self.model_mode='normal';self.model_response={'intent':'chat','reply':'SPRINT005 synthetic response'};self.delay_ms=0
+        self.case_id='initial';self.smtp_mode='accepted';self.model_mode='normal';self.model_response={'reply':'SPRINT005 synthetic response'};self.delay_ms=0
         self.counts=collections.Counter();self.events=root/'protocol-events.jsonl'
         self.mailboxes=json.loads((root/'mailboxes.json').read_text()) if (root/'mailboxes.json').exists() else {a:{'INBOX':[],'Sent':[],'Archive':[]} for a in ACCOUNTS}
         self.stop=threading.Event()

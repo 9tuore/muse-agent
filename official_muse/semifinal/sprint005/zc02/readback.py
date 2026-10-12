@@ -25,7 +25,7 @@ def projection(root):
     for src in mem.get('sources',[]):
         sid=src['source_id']
         if sid in sources:raise ValueError('Duplicate source ID')
-        sources[sid]={'scope':src['scope'],'content_sha256':src['content_sha256'],'locator_sha256':digest(src['locator'].encode())}
+        sources[sid]={'scope':src['scope'],'content_sha256':src['content_sha256'],'locator_sha256':digest(src['locator'].encode()),'mail_locator':src['locator'] if src['locator'].startswith('mail:') else None}
     for entry in mem.get('claims',[]):
         d=entry['document'];cid=d['id']
         if cid in claims:raise ValueError('Duplicate claim ID')
@@ -37,9 +37,19 @@ def projection(root):
     checks['unique_goal_run_action_ids']=all(len({r['id'] for r in goals.get(name,[])})==len(goals.get(name,[])) for name in ('goals','runs','actions'))
     checks['run_goal_links']=all(r['goal_id'] in goal_ids for r in goals.get('runs',[]))
     checks['action_goal_run_links']=all((not a['goal_id'] and not a['run_id'] and a['plan_revision']==0) or (a['goal_id'] in goal_ids and a['run_id'] in run_ids) for a in goals.get('actions',[]))
-    drafts={};directory=root/'apps/.host/mail'
+    drafts={};mail_messages={};directory=root/'apps/.host/mail'
     if directory.is_dir():
         if directory.is_symlink():raise ValueError('Linked Mail store refused')
+        for file in directory.glob('box-*.json'):
+            match=re.fullmatch(r'box-([0-9a-f]{24})(?:-[0-9a-f]{12})?\.json',file.name)
+            if not match:raise ValueError('Unexpected SDK mailbox identity')
+            result=safe_read(root,file)
+            if not result:continue
+            for message in result[1].get('messages',[]):
+                locator='mail:'+match.group(1)+':'+message['id']
+                record={'account_id':match.group(1),'message_id':message['id'],'body_sha256':digest(message.get('body','').encode()),'subject_sha256':digest(message.get('subject','').encode())}
+                if locator in mail_messages and mail_messages[locator]!=record:raise ValueError('Conflicting actual mailbox body snapshots')
+                mail_messages[locator]=record
         for folder in directory.glob('drafts-*'):
             if not re.fullmatch(r'drafts-[0-9a-f]{64}',folder.name):continue
             for file in folder.glob('*.json'):
@@ -53,7 +63,12 @@ def projection(root):
     if file.exists():
         if file.is_symlink() or file.stat().st_nlink!=1:raise ValueError('Linked receiver log refused')
         receiver=[json.loads(line) for line in file.read_text().splitlines()]
-    summary={'kind':'SPRINT005_INDEPENDENT_READBACK','fixture_root':str(root),'file_sha256':hashes,'claims':claims,'sources':sources,'goal_ids':sorted(goal_ids),'run_ids':sorted(run_ids),
+    for sid,src in sources.items():
+        if src['mail_locator']:
+            cached=mail_messages.get(src['mail_locator'])
+            # A deleted/signed-out mailbox may be absent; require presence only when explicitly requested.
+            if cached:checks['actual_mail_body_source_hash_'+sid]=cached['body_sha256']==src['content_sha256']
+    summary={'kind':'SPRINT005_INDEPENDENT_READBACK','fixture_root':str(root),'file_sha256':hashes,'claims':claims,'sources':sources,'mail_messages':mail_messages,'goal_ids':sorted(goal_ids),'run_ids':sorted(run_ids),
              'action_status_counts':dict(collections.Counter(a['status'] for a in goals.get('actions',[]))),'host_mail_drafts':drafts,'retrieval':documents.get('memory-retrieval-last.json'),
              'receiver_count':len(receiver),'receiver_message_ids':[r['message_id'] for r in receiver],'checks':checks,'sdk_gui_status':'NOT_ASSERTED'}
     return documents,summary
@@ -66,6 +81,8 @@ def pointer(data,value):
     return data
 
 def assert_expected(documents,snapshot,expected,before=None):
+    if not any(expected.get(k) for k in ('assertions','retrieval_scope','retrieval_expected_ids','forgotten_claim_ids','unknown_no_resubmit','mail_source_ids')):
+        raise ValueError('Explicit case assertions required; empty expectations cannot PASS')
     checks=dict(snapshot['checks'])
     for i,rule in enumerate(expected.get('assertions',[])):
         if rule['file'] not in FILES:raise ValueError('Business file whitelist required')
@@ -83,9 +100,16 @@ def assert_expected(documents,snapshot,expected,before=None):
         for hit in trace.get('hits',[]) if isinstance(trace,dict) else []:
             record=snapshot['claims'].get(hit['id']);wanted=expected['retrieval_scope']
             checks['retrieval_scope_'+hit['id']]=record is not None and not record['deleted'] and all(record['scope'].get(k) in (v if isinstance(v,list) else [v]) for k,v in wanted.items())
+    if expected.get('retrieval_expected_ids') is not None:
+        trace=snapshot['retrieval'];actual={h['id'] for h in trace.get('hits',[])} if isinstance(trace,dict) else set()
+        checks['actual_expected_retrieval_ids']=actual==set(expected['retrieval_expected_ids'])
     for cid in expected.get('forgotten_claim_ids',[]):checks['requested_forget_'+cid]=cid in snapshot['claims'] and snapshot['claims'][cid]['deleted'] and checks.get('forgotten_content_'+cid) is True
+    for sid in expected.get('mail_source_ids',[]):
+        src=snapshot['sources'].get(sid);cached=snapshot['mail_messages'].get(src['mail_locator']) if src else None
+        checks['requested_actual_mail_source_'+sid]=src is not None and cached is not None and cached['body_sha256']==src['content_sha256']
     if expected.get('unknown_no_resubmit'):
         if before is None:raise ValueError('Actual before snapshot required')
+        if before.get('kind')!=snapshot['kind'] or before.get('fixture_root')!=snapshot['fixture_root']:raise ValueError('Before snapshot must belong to the same marked profile')
         unknown={k:v for k,v in before['host_mail_drafts'].items() if v['status']=='unknown'}
         checks['actual_unknown_before_present']=bool(unknown)
         checks['unknown_same_draft_attempt_payload_no_resubmit']=all(snapshot['host_mail_drafts'].get(k)==v for k,v in unknown.items())
@@ -94,10 +118,16 @@ def assert_expected(documents,snapshot,expected,before=None):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',required=True);p.add_argument('--expected',type=Path);p.add_argument('--before',type=Path);p.add_argument('--out',type=Path,required=True);a=p.parse_args()
-    docs,snapshot=projection(a.root)
-    if a.expected:
-        rules=json.loads(a.expected.read_text());checks=assert_expected(docs,snapshot,rules,json.loads(a.before.read_text()) if a.before else None)
-        snapshot['checks']=checks;snapshot['status']='PASS' if checks and all(checks.values()) else 'FAIL'
-    else:snapshot['status']='SNAPSHOT_ONLY'
+    root=scope(a.root);output=a.out.absolute()
+    if output.exists() or output.is_symlink():raise SystemExit('New report path required; preserve old evidence')
+    if any(output.is_relative_to(root/name) for name in ('apps','kernel','private','public')):raise SystemExit('Readback report may not overwrite business/config/key directories')
+    if output.parent.exists() and output.parent.resolve()!=output.parent:raise SystemExit('Linked report parent refused')
+    try:
+        docs,snapshot=projection(a.root)
+        if a.expected:
+            rules=json.loads(a.expected.read_text());checks=assert_expected(docs,snapshot,rules,json.loads(a.before.read_text()) if a.before else None)
+            snapshot['checks']=checks;snapshot['status']='PASS' if checks and all(checks.values()) else 'FAIL'
+        else:snapshot['status']='SNAPSHOT_ONLY'
+    except Exception as e:snapshot={'kind':'SPRINT005_INDEPENDENT_READBACK','status':'FAIL','error_type':type(e).__name__,'checks':{'readable_marked_expected_state':False},'sdk_gui_status':'NOT_ASSERTED'}
     atomic_json(a.out,snapshot);print(json.dumps({'status':snapshot['status'],'checks':len(snapshot['checks']),'failed':[k for k,v in snapshot['checks'].items() if not v],'sdk_gui':'NOT_ASSERTED'}))
     raise SystemExit(1 if snapshot['status']=='FAIL' else 0)

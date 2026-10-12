@@ -14,6 +14,7 @@ def plan_from_prompt(text):
     if not isinstance(args,dict):raise ValueError('Object arguments required')
     if marker==MARKERS[0]:
         if set(args)-{'from','to','limit'}:raise ValueError('Invalid events arguments')
+        if any(k in args and (not isinstance(args[k],str) or len(args[k])>32) for k in ('from','to')):raise ValueError('Invalid events time filter')
         if 'limit' in args and (type(args['limit'])!=int or not 1<=args['limit']<=200):raise ValueError('Invalid events limit')
         return [('calendar.events',args)]
     if marker==MARKERS[1]:

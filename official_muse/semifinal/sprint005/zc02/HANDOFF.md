@@ -1,16 +1,16 @@
 # Handoff
 
 ## Result
-首个可执行方案：新TLS IMAP/SMTP+独立receiver、无key OpenAI JSON/SSE模型、合法_main配置、只读snapshot工具。新协议17/17、SSE/profile4/4，GUI/Kernel NOT_TESTED。
+可运行TLS IMAP/SMTP+独立receiver、无key JSON/SSE模型、合法kernel/.octos/_main、只读验收。协议17、SSE4、路径5、reader/planner21项通过；GUI/Kernel NOT_TESTED。
 
 ## Entry
-README CLI/JSON协议；双marker新root，显式CoreDir/FileVault，不seed聊天/Memory/Goal/Run。serve端口动态，9696未动。
+README/INTEGRATION CLI/协议；模型四schema样本，control.py配置。双marker/CoreDir/FileVault，不seed业务库。Root9799/生产9696未动。
 
 ## Dependency
-formal-r3不改Host时本地Mail CA接入HUMAN_REQUIRED/专门fixtureHost；最小TLS提案仅Root可采纳，未编译。不弱化TLS/批准或写生产授权。
+BUILD_CA_HOST给Root实际build/资源closure与CA guard exact-test提案，未编译。SDK demo无需build但launcher剥离flag，且无UNKNOWN/receiver；R8不是GUI。
 
 ## Remaining
-继续readback/模型计划定向检查；ZC05/Root实际GUI243格决定功能PASS。无旧107重测、真实邮箱/Keychain/GUI/Kernel/Cargo/推送。
+Root隔离CA Host、ZC05真实GUI243格；不请求新生产权限，不重复17/107，无共享写入/真实邮箱/Keychain/GUI/Kernel/Cargo/push。
 
 ## Commit
 见进度/最终回复。
