@@ -12,4 +12,6 @@
 
 下一步：收到总控统一冻结 package/main/manifest/host/plugins 身份、专属 fixture 端口/PID/窗口 ID/数据目录和正常重启命令后，核对实际 GUI 可见功能，逐项执行正常、交互变化、重启重复三轮。合成外部输运通过只记 SIMULATION_PASS，缺前置记 BLOCKED/HUMAN_REQUIRED，不可达记 NOT_IMPLEMENTED。
 
-待关注但未判定：旧根 bundle 与可读 source 字节/版本不同；旧系统日历路径是否不可达；窄范围自动安排是否具有正式可见入口。最终以冻结包 GUI 发现为准。
+身份纠正：Root已交接R5 transform后的实际可读/已签Bundle均为0.4.0-rc7，旧source rc18字串被transform替换；不将旧字串差异列为产品版本Bug。旧系统日历路径与窄范围自动安排的可见实现仍以最终冻结GUI发现为准。
+
+PRE_FLIGHT独立原生发现已完成：9799/PID22287/native663交接后自行捕获并view_image查看3张原生图，顶部ShellBar和主题菜单可见，Muse/AppHub正文全黑。只点了两次可见非敏感顶栏；未点隐藏业务控件、未重启、未改软件/DB。窗口已回交ZC-00，不再访问。此诊断noGauss包非最终冻结；正式243格保持NOT_TESTED。详见preflight目录Bug UA-PREFLIGHT-001。

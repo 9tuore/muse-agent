@@ -130,7 +130,12 @@ class GUIEvidence:
         assert set(owners) == {str(identity["owner_pid"])}
         self.remote = Remote(identity["port"])
         self.path = Path(attempt_path).resolve()
-        evidence_root = ROOT / "official_muse/semifinal/evidence/user-acceptance-3rounds"
+        if identity.get("acceptance_phase") == "PRE_FLIGHT_BUG_DISCOVERY_NOT_THREE_ROUND_ACCEPTANCE":
+            evidence_root = ROOT / "official_muse/semifinal/sprint005/zc05/preflight"
+        else:
+            require(identity.get("acceptance_phase") == "FROZEN_THREE_ROUND_ACCEPTANCE",
+                    "Formal round evidence requires explicit final freeze phase")
+            evidence_root = ROOT / "official_muse/semifinal/evidence/user-acceptance-3rounds"
         assert self.path.is_relative_to(evidence_root.resolve())
         self.path.mkdir(parents=True, exist_ok=True)
         identity_path = self.path / "identity.json"

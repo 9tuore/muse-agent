@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-from ua_gui import candidate_key, check_data_dir, check_frozen_identity
+from ua_gui import candidate_key, check_data_dir, check_frozen_identity, require
 
 ROOT = Path(__file__).resolve().parents[4]
 EVIDENCE = ROOT / "official_muse/semifinal/evidence/user-acceptance-3rounds"
@@ -31,6 +31,8 @@ def record(result_path):
         "GUI_ONLY", "LOCAL_REAL_STORAGE", "FIXTURE_TRANSPORT", "LIVE_EXTERNAL", "NO_EXECUTION"}
     attempt = path.parent
     identity = json.loads((attempt / "identity.json").read_text())
+    require(identity.get("acceptance_phase") == "FROZEN_THREE_ROUND_ACCEPTANCE",
+            "PRE_FLIGHT evidence must never enter the formal three-round matrix")
     assert result["candidate_id"] == identity["candidate_id"]
     assert identity["owner_pid"] > 0 and identity["native_window_id"] > 0
     check_data_dir(identity)

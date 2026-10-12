@@ -26,3 +26,5 @@ python3 official_muse/semifinal/sprint005/zc05/check_guards_offline.py
 尚未执行：GUI、业务动作、模型、收发信、日历、重启。准备脚本语法与索引检查不能作为这些功能的通过证据。
 
 护栏检查为 OFFLINE_GUARD_ONLY，仅用临时合成路径、摘要、rect 验证拒绝行为，没有 GUI 或网络调用，不能记为用户功能 PASS。
+
+PRE_FLIGHT只能写本目录的`preflight/`；正式阶段只允许`FROZEN_THREE_ROUND_ACCEPTANCE`交接进入round证据根，结果记录器再次拒绝PRE_FLIGHT。首次真实预检已保存至`preflight/preflight-r2-independent/`，发现正文不可见，窗口已回交；不计正式矩阵结果。
