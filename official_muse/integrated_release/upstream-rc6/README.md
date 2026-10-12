@@ -23,12 +23,20 @@ checkout. Calendar also uses the already-locked workspace UUID dependency for
 IDs, so deletion and a repeated clock tick cannot reuse an event identity.
 Existing event IDs remain readable; no locked dependency version changes.
 
+The SDK patch also stacks the existing `bounded-source-preparation.patch`
+on the official Makepad runtime overlay. `prepare_official_host.py` verifies
+that baseline and the resulting tree; the builder refuses a missing overlay.
+Run the SDK's `python3 tools/setup.py --no-hub` before Muse preparation.
+Source bodies above 64 KiB are parsed in 1 KiB frames before executing once.
+This fixes the observed 600,409-byte Muse startup timeout without changing
+the ordinary 64 ms callback limit. Kernel code and its paired binary do not change.
+
 The SDK checkout must include its official `.cargo` directory. Its desktop
 system-app selection embeds Mail, Calendar and the other bundled apps; a
 build without it can open a window while containing none of those apps.
 The builder checks the configuration identity and records the selection.
 
-`build_official_host.py` has `check`, `host`, `kernel`, `hub` and `tests`
+`build_official_host.py` has `check`, `host`, `kernel`, `hub`, `tests` and `startup-tests`
 phases. It uses upstream packaging flags, strips debug data, remaps build
 paths, uses isolated target directories, and records the source/patch/lock
 identity, commands, logs and output hashes. The host builds only

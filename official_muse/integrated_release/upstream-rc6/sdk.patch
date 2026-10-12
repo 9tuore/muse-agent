@@ -968,3 +968,391 @@ index d652620..bd43dc7 100644
          assert!(edit["input_schema"]["required"].as_array().unwrap().iter().any(|v| v == "expected"));
          assert_eq!(loaded.generic, ["ask_user_question"]);
          let _ = std::fs::remove_dir_all(dir);
+diff --git a/runtime-patches.lock.json b/runtime-patches.lock.json
+index 8b5c002..2797911 100644
+--- a/runtime-patches.lock.json
++++ b/runtime-patches.lock.json
+@@ -4,7 +4,7 @@
+     "base_revision": "d653bc4493619ab979ccff165cf48c0c63b77d19",
+     "patch": "tools/runtime-patches/makepad-settings.patch",
+     "sha256": "3a79cddddc89dc4d064a9f0bdd17dc8111dcab9c796a334d95f61ecb9d5011aa",
+-    "tree": "3f4fd959f1ee43445bc7ef13cf72465bb1951829",
++    "tree": "d5748b965aac9c11639e5a2530eaeae4eea92874",
+     "product_fixes": [
+       "Settings integration: Android IME synchronization, accessibility and reduced motion, GLES program-cache validation, obscured-gesture cancellation and scroll-position observation.",
+       "Contained-app isolation and secret-input restrictions come from the pinned upstream runtime; the Settings overlay preserves those gates.",
+@@ -48,7 +48,8 @@
+       "A native host may stage up to 64 MiB into an app's jail (MAX_IMPORT_BYTES; prepare_import and commit_import), so files.import can take documents above the 1 MiB script write limit. Staged bytes never enter the script heap; the jail's byte quota and entry cap still apply, and script writes, photo picks and exports keep 1 MiB.",
+       "An OS resume restarts only the Video playback its pause stopped, including a start it cancelled; a player paused by the person, or paused or stopped by its app during the pause, stays paused (#406).",
+       "Camera capture and recording use explicit per-call boolean audio/library options, defaulting to silent app-local output. Permission availability never opts into recording audio or exporting captures; async microphone checks retain capture intent and background provenance. Unsupported library export fails before capture.",
+-      "A hidden Android native composer remembers animated IME insets without requesting a root layout every frame; showing it applies the latest inset before its first visible frame."
++      "A hidden Android native composer remembers animated IME insets without requesting a root layout every frame; showing it applies the latest inset before its first visible frame.",
++      "Muse compatibility: cold Splash source above 64 KiB is prepared in bounded frames before one application execution; the ordinary 64 ms entry budget remains unchanged."
+     ],
+     "stacked": [
+       {
+@@ -190,6 +191,10 @@
+       {
+         "patch": "tools/runtime-patches/makepad-hidden-composer-insets.patch",
+         "sha256": "75935d129cfe4adf09555d3a94b0a7ad387f2ea97cf357f9d60c728d87239037"
++      },
++      {
++        "patch": "tools/runtime-patches/muse-bounded-source-preparation.patch",
++        "sha256": "b4e7335bc41862d32575ecf456a23e9865d29f15ef28b64661138c766ae8a64a"
+       }
+     ]
+   }
+diff --git a/tools/runtime-patches/muse-bounded-source-preparation.patch b/tools/runtime-patches/muse-bounded-source-preparation.patch
+new file mode 100644
+index 0000000..7ea8a32
+--- /dev/null
++++ b/tools/runtime-patches/muse-bounded-source-preparation.patch
+@@ -0,0 +1,348 @@
++--- a/platform/script/src/vm.rs
+++++ b/platform/script/src/vm.rs
++@@ -1804,6 +1804,21 @@
++         code: &str,
++         source: ScriptObject,
++     ) -> ScriptValue {
+++        let body_id = match self.prepare_append_source(script_mod, code, source) {
+++            Ok(body_id) => body_id,
+++            Err(value) => return value,
+++        };
+++        self.eval_prepared_body(body_id)
+++    }
+++
+++    /// Prepare an append-only source prefix without executing app statements.
+++    /// The caller retains its existing wall-clock and heap limits.
+++    pub fn prepare_append_source(
+++        &mut self,
+++        script_mod: ScriptMod,
+++        code: &str,
+++        source: ScriptObject,
+++    ) -> Result<u16, ScriptValue> {
++         // Look for an existing body with matching file/line/column
++         let existing_body_id = {
++             let bodies = self.bx.code.bodies.borrow();
++@@ -1913,20 +1928,26 @@
++             if let Some(sink) = &mut self.bx.captured_errors {
++                 sink.extend(new_parse_errors);
++             }
++-            // Silence runtime errors during incremental eval — incomplete code
++-            // will inevitably produce errors that are meaningless until the
++-            // source is fully received.
++-            self.bx.silence_errors = true;
++-            let result = self.run_root(body_id);
++-            self.bx.silence_errors = false;
++-            if let Some(result_obj) = result.as_object() {
++-                self.bx.heap.set_from_eval(result_obj);
++-            }
++-            result
+++            if self.bx.run_budget.as_ref().is_some_and(|budget|
+++                crate::clock::monotonic_now() >= budget.hard_deadline) {
+++                return Err(self.bail_resource_limit("script time budget exceeded"));
+++            }
+++            Ok(body_id)
++         } else {
++-            NIL
++-        }
++-    }
+++            Err(NIL)
+++        }
+++    }
+++
+++    fn eval_prepared_body(&mut self, body_id: u16) -> ScriptValue {
+++        self.bx.silence_errors = true;
+++        let result = self.run_root(body_id);
+++        self.bx.silence_errors = false;
+++        if let Some(result_obj) = result.as_object() {
+++            self.bx.heap.set_from_eval(result_obj);
+++        }
+++        result
+++    }
+++
++ }
++ 
++ pub struct ScriptVmBase {
++@@ -2219,6 +2240,30 @@
++     }
++ 
++     #[test]
+++    fn source_preparation_does_not_execute_partial_application() {
+++        let mut host = ScriptVmHost::new((), ());
+++        let mut vm = plain_vm(&mut host);
+++        let hits = std::rc::Rc::new(std::cell::Cell::new(0u32));
+++        let counter = hits.clone();
+++        let probe = vm.bx.heap.new_module(id!(probe));
+++        vm.add_method(probe, id!(touch), &[], move |_, _| {
+++            counter.set(counter.get() + 1);
+++            41.into()
+++        });
+++        let module = || ScriptMod { file: "prepared-source.octoscript".into(), ..Default::default() };
+++        let prefix = "use mod.probe\nlet marker = probe.touch()\n";
+++        let code = format!("{prefix}return marker + 1\n;");
+++        vm.prepare_append_source(module(), prefix, ScriptObject::ZERO).unwrap();
+++        assert_eq!(hits.get(), 0, "preparing the first prefix must not call native actions");
+++        vm.prepare_append_source(module(), &code, ScriptObject::ZERO).unwrap();
+++        assert_eq!(hits.get(), 0, "preparing the complete body still must not execute it");
+++        let value = vm.with_instruction_limit(1000, |vm|
+++            vm.eval_with_append_source(module(), &code, ScriptObject::ZERO));
+++        assert_eq!(value.as_f64(), Some(42.0));
+++        assert_eq!(hits.get(), 1, "the complete application executes once");
+++    }
+++
+++    #[test]
++     fn hard_time_budget_drains_its_uncatchable_error() {
++         let mut host = ScriptVmHost::new((), ());
++         let mut vm = plain_vm(&mut host);
++--- a/widgets/src/splash.rs
+++++ b/widgets/src/splash.rs
++@@ -27,6 +27,14 @@
++     mod.widgets.Splash = set_type_default() do mod.widgets.SplashBase{
++         width: Fill height: Fit
++     }
+++}
+++
+++struct SplashSourcePreparation {
+++    code: String,
+++    offset: usize,
+++    chunks: usize,
+++    total_ms: f64,
+++    max_ms: f64,
++ }
++ 
++ #[derive(Script, WidgetRef, WidgetRegister)]
++@@ -102,6 +110,12 @@
++     stylesheet: Option<crate::desktop_style::StyleSheet>,
++     #[rust]
++     style_pending: bool,
+++    #[rust]
+++    source_preparation: Option<SplashSourcePreparation>,
+++    #[rust]
+++    source_next_frame: NextFrame,
+++    #[rust]
+++    prepared_source: String,
++     /// Script timers the body's top-level statements registered at its last
++     /// run. A style reapply runs those statements again, so these are stopped
++     /// first; timers a handler started later are left alone.
++@@ -214,7 +228,7 @@
++     }
++ 
++     fn eval_styled_body_with_apply(&mut self, cx: &mut Cx, preserve: bool, apply: &Apply) {
++-        if self.body.as_ref().is_empty() {
+++        if self.body.as_ref().is_empty() || (preserve && self.body_id.is_none()) {
++             return;
++         }
++ 
++@@ -258,6 +272,16 @@
++             code: String::new(),
++             values: vec![],
++         };
+++
+++        if !preserve && self.body_id.is_none() && code.len() > 65_536 && self.prepared_source != code {
+++            self.source_preparation = Some(SplashSourcePreparation {
+++                code, offset: 0, chunks: 0, total_ms: 0.0, max_ms: 0.0,
+++            });
+++            self.source_next_frame = cx.new_next_frame();
+++            self.style_pending = false;
+++            self.view.redraw(cx);
+++            return;
+++        }
++ 
++         let vm_id = self.vm_id;
++         let sheet=self.stylesheet.clone();
++@@ -282,8 +306,10 @@
++         // unwinding `with_script_vm_id` already restores the outer VM).
++         let mut eval_out = None;
++         crate::widget_async::contain_isolate_panic("app source eval", || {
++-        eval_out = Some(cx.with_script_vm_id(vm_id, |vm| {
++-            if let Some(sheet)=sheet {
+++        // Framework theme registration uses the trusted module entry; the
+++        // application body below keeps its existing per-entry script budget.
+++        if let Some(sheet)=sheet {
+++            cx.with_script_vm_id_trusted(vm_id, |vm| {
++                 if crate::desktop_style::current(vm).as_ref()!=Some(&sheet) {
++                     crate::desktop_style::install(vm,sheet);
++                     // Trusted framework themes need their packaged font resolver.
++@@ -298,10 +324,13 @@
++                         crate::widget_async::forget_granted_isolate_mods(heap_key);
++                     });
++                 }
++-            }
++-            // Vocabulary this app's grants entitle it to, now that its policy
++-            // is seated (see `register_splash_isolate_mod_for`).
+++            });
+++        }
+++        // Only host-registered modules for this app's existing grants run here.
+++        cx.with_script_vm_id_trusted(vm_id, |vm| {
++             crate::widget_async::apply_granted_isolate_mods(vm);
+++        });
+++        eval_out = Some(cx.with_script_vm_id(vm_id, |vm| {
++             // Everything on `mod` that is not the body's own; whatever the run
++             // adds beyond this is the body's.
++             let mut known = module_keys(vm);
++@@ -421,6 +450,64 @@
++         );
++     }
++ 
+++    fn prepare_source_frame(&mut self, cx: &mut Cx) {
+++        let Some(mut pending) = self.source_preparation.take() else { return; };
+++        // Leave more headroom inside the unchanged 64ms isolate deadline.
+++        // Preparation still executes no application code until all chunks parse.
+++        let mut end = (pending.offset + 1_024).min(pending.code.len());
+++        while !pending.code.is_char_boundary(end) { end -= 1; }
+++        if end < pending.code.len() {
+++            if let Some(newline) = pending.code[pending.offset..end].rfind('\n') {
+++                end = pending.offset + newline + 1;
+++            }
+++        }
+++        let script_mod = ScriptMod {
+++            module_path: self.body_key(), file: self.source_label(),
+++            ..Default::default()
+++        };
+++        let start = std::time::Instant::now();
+++        let mut result = None;
+++        crate::widget_async::contain_isolate_panic("app source preparation", || {
+++            result = Some(cx.with_script_vm_id(self.vm_id, |vm| {
+++                let previous = vm.bx.captured_errors.replace(Vec::new());
+++                let compiled = vm.prepare_append_source(script_mod, &pending.code[..end], NIL.into());
+++                let errors = vm.take_errors();
+++                vm.bx.captured_errors = previous;
+++                (compiled.is_ok(), errors)
+++            }));
+++        });
+++        let Some((compiled, errors)) = result else {
+++            self.style_pending = false;
+++            self.stop(cx);
+++            return;
+++        };
+++        let elapsed = start.elapsed().as_secs_f64() * 1000.0;
+++        pending.chunks += 1;
+++        pending.total_ms += elapsed;
+++        pending.max_ms = pending.max_ms.max(elapsed);
+++        if !compiled || !errors.is_empty() {
+++            log!("splash: source preparation failed at {} of {} bytes", end, pending.code.len());
+++            log!("[SPLASH_COMPILE_FAILED] elapsed_ms={:.3} total_ms={:.3} max_chunk_ms={:.3}",
+++                elapsed, pending.total_ms, pending.max_ms);
+++            for error in errors { log!("splash: {}", error); }
+++            self.style_pending = false;
+++            self.stop(cx);
+++            return;
+++        }
+++        pending.offset = end;
+++        if end < pending.code.len() {
+++            self.source_preparation = Some(pending);
+++            self.source_next_frame = cx.new_next_frame();
+++            self.view.redraw(cx);
+++            return;
+++        }
+++        log!("[SPLASH_COMPILE] bytes={} chunks={} total_ms={:.3} max_chunk_ms={:.3}",
+++            end, pending.chunks, pending.total_ms, pending.max_ms);
+++        self.prepared_source = pending.code;
+++        self.eval_body(cx);
+++        self.view.redraw(cx);
+++    }
+++
++     /// Tears down this Splash's isolate (if any), returning it to the empty
++     /// state a freshly-created Splash has. The isolate-minted view holds refs
++     /// into the isolate heap, so it is REPLACED with a fresh empty view built
++@@ -428,6 +515,9 @@
++     /// stops the isolate's timers and drops its storage-jail binding. A later
++     /// non-empty `set_text` allocates a fresh isolate as usual.
++     fn stop(&mut self, cx: &mut Cx) {
+++        self.source_preparation = None;
+++        self.source_next_frame = NextFrame::default();
+++        self.prepared_source.clear();
++         if self.vm_id == MAIN_SPLASH_VM_ID {
++             return; // nothing running
++         }
++@@ -626,6 +716,10 @@
++ 
++ impl Widget for Splash {
++     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+++        if self.source_next_frame.is_event(event).is_some() {
+++            self.source_next_frame = NextFrame::default();
+++            self.prepare_source_frame(cx);
+++        }
++         if self.allow_net {
++             if let Event::NetworkResponses(responses) = event {
++                 crate::widget_async::handle_splash_network_responses(cx, self.vm_id, responses);
++@@ -673,7 +767,7 @@
++     }
++ 
++     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
++-        if self.style_pending && self.vm_id!=MAIN_SPLASH_VM_ID {self.eval_styled_body(cx,true);}
+++        if self.style_pending && self.vm_id!=MAIN_SPLASH_VM_ID && self.source_preparation.is_none() {self.eval_styled_body(cx,true);}
++         //let tree = self.view.widget_tree();
++         //cx.with_vm(|vm| {
++         //    log!("{}", tree.display(vm.heap()));
++@@ -688,6 +782,9 @@
++     fn set_text(&mut self, cx: &mut Cx, v: &str) {
++         if self.body.as_ref() != v {
++             self.body.set(v);
+++            self.source_preparation = None;
+++            self.source_next_frame = NextFrame::default();
+++            self.prepared_source.clear();
++             // Empty body = tear down the app: reclaim its isolate (stopping its
++             // timers and dropping its storage jail) rather than leaving it
++             // running behind a blank view. A reused Splash (e.g. a live-preview
++@@ -1097,6 +1194,61 @@
++             let value = vm.eval(makepad_script::script! {use mod.widgets.* Splash{}});
++             Splash::script_from_value(vm, value)
++         })
+++    }
+++
+++    #[test]
+++    fn large_cold_source_is_prepared_before_one_application_run() {
+++        let mut cx = Cx::new(Box::new(|_, _| {}));
+++        let mut splash = new_splash(&mut cx);
+++        let body = format!("mod.state = {{starts: 1}}\nlabel := Label{{text: \"ready\"}}\n{}", "// bounded preparation padding\n".repeat(3000));
+++        splash.set_text(&mut cx, &body);
+++        assert!(splash.source_preparation.is_some());
+++        assert!(splash.body_id.is_none());
+++        assert!(splash.startup_timers.is_empty());
+++        splash.prepare_source_frame(&mut cx);
+++        assert!(splash.source_preparation.as_ref().unwrap().offset > 0);
+++        assert!(splash.source_preparation.as_ref().unwrap().offset <= 1_024);
+++        assert!(splash.body_id.is_none());
+++        assert!(!cx.with_script_vm_id(splash.vm_id, module_keys).contains(&id!(state)));
+++        for _ in 0..256 {
+++            if splash.source_preparation.is_none() { break; }
+++            splash.prepare_source_frame(&mut cx);
+++        }
+++        assert!(splash.source_preparation.is_none());
+++        assert!(splash.body_id.is_some());
+++        assert_eq!(splash.view.children.iter().find(|(id, _)| *id == id!(label)).unwrap().1.text(), "ready");
+++        splash.stop(&mut cx);
+++    }
+++
+++    #[test]
+++    fn closing_a_partly_prepared_source_cancels_the_remaining_frames() {
+++        let mut cx = Cx::new(Box::new(|_, _| {}));
+++        let mut splash = new_splash(&mut cx);
+++        let body = format!("mod.state = {{starts: 1}}\n{}", "// bounded preparation padding\n".repeat(3000));
+++        splash.set_text(&mut cx, &body);
+++        splash.prepare_source_frame(&mut cx);
+++        splash.stop(&mut cx);
+++        assert!(splash.source_preparation.is_none());
+++        assert!(splash.body_id.is_none());
+++        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+++        assert!(splash.startup_timers.is_empty());
+++    }
+++
+++    #[test]
+++    fn a_failed_cold_preparation_cannot_restart_through_style_reapply() {
+++        let mut cx = Cx::new(Box::new(|_, _| {}));
+++        let mut splash = new_splash(&mut cx);
+++        let body = format!("let loop = []\n{}", "// bounded preparation padding\n".repeat(3000));
+++        splash.set_text(&mut cx, &body);
+++        splash.style_pending = true;
+++        splash.prepare_source_frame(&mut cx);
+++        assert!(splash.source_preparation.is_none());
+++        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+++        assert!(!splash.style_pending);
+++        splash.eval_styled_body(&mut cx, true);
+++        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+++        assert!(splash.body_id.is_none());
+++        assert!(splash.startup_timers.is_empty());
++     }
++ 
++     /// What a host does on a style change: install the sheet, reapply the

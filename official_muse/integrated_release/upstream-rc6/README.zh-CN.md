@@ -19,12 +19,19 @@ Broker 回执和明确共享的日历工具。`app-hub.patch` 将已有的已认
 版本的 `.sources` 补丁源码；Calendar 使用工作区已锁定的 UUID 生成
 事件 ID，避免同一时钟刻度内删除后重用身份。旧事件仍可读，锁定依赖版本不变。
 
+SDK 补丁同时将已有 `bounded-source-preparation.patch` 叠加到官方
+Makepad 运行时补丁。准备脚本核对原始补丁树与完成后的树，构建器拒绝
+漏接该修复；先运行 SDK 的 `python3 tools/setup.py --no-hub`，再进行 Muse 准备。
+大于 64 KiB 的页面按每帧 1 KiB 预解析，全部完成后执行一次，
+修复实际 600,409 字节 Muse 首次启动超时。日常回调 64 ms 限额不变，
+Kernel 源码及配对二进制不变。
+
 SDK 检出必须包含官方 `.cargo` 目录。其中的桌面系统应用配置负责
 嵌入 Mail、Calendar 等内置应用；漏掉它会生成没有这些应用的宿主。
 构建器会核对配置身份，并在回执中记录系统应用列表。
 
 `build_official_host.py` 提供 `check`、`host`、`kernel`、`hub` 和
-`tests` 阶段。它使用官方打包参数、移除调试数据、重映射构建路径，
+`tests`、`startup-tests` 阶段。它使用官方打包参数、移除调试数据、重映射构建路径，
 采用隔离 target，记录源码、补丁、锁文件身份、命令、日志和产物哈希。
 Host 只构建 `app-hub,octos-core`，链接真实 Mail 和 Calendar 服务。
 Kernel 从 SDK 自身 octos pin 构建，并由上游 staging helper 核验。

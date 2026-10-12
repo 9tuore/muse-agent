@@ -41,6 +41,33 @@ def apply(repo, patch, revision):
     return {"revision": revision, "patch_sha256": hashlib.sha256(current).hexdigest()}
 
 
+def prepare_makepad(sdk):
+    """Stack Muse's cold-source fix onto the official setup-owned index."""
+    repo = sdk / ".sources/makepad"
+    lock = json.loads((sdk / "runtime-patches.lock.json").read_text())["makepad"]
+    official = json.loads(run(["git", "show", "HEAD:runtime-patches.lock.json"], sdk))["makepad"]
+    if run(["git", "rev-parse", "HEAD"], repo).strip() != lock["base_revision"]:
+        raise RuntimeError("makepad: run official tools/setup.py before Muse preparation")
+    if run(["git", "diff", "--binary"], repo):
+        raise RuntimeError("makepad: preserve existing unstaged changes")
+    tree = run(["git", "write-tree"], repo).strip()
+    if tree != lock["tree"]:
+        if tree != official["tree"]:
+            raise RuntimeError("makepad: expected the official setup-reviewed tree")
+        entry = lock["stacked"][-1]
+        patch = sdk / entry["patch"]
+        if patch.name != "muse-bounded-source-preparation.patch" or hashlib.sha256(patch.read_bytes()).hexdigest() != entry["sha256"]:
+            raise RuntimeError("makepad: cold-source patch identity differs")
+        run(["git", "apply", "--check", "--index", str(patch)], repo)
+        run(["git", "apply", "--index", str(patch)], repo)
+        tree = run(["git", "write-tree"], repo).strip()
+        if tree != lock["tree"]:
+            raise RuntimeError("makepad: prepared tree differs from the reviewed lock")
+    return {"revision": lock["base_revision"], "tree": tree,
+            "patch_sha256": hashlib.sha256(subprocess.check_output(
+                ["git", "diff", "HEAD", "--binary"], cwd=repo)).hexdigest()}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sdk", type=Path, required=True)
@@ -61,6 +88,7 @@ def main():
         "app_hub": apply(hub, HERE / "upstream-rc6/app-hub.patch", HUB_REV),
         "sdk": apply(sdk, HERE / "upstream-rc6/sdk.patch", SDK_REV),
     }
+    report["makepad"] = prepare_makepad(sdk)
     print(json.dumps(report, indent=2))
 
 

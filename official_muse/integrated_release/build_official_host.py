@@ -29,7 +29,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sdk", type=Path, required=True)
     parser.add_argument("--work", type=Path, required=True)
-    parser.add_argument("--phase", choices=("check", "host", "kernel", "hub", "tests"), required=True)
+    parser.add_argument("--phase", choices=("check", "host", "kernel", "hub", "tests", "startup-tests"), required=True)
     parser.add_argument("--release-tag", default="desktop-v0.1.0-rc.6")
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--offline", action="store_true")
@@ -56,6 +56,12 @@ def main():
         actual = subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=repo)
         if actual != expected:
             raise SystemExit(f"{name}: build source differs from the reviewed compatibility patch")
+    makepad = sdk / ".sources/makepad"
+    makepad_lock = json.loads((sdk / "runtime-patches.lock.json").read_text())["makepad"]
+    makepad_revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=makepad, text=True).strip()
+    makepad_tree = subprocess.check_output(["git", "write-tree"], cwd=makepad, text=True).strip()
+    if makepad_revision != makepad_lock["base_revision"] or makepad_tree != makepad_lock["tree"] or subprocess.check_output(["git", "diff", "--binary"], cwd=makepad):
+        raise SystemExit("makepad: run prepare_official_host.py to apply the reviewed cold-source fix")
     spec = importlib.util.spec_from_file_location("official_packaging", sdk / "desktop/scripts/package.py")
     package = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(package)
@@ -99,17 +105,21 @@ def main():
             if args.phase == "check":
                 run(["python3", "tools/setup.py", "--check", "--cargo"])
                 run(["python3", "tools/native_apps.py", "--check"])
-            elif args.phase == "tests":
+            elif args.phase in ("tests", "startup-tests"):
                 base = ["cargo", "test", "--locked", "--release"]
                 if args.offline:
                     base.append("--offline")
-                for name in ("calendar-service", "app-peers", "app-hub", "appstore", "shell"):
-                    base += ["-p", "octosense-" + name]
+                packages = ("octosense-shell", "makepad-script", "makepad-widgets") if args.phase == "startup-tests" else tuple(
+                    "octosense-" + name for name in ("calendar-service", "app-peers", "app-hub", "appstore", "shell"))
+                for name in packages:
+                    base += ["-p", name]
                 base += ["--no-default-features", "--features",
                          "octosense-shell/app-hub,octosense-shell/octos-core,octosense-app-peers/octos-core",
-                         "--lib", "--test", "per_app_offer", "--test", "muse_calendar_offers",
-                         "--no-run", "--message-format=json"]
-                messages_path = work / "tests-artifacts.jsonl"
+                         "--lib"]
+                if args.phase == "tests":
+                    base += ["--test", "per_app_offer", "--test", "muse_calendar_offers"]
+                base += ["--no-run", "--message-format=json"]
+                messages_path = work / (args.phase + "-artifacts.jsonl")
                 with messages_path.open("w") as messages:
                     run(base, output=messages)
                 artifacts = [json.loads(line) for line in messages_path.read_text().splitlines() if line.strip()]
@@ -117,6 +127,12 @@ def main():
                          ("per_app_offer", None), ("muse_calendar_offers", None),
                          ("octosense_shell", "host_tools::script_apps::tests::calendar_offers_its_tools_from_its_bundle"),
                          ("octosense_shell", "host_tools::tests::admitted_mail_calendar_grants_route_to_the_real_calendar_store")]
+                if args.phase == "startup-tests":
+                    cases = [("makepad_script", "vm::tests::source_preparation_does_not_execute_partial_application"),
+                             ("makepad_script", "vm::tests::hard_time_budget_drains_its_uncatchable_error"),
+                             ("makepad_widgets", "splash::style_tests::large_cold_source_is_prepared_before_one_application_run"),
+                             ("makepad_widgets", "splash::style_tests::closing_a_partly_prepared_source_cancels_the_remaining_frames"),
+                             ("makepad_widgets", "splash::style_tests::a_failed_cold_preparation_cannot_restart_through_style_reapply")]
                 receipt["test_suites"] = []
                 for target, test_filter in cases:
                     binaries = [row["executable"] for row in artifacts
@@ -172,7 +188,14 @@ def main():
                 receipt["artifact_bytes"] = out.stat().st_size
             if sha(sdk / "Cargo.lock") != lock_sha:
                 raise RuntimeError("Cargo.lock changed during a locked build")
-            receipt["status"] = "PASS" if args.phase in ("check", "tests") else "BUILT_NOT_RUNTIME_VERIFIED"
+            if hashlib.sha256(subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=sdk)).hexdigest() != receipt["sdk_patch_sha256"]:
+                raise RuntimeError("SDK compatibility patch changed during the build")
+            for name, identity in receipt["frameworks"].items():
+                repo = sdk / ".sources" / name
+                if subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip() != identity["revision"] or hashlib.sha256(
+                    subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=repo)).hexdigest() != identity["patch_sha256"]:
+                    raise RuntimeError(f"{name}: source identity changed during the build")
+            receipt["status"] = "PASS" if args.phase in ("check", "tests", "startup-tests") else "BUILT_NOT_RUNTIME_VERIFIED"
         except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
             code = error.returncode if isinstance(error, subprocess.CalledProcessError) else 1
             receipt.update(status="FAILED", error=str(error))
