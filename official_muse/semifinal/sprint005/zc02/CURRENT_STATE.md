@@ -1,5 +1,7 @@
 # ZC02 SPRINT-005
 
+S005UA Mail R1公开输入已准备，未注入：working/s005ua-mail-r1/incoming.json现有四字段schema，收件gui-reader/发件receiver，标题SPRINT005-ZC05-S005UA-MAIL-R1、明确2026-10-14 15:00–15:30 Asia/Shanghai。chat-mail和mail-calendar-policy为对应工作副本，原39样本未变。现有incoming只生成时间戳Message-ID，不支持请求的固定s005ua-r1-mail头；正文追踪标签不冒充该头，README要求Root保存实际返回ID/UID/SHA，未改服务/SDK存储/GUI。证据s005ua-mail-r1-working-inputs，0控制写端点/网络测试，未重跑78。
+
 冻结rc8身份补记：当前f9e94877与冻结f00比较，18个模型流程/schema函数全部逐字未变；实际新增ac_local_run_readback，仅修改已有ac_projection。catalog及函数身份已绑定f9，39响应SHA不变；f00 catalog/身份/manifest另存evidence，原f00核验与失败记录不覆盖。新证据rc8-f9-source-identity.json仅记录现场比较和已有f00报告适用性，本次没有重跑78样本/网络协议、没有GUI/业务DB/shared target操作。新服务与正式三轮由Root/ZC05负责。
 
 rc8身份补记：当前f00c963b与冻结947比较，18个流程函数17 unchanged/1 changed；send_chat只改两条提示为打开「来信与结果」，其余源码差异仅ResultContent标签选中颜色。模型schema所在函数逐字未变，39个样本响应文件SHA不变；catalog/当前函数身份绑定f00，新静态字段核验78/78。旧947 catalog/函数身份/manifest另存evidence，原flow-sample-contract.json及旧失败记录不覆盖。证据rc8-f00-source-schema.json、flow-sample-contract-f00.json；0服务测试/GUI/Kernel/Cargo/Root target操作，UA-PREFLIGHT-002修复效果仍由实际GUI验收。
