@@ -969,7 +969,7 @@ index d652620..bd43dc7 100644
          assert_eq!(loaded.generic, ["ask_user_question"]);
          let _ = std::fs::remove_dir_all(dir);
 diff --git a/runtime-patches.lock.json b/runtime-patches.lock.json
-index 8b5c002..2797911 100644
+index 8b5c002..44e0108 100644
 --- a/runtime-patches.lock.json
 +++ b/runtime-patches.lock.json
 @@ -4,7 +4,7 @@
@@ -977,28 +977,35 @@ index 8b5c002..2797911 100644
      "patch": "tools/runtime-patches/makepad-settings.patch",
      "sha256": "3a79cddddc89dc4d064a9f0bdd17dc8111dcab9c796a334d95f61ecb9d5011aa",
 -    "tree": "3f4fd959f1ee43445bc7ef13cf72465bb1951829",
-+    "tree": "d5748b965aac9c11639e5a2530eaeae4eea92874",
++    "tree": "db1ceb63df7f2dee2c1c6c45288cfb2e67a5117c",
      "product_fixes": [
        "Settings integration: Android IME synchronization, accessibility and reduced motion, GLES program-cache validation, obscured-gesture cancellation and scroll-position observation.",
        "Contained-app isolation and secret-input restrictions come from the pinned upstream runtime; the Settings overlay preserves those gates.",
-@@ -48,7 +48,8 @@
+@@ -48,7 +48,9 @@
        "A native host may stage up to 64 MiB into an app's jail (MAX_IMPORT_BYTES; prepare_import and commit_import), so files.import can take documents above the 1 MiB script write limit. Staged bytes never enter the script heap; the jail's byte quota and entry cap still apply, and script writes, photo picks and exports keep 1 MiB.",
        "An OS resume restarts only the Video playback its pause stopped, including a start it cancelled; a player paused by the person, or paused or stopped by its app during the pause, stays paused (#406).",
        "Camera capture and recording use explicit per-call boolean audio/library options, defaulting to silent app-local output. Permission availability never opts into recording audio or exporting captures; async microphone checks retain capture intent and background provenance. Unsupported library export fails before capture.",
 -      "A hidden Android native composer remembers animated IME insets without requesting a root layout every frame; showing it applies the latest inset before its first visible frame."
 +      "A hidden Android native composer remembers animated IME insets without requesting a root layout every frame; showing it applies the latest inset before its first visible frame.",
-+      "Muse compatibility: cold Splash source above 64 KiB is prepared in bounded frames before one application execution; the ordinary 64 ms entry budget remains unchanged."
++      "Muse compatibility: cold Splash source above 64 KiB is prepared in bounded frames before one application execution; the ordinary 64 ms entry budget remains unchanged.",
++      "Muse compatibility: jailed fs.sha256 hashes bounded UTF-8 text and fs.sha256_file hashes bounded existing app files through the standard jail path and symlink checks; no write or new host permission."
      ],
      "stacked": [
        {
-@@ -190,6 +191,10 @@
+@@ -190,6 +192,16 @@
        {
          "patch": "tools/runtime-patches/makepad-hidden-composer-insets.patch",
          "sha256": "75935d129cfe4adf09555d3a94b0a7ad387f2ea97cf357f9d60c728d87239037"
 +      },
 +      {
 +        "patch": "tools/runtime-patches/muse-bounded-source-preparation.patch",
-+        "sha256": "b4e7335bc41862d32575ecf456a23e9865d29f15ef28b64661138c766ae8a64a"
++        "sha256": "b4e7335bc41862d32575ecf456a23e9865d29f15ef28b64661138c766ae8a64a",
++        "tree": "d5748b965aac9c11639e5a2530eaeae4eea92874"
++      },
++      {
++        "patch": "tools/runtime-patches/muse-jailed-fs-digests.patch",
++        "sha256": "bbadc91029626d19a7ac4dd6128e61a4102184552b97da05f6649efb98a343b1",
++        "tree": "db1ceb63df7f2dee2c1c6c45288cfb2e67a5117c"
        }
      ]
    }
@@ -1356,3 +1363,153 @@ index 0000000..7ea8a32
 +     }
 + 
 +     /// What a host does on a style change: install the sheet, reapply the
+diff --git a/tools/runtime-patches/muse-jailed-fs-digests.patch b/tools/runtime-patches/muse-jailed-fs-digests.patch
+new file mode 100644
+index 0000000..67cb66b
+--- /dev/null
++++ b/tools/runtime-patches/muse-jailed-fs-digests.patch
+@@ -0,0 +1,144 @@
++diff --git a/widgets/src/splash_storage.rs b/widgets/src/splash_storage.rs
++index 8c3f2f9..6e587ba 100644
++--- a/widgets/src/splash_storage.rs
+++++ b/widgets/src/splash_storage.rs
++@@ -428,10 +428,45 @@ fn target(vm: &mut ScriptVm, path_value: ScriptValue) -> Result<(PathBuf, PathBu
++     Ok((root, real))
++ }
++
+++fn file_sha256(real: &Path) -> Result<String, String> {
+++    let bytes = read_storage_bytes(real)?;
+++    let digest = crate::makepad_platform::makepad_network::digest::sha256_hash(&bytes);
+++    Ok(digest.iter().map(|byte| format!("{byte:02x}")).collect())
+++}
+++
++ /// Registers the jailed `fs` module into an isolate VM.
++ pub fn script_mod(vm: &mut ScriptVm) {
++     let fs = vm.new_module(id!(fs));
++
+++    // Local UTF-8 provenance digest; available only to an already jailed isolate.
+++    // No file path, network request, or additional host capability is involved.
+++    vm.add_method(fs, id_lut!(sha256), script_args_def!(text = NIL), |vm, args| {
+++        if root_for_vm(vm).is_none() {
+++            return script_err_io!(vm.trap(), "storage not available in this context");
+++        }
+++        let text = script_value!(vm, args.text);
+++        let digest = vm.string_with(text, |_vm, s| {
+++            if s.len() > 65536 { return None; }
+++            let bytes = crate::makepad_platform::makepad_network::digest::sha256_hash(s.as_bytes());
+++            Some(bytes.iter().map(|byte| format!("{byte:02x}")).collect::<String>())
+++        });
+++        match digest {
+++            Some(Some(value)) => vm.bx.heap.new_string_from_str(&value).into(),
+++            _ => script_err_io!(vm.trap(), "sha256 requires UTF-8 text of at most 65536 bytes"),
+++        }
+++    });
+++
+++    // Local Muse overlay: digest an existing jailed snapshot using the same
+++    // path/symlink checks and per-file cap as storage. No network or new grant.
+++    // The provenance text digest above retains its separate 64 KiB input cap.
+++    vm.add_method(fs, id_lut!(sha256_file), script_args_def!(path = NIL), |vm, args| {
+++        let path = script_value!(vm, args.path);
+++        match target(vm, path).and_then(|(_root, real)| file_sha256(&real)) {
+++            Ok(value) => vm.bx.heap.new_string_from_str(&value).into(),
+++            Err(error) => script_err_io!(vm.trap(), "{}", error),
+++        }
+++    });
+++
++     vm.add_method(fs, id_lut!(read), script_args_def!(path = NIL), |vm, args| {
++         let path = script_value!(vm, args.path);
++         match target(vm, path) {
++@@ -595,6 +630,93 @@ pub fn script_mod(vm: &mut ScriptVm) {
++ mod tests {
++     use super::*;
++
+++    fn hash_script(root: Option<&Path>, code: &str) -> Result<String, Vec<String>> {
+++        let mut host = ScriptVmHost::new((), ());
+++        let mut vm = ScriptVm { host: &mut host, bx: Box::new(ScriptVmBase::new()) };
+++        let heap = vm.bx.heap.heap_key();
+++        set_root_for_heap(heap, root.map(Path::to_path_buf));
+++        script_mod(&mut vm);
+++        let value = vm.eval(ScriptMod {
+++            file: "jailed-hash-test.octoscript".into(),
+++            code: format!("let fs = mod.fs\n{code}\n;"),
+++            ..Default::default()
+++        });
+++        let errors = vm.take_errors();
+++        let text = vm.string_with(value, |_vm, text| text.to_string());
+++        set_root_for_heap(heap, None);
+++        if !errors.is_empty() { return Err(errors); }
+++        text.ok_or_else(|| vec!["expected a string digest".into()])
+++    }
+++
+++    #[test]
+++    fn sha256_script_standard_vectors_and_utf8() {
+++        let root = Path::new("/not-accessed-by-text-digest");
+++        for (text, expected) in [
+++            ("", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
+++            ("abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
+++            ("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq", "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"),
+++            ("Muse 日历 🐙\n记忆", "2a2f26ec22ab1716eb3d7e457dfcd440ac2e51c2a7d4f40d9d55a8583342ce1d"),
+++        ] {
+++            let literal = serde_json::to_string(text).unwrap();
+++            assert_eq!(hash_script(Some(root), &format!("fs.sha256({literal})")).unwrap(), expected);
+++        }
+++    }
+++
+++    #[test]
+++    fn sha256_script_requires_jail_text_and_bounded_utf8() {
+++        let root = Path::new("/not-accessed-by-text-digest");
+++        assert!(hash_script(None, "fs.sha256(\"abc\")").is_err());
+++        assert!(hash_script(Some(root), "fs.sha256(123)").is_err());
+++        for text in ["a".repeat(65537), "日".repeat(21846)] {
+++            let literal = serde_json::to_string(&text).unwrap();
+++            assert!(hash_script(Some(root), &format!("fs.sha256({literal})")).is_err());
+++        }
+++        let text = "a".repeat(65536);
+++        let expected = "bf718b6f653bebc184e1479f1935b8da974d701b893afcf49e701f3e2f9f9c5a";
+++        assert_eq!(hash_script(Some(root), &format!("fs.sha256({})", serde_json::to_string(&text).unwrap())).unwrap(), expected);
+++    }
+++
+++    #[test]
+++    fn sha256_file_script_reads_existing_jail_without_writing() {
+++        let root = std::env::temp_dir().join(format!("mp-hash-read-{}", std::process::id()));
+++        std::fs::create_dir_all(&root).unwrap();
+++        let path = root.join("snapshot.json");
+++        let bytes = b"abc";
+++        std::fs::write(&path, bytes).unwrap();
+++        let before = std::fs::metadata(&path).unwrap().modified().unwrap();
+++        assert_eq!(hash_script(Some(&root), "fs.sha256_file(\"/snapshot.json\")").unwrap(),
+++            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+++        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+++        assert_eq!(std::fs::metadata(&path).unwrap().modified().unwrap(), before);
+++        std::fs::write(&path, [0, 255, 128]).unwrap();
+++        assert_eq!(hash_script(Some(&root), "fs.sha256_file(\"snapshot.json\")").unwrap(),
+++            "f742b965f156c10374bc23aea96e3a8aff8facd6fc079defeaa30219ad86f211");
+++        std::fs::remove_dir_all(root).unwrap();
+++    }
+++
+++    #[test]
+++    fn sha256_file_script_refuses_escape_links_missing_and_large_files() {
+++        let root = std::env::temp_dir().join(format!("mp-hash-jail-{}", std::process::id()));
+++        std::fs::create_dir_all(&root).unwrap();
+++        assert!(hash_script(None, "fs.sha256_file(\"/x\")").is_err());
+++        for expr in ["fs.sha256_file(123)", "fs.sha256_file(\"../outside\")",
+++            "fs.sha256_file(\"/missing\")", "fs.sha256_file(\"/\")"] {
+++            assert!(hash_script(Some(&root), expr).is_err(), "{expr}");
+++        }
+++        std::fs::write(root.join("large"), vec![0; MAX_FILE_BYTES as usize + 1]).unwrap();
+++        assert!(hash_script(Some(&root), "fs.sha256_file(\"large\")").is_err());
+++        #[cfg(unix)] {
+++            let outside = root.with_extension("outside");
+++            std::fs::write(&outside, b"private test sentinel").unwrap();
+++            std::os::unix::fs::symlink(&outside, root.join("link")).unwrap();
+++            std::os::unix::fs::symlink(root.parent().unwrap(), root.join("directory-link")).unwrap();
+++            assert!(hash_script(Some(&root), "fs.sha256_file(\"link\")").is_err());
+++            assert!(hash_script(Some(&root), "fs.sha256_file(\"directory-link/missing\")").is_err());
+++            std::fs::remove_file(outside).unwrap();
+++        }
+++        std::fs::remove_dir_all(root).unwrap();
+++    }
+++
++     #[test]
++     fn existing_large_camera_files_remain_script_readable_but_not_exportable() {
++         let file = std::env::temp_dir().join(format!("mp-camera-read-{}", std::process::id()));

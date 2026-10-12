@@ -29,7 +29,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sdk", type=Path, required=True)
     parser.add_argument("--work", type=Path, required=True)
-    parser.add_argument("--phase", choices=("check", "host", "kernel", "hub", "tests", "startup-tests"), required=True)
+    parser.add_argument("--phase", choices=("check", "host", "kernel", "hub", "tests", "startup-tests", "hash-tests"), required=True)
     parser.add_argument("--release-tag", default="desktop-v0.1.0-rc.6")
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--offline", action="store_true")
@@ -61,7 +61,7 @@ def main():
     makepad_revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=makepad, text=True).strip()
     makepad_tree = subprocess.check_output(["git", "write-tree"], cwd=makepad, text=True).strip()
     if makepad_revision != makepad_lock["base_revision"] or makepad_tree != makepad_lock["tree"] or subprocess.check_output(["git", "diff", "--binary"], cwd=makepad):
-        raise SystemExit("makepad: run prepare_official_host.py to apply the reviewed cold-source fix")
+        raise SystemExit("makepad: run prepare_official_host.py to apply the reviewed compatibility fixes")
     spec = importlib.util.spec_from_file_location("official_packaging", sdk / "desktop/scripts/package.py")
     package = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(package)
@@ -105,11 +105,11 @@ def main():
             if args.phase == "check":
                 run(["python3", "tools/setup.py", "--check", "--cargo"])
                 run(["python3", "tools/native_apps.py", "--check"])
-            elif args.phase in ("tests", "startup-tests"):
+            elif args.phase in ("tests", "startup-tests", "hash-tests"):
                 base = ["cargo", "test", "--locked", "--release"]
                 if args.offline:
                     base.append("--offline")
-                packages = ("octosense-shell", "octosense-app-peers", "makepad-script", "makepad-widgets") if args.phase == "startup-tests" else tuple(
+                packages = ("octosense-shell", "octosense-app-peers", "makepad-script", "makepad-widgets") if args.phase in ("startup-tests", "hash-tests") else tuple(
                     "octosense-" + name for name in ("calendar-service", "app-peers", "app-hub", "appstore", "shell"))
                 for name in packages:
                     base += ["-p", name]
@@ -133,6 +133,12 @@ def main():
                              ("makepad_widgets", "splash::style_tests::large_cold_source_is_prepared_before_one_application_run"),
                              ("makepad_widgets", "splash::style_tests::closing_a_partly_prepared_source_cancels_the_remaining_frames"),
                              ("makepad_widgets", "splash::style_tests::a_failed_cold_preparation_cannot_restart_through_style_reapply")]
+                elif args.phase == "hash-tests":
+                    cases = [("makepad_widgets", "splash_storage::tests::" + name) for name in (
+                        "sha256_script_standard_vectors_and_utf8",
+                        "sha256_script_requires_jail_text_and_bounded_utf8",
+                        "sha256_file_script_reads_existing_jail_without_writing",
+                        "sha256_file_script_refuses_escape_links_missing_and_large_files")]
                 receipt["test_suites"] = []
                 for target, test_filter in cases:
                     binaries = [row["executable"] for row in artifacts
@@ -195,7 +201,7 @@ def main():
                 if subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip() != identity["revision"] or hashlib.sha256(
                     subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=repo)).hexdigest() != identity["patch_sha256"]:
                     raise RuntimeError(f"{name}: source identity changed during the build")
-            receipt["status"] = "PASS" if args.phase in ("check", "tests", "startup-tests") else "BUILT_NOT_RUNTIME_VERIFIED"
+            receipt["status"] = "PASS" if args.phase in ("check", "tests", "startup-tests", "hash-tests") else "BUILT_NOT_RUNTIME_VERIFIED"
         except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
             code = error.returncode if isinstance(error, subprocess.CalledProcessError) else 1
             receipt.update(status="FAILED", error=str(error))

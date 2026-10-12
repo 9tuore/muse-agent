@@ -42,7 +42,7 @@ def apply(repo, patch, revision):
 
 
 def prepare_makepad(sdk):
-    """Stack Muse's cold-source fix onto the official setup-owned index."""
+    """Stack reviewed Muse fixes onto the official setup-owned index."""
     repo = sdk / ".sources/makepad"
     lock = json.loads((sdk / "runtime-patches.lock.json").read_text())["makepad"]
     official = json.loads(run(["git", "show", "HEAD:runtime-patches.lock.json"], sdk))["makepad"]
@@ -51,17 +51,24 @@ def prepare_makepad(sdk):
     if run(["git", "diff", "--binary"], repo):
         raise RuntimeError("makepad: preserve existing unstaged changes")
     tree = run(["git", "write-tree"], repo).strip()
-    if tree != lock["tree"]:
-        if tree != official["tree"]:
-            raise RuntimeError("makepad: expected the official setup-reviewed tree")
-        entry = lock["stacked"][-1]
+    official_stack = official["stacked"]
+    if lock["stacked"][:len(official_stack)] != official_stack:
+        raise RuntimeError("makepad: official patch stack changed")
+    additions = lock["stacked"][len(official_stack):]
+    expected_names = ["muse-bounded-source-preparation.patch", "muse-jailed-fs-digests.patch"]
+    if [Path(entry["patch"]).name for entry in additions] != expected_names:
+        raise RuntimeError("makepad: unexpected compatibility patch stack")
+    trees = [official["tree"], *[entry["tree"] for entry in additions]]
+    if tree not in trees or trees[-1] != lock["tree"]:
+        raise RuntimeError("makepad: expected an official or reviewed compatibility tree")
+    for entry in additions[trees.index(tree):]:
         patch = sdk / entry["patch"]
-        if patch.name != "muse-bounded-source-preparation.patch" or hashlib.sha256(patch.read_bytes()).hexdigest() != entry["sha256"]:
-            raise RuntimeError("makepad: cold-source patch identity differs")
+        if hashlib.sha256(patch.read_bytes()).hexdigest() != entry["sha256"]:
+            raise RuntimeError("makepad: compatibility patch identity differs")
         run(["git", "apply", "--check", "--index", str(patch)], repo)
         run(["git", "apply", "--index", str(patch)], repo)
         tree = run(["git", "write-tree"], repo).strip()
-        if tree != lock["tree"]:
+        if tree != entry["tree"]:
             raise RuntimeError("makepad: prepared tree differs from the reviewed lock")
     return {"revision": lock["base_revision"], "tree": tree,
             "patch_sha256": hashlib.sha256(subprocess.check_output(
