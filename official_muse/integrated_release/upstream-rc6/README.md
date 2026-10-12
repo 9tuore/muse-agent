@@ -8,8 +8,8 @@ This build uses official OctoSense `desktop-v0.1.0-rc.6`, commit
 Muse compatibility build from official source, not an untouched upstream release.
 Retain the upstream Apache-2.0 licenses and notices when distributing it.
 
-`sdk.patch` adds exact Calendar readback, refusal of unreadable event stores,
-bounded broker receipts, and explicit sharing of reviewed Calendar tools.
+`sdk.patch` adds exact Calendar readback, unique event IDs, refusal of unreadable
+event stores, bounded broker receipts, and explicit sharing of reviewed Calendar tools.
 `app-hub.patch` carries the existing authenticated per-app tool ceiling into
 the current store. It preserves the new catalog/component implementation,
 bundle verification, account scope, user consent and native write approval.
@@ -19,7 +19,9 @@ There is no mock or prototype Calendar executor.
 unrelated local edits. It applies these two patches or verifies an exact
 already-applied match. The patch includes the matching lockfile: only the five
 App Hub packages change from the pinned Git source to its patched `.sources`
-checkout; other locked versions do not change.
+checkout. Calendar also uses the already-locked workspace UUID dependency for
+IDs, so deletion and a repeated clock tick cannot reuse an event identity.
+Existing event IDs remain readable; no locked dependency version changes.
 
 The SDK checkout must include its official `.cargo` directory. Its desktop
 system-app selection embeds Mail, Calendar and the other bundled apps; a

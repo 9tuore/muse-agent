@@ -1,5 +1,5 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index eddd4b0..a800aa3 100644
+index eddd4b0..4015dcd 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
 @@ -11395,7 +11395,6 @@ dependencies = [
@@ -42,6 +42,14 @@ index eddd4b0..a800aa3 100644
  dependencies = [
   "makepad-app-module",
   "makepad-widgets",
+@@ -11527,6 +11522,7 @@ dependencies = [
+  "octosense-appstore",
+  "serde",
+  "serde_json",
++ "uuid",
+ ]
+ 
+ [[package]]
 diff --git a/Cargo.toml b/Cargo.toml
 index bf6b9c9..abb58cf 100644
 --- a/Cargo.toml
@@ -177,20 +185,31 @@ index 243c04a..d2fb039 100644
      },
      {
        "name": "calendar.notify",
+diff --git a/apps/calendar/host-service/Cargo.toml b/apps/calendar/host-service/Cargo.toml
+index b543529..9f8dbbe 100644
+--- a/apps/calendar/host-service/Cargo.toml
++++ b/apps/calendar/host-service/Cargo.toml
+@@ -15,3 +15,4 @@ serde = { workspace = true }
+ serde_json = { workspace = true }
+ chrono = { workspace = true }
+ chrono-tz = { workspace = true }
++uuid = { workspace = true }
 diff --git a/apps/calendar/host-service/src/gpt01_crud_tests.rs b/apps/calendar/host-service/src/gpt01_crud_tests.rs
 new file mode 100644
-index 0000000..11b726f
+index 0000000..3cd7bf4
 --- /dev/null
 +++ b/apps/calendar/host-service/src/gpt01_crud_tests.rs
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,103 @@
 +//! Synthetic owner-service checks. This does not exercise a GUI approval sheet.
 +use super::*;
 +
 +struct Fixture(std::path::PathBuf);
++static FIXTURE_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 +impl Fixture {
 +    fn new() -> Self {
-+        let dir = std::env::temp_dir().join(format!("gpt01-calendar-crud-{}-{}",
-+            std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
++        let dir = std::env::temp_dir().join(format!("gpt01-calendar-crud-{}-{}-{}",
++            std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos(),
++            FIXTURE_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed)));
 +        std::fs::create_dir(&dir).unwrap();
 +        Self(dir)
 +    }
@@ -202,6 +221,24 @@ index 0000000..11b726f
 +            "timezone":"Asia/Shanghai", "request_id":"fixture-crud-1", "notes":"Synthetic only"})).unwrap();
 +        self.call("get_event", json!({"id":result["id"]})).unwrap()["event"].clone()
 +    }
++}
++
++#[test]
++fn gpt01_crud_same_clock_never_reuses_existing_or_deleted_event_identity() {
++    let f = Fixture::new();
++    let mut events = Vec::new();
++    for title in ["Synthetic A", "Synthetic B", "Synthetic C"] {
++        let created = f.call("add_event", json!({"title":title, "start":"2026-10-14T15:00", "timezone":"Asia/Shanghai"})).unwrap();
++        events.push(f.call("get_event", json!({"id":created["id"]})).unwrap()["event"].clone());
++    }
++    f.call("remove_event", json!({"id":events[1]["id"], "expected":events[1]})).unwrap();
++    let fourth = f.call("add_event", json!({"title":"Synthetic D", "start":"2026-10-14T16:00", "timezone":"Asia/Shanghai"})).unwrap();
++    let mut all_ids = events.iter().map(|event| event["id"].as_str().unwrap().to_owned()).collect::<std::collections::BTreeSet<_>>();
++    assert!(all_ids.insert(fourth["id"].as_str().unwrap().to_owned()), "New events must not reuse a deleted or existing identity");
++    assert_eq!(f.call("get_event", json!({"id":events[2]["id"]})).unwrap()["event"], events[2]);
++    assert_eq!(f.call("get_event", json!({"id":events[1]["id"]})).unwrap()["found"], false);
++    assert_eq!(f.call("get_event", json!({"id":fourth["id"]})).unwrap()["event"]["title"], "Synthetic D");
++    assert_eq!(f.call("events", json!({})).unwrap()["events"].as_array().unwrap().len(), 3);
 +}
 +impl Drop for Fixture {
 +    fn drop(&mut self) { std::fs::remove_dir_all(&self.0).unwrap(); }
@@ -267,7 +304,7 @@ index 0000000..11b726f
 +    assert_eq!(f.call("get_event", json!({"id":event["id"]})).unwrap(), json!({"found":false,"event":null}));
 +}
 diff --git a/apps/calendar/host-service/src/lib.rs b/apps/calendar/host-service/src/lib.rs
-index 33f1a25..4093977 100644
+index 33f1a25..fdbc153 100644
 --- a/apps/calendar/host-service/src/lib.rs
 +++ b/apps/calendar/host-service/src/lib.rs
 @@ -36,6 +36,8 @@ use std::sync::{Arc, Mutex};
@@ -333,7 +370,18 @@ index 33f1a25..4093977 100644
                  .into_iter()
                  .filter(|e| from.as_ref().map_or(true, |f| e.local_stamp(true) >= *f))
                  .filter(|e| to.as_ref().map_or(true, |t| e.local_stamp(false) <= *t))
-@@ -327,7 +349,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+@@ -318,7 +340,9 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+                 }
+             };
+             let event = Event {
+-                id: format!("ev-{}", now.and_utc().timestamp_millis()),
++                // The clock alone (or a suffix from the current list length)
++                // can reuse an identity after a deletion or within one tick.
++                id: format!("ev-{}-{}", now.and_utc().timestamp_millis(), uuid::Uuid::new_v4().as_u128()),
+                 title,
+                 start: start.clone(),
+                 end,
+@@ -327,7 +351,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
                  request_id: bounded(text(args, "request_id"), 160, "A request id")?,
                  timezone,
              };
@@ -342,7 +390,18 @@ index 33f1a25..4093977 100644
              if !event.request_id.is_empty() {
                  if let Some(existing) = events.iter().find(|e| e.request_id == event.request_id) {
                      let mut same = event.clone(); same.id = existing.id.clone();
-@@ -348,7 +370,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+@@ -337,8 +361,8 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+                     return Ok(json!({"id":existing.id,"start":existing.start,"reused":true,"card_warning":null}));
+                 }
+             }
+-            let id = if events.iter().any(|e| e.id == event.id) { format!("{}-{}", event.id, events.len()) } else { event.id.clone() };
+-            events.push(Event { id: id.clone(), ..event });
++            let id = event.id.clone();
++            events.push(event);
+             // Kept bounded: the oldest past events go first.
+             while events.len() > EVENTS_MAX {
+                 events.remove(0);
+@@ -348,7 +372,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
          }
          "remove_event" => {
              let id = text(args, "id");
@@ -351,7 +410,7 @@ index 33f1a25..4093977 100644
              if let Some(expected) = args.get("expected") {
                  let expected: Event = serde_json::from_value(expected.clone()).map_err(|_| "Read the event before deleting it.")?;
                  if !events.iter().any(|e| e.id == id && *e == expected) { return Err("This event changed elsewhere. Reload before deleting it.".into()); }
-@@ -366,7 +388,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+@@ -366,7 +390,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
          "notify" => {
              let priority = args["priority"].as_i64().unwrap_or(70);
              if !text(args,"event").is_empty() {
@@ -360,7 +419,7 @@ index 33f1a25..4093977 100644
                  let card_id = if text(args,"card_id").is_empty() { &event.id } else { text(args,"card_id") };
                  let publisher = publish.ok_or("This device shows no glance cards.")?;
                  return cards::publish(host_dir,&event,card_id,priority,chrono::Utc::now().timestamp_millis().max(0) as u64,publisher);
-@@ -384,7 +406,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+@@ -384,7 +408,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
                      (title, day_time, bounded(text(args, "location"), PLACE_MAX, "A place")?, bounded(text(args, "notes"), NOTES_MAX, "Notes")?, id)
                  }
                  id => {
@@ -369,7 +428,7 @@ index 33f1a25..4093977 100644
                      let (day, time) = day_and_time(&event.start, event.end.as_deref());
                      let day_time = (day, format!("{time}{}", event.zone_label()));
                      (event.title, day_time, event.location, event.notes, event.id)
-@@ -400,7 +422,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+@@ -400,7 +424,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
              let days = args["days"].as_i64().unwrap_or(7).clamp(1, 60);
              let from = stamp(now);
              let to = stamp(now + Duration::days(days));
@@ -378,7 +437,7 @@ index 33f1a25..4093977 100644
              publish_card(agenda_card_args(&events, days, now))
          }
          other => Err(format!("calendar has no method {other:?}")),
-@@ -538,3 +560,69 @@ mod tests {
+@@ -538,3 +562,69 @@ mod tests {
          let _ = std::fs::remove_dir_all(&d);
      }
  }

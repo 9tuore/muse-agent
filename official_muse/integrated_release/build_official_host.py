@@ -89,11 +89,12 @@ def main():
     start = time.monotonic()
     code = 0
     with log_path.open("w") as log:
-        def run(command, cwd=sdk, command_env=env):
+        def run(command, cwd=sdk, command_env=env, output=log):
             receipt["commands"].append([str(part) for part in command])
             log.write("COMMAND " + json.dumps(receipt["commands"][-1]) + "\n")
             log.flush()
-            subprocess.run(command, cwd=cwd, env=command_env, stdout=log, stderr=subprocess.STDOUT, check=True)
+            subprocess.run(command, cwd=cwd, env=command_env, stdout=output,
+                           stderr=log if output is not log else subprocess.STDOUT, check=True)
         try:
             if args.phase == "check":
                 run(["python3", "tools/setup.py", "--check", "--cargo"])
@@ -102,13 +103,42 @@ def main():
                 base = ["cargo", "test", "--locked", "--release"]
                 if args.offline:
                     base.append("--offline")
-                run(base + ["-p", "octosense-calendar-service", "--lib"])
-                run(base + ["-p", "octosense-app-peers", "--features", "octos-core", "--lib"])
-                run(base + ["-p", "octosense-app-hub", "--test", "per_app_offer"])
-                run(base + ["-p", "octosense-appstore", "--test", "muse_calendar_offers"])
-                shell = base + ["-p", "octosense-shell", "--no-default-features", "--features", FEATURES, "--lib"]
-                run(shell + ["host_tools::script_apps::tests::calendar_offers_its_tools_from_its_bundle", "--", "--exact"])
-                run(shell + ["host_tools::tests::admitted_mail_calendar_grants_route_to_the_real_calendar_store", "--", "--exact"])
+                for name in ("calendar-service", "app-peers", "app-hub", "appstore", "shell"):
+                    base += ["-p", "octosense-" + name]
+                base += ["--no-default-features", "--features",
+                         "octosense-shell/app-hub,octosense-shell/octos-core,octosense-app-peers/octos-core",
+                         "--lib", "--test", "per_app_offer", "--test", "muse_calendar_offers",
+                         "--no-run", "--message-format=json"]
+                messages_path = work / "tests-artifacts.jsonl"
+                with messages_path.open("w") as messages:
+                    run(base, output=messages)
+                artifacts = [json.loads(line) for line in messages_path.read_text().splitlines() if line.strip()]
+                cases = [("octosense_calendar_service", None), ("octosense_app_peers", None),
+                         ("per_app_offer", None), ("muse_calendar_offers", None),
+                         ("octosense_shell", "host_tools::script_apps::tests::calendar_offers_its_tools_from_its_bundle"),
+                         ("octosense_shell", "host_tools::tests::admitted_mail_calendar_grants_route_to_the_real_calendar_store")]
+                receipt["test_suites"] = []
+                for target, test_filter in cases:
+                    binaries = [row["executable"] for row in artifacts
+                                if row.get("reason") == "compiler-artifact" and row.get("executable")
+                                and row.get("profile", {}).get("test") and row["target"]["name"] == target]
+                    if len(binaries) != 1:
+                        raise RuntimeError(f"Expected one compiled test executable for {target}, got {binaries}")
+                    executable = binaries[0]
+                    selected = [test_filter, "--exact"] if test_filter else []
+                    listing_path = work / ("test-list-" + target + ("-" + test_filter.rsplit("::", 1)[-1] if test_filter else "") + ".log")
+                    with listing_path.open("w") as listing:
+                        run([executable, *selected, "--list"], output=listing)
+                    if not any(line.endswith(": test") for line in listing_path.read_text().splitlines()):
+                        raise RuntimeError(f"No tests selected for {target}: {test_filter}")
+                    result = {"target": target, "filter": test_filter, "exit_code": 0}
+                    try:
+                        run([executable, *selected])
+                    except subprocess.CalledProcessError as error:
+                        result["exit_code"] = error.returncode
+                    receipt["test_suites"].append(result)
+                if any(suite["exit_code"] != 0 for suite in receipt["test_suites"]):
+                    raise RuntimeError("One or more selected test suites failed; see test_suites and the preserved log")
             elif args.phase == "kernel":
                 kernel_env = {key: value for key, value in env.items()
                               if not key.startswith("MAKEPAD") and key not in ("CARGO_BUILD_TARGET", "CARGO_TARGET_DIR")}

@@ -494,10 +494,10 @@ index 3959524..3d2830b 100644
                      // Persist exactly the verified bytes, including v2 proof,
 diff --git a/crates/appstore/tests/muse_calendar_offers.rs b/crates/appstore/tests/muse_calendar_offers.rs
 new file mode 100644
-index 0000000..730bd4a
+index 0000000..4991068
 --- /dev/null
 +++ b/crates/appstore/tests/muse_calendar_offers.rs
-@@ -0,0 +1,117 @@
+@@ -0,0 +1,125 @@
 +//! Signed synthetic catalog. Tests host configuration, not consent or Relay.
 +use octosense_app_hub::{sign_manifest, Catalog, Entry, HubKey, Source, Status, Store};
 +use octosense_app_policy::{digest_dir, AppManifest};
@@ -603,8 +603,16 @@ index 0000000..730bd4a
 +        let mut f = Fixture::new(&["calendar.events", "calendar.update_event", "calendar.remove_event"]);
 +        set_muse_calendar_integration_enabled(true);
 +        configure_muse_calendar_offers(&mut f.store).unwrap();
++        let tools = f.store.resolve_offered_policy("muse-goals").unwrap().agent.unwrap().tools;
++        assert_eq!(tools, ["calendar.events", "calendar.update_event", "calendar.remove_event"]
++            .into_iter().map(str::to_owned).collect());
++    }
++    for forbidden in ["calendar.agenda", "mail.send"] {
++        let mut f = Fixture::new(&["calendar.events", forbidden]);
++        set_muse_calendar_integration_enabled(true);
++        configure_muse_calendar_offers(&mut f.store).unwrap();
 +        let error = f.store.resolve_offered_policy("muse-goals").unwrap_err();
-+        assert!(error.contains("does not offer") && (error.contains("update_event") || error.contains("remove_event")));
++        assert!(error.contains("does not offer") && error.contains(forbidden), "{error}");
 +    }
 +    {
 +        let mut f = Fixture::new(&[]);
