@@ -1,3 +1,11 @@
+## SPRINT-005 rc8 冻结与独立三轮开始 · 2026-10-12 16:20 北京时间
+
+产品commit0ac85244，Source f9e94877，签名Main b2171fd9、manifest c78ff3ad、catalog82da19d3/seq7。正式默认输运候选 build/sprint005/rc8-candidate-r3/Muse.app 保留Host1eb1887b及Kernel56761a9f；专用GUI验收包 zc05-final-r3使用严格双marker/loopback CA Hostcea8ca71，不能混报生产SMTP或云模型。实际WorkBuddy LaunchServices完整Muse已原生查看，三动态SecCode0；ZC05独占9799/PID76257/native793，正式各轮以其新证据为准，冻结前0/243。
+
+独立R5预检35张原生图与真实存储确认Chat/Memory更正遗忘/Goal一次执行；两个真实UI票002候选引导、003缺本地Run/读回已最小修复。003真实Splash VM70边界/隔离/上限案例PASS；CA exact guard1/1PASS。这些代码或旧GUI预检不计最终三轮。R5/原正式资料不改，原Root生产窗口已正常退出；用户离线不再请求权限，新增真人条件HUMAN_REQUIRED，20:11:25截止不延长。
+
+当前优先：新固定候选Calendar真owner查询/创建/同ID改期/删除与独立读回，官方Mail原生界面/合成真实SMTP收件/UNKNOWN恢复；随后剩余三轮和同候选冷启动。证据 integrated_release/evidence/sprint005-rc8-frozen/ 与 user-acceptance-3rounds/。
+
 ## SPRINT-005 2026-10-12 15:13:14 检查点
 
 Root当前已接收三轮schema样本与晚回包输运检查、Memory优化与统一入口/演示方案。rc8签名stub启动器26项PASS；打包未改四项已通过，正式入口拒绝额外CLI参数的修订单项实跑PASS，旧cwd/原型断言失败均在sprint005-rc8-packager保留。新rc8外层已准备但未准入签名，Host/Kernel仍精确R5；独立CA测试Host及rc8目录工具在各自target离线编译。
