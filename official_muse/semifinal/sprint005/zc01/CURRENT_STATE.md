@@ -1,17 +1,15 @@
-# SPRINT-005 ZC-01
+# SPRINT-005 ZC01 当前状态
 
-基线：own codex/gpt01-calendar-history / ea4d6e52；中央8da96cfdf582fc7e7e1e8a7eda4e902f75090f6a；Main caa99c570744d36a5e3b3d890fe56baf6337f506b8e37353e5d79bca9e3e7cce。13:11:25开始，19:11:25高风险冻结，20:11:25截止（2026-10-12上海）。仅拥有本目录/自有测试；Root独占生产GUI9696，本站不读生产profile/Secret/Keychain，不给其他聊天发送消息，不写Root/Main/Host/生产数据，不发布/Tag。
+2026-10-12；基线own codex/gpt01-calendar-history/ea4d6e52，中央8da96cf；正式Main已核仍caa99c57。13:11:25开始，19:11:25高风险冻结，20:11:25截止。仅本namespace/自有fixture测试；Root独占GUI与生产、Main/Host/Bundle。本站没有GUI操作、真实模型/Calendar/Mail调用、生产profile/Secret/Keychain读取、Tag/发布/push、跨聊天消息或子代理。
 
-正在完成三项：真实Agent前置条件与profile_unresolved诊断；官方Rust/OctoScript/比赛与AppHub交付核查；专属隔离ZC05 Calendar稳定ID读回。
+**结论PARTIAL / 源码与接口交接READY。** 模型和三轮GUI仍未验证。完整入口为DELIVERY.md，不重复旧NIGHT004测试结论。
 
-已确认：Kernel源码在中央build/runtime-closure-kernel-r1/src，真实Git b0759a57719fd35b3a2da1c5d969bc67538ed516。profile_unresolved在ui_protocol_transport.rs10408/23331，profile_is_known查store或runtime，再准备session；不能当Calendar Relay失败，也不能拿fixture model充当真实连接。SDK展开目录git rev-parse继承Muse HEAD，不是upstream revision；preparation.json写SDK4ccf8e06/Hub95e4831a，但旧root dependencies.lock.json仍7f962547，需要明确区分。
+- Models首提交62f28817：正式Host1eb1887b包含7系统pack，AI providers脚本c6680953/21763bytes与SDK相同且有llm.test。裸文本marker不存在不是缺包。ai-providers/models搜索无结果可由连字符规范化/缺别名/当前子树解释；Root核AI providers/providers/ai及合法Settings/OpenProviders入口。未假定菜单实际可见。
+- 严格探针：已有os.ai-providers Test按指定provider固定ping，无tools/history；Muse model.complete固定合成nonce JSON已备，wire源码无工具执行器/私人上下文。后者可回退/重试，不证明指定MiniMax-M3或Agent full-chain。Root可挂接已有授权UI，本站未改Main。
+- 资源：formal与zc05-preflight-r1的211个host-runtime文件名称/大小/hash逐一同，无symlink，model_resource_audit.json。Root报告originalR5同state单Host重启正文恢复；首用Deny亦已持久化，根因未隔离。未做GPU/布局改动。
+- profile_unresolved：Kernel真实Git b0759a57；在session/open active profile检查、cwd/sandbox前抛错。Main open传{}，agent.profile read-only是工具预设，family/model配置不是Kernel profile存在证明。合法peer/session/register/declaration/owner链定位见DELIVERY；缺实际失败method/data/profile绑定，不改生产注册。
+- 官方：组织方实际render-source写10/12决赛用10/9冻结版、Native参评、Apache2公开可运行源码和复现材料、无需先上架。当前AppHub需GitHub-attested及独立review/admin发布；legacy本机签名仅rehearsal。未确认Muse实际冻结版/后修例外或catalog approval。
+- vanilla差异：固定SDK4ccf8e06/当前f0754134/RC6 Calendar tools均无get_event，配对源码新增。10相关文件4异6同；32 framework patch hash全符合lock。只是选定源码审计；PREPARED_NOT_BUILT不是formal Host完整编译receipt，需Root绑定正式binary→Rust closure。
+- Calendar：read_calendar_store.py仅中央build/sprint005/zc05-*/state、双marker+spec、nonce标题及ID白名单，拒生产/symlink/混入/损坏/缺失/写操作。13/13 fixture tests PASS，日志calendar_reader_tests.log；service_api_called=false，未读Root状态或GUI创建的数据。Root/ZC05按example准备spec后可用events发现ID、绑定后精确读改期/冲突/删除/重启。旧helper现场binary缺失，旧证据保留。
 
-严格无Calendar/Mail工具模型连接入口：SDKmodel.complete/complete/wire.rs直接one-shot，只有固定system+task/schema/input，无tools/memory/history/browsing；source要求task/input/schema/class?/allow_urls?。成功仅是选中/回退provider的direct inference，不证明MiniMax-M3 Agent或工具链。另有os.ai-providers的llm.test固定ping/1 token（Responses16），无tools/私人上下文，但UI入口的compiled系统pack仍在核对。
-
-Models里程碑：实际formal-r3 Host内解析出7个系统pack，os.ai-providers脚本21763 bytes/c6680953…与SDK相同且含run_test/llm.test。裸文本未命中是Base64打包所致，不能判缺包。搜索输入ai-providers/models无结果也不足判UI缺失：menu源码只把叶/alias连字符转空格，query未同步转换，且只搜索当前子树。合法入口与固定无工具payload见DELIVERY.md；Root可用AI providers/providers/ai核对。实际模型请求0、GUI操作0；配置metadata不是连通性。
-
-资源闭合：formal与zc05-preflight-r1的211个host-runtime文件名称/大小/hash逐一相同，无symlink，结果model_resource_audit.json。Root报告originalR5同state单Host重启已恢复正文（PID27091/native715），首用Deny状态亦已持久化，根因未单独隔离；不改GPU。实际resource分支/路径未观测。
-
-官方网页已browse：旧Design-Flow重定向App-Flow；当前GitHub-attested AppHub流程、bundle不带native代码、native/system需shell release，Rust/WASM另一条。AppFlow技术规则不是比赛组织规则；官方链接create.gosim.org/agenticapp26页面JS，正文待读取。Desktop RC6发布日期2026-10-11/sourcef9f6fea9与我们的固定Host分开，未下载/安装新Host。
-
-旧Calendar helper源码/历史证据保留，但own build/gpt01-calendar-history只有sdk/app-peers，没有现场旧target/binary。将准备严格拒生产/R5 root的独立owner-store读回，显式区别服务API调用；不能假装历史binary目前可用。ZC05专属fixture路径/合成标题/稳定ID白名单和symlink拒绝是必要边界。不大规模编译或重复已通过164等测试。
+未完成：合法真实provider Test/固定probe、profile错误实际绑定、ZC05三轮GUI、formal Host完整源码receipt及比赛冻结版关系。Local commits only，Root统一收口。
