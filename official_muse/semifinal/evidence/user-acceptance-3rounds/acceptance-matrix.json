@@ -1,0 +1,6755 @@
+{
+  "schema": 1,
+  "stage": "PREPARATION_ONLY",
+  "candidate_identity": null,
+  "candidate_status": "AWAITING_FREEZE",
+  "functions": [
+    {
+      "test_id": "UA-BASE-01",
+      "group": "BASE",
+      "feature": "安装/打开固定候选",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「安装/打开固定候选」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「安装/打开固定候选」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「安装/打开固定候选」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-02",
+      "group": "BASE",
+      "feature": "全部主导航与更多入口",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「全部主导航与更多入口」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「全部主导航与更多入口」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「全部主导航与更多入口」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-03",
+      "group": "BASE",
+      "feature": "侧栏收起/展开",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「侧栏收起/展开」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「侧栏收起/展开」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「侧栏收起/展开」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-04",
+      "group": "BASE",
+      "feature": "结果栏收起/展开/窄页返回",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「结果栏收起/展开/窄页返回」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「结果栏收起/展开/窄页返回」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「结果栏收起/展开/窄页返回」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-05",
+      "group": "BASE",
+      "feature": "聊天发送与渲染",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「聊天发送与渲染」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「聊天发送与渲染」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「聊天发送与渲染」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-06",
+      "group": "BASE",
+      "feature": "聊天停止和中途切会话",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「聊天停止和中途切会话」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「聊天停止和中途切会话」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「聊天停止和中途切会话」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-07",
+      "group": "BASE",
+      "feature": "新建/切换/持久化对话",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「新建/切换/持久化对话」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「新建/切换/持久化对话」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「新建/切换/持久化对话」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-08",
+      "group": "BASE",
+      "feature": "对话改名",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「对话改名」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「对话改名」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「对话改名」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-09",
+      "group": "BASE",
+      "feature": "对话删除取消/确认",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「对话删除取消/确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「对话删除取消/确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「对话删除取消/确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-10",
+      "group": "BASE",
+      "feature": "项目与资料归属选择",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「项目与资料归属选择」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「项目与资料归属选择」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「项目与资料归属选择」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-BASE-11",
+      "group": "BASE",
+      "feature": "较早消息与回到最新",
+      "coverage_source": [
+        "README.md",
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11420"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "可见入口响应正确；目标对话/页面/项目符合本人选择；需保存的状态重启后保持；取消不删除。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "从安装打开入口进入Muse，逐项按可见按钮完成操作。",
+            "单独验证「较早消息与回到最新」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在对话A/B之间切换；先取消一次删除/停止一次请求，再执行本项。",
+            "单独验证「较早消息与回到最新」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常退出隔离宿主，由交接的重启命令重开；重复本项并检查保存状态。",
+            "单独验证「较早消息与回到最新」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-01",
+      "group": "MEM",
+      "feature": "新增偏好",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「新增偏好」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「新增偏好」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「新增偏好」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-02",
+      "group": "MEM",
+      "feature": "新增事实/资料",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「新增事实/资料」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「新增事实/资料」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「新增事实/资料」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-03",
+      "group": "MEM",
+      "feature": "聊天记住这条",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「聊天记住这条」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「聊天记住这条」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「聊天记住这条」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-04",
+      "group": "MEM",
+      "feature": "跨会话相关检索",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「跨会话相关检索」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「跨会话相关检索」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「跨会话相关检索」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-05",
+      "group": "MEM",
+      "feature": "项目/归属/账号隔离",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「项目/归属/账号隔离」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「项目/归属/账号隔离」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「项目/归属/账号隔离」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-06",
+      "group": "MEM",
+      "feature": "来源与Memory DSL/历史",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「来源与Memory DSL/历史」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「来源与Memory DSL/历史」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「来源与Memory DSL/历史」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-07",
+      "group": "MEM",
+      "feature": "更正",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「更正」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「更正」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「更正」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-08",
+      "group": "MEM",
+      "feature": "固定/取消固定",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「固定/取消固定」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「固定/取消固定」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「固定/取消固定」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-09",
+      "group": "MEM",
+      "feature": "冲突采用新内容",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「冲突采用新内容」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「冲突采用新内容」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「冲突采用新内容」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-10",
+      "group": "MEM",
+      "feature": "冲突保留旧内容",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「冲突保留旧内容」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「冲突保留旧内容」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「冲突保留旧内容」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-11",
+      "group": "MEM",
+      "feature": "遗忘取消",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「遗忘取消」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「遗忘取消」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「遗忘取消」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-12",
+      "group": "MEM",
+      "feature": "确认遗忘且不从旧来源回流",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「确认遗忘且不从旧来源回流」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「确认遗忘且不从旧来源回流」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「确认遗忘且不从旧来源回流」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-13",
+      "group": "MEM",
+      "feature": "记忆分页",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「记忆分页」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「记忆分页」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「记忆分页」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-14",
+      "group": "MEM",
+      "feature": "暂停/启用记忆",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「暂停/启用记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「暂停/启用记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「暂停/启用记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-15",
+      "group": "MEM",
+      "feature": "导出",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「导出」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「导出」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「导出」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MEM-16",
+      "group": "MEM",
+      "feature": "同用户合法导入/无效导入阻断",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:11549"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只读回同一授权用户/项目/归属相关记录；来源与版本可追溯；更正与遗忘生效；冲突由本人选择。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用UA-R1合成主题和原话，通过记忆页/聊天保存并检查该功能。",
+            "单独验证「同用户合法导入/无效导入阻断」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "保存冲突/更正前切会话或项目；遗忘先取消；按界面重新核对内容再操作。",
+            "单独验证「同用户合法导入/无效导入阻断」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后检索同一主题，并用新合成记录重复；检查版本、来源、遗忘与归属。",
+            "单独验证「同用户合法导入/无效导入阻断」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-01",
+      "group": "MAIL",
+      "feature": "账号连接/选择",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「账号连接/选择」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「账号连接/选择」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「账号连接/选择」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-02",
+      "group": "MAIL",
+      "feature": "同步与失败提示",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「同步与失败提示」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「同步与失败提示」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「同步与失败提示」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-03",
+      "group": "MAIL",
+      "feature": "文件夹与收件分页",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「文件夹与收件分页」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「文件夹与收件分页」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「文件夹与收件分页」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-04",
+      "group": "MAIL",
+      "feature": "读取正文与长正文展开",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「读取正文与长正文展开」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「读取正文与长正文展开」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「读取正文与长正文展开」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-05",
+      "group": "MAIL",
+      "feature": "首次基线/新来信逐封提醒",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「首次基线/新来信逐封提醒」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「首次基线/新来信逐封提醒」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「首次基线/新来信逐封提醒」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-06",
+      "group": "MAIL",
+      "feature": "回复意图模型起草",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「回复意图模型起草」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「回复意图模型起草」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「回复意图模型起草」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-07",
+      "group": "MAIL",
+      "feature": "手写回复",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「手写回复」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「手写回复」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「手写回复」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-08",
+      "group": "MAIL",
+      "feature": "编辑/重新起草/采用新稿",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「编辑/重新起草/采用新稿」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「编辑/重新起草/采用新稿」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「编辑/重新起草/采用新稿」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-09",
+      "group": "MAIL",
+      "feature": "不予回复无发送",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「不予回复无发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「不予回复无发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「不予回复无发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-10",
+      "group": "MAIL",
+      "feature": "写新邮件与草稿继续",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「写新邮件与草稿继续」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「写新邮件与草稿继续」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「写新邮件与草稿继续」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-11",
+      "group": "MAIL",
+      "feature": "发送预览与暂不发送",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「发送预览与暂不发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「发送预览与暂不发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「发送预览与暂不发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-12",
+      "group": "MAIL",
+      "feature": "精确确认发送",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「精确确认发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「精确确认发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「精确确认发送」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-13",
+      "group": "MAIL",
+      "feature": "受理/收件独立核验区分",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「受理/收件独立核验区分」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「受理/收件独立核验区分」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「受理/收件独立核验区分」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-14",
+      "group": "MAIL",
+      "feature": "未知不重发/原发送核对/保留待核对",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「未知不重发/原发送核对/保留待核对」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「未知不重发/原发送核对/保留待核对」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「未知不重发/原发送核对/保留待核对」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-15",
+      "group": "MAIL",
+      "feature": "邮件来源记忆",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「邮件来源记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「邮件来源记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「邮件来源记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-16",
+      "group": "MAIL",
+      "feature": "从来信安排/改期入口",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「从来信安排/改期入口」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「从来信安排/改期入口」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「从来信安排/改期入口」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-17",
+      "group": "MAIL",
+      "feature": "自动分析授权与开关",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「自动分析授权与开关」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「自动分析授权与开关」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「自动分析授权与开关」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-18",
+      "group": "MAIL",
+      "feature": "来信提醒暂停/继续",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「来信提醒暂停/继续」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「来信提醒暂停/继续」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「来信提醒暂停/继续」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-MAIL-19",
+      "group": "MAIL",
+      "feature": "宿主通知启用/暂停",
+      "coverage_source": [
+        "docs/USER_GUIDE.zh-CN.md",
+        "official_muse/app/source/main.splash:11260",
+        "official_muse/app/source/main.splash:11663"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "合成来信与独立收件核验出口"
+      ],
+      "expected": "正文、账号、收件人、意图与草稿一致；发送需独立确认且不重复；服务受理不冒充收件到达。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "只选择合成账号，按收件箱/来信卡/草稿界面完成此功能；发送仅到合成收件端。",
+            "单独验证「宿主通知启用/暂停」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切来信/文件夹/会话，编辑意图或正文，先暂不发送；重新核对正确收件人及正文。",
+            "单独验证「宿主通知启用/暂停」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后继续草稿/读回原发送记录；用新的测试ID重复，核对独立合成收件端。",
+            "单独验证「宿主通知启用/暂停」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-01",
+      "group": "CAL",
+      "feature": "官方助手/模型缺前置提示",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「官方助手/模型缺前置提示」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「官方助手/模型缺前置提示」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「官方助手/模型缺前置提示」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-02",
+      "group": "CAL",
+      "feature": "自由查询请求",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「自由查询请求」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「自由查询请求」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「自由查询请求」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-03",
+      "group": "CAL",
+      "feature": "候选绑定事项与身份",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「候选绑定事项与身份」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「候选绑定事项与身份」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「候选绑定事项与身份」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-04",
+      "group": "CAL",
+      "feature": "冲突查询",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「冲突查询」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「冲突查询」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「冲突查询」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-05",
+      "group": "CAL",
+      "feature": "查询原回执读回结清",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「查询原回执读回结清」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「查询原回执读回结清」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「查询原回执读回结清」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-06",
+      "group": "CAL",
+      "feature": "再次明确确认创建",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「再次明确确认创建」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「再次明确确认创建」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「再次明确确认创建」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-07",
+      "group": "CAL",
+      "feature": "稳定ID精确get_event核验",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「稳定ID精确get_event核验」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「稳定ID精确get_event核验」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「稳定ID精确get_event核验」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-08",
+      "group": "CAL",
+      "feature": "选原事件同ID改期",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「选原事件同ID改期」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「选原事件同ID改期」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「选原事件同ID改期」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-09",
+      "group": "CAL",
+      "feature": "expected不匹配停止",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「expected不匹配停止」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「expected不匹配停止」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「expected不匹配停止」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-10",
+      "group": "CAL",
+      "feature": "选择删除/取消与确认",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「选择删除/取消与确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「选择删除/取消与确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「选择删除/取消与确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-11",
+      "group": "CAL",
+      "feature": "删除后同ID权威缺席",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「删除后同ID权威缺席」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「删除后同ID权威缺席」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「删除后同ID权威缺席」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-12",
+      "group": "CAL",
+      "feature": "未知原请求回读/结清",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「未知原请求回读/结清」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「未知原请求回读/结清」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「未知原请求回读/结清」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-13",
+      "group": "CAL",
+      "feature": "重启unknown不重发",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「重启unknown不重发」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「重启unknown不重发」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「重启unknown不重发」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CAL-14",
+      "group": "CAL",
+      "feature": "旧私有系统日历不可达功能",
+      "coverage_source": [
+        "bundle/listing.json",
+        "official_muse/app/source/main.splash:463",
+        "official_muse/app/source/main.splash:11940"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "官方Calendar服务和合成日历，宿主批准仅对隔离fixture"
+      ],
+      "expected": "只能依当前精确候选、身份与批准执行；官方工具回执和独立读回相符；改期同ID，删除精确缺席。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用明确未来日期、起止、时区与UA测试标题，通过官方助手和候选确认完成此功能。",
+            "单独验证「旧私有系统日历不可达功能」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "查询后改时间/切会话/取消批准；以界面实际绑定与宿主回执核对是否停止旧请求。",
+            "单独验证「旧私有系统日历不可达功能」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后读回同一原请求和稳定ID；新的请求才执行，未知状态不得自动重发。",
+            "单独验证「旧私有系统日历不可达功能」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-01",
+      "group": "CHAIN",
+      "feature": "行动链/结果切换",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「行动链/结果切换」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「行动链/结果切换」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「行动链/结果切换」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-02",
+      "group": "CHAIN",
+      "feature": "跟随会话与切换事项",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「跟随会话与切换事项」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「跟随会话与切换事项」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「跟随会话与切换事项」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-03",
+      "group": "CHAIN",
+      "feature": "节点状态与查看依据",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「节点状态与查看依据」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「节点状态与查看依据」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「节点状态与查看依据」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-04",
+      "group": "CHAIN",
+      "feature": "只读行动链DSL",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「只读行动链DSL」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「只读行动链DSL」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「只读行动链DSL」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-05",
+      "group": "CHAIN",
+      "feature": "深浅色与布局持久化",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「深浅色与布局持久化」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「深浅色与布局持久化」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「深浅色与布局持久化」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-06",
+      "group": "CHAIN",
+      "feature": "查看事项与确认",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": false,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「查看事项与确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「查看事项与确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「查看事项与确认」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-07",
+      "group": "CHAIN",
+      "feature": "失败/冲突/未知状态不抬高",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「失败/冲突/未知状态不抬高」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「失败/冲突/未知状态不抬高」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「失败/冲突/未知状态不抬高」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-CHAIN-08",
+      "group": "CHAIN",
+      "feature": "来源关联/旧确认失效/重启保留",
+      "coverage_source": [
+        "official_muse/app/source/main.splash:10929",
+        "official_muse/app/source/main.splash:11182"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料"
+      ],
+      "expected": "只展示当前事项的已有真实记录；计划/草稿/受理/未知不会显示已核验；只读DSL不触发执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "在已生成的合成事项中查看链、节点、来源、依据与只读DSL。",
+            "单独验证「来源关联/旧确认失效/重启保留」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "切换事项/会话并改变计划或草稿；检查节点归属、旧确认与状态文案。",
+            "单独验证「来源关联/旧确认失效/重启保留」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看同一事项；重复展开与布局操作，核对持久化记录与实际显示。",
+            "单独验证「来源关联/旧确认失效/重启保留」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-01",
+      "group": "AGENT",
+      "feature": "模型计划候选生成/打开/暂不处理",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「模型计划候选生成/打开/暂不处理」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「模型计划候选生成/打开/暂不处理」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「模型计划候选生成/打开/暂不处理」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-02",
+      "group": "AGENT",
+      "feature": "批准纯存储计划与独立读回",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「批准纯存储计划与独立读回」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「批准纯存储计划与独立读回」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「批准纯存储计划与独立读回」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-03",
+      "group": "AGENT",
+      "feature": "暂停/恢复任务",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「暂停/恢复任务」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「暂停/恢复任务」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「暂停/恢复任务」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-04",
+      "group": "AGENT",
+      "feature": "取消任务",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「取消任务」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「取消任务」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「取消任务」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-05",
+      "group": "AGENT",
+      "feature": "更新计划使旧批准失效",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「更新计划使旧批准失效」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「更新计划使旧批准失效」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「更新计划使旧批准失效」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-06",
+      "group": "AGENT",
+      "feature": "任务来源记忆",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「任务来源记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「任务来源记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「任务来源记忆」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-07",
+      "group": "AGENT",
+      "feature": "归档/操作记录/技术详情",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「归档/操作记录/技术详情」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「归档/操作记录/技术详情」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「归档/操作记录/技术详情」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-08",
+      "group": "AGENT",
+      "feature": "邮件/日历候选生成打开与暂不处理",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「邮件/日历候选生成打开与暂不处理」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「邮件/日历候选生成打开与暂不处理」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「邮件/日历候选生成打开与暂不处理」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-09",
+      "group": "AGENT",
+      "feature": "记忆变化使候选/草稿失效",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「记忆变化使候选/草稿失效」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「记忆变化使候选/草稿失效」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「记忆变化使候选/草稿失效」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-10",
+      "group": "AGENT",
+      "feature": "缺信息询问/授权缺失阻断",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「缺信息询问/授权缺失阻断」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「缺信息询问/授权缺失阻断」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「缺信息询问/授权缺失阻断」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-11",
+      "group": "AGENT",
+      "feature": "邮件→日历→同ID改期→确认稿→结果记忆闭环",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「邮件→日历→同ID改期→确认稿→结果记忆闭环」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「邮件→日历→同ID改期→确认稿→结果记忆闭环」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「邮件→日历→同ID改期→确认稿→结果记忆闭环」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-12",
+      "group": "AGENT",
+      "feature": "安全重试/回读不产生重复动作",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「安全重试/回读不产生重复动作」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「安全重试/回读不产生重复动作」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「安全重试/回读不产生重复动作」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "UA-AGENT-13",
+      "group": "AGENT",
+      "feature": "窄范围来信自动安排可见实现",
+      "coverage_source": [
+        "README.md",
+        "official_muse/app/source/main.splash:10009",
+        "official_muse/app/source/main.splash:12260"
+      ],
+      "implementation_status": "PENDING_GUI_DISCOVERY",
+      "preconditions": [
+        "冻结候选身份已交接",
+        "独占FIXTURE_ONLY原生窗口且端口不是9696",
+        "只用合成用户/账号/资料",
+        "相应合成模型/来信/日历前置"
+      ],
+      "expected": "计划与执行明确分离，批准绑定当前版本；产物真实持久化并独立读回；取消、未知、权限缺失不执行。",
+      "readback_required": true,
+      "rounds": [
+        {
+          "round_id": "round-01",
+          "scenario": "正常流程",
+          "steps": [
+            "用合成目标/来信/明确日程通过聊天候选及可见确认推进本项，核对实际产物。",
+            "单独验证「窄范围来信自动安排可见实现」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-02",
+          "scenario": "交互变化",
+          "steps": [
+            "在执行前取消/暂停/切会话/变更资料或时间；明确重新核对后继续。",
+            "单独验证「窄范围来信自动安排可见实现」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        },
+        {
+          "round_id": "round-03",
+          "scenario": "重启与重复",
+          "steps": [
+            "正常重启后查看原计划、执行与结果；重复新的事项，检查不重发原动作。",
+            "单独验证「窄范围来信自动安排可见实现」的实际可见结果。",
+            "截取原生窗口图，逐张查看；必要时从隔离持久化出口独立读回。"
+          ]
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "test_id": "UA-BASE-01",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-01/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-02",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-02/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-03",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-03/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-04",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-04/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-05",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-05/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-06",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-06/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-07",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-07/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-08",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-08/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-09",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-09/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-10",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-10/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-11",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-BASE-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-01",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-01/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-02",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-02/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-03",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-03/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-04",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-04/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-05",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-05/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-06",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-06/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-07",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-07/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-08",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-08/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-09",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-09/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-10",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-10/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-11",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-12",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-12/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-13",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-13/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-14",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-14/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-15",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-15/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-16",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MEM-16/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-01",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-01/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-02",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-02/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-03",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-03/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-04",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-04/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-05",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-05/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-06",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-06/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-07",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-07/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-08",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-08/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-09",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-09/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-10",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-10/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-11",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-12",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-12/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-13",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-13/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-14",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-14/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-15",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-15/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-16",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-16/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-17",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-17/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-18",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-18/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-19",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-MAIL-19/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-01",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-01/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-02",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-02/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-03",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-03/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-04",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-04/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-05",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-05/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-06",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-06/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-07",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-07/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-08",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-08/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-09",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-09/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-10",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-10/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-11",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-11/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-12",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-12/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-13",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-13/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-14",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CAL-14/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-01",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-01/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-02",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-02/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-03",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-03/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-04",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-04/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-05",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-05/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-06",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-06/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-07",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-07/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-08",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-CHAIN-08/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-01",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-01/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-02",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-02/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-03",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-03/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-04",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-04/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-05",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-05/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-06",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-06/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-07",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-07/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-08",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-08/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-09",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-09/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-10",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-10/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-11",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-11/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-12",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-12/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-13",
+      "round_id": "round-01",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-01/UA-AGENT-13/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-01",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-01/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-02",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-02/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-03",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-03/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-04",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-04/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-05",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-05/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-06",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-06/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-07",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-07/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-08",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-08/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-09",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-09/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-10",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-10/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-11",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-BASE-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-01",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-01/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-02",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-02/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-03",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-03/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-04",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-04/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-05",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-05/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-06",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-06/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-07",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-07/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-08",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-08/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-09",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-09/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-10",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-10/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-11",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-12",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-12/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-13",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-13/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-14",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-14/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-15",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-15/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-16",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MEM-16/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-01",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-01/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-02",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-02/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-03",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-03/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-04",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-04/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-05",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-05/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-06",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-06/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-07",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-07/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-08",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-08/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-09",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-09/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-10",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-10/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-11",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-12",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-12/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-13",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-13/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-14",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-14/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-15",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-15/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-16",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-16/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-17",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-17/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-18",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-18/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-19",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-MAIL-19/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-01",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-01/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-02",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-02/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-03",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-03/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-04",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-04/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-05",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-05/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-06",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-06/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-07",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-07/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-08",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-08/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-09",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-09/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-10",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-10/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-11",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-11/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-12",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-12/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-13",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-13/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-14",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CAL-14/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-01",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-01/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-02",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-02/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-03",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-03/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-04",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-04/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-05",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-05/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-06",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-06/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-07",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-07/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-08",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-CHAIN-08/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-01",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-01/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-02",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-02/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-03",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-03/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-04",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-04/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-05",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-05/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-06",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-06/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-07",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-07/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-08",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-08/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-09",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-09/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-10",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-10/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-11",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-11/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-12",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-12/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-13",
+      "round_id": "round-02",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-02/UA-AGENT-13/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-01",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-01/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-02",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-02/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-03",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-03/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-04",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-04/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-05",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-05/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-06",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-06/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-07",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-07/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-08",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-08/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-09",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-09/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-10",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-10/attempt-01"
+    },
+    {
+      "test_id": "UA-BASE-11",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-BASE-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-01",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-01/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-02",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-02/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-03",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-03/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-04",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-04/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-05",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-05/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-06",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-06/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-07",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-07/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-08",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-08/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-09",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-09/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-10",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-10/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-11",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-12",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-12/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-13",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-13/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-14",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-14/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-15",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-15/attempt-01"
+    },
+    {
+      "test_id": "UA-MEM-16",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MEM-16/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-01",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-01/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-02",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-02/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-03",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-03/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-04",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-04/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-05",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-05/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-06",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-06/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-07",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-07/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-08",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-08/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-09",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-09/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-10",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-10/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-11",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-11/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-12",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-12/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-13",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-13/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-14",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-14/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-15",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-15/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-16",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-16/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-17",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-17/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-18",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-18/attempt-01"
+    },
+    {
+      "test_id": "UA-MAIL-19",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-MAIL-19/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-01",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-01/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-02",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-02/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-03",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-03/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-04",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-04/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-05",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-05/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-06",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-06/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-07",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-07/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-08",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-08/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-09",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-09/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-10",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-10/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-11",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-11/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-12",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-12/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-13",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-13/attempt-01"
+    },
+    {
+      "test_id": "UA-CAL-14",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CAL-14/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-01",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-01/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-02",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-02/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-03",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-03/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-04",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-04/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-05",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-05/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-06",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-06/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-07",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-07/attempt-01"
+    },
+    {
+      "test_id": "UA-CHAIN-08",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-CHAIN-08/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-01",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-01/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-02",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-02/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-03",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-03/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-04",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-04/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-05",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-05/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-06",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-06/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-07",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-07/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-08",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-08/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-09",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-09/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-10",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-10/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-11",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-11/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-12",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-12/attempt-01"
+    },
+    {
+      "test_id": "UA-AGENT-13",
+      "round_id": "round-03",
+      "status": "NOT_TESTED",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "candidate_id": null,
+      "attempts": [],
+      "evidence": [],
+      "bug_ids": [],
+      "next_attempt_path": "round-03/UA-AGENT-13/attempt-01"
+    }
+  ]
+}
