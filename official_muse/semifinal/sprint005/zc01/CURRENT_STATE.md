@@ -1,6 +1,6 @@
 # SPRINT-005 ZC01 当前状态
 
-2026-10-12；基线own codex/gpt01-calendar-history/ea4d6e52，中央8da96cf；正式Main已核仍caa99c57。13:11:25开始，19:11:25高风险冻结，20:11:25截止。仅本namespace/自有fixture测试；Root独占GUI与生产、Main/Host/Bundle。本站没有GUI操作、真实模型/Calendar/Mail调用、生产profile/Secret/Keychain读取、Tag/发布/push、跨聊天消息或子代理。
+2026-10-12；基线own codex/gpt01-calendar-history/ea4d6e52，中央8da96cf；正式R5仍caa99c57；新Main只读核947c5291，rc8由Root准备。13:11:25开始，19:11:25高风险冻结，20:11:25截止。仅本namespace/自有fixture测试；Root独占GUI与生产、Main/Host/Bundle。本站没有GUI操作、真实模型/Calendar/Mail调用、生产profile/Secret/Keychain读取、Tag/发布/push、跨聊天消息或子代理。
 
 **结论PARTIAL / 源码与接口交接READY。** 模型和三轮GUI仍未验证。完整入口为DELIVERY.md，不重复旧NIGHT004测试结论。
 
@@ -13,3 +13,11 @@
 - Calendar：read_calendar_store.py仅中央build/sprint005/zc05-*/state、双marker+spec、nonce标题及ID白名单，拒生产/symlink/混入/损坏/缺失/写操作。13/13 fixture tests PASS，日志calendar_reader_tests.log；service_api_called=false，未读Root状态或GUI创建的数据。Root/ZC05按example准备spec后可用events发现ID、绑定后精确读改期/冲突/删除/重启。旧helper现场binary缺失，旧证据保留。
 
 未完成：合法真实provider Test/固定probe、profile错误实际绑定、ZC05三轮GUI、formal Host完整源码receipt及比赛冻结版关系。Local commits only，Root统一收口。
+
+## 构建绑定后续收口
+
+Root已接收635ca8d1，并报告providers实际GUI找到、loopback TestConnection产生1次model.request/Connected3ms；不是真实M3。正式1eb Host仅在内存还原签名前字节，SHA精确匹配night004-rc7-preparation实际a9fc8ca3 build receipt（124155120bytes），UUID72569da9…；3/3合成Mach-O测试PASS，证据build_binding_r1/formal-host-binding.json。实际是BINARY_TO_BUILD_RECEIPT_BOUND，完整历史源码/环境freeze尚缺，不能称独立源码重建成功。
+
+已执行current cargo tree offline/locked+精确features，575明确package ID/0未映射；只记录当前manifest SHA和当前环境，未cargo build、未操作Root target。用户经Root确认Oct13截止；主办页复查hash不变仍10/9冻结/10/12答辩，两份依据同时保留，不改用户截止或推断例外。
+
+Root最新要求尽快提交此已确认小单元，不扩大审计、不阻塞冻结。Root新CA fixture Host raw e4e8f5ac/签名cea8ca71属于独立fixture，生产1eb/R5不改；ZC05 Memory实际GUI四项通过为Root提供结果，Goal/Calendar仍进行中。本站无GUI/真实模型/生产/Root target动作；316个本轮开始前已存在的namespace外媒体删除保持原样，没有恢复或提交。

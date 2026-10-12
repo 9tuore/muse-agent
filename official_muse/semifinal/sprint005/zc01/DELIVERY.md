@@ -69,3 +69,31 @@ python3 read_calendar_store.py --state-root '/Users/mima0000/.codex/worktrees/mu
 ## 当前交接
 
 Models里程碑提交 `62f28817`。本站范围内三项已准备并验证，Root仍需执行合法模型检查、确认profile错误实际绑定、完成ZC05三轮GUI及正式Host完整源码receipt/比赛冻结边界。只改本namespace；本地提交，不push，不对其他聊天发消息。
+
+## 后续：正式 Host 构建绑定与最小 Native 交付
+
+Root已接收635ca8d1，并报告实际GUI找到providers：内建TestConnection向loopback产生1条model.request、Connected 3ms。这是实际fixture网络请求，不是MiniMax-M3推理或Agent工具链。本节由Root提供的新现场更新，本站没有操作GUI。Root新Main源码已只读核为 `947c52915c507f9a7a7a896c554b43f1c1e0a9ec11bee490bed5304d054b642b`；rc8/catalog5仍准备中。原R5/生产资料保留。两入口同state单Host重初始化后Main可见、跨profile互斥26签名stub检查通过均为Root结果；根因仍UNKNOWN，本站不改GPU。
+
+**正式Host的编译产物来源现已绑定。** `build_binding_r1/bind_formal_host.py`只读当前正式 `1eb1887b…`；去除最终签名load command/签名尾部并恢复LINKEDIT大小的操作仅在内存中完成。还原后的124155120 bytes SHA精确为 **`a9fc8ca3f39a626bb1bc1fae3cb99b359f5a07c7c3c50f45cd73b21d885c397a`**，与 `official_muse/integrated_release/evidence/night004-rc7-preparation/host/host-build-receipt.json`完全相同。正式Mach-O UUID为 `72569da9-f7c8-3220-883e-2056014001ee`，16个file-backed sections的hash已保存。它不是较早History Host的30d4/ec83，也不是R3/R5诊断Host。结果 `formal-host-binding.json` 标 `BINARY_TO_BUILD_RECEIPT_BOUND`；没有写出、重签或执行二进制。3/3合成Mach-O测试通过，日志binding-tests.txt。可用如下只读命令复核：
+
+```sh
+python3 build_binding_r1/bind_formal_host.py \
+  --binary '/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/muse-integrated-0.4.0-rc7-formal-r3/Muse.app/Contents/Resources/host-runtime/muse-host' \
+  --receipt '/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/official_muse/integrated_release/evidence/night004-rc7-preparation/host/host-build-receipt.json'
+```
+
+**完整源码重建仍有具体缺口。** 上述真实receipt记录release/offline/locked、no-default-features、`app-hub,octos-core,app-muse-native-prototype`、lock5b58…和324.61s构建成功；builder调用SDKpackage_env生成apple_bundle、package dir`.`、deployment11.0、strip debuginfo、路径remap，然后独立签名。它没有记录当时全部path-source字节、继承flags/toolchain/linker/SDK和生成表。现场原unsigned文件已不在旧输出路径；当前完整SDK也不能被追认成旧源码快照。较早History的17文件指纹目前10同7漂移，但那是History checkpoint，不是a9fc正式构建的前置fingerprint。
+
+本轮实际执行了 **cargo tree，未执行cargo build**：offline/locked、相同features、x86_64、normal+build边，target显式指向本站 `.repro-target`，没有操作Root target，lock仍5b58…。用已有metadata-r11按tree的source路径/URI映射，解析到 **575个精确package ID，0未映射**（不能只按name/version：registry和Makepad vendor有同名版本）。`current-source-graph.json`记录每个manifest SHA，`current-cargo-tree.txt`保存实际输出；这是当前图，不是旧正式构建图。当前rustc1.98.1/LLVM22.1.8、Apple clang16.0.0、SDK15.2已读取，不能代替旧环境证明。`reproduction-recipe-and-gaps.json`明确区分已绑定binary与缺失的历史freeze。没有拿新编译代替旧正式Host，也没有启动candidate。
+
+最小交付核对：
+
+| 项目 | 已有证据 | 剩余最小差距 |
+|---|---|---|
+| 集成Native入口 | 配对RustHost1eb→实际a9fc构建receipt；正式R5资源和Kernel保留 | 公共、可复建的精确SDK/Hub/framework/path-source冻结内容或完整base+deltas，以及旧环境/生成输入；一次隔离重建绑定到unsigned hash后再独立签名。SHA清单不能替代源文件。 |
+| Muse应用版本 | R5/caa99…保底；新Main947…由Root准备rc8 | 固定rc8 commit/tag、bundle/manifest/catalog/Host/Kernel/launcher完整身份；新Main与启动器变化必须绑定到新证据，旧R5验收范围保留。 |
+| 可核验业务演示 | providers入口及loopback Test已实点；已有合成证据 | 真实provider推理/合法Agent注册、ZC05三轮和当前candidate的结果核验；loopback和签名stub不能当真实M3/业务动作。 |
+| Native参评材料 | 官方明确Native参评、不能进Hub不扣分、无需先上架 | 描述为Muse Splash + 配对Rust扩展；提交可运行宿主、公开Apache2源码、固定版本、支持平台/启动说明、截图/视频/复现步骤。Native路线不以伪装成store包解决宿主差异。 |
+| 时间口径 | 用户经Root确认Oct13截止；主办页实际JS复查仍原hash4c454…、10/9冻结/10/12决赛文案仍在 | 同时保留两份依据，继续按用户Oct13工作；不替用户改截止、不推断延期例外或失格。`deadline-source-recheck.json`留获取方法/hash。 |
+
+普通dev准备与本地提交可继续；正式发布、Tag、issue更新、catalog管理员操作未授权给本站，也未执行。由于历史源码/环境未冻结，当前结果不能标`FULL_SOURCE_REPRODUCED`；Root可将以上缺口作为Native交付的明确待验项，不能用旧History/source checkpoint或相同Cargo.lock填补。
