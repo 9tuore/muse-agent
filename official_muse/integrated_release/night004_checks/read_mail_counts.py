@@ -14,7 +14,7 @@ import stat
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
-FIXTURES = ROOT / 'build/night-004'
+FIXTURES = (ROOT / 'build/night-004', ROOT / 'build/night006')
 NAMESPACE = re.compile(r'drafts-[0-9a-f]{64}\Z')
 DRAFT_FILE = re.compile(r'([A-Za-z0-9-]{1,96})\.json\Z')
 STATES = ('draft', 'awaiting_approval', 'sending', 'accepted',
@@ -40,10 +40,13 @@ def marker(root):
 
 def guarded_root(path):
     require(path.is_absolute(), 'Fixture root must be absolute')
-    relative = path.relative_to(FIXTURES)
-    require(relative.parts and '..' not in relative.parts, 'Root must be below central build/night-004')
-    directory(FIXTURES)
-    cursor = FIXTURES
+    base = next((base for base in FIXTURES if path.is_relative_to(base) and path != base), None)
+    require(base is not None, 'Root must be below central build/night-004 or build/night006')
+    relative = path.relative_to(base)
+    require(relative.parts and '..' not in relative.parts, 'Fixture traversal is not allowed')
+    directory(ROOT / 'build')
+    directory(base)
+    cursor = base
     for part in relative.parts:
         cursor /= part
         directory(cursor)
@@ -79,6 +82,8 @@ def counts(state, external=None):
     marker(host)
     if external is not None:
         host = guarded_root(external)
+        require(any(state.is_relative_to(base) and host.is_relative_to(base) for base in FIXTURES),
+                'Alternate Mail root must use the same fixture base')
         synthetic = host / 'night004-synthetic-state.txt'
         if synthetic.exists() or synthetic.is_symlink():
             require(stat.S_ISREG(synthetic.lstat().st_mode), 'Synthetic Mail marker is linked')
@@ -151,7 +156,7 @@ def counts(state, external=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('state_root', type=Path,
-                        help='Existing absolute central build/night-004 state with two FIXTURE_ONLY markers')
+                        help='Existing absolute central build/night-004 or build/night006 state with two FIXTURE_ONLY markers')
     parser.add_argument('--mail-host-root', type=Path,
                         help='Explicit alternate host_dir in the same fixture base, with its own FIXTURE_ONLY marker; mail/ is appended')
     args = parser.parse_args()
