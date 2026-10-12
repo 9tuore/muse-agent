@@ -48,6 +48,8 @@ def main():
     sdk = args.sdk.resolve()
     if run(["git", "rev-parse", "HEAD"], sdk).strip() != SDK_REV:
         raise SystemExit("Use the official desktop-v0.1.0-rc.6 checkout")
+    if not (sdk / ".cargo/config.toml").is_file():
+        raise SystemExit("Include the official .cargo directory in the SDK checkout before preparing it")
     hub = sdk / ".sources/app-hub"
     if not hub.exists():
         hub.mkdir(parents=True)

@@ -21,6 +21,11 @@ already-applied match. The patch includes the matching lockfile: only the five
 App Hub packages change from the pinned Git source to its patched `.sources`
 checkout; other locked versions do not change.
 
+The SDK checkout must include its official `.cargo` directory. Its desktop
+system-app selection embeds Mail, Calendar and the other bundled apps; a
+build without it can open a window while containing none of those apps.
+The builder checks the configuration identity and records the selection.
+
 `build_official_host.py` has `check`, `host`, `kernel`, `hub` and `tests`
 phases. It uses upstream packaging flags, strips debug data, remaps build
 paths, uses isolated target directories, and records the source/patch/lock

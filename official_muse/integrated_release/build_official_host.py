@@ -40,6 +40,16 @@ def main():
     tag_revision = subprocess.check_output(["git", "rev-parse", args.release_tag + "^{commit}"], cwd=sdk, text=True).strip()
     if revision != tag_revision:
         raise SystemExit("SDK HEAD differs from the requested release tag")
+    cargo_config = sdk / ".cargo/config.toml"
+    if not cargo_config.is_file():
+        raise SystemExit("Missing official .cargo/config.toml; include .cargo in the SDK checkout")
+    official_config = subprocess.check_output(["git", "show", "HEAD:.cargo/config.toml"], cwd=sdk)
+    if cargo_config.read_bytes() != official_config:
+        raise SystemExit("SDK Cargo configuration differs from the official release")
+    system_apps_path = sdk / "desktop/system-apps.json"
+    system_apps = json.loads(system_apps_path.read_text())["apps"]
+    if not {"mail", "calendar"}.issubset(system_apps):
+        raise SystemExit("The host system app selection must include Mail and Calendar")
     patch_root = Path(__file__).resolve().parent / "upstream-rc6"
     for name, repo in (("sdk", sdk), ("app-hub", sdk / ".sources/app-hub")):
         expected = (patch_root / (name + ".patch")).read_bytes()
@@ -64,6 +74,9 @@ def main():
                "status": "RUNNING", "commands": [], "started_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     receipt["sdk_patch_sha256"] = hashlib.sha256(subprocess.check_output(
         ["git", "diff", "HEAD", "--binary"], cwd=sdk)).hexdigest()
+    receipt["cargo_config_sha256"] = sha(cargo_config)
+    receipt["system_apps_sha256"] = sha(system_apps_path)
+    receipt["system_apps"] = system_apps
     receipt["frameworks"] = {}
     for name in ("makepad", "octoscript", "octoscript-makepad", "app-hub"):
         path = sdk / ".sources" / name
@@ -93,6 +106,9 @@ def main():
                 run(base + ["-p", "octosense-app-peers", "--features", "octos-core", "--lib"])
                 run(base + ["-p", "octosense-app-hub", "--test", "per_app_offer"])
                 run(base + ["-p", "octosense-appstore", "--test", "muse_calendar_offers"])
+                shell = base + ["-p", "octosense-shell", "--no-default-features", "--features", FEATURES, "--lib"]
+                run(shell + ["host_tools::script_apps::tests::calendar_offers_its_tools_from_its_bundle", "--", "--exact"])
+                run(shell + ["host_tools::tests::admitted_mail_calendar_grants_route_to_the_real_calendar_store", "--", "--exact"])
             elif args.phase == "kernel":
                 kernel_env = {key: value for key, value in env.items()
                               if not key.startswith("MAKEPAD") and key not in ("CARGO_BUILD_TARGET", "CARGO_TARGET_DIR")}
