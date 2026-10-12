@@ -62,12 +62,12 @@ int main(int argc, char **argv) {
         shutil.copy2(binary, host / 'octos-kernel')
         (host / 'octos-kernel.json').write_text('{}')
         mirror = cls.resources / 'mirror'
-        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc7.bundle'
+        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc8.bundle'
         bundle.mkdir(parents=True)
         (bundle / 'manifest.json').write_text('{}')
         (bundle / 'main.splash').write_text('// fixture')
         (mirror / 'catalog.json').write_text('{}')
-        (mirror / 'artifacts/muse-goals-0.4.0-rc7.bundle.pack.json').write_text('{}')
+        (mirror / 'artifacts/muse-goals-0.4.0-rc8.bundle.pack.json').write_text('{}')
         for item in [host / 'octos-kernel', helper, cls.app]:
             subprocess.run(['codesign', '--force', '--sign', '-', str(item)], check=True,
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -110,6 +110,14 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.profile = self.state / 'kernel/.octos/profiles/_main.json'
         self.owner_home = self.root / 'owner-home'
         self.owner_home.mkdir(exist_ok=True)
+
+    def tearDown(self):
+        # Tests share the real per-user mutex. Finish only this suite's
+        # synthetic guardians before advancing to a different profile root.
+        deadline = time.monotonic() + 10
+        while list(self.root.rglob('launch-*.ready')) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertFalse(list(self.root.rglob('launch-*.ready')), 'owned fixture guardian cleanup timed out')
 
     def write_profile(self, primary, fallbacks=None):
         self.profile.parent.mkdir(parents=True, exist_ok=True)
@@ -420,6 +428,64 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
                     time.sleep(0.05)
                 self.assertFalse(ready.exists())
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        finally:
+            if process.poll() is None:
+                process.terminate()
+                process.communicate(timeout=10)
+
+    def test_different_profile_roots_do_not_start_two_hosts(self):
+        first_state = self.state
+        pid_file = first_state / 'host-pid'
+        env = self.launch_env({'MUSE_FIXTURE_HOST_DELAY': '3', 'MUSE_FIXTURE_PID_FILE': str(pid_file)})
+        process = subprocess.Popen([str(self.launcher), '--models'], env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            deadline = time.monotonic() + 5
+            while not pid_file.exists() and time.monotonic() < deadline:
+                time.sleep(0.02)
+            first_log = first_state / 'logs/launcher.log'
+            self.assertTrue(pid_file.exists(), first_log.read_text() if first_log.exists() else 'No guardian log')
+            self.state = self.root / (self._testMethodName + '-second-profile')
+            duplicate = self.launch('--models')
+            self.assertNotEqual(duplicate.returncode, 0)
+            self.assertIn('Muse 已在运行', self.messages(duplicate))
+            self.assertFalse((self.state / 'logs/host.log').exists())
+            self.assertEqual((first_state / 'logs/host.log').read_text().splitlines().count('launch-hub:muse-goals'), 1)
+            process.communicate(timeout=10)
+            self.assertEqual(process.returncode, 0)
+            deadline = time.monotonic() + 5
+            while list(first_state.glob('launch-*.ready')) and time.monotonic() < deadline:
+                time.sleep(0.05)
+            self.assertFalse(list(first_state.glob('launch-*.ready')))
+        finally:
+            if process.poll() is None:
+                process.terminate()
+            process.communicate(timeout=10)
+
+    def test_legacy_host_without_shared_lock_is_detected(self):
+        # Directly start the signed stub, like an older package whose guardian
+        # predates the shared lock. No model, GUI or credentials are involved.
+        pid_file = self.root / (self._testMethodName + '-legacy-pid')
+        env = self.launch_env({'MUSE_FIXTURE_HOST_DELAY': '3', 'MUSE_FIXTURE_PID_FILE': str(pid_file)})
+        host = self.resources / 'host-runtime/muse-host'
+        process = subprocess.Popen([str(host)], env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            deadline = time.monotonic() + 5
+            while not pid_file.exists() and time.monotonic() < deadline:
+                time.sleep(0.02)
+            self.assertTrue(pid_file.exists())
+            read_only = self.launch('--gpt-check')
+            self.assertEqual(read_only.returncode, 3, read_only.stderr)
+            self.assertIn('GPT_SETUP_REQUIRED', self.messages(read_only))
+            checked = self.launch('--check')
+            self.assertEqual(checked.returncode, 0, checked.stderr)
+            rejected = self.launch('--models')
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn('Muse 已在运行', self.messages(rejected))
+            self.assertFalse((self.state / 'logs/host.log').exists())
+            process.communicate(timeout=10)
+            self.assertEqual(process.returncode, 0)
         finally:
             if process.poll() is None:
                 process.terminate()

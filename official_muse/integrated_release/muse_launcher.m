@@ -1,5 +1,7 @@
 #import <AppKit/AppKit.h>
 #include <sys/file.h>
+#include <sys/stat.h>
+#include <libproc.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
@@ -13,6 +15,45 @@ static void stop(int unused) { stopping = 1; }
 static NSString *join(NSString *base, NSString *path) {
     return [base stringByAppendingPathComponent:path];
 }
+// Multiple packaged Hosts produced a blank desk in the observed Intel session.
+// Inspect executable metadata only: never arguments, environments or app data.
+static pid_t runningMuseHost(pid_t owner) {
+    int bytes = proc_listpids(PROC_UID_ONLY, getuid(), NULL, 0);
+    if (bytes <= 0) return 0;
+    size_t capacity = (size_t)bytes + 64 * sizeof(pid_t);
+    pid_t *pids = calloc(1, capacity);
+    if (!pids) return 0;
+    int used = proc_listpids(PROC_UID_ONLY, getuid(), pids, (int)capacity);
+    pid_t found = 0;
+    for (int i = 0; used > 0 && i < used / (int)sizeof(pid_t); ++i) {
+        if (pids[i] <= 1 || pids[i] == owner || pids[i] == getpid()) continue;
+        char path[PROC_PIDPATHINFO_MAXSIZE] = {0};
+        if (proc_pidpath(pids[i], path, sizeof(path)) <= 0) continue;
+        NSString *name = [NSString stringWithUTF8String:path];
+        if ([name hasSuffix:@"/Contents/Resources/host-runtime/muse-host"]) { found = pids[i]; break; }
+    }
+    free(pids);
+    return found;
+}
+static int sharedHostLock(void) {
+    NSString *path = join(NSTemporaryDirectory(), @"muse-integrated-host.flock");
+    int fd = open(path.fileSystemRepresentation, O_CREAT | O_RDWR | O_NOFOLLOW, 0600);
+    struct stat st;
+    if (fd < 0 || fstat(fd, &st) != 0 || !S_ISREG(st.st_mode) || st.st_uid != getuid()) {
+        if (fd >= 0) close(fd);
+        return -1;
+    }
+    fcntl(fd, F_SETFD, FD_CLOEXEC);
+    // A just-exited Host's guardian releases after its next 200 ms tick.
+    // Allow that owned shutdown to finish, without starting another Host.
+    for (int attempt = 0; attempt < 10; ++attempt) {
+        if (flock(fd, LOCK_EX | LOCK_NB) == 0) return fd;
+        usleep(100000);
+    }
+    close(fd);
+    return -1;
+}
+
 static BOOL saveJSON(NSDictionary *value, NSString *path, NSError **error) {
     NSData *data = [NSJSONSerialization dataWithJSONObject:value options:NSJSONWritingPrettyPrinted error:error];
     if (!data || ![data writeToFile:path options:NSDataWritingAtomic error:error]) return NO;
@@ -112,8 +153,8 @@ int main(int argc, const char *argv[]) {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
         NSArray *required = @[@"host-runtime/muse-host", @"mirror/catalog.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc7.bundle/manifest.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc7.bundle.pack.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc8.bundle/manifest.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc8.bundle.pack.json",
             @"host-runtime/octos-kernel",
             @"host-runtime/octos-kernel.json"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
@@ -161,8 +202,25 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
         if (check) {
-            puts("PASS：Muse 0.4.0-rc7 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
+            puts("PASS：Muse 0.4.0-rc8 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
             return 0;
+        }
+        int sharedLock = -1;
+        if (supervise) {
+            // One Host per user, including different profile roots. Old packages
+            // did not take this lock, so also recognize their actual executable.
+            pid_t running = runningMuseHost(owner);
+            if (running > 0) {
+                [[NSRunningApplication runningApplicationWithProcessIdentifier:running]
+                    activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+                fprintf(stderr, "Muse 已在运行，已尝试切回已有窗口；请正常退出后再打开另一份包。\n");
+                return 1;
+            }
+            sharedLock = sharedHostLock();
+            if (sharedLock < 0) {
+                fprintf(stderr, "另一份 Muse 正在启动或运行；本次未启动第二个宿主。\n");
+                return 1;
+            }
         }
         NSDictionary *inherited = NSProcessInfo.processInfo.environment;
         NSString *state = inherited[@"MUSE_INTEGRATED_STATE"] ?: (settings[@"state_root"] == NSNull.null ? nil : settings[@"state_root"])
@@ -280,6 +338,7 @@ int main(int argc, const char *argv[]) {
         }
         [files removeItemAtPath:readyPath error:nil];
         flock(lock, LOCK_UN); close(lock);
+        if (sharedLock >= 0) { flock(sharedLock, LOCK_UN); close(sharedLock); }
         return 0;
     }
 }

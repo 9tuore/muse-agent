@@ -1,3 +1,7 @@
+## SPRINT-005 14:38 检查点
+
+独立ZC05预检UA-PREFLIGHT-001已保留3原生图。单Host重新初始化后旧R5及新正式入口均显示；原黑绘制根因仍UNKNOWN，非GPU已修复。启动器跨profile互斥/识别旧packaged Host的26项签名stub检查通过；真实模型管理providers入口和合成TestConnection已实点并独立计数+1。原2个新增回归失败保留。Main新947c5291只裁剪无关阶段遍历，rc8/序列5在准备，R5包不改。CA专用测试Host在独立SDK/target编译，正式网络源码原SHA仍c47bfbd7；未安装新生产包、未调用私人Calendar、未真实发信，正式三轮仍0。
+
 ## 2026-10-12 13:33 SPRINT-005 与正式入口接回
 
 本轮13:11:25开始，19:11:25冻结高风险，20:11:25截止。最新HEAD含8da96cfd启动器修复和5d50286c独立验收准备。R5 Main源caa99/签名ef584/manifest7b746保持不变，保底Night包保留。
