@@ -1,3 +1,11 @@
+## NIGHT-006 r5 真实界面验收开始 · 2026-10-13 03:20
+
+独立r4 GUI抓到新rc.6缺少fs.sha256/sha256_file，导致聊天检索与记忆保存同步中断；旧失败图和原日志完整保留。现已恢复jailed原生摘要绑定，真实Script VM 4项专项通过；依赖检查和补丁干净重放通过。新Host8569e0ce、Hub6964ce05、helperf581f42f、原配对Kernel fe5259f6已统一重建。
+
+最终当前候选rc9-unified-r5，产品源码ab30195c，Main45847985，签后Host5058b395。Root在全新隔离profile真实Install/Open，约7.815秒显示完整Muse，动态SecCode与安装字节核对通过；ZC05独占9696开始业务三轮，尚未宣称聊天/记忆/日历业务全通过。桌面同字节副本已验签、未启动，数据目录尚不存在。
+
+原MiniMax整套资料实际位于build/live-acceptance-003/home，仍安装rc8；旧代码Bundle已只读备份，账号/profile未读取或复制。需正常更新并核对Main后才能算r5云端实调。20次冷启动计数器已适配night006并验证只读空目录，实际20次待GUI交回。
+
 ## NIGHT-006 本地日历账号独立性 · 2026-10-13 02:30
 
 r3已通过真实窗口初次启动：Open到完整Muse约7.97秒，原生截图与SecCode核验留存。最终同源Host85a5025e、Kernel fe5259f6、新Hub c08f31dc及helper ec26298e已齐备；有界冷加载5项专项通过。

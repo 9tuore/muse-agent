@@ -36,6 +36,8 @@ GPT 专用开发包可选 `--model-mode gpt` 并省略 `--model-source`；`--mod
 
 先用 `prepare_official_host.py --sdk` 核对官方 rc.6 源码及兼容补丁，再使用 `build_official_host.py --sdk ... --work ... --phase {check,tests,host,kernel,hub} --offline` 逐阶段构建。实际 features 为 `app-hub,octos-core`，保留官方 `.cargo/config.toml`，打入真实 Mail/Calendar 系统应用。脚本记录 tag、各源码 revision、补丁 SHA、锁文件与产物 SHA。完整界面的有界冷加载补丁也必须纳入统一源码；不能混用旧 Host。
 
+完整界面还依赖受限的 `fs.sha256` / `fs.sha256_file` 原生接口。rc.6 适配将这两个只读绑定与有界冷加载补丁一起锁定并重放；原生摘要测试覆盖标准向量、中文及文件访问边界。仅旧 VM fixture 通过无法证明最新 GUI 宿主具备这些方法，仍须真实检验聊天和记忆保存。
+
 `prepare_bundle.py` 从 `official_muse/app/source/main.splash` 创建新的可读/压缩 bundle；根 `bundle/` 当前保留历史 rc17，不能混用版本。签名后不修改清单或文件；需要修复时生成新候选。
 
 `package_app.py` 输入显式 SDK、Host、Kernel receipt、签名 mirror 及公共本地模型目录；`--licenses` 加入收集的第三方声明。若 Host 旁存在 `.release-identity.json`，先核对其 SHA，再把源版本与输入 SHA 写入打包记录；签名后的实际 SHA 单列。输出新目录与 `Muse.app`、`PACKAGE.json`、`HOST_RESOURCES.json`、`launch_muse.sh`。普通模式按同一 features 的 Cargo closure 收集资源，并由官方 staging helper 为签名后的相同 Kernel revision 重建 receipt。原输入不改。
