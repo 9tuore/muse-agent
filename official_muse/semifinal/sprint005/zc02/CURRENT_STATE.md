@@ -1,5 +1,7 @@
 # ZC02 SPRINT-005
 
+冻结rc8身份补记：当前f9e94877与冻结f00比较，18个模型流程/schema函数全部逐字未变；实际新增ac_local_run_readback，仅修改已有ac_projection。catalog及函数身份已绑定f9，39响应SHA不变；f00 catalog/身份/manifest另存evidence，原f00核验与失败记录不覆盖。新证据rc8-f9-source-identity.json仅记录现场比较和已有f00报告适用性，本次没有重跑78样本/网络协议、没有GUI/业务DB/shared target操作。新服务与正式三轮由Root/ZC05负责。
+
 rc8身份补记：当前f00c963b与冻结947比较，18个流程函数17 unchanged/1 changed；send_chat只改两条提示为打开「来信与结果」，其余源码差异仅ResultContent标签选中颜色。模型schema所在函数逐字未变，39个样本响应文件SHA不变；catalog/当前函数身份绑定f00，新静态字段核验78/78。旧947 catalog/函数身份/manifest另存evidence，原flow-sample-contract.json及旧失败记录不覆盖。证据rc8-f00-source-schema.json、flow-sample-contract-f00.json；0服务测试/GUI/Kernel/Cargo/Root target操作，UA-PREFLIGHT-002修复效果仍由实际GUI验收。
 
 ZC05关键模型流程交付：flows/catalog含39显式控制样本，按3次验收repeat及单轮t1/t2/t3区分；实际chat reply、Goal objective/source、Goal summary、Chat Calendar五字段、Chat Mail三字段、Mail editor两字段及MailCalendar policy分别处理。静态78/78，新增晚回包HTTP绑定4/4；response_bound可定位捕获后GUI变化，配置改动不改变旧响应。Root源本轮漂移到947c5291，旧SHA生成被正确拒绝后明确freeze947；18个相关流程/schema函数与caa逐字一致。ZC05_MODEL_WORKFLOWS.md给可直接CLI/GUI步骤、scope/更正/遗忘/候选/手写/迟到/错误验收；PRODUCT_PATH_GAPS仅源码指出自动AI记忆卡与opened Goal聊天编辑未实现，不称真实GUI复现，不写生产补丁。未重跑17/107、未构建SDK、未操作GUI/Kernel/业务DB；Root模型管理Connected仅其实际回报，不升级本轮检查。

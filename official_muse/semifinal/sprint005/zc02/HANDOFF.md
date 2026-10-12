@@ -1,16 +1,16 @@
 # Handoff
 
 ## Result
-rc8 f00样本身份更新，18函数与947比较17未变/1 send_chat只改两条候选提示；schema全部未变、39响应SHA不变、新静态78/78。旧947身份/原报告保留。此前晚回包HTTP4/4；GUI/Kernel NOT_TESTED。
+冻结rc8 f9身份更新：18模型流程/schema函数与f00逐字未变，新增ac_local_run_readback/修改ac_projection。39响应SHA不变；f00/947原身份与报告保留。本批只比较身份，未重跑78样本/网络；GUI/Kernel NOT_TESTED。
 
 ## Entry
-ZC05_MODEL_WORKFLOWS+flows/catalog；control.py设置。候选后打开「来信与结果」。新证据rc8-f00-source-schema、flow-sample-contract-f00；旧947另存evidence。
+ZC05_MODEL_WORKFLOWS+flows/catalog；control.py设置。候选后打开「来信与结果」。新证据rc8-f9-source-identity，引用已有f00静态78/78报告并记录适用性。
 
 ## Dependency
 Root CA Host/实际GUI验收仍负责；PRODUCT_PATH_GAPS仅源码记录自动AI记忆卡/opened Goal聊天编辑缺路径，不造GUI失败或PASS。
 
 ## Remaining
-ZC05实际三轮截图/读回及UA-PREFLIGHT-002修复验收；本批0共享/业务库写入、0服务测试/GUI/Kernel/Cargo，不重复17/107、不申请权限、不push。
+Root/ZC05正式三轮截图/读回；本批0共享/业务库写入、0样本/服务测试/GUI/Kernel/Cargo，不重复17/107、不申请权限、不push。
 
 ## Commit
 见进度/最终回复。

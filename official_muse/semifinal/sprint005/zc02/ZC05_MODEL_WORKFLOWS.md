@@ -1,6 +1,8 @@
 # ZC05可直接使用的模型控制与关键GUI流程
 
-全部响应均为明确fixture，实际GUI/SDK/Kernel/存储结果独立验收。当前rc8 Root Source为`f00c963bcdf0a9a8b614083a40134de570a92ff08a9b53af47b151a48afaa50f`，身份见flows/source-function-identities.json。与旧947比较，本文件依赖的18个函数中17个逐字未变，send_chat仅两条候选提示改为明确打开「来信与结果」；其余源码差异仅ResultContent选中标签颜色。模型schema所在函数全部未变，39个样本内容保持不变，新静态核验78/78见evidence/flow-sample-contract-f00.json；未执行GUI。候选生成后按提示打开「来信与结果」再核对内容，不能只看到行动链就判定候选缺失。
+全部响应均为明确fixture，实际GUI/SDK/Kernel/存储结果独立验收。当前冻结rc8 Root Source为`f9e94877a4f1eb4f4f9d442b16adc01a4c74af815e3611ef8aaecfcba318e891`，身份见flows/source-function-identities.json。与f00比较，本文件依赖的18个流程/schema函数全部逐字未变；实际新增ac_local_run_readback，修改ac_projection。39个样本响应SHA未变，本次只核对身份，没有重跑78样本或服务测试；已有f00静态78/78报告仍保留在evidence/flow-sample-contract-f00.json，适用性比较见evidence/rc8-f9-source-identity.json。f00原catalog/函数身份/manifest另存evidence/flow-catalog-f00.json、flow-source-functions-f00.json、flow-manifest-f00.json。
+
+f00与旧947比较时，本文件依赖的18个函数中17个逐字未变，send_chat仅两条候选提示改为明确打开「来信与结果」；其余源码差异仅ResultContent选中标签颜色。候选生成后按提示打开「来信与结果」再核对内容，不能只看到行动链就判定候选缺失。以上源码比较均未执行GUI，不替代实际操作验收。
 
 旧947初始生成器拒绝旧SHA的记录、原始身份和78/78报告保留：evidence/flow-catalog-947.json、flow-source-functions-947.json、flow-manifest-947.json和flow-sample-contract.json；947时18个相关函数与caa逐字一致。新旧实际比较见evidence/rc8-f00-source-schema.json，不覆盖旧失败或原始记录。
 
