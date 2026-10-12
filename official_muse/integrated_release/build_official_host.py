@@ -109,7 +109,7 @@ def main():
                 base = ["cargo", "test", "--locked", "--release"]
                 if args.offline:
                     base.append("--offline")
-                packages = ("octosense-shell", "makepad-script", "makepad-widgets") if args.phase == "startup-tests" else tuple(
+                packages = ("octosense-shell", "octosense-app-peers", "makepad-script", "makepad-widgets") if args.phase == "startup-tests" else tuple(
                     "octosense-" + name for name in ("calendar-service", "app-peers", "app-hub", "appstore", "shell"))
                 for name in packages:
                     base += ["-p", name]
