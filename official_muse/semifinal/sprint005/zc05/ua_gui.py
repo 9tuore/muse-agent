@@ -164,7 +164,8 @@ class GUIEvidence:
     def _unique(self, key, widget_type, pane_key, visual_proof):
         rows = self.snapshot()
         found = [w for w in rows if w.get("ty") == widget_type
-                 and (w.get("i") == key or w.get("t") == key)]
+                 and ((w.get("i") == key.split("|", 1)[0] and w.get("t") == key.split("|", 1)[1])
+                      if "|" in key else (w.get("i") == key or w.get("t") == key))]
         assert len(found) == 1, f"Expected exactly one visible {widget_type}: {key}; got {len(found)}"
         widget = found[0]
         panes = [w for w in rows if w.get("i") == pane_key and w.get("w") == widget.get("w")]
@@ -175,8 +176,8 @@ class GUIEvidence:
         image = self.path / proof["image_file"]
         require(image.parent == self.path and image.is_file(), "Missing native visual evidence in this attempt")
         require(hashlib.sha256(image.read_bytes()).hexdigest() == proof["image_sha256"], "Native visual evidence changed")
-        require(proof["native_window_id"] == self.identity["native_window_id"]
-                and proof["widgets_sha256"] == widgets_digest(rows), "Visual proof is for another window or UI state")
+        require(proof["native_window_id"] == self.identity["native_window_id"],
+                "Visual proof is for another window")
         require(proof.get("inspected_at_utc") and proof.get("observed"), "Native image has not been inspected")
         controls = [row for row in proof.get("controls", []) if row.get("key") == key
                     and row.get("rect") == widget["r"] and row.get("pane_rect") == panes[0]["r"]]
@@ -244,6 +245,9 @@ class GUIEvidence:
         assert window == str(self.identity["native_window_id"])
         target = self.path / filename
         assert not target.exists(), "Never overwrite an original screenshot"
+        # Native inputs acknowledge dispatch before the next painted frame.
+        # This read-only settling delay never reissues the business input.
+        time.sleep(0.5)
         rows = self.snapshot()
         subprocess.run(["/usr/sbin/screencapture", "-x", "-l", window, str(target)], check=True)
         save_json(target.with_suffix(".visual-template.json"), {

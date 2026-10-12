@@ -1,0 +1,21 @@
+{
+  "test_id": "UA-CAL-02",
+  "round_id": "round-01",
+  "candidate_id": "sprint005-rc8-sequence8-ca-gui-r4",
+  "started_at_utc": "2026-10-12T11:22:17.248393+00:00",
+  "ended_at_utc": "2026-10-12T11:39:50.154008+00:00",
+  "status": "SIMULATION_PASS",
+  "expected": "Actual official Calendar owner list tool and persisted receipt match the GUI request.",
+  "observed": "Native current-turn receipt completed1/failed0/unchecked0; expanded official receipt says os.calendar/calendar.events, terminal ok, kernel_persisted true, empty events, same turn a9c711be-ec84-4e4b-9895-735084578ebd. Synthetic planner; actual official owner execution.",
+  "actual_gui_steps": [
+    "Navigate Calendar",
+    "Settle prior no-tool request",
+    "Type new read-only query",
+    "Submit once",
+    "Scroll response",
+    "Expand official receipt",
+    "Independent state and receipt text read"
+  ],
+  "result_class": "LOCAL_REAL_STORAGE",
+  "readback_required": false
+}

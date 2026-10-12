@@ -1,8 +1,60 @@
 {
   "schema": 1,
-  "stage": "PREPARATION_ONLY",
-  "candidate_identity": null,
-  "candidate_status": "AWAITING_FREEZE",
+  "stage": "ACCEPTANCE_IN_PROGRESS",
+  "candidate_identity": {
+    "candidate_id": "sprint005-rc8-sequence8-ca-gui-r4",
+    "git_commit": "9a61040c86efbe967b207a058f717733df422391",
+    "version": "0.4.0-rc8",
+    "bundle_fingerprint": {
+      "algorithm": "blake3",
+      "value": "dcb9f1d575e2a9803cd975333d8fefe4d349b3024f1c28d57e7b3c1857745271"
+    },
+    "frozen_files": {
+      "main": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-release-r4/state/apps/.bundles/muse-goals/bundle/main.splash",
+        "sha256": "58b97a5691171722608868597105fbf16bd5577180f5a602a7bd8c04ee622b5b"
+      },
+      "manifest": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-release-r4/state/apps/.bundles/muse-goals/bundle/manifest.json",
+        "sha256": "8d2f8ee9e9af8bcc3fec0edc6748dc1d04290b796ed2f2a77db64be682e19736"
+      },
+      "host": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-final-r4/Muse.app/Contents/Resources/host-runtime/muse-host",
+        "sha256": "cea8ca71c52d0a3e3f8240feb226f75cce223b50c337433c3d33a632f7bec9a7"
+      },
+      "kernel": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-final-r4/Muse.app/Contents/Resources/host-runtime/octos-kernel",
+        "sha256": "56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270"
+      },
+      "launcher": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-final-r4/Muse.app/Contents/MacOS/Launcher",
+        "sha256": "cb6ac41e4a2cdf85ebf5a4c84a52a1e78ede3d465bf293283bffd7f78dfeb9f7"
+      },
+      "launcher_config": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-final-r4/Muse.app/Contents/Resources/launcher.json",
+        "sha256": "f74d7d1a1b73cb9463582ca4c621fcc9c02ae3023e5127b1d847f1bf851eb7c5"
+      },
+      "catalog_summary": {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-final-r4/Muse.app/Contents/Resources/mirror/catalog.json",
+        "sha256": "b05b01b8dbba42d1d502e870a04be67d25682919f74b02f4941fe5a9719ad0a5"
+      }
+    },
+    "plugin_hashes": [
+      {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-final-r4/Muse.app/Contents/MacOS/muse-launcher",
+        "sha256": "7ac6ef95138485e8bcac918b16c49ed291beb76993149de137831f550570730f"
+      },
+      {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-final-r4/Muse.app/Contents/Resources/host-runtime/octos-kernel.json",
+        "sha256": "4d4b836d2270874c0fc58dbca1c5bc62b0f466ff3295d24f340fe8cb603f252e"
+      },
+      {
+        "path": "/Users/mima0000/.codex/worktrees/muse-semifinal-a-20261009/Agent APP黑客松/build/sprint005/zc05-release-r4/state/apps/.bundles/muse-goals/bundle/AGENT.md",
+        "sha256": "7e1c852f9ed1ac7caf53a0623d3e0decf77d7a4d933f104bd4c1649467288a13"
+      }
+    ]
+  },
+  "candidate_status": "FROZEN_SEQ8",
   "functions": [
     {
       "test_id": "UA-BASE-01",
@@ -4402,12 +4454,16 @@
     {
       "test_id": "UA-CAL-02",
       "round_id": "round-01",
-      "status": "NOT_TESTED",
-      "started_at_utc": null,
-      "ended_at_utc": null,
-      "candidate_id": null,
-      "attempts": [],
-      "evidence": [],
+      "status": "SIMULATION_PASS",
+      "started_at_utc": "2026-10-12T11:22:17.248393+00:00",
+      "ended_at_utc": "2026-10-12T11:39:50.154008+00:00",
+      "candidate_id": "sprint005-rc8-sequence8-ca-gui-r4",
+      "attempts": [
+        "round-01/UA-CAL-02/attempt-03"
+      ],
+      "evidence": [
+        "round-01/UA-CAL-02/attempt-03/result.json"
+      ],
       "bug_ids": [],
       "next_attempt_path": "round-01/UA-CAL-02/attempt-01"
     },
@@ -4450,12 +4506,16 @@
     {
       "test_id": "UA-CAL-06",
       "round_id": "round-01",
-      "status": "NOT_TESTED",
-      "started_at_utc": null,
-      "ended_at_utc": null,
-      "candidate_id": null,
-      "attempts": [],
-      "evidence": [],
+      "status": "SIMULATION_PASS",
+      "started_at_utc": "2026-10-12T11:51:15.333984+00:00",
+      "ended_at_utc": "2026-10-12T11:57:31.728933+00:00",
+      "candidate_id": "sprint005-rc8-sequence8-ca-gui-r4",
+      "attempts": [
+        "round-01/UA-CAL-06/attempt-01"
+      ],
+      "evidence": [
+        "round-01/UA-CAL-06/attempt-01/result.json"
+      ],
       "bug_ids": [],
       "next_attempt_path": "round-01/UA-CAL-06/attempt-01"
     },

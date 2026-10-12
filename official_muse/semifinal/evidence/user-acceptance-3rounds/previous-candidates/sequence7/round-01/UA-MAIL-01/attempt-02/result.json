@@ -1,0 +1,18 @@
+{
+  "test_id": "UA-MAIL-01",
+  "round_id": "round-01",
+  "candidate_id": "sprint005-rc8-sequence7-ca-gui-r3",
+  "started_at_utc": "2026-10-12T09:25:30.060566+00:00",
+  "ended_at_utc": "2026-10-12T10:21:52.995923+00:00",
+  "status": "BLOCKED",
+  "expected": "Real GUI action obtains independently verifiable official result.",
+  "observed": "Native account connects and appears selected. Single Sync still shows zero cached messages; independent storage snapshot has no messages. Fixture service status became unavailable after candidate handoff. Raw-body/delivery remain unverified.",
+  "actual_gui_steps": [
+    "Single actual UI input",
+    "Single actual submit",
+    "Read visible outcome",
+    "Independent read-only state"
+  ],
+  "result_class": "NO_EXECUTION",
+  "readback_required": false
+}
