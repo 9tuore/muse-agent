@@ -3,7 +3,7 @@
 import argparse,collections,json,re
 from pathlib import Path
 from fixture_scope import scope,atomic_json,digest
-FILES=('memory.json','goals.json','activity.json','memory-retrieval-last.json','memory-forget-commit.json','mail-draft.json','calendar-agent.json','calendar-agent-updates.json','calendar-agent-delete.json','chat-sessions.json')
+FILES=('memory.json','goals.json','activity.json','memory-retrieval-last.json','memory-forget-commit.json','mail-draft.json','calendar-agent.json','calendar-agent-state.json','calendar-state.json','calendar-agent-updates.json','calendar-agent-delete.json','chat-sessions.json')
 
 def safe_read(root,path):
     if not path.is_file():return None
@@ -68,7 +68,12 @@ def projection(root):
             cached=mail_messages.get(src['mail_locator'])
             # A deleted/signed-out mailbox may be absent; require presence only when explicitly requested.
             if cached:checks['actual_mail_body_source_hash_'+sid]=cached['body_sha256']==src['content_sha256']
+    links=[{'index':i,**{k:link.get(k) for k in ('goal_id','account_id','message_id','source_id','source_claim_id','status','candidate','event_id')}} for i,link in enumerate(documents.get('calendar-state.json',{}).get('links',[]))]
+    agent=documents.get('calendar-agent-state.json',{})
+    agent_summary={k:agent.get(k) for k in ('request_id','turn_id','status')}
+    if isinstance(agent.get('binding'),dict):agent_summary['binding']={k:agent['binding'].get(k) for k in ('goal_id','plan_revision','project_id','owner_id')}
     summary={'kind':'SPRINT005_INDEPENDENT_READBACK','fixture_root':str(root),'file_sha256':hashes,'claims':claims,'sources':sources,'mail_messages':mail_messages,'goal_ids':sorted(goal_ids),'run_ids':sorted(run_ids),
+             'calendar_mail_links':links,'official_calendar_request':agent_summary,
              'action_status_counts':dict(collections.Counter(a['status'] for a in goals.get('actions',[]))),'host_mail_drafts':drafts,'retrieval':documents.get('memory-retrieval-last.json'),
              'receiver_count':len(receiver),'receiver_message_ids':[r['message_id'] for r in receiver],'checks':checks,'sdk_gui_status':'NOT_ASSERTED'}
     return documents,summary

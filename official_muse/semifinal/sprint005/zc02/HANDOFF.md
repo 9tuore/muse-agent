@@ -1,16 +1,16 @@
 # Handoff
 
 ## Result
-R4源码推断根因：guidance/request各JSON TEXT，旧parser误扫guidance示例。仅解一层octosense_request/text，guidance不当用户；10/10本地通过，实际wire未capture，旧失败保留。
+UID1 Mail→Calendar指导/Chat五字段工作副本已交付；九字段Mail model.complete不走Kernel planner。c098三相关schema函数与f9未变；新readback投影单元4/4，无GUI PASS。
 
 ## Entry
-planner.py、REQUEST_WRAPPER.md、validate_request_wrapper.py；evidence/request-wrapper-contract.json含源SHA及R4 request037d369f…/41393bytes。
+working/s005ua-mail-r1/GUI_MAIL_CALENDAR.md、mail-calendar-policy.json、chat-calendar.json；readback.py新增公开calendar-state/agent-state投影。证据mail-to-calendar-route-inputs、mail-calendar-readback-fields。
 
 ## Dependency
-R4实际calendar_events已offered，UI合法ASCII引号；wrapper无app/account字段，scope由broker绑定。Root在turn完成/无SMTP后部署重启，再验不同新query；本批无新instrumentation。
+Root/ZC05串行配置九字段再五字段，保持同一实际Goal/项目/归属，官方查询/创建/get另验。UID1不再注入；SMTP physical gate拒绝/DATA0不绕过。
 
 ## Remaining
-Root新请求工具选择/owner回执待验；本批0服务重启/HTTP/控制写端点/共享/业务库/GUI/Kernel/Cargo，未重跑78、不申请权限、不push。
+正式GUI与owner回执待验；本批0服务重启/HTTP/控制配置/共享/Root业务库/GUI/Kernel/Cargo，未重跑78、不申请权限、不push。
 
 ## Commit
 见进度/最终回复。
