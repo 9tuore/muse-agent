@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
+sys.dont_write_bytecode = True
 sys.path.insert(0, str(ROOT / "official_muse/phase2/tests"))
 from remote import Remote
 
@@ -29,6 +30,87 @@ def save_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
 
 
+class GuardBlocked(RuntimeError):
+    """Missing isolation, frozen identity or complete native visual evidence."""
+
+
+def require(condition, message):
+    if not condition:
+        raise GuardBlocked(message)
+
+
+def check_data_dir(identity):
+    data = Path(identity["data_dir"]).resolve(strict=True)
+    require(data.is_dir(), "Fixture data_dir is not a directory")
+    for marker in (data / "FIXTURE_ONLY", data / "apps/.host/FIXTURE_ONLY"):
+        require(marker.resolve().is_relative_to(data) and marker.is_file() and not marker.is_symlink(),
+                f"Missing real fixture marker inside data_dir: {marker}")
+    production = identity.get("production_data_dirs")
+    require(identity.get("production_scope_inventory_complete") is True and production,
+            "ZC-00 must provide the complete forbidden production-state path inventory")
+    for raw in production:
+        forbidden = Path(raw).resolve()
+        require(not (data == forbidden or data.is_relative_to(forbidden) or forbidden.is_relative_to(data)),
+                "Fixture data_dir overlaps a forbidden production-state directory")
+    return data
+
+
+def check_hash(entry):
+    require(isinstance(entry, dict) and isinstance(entry.get("sha256"), str)
+            and re.fullmatch(r"[0-9a-f]{64}", entry["sha256"]),
+            "Missing full SHA256 frozen-file identity")
+    require(hashlib.sha256(Path(entry["path"]).read_bytes()).hexdigest() == entry["sha256"],
+            f"Frozen file changed: {entry['path']}")
+
+
+def check_frozen_identity(identity):
+    require(isinstance(identity.get("git_commit"), str) and re.fullmatch(r"[0-9a-f]{40}", identity["git_commit"]), "Missing full Git commit")
+    require(isinstance(identity.get("version"), str) and identity["version"], "Missing candidate version")
+    fingerprint = identity.get("bundle_fingerprint")
+    require(isinstance(fingerprint, dict) and fingerprint.get("algorithm") in {"sha256", "blake3"}
+            and isinstance(fingerprint.get("value"), str)
+            and re.fullmatch(r"[0-9a-f]{64}", fingerprint["value"]), "Missing bundle fingerprint")
+    required = ("main", "manifest", "host", "kernel", "launcher", "launcher_config", "catalog_summary")
+    files = identity.get("frozen_files", {})
+    require(all(name in files for name in required), "Incomplete Kernel/Launcher/config/catalog frozen identity")
+    for name in required:
+        check_hash(files[name])
+    manifest = json.loads(Path(files["manifest"]["path"]).read_text())
+    require(manifest.get("version") == identity["version"], "Candidate version differs from actual manifest")
+    if fingerprint["algorithm"] == "blake3":
+        require(manifest.get("integrity", {}).get("bundle_blake3") == fingerprint["value"],
+                "Bundle fingerprint differs from actual manifest")
+    else:
+        require("bundle_archive" in files, "SHA256 bundle fingerprint requires the frozen bundle archive")
+        check_hash(files["bundle_archive"])
+        require(files["bundle_archive"]["sha256"] == fingerprint["value"], "Bundle archive fingerprint differs")
+    for plugin in identity.get("plugin_hashes", []):
+        check_hash(plugin)
+
+
+def inside(rect, bounds, margin=0):
+    x, y, width, height = rect
+    bx, by, bw, bh = bounds
+    return width > 0 and height > 0 and x >= bx + margin and y >= by + margin and x + width <= bx + bw - margin and y + height <= by + bh - margin
+
+
+def check_visible_widget(widget, pane, window_rect):
+    require(widget.get("enabled") is not False and widget.get("visible") is not False,
+            "Control is disabled or hidden")
+    require("w" in widget and widget["w"] == pane.get("w"), "Control/pane window identity differs")
+    require(inside(widget["r"], window_rect), "Control extends outside target window")
+    require(inside(widget["r"], pane["r"]), "Control is clipped by its pane; scroll first")
+    require(widget["r"][2] >= 2 and widget["r"][3] >= 2, "Control has no complete positive-area geometry")
+
+
+def candidate_key(identity):
+    return {key: identity[key] for key in ("candidate_id", "git_commit", "version", "bundle_fingerprint", "frozen_files", "plugin_hashes")}
+
+
+def widgets_digest(rows):
+    return hashlib.sha256(json.dumps(rows, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
 class GUIEvidence:
     def __init__(self, handoff_path, attempt_path):
         self.identity = json.loads(Path(handoff_path).read_text())
@@ -38,15 +120,14 @@ class GUIEvidence:
         assert 1 <= identity["port"] <= 65535 and identity["port"] != 9696
         assert identity["candidate_id"] and identity["owner_pid"] > 0
         assert identity["native_window_id"] > 0
+        check_data_dir(identity)
+        check_frozen_identity(identity)
+        require(len(identity["remote_window_rect"]) == 4, "Missing actual target-window bounds")
         os.kill(identity["owner_pid"], 0)
         owners = subprocess.check_output([
             "/usr/sbin/lsof", "-n", "-P", "-t",
             f"-iTCP:{identity['port']}", "-sTCP:LISTEN"], text=True).split()
         assert set(owners) == {str(identity["owner_pid"])}
-        for name in ("main", "manifest", "host"):
-            entry = identity["frozen_files"][name]
-            assert re.fullmatch(r"[0-9a-f]{64}", entry["sha256"])
-            assert hashlib.sha256(Path(entry["path"]).read_bytes()).hexdigest() == entry["sha256"]
         self.remote = Remote(identity["port"])
         self.path = Path(attempt_path).resolve()
         evidence_root = ROOT / "official_muse/semifinal/evidence/user-acceptance-3rounds"
@@ -70,14 +151,27 @@ class GUIEvidence:
         save_json(self.path / f"snap-{self.sequence:04d}.json", data)
         return data["s"]
 
-    def _unique(self, key, widget_type):
-        found = [w for w in self.snapshot() if w.get("ty") == widget_type
+    def _unique(self, key, widget_type, pane_key, visual_proof):
+        rows = self.snapshot()
+        found = [w for w in rows if w.get("ty") == widget_type
                  and (w.get("i") == key or w.get("t") == key)]
         assert len(found) == 1, f"Expected exactly one visible {widget_type}: {key}; got {len(found)}"
         widget = found[0]
-        x, y, width, height = widget["r"]
-        assert x >= 0 and y >= 0 and width >= 2 and height >= (24 if widget_type == "Button" else 2)
-        assert "w" in widget, "Snapshot must identify the target native remote window"
+        panes = [w for w in rows if w.get("i") == pane_key and w.get("w") == widget.get("w")]
+        require(len(panes) == 1, "Missing unique corresponding pane/container")
+        check_visible_widget(widget, panes[0], self.identity["remote_window_rect"])
+        require(visual_proof and Path(visual_proof).is_file(), "No inspected native-image proof; BLOCKED, scroll/capture first")
+        proof = json.loads(Path(visual_proof).read_text())
+        image = self.path / proof["image_file"]
+        require(image.parent == self.path and image.is_file(), "Missing native visual evidence in this attempt")
+        require(hashlib.sha256(image.read_bytes()).hexdigest() == proof["image_sha256"], "Native visual evidence changed")
+        require(proof["native_window_id"] == self.identity["native_window_id"]
+                and proof["widgets_sha256"] == widgets_digest(rows), "Visual proof is for another window or UI state")
+        require(proof.get("inspected_at_utc") and proof.get("observed"), "Native image has not been inspected")
+        controls = [row for row in proof.get("controls", []) if row.get("key") == key
+                    and row.get("rect") == widget["r"] and row.get("pane_rect") == panes[0]["r"]]
+        require(len(controls) == 1 and controls[0].get("fully_visible") is True,
+                "No independent native-image confirmation that the complete control is visible")
         return widget
 
     def _input_once(self, path, **params):
@@ -92,15 +186,15 @@ class GUIEvidence:
                        "response": answer.decode("utf-8", errors="replace")})
         return answer
 
-    def click(self, key):
-        widget = self._unique(key, "Button")
+    def click(self, key, pane_key, visual_proof):
+        widget = self._unique(key, "Button", pane_key, visual_proof)
         x, y, width, height = widget["r"]
         self._journal({"event": "BUTTON_SELECTED", "widget": widget})
         return self._input_once("/click", w=widget["w"],
                                 x=int(x + width / 2), y=int(y + height / 2))
 
-    def type(self, key, value):
-        widget = self._unique(key, "TextInput")
+    def type(self, key, value, pane_key, visual_proof):
+        widget = self._unique(key, "TextInput", pane_key, visual_proof)
         assert isinstance(widget.get("val"), str)
         x, y, width, height = widget["r"]
         self._input_once("/click", w=widget["w"], x=int(x + width / 2), y=int(y + height / 2))
@@ -119,6 +213,7 @@ class GUIEvidence:
         widget = found[0]
         x, y, width, height = widget["r"]
         assert width >= 2 and height >= 2
+        require(inside(widget["r"], self.identity["remote_window_rect"], margin=0), "Scroll pane exceeds window bounds")
         return self._input_once("/m", w=widget["w"], k="scroll", precise=1,
                                 x=int(x + width / 2), y=int(y + height / 2), dy=dy)
 
@@ -139,7 +234,12 @@ class GUIEvidence:
         assert window == str(self.identity["native_window_id"])
         target = self.path / filename
         assert not target.exists(), "Never overwrite an original screenshot"
+        rows = self.snapshot()
         subprocess.run(["/usr/sbin/screencapture", "-x", "-l", window, str(target)], check=True)
+        save_json(target.with_suffix(".visual-template.json"), {
+            "image_file": filename, "image_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+            "native_window_id": self.identity["native_window_id"], "widgets_sha256": widgets_digest(rows),
+            "inspected_at_utc": None, "observed": None, "controls": []})
         self._journal({"event": "NATIVE_CAPTURE", "native_window_id": window,
                        "file": filename, "sha256": hashlib.sha256(target.read_bytes()).hexdigest()})
         return target

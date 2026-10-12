@@ -5,7 +5,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
+
+sys.dont_write_bytecode = True
+from ua_gui import candidate_key, check_data_dir, check_frozen_identity
 
 ROOT = Path(__file__).resolve().parents[4]
 EVIDENCE = ROOT / "official_muse/semifinal/evidence/user-acceptance-3rounds"
@@ -28,6 +32,9 @@ def record(result_path):
     attempt = path.parent
     identity = json.loads((attempt / "identity.json").read_text())
     assert result["candidate_id"] == identity["candidate_id"]
+    assert identity["owner_pid"] > 0 and identity["native_window_id"] > 0
+    check_data_dir(identity)
+    check_frozen_identity(identity)
     shots = sorted(attempt.glob("*.png"))
     inspection = json.loads((attempt / "visual-inspection.json").read_text())
     inspected = {row["file"] for row in inspection["images"] if row["observed"] and row["inspected_at_utc"]}
@@ -48,6 +55,10 @@ def record(result_path):
     write(attempt / "attempt-manifest.json", {"schema": 1, "files": files})
     matrix_path = EVIDENCE / "acceptance-matrix.json"
     matrix = json.loads(matrix_path.read_text())
+    if matrix["candidate_identity"] is not None:
+        assert matrix["candidate_identity"] == candidate_key(identity), "New runtime cannot reuse another candidate's prior rounds"
+    else:
+        matrix["candidate_identity"] = candidate_key(identity)
     matches = [row for row in matrix["results"] if row["test_id"] == result["test_id"]
                and row["round_id"] == result["round_id"]]
     assert len(matches) == 1

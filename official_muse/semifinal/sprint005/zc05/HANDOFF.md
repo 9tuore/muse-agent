@@ -6,6 +6,8 @@
 
 验证：`prepare_acceptance.py --validate` 输出 PREPARATION_PACKET_VALID，81/243 唯一且全部 NOT_TESTED；3 个 Python 文件 AST 解析通过。未运行 GUI、业务动作、模型/邮箱/日历或宿主重启。
 
+后续护栏修订：双 marker/生产 state 路径、完整 Kernel/Launcher/config/catalog/Git/版本/Bundle/插件身份、控件 enabled/真实窗口/pane 全矩形、原生视觉证明和跨轮候选一致已补齐。`check_guards_offline.py` 的14项合成反例通过，无GUI/网络；裁切/无视觉证明不点击。交接需补齐新版模板字段，生产目录清单由总控提供，不扫描或读生产资料。
+
 边界：root 基线 8da96cfdf582fc7e7e1e8a7eda4e902f75090f6a；生产端口 9696 从未访问；没有读取生产账号、凭据或私有资料，也未使用开发者 PASS 作为依据。根 CURRENT_STATE/HANDOFF 不在本 Agent 文件所有权内，本目录保存自己的状态与交接。
 
 未完成：固定候选包/host/plugin 哈希和专属 fixture GUI 交接；原生 helper 的实际运行验证；全部 243 GUI 验收格；最终实现范围、失败 Bug、独立读回与限制结论。交接模板本身不授予窗口权限。

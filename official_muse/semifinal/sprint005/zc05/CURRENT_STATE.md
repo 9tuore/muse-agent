@@ -8,6 +8,8 @@
 
 实际验证：prepare packet 离线检查通过；81 ID 唯一、243 test/round 组合唯一、每轮 81 条、全部 NOT_TESTED 且无尝试/截图/结果，准备 SHA manifest 相符；三个 Python 文件 AST 语法解析通过。以上均非 GUI 功能 PASS。
 
+护栏补齐：真实双 FIXTURE_ONLY marker、生产 state 路径重叠拒绝、Kernel/Launcher/config/catalog/Git/版本/Bundle 指纹和插件哈希、禁用/越界/对应 pane 裁切拒绝、逐图原生视觉证明绑定当前 snapshot、跨轮候选 key 一致。14 项离线合成反例检查通过，Root 给的裁切 Install 矩形被拒绝；完整 rect 缺原生图检查仍拒绝。无 GUI/网络调用，不计验收通过。
+
 下一步：收到总控统一冻结 package/main/manifest/host/plugins 身份、专属 fixture 端口/PID/窗口 ID/数据目录和正常重启命令后，核对实际 GUI 可见功能，逐项执行正常、交互变化、重启重复三轮。合成外部输运通过只记 SIMULATION_PASS，缺前置记 BLOCKED/HUMAN_REQUIRED，不可达记 NOT_IMPLEMENTED。
 
 待关注但未判定：旧根 bundle 与可读 source 字节/版本不同；旧系统日历路径是否不可达；窄范围自动安排是否具有正式可见入口。最终以冻结包 GUI 发现为准。
