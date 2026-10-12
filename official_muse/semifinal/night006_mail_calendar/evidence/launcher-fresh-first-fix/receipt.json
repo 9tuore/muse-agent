@@ -1,0 +1,31 @@
+{
+  "level": "COMPILED_LAUNCHER_STUB_HOST_AND_HEALTH_NOT_GUI_NOT_INFERENCE",
+  "source_sha256": "fe17d564071503cc91f5b386c02b1102e6ec5780120b72c9bb0a7c5ea532983d",
+  "fixture_source_sha256": "7eb8adb411a73cd14f3e5f5e34cea5f6e5eb323a5880a1452199105703cf264b",
+  "isolated_paths": [
+    "duplicate host process probe",
+    "per-user launcher mutex filename"
+  ],
+  "tests": 16,
+  "failures": 1,
+  "errors": 0,
+  "status": "FAIL",
+  "test_ids": [
+    "FreshLocal.test_bootstrap_explicit_hybrid",
+    "FreshLocal.test_bootstrap_default_hybrid",
+    "FreshLocal.test_fresh_restart_preserves_bytes_and_port",
+    "FreshLocal.test_existing_local_primary_starts_without_cloud",
+    "FreshLocal.test_cloud_and_local_fallback_keep_both_and_port",
+    "FreshLocal.test_cloud_without_local_is_byte_preserved",
+    "FreshLocal.test_existing_empty_profile_is_not_bootstrapped",
+    "FreshLocal.test_models_fresh_skips_local_and_profile",
+    "FreshLocal.test_occupied_port_is_actionable_and_keeps_profile",
+    "FreshLocal.test_remote_local_route_never_retargeted",
+    "FreshLocal.test_broken_symlink_profile_is_not_missing",
+    "FreshLocal.test_corrupt_profile_is_preserved",
+    "FreshLocal.test_hybrid_models_entry_does_not_start_or_modify_local_profile",
+    "FreshLocal.test_explicit_gpt_overrides_hybrid_package_without_local_start",
+    "FreshLocal.test_gpt_missing_profile_keeps_native_entry_without_default_profile",
+    "FreshLocal.test_check_is_read_only_without_bundled_model"
+  ]
+}

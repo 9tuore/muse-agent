@@ -1,0 +1,155 @@
+--- a/official_muse/integrated_release/muse_launcher.m
++++ b/official_muse/integrated_release/muse_launcher.m
+@@ -9,6 +9,7 @@
+ #include <stdlib.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
++#include <errno.h>
+ 
+ static volatile sig_atomic_t stopping = 0;
+ static void stop(int unused) { stopping = 1; }
+@@ -113,10 +114,74 @@
+     } else if ([primary[@"family_id"] isEqual:@"vllm"]) return NO;
+     return YES;
+ }
+-static int localPort(void) {
++static NSString *const bundledModelID = @"Qwen2.5-0.5B-Instruct-Q4_0-offline";
++static NSDictionary *bundledLocalSelection(NSDictionary *llm) {
++    NSMutableArray *selections = [NSMutableArray new];
++    if ([llm[@"primary"] isKindOfClass:NSDictionary.class]) [selections addObject:llm[@"primary"]];
++    if ([llm[@"fallbacks"] isKindOfClass:NSArray.class]) [selections addObjectsFromArray:llm[@"fallbacks"]];
++    for (id selection in selections) {
++        if ([selection isKindOfClass:NSDictionary.class] && [selection[@"family_id"] isEqual:@"local"]
++            && [selection[@"model_id"] isEqual:bundledModelID]) return selection;
++    }
++    return nil;
++}
++// The paired Native registry's default local route is 127.0.0.1:8080/v1.
++// Never retarget an existing provider, including an explicitly remote route.
++static int registeredLocalPort(NSDictionary *selection) {
++    id route = selection[@"route"];
++    if (route && ![route isKindOfClass:NSDictionary.class]) return -1;
++    if (route[@"api_type"] && ![route[@"api_type"] isEqual:@"openai"]) return -1;
++    id base = route[@"base_url"] ?: @"http://127.0.0.1:8080/v1";
++    if (![base isKindOfClass:NSString.class]) return -1;
++    NSURL *url = [NSURL URLWithString:base];
++    if (![url.scheme isEqual:@"http"] || ![url.host isEqual:@"127.0.0.1"]
++        || url.user.length || url.password.length || url.query || url.fragment
++        || (![[url path] isEqual:@"/v1"] && ![[url path] isEqual:@"/v1/"])) return -1;
++    int port = url.port ? url.port.intValue : 80;
++    return port > 0 && port <= 65535 ? port : -1;
++}
++// No existing profile is opened or replaced. The complete, keyless file is
++// linked into place only after fsync, then independently read back before Host.
++static BOOL createLocalProfile(NSString *path, NSString *base, NSError **error) {
++    NSISO8601DateFormatter *clock = [NSISO8601DateFormatter new];
++    NSString *now = [clock stringFromDate:NSDate.date];
++    NSDictionary *profile = @{@"id":@"_main", @"name":@"Main", @"enabled":@YES,
++        @"created_at":now, @"updated_at":now,
++        @"config":@{@"llm":@{@"primary":@{@"family_id":@"local", @"model_id":bundledModelID,
++            @"route":@{@"base_url":[base stringByAppendingString:@"/v1"], @"api_type":@"openai"}},
++            @"fallbacks":@[]}}};
++    NSData *data = [NSJSONSerialization dataWithJSONObject:profile options:NSJSONWritingPrettyPrinted error:error];
++    if (!data) return NO;
++    NSString *temporary = [path stringByAppendingFormat:@".%@.tmp", NSUUID.UUID.UUIDString];
++    int fd = open(temporary.fileSystemRepresentation, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, 0600);
++    if (fd < 0) { if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil]; return NO; }
++    const uint8_t *bytes = data.bytes;
++    NSUInteger left = data.length;
++    BOOL ok = YES;
++    while (left) {
++        ssize_t wrote = write(fd, bytes, left);
++        if (wrote < 0 && errno == EINTR) continue;
++        if (wrote <= 0) { ok = NO; break; }
++        bytes += wrote; left -= (NSUInteger)wrote;
++    }
++    int savedError = errno;
++    if (ok && fsync(fd) != 0) { ok = NO; savedError = errno; }
++    close(fd);
++    if (ok && link(temporary.fileSystemRepresentation, path.fileSystemRepresentation) != 0) { ok = NO; savedError = errno; }
++    unlink(temporary.fileSystemRepresentation);
++    if (!ok) { if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:savedError userInfo:nil]; return NO; }
++    NSData *readback = [NSData dataWithContentsOfFile:path options:0 error:error];
++    return readback && [readback isEqualToData:data];
++}
++static int localPort(int preferred) {
+     int fd = socket(AF_INET, SOCK_STREAM, 0);
++    // A stopped server may leave TIME_WAIT sockets. They are not a running
++    // listener; allow immediate restart while still rejecting an occupied port.
++    int reuse = 1;
++    if (fd >= 0) setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+     struct sockaddr_in address = {0};
+     address.sin_family = AF_INET; address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
++    address.sin_port = htons((uint16_t)preferred);
+     socklen_t size = sizeof(address);
+     int port = 0;
+     if (fd >= 0 && bind(fd, (struct sockaddr *)&address, size) == 0 &&
+@@ -232,6 +297,9 @@
+         }
+         NSString *core = join(state, @"kernel/.octos");
+         NSString *profilePath = join(core, @"profiles/_main.json");
++        struct stat profileStat;
++        BOOL profileMissing = lstat(profilePath.fileSystemRepresentation, &profileStat) != 0 && errno == ENOENT;
++        BOOL bootstrapLocal = hybrid && !models && profileMissing;
+         if (gpt) {
+             BOOL configured = nativeGPT(modelMetadata(profilePath));
+             puts(configured ? "GPT_CONFIG_ONLY：已识别原生 OpenAI GPT 配置；凭证、连通性与实调尚未验证。"
+@@ -242,7 +310,7 @@
+         if (hybrid && !models) {
+             NSDictionary *llm = modelMetadata(profilePath);
+             BOOL cloud = cloudPrimary(llm);
+-            if (!cloud) {
++            if (!cloud && !bundledLocalSelection(llm) && !bootstrapLocal) {
+                 puts("HYBRID_SETUP_REQUIRED：请在 Models 中由本人配置云端主模型（保留已有 MiniMax 等提供方）；现有配置保留，本次设置入口不启动 Qwen。");
+                 models = YES;
+             }
+@@ -266,18 +334,18 @@
+         NSDictionary *localStatus = nil;
+         if (!gpt && !models) {
+         NSDictionary *llm = modelMetadata(profilePath);
+-        if (![llm isKindOfClass:NSDictionary.class]) { fail(@"模型元数据无法读取，原 profile 保留。"); return 1; }
+-        NSString *modelID = @"Qwen2.5-0.5B-Instruct-Q4_0-offline";
+-        NSMutableArray *selections = [NSMutableArray new];
+-        if ([llm[@"primary"] isKindOfClass:NSDictionary.class]) [selections addObject:llm[@"primary"]];
+-        if ([llm[@"fallbacks"] isKindOfClass:NSArray.class]) [selections addObjectsFromArray:llm[@"fallbacks"]];
+-        BOOL localSelected = NO;
+-        for (NSDictionary *selection in selections) {
+-            if ([selection[@"family_id"] isEqual:@"local"] && [selection[@"model_id"] isEqual:modelID]) localSelected = YES;
+-        }
++        if (![llm isKindOfClass:NSDictionary.class] && !bootstrapLocal) { fail(@"模型元数据无法读取，原 profile 保留。"); return 1; }
++        NSString *modelID = bundledModelID;
++        NSDictionary *selection = bundledLocalSelection(llm);
++        BOOL localSelected = selection != nil;
+         if (localSelected || hybrid) {
+-            int port = localPort();
+-            if (!port) { fail(@"无法分配本地模型端口。"); return 1; }
++            int preferred = localSelected ? registeredLocalPort(selection) : 0;
++            if (preferred < 0) { fail(@"本地 Qwen 路由须使用 http://127.0.0.1:端口/v1 和 OpenAI 协议。原配置已保留；请通过 --models 入口在 Models 中调整该本地提供方。"); return 1; }
++            int port = localPort(preferred);
++            if (!port) {
++                fail(preferred ? [NSString stringWithFormat:@"本地模型端口 %d 已被占用。请退出占用它的应用后重开 Muse，或通过 --models 入口调整本地提供方端口。原配置已保留。", preferred] : @"无法分配本地模型端口。");
++                return 1;
++            }
+             NSString *base = [NSString stringWithFormat:@"http://127.0.0.1:%d", port];
+             NSString *modelLog = join(state, @"logs/model.log");
+             if (![files fileExistsAtPath:modelLog]) [files createFileAtPath:modelLog contents:nil attributes:@{NSFilePosixPermissions:@0600}];
+@@ -307,12 +375,17 @@
+             }
+             [session invalidateAndCancel];
+             if (!ready) { finishTask(model); fail([NSString stringWithFormat:@"离线模型未就绪，请查看日志：%@", modelLog]); return 1; }
++            if (bootstrapLocal && !createLocalProfile(profilePath, base, &error)) {
++                finishTask(model); fail(@"无法创建并读回首次本地模型配置；现有文件未覆盖。请通过 --models 入口检查 Models，或选择新的空白数据目录。"); return 1;
++            }
+             localStatus = @{@"model_id":modelID, @"quality":@"basic offline fallback; not a strong model",
+                 @"base_url":base, @"route_base_url":[base stringByAppendingString:@"/v1"],
+                 @"pid":@(model.processIdentifier), @"service_status":@"ready",
+-                @"native_local_selected":@NO, @"native_route_updated":@NO, @"configured_local_selection":@(localSelected), @"inference_verified":@NO};
++                @"native_local_selected":@NO, @"native_route_updated":@NO,
++                @"native_profile_created":@(bootstrapLocal), @"configured_local_selection":@(localSelected || bootstrapLocal), @"inference_verified":@NO};
+             saveJSON(localStatus, join(state, @"local-model.json"), nil);
+-            if (hybrid) puts("HYBRID_LOCAL_READY_ONLY：原 profile 字节保留；本地服务就绪，Native 路由与推理尚未验证。");
++            if (bootstrapLocal) puts("HYBRID_LOCAL_PROFILE_READY：首次本地模型配置已创建并读回；本地服务就绪。可在 Models 添加云端提供方；Host 推理尚未验证。");
++            else if (hybrid) puts("HYBRID_LOCAL_READY_ONLY：原 profile 字节保留；本地服务就绪，Native 路由与推理尚未验证。");
+         }
+         }
+         NSString *readyPath = join(state, [NSString stringWithFormat:@"launch-%d.ready", owner]);
