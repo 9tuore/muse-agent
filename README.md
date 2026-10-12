@@ -1,12 +1,10 @@
-## 当前交付边界：R5固定保底，0.4.0-rc8候选准备中
+## 当前交付边界：0.4.0-rc8 seq8 本机候选，独立验收尚未完成
 
-NIGHT-004固定R5保底入口是本机 `build/night-004/rc7-integrated-candidate-r5/package/Muse.app`（`0.4.0-rc7`），必须经随包Launcher与配套OctoSense Host打开。它基于官方源码并包含待审修复；R5结论是隔离 `SIMULATION_PASS`，生产 `REAL_E2E_NOT_TESTED`。本轮保留该包和生产资料，不覆盖保底。
+最新产品冻结提交 `9a61040c86efbe967b207a058f717733df422391`，可读Main SHA-256 `c09836478cdd5fe58f34634002400ebc517185deb30fe4a29a469705c1ac6bd7`；签名compact Main `58b97a56…`、manifest `8d2f8ee9…`、catalog `b05b01b8…`/seq8。Intel本机候选 `build/sprint005/rc8-candidate-r4/Muse.app` 使用统一WorkBuddy Launcher入口和原配套Host。独立GUI验收包 `build/sprint005/zc05-final-r4/Muse.app` 使用限定双marker/loopback CA的专用测试Host，实际窗口已显示，日历query/create有真实owner回执和独立保存读回；合成模型/账号/数据只计 `SIMULATION_PASS`。
 
-SPRINT-005当前可读Main SHA-256为 `947c52915c507f9a7a7a896c554b43f1c1e0a9ec11bee490bed5304d054b642b`。`0.4.0-rc8`准备输出位于本机 `build/sprint005/rc8-main-r1`：stamped readable为 `a5af07e9…`，compact artifact为 `0491807b…`；这是不同构建层，完整身份以Root新冻结回执为准。准备包或catalog序列更新不代表已经安装、通过三轮GUI或正式上架。配套CA测试Host仍由Root独立编译/验收，不继承R5结论。
+最终三轮尚未完成。官方Mail原生发送要求本人physical activation，自动化被拒绝且SMTP DATA=0，不能称真实发送或自发自收通过。生产资料及R5保底 `build/night-004/rc7-integrated-candidate-r5/package/Muse.app` 保留；新候选未在生产资料中完成安装/整链验收。详细状态见 [当前状态](MUSE_HANDOFF/CURRENT_STATE.md)、[七小时报告](MUSE_SPRINT_20261012_7H_REPORT.md) 和 [独立三轮报告](MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md)。
 
-根目录 [bundle/](bundle/) 保留 `0.3.27-rc17` 历史包（Main `90351cba7ec5c493befb6673212bfb1aa9639dbfbc2ce28b83e24b98f3e05bdc`），旧别名仍指向它；它不是当前rc8候选发布入口。上述build路径是未跟踪的本机构建产物，干净检出需重新准备、签名并同身份验收。后续根发布bundle替换、push/tag或比赛提交均由Root按既有授权单独收口，本说明不执行或授权发布。
-
-当前进展见 [当前状态](MUSE_HANDOFF/CURRENT_STATE.md)，R5历史证据见 [NIGHT-004报告](MUSE_STABILIZATION_20261012_REPORT.md)；[复赛布局与发布边界](docs/semifinal-release-layout.md)及旧版证据保留。
+根 [bundle/](bundle/) 保留 `0.3.27-rc17` 历史包；build是未跟踪的本机产物，干净检出需重新准备、签名与验收。正常开发分支同步不等于公开发布或比赛提交。R5历史范围见 [NIGHT-004报告](MUSE_STABILIZATION_20261012_REPORT.md)，不能拼作本候选三轮。
 
 # Muse · 让记忆推动行动
 

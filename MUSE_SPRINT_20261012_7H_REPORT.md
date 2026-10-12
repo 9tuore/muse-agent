@@ -1,4 +1,42 @@
-# Muse SPRINT-005 七小时记录
+# Muse SPRINT-005 七小时报告
+
+当前收口结论：**PARTIAL_3_ROUND_ACCEPTANCE**。截至2026-10-12 19:59北京时间；任务13:11:25开始，19:11:25停止新增高风险产品改动，20:11:25截止，不自动延长。最新正式矩阵与逐轮截图以独立ZC05报告为准。
+
+## 固定候选与运行边界
+
+产品Git `9a61040c86efbe967b207a058f717733df422391`；Source SHA256 `c09836478cdd5fe58f34634002400ebc517185deb30fe4a29a469705c1ac6bd7`；compact Main `58b97a5691171722608868597105fbf16bd5577180f5a602a7bd8c04ee622b5b`；manifest `8d2f8ee9e9af8bcc3fec0edc6748dc1d04290b796ed2f2a77db64be682e19736`；catalog `b05b01b8dbba42d1d502e870a04be67d25682919f74b02f4941fe5a9719ad0a5`/sequence8；Bundle BLAKE3 `dcb9f1d575e2a9803cd975333d8fefe4d349b3024f1c28d57e7b3c1857745271`。
+
+本机Intel候选 `build/sprint005/rc8-candidate-r4/Muse.app` 保留原Host1eb1887b。真正GUI验收包 `build/sprint005/zc05-final-r4/Muse.app` 使用Host `cea8ca71c52d0a3e3f8240feb226f75cce223b50c337433c3d33a632f7bec9a7`、Kernel `56761a9f24dd2b8dea0cd3fd2df85be877e9ee466aa6b88a5f2c0e2ee3948270`。实际PID21195/native819，专属port9799；数据 `build/sprint005/zc05-release-r4/state`。模型/IMAP/SMTP是严格loopback合成服务，owner os.calendar真实运行，生产资料未复制。GUI包结果不能外推生产Host、私人账号和MiniMax云模型。
+
+## 本轮完成的实际工作
+
+- 统一WorkBuddy启动参数与单Host互斥，保留原Host/Kernel身份。26实际签名stub定向检查及5打包检查通过；GitHub同workflow对1a674962的实际run38234049234为success。这不是业务GUI证明，旧guard失败保留。
+- Memory跳过无关阶段Source/Claim遍历；384区间/22坏输入的定向VM验证保留，Source6.510→5.395ms、Claim15.451→11.785ms仅为该测量环境，不能写成整体GUI延迟。
+- 修复实际独立预检发现的候选结果入口提示与本地Run行动链投影；70实际VM边界测试通过。Calendar/Mail不因此伪标verified。
+- 修复精确公开NO_CONSENT的首用提示；创建/改期/删除旧拒绝及不自动重放门禁保持。25定向VM检查通过，seq8真实UI已看到授权后明确重试提示。
+- 专用CA fixture Host实际offline/locked release构建44分03秒；严格双marker、127.0.0.1、正常TLS verifier的Rust guard测试1/1通过，原生产源码未改。
+- 定位真实模型wire缺工具选择为fixture匹配和SDK请求text包装问题，11+10定向案例通过。部署后真实GUI获取Calendar owner query/create回执；没有伪造权限或owner结果。
+
+## 当前GUI验收与未完成
+
+81个原子功能、243个轮次格；19:59实际索引2个SIMULATION_PASS，三轮完成0个。UA-CAL-02仅全事件limit200查询，未验证日期过滤。UA-CAL-06实际GUI新建 `ev-1791834681129`，get_event回执及独立owner记录匹配标题、时间、地点、notes和request_id；删除正在测试，最终计数由后续独立报告更新。
+
+Mail实际合成IMAP收信、原文查看、手写草稿和原生审阅可见；remote Approve & Send被SDK“physical activation”拒绝，SMTP DATA=0、独立receiver=0：HUMAN_REQUIRED，不能称发送或自发自收通过。邮件→日历选择加入、同候选完整恢复/防重、最终20次冷启动、长时间业务soak与全功能三轮未通过。30分钟360点PID/RSS采样只为OBSERVED_NOT_FUNCTIONAL_SOAK。自动AI记忆建议卡和部分已打开Goal聊天改计划路径不伪称已实现。
+
+生产rc7已本人安装且R5 Main/manifest核对一致，现有MiniMax metadata保留；本轮未做生产云模型实调、私人日历变更或真实外部发信。根bundle仍历史版本，本机候选本地准入签名不等于官方GitHub publisher证明，未公开发布/Tag/比赛提交。
+
+## 证据入口
+
+- `official_muse/integrated_release/evidence/sprint005-rc8-frozen-r4/`：实际窗口、动态身份、冻结和旧/修正handoff。
+- `official_muse/semifinal/evidence/user-acceptance-3rounds/`：独立每次GUI输入、native图、视觉核对、readback与SHA清单；保留失败/旧sequence7，不拼作seq8通过。
+- `official_muse/integrated_release/evidence/sprint005-consent-notice-r4/`、`sprint005-entry-single-host-r1/`、`sprint005-latest-ci/`：定向实现及实际命令证据。
+- `official_muse/semifinal/sprint005/zc01/`、`zc02/`、`zc03/`：公开SDK来源、fixture输运、UI/VM测试。TLS私钥/账号secret不进入公开证据。
+
+后续最高价值工作：完成同候选Calendar删除/改期/重启读回；通过本人native发送步骤后验证SMTP与独立收件；实际邮件联动日历；对同一冻结候选重跑适用三轮。截止后不自动扩时，未测试项如实保留。
+
+---
+
+# 早期检查点记录
 
 状态：进行中。实际开始北京时间2026-10-12 13:11:25；19:11:25停止新增高风险改动；20:11:25截止，不自动延长。
 
