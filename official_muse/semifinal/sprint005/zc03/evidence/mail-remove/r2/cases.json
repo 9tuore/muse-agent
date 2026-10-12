@@ -1,0 +1,154 @@
+[
+  {
+    "name": "remove-selected-A-clears-only-view",
+    "mode": "remove",
+    "expect": "remove"
+  },
+  {
+    "name": "remove-A-preserves-selected-B",
+    "mode": "remove",
+    "expect": "remove",
+    "selected": "B"
+  },
+  {
+    "name": "async-switch-to-B-preserved",
+    "mode": "remove",
+    "expect": "remove",
+    "switch": "B"
+  },
+  {
+    "name": "async-switch-to-nil-preserved",
+    "mode": "remove",
+    "expect": "remove",
+    "switch": "nil"
+  },
+  {
+    "name": "cancel-prevents-dispatch",
+    "mode": "cancel",
+    "expect": "blocked"
+  },
+  {
+    "name": "no-confirmation",
+    "mode": "remove",
+    "expect": "blocked",
+    "confirm": ""
+  },
+  {
+    "name": "wrong-confirmation",
+    "mode": "remove",
+    "expect": "blocked",
+    "confirm": "B"
+  },
+  {
+    "name": "unknown-account",
+    "mode": "remove",
+    "expect": "blocked",
+    "target": "missing"
+  },
+  {
+    "name": "guard-pending",
+    "mode": "remove",
+    "expect": "blocked",
+    "flag": "pending"
+  },
+  {
+    "name": "guard-sending",
+    "mode": "remove",
+    "expect": "blocked",
+    "flag": "sending"
+  },
+  {
+    "name": "guard-model_pending",
+    "mode": "remove",
+    "expect": "blocked",
+    "flag": "model_pending"
+  },
+  {
+    "name": "guard-calendar_link_pending",
+    "mode": "remove",
+    "expect": "blocked",
+    "flag": "calendar_link_pending"
+  },
+  {
+    "name": "no-mail-capability",
+    "mode": "remove",
+    "expect": "blocked",
+    "cap": false
+  },
+  {
+    "name": "same-draft-sending",
+    "mode": "remove",
+    "expect": "blocked",
+    "draft_status": "sending"
+  },
+  {
+    "name": "same-draft-accepted",
+    "mode": "remove",
+    "expect": "blocked",
+    "draft_status": "accepted"
+  },
+  {
+    "name": "same-draft-unknown",
+    "mode": "remove",
+    "expect": "blocked",
+    "draft_status": "unknown"
+  },
+  {
+    "name": "other-account-accepted-not-blocking",
+    "mode": "remove",
+    "expect": "remove",
+    "draft_account": "B",
+    "draft_status": "accepted"
+  },
+  {
+    "name": "failed-remove-keeps-current-view",
+    "mode": "remove",
+    "expect": "failure",
+    "reply": {
+      "is_ok": false,
+      "error": "cancelled by fixture"
+    }
+  },
+  {
+    "name": "failed-remove-after-switch-B",
+    "mode": "remove",
+    "expect": "failure",
+    "switch": "B",
+    "reply": {
+      "is_ok": false,
+      "error": "timeout fixture"
+    }
+  },
+  {
+    "name": "accounts-reload-fails-after-remove",
+    "mode": "remove",
+    "expect": "reload-fail",
+    "reload_ok": false
+  },
+  {
+    "name": "add-second-account",
+    "mode": "add",
+    "expect": "add"
+  },
+  {
+    "name": "add-cancelled-login",
+    "mode": "add",
+    "expect": "add-failure",
+    "reply": {
+      "is_ok": false,
+      "error": "cancelled login"
+    }
+  },
+  {
+    "name": "add-pending-blocked",
+    "mode": "add",
+    "expect": "blocked",
+    "flag": "pending"
+  },
+  {
+    "name": "add-capability-blocked",
+    "mode": "add",
+    "expect": "blocked",
+    "cap": false
+  }
+]

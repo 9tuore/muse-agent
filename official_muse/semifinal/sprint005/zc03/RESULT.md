@@ -40,3 +40,11 @@ Root委托只读冻结Main f9e94877；既有VM实际70案例FIXTURE_PASS，22生
 ## Calendar 首用授权提示
 
 Root c0983647定向25个真实VM案例FIXTURE_PASS，首轮无VM错误。NO_CONSENT精确类型/字符串及否定提示边界通过，真实创建函数blocked/no turn、success三次合成调用、身份变化阻止通过。三处旧guard/body除提示调用外逐字保持，改期/删除未动态运行。详见CALENDAR_CONSENT；无GUI、Kernel、真实存储、SDK重编或旧全测试。
+
+## 延长窗口固定seq8证据
+
+final_evidence_check.py独立核查2项已计SIMULATION_PASS，EVIDENCE_INCOMPLETE；两项日志manifest漂移、后加文件/未视察新图是证据缺项，原结果不改。候选/owner archive检查通过；7工具检查PASS，PID21195实际60被动样本仅OBSERVED_NOT_FUNCTIONAL_SOAK。详见FINAL_EVIDENCE，无GUI/生产改写。
+
+## 最新邮箱移除／第二账号
+
+Root新源只读冻结，五个生产fn和取消处理体真实VM最终24案例FIXTURE_PASS；inflight/草稿未决/确认/cancel/失败/异步保持B或nil、单A→第二B通过。r1四个fixture断言错误原样保留，未修改产品源码。MAIL_REMOVE.md明确transport/capability/gm_set_accounts边界，未声称APP真实模拟账号已清除。

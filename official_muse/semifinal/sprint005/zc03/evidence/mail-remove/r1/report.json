@@ -1,0 +1,1422 @@
+{
+  "status": "FAIL",
+  "returncode": 0,
+  "identity": {
+    "source_sha256": "c4dc95e2d831adee0da3f33172e8be62db68a53e6a8bb36d414da02a2e6f3c73",
+    "vm_sha256": "337cbba7180e913d31d28b3122ce2167484a108b3c1fd2631b99c31815af9d34",
+    "runner_sha256": "2672e944b13229d50442fceac18f3709b550f03e343ec71d84432f9e1a64e616",
+    "executed_sha256": "410c3e227efbf0afa9b54ae791aaeb06abafde9d85580371809c7ca3496be94e",
+    "production_functions": {
+      "mail_enabled": "ca34b04d3b9ff29c1a6f64033e261ff1b3dd931adc14b0b744de1bf0069f5338",
+      "mail_host_error": "57597b77090e42614602284792a31b58e682aba1d89117c262fb2698b0ce434b",
+      "mail_accounts_load": "312c134df2a941f9af2d8b5495166e0695169f22489718774424bf895b0f7e04",
+      "mail_remove_account": "d37980d5e5970f03b424958df3bfb26c9bf8410006321d909bdbe7612afe9d34",
+      "mail_add_account": "0b98ece5a3c4fdc76de1db312f8863ca3499038195beaddc54ad9e7d79c2a4f7"
+    },
+    "cancel_ui_body": "mail_remove_confirm = \"\" mail_redraw()",
+    "cancel_ui_body_sha256": "a9b242585b5989b6909a7dd146f997c0233bae9a2783894273540a566d260bd8",
+    "transport_only_normalization": true,
+    "fixture_boundaries": [
+      "host.capabilities",
+      "deferred transport replies",
+      "mail_redraw",
+      "gm_set_accounts"
+    ]
+  },
+  "boundary": "Actual pure CLI Splash VM, synthetic account A/B/C and deferred transport. No GUI, actual account creation/removal, credentials, real mailbox or business storage tested.",
+  "failed": [
+    {
+      "name": "async-switch-to-nil-preserved",
+      "checks": [
+        "removed_selection_cleared"
+      ]
+    },
+    {
+      "name": "failed-remove-keeps-current-view",
+      "checks": [
+        "selection_retained"
+      ]
+    },
+    {
+      "name": "failed-remove-after-switch-B",
+      "checks": [
+        "selection_retained"
+      ]
+    },
+    {
+      "name": "add-cancelled-login",
+      "checks": [
+        "selection_retained"
+      ]
+    }
+  ],
+  "cases": 24,
+  "actual": [
+    {
+      "error": "",
+      "grants": [
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "B"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 0,
+      "folder": "INBOX",
+      "connection": false,
+      "account": null,
+      "offset": 0,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        },
+        {
+          "method": "mail.accounts",
+          "args": {}
+        }
+      ],
+      "name": "remove-selected-A-clears-only-view",
+      "notice": "选择账号查看收件箱。",
+      "confirm": "",
+      "compose": false,
+      "messages": [],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": null,
+      "folders": [],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "exact_service_order": true,
+        "pending_cleared": true,
+        "exact_target": true,
+        "other_account_retained": true,
+        "removed_selection_cleared": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "B"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "B",
+        "address": "b@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        },
+        {
+          "method": "mail.accounts",
+          "args": {}
+        }
+      ],
+      "name": "remove-A-preserves-selected-B",
+      "notice": "选择账号查看收件箱。",
+      "confirm": "",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"B\",\"address\":\"b@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "exact_service_order": true,
+        "pending_cleared": true,
+        "exact_target": true,
+        "other_account_retained": true,
+        "other_selection_preserved": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "B"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"B-message\"}]",
+      "total": 9,
+      "folder": "B-folder",
+      "connection": true,
+      "account": {
+        "id": "B",
+        "address": "b@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        },
+        {
+          "method": "mail.accounts",
+          "args": {}
+        }
+      ],
+      "name": "async-switch-to-B-preserved",
+      "notice": "选择账号查看收件箱。",
+      "confirm": "",
+      "compose": true,
+      "messages": [
+        {
+          "id": "B-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"B\",\"address\":\"b@fixture.invalid\"}",
+      "selected": {
+        "id": "B-message"
+      },
+      "folders": [
+        {
+          "id": "B-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "exact_service_order": true,
+        "pending_cleared": true,
+        "exact_target": true,
+        "other_account_retained": true,
+        "other_selection_preserved": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "B"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": null,
+      "offset": 25,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        },
+        {
+          "method": "mail.accounts",
+          "args": {}
+        }
+      ],
+      "name": "async-switch-to-nil-preserved",
+      "notice": "选择账号查看收件箱。",
+      "confirm": "",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "null",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "exact_service_order": true,
+        "pending_cleared": true,
+        "exact_target": true,
+        "other_account_retained": true,
+        "removed_selection_cleared": false
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "cancel-prevents-dispatch",
+      "notice": "",
+      "confirm": "",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "no-confirmation",
+      "notice": "",
+      "confirm": "",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "wrong-confirmation",
+      "notice": "",
+      "confirm": "B",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "unknown-account",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "guard-pending",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": true,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "guard-sending",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "guard-model_pending",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "guard-calendar_link_pending",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "no-mail-capability",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "此账号仍有提交结果待核对，请先核对邮件状态再移除。",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "same-draft-sending",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "此账号仍有提交结果待核对，请先核对邮件状态再移除。",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "same-draft-accepted",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "此账号仍有提交结果待核对，请先核对邮件状态再移除。",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "same-draft-unknown",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "B"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 0,
+      "folder": "INBOX",
+      "connection": false,
+      "account": null,
+      "offset": 0,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        },
+        {
+          "method": "mail.accounts",
+          "args": {}
+        }
+      ],
+      "name": "other-account-accepted-not-blocking",
+      "notice": "选择账号查看收件箱。",
+      "confirm": "",
+      "compose": false,
+      "messages": [],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": null,
+      "folders": [],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "exact_service_order": true,
+        "pending_cleared": true,
+        "exact_target": true,
+        "other_account_retained": true,
+        "removed_selection_cleared": true
+      }
+    },
+    {
+      "error": "已取消账号登录。",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": false,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        }
+      ],
+      "name": "failed-remove-keeps-current-view",
+      "notice": "正在从 Muse 移除此邮箱授权。",
+      "confirm": "",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "single_failed_dispatch": true,
+        "error": true,
+        "selection_retained": false,
+        "pending_cleared": true
+      }
+    },
+    {
+      "error": "邮箱服务等待超时，请检查连接后重试。",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"B-message\"}]",
+      "total": 9,
+      "folder": "B-folder",
+      "connection": false,
+      "account": {
+        "id": "B",
+        "address": "b@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        }
+      ],
+      "name": "failed-remove-after-switch-B",
+      "notice": "正在从 Muse 移除此邮箱授权。",
+      "confirm": "",
+      "compose": true,
+      "messages": [
+        {
+          "id": "B-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"B\",\"address\":\"b@fixture.invalid\"}",
+      "selected": {
+        "id": "B-message"
+      },
+      "folders": [
+        {
+          "id": "B-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "single_failed_dispatch": true,
+        "error": true,
+        "selection_retained": false,
+        "pending_cleared": true
+      }
+    },
+    {
+      "error": "邮箱服务请求未完成，请检查账号和连接后重试。",
+      "grants": [],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 0,
+      "folder": "INBOX",
+      "connection": false,
+      "account": null,
+      "offset": 0,
+      "trace": [
+        {
+          "method": "mail.remove_account",
+          "args": {
+            "account": "A"
+          }
+        },
+        {
+          "method": "mail.accounts",
+          "args": {}
+        }
+      ],
+      "name": "accounts-reload-fails-after-remove",
+      "notice": "账号读取未完成。",
+      "confirm": "",
+      "compose": false,
+      "messages": [],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": null,
+      "folders": [],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "exact_service_order": true,
+        "pending_cleared": true,
+        "exact_target": true,
+        "reload_error": true,
+        "removed_selection_cleared": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B",
+        "C"
+      ],
+      "accounts": [
+        {
+          "id": "A"
+        },
+        {
+          "id": "B"
+        },
+        {
+          "id": "C"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [
+        {
+          "method": "mail.add_account",
+          "args": {}
+        },
+        {
+          "method": "mail.accounts",
+          "args": {}
+        }
+      ],
+      "name": "add-second-account",
+      "notice": "选择账号查看收件箱。",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "exact_service_order": true,
+        "pending_cleared": true,
+        "second_account_list": true
+      }
+    },
+    {
+      "error": "已取消账号登录。",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 1,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": false,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [
+        {
+          "method": "mail.add_account",
+          "args": {}
+        }
+      ],
+      "name": "add-cancelled-login",
+      "notice": "账号连接未完成。",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "single_failed_dispatch": true,
+        "error": true,
+        "selection_retained": false,
+        "pending_cleared": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "add-pending-blocked",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": true,
+      "pending": true,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    },
+    {
+      "error": "",
+      "grants": [
+        "A",
+        "B"
+      ],
+      "accounts": [
+        {
+          "id": "A",
+          "address": "a@fixture.invalid"
+        },
+        {
+          "id": "B",
+          "address": "b@fixture.invalid"
+        }
+      ],
+      "draft_unchanged": true,
+      "queued": 0,
+      "list_before_reply": "[{\"id\":\"old-message\"}]",
+      "total": 9,
+      "folder": "old-folder",
+      "connection": true,
+      "account": {
+        "id": "A",
+        "address": "a@fixture.invalid"
+      },
+      "offset": 25,
+      "trace": [],
+      "name": "add-capability-blocked",
+      "notice": "",
+      "confirm": "A",
+      "compose": true,
+      "messages": [
+        {
+          "id": "old-message"
+        }
+      ],
+      "pending_before_reply": false,
+      "pending": false,
+      "choice_before_reply": "{\"id\":\"A\",\"address\":\"a@fixture.invalid\"}",
+      "selected": {
+        "id": "old-message"
+      },
+      "folders": [
+        {
+          "id": "old-folder"
+        }
+      ],
+      "checks": {
+        "name": true,
+        "draft_preserved": true,
+        "zero_dispatch": true,
+        "accounts_retained": true
+      }
+    }
+  ]
+}

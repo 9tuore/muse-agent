@@ -1,0 +1,140 @@
+use mod.math.*
+use mod.std.*
+let fixture_caps=["mail"] let fixture_trace=[] let fixture_pending=[] let fixture_grants=[]
+let host={capabilities:||fixture_caps}
+let mail_pending=false let mail_sending=false let mail_model_pending=false let mail_calendar_link_pending=false
+let mail_accounts=[] let mail_account=nil let mail_remove_confirm="" let mail_draft={}
+let mail_selected=nil let mail_messages=[] let mail_folders_data=[] let mail_folder="INBOX"
+let mail_total=0 let mail_offset=0 let mail_connection_verified=false let mail_compose_open=false
+let mail_error="" let mail_notice="" let mail_error_detail_open=false let mail_error_detail="" let mail_error_detail_user=""
+fn mail_redraw(){}
+fn gm_set_accounts(ids){fixture_grants=ids}
+fn fixture_transport(method,args,cb){fixture_trace.push({method:method args:args}) fixture_pending.push({method:method callback:cb})}
+fn mail_enabled(){
+    for capability in host.capabilities() { if capability == "mail" { return true } }
+    return false
+}
+fn mail_host_error(raw){
+    mail_connection_verified = false
+    if raw == nil { raw = "邮箱服务未返回可用结果。" }
+    mail_error_detail_open = false
+    mail_error_detail = raw
+    if raw.len() > 600 { mail_error_detail = "宿主错误详情过长，请在本地诊断中核对。" }
+    mail_error = "邮箱服务请求未完成，请检查账号和连接后重试。"
+    if raw.search("cancelled") >= 0 { mail_error = "已取消账号登录。" }
+    if raw.search("may not use that account") >= 0 { mail_error = "当前应用没有此邮箱账号的访问授权，请重新连接。" }
+    if raw.search("no such message") >= 0 { mail_error = "这封邮件已不可用，请同步列表后重新选择。" }
+    if raw.search("no method") >= 0 || raw.search("No service") >= 0 || raw.search("not registered") >= 0 { mail_error = "当前宿主没有可用的邮箱服务。" }
+    if raw.search("timed out") >= 0 || raw.search("timeout") >= 0 { mail_error = "邮箱服务等待超时，请检查连接后重试。" }
+    mail_error_detail_user = mail_error
+}
+fn mail_accounts_load(){
+    if !mail_enabled() {
+        mail_error = "当前应用未获邮箱能力；需要经 应用中心 授权安装。"
+        mail_redraw()
+        return
+    }
+    if mail_pending { return }
+    mail_pending = true
+    mail_notice = "正在读取宿主可用邮箱账号。"
+    mail_redraw()
+    fixture_transport("mail.accounts", {}, fn(r){
+        mail_pending = false
+        if r.is_ok && r.data != nil {
+            mail_accounts = r.data
+        let authorized = []
+        for account in mail_accounts { authorized.push(account.id) }
+        gm_set_accounts(authorized)
+            mail_notice = "选择账号查看收件箱。"
+            if mail_accounts.len() == 0 { mail_notice = "尚无已授权账号。" }
+            mail_error = ""
+        } else { gm_set_accounts([]) mail_notice = "账号读取未完成。" mail_host_error(r.error) }
+        mail_redraw()
+    })
+}
+fn mail_remove_account(account_id){
+    if !mail_enabled() || mail_pending || mail_sending || mail_model_pending || mail_calendar_link_pending { return }
+    if mail_draft.account == account_id && (mail_draft.status == "sending" || mail_draft.status == "accepted" || mail_draft.status == "unknown") {
+        mail_error = "此账号仍有提交结果待核对，请先核对邮件状态再移除。"
+        mail_redraw() return
+    }
+    let found = false
+    for account in mail_accounts { if account.id == account_id { found = true } }
+    if !found || mail_remove_confirm != account_id { return }
+    mail_remove_confirm = ""
+    mail_pending = true
+    mail_notice = "正在从 Muse 移除此邮箱授权。"
+    mail_redraw()
+    fixture_transport("mail.remove_account", {account: account_id}, fn(r){
+        mail_pending = false
+        if !r.is_ok { mail_host_error(r.error) mail_redraw() return }
+        if mail_account != nil && mail_account.id == account_id {
+            mail_account = nil mail_selected = nil mail_messages = [] mail_folders_data = []
+            mail_folder = "INBOX" mail_total = 0 mail_offset = 0 mail_connection_verified = false
+            mail_compose_open = false
+        }
+        mail_error = ""
+        mail_notice = "宿主已处理移除申请；正在重新读取账号。原有邮件记录保留。"
+        mail_accounts_load()
+    })
+}
+fn mail_add_account(){
+    if !mail_enabled() || mail_pending { return }
+    mail_pending = true
+    mail_notice = "请在 OctoSense 宿主面板中登录；Muse 不接收密码。"
+    mail_redraw()
+    fixture_transport("mail.add_account", {}, fn(r){
+        mail_pending = false
+        if r.is_ok {
+            mail_notice = "宿主已完成账号连接。"
+            mail_accounts_load()
+        }
+        else { mail_notice = "账号连接未完成。" mail_host_error(r.error) mail_redraw() }
+    })
+}
+fn fixture_cancel(){mail_remove_confirm = "" mail_redraw()}
+
+let rows="[{\"name\": \"remove-selected-A-clears-only-view\", \"mode\": \"remove\", \"expect\": \"remove\"}, {\"name\": \"remove-A-preserves-selected-B\", \"mode\": \"remove\", \"expect\": \"remove\", \"selected\": \"B\"}, {\"name\": \"async-switch-to-B-preserved\", \"mode\": \"remove\", \"expect\": \"remove\", \"switch\": \"B\"}, {\"name\": \"async-switch-to-nil-preserved\", \"mode\": \"remove\", \"expect\": \"remove\", \"switch\": \"nil\"}, {\"name\": \"cancel-prevents-dispatch\", \"mode\": \"cancel\", \"expect\": \"blocked\"}, {\"name\": \"no-confirmation\", \"mode\": \"remove\", \"expect\": \"blocked\", \"confirm\": \"\"}, {\"name\": \"wrong-confirmation\", \"mode\": \"remove\", \"expect\": \"blocked\", \"confirm\": \"B\"}, {\"name\": \"unknown-account\", \"mode\": \"remove\", \"expect\": \"blocked\", \"target\": \"missing\"}, {\"name\": \"guard-pending\", \"mode\": \"remove\", \"expect\": \"blocked\", \"flag\": \"pending\"}, {\"name\": \"guard-sending\", \"mode\": \"remove\", \"expect\": \"blocked\", \"flag\": \"sending\"}, {\"name\": \"guard-model_pending\", \"mode\": \"remove\", \"expect\": \"blocked\", \"flag\": \"model_pending\"}, {\"name\": \"guard-calendar_link_pending\", \"mode\": \"remove\", \"expect\": \"blocked\", \"flag\": \"calendar_link_pending\"}, {\"name\": \"no-mail-capability\", \"mode\": \"remove\", \"expect\": \"blocked\", \"cap\": false}, {\"name\": \"same-draft-sending\", \"mode\": \"remove\", \"expect\": \"blocked\", \"draft_status\": \"sending\"}, {\"name\": \"same-draft-accepted\", \"mode\": \"remove\", \"expect\": \"blocked\", \"draft_status\": \"accepted\"}, {\"name\": \"same-draft-unknown\", \"mode\": \"remove\", \"expect\": \"blocked\", \"draft_status\": \"unknown\"}, {\"name\": \"other-account-accepted-not-blocking\", \"mode\": \"remove\", \"expect\": \"remove\", \"draft_account\": \"B\", \"draft_status\": \"accepted\"}, {\"name\": \"failed-remove-keeps-current-view\", \"mode\": \"remove\", \"expect\": \"failure\", \"reply\": {\"is_ok\": false, \"error\": \"cancelled by fixture\"}}, {\"name\": \"failed-remove-after-switch-B\", \"mode\": \"remove\", \"expect\": \"failure\", \"switch\": \"B\", \"reply\": {\"is_ok\": false, \"error\": \"timeout fixture\"}}, {\"name\": \"accounts-reload-fails-after-remove\", \"mode\": \"remove\", \"expect\": \"reload-fail\", \"reload_ok\": false}, {\"name\": \"add-second-account\", \"mode\": \"add\", \"expect\": \"add\"}, {\"name\": \"add-cancelled-login\", \"mode\": \"add\", \"expect\": \"add-failure\", \"reply\": {\"is_ok\": false, \"error\": \"cancelled login\"}}, {\"name\": \"add-pending-blocked\", \"mode\": \"add\", \"expect\": \"blocked\", \"flag\": \"pending\"}, {\"name\": \"add-capability-blocked\", \"mode\": \"add\", \"expect\": \"blocked\", \"cap\": false}]".parse_json() let results=[]
+for row in rows {
+ fixture_caps=["mail"] if row["cap"]==false {fixture_caps=[]}
+ fixture_trace=[] fixture_pending=[] fixture_grants=["A","B"]
+ mail_pending=false mail_sending=false mail_model_pending=false mail_calendar_link_pending=false
+ if row["flag"]=="pending" {mail_pending=true}
+ if row["flag"]=="sending" {mail_sending=true}
+ if row["flag"]=="model_pending" {mail_model_pending=true}
+ if row["flag"]=="calendar_link_pending" {mail_calendar_link_pending=true}
+ mail_accounts=[{id:"A" address:"a@fixture.invalid"},{id:"B" address:"b@fixture.invalid"}]
+ mail_account=mail_accounts[0] if row["selected"]=="B" {mail_account=mail_accounts[1]}
+ mail_remove_confirm="A" if row["confirm"]!=nil {mail_remove_confirm=row.confirm}
+ mail_draft={account:"A" status:"DRAFT" body:"historical draft keep"}
+ if row["draft_account"]!=nil {mail_draft.account=row.draft_account}
+ if row["draft_status"]!=nil {mail_draft.status=row.draft_status}
+ mail_selected={id:"old-message"} mail_messages=[{id:"old-message"}] mail_folders_data=[{id:"old-folder"}]
+ mail_folder="old-folder" mail_total=9 mail_offset=25 mail_connection_verified=true mail_compose_open=true
+ mail_error="" mail_notice=""
+ let draft_before=mail_draft.to_json() let target="A" if row["target"]!=nil {target=row.target}
+ if row.mode=="cancel" {fixture_cancel() mail_remove_account(target)}
+ else if row.mode=="add" {mail_add_account()}
+ else {mail_remove_account(target)}
+ let queued=fixture_pending.len()
+ let pending_before_reply=mail_pending
+ if row["switch"]=="B" {mail_account=mail_accounts[1] mail_selected={id:"B-message"} mail_messages=[{id:"B-message"}] mail_folders_data=[{id:"B-folder"}] mail_folder="B-folder"}
+ if row["switch"]=="nil" {mail_account=nil}
+ let choice_before_reply=mail_account.to_json() let list_before_reply=mail_messages.to_json()
+ let index=0
+ while index<fixture_pending.len() && index<3 {
+  let item=fixture_pending[index] index=index+1
+  let reply={is_ok:true data:nil}
+  if item.method=="mail.accounts" {
+   if row.mode=="add" {reply={is_ok:true data:[{id:"A"},{id:"B"},{id:"C"}]}}
+   else {reply={is_ok:true data:[{id:"B"}]}}
+   if row["reload_ok"]==false {reply={is_ok:false error:"fixture reload failed"}}
+  } else if row["reply"]!=nil {reply=row.reply}
+  item.callback(reply)
+ }
+ results.push({name:row.name trace:fixture_trace pending_before_reply:pending_before_reply queued:queued pending:mail_pending
+  account:mail_account choice_before_reply:choice_before_reply messages:mail_messages list_before_reply:list_before_reply
+  selected:mail_selected folders:mail_folders_data folder:mail_folder total:mail_total offset:mail_offset connection:mail_connection_verified compose:mail_compose_open
+  accounts:mail_accounts grants:fixture_grants confirm:mail_remove_confirm error:mail_error notice:mail_notice draft_unchanged:draft_before==mail_draft.to_json()})
+}
+results.to_json()

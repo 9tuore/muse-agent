@@ -7,3 +7,7 @@
 16:06补充：UA-PREFLIGHT-003最小本地projection冻结Main f9e94877，既有真实Splash VM70合成案例PASS，22fn/23global逐字提取、父scope及节点上限通过。r2父路径错误与r3fixture计数失败均保留。无新GUI/Host/存储测试，详见LOCAL_PROJECTION。
 
 Calendar首用提示定向：Main c0983647、既有VM337cb，25实际合成案例FIXTURE_PASS；真实创建拒绝blocked/no turn、成功3合成服务、身份变化阻止；改期/删除与旧guard/body逐字保持。无GUI/Kernel/存储验收。
+
+延长至21:11:25，固定seq8。独立证据检查两项SIMULATION_PASS仍EVIDENCE_INCOMPLETE：CAL02/CAL06日志SHA漂移、各5后加文件未manifest、各1新图未视察；身份与owner归档通过。PID21195被动60样本/约296s，仅OBSERVED_NOT_FUNCTIONAL_SOAK。未修改ZC05结果或生产状态。
+
+临近21:11邮箱移除定向：24真实VM案例FIXTURE_PASS；删除/确认取消/错误/4inflight guard/异步切B或nil保留/单A添加第二B通过。原始r1父断言失败保留，r2/r3通过。未GUI/真实移除账号，源身份详见MAIL_REMOVE。

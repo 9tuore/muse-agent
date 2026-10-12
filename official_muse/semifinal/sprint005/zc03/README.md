@@ -21,3 +21,7 @@ python3 -B official_muse/semifinal/sprint005/zc03/verify_memory_evidence.py
 - [本地读回投影定向验证](LOCAL_PROJECTION.md)：Root新增投影Main f9e94877，既有真实VM70案例PASS；失败和fixture边界完整保存，不继承GUI/存储结果。
 
 - [Calendar首用授权提示回归](CALENDAR_CONSENT.md)：c0983647源码、真实VM25合成案例与三处guard静态比较；不代表GUI/Kernel通过。
+
+- [固定seq8最终证据只读入口](FINAL_EVIDENCE.md)：两项PASS缺manifest收口；owner归档绑定通过，7工具检查与PID21195短时被动采样保留。
+
+- [邮箱移除／第二账号定向VM](MAIL_REMOVE.md)：24合成案例实际PASS，Root源只读，无GUI或实际账号删除。
