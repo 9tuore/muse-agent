@@ -1,3 +1,9 @@
+## SPRINT-005 2026-10-12 15:13:14 检查点
+
+Root当前已接收三轮schema样本与晚回包输运检查、Memory优化与统一入口/演示方案。rc8签名stub启动器26项PASS；打包未改四项已通过，正式入口拒绝额外CLI参数的修订单项实跑PASS，旧cwd/原型断言失败均在sprint005-rc8-packager保留。新rc8外层已准备但未准入签名，Host/Kernel仍精确R5；独立CA测试Host及rc8目录工具在各自target离线编译。
+
+9799已由独立ZC05独占实际UI预检（PID49780/native786，完整窗口已实看），正常WorkBuddy双动作入口、合成新资料；不是最终三轮。Root不同时操作此窗口，生产窗口当前已正常退出。官方providers界面已实见并loopbackTest+1，此前搜索ai-providers/models缺项只是搜索名问题，非provider未打包。用户最新完成授权且即将离开，本轮不再申请权限；新真人步骤只标HUMAN_REQUIRED。正式三轮仍0/243，不报全功能通过。
+
 ## SPRINT-005 14:38 检查点
 
 独立ZC05预检UA-PREFLIGHT-001已保留3原生图。单Host重新初始化后旧R5及新正式入口均显示；原黑绘制根因仍UNKNOWN，非GPU已修复。启动器跨profile互斥/识别旧packaged Host的26项签名stub检查通过；真实模型管理providers入口和合成TestConnection已实点并独立计数+1。原2个新增回归失败保留。Main新947c5291只裁剪无关阶段遍历，rc8/序列5在准备，R5包不改。CA专用测试Host在独立SDK/target编译，正式网络源码原SHA仍c47bfbd7；未安装新生产包、未调用私人Calendar、未真实发信，正式三轮仍0。
