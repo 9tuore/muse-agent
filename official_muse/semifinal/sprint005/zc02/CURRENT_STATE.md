@@ -1,5 +1,7 @@
 # ZC02 SPRINT-005
 
+ZC05关键模型流程交付：flows/catalog含39显式控制样本，按3次验收repeat及单轮t1/t2/t3区分；实际chat reply、Goal objective/source、Goal summary、Chat Calendar五字段、Chat Mail三字段、Mail editor两字段及MailCalendar policy分别处理。静态78/78，新增晚回包HTTP绑定4/4；response_bound可定位捕获后GUI变化，配置改动不改变旧响应。Root源本轮漂移到947c5291，旧SHA生成被正确拒绝后明确freeze947；18个相关流程/schema函数与caa逐字一致。ZC05_MODEL_WORKFLOWS.md给可直接CLI/GUI步骤、scope/更正/遗忘/候选/手写/迟到/错误验收；PRODUCT_PATH_GAPS仅源码指出自动AI记忆卡与opened Goal聊天编辑未实现，不称真实GUI复现，不写生产补丁。未重跑17/107、未构建SDK、未操作GUI/Kernel/业务DB；Root模型管理Connected仅其实际回报，不升级本轮检查。
+
 读回/计划新unit最终21/21（旧18保留）：scopeA/B错召回、遗忘history残留、unknown新attempt/收件、错profile、空expectation、链接/缺文件拒绝，SDK mailbox正文Source SHA一致/变化/缺失检查。RootGUI profile从未seed业务库；unit数据只在独立test root。Root所需实际build_host命令/packaged resource closure/新CA exact-test提案在BUILD_CA_HOST.md；CA patch静态scratch/SHA与原verifier六项通过，未编译，Root独立testHost才可采用；registry/git缓存存在但warm target未定位。R8不可作为GUI入口。实际Main普通chat schema仅reply，默认服务已修正，多action模型样本按真实字段准备，control.py可在旧服务显式设置，不改GUI业务数据。共享源码/Root9799/生产9696/Kernel/GUI/Cargo/Keychain/真实发送均0。
 
 正式launcher路径修复：prepare_profile/bootstrap现在生成root/kernel/.octos/profiles/_main.json，匹配WorkBuddy无条件CoreDir覆盖；路径/完整无key envelope/当前endpoint/无业务seed/FileVault五项通过。未启动Kernel/GUI。另核官方SDK mail_demo配置无需Rustbuild，但WorkBuddy会unset MAKEPAD_APP_CONFIG，需Root隔离launcher保留该配置，不能仅env冒充已启用；Demo没有独立收件或UNKNOWN。R8 driver只有CLI测试，不是GUI MockTransport入口。TLS提案零context及SHA gate，不申请新权限，Root才集成。

@@ -11,7 +11,7 @@ class State:
     def __init__(self,root):
         self.root=root;self.lock=threading.RLock();self.receiver_lock=threading.Lock()
         self.case_id='initial';self.smtp_mode='accepted';self.model_mode='normal';self.model_response={'reply':'SPRINT005 synthetic response'};self.delay_ms=0
-        self.counts=collections.Counter();self.events=root/'protocol-events.jsonl'
+        self.counts=collections.Counter();self.events=root/'protocol-events.jsonl';self.model_bindings=[]
         self.mailboxes=json.loads((root/'mailboxes.json').read_text()) if (root/'mailboxes.json').exists() else {a:{'INBOX':[],'Sent':[],'Archive':[]} for a in ACCOUNTS}
         self.stop=threading.Event()
         self.receiver_err=(root/'receiver-stderr.log').open('a')
@@ -188,7 +188,7 @@ class HTTP(BaseHTTPRequestHandler):
         s=self.server.state
         if self.path=='/v1/models':self.reply({'data':[{'id':'sprint005-fixture','object':'model'}]})
         elif self.path=='/__fixture/status':
-            with s.lock:self.reply({'source':'actual_loopback_protocol_counters','case_id':s.case_id,'smtp_mode':s.smtp_mode,'counts':dict(s.counts),'ready':s.ready})
+            with s.lock:self.reply({'source':'actual_loopback_protocol_counters','case_id':s.case_id,'smtp_mode':s.smtp_mode,'counts':dict(s.counts),'model_bindings':list(s.model_bindings),'ready':s.ready})
         elif self.path=='/__fixture/receiver':self.reply(s.received())
         else:self.reply({'error':'unknown fixture path'},404)
     def do_POST(self):
@@ -199,7 +199,11 @@ class HTTP(BaseHTTPRequestHandler):
             raw=self.rfile.read(n);v=json.loads(raw)
             if self.path=='/v1/chat/completions':
                 s.event('model.request',request_sha256=digest(raw),bytes=len(raw))
-                with s.lock:mode=s.model_mode;response=s.model_response;delay=s.delay_ms
+                with s.lock:
+                    mode=s.model_mode;response=s.model_response;delay=s.delay_ms;case=s.case_id
+                    binding={'case_id':case,'request_sha256':digest(raw),'response_sha256':digest(json.dumps(response,ensure_ascii=False).encode()),'delay_ms':delay,'mode':mode,'at_ns':time.time_ns()}
+                    s.model_bindings.append(binding);s.model_bindings=s.model_bindings[-10:]
+                s.event('model.response_bound',**{k:v for k,v in binding.items() if k not in ('case_id','at_ns')})
                 if delay:time.sleep(delay/1000)
                 if mode=='http_error':self.reply({'error':{'message':'SPRINT005 synthetic provider failure'}},503);return
                 if mode=='malformed':
