@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = '0.4.0-rc14'
+VERSION = '0.4.0-rc15'
 
 
 def main():
@@ -45,7 +45,7 @@ def main():
     listing = json.loads((readable / 'listing.json').read_text())
     listing['description'] = ('Muse 让对话、记忆和行动连在一起。用中文整理想法，保存和更正重要记忆，'
         '查看来信、起草回复，把邮件里的安排添加到日历。行动链显示事情进行到哪一步，重启后继续处理。')
-    listing['release_notes'] = (VERSION + '：修复日历结构化派发、持久回执与读回；保留邮箱恢复和本地对话修复。')
+    listing['release_notes'] = (VERSION + '：持续事务展示：目标记忆、AI工具选择、新信息使旧计划失效、原日程更新与重启恢复。')
     (readable / 'listing.json').write_text(json.dumps(listing, ensure_ascii=False, indent=2) + '\n')
     compact = subprocess.run([sys.executable, str(ROOT / 'official_muse/ui_memory/compact_bundle.py'),
         '--source', str(readable), '--out', str(output / 'bundle')], check=True,

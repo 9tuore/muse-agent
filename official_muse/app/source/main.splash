@@ -10974,7 +10974,9 @@ fn boot(){
     // Build native controls in their own bounded callback before restoring data.
     // This mount runs once; ordinary redraws retain inputs and scroll views.
     ui.main_mount.render()
-    start_timeout(0.03,|| boot_load(-1,""))
+    ui.main_mount.set_visible(false)
+    start_timeout(0.03,|| showcase_load())
+    start_timeout(0.06,|| boot_load(-1,""))
 }
 
 fn boot_load(step,boot_error){
@@ -11441,6 +11443,241 @@ fn replan_selected_goal(){
     notice = "新计划版本已保存。请重新核对并批准。"
     core_record_event("Goal created","目标计划更新为版本 " + version,id,"","","")
     set_page("Goal Detail")
+}
+
+// BEGIN SHOWCASE: a real, bounded local transaction; no mail/calendar write simulator.
+let showcase_open = true
+let showcase_busy = false
+let showcase_restored = false
+let showcase_detail = false
+let showcase_notice = ""
+let showcase_model_epoch = 0
+fn showcase_empty(){
+    return {schema: 1 id: "" revision: 0 phase: "ready" date: "" hour: "15:00" end: "16:00"
+        goal: "为星海项目安排一次评审" source: "明天下午 3 点，与项目组评审一小时，采用线上会议。"
+        preference: "会前保留 30 分钟准备；默认线上会议。" changed: false decision: "" calendar: "" draft: ""
+        old_draft: "" old_hour: "" events: [] model: "" recovered: 0 calendar_event: nil calendar_request_id: "" calendar_status: "idle"}
+}
+let showcase_state = showcase_empty()
+fn showcase_paint(){ ui.showcase_view.render() }
+fn showcase_store(){
+    let raw = showcase_state.to_json()
+    if fs.exists("showcase-transaction.json") {
+        let old = storage_read("showcase-transaction.json")
+        if storage_write("showcase-transaction.backup.json",old) != nil { showcase_notice = "暂时无法保存，请稍后重试。" return false }
+    }
+    if storage_write("showcase-transaction.json",raw) != nil || storage_read("showcase-transaction.json") != raw {
+        showcase_notice = "暂时无法保存，请稍后重试。" return false
+    }
+    return true
+}
+fn showcase_trace(tool,detail){
+    if showcase_state.events.len() >= 24 { return }
+    showcase_state.events.push({tool: tool detail: detail revision: showcase_state.revision at: time_now()})
+}
+fn showcase_load(){
+    showcase_restored = false
+    if fs.exists("showcase-transaction.json") {
+        let saved = storage_read("showcase-transaction.json").parse_json()
+        if gm_object(saved) && saved["schema"] == 1 && gm_array(saved["events"]) && gm_text(saved["phase"])
+            && gm_text(saved["id"]) && gm_text(saved["draft"]) && gm_text(saved["source"]) && gm_number(saved["revision"]) {
+            showcase_state = saved
+            if saved.id != "" {
+                showcase_restored = true
+                if !gm_number(showcase_state["recovered"]) { showcase_state.recovered = 0 }
+                showcase_state.recovered = showcase_state.recovered + 1
+                if saved.phase == "thinking" || saved.phase == "reading" { showcase_state.phase = "resume" }
+                showcase_trace("memory.restore","重新打开后，读回同一事务与最新计划")
+                showcase_store()
+            }
+        } else { showcase_notice = "事务记录暂时无法读取，原记录仍然保留。" }
+    }
+    showcase_paint()
+    if showcase_state["calendar_status"] == "pending" { start_timeout(0.3,|| showcase_calendar_recover()) }
+}
+fn showcase_switch(open){
+    showcase_open = open
+    ui.showcase_view.set_visible(open)
+    ui.main_mount.set_visible(!open)
+    if open { showcase_paint() } else { redraw() }
+}
+fn showcase_new(){
+    if showcase_busy { return }
+    // Begin a new local transaction; never touch accounts, messages or Calendar events.
+    if showcase_state.id != "" {
+        storage_write("showcase-previous-transaction.json",showcase_state.to_json())
+    }
+    showcase_model_epoch = showcase_model_epoch + 1
+    showcase_state = showcase_empty() showcase_restored = false showcase_notice = "" showcase_detail = false
+    showcase_store() showcase_paint()
+}
+fn showcase_finish(){
+    if !showcase_busy { return }
+    showcase_state.draft = "项目组好，星海项目评审安排在 " + showcase_state.date + " " + showcase_state.hour + "—" + showcase_state.end
+        + "，采用线上会议。我会提前 30 分钟准备材料。请确认这个时间是否合适。"
+    let result = {transaction_id: showcase_state.id revision: showcase_state.revision kind: "local_mail_draft"
+        subject: "星海项目评审 · " + showcase_state.hour body: showcase_state.draft sent: false}
+    let raw = result.to_json()
+    if storage_write("showcase-draft.json",raw) != nil || storage_read("showcase-draft.json") != raw {
+        showcase_notice = "草稿未保存，请稍后继续。" showcase_busy = false showcase_state.phase = "resume" showcase_store() showcase_paint() return
+    }
+    showcase_trace("draft.prepare","确认草稿已保存，等待你审阅")
+    showcase_state.phase = "ready_for_review"
+    showcase_busy = false
+    if showcase_store() { showcase_notice = "" }
+    showcase_paint()
+}
+fn showcase_calendar(epoch){
+    showcase_state.phase = "reading" showcase_store() showcase_paint()
+    host.request("octos.session.open",{},fn(opened){
+        if epoch != showcase_model_epoch || !showcase_busy { return }
+        if !opened.is_ok || !gm_object(opened["data"]) || opened.data["open"] != true {
+            showcase_state.phase = "resume" showcase_busy = false
+            showcase_notice = "请在宿主中允许 Muse 助手，然后点击继续。"
+            showcase_store() showcase_paint() return
+        }
+        let id = "muse-showcase-" + showcase_state.id + "-v" + showcase_state.revision
+        host.request("calendar_bridge.run",{request_id: id operation: "query" args: {from: showcase_state.date to: page_date_parts(page_parse_date(showcase_state.date).number+1).date limit: 50}},fn(r){
+            if epoch != showcase_model_epoch || !showcase_busy { return }
+            let found = false let count = 0
+            if r.is_ok && gm_object(r["data"]) && r.data["status"] == "completed" && gm_array(r.data["messages"]) {
+                for row in r.data.messages {
+                    if row["tool_name"] == "calendar.events" && gm_object(row["host_calendar_receipt"]) {
+                        let receipt = row.host_calendar_receipt
+                        if showcase_receipt_ok(row)
+                            && gm_object(receipt["result"]) && receipt.result["ok"] == true
+                            && gm_object(receipt.result["data"]) && gm_array(receipt.result.data["events"]) {
+                            found = true count = receipt.result.data.events.len()
+                        }
+                    }
+                }
+                storage_write("showcase-calendar-receipt.json",r.data.to_json())
+            }
+            if !found {
+                showcase_state.phase = "resume" showcase_busy = false
+                showcase_notice = "日历暂时未返回结果。可以继续整理本地计划与草稿。"
+                showcase_store() showcase_paint() return
+            }
+            showcase_state.calendar = "内置日历已读取 · " + count + " 项安排"
+            showcase_trace("calendar.events",showcase_state.calendar)
+            showcase_store() showcase_paint()
+            start_timeout(0.15,|| showcase_finish())
+        })
+    })
+}
+fn showcase_plan(){
+    if showcase_busy { return }
+    showcase_notice = "" showcase_busy = true showcase_model_epoch = showcase_model_epoch + 1
+    let epoch = showcase_model_epoch
+    showcase_state.phase = "thinking" showcase_store() showcase_paint()
+    let memory = storage_read("showcase-memory.json").parse_json()
+    if !gm_object(memory) || memory["transaction_id"] != showcase_state.id {
+        showcase_busy = false showcase_state.phase = "resume" showcase_notice = "事务记忆尚未保存，请重新开始这次委托。" showcase_store() showcase_paint() return
+    }
+    showcase_trace("memory.search","召回会议形式和会前准备偏好")
+    let changed = "首次处理" if showcase_state.changed { changed = "新时间替代旧时间，旧版草稿已失效" }
+    host.request("model.complete",{task: "你是事务助手。用户要安排一次会议，记忆已读回。选择下一步工具：calendar.events 用于读取真实日历；draft.prepare 用于直接准备本地草稿。会议的日期时间已知时，应先读取日历。只返回 JSON 字段 tool，不输出其他内容。"
+        input: {goal: showcase_state.goal date: showcase_state.date time: showcase_state.hour memory: memory.preference change: changed}
+        schema: {type: "object" properties: {tool: {type: "string" enum: ["calendar.events","draft.prepare"]}} required: ["tool"] additionalProperties: false}
+        class: "fast"},fn(r){
+        if epoch != showcase_model_epoch || !showcase_busy { return }
+        if !r.is_ok || !gm_object(r["data"]) || !gm_object(r.data["output"]) {
+            showcase_busy = false showcase_state.phase = "resume" showcase_notice = "AI 暂时没有返回，可继续本地整理。" showcase_store() showcase_paint() return
+        }
+        let tool = r.data.output["tool"]
+        if tool != "calendar.events" && tool != "draft.prepare" {
+            showcase_busy = false showcase_state.phase = "resume" showcase_notice = "AI 建议暂不可执行，请重试。" showcase_store() showcase_paint() return
+        }
+        showcase_state.model = "AI 实时决策"
+        showcase_state.decision = tool
+        showcase_trace("model.complete","AI 选择 " + tool)
+        storage_write("showcase-model-decision.json",{transaction_id: showcase_state.id revision: showcase_state.revision output: r.data.output}.to_json())
+        showcase_store() showcase_paint()
+        if tool == "calendar.events" { showcase_calendar(epoch) } else { showcase_finish() }
+    })
+}
+fn showcase_start(){
+    if showcase_busy || showcase_state.id != "" { return }
+    showcase_state.id = "" + floor(time_now()) + "-" + random_u32()
+    showcase_state.revision = 1
+    showcase_state.date = page_date_parts(page_time_floor((time_now()+28800)/86400)+1).date
+    let memory = {schema: 1 transaction_id: showcase_state.id preference: showcase_state.preference goal: showcase_state.goal}
+    let raw = memory.to_json()
+    if storage_write("showcase-memory.json",raw) != nil || storage_read("showcase-memory.json") != raw { showcase_notice = "暂时无法保存事务记忆。" showcase_paint() return }
+    showcase_trace("memory.write","保存目标、线上会议与提前准备偏好")
+    if showcase_store() { showcase_plan() }
+}
+fn showcase_change(){
+    if showcase_busy || showcase_state.phase != "ready_for_review" || showcase_state.changed { return }
+    let invalid = {transaction_id: showcase_state.id revision: showcase_state.revision kind: "local_mail_draft" status: "superseded" sent: false}
+    let raw = invalid.to_json()
+    if storage_write("showcase-draft.json",raw) != nil || storage_read("showcase-draft.json") != raw { showcase_notice = "旧草稿尚未更新，暂不继续。" showcase_paint() return }
+    showcase_state.old_draft = showcase_state.draft showcase_state.old_hour = showcase_state.hour
+    showcase_state.draft = "" showcase_state.hour = "16:00" showcase_state.end = "17:00"
+    showcase_state.source = "项目组补充：明天 15 点临时有事，请改到 16 点。会议时长和形式不变。"
+    showcase_state.changed = true showcase_state.revision = showcase_state.revision + 1
+    showcase_state.calendar = "" showcase_state.decision = "" showcase_state.phase = "changed"
+    if showcase_state.calendar_event != nil { showcase_state.calendar_status = "outdated" }
+    showcase_trace("plan.invalidate","新时间使 V1 计划和旧草稿失效；目标和偏好继续有效")
+    if showcase_store() { showcase_paint() start_timeout(0.25,|| showcase_plan()) }
+}
+fn showcase_local_continue(){
+    if showcase_busy || showcase_state.id == "" { return }
+    showcase_busy = true showcase_state.model = "本地规则整理" showcase_state.decision = "draft.prepare"
+    showcase_trace("plan.local","按你选择的时间整理本地草稿") showcase_finish()
+}
+// END SHOWCASE
+
+fn showcase_receipt_ok(row){
+    let r = row["host_calendar_receipt"]
+    return gm_object(r) && r["source"] == "host_calendar_relay" && r["bridge_persisted"] == true
+        && r["owner"] == "os.calendar" && (r["caller"] == "muse-goals" || r["caller"] == "card.muse-goals")
+        && r["tool"] == row["tool_name"] && r["tool_call_id"] == row["tool_call_id"]
+        && r["terminal"] == "ok" && gm_object(r["result"]) && r.result["ok"] == true
+}
+fn showcase_calendar_result(r){
+    showcase_busy = false
+    let event = nil
+    if r.is_ok && gm_object(r["data"]) && r.data["status"] == "completed" && gm_array(r.data["messages"]) {
+        for row in r.data.messages {
+            if row["tool_name"] == "calendar.get_event" && showcase_receipt_ok(row) {
+                let data = row.host_calendar_receipt.result["data"]
+                if gm_object(data) && data["found"] == true && gm_object(data["event"]) { event = data.event }
+            }
+        }
+        storage_write("showcase-calendar-write-receipt.json",r.data.to_json())
+    }
+    if event != nil && event["title"] == "星海项目评审" && event["start"] == showcase_state.date+"T"+showcase_state.hour
+        && event["end"] == showcase_state.date+"T"+showcase_state.end && event["timezone"] == "Asia/Shanghai"
+        && (showcase_state.calendar_event == nil || event["id"] == showcase_state.calendar_event.id) {
+        showcase_state.calendar_event = event showcase_state.calendar_status = "saved"
+        showcase_trace("calendar.saved","内置日历已保存 " + showcase_state.hour + "—" + showcase_state.end)
+        showcase_notice = "日历已更新，安排与你的最新计划保持一致。"
+    } else {
+        showcase_state.calendar_status = "unresolved"
+        showcase_notice = "日历尚未确认完成。请查看执行结果后继续。"
+    }
+    showcase_store() showcase_paint()
+}
+fn showcase_calendar_write(){
+    if showcase_busy || showcase_state.phase != "ready_for_review" || showcase_state.calendar_status == "saved" { return }
+    if showcase_state.calendar_status == "pending" || showcase_state.calendar_status == "unresolved" { showcase_calendar_recover() return }
+    let op = "add"
+    let id = "muse-showcase-" + showcase_state.id + "-write-v" + showcase_state.revision
+    let args = {title: "星海项目评审" start: showcase_state.date+"T"+showcase_state.hour end: showcase_state.date+"T"+showcase_state.end
+        timezone: "Asia/Shanghai" location: "线上会议" notes: "Muse 事务 " + showcase_state.id + " · 会前准备 30 分钟"}
+    if showcase_state.calendar_event != nil {
+        op = "update" args.id = showcase_state.calendar_event.id args.expected = showcase_state.calendar_event
+    }
+    showcase_state.calendar_request_id = id showcase_state.calendar_status = "pending"
+    if !showcase_store() { showcase_paint() return }
+    showcase_busy = true showcase_notice = "请在日历确认卡中确认这次安排。" showcase_paint()
+    host.request("calendar_bridge.run",{request_id: id operation: op args: args},fn(r){ showcase_calendar_result(r) })
+}
+fn showcase_calendar_recover(){
+    if showcase_busy || showcase_state["calendar_request_id"] == "" { return }
+    showcase_busy = true showcase_notice = "正在读取这次日历操作的结果…" showcase_paint()
+    host.request("calendar_bridge.history",{request_id: showcase_state.calendar_request_id},fn(r){showcase_calendar_result(r)})
 }
 
 start_timeout(0.05, || boot())
@@ -11979,7 +12216,99 @@ let ResultContent = ScrollYView{width: Fill height: Fill flow: Down spacing: 10 
             }
 }}
 SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg.color: paper
-    main_mount := SolidView{width: Fill height: Fill flow: Right draw_bg.color: paper on_render: || {
+    showcase_view := SolidView{width: Fill height: Fill flow: Down padding: 22 spacing: 16 draw_bg.color: #xf4f3f9 on_render: || {
+        let si = #x29243b let sm = #x797387 let sa = #x6950da let sg = #x33846c
+        View{width: Fill height: 34 flow: Right spacing: 12 align: Align{y: 0.5}
+            Label{text: "Muse" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 24}}
+            Label{width: Fill text: "让记忆推动行动" draw_text.color: sm draw_text.text_style.font_size: 12}
+            Secondary{text: "新建事务" draw_text.color: sm on_click: || showcase_new()}
+            Secondary{text: "工作台" draw_text.color: sm on_click: || showcase_switch(false)}
+        }
+        View{width: Fill height: Fit flow: Down spacing: 6
+            Label{text: "事情变了，Muse 接着办。" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 27}}
+            Label{width: Fill text: "记住目标 · 理解变化 · 推进下一步" draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 13}
+        }
+        View{width: Fill height: Fill flow: Right spacing: 14
+            RoundedView{width: 230 height: Fill flow: Down padding: 18 spacing: 13 new_batch: true draw_bg.color: #xeae6f7 draw_bg.border_radius: 16
+                Label{text: "01  持续事务" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
+                Label{width: Fill text: showcase_state.goal draw_text.color: si draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 20}}
+                Label{width: Fill text: showcase_state.source draw_text.color: si draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                View{width: Fill height: 1}
+                Label{text: "一直记得" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
+                Label{width: Fill text: "线上会议\n提前 30 分钟准备" draw_text.color: si draw_text.wrap: Words draw_text.text_style.font_size: 14}
+                View{width: Fill height: Fill}
+                if showcase_restored {
+                    Label{width: Fill text: "已回到上次的事务" draw_text.color: sg draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 13}}
+                }
+                if showcase_state.id == "" {
+                    Primary{width: Fill height: 40 text: "交给 Muse" on_click: || showcase_start()}
+                }
+                if showcase_state.phase == "ready_for_review" && !showcase_state.changed && !showcase_busy {
+                    Primary{width: Fill height: 40 text: "补充：改到 16 点" on_click: || showcase_change()}
+                }
+                if showcase_state.changed {
+                    Label{width: Fill text: "时间更新了\n目标与偏好继续保留" draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                }
+            }
+            ScrollYView{width: Fill height: Fill flow: Down spacing: 12
+                RoundedView{width: Fill height: Fit flow: Down padding: 18 spacing: 12 new_batch: true draw_bg.color: #xffffff draw_bg.border_radius: 16
+                    View{width: Fill height: Fit flow: Right
+                        Label{width: Fill text: "02  行动链" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
+                        if showcase_state.revision > 0 { Label{text: "V" + showcase_state.revision draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}} }
+                    }
+                    Label{width: Fill text: if showcase_state.id == "" {"从一次委托开始"} else {"每一步，都围绕同一个目标"} draw_text.color: si draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 17}}
+                    Label{width: Fill text: if showcase_state.id == "" {"○ 理解目标与偏好"} else {"✓ 目标与偏好已保存"} draw_text.color: if showcase_state.id == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    Label{width: Fill text: if showcase_state.model == "" {"○ 判断下一步"} else {"✓ " + showcase_state.model} draw_text.color: if showcase_state.model == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    Label{width: Fill text: if showcase_state.calendar == "" {"○ 读取内置日历"} else {"✓ " + showcase_state.calendar} draw_text.color: if showcase_state.calendar == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    Label{width: Fill text: if showcase_state.draft == "" {"○ 整理确认草稿"} else {"✓ 确认草稿已保存"} draw_text.color: if showcase_state.draft == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    if showcase_state.changed {
+                        RoundedView{width: Fill height: Fit flow: Down padding: 12 spacing: 5 new_batch: true draw_bg.color: #xfff3e6 draw_bg.border_radius: 10
+                            Label{text: "旧计划已失效" draw_text.color: #xa16b28 draw_text.text_style: theme.font_bold{font_size: 13}}
+                            Label{width: Fill text: "15:00 → 16:00\n重新读取日历，更新确认草稿。" draw_text.color: #x8a6946 draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                        }
+                    }
+                    if showcase_busy {
+                        Label{width: Fill text: if showcase_state.calendar_status == "pending" {"等待日历确认…"} else {"Muse 正在继续处理…"} draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    }
+                    if showcase_state.phase == "resume" && !showcase_busy {
+                        Primary{text: "继续处理" on_click: || showcase_plan()}
+                        Secondary{text: "先整理草稿" draw_text.color: sm on_click: || showcase_local_continue()}
+                    }
+                }
+                if showcase_notice != "" {
+                    Label{width: Fill text: showcase_notice draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                }
+                Secondary{text: if showcase_detail {"收起过程"} else {"查看过程"} draw_text.color: sm on_click: || {showcase_detail = !showcase_detail showcase_paint()}}
+                if showcase_detail {
+                    for event in showcase_state.events {
+                        Label{width: Fill text: "V" + event.revision + " · " + event.detail draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 11}
+                    }
+                }
+            }
+            RoundedView{width: 270 height: Fill flow: Down padding: 18 spacing: 12 new_batch: true draw_bg.color: #xffffff draw_bg.border_radius: 16
+                Label{text: "03  当前安排" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
+                Label{text: showcase_state.hour draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 34}}
+                Label{width: Fill text: if showcase_state.date == "" {"明天 · 1 小时 · 线上会议"} else {showcase_state.date + " · 1 小时 · 线上会议"} draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                if showcase_state.calendar_status == "saved" {
+                    Label{text: "✓ 已加入内置日历" draw_text.color: sg draw_text.text_style: theme.font_bold{font_size: 13}}
+                }
+                if showcase_state.calendar_status == "outdated" {
+                    Label{width: Fill text: "日历中原安排为 15:00，点击下方更新。" draw_text.color: #xa16b28 draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                }
+                View{width: Fill height: 1}
+                Label{text: "确认草稿" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 13}}
+                ScrollYView{width: Fill height: Fill flow: Down
+                    Label{width: Fill text: if showcase_state.draft == "" {"Muse 会把最新安排整理成一份可审阅的草稿。"} else {showcase_state.draft} draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                }
+                if showcase_state.phase == "ready_for_review" && !showcase_busy && showcase_state.calendar_status != "saved" {
+                    Primary{width: Fill height: 38 text: if showcase_state.calendar_status == "unresolved" {"查看日历结果"} else {if showcase_state.calendar_event == nil {"加入内置日历"} else {"更新原日程"}} on_click: || showcase_calendar_write()}
+                }
+                if showcase_state.draft != "" { Label{text: "草稿已保存，待你审阅" draw_text.color: sm draw_text.text_style.font_size: 11} }
+            }
+        }
+        Label{text: "MUSE  /  星海队" draw_text.color: #x9d97ad draw_text.text_style.font_size: 10}
+    }}
+    main_mount := SolidView{visible: false width: Fill height: Fill flow: Right draw_bg.color: paper on_render: || {
     left_rail := View{visible: false width: 36 height: Fill flow: Down padding: 2 spacing: 8
         Nav{width: 32 text: "☰" on_click: || sidebar_toggle()}
         Nav{width: 32 text: "+" on_click: || chat_new_session()}
@@ -12016,6 +12345,7 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
             }
         }}
         shortcuts := ScrollYView{width: Fill height: "clamp(80px, 22cqh, 205px)" flow: Down spacing: 3 on_render: || {
+            Nav{text: "持续事务" on_click: || showcase_switch(true)}
             Nav{text: "对话" on_click: || set_page("Chat")}
             Nav{text: "邮箱" on_click: || set_page("Mail")}
             Nav{text: "日历" on_click: || set_page("Calendar")}
