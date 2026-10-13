@@ -1077,7 +1077,10 @@ fn calendar_agent_input_changed(text){
     calendar_agent_input_text = text
     calendar_agent_candidate = nil
     calendar_agent_preflight = {status: "empty"}
-    redraw()
+    // An edit invalidates only the preview. Do not reapply the editor layout
+    // or resynchronize its text while the input owns the caret/composition.
+    ui.calendar_agent_heading.render()
+    ui.calendar_agent_output.render()
 }
 fn calendar_agent_short_text(text,limit){
     let chars = text.to_chars() let result = "".to_chars()
