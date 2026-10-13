@@ -1,3 +1,7 @@
+## rc13 GUI接入修正 · 2026-10-13 15:54
+
+实际App Hub拒绝r2：calendar_bridge.run/history未声明支持macOS；桌面Host已新建，但已安装Muse仍rc11，未宣称业务通过。补充macOS平台声明，并将注册放到所有宿主服务的早期注册处，保证Hub检查前可发现。源码Main与18项fixture保持同字节；新目录sequence14保留旧r2失败候选和截图，原用户资料不变。重建r3后复核实际更新入口。
+
 ## 2026-10-13 rc13 日历结构化执行修复（实际GUI待验）
 
 单人修复，rc12未交付。新增宿主calendar_bridge.run/history：以真实调用者、现有Calendar grant和账号通过同一Relay执行；写操作仍走原生审批，查询不依赖Qwen生成工具调用。新建后精确读回，改删先核对原事件再执行再读回。回执标记host_calendar_relay并持久化，明确区别Kernel历史；中断用request_id读原记录，不重放。Muse保留原候选/事项/旧Kernel回执兼容，AI只提取结构化时间参数；修正小模型遗漏上海时区后缀。界面增加例句、处理日程按钮及改删提示，交付时给用户中文操作教程。

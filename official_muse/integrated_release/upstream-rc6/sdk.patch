@@ -1194,7 +1194,7 @@ index 10c648a..b434d49 100644
 +    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_err());
 +}
 diff --git a/crates/shell/src/apps.rs b/crates/shell/src/apps.rs
-index 9da312e..6be18b4 100644
+index 9da312e..14bb4c5 100644
 --- a/crates/shell/src/apps.rs
 +++ b/crates/shell/src/apps.rs
 @@ -254,6 +254,7 @@ pub fn register_mail_services() {
@@ -1205,6 +1205,14 @@ index 9da312e..6be18b4 100644
      register_mail_services();
      static ONCE: std::sync::Once = std::sync::Once::new();
      ONCE.call_once(|| {
+@@ -269,6 +270,7 @@ pub fn register_host_services() {
+             crate::app_storage::lifecycle::contained_account(app)
+                 .map(|account| crate::app_storage::account_hash(&account))
+         });
++        crate::host_tools::calendar_bridge::register();
+         crate::platform_services::register();
+         crate::device_calendar::register(|app| {
+             crate::app_storage::lifecycle::contained_account(app)
 diff --git a/crates/shell/src/host_tools/admission.rs b/crates/shell/src/host_tools/admission.rs
 index 2f14cba..0f530c4 100644
 --- a/crates/shell/src/host_tools/admission.rs
@@ -1232,10 +1240,10 @@ index 2f14cba..0f530c4 100644
  }
 diff --git a/crates/shell/src/host_tools/calendar_bridge.rs b/crates/shell/src/host_tools/calendar_bridge.rs
 new file mode 100644
-index 0000000..0ffe665
+index 0000000..590f7fb
 --- /dev/null
 +++ b/crates/shell/src/host_tools/calendar_bridge.rs
-@@ -0,0 +1,194 @@
+@@ -0,0 +1,195 @@
 +//! Structured Calendar operations for admitted, consented app UIs.
 +//! Arguments are data, never kernel RPC or a claimed owner identity. Every
 +//! operation goes through the same grant/admission/approval/executor relay.
@@ -1322,6 +1330,7 @@ index 0000000..0ffe665
 +            format!("calendar_bridge.{m}"),1,"calendar",
 +            "Muse host adapter: authenticated Calendar relay with durable, separately labelled receipts",
 +            json!({"type":"object"}),json!({"type":"object"}))
++            .with_platforms(&["macos"])
 +            .with_agent_access(services::AgentAccess::ForegroundOnly)).collect()
 +    }
 +    fn call(&mut self, call: ServiceCall, reply: Replier, _: &mut dyn ServiceHost) {
@@ -1431,27 +1440,18 @@ index 0000000..0ffe665
 +    }
 +}
 diff --git a/crates/shell/src/host_tools/mod.rs b/crates/shell/src/host_tools/mod.rs
-index 0ae7391..afb2700 100644
+index 0ae7391..4e9456c 100644
 --- a/crates/shell/src/host_tools/mod.rs
 +++ b/crates/shell/src/host_tools/mod.rs
 @@ -41,6 +41,8 @@ pub mod files;
  pub mod relay;
  pub mod schema;
  #[cfg(any(feature = "app-hub", native_mobile))]
-+mod calendar_bridge;
++pub(crate) mod calendar_bridge;
 +#[cfg(any(feature = "app-hub", native_mobile))]
  pub(crate) mod admission;
  #[cfg(feature = "toolbox-peers")]
  pub mod toolbox;
-@@ -145,6 +147,8 @@ pub fn init() {
-     static DONE: OnceLock<()> = OnceLock::new();
-     DONE.get_or_init(|| {
-         host_tools::set_host(Arc::new(ShellToolHost));
-+        #[cfg(any(feature = "app-hub", native_mobile))]
-+        calendar_bridge::register();
-         approvals::set_relay(Box::new(DecisionRelay));
-         peer_link::set_tool_relay(Box::new(LinkRelay));
-         // The tools the shell runs itself for an app's own agent (`dev.run`).
 diff --git a/crates/shell/src/host_tools/relay.rs b/crates/shell/src/host_tools/relay.rs
 index b50d01c..1a7cd93 100644
 --- a/crates/shell/src/host_tools/relay.rs
