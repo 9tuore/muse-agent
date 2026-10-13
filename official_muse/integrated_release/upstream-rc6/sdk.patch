@@ -1034,6 +1034,76 @@ index cd16f12..5585572 100644
  pub mod peer_record;
  #[cfg(feature = "broker")]
  pub mod connectors;
+diff --git a/crates/shell/src/app_storage/lifecycle.rs b/crates/shell/src/app_storage/lifecycle.rs
+index a2b5665..b59465f 100644
+--- a/crates/shell/src/app_storage/lifecycle.rs
++++ b/crates/shell/src/app_storage/lifecycle.rs
+@@ -438,10 +438,21 @@ fn mail_account_claim_allowed(
+     app: &str,
+     account: &str,
+ ) -> Result<(), String> {
+-    if storage.is_signed_out(app, Some(account)) {
++    // Device-scoped apps resume their device identity when reinstalled. Their
++    // granted Mail accounts are not storage identities: checking an account
++    // hash here would keep every retained mailbox suspended after reinstall.
++    let account_scoped = app == "os.mail" || storage.spec(app).accounts;
++    let storage_account = account_scoped.then_some(account);
++    if storage.is_signed_out(app, storage_account) {
+         return Err("The Mail account is signed out; review is no longer valid".into());
+     }
+-    if octosense_mail_service::active_account(host_dir, app).as_deref() != Some(account) {
++    let granted = octosense_mail_service::account_ids(host_dir, app);
++    if !granted.iter().any(|id| id == account) {
++        return Err("This Mail account is no longer connected to the app".into());
++    }
++    // Account-scoped agents remain bound to their current account. A device
++    // app may explicitly compose from any account the person granted it.
++    if account_scoped && granted.last().map(String::as_str) != Some(account) {
+         return Err("The selected Mail account changed; review again under the original account".into());
+     }
+     Ok(())
+diff --git a/crates/shell/src/app_storage/lifecycle_tests.rs b/crates/shell/src/app_storage/lifecycle_tests.rs
+index 10c648a..b434d49 100644
+--- a/crates/shell/src/app_storage/lifecycle_tests.rs
++++ b/crates/shell/src/app_storage/lifecycle_tests.rs
+@@ -167,6 +167,7 @@ fn mail_send_claim_rechecks_current_host_selection_and_suspension() {
+ fn public_mail_send_claim_rechecks_selected_account_and_requires_admission() {
+     let home = Scratch::new("public-mail-send-claim");
+     let host = storage(&home.0);
++    host.set_spec("sample.mail", StorageSpec { accounts: true, ..Default::default() });
+     let dir = host.layout().apps_root().join(".host");
+     let accounts = dir.join("mail/accounts.json");
+     write_json(
+@@ -649,3 +650,29 @@ fn an_account_added_again_while_its_purge_runs_stays_signed_in() {
+     assert!(memory_notice(&host, "org.readd.mail").is_some());
+     set_purger(None);
+ }
++
++#[cfg(any(feature = "app-hub", native_mobile))]
++#[test]
++fn device_mail_claim_recovers_after_reinstall_without_reconnecting_accounts() {
++    let home = Scratch::new("device-mail-reinstall");
++    let host = storage(&home.0);
++    let dir = host.layout().apps_root().join(".host");
++    let accounts = dir.join("mail/accounts.json");
++    write_json(&accounts, &json!([
++        {"id":"one","address":"one@example.com","apps":["sample.device"],"signed_in":1},
++        {"id":"two","address":"two@example.com","apps":["sample.device"],"signed_in":2}
++    ]));
++    host.uninstall("sample.device").unwrap();
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_err());
++    host.installed("sample.device");
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_ok());
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "two").is_ok());
++    assert!(mail_account_claim_allowed(&host, &dir, "other.device", "one").is_err());
++    let restarted = storage(&home.0);
++    assert!(mail_account_claim_allowed(&restarted, &dir, "sample.device", "one").is_ok());
++    host.sign_out("sample.device", None);
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_err());
++    host.sign_in("sample.device", None);
++    write_json(&accounts, &json!([]));
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_err());
++}
 diff --git a/crates/shell/src/apps.rs b/crates/shell/src/apps.rs
 index 9da312e..6be18b4 100644
 --- a/crates/shell/src/apps.rs

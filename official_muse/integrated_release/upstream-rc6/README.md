@@ -13,7 +13,7 @@ event stores, bounded broker receipts, and explicit sharing of reviewed Calendar
 `app-hub.patch` carries the existing authenticated per-app tool ceiling into
 the current store. It preserves the new catalog/component implementation,
 bundle verification, account scope, user consent and native write approval.
-There is no mock or prototype Calendar executor.
+There is no mock or prototype Calendar executor. Mail send claims use the app's declared storage identity: device-scoped apps retain access to explicitly granted mailboxes after reinstall, while account-scoped agents remain bound to their selected account. Removed grants and suspended identities are still refused.
 
 `prepare_official_host.py` requires both exact source revisions and refuses
 unrelated local edits. It applies these two patches or verifies an exact

@@ -4,6 +4,8 @@ use mod.math.*
 use mod.std.*
 let fixture_files = {} let fixture_tasks = [] let fixture_cursor = 0
 let fixture_calls = [] let fixture_events = [] let fixture_reply = "accepted"
+let fixture_composer = {}
+let mail_error_detail = "" let mail_error_detail_user = "" let mail_error_detail_open = false
 let fixture_count = 0 let fixture_serial = 0 let fixture_fail_archive = false
 let field_to = "" let field_subject = "" let field_body = ""
 let fs = {exists: |path| fixture_files[path] != nil}
@@ -51,12 +53,21 @@ fn fixture_transport(method,args,callback){
         fixture_count = fixture_count + 1
         let data = args.to_json().parse_json()
         data.compose_id = "compose-fixture-" + fixture_count data.revision = 1
+        fixture_composer = data.to_json().parse_json()
         callback({is_ok: true data: data})
+    } else if method == "mail.compose_status" {
+        callback({is_ok: true data: fixture_composer.to_json().parse_json()})
     } else if method == "mail.review_send" {
         let reply = {is_ok: true data: {accepted: true status: "accepted"
             compose_id: args.compose_id revision: args.expected_revision operation_id: "op-" + fixture_count}}
         if fixture_reply == "cancel" { reply = {is_ok: false error: "Review cancelled; nothing was sent"} }
         if fixture_reply == "unknown" { reply = {is_ok: false error: "fixture transport timeout"} }
+        if fixture_reply == "not_sent" {
+            fixture_composer.status = "awaiting_approval"
+            fixture_composer.attempts = [{operation_id: "op-fixture" revision: 1 status: "awaiting_approval"
+                payload: {to: args.to subject: args.subject body: args.body}}]
+            reply = {is_ok: false error: "The Mail account is signed out; review is no longer valid"}
+        }
         start_timeout(0.05,|| callback(reply))
     }
 }
@@ -127,7 +138,7 @@ fixture_seed("DRAFT") mail_error = "" mail_draft.request_id = "" fixture_reply =
 mail_submit() fixture_pump()
 check("uncertain-response-releases-busy",mail_draft.status == "unknown" && !mail_sending && actions[0].status == "unknown")
 fixture_reply = "accepted" mail_new_draft() fixture_fill() mail_submit() fixture_pump()
-check("uncertain-then-new-message",mail_draft.status == "accepted" && fixture_calls.len() == 4 && actions.len() == 2)
+check("uncertain-then-new-message",mail_draft.status == "accepted" && fixture_calls.len() == 5 && actions.len() == 2)
 for status in ["accepted","unknown","verified"] {
     fixture_seed(status) mail_select_account({id: "B" address: "b@fixture.invalid"})
     check("switch-account-after-" + status,mail_account.id == "B" && mail_draft.account == "B" && mail_draft.request_id == "" && mail_error == "" && !mail_compose_open)
@@ -137,4 +148,20 @@ check("reply-after-send",mail_draft.to == "sender@fixture.invalid" && mail_draft
 fixture_seed("DRAFT") mail_draft.request_id = "" mail_error = "" mail_preview()
 field_body = "edited after preview" mail_send_confirmed() fixture_pump()
 check("changed-preview-not-dispatched",fixture_calls.len() == 0 && mail_draft.status == "DRAFT")
+fixture_seed("DRAFT") mail_error = "" mail_draft.request_id = "" fixture_reply = "not_sent"
+mail_submit() fixture_pump()
+check("pre-send-failure-restores-draft",mail_draft.status == "DRAFT" && !mail_sending && !mail_pending && actions[0].status == "failed")
+check("pre-send-failure-keeps-composer",mail_draft.host_compose_id == fixture_composer.compose_id && mail_draft.body == "synthetic body" && fixture_calls.len() == 3)
+check("pre-send-failure-persists-recovery",storage_read("mail-draft.json").parse_json().status == "DRAFT")
+check("pre-send-failure-no-automatic-resend",fixture_calls[2].method == "mail.compose_status")
+check("awaiting-approval-is-not-sent",mail_host_receipt_status(fixture_composer) == "not_sent")
+fixture_composer.attempts[0].receipt = {accepted: true}
+check("conflicting-acceptance-stays-unknown",mail_host_receipt_status(fixture_composer) == "unknown")
+fixture_composer.attempts[0].receipt = nil
+fixture_composer.attempts[0].payload.body = "changed"
+check("changed-snapshot-stays-unknown",mail_host_receipt_status(fixture_composer) == "unknown")
+fixture_composer.attempts[0].payload.body = fixture_composer.body
+let prior = {operation_id: "previous" status: "unknown"}
+fixture_composer.attempts = [prior,fixture_composer.attempts[0]]
+check("uncertain-prior-delivery-stays-unknown",mail_host_receipt_status(fixture_composer) == "unknown")
 results.to_json()

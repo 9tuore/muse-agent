@@ -14,7 +14,7 @@ FUNCTIONS = (
     'mail_draft_valid mail_save mail_watch_archive_current mail_edit mail_new_draft '
     'mail_select_account mail_use_sender mail_preview mail_submit mail_send_confirmed '
     'mail_abort_before_host mail_send_step mail_review_current mail_compose_before_review '
-    'mail_review_host mail_send_receipt_step core_action_index core_begin_action core_finish_action'
+    'mail_review_host mail_send_receipt_step mail_host_error mail_host_receipt_status mail_check_host_status core_action_index core_begin_action core_finish_action'
 ).split()
 
 

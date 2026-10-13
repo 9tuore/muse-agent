@@ -1,3 +1,9 @@
+## 2026-10-13 rc11 三服务故障修复进行中
+
+单人工作区 muse-service-recovery，基线05930a71。真实邮箱UI复现 "The Mail account is signed out"；宿主suspension为muse-goals已恢复device，错误按邮箱hash检查导致误拒绝。按声明storage.accounts修复身份选择，device应用仍检查具体邮箱grant，账号型应用仍检查当前账号。3项原生生命周期测试通过。Muse恢复等待批准但从未发送的草稿，保留发送日志与失败详情；38项真实Splash VM fixture通过。未向私人收件人测试发送。
+
+本地Qwen仅4096上下文，实际Calendar请求9852–12849 tokens被拒；调至16384。全新聊天仍输出无关数字，精简默认prompt并将本轮用户请求明确加入task。26启动器测试通过，打包测试独立执行中；合并unittest调用的package导入错误保留。旧calendar continuation harness缺request_source依赖而失败，不计业务失败或PASS。正在构建rc11并进行真实GUI验证，尚未宣布三服务恢复。
+
 ## 2026-10-13 rc10 邮箱登录名输入栏移除
 
 按用户补充要求删除原生连接页的“登录名”标签、输入框及提交引用，后端沿用邮箱地址作为登录名，已存账号资料不迁移。源码提交 ff70f1b1；重新编译、签名打包并替换桌面同入口，原资料保留。实际GUI确认登录名控件/标签均不存在，邮箱地址与密码栏可见；邮箱页已保持打开。1项原生账号地址回退单测通过，动态签名三项0。Main仍e740ecd4，新Host 4485e7d327867732；未重测真实登录或发信。证据input-fix-20261013/no-username-verification.json，前一个rc10应用保留build/input-fix-20261013/rollback-rc10-with-username。未推送。

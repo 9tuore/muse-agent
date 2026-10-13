@@ -218,8 +218,8 @@ int main(int argc, const char *argv[]) {
         NSString *resources = NSBundle.mainBundle.resourcePath;
         NSFileManager *files = NSFileManager.defaultManager;
         NSArray *required = @[@"host-runtime/muse-host", @"mirror/catalog.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc10.bundle/manifest.json",
-            @"mirror/artifacts/muse-goals-0.4.0-rc10.bundle.pack.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc11.bundle/manifest.json",
+            @"mirror/artifacts/muse-goals-0.4.0-rc11.bundle.pack.json",
             @"host-runtime/octos-kernel",
             @"host-runtime/octos-kernel.json"];
         BOOL check = argc == 2 && strcmp(argv[1], "--check") == 0;
@@ -267,7 +267,7 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
         if (check) {
-            puts("PASS：Muse 0.4.0-rc10 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
+            puts("PASS：Muse 0.4.0-rc11 包资源与签名；未验证模型调用，未启动窗口或创建配置。");
             return 0;
         }
         int sharedLock = -1;
@@ -355,7 +355,7 @@ int main(int argc, const char *argv[]) {
             model.executableURL = [NSURL fileURLWithPath:join(resources, @"local-model/llama/llama-server")];
             model.arguments = @[@"--model", join(resources, @"local-model/qwen2.5-0.5b-instruct-q4_0.gguf"),
                 @"--host", @"127.0.0.1", @"--port", [NSString stringWithFormat:@"%d", port],
-                @"--alias", modelID, @"--ctx-size", @"4096", @"--parallel", @"1",
+                @"--alias", modelID, @"--ctx-size", @"16384", @"--parallel", @"1",
                 @"--threads", @"4", @"--gpu-layers", @"0", @"--offline", @"--no-webui",
                 @"--temp", @"0.2", @"--reasoning", @"off"];
             model.environment = @{@"PATH":@"/usr/bin:/bin", @"HOME":state, @"TMPDIR":NSTemporaryDirectory()};
