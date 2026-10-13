@@ -544,7 +544,7 @@ fn calendar_relay_plan(text,id,binding,callback){
     if calendar_agent_preflight.status == "query" && calendar_agent_preflight.request_id == id {
         calendar_relay_run(id,"query",{limit: 200},callback) return
     }
-    if calendar_relay_query(text) {
+    if calendar_agent_state["mail_source"] == nil && calendar_relay_query(text) {
         let args = {limit: 200}
         let day = page_time_floor((time_now() + 28800) / 86400)
         if text.search("明天") >= 0 { day = day + 1 }

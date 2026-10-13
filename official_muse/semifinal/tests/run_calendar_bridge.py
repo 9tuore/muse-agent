@@ -51,6 +51,10 @@ row.host_calendar_receipt.caller="other-app"
 check("foreign_caller_rejected",calendar_agent_receipt_status(row)=="unverified")
 calls=[] calendar_history_request({transport:"host_calendar_relay" turn_id:"" request_id:"interrupted"},receive)
 check("interrupted_request_recovers_by_id",calls[0].method=="calendar_bridge.history" && calls[0].args.request_id=="interrupted")
+calls=[] calendar_agent_state.mail_source={subject:"查询进度"} model=nil
+calendar_relay_plan("请把这封邮件中的安排添加到日历。主题：查询进度","mail-create",nil,receive)
+check("mail_add_does_not_become_query_from_quoted_subject",calls.len()==0 && model!=nil)
+calendar_agent_state.mail_source=nil
 let normalized=calendar_relay_normalize({start:"2030-12-12T15:00:00" end:"2030-12-12T16:00" time_zone:"Asia/Shanghai"})
 check("explicit_shanghai_missing_offset_normalized",normalized.start=="2030-12-12T15:00:00+08:00" && normalized.end=="2030-12-12T16:00:00+08:00")
 let payload={title:"Test" start:"2030-12-12T15:00" end:"2030-12-12T16:00" timezone:"Asia/Shanghai" location:"" notes:"" request_id:"request-1"}
