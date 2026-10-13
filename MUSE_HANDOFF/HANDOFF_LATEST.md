@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-修复用户报告的日历只能输入一字、邮箱连接页英文及默认谷歌服务器。基线 6a7a48a7，codex/muse-pivot-20261010。
+按用户要求删除邮箱连接页的登录名输入栏，避免误导。
 
 ## Result
-PASS（本轮输入与连接页范围）。rc10-r2 已更新并打开桌面原入口，保留原资料和 rc9 应用回退。
+PASS（输入页面范围）。桌面 Muse.app 已重建、更新并打开新版中文邮箱页，资料保留。
 
 ## Changed
-main.splash 常驻日历编辑器，输入只刷新预览；rc.6 SDK 原生邮箱页中文化、空服务器、QQ 自动/按钮填写；rc10 打包版本。
+SDK Mail 原生表单删除登录名标签、控件及 ui.username 引用；表单仅提交地址，后端原有回退逻辑使用邮箱地址登录。Main与Calendar修复字节未变。
 
 ## Tests
-2026-10-13：26启动器+6打包 fixture、1原生邮箱单测通过。最终GUI逐字中英文、退格、插字、换行、跨页保留通过。相同Host rc10-r1 QQ自动填写/POP3通过；r2空中文表单验证，自动填写补测断言失败未计通过。旧失败和截图均保留，索引 integrated_release/evidence/input-fix-20261013/verification.json。
+1项原生表单/地址回退单测通过；实际GUI确认登录名标签和控件不存在，邮箱与密码栏存在；成品签名及动态身份通过。证据 official_muse/integrated_release/evidence/input-fix-20261013/no-username-verification.json，原生截图留本机build。
 
 ## Commit
-产品 7a6f2f22、5f94cae1；本地，未推送。
+产品 ff70f1b1；仅本地，未推送。
 
 ## Remaining
-真实发信/日程执行、物理拼音组合态及独立三轮未重测。夜间Calendar审批恢复问题仍待处理。
+本项未重测真实登录、发信；前轮Calendar/全功能验收限制仍见CURRENT_STATE。
 
 ## Important Boundaries
-测试未输入真实密码或发送邮件/新建日程；未修改生产数据库。桌面应用签名与安装字节匹配。
+未读取或复制凭据，未修改用户资料。旧版app保留rollback-rc10-with-username。
