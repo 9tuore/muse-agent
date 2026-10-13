@@ -41,3 +41,5 @@ Hub CLI 使用相同的补丁依赖图。
 `BUILT_NOT_RUNTIME_VERIFIED`，不等于 GUI、真实邮箱或日历外部操作验收。
 服务、Broker 和认证工具上限测试采用隔离合成数据。最终 Muse Bundle
 仍须在实际宿主中安装并验收。
+
+Muse rc13 增加 `calendar_bridge.run/history` 宿主适配方法。应用先将意图整理为结构化参数，宿主按已认证调用者、当前账号及已有 Calendar 工具 grant 进入同一 Relay。写入保留原生审批；调用不依赖弱模型重复派发工具。回执单独标记 `host_calendar_relay`，不冒充 Kernel transcript，保存在宿主私有目录；新建、改期、删除都再调用真实 Calendar 精确读回。

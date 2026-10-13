@@ -1,3 +1,9 @@
+## 2026-10-13 rc13 日历结构化执行修复（实际GUI待验）
+
+单人修复，rc12未交付。新增宿主calendar_bridge.run/history：以真实调用者、现有Calendar grant和账号通过同一Relay执行；写操作仍走原生审批，查询不依赖Qwen生成工具调用。新建后精确读回，改删先核对原事件再执行再读回。回执标记host_calendar_relay并持久化，明确区别Kernel历史；中断用request_id读原记录，不重放。Muse保留原候选/事项/旧Kernel回执兼容，AI只提取结构化时间参数；修正小模型遗漏上海时区后缀。界面增加例句、处理日程按钮及改删提示，交付时给用户中文操作教程。
+
+18项实际Splash VM fixture通过，42项邮箱fixture通过；原生Relay授权/审批2项及桥接参数/摘要2项通过。本地真实Qwen按model.complete格式提取指定测试日程标题/起止时间/地点正确，原输出缺偏移由显式上海时区归一化。以上不算真实GUI Calendar写入或正式全链通过。原编译、fixture失败证据保留build/recovery-20261013。最终Host描述符已改用正式calendar能力，重新构建中；待同候选查询、新建、改期、删除与截图。无push。
+
 ## 2026-10-13 rc12 邮箱恢复与本地对话格式修复
 
 单人恢复工作区，rc11 产品提交1b5d0990。真实GUI中旧草稿通过检查发送状态恢复DRAFT，原生审阅不再误报signed out；用户本人发送后，Host compose receipt.accepted=true，Muse记录accepted。来信页也出现本次自发自收测试，尚未独立匹配收件message-id，不扩大为完整收发验收。

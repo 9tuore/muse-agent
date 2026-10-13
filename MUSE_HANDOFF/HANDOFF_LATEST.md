@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-单人修复邮箱、对话、日历；基线05930a71，已部署rc11/1b5d0990。
+单人修复日历AI未派发，修通后打包；用户要求最终附中文教程。工作区muse-service-recovery，基线6f0e7814。
 
 ## Result
-PARTIAL。用户确认邮箱正常；原生发送回执accepted。rc12待构建部署后GUI复核。
+PARTIAL。结构化宿主Calendar Relay已实现，原生与Splash定向通过，真实GUI尚未完成。
 
 ## Changed
-Main恢复授权邮箱选择、简化对话输入；SDK patch仅随包本地模型传递JSON schema并限制普通回复长度。版本rc12。保留rc11可运行包。
+Main增加模型参数提取、结构化执行、真实回执分源及恢复；宿主SDK补丁增加calendar_bridge与宿主审批路由。rc13打包版本统一；界面加入例句。
 
 ## Tests
-Mail Splash VM fixture42/42；本地模型wire单测3/3；真实SMTP accepted，未独立匹配收件ID。rc12打包5/6，另一项被运行宿主互斥阻止，待停宿主再跑。证据build/recovery-20261013；原生私有GUI图在旧总控worktree同目录，失败保留。
+18项Splash Calendar fixture、42项Mail fixture通过。原生2项Relay、2项桥接单测通过。真实本地Qwen合成参数提取正确，未算外部执行。日志build/recovery-20261013，失败未删除。
 
 ## Commit
-本地提交，未推送。
+本轮本地提交；未推送。
 
 ## Remaining
-真实新包聊天、邮箱重启回归；Calendar AI调用未通过。当前干净资料仅Qwen0.5B，无MiniMax配置，不能把模型文字当执行。原生Calendar输入自动化未成功，未写事件。
+最终Host构建、统一签名包及实际GUI Calendar查询/新建/改删/恢复；实际用户审批不模拟。当前桌面rc11及资料保留，rc12仅旧预检候选。
 
 ## Important Boundaries
-用户要求清理已完成：3缓存、23旧app；源码、账户、日志、截图及回退保留。fixture与真实结果分开，当前未完成三轮全功能验收。
+calendar_bridge是Muse宿主适配，不伪称官方未修改API或Kernel transcript。新版未验收前不宣布日历全通。

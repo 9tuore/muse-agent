@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = '0.4.0-rc12'
+VERSION = '0.4.0-rc13'
 
 
 def main():
@@ -30,11 +30,11 @@ def main():
     manifest['version'] = VERSION
     manifest['integrity'] = {'bundle_blake3': ''}
     manifest.pop('github', None)
-    manifest['capabilities'] = ['storage', 'model', 'mail', 'glance', 'runtime',
+    manifest['capabilities'] = ['storage', 'model', 'mail', 'calendar', 'glance', 'runtime',
         'octos.session.open', 'octos.session.history', 'octos.turn.start', 'octos.turn.interrupt']
     manifest['requires'] = ['host-api-v1']
     manifest['host_api'] = {'required': {method: 1 for method in
-        ('runtime.list', 'mail.compose', 'mail.compose_status', 'mail.review_send')}}
+        ('runtime.list', 'mail.compose', 'mail.compose_status', 'mail.review_send', 'calendar_bridge.run', 'calendar_bridge.history')}}
     manifest['agent'] = {'profile': 'read-only', 'instructions': 'AGENT.md',
         'tools': ['ask_user_question', 'calendar.events', 'calendar.get_event',
             'calendar.add_event', 'calendar.update_event', 'calendar.remove_event', 'calendar.notify'], 'model': {'tier': 'standard',
@@ -45,7 +45,7 @@ def main():
     listing = json.loads((readable / 'listing.json').read_text())
     listing['description'] = ('Muse 让对话、记忆和行动连在一起。用中文整理想法，保存和更正重要记忆，'
         '查看来信、起草回复，把邮件里的安排添加到日历。行动链显示事情进行到哪一步，重启后继续处理。')
-    listing['release_notes'] = (VERSION + '：修复重启后的邮箱选择；改善本地对话输入与结构化输出，保留真实发送结果。')
+    listing['release_notes'] = (VERSION + '：修复日历结构化派发、持久回执与读回；保留邮箱恢复和本地对话修复。')
     (readable / 'listing.json').write_text(json.dumps(listing, ensure_ascii=False, indent=2) + '\n')
     compact = subprocess.run([sys.executable, str(ROOT / 'official_muse/ui_memory/compact_bundle.py'),
         '--source', str(readable), '--out', str(output / 'bundle')], check=True,

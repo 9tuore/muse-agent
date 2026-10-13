@@ -1230,6 +1230,269 @@ index 2f14cba..0f530c4 100644
      store.may_run(app).map_err(|e| format!("App agent is unavailable: {e}"))?;
      Ok(store.install_dir(app))
  }
+diff --git a/crates/shell/src/host_tools/calendar_bridge.rs b/crates/shell/src/host_tools/calendar_bridge.rs
+new file mode 100644
+index 0000000..0ffe665
+--- /dev/null
++++ b/crates/shell/src/host_tools/calendar_bridge.rs
+@@ -0,0 +1,194 @@
++//! Structured Calendar operations for admitted, consented app UIs.
++//! Arguments are data, never kernel RPC or a claimed owner identity. Every
++//! operation goes through the same grant/admission/approval/executor relay.
++//! Receipts explicitly identify this host bridge, not a kernel transcript.
++use super::{Event, script_apps};
++use crate::ai_host::app_peers::host_tools::{CallOrigin, CallerKind, HostToolCall, ToolReply};
++use octosense_appstore::services::{self, HostService, Replier, ServiceCall, ServiceHost};
++use serde_json::{json, Value};
++use sha2::{Digest, Sha256};
++use std::{path::{Path, PathBuf}, sync::{Mutex, mpsc}, time::Duration};
++
++const OWNER: &str = "os.calendar";
++static JOURNAL_GATE: Mutex<()> = Mutex::new(());
++fn hash(s: &str) -> String { format!("{:x}", Sha256::digest(s.as_bytes())) }
++fn canonical(v: &Value) -> Value {
++    match v {
++        Value::Object(map) => {
++            let sorted: std::collections::BTreeMap<_,_> = map.iter().map(|(k,v)|(k.clone(),canonical(v))).collect();
++            serde_json::to_value(sorted).unwrap()
++        }
++        Value::Array(a) => Value::Array(a.iter().map(canonical).collect()),
++        _ => v.clone(),
++    }
++}
++fn write(path: &Path, value: &Value) -> Result<(), String> {
++    use std::io::Write;
++    std::fs::create_dir_all(path.parent().ok_or("Missing journal directory")?).map_err(|e|e.to_string())?;
++    let temp = path.with_extension("tmp");
++    let mut file = std::fs::File::create(&temp).map_err(|e|e.to_string())?;
++    file.write_all(value.to_string().as_bytes()).and_then(|_|file.sync_all()).map_err(|e|e.to_string())?;
++    std::fs::rename(temp, path).map_err(|e|e.to_string())
++}
++fn read(path: &Path) -> Result<Value, String> {
++    let text = std::fs::read(path).map_err(|e|e.to_string())?;
++    if text.len() > 2 * 1024 * 1024 { return Err("Calendar receipt is too large".into()); }
++    serde_json::from_slice(&text).map_err(|e|e.to_string())
++}
++fn operation(args: &Value) -> Result<&str,String> {
++    let keys = args.as_object().ok_or("Expected Calendar request")?;
++    if keys.keys().any(|k| !["request_id","operation","args"].contains(&k.as_str())) { return Err("Unexpected Calendar request field".into()); }
++    let op = args["operation"].as_str().ok_or("Choose a Calendar operation")?;
++    if !["query","add","update","remove"].contains(&op) || !args["args"].is_object() { return Err("Unsupported Calendar operation".into()); }
++    Ok(op)
++}
++fn request_id(args: &Value) -> Result<&str,String> {
++    args["request_id"].as_str().filter(|id| !id.is_empty() && id.len() <= 160
++        && id.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b,b'-'|b'_'|b'.')))
++        .ok_or_else(||"Invalid Calendar request id".into())
++}
++fn method(op: &str) -> &'static str {
++    match op { "query"=>"calendar.events", "add"=>"calendar.add_event", "update"=>"calendar.update_event", _=>"calendar.remove_event" }
++}
++fn authorize(call: &ServiceCall, op: Option<&str>) -> Result<String,String> {
++    if call.from_sheet { return Err("Calendar requests must come from the app".into()); }
++    script_apps::admitted_host(&call.app_id, &call.host_dir)?;
++    crate::ai_host::contained::declared(&call.app_id)?;
++    let account = crate::ai_host::contained::account_of(&call.app_id).ok_or("No active app account")?;
++    if !crate::approvals::consent_granted(&call.app_id) { return Err("Allow this app's assistant in Settings first".into()); }
++    if super::suspended(&call.app_id, Some(&account)) { return Err("The app account is signed out".into()); }
++    super::ensure_loaded(&format!("card.{}", call.app_id));
++    let allowed = super::with_relay(|r| {
++        let grant = |tool| r.catalog.may_call(&call.app_id, OWNER, tool, false);
++        grant("calendar.get_event") && op.is_none_or(|op|grant(method(op)))
++    });
++    if !allowed { return Err("Calendar tool is not granted to this app".into()); }
++    if op.is_some_and(|op|op != "query") && !call.may_prompt { return Err("Open the app to review this Calendar change".into()); }
++    Ok(account)
++}
++fn journal_path(call: &ServiceCall, account: &str, id: &str) -> PathBuf {
++    call.host_dir.join("calendar-relay").join(hash(&format!("{}\n{account}",call.app_id))).join(format!("{}.json", hash(id)))
++}
++fn result(record: &Value) -> Value {
++    let mut value = record.clone();
++    value["context_state"] = json!({"session_id":record["session_id"]});
++    value
++}
++pub fn register() { services::register_host_service(Box::new(CalendarBridge)); }
++struct CalendarBridge;
++impl HostService for CalendarBridge {
++    fn family(&self) -> &'static str { "calendar_bridge" }
++    fn timeout(&self, _: &ServiceCall) -> Duration { Duration::from_secs(600) }
++    fn api_methods(&self) -> Vec<services::HostApiMethod> {
++        ["run","history"].into_iter().map(|m|services::HostApiMethod::new(
++            format!("calendar_bridge.{m}"),1,"calendar",
++            "Muse host adapter: authenticated Calendar relay with durable, separately labelled receipts",
++            json!({"type":"object"}),json!({"type":"object"}))
++            .with_agent_access(services::AgentAccess::ForegroundOnly)).collect()
++    }
++    fn call(&mut self, call: ServiceCall, reply: Replier, _: &mut dyn ServiceHost) {
++        let prepared = (|| {
++            let op = if call.method()=="run" { Some(operation(&call.args)?) } else if call.method()=="history" { None } else { return Err("Unknown Calendar bridge method".to_string()); };
++            let id = request_id(&call.args)?;
++            let account = authorize(&call, op)?;
++            let path = journal_path(&call,&account,id);
++            let _guard = JOURNAL_GATE.lock().unwrap_or_else(|e|e.into_inner());
++            if op.is_none() { let value=read_result(&path)?; return Ok((account,path,Some(value))); }
++            let digest=hash(&canonical(&call.args).to_string());
++            if path.exists() {
++                let saved=read(&path)?;
++                if saved["request_digest"] != digest { return Err("This request id belongs to a different Calendar action".into()); }
++                return Ok((account,path,Some(result(&saved))));
++            }
++            let turn=format!("calendar-relay-{}",uuid::Uuid::new_v4());
++            let session=format!("calendar-relay:{}:{}",call.app_id,hash(&account));
++            write(&path,&json!({"source":"host_calendar_relay","request_id":id,"request_digest":digest,
++                "turn_id":turn,"session_id":session,"status":"in_flight","messages":[]}))?;
++            Ok((account,path,None))
++        })();
++        match prepared {
++            Err(e)=>reply.send(Err(e)),
++            Ok((_,_,Some(value)))=>reply.send(Ok(value)),
++            Ok((account,path,None))=>{ std::thread::spawn(move || {
++                let completed=run(&call,&account,&path,&reply);
++                reply.send(completed);
++            }); }
++        }
++    }
++}
++fn read_result(path: &Path) -> Result<Value,String> { read(path).map(|v|result(&v)) }
++fn invoke(call: &ServiceCall, account: &str, record: &mut Value, path: &Path, reply: &Replier, name: &str, args: Value) -> Result<Value,String> {
++    if !reply.is_pending() { return Err("Calendar request was closed; check its saved result".into()); }
++    // Derive risk and approval from the admitted declaration, never app input.
++    let entry=super::with_relay(|r|r.catalog.entry(OWNER,name).cloned()).ok_or("Calendar tool is unavailable")?;
++    let risk=entry["risk"].as_str().ok_or("Calendar tool has no risk declaration")?.to_string();
++    let id=format!("calendar-ui-{}",uuid::Uuid::new_v4());
++    let args=canonical(&args);
++    let digest=format!("sha256:{}",hash(&args.to_string()));
++    let (tx,rx)=mpsc::channel();
++    let answer=ToolReply::new(id.clone(),move |r|{if r.get("ok").is_some(){let _=tx.send(r);}});
++    let tool_call=HostToolCall {call_id:id.clone(),tool_call_id:id.clone(),args_digest:digest.clone(),
++        name:name.into(),app:OWNER.into(),args,risk:risk.clone(),confirm_required:risk!="read",timeout_ms:590_000,
++        tools_version:1,peer:Some(format!("card.{}",call.app_id)),session_id:record["session_id"].as_str().unwrap().into(),
++        context_id:None,turn_id:record["turn_id"].as_str().unwrap().into(),caller_kind:CallerKind::AppPeer,
++        calling_app:format!("card.{}",call.app_id),account:Some(account.into()),client:None,
++        origin:CallOrigin::Context,trigger:crate::ai_host::app_peers::TurnTrigger::App};
++    super::submit(Event::AppUiCall {call:tool_call,reply:answer});
++    let outcome=loop {
++        match rx.recv_timeout(Duration::from_millis(200)) {
++            Ok(v)=>break v,
++            Err(mpsc::RecvTimeoutError::Timeout) if reply.is_pending()=>continue,
++            _=>{super::submit(Event::Cancel{call_id:id.clone(),reason:"Calendar app request closed".into()}); return Err("Calendar request interrupted; read its saved result before retrying".into());}
++        }
++    };
++    let ok=outcome["ok"]==true;
++    let now=std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_millis().to_string();
++    let row=json!({
++        "role":"tool","lane":"person","turn_id":record["turn_id"],"tool_name":name,"tool_call_id":id,
++        "persisted_at":now,"host_calendar_receipt":{"source":"host_calendar_relay","bridge_persisted":true,
++        "owner":OWNER,"caller":call.app_id,"turn_id":record["turn_id"],"session_id":record["session_id"],
++        "tool":name,"tool_call_id":id,"call_id":id,"args_digest":digest,"terminal":if ok {"ok"} else {"error"},"result":outcome}});
++    record["messages"].as_array_mut().ok_or("Invalid receipt journal")?.push(row);
++    write(path,record)?;
++    if ok {Ok(outcome["data"].clone())} else {Err(outcome["error"]["message"].as_str().unwrap_or("Calendar operation failed").into())}
++}
++fn run(call: &ServiceCall, account: &str, path: &Path, reply: &Replier) -> Result<Value,String> {
++    let mut record=read(path)?;
++    let work=(|| {
++        let op=operation(&call.args)?;
++        let mut args=call.args["args"].clone();
++        if op=="add" { args["request_id"]=call.args["request_id"].clone(); }
++        if op=="update" || op=="remove" {
++            let before=invoke(call,account,&mut record,path,reply,"calendar.get_event",json!({"id":args["id"]}))?;
++            if before["found"]!=true || before["event"]!=args["expected"] {return Err("The Calendar event changed; refresh it before editing".into());}
++        }
++        let executed=invoke(call,account,&mut record,path,reply,method(op),args.clone())?;
++        if op!="query" {
++            let id=if op=="add" {&executed["id"]} else {&args["id"]};
++            if !id.is_string(){return Err("Calendar did not return an event id".into());}
++            let after=invoke(call,account,&mut record,path,reply,"calendar.get_event",json!({"id":id}))?;
++            if op=="remove" {
++                if executed["removed"]!=true || after["found"]!=false || after.get("event")!=Some(&Value::Null) {return Err("Calendar deletion was not confirmed by readback".into());}
++            } else if after["found"]!=true || after["event"]["id"]!=*id {return Err("Calendar write was not confirmed by readback".into());}
++        }
++        Ok::<(),String>(())
++    })();
++    record["status"]=json!(if work.is_ok(){"completed"}else{"failed"});
++    if let Err(error)=work {record["error"]=json!(error);}
++    write(path,&record)?;
++    Ok(result(&record))
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test] fn request_rejects_claimed_identity_and_unlisted_operations() {
++        assert!(operation(&json!({"request_id":"a","operation":"remove","args":{},"app_id":"os.calendar"})).is_err());
++        assert!(operation(&json!({"operation":"shell","args":{}})).is_err());
++        assert!(request_id(&json!({"request_id":"../escape"})).is_err());
++        assert!(operation(&json!({"request_id":"a","operation":"query","args":{"limit":200}})).is_ok());
++    }
++    #[test] fn digest_is_sorted_recursively() {
++        assert_eq!(canonical(&json!({"z":{"b":1,"a":2},"a":3})).to_string(),"{\"a\":3,\"z\":{\"a\":2,\"b\":1}}");
++    }
++}
+diff --git a/crates/shell/src/host_tools/mod.rs b/crates/shell/src/host_tools/mod.rs
+index 0ae7391..afb2700 100644
+--- a/crates/shell/src/host_tools/mod.rs
++++ b/crates/shell/src/host_tools/mod.rs
+@@ -41,6 +41,8 @@ pub mod files;
+ pub mod relay;
+ pub mod schema;
+ #[cfg(any(feature = "app-hub", native_mobile))]
++mod calendar_bridge;
++#[cfg(any(feature = "app-hub", native_mobile))]
+ pub(crate) mod admission;
+ #[cfg(feature = "toolbox-peers")]
+ pub mod toolbox;
+@@ -145,6 +147,8 @@ pub fn init() {
+     static DONE: OnceLock<()> = OnceLock::new();
+     DONE.get_or_init(|| {
+         host_tools::set_host(Arc::new(ShellToolHost));
++        #[cfg(any(feature = "app-hub", native_mobile))]
++        calendar_bridge::register();
+         approvals::set_relay(Box::new(DecisionRelay));
+         peer_link::set_tool_relay(Box::new(LinkRelay));
+         // The tools the shell runs itself for an app's own agent (`dev.run`).
+diff --git a/crates/shell/src/host_tools/relay.rs b/crates/shell/src/host_tools/relay.rs
+index b50d01c..1a7cd93 100644
+--- a/crates/shell/src/host_tools/relay.rs
++++ b/crates/shell/src/host_tools/relay.rs
+@@ -103,6 +103,8 @@ pub fn app_of_peer(app: &str) -> &str {
+ pub enum Event {
+     /// A `peer/tool/call`, stamped by its host (a broker or the system chat).
+     Call { call: HostToolCall, reply: ToolReply },
++    /// Host-stamped structured app UI call; approvals use the host surface.
++    AppUiCall { call: HostToolCall, reply: ToolReply },
+     /// The kernel cancelled a call, or its connection closed.
+     Cancel { call_id: String, reason: String },
+     /// A `host_tool` approval raised on `app`'s peer (or a context of it).
+@@ -598,7 +600,8 @@ impl Relay {
+ 
+     pub fn handle(&mut self, event: Event, env: &mut dyn Env) {
+         match event {
+-            Event::Call { call, reply } => self.call(call, reply, env),
++            Event::Call { call, reply } => self.call(call, reply, env, false),
++            Event::AppUiCall { call, reply } => self.call(call, reply, env, true),
+             Event::Cancel { call_id, reason } => self.cancel(&call_id, &reason, env),
+             Event::Approval { app, account, approval, answer } => self.approval(&app, account, approval, answer, env),
+             Event::ApprovalClosed { approval_id } => {
+@@ -654,7 +657,7 @@ impl Relay {
+         Ok(())
+     }
+ 
+-    fn call(&mut self, call: HostToolCall, reply: ToolReply, env: &mut dyn Env) {
++    fn call(&mut self, call: HostToolCall, reply: ToolReply, env: &mut dyn Env, host_confirmation: bool) {
+         if !reply.is_open() {
+             return;
+         }
+@@ -804,7 +807,7 @@ impl Relay {
+         if call.confirm_required {
+             reply.acknowledge();
+             let (auto, _) = self.tool_rule(&*env, &owner, &tool);
+-            let mut spec = ToolSpec::app(&tool);
++            let mut spec = if host_confirmation { ToolSpec::host(&tool) } else { ToolSpec::app(&tool) };
+             spec.auto_approvable = auto;
+             let id = format!("{CONFIRM_PREFIX}{}", call.call_id);
+             let context = RequestContext {
 diff --git a/crates/shell/src/host_tools/script_apps.rs b/crates/shell/src/host_tools/script_apps.rs
 index d652620..bd43dc7 100644
 --- a/crates/shell/src/host_tools/script_apps.rs
@@ -1277,6 +1540,58 @@ index d652620..bd43dc7 100644
          assert!(edit["input_schema"]["required"].as_array().unwrap().iter().any(|v| v == "expected"));
          assert_eq!(loaded.generic, ["ask_user_question"]);
          let _ = std::fs::remove_dir_all(dir);
+diff --git a/crates/shell/src/host_tools/tests.rs b/crates/shell/src/host_tools/tests.rs
+index 4c2cecf..8fed086 100644
+--- a/crates/shell/src/host_tools/tests.rs
++++ b/crates/shell/src/host_tools/tests.rs
+@@ -2035,3 +2035,47 @@ fn a_signed_out_accounts_engine_call_is_refused() {
+     assert_eq!(made["ok"], true, "{made}");
+     assert!(folder.join("a.docx").is_file(), "the account's own folder");
+ }
++
++#[test]
++fn structured_calendar_ui_uses_host_approval_and_keeps_grants() {
++    let mut entry = decl("calendar.remove_event", true, "host");
++    entry["risk"] = json!("destructive");
++    entry["auto_approvable"] = json!(false);
++    let (mut relay, exec) = relay_with("os.calendar", vec![entry]);
++    let mut world = World::new(FixedDevMode::off());
++    let mut request = call("calendar-ui-1", "calendar.remove_event", "card.muse-goals");
++    request.app = "os.calendar".into();
++    request.confirm_required = true;
++    request.risk = "destructive".into();
++    let (r,sent) = reply("calendar-ui-1");
++    relay.handle(Event::AppUiCall{call:request.clone(),reply:r}, &mut world);
++    assert_eq!(sent.lock().unwrap()[0]["error"]["kind"],"not_granted");
++    assert!(exec.0.lock().unwrap().is_empty());
++    relay.catalog.grant("muse-goals","os.calendar","calendar.remove_event");
++    request.call_id = "calendar-ui-2".into();
++    let (r,_) = reply("calendar-ui-2");
++    relay.handle(Event::AppUiCall{call:request,reply:r}, &mut world);
++    assert_eq!(world.asked.len(),1);
++    assert_eq!(world.asked[0].1.confirm, crate::approvals::Confirm::Host);
++    assert!(!world.asked[0].1.auto_approvable);
++    assert!(exec.0.lock().unwrap().is_empty(),"never execute before the actual host decision");
++}
++
++#[test]
++fn structured_calendar_read_preserves_caller_and_refuses_revocation() {
++    for allowed in [false,true] {
++        let mut entry=decl("calendar.events",true,"host"); entry["risk"]=json!("read");
++        let (mut relay,exec)=relay_with("os.calendar",vec![entry]);
++        relay.catalog.grant("muse-goals","os.calendar","calendar.events");
++        let mut world=World::new(FixedDevMode::off());world.consent=allowed;
++        let mut request=call("calendar-read","calendar.events","card.muse-goals");
++        request.app="os.calendar".into();request.risk="read".into();request.confirm_required=false;
++        let (r,sent)=reply("calendar-read");
++        relay.handle(Event::AppUiCall{call:request,reply:r},&mut world);
++        if allowed {
++            let calls=exec.0.lock().unwrap();assert_eq!(calls.len(),1);
++            assert_eq!(calls[0].0.calling_app,"card.muse-goals");assert_eq!(calls[0].0.app,"os.calendar");
++            assert!(world.asked.is_empty());
++        } else {assert!(exec.0.lock().unwrap().is_empty());assert_eq!(sent.lock().unwrap()[0]["error"]["kind"],"consent_pending");}
++    }
++}
 diff --git a/runtime-patches.lock.json b/runtime-patches.lock.json
 index 8b5c002..44e0108 100644
 --- a/runtime-patches.lock.json
