@@ -1,4 +1,4 @@
-# Muse 统一候选 0.4.0-rc9
+# Muse 统一候选 0.4.0-rc10
 
 NIGHT-006 的 rc9 基于官方 desktop-v0.1.0-rc.6 源码和 Muse 兼容补丁，统一构建 Intel Host、配套 Kernel、签名界面及本地模型。旧 rc8/rc7/R5 与用户资料保留；旧版本或组件测试不自动计入本候选三轮，也不代表生产账号全链通过。当前运行、候选身份和证据以 [CURRENT_STATE](../../MUSE_HANDOFF/CURRENT_STATE.md) 与 [三轮报告](../../MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md) 为准。
 
@@ -63,7 +63,7 @@ python3 official_muse/integrated_release/package_app.py \
 
 ## 签名目录与官方接口
 
-`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc9`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 9。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
+`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc10`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 10。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
 
 将 helper 放在对应 Hub 的 `crates/app-hub/examples/`，按实际 SDK workspace 锁定依赖构建。六个参数依次为 BUNDLE、NEW_MIRROR、WORKING_KEY、CERTIFICATE_FILE、ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。新目录不可已存在，提交号须完整；私钥只作为本机签名工具输入，不作为成品、日志或 Git 输入。使用官方 Hub stamp/sign-manifest 后，再运行 helper 准入与目录验签。
 

@@ -10806,6 +10806,11 @@ fn redraw(){
     if page != "Chat" && page != "Goal Detail" && page != "Calendar" && (page != "Mail" || !mail_compose_open) { ui.page_content.render() }
     if page == "Goal Detail" { ui.detail_view.render() }
     if page == "Calendar" {
+        ui.calendar_agent_form.set_visible(!calendar_enabled())
+        if ui.calendar_agent_input.text() != calendar_agent_input_text { ui.calendar_agent_input.set_text(calendar_agent_input_text) }
+        ui.calendar_agent_controls.render()
+        ui.calendar_agent_heading.render()
+        ui.calendar_agent_output.render()
         ui.calendar_panel.render()
         ui.calendar_actions.render()
         ui.calendar_confirm_panel.render()
@@ -12295,9 +12300,10 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
         }
         calendar_editor := ScrollYView{visible: false width: Fill height: Fill flow: Down spacing: 8
             Label{text: "日历" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 17}}
-            calendar_panel := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
-                if !calendar_enabled() {
-                    SolidView{width: Fill height: Fit flow: Down padding: 12 spacing: 8 draw_bg.color: panel
+            // Keep the editor mounted while status/candidates redraw; replacing it
+            // on every keystroke discards focus and the IME composition range.
+            calendar_agent_form := SolidView{visible: false width: Fill height: Fit flow: Down padding: 12 spacing: 8 draw_bg.color: panel
+                calendar_agent_heading := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
                         if calendar_agent_mail_source != nil {
                             Label{width: Fill text: "来自邮件 · " + calendar_agent_mail_source.subject draw_text.color: blue draw_text.wrap: Words draw_text.text_style.font_size: 12}
                         }
@@ -12305,13 +12311,15 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                             Label{width: Fill text: calendar_agent_candidate.payload.title + "\n" + calendar_agent_candidate.payload.start + " → " + calendar_agent_candidate.payload.end draw_text.color: ink draw_text.wrap: Words draw_text.text_style.font_size: 13}
                             Primary{text: "添加到日历" enabled: !calendar_agent_busy && calendar_agent_writable on_click: || calendar_agent_submit_candidate()}
                         }
-                        calendar_agent_input := TextInput{width: Fill height: 100 is_multiline: true text: calendar_agent_input_text empty_text: "例如：明天下午3点开项目会，持续1小时"
-                            on_change: || calendar_agent_input_changed(ui.calendar_agent_input.text())}
-                        View{width: Fill height: Fit flow: Right spacing: 8
-                            Primary{text: if calendar_agent_mail_source != nil {"添加到日历"} else {"执行"}
-                                enabled: !calendar_agent_busy && calendar_agent_writable on_click: || calendar_agent_submit(ui.calendar_agent_input.text())}
-                            Secondary{text: "查询今天" enabled: !calendar_agent_busy on_click: || { calendar_agent_mail_source = nil calendar_agent_submit("查询今天的日程，按开始时间列出。") }}
-                        }
+                }}
+                        calendar_agent_input := TextInput{width: Fill height: 100 is_multiline: true empty_text: "例如：明天下午3点开项目会，持续1小时"
+                            on_change: |text| calendar_agent_input_changed(text)}
+                calendar_agent_controls := View{width: Fill height: Fit flow: Right spacing: 8 on_render: || {
+                    Primary{text: if calendar_agent_mail_source != nil {"添加到日历"} else {"执行"}
+                        enabled: !calendar_agent_busy && calendar_agent_writable on_click: || calendar_agent_submit(ui.calendar_agent_input.text())}
+                    Secondary{text: "查询今天" enabled: !calendar_agent_busy on_click: || { calendar_agent_mail_source = nil calendar_agent_submit("查询今天的日程，按开始时间列出。") }}
+                }}
+                calendar_agent_output := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
                         if calendar_agent_busy { Label{text: "处理中…" draw_text.color: blue draw_text.text_style.font_size: 12} }
                         if calendar_agent_notice != "" { Label{width: Fill text: calendar_agent_notice draw_text.color: muted draw_text.wrap: Words draw_text.text_style.font_size: 12} }
                         if calendar_agent_reply != "" && calendar_agent_identity_current(calendar_agent_state) {
@@ -12344,8 +12352,9 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                         if calendar_agent_mail_source != nil || calendar_agent_state["mail_source"] != nil {
                             Secondary{text: "返回邮件" on_click: || { mail_compose_open = false set_page("Mail") }}
                         }
-                    }
-                }
+                }}
+            }
+            calendar_panel := View{width: Fill height: Fit flow: Down spacing: 8 on_render: || {
                 if calendar_enabled() {
                     Secondary{text: "刷新宿主授权状态" on_click: || calendar_status_load(false)}
                     Label{width: Fill text: "实际系统权限 · " + calendar_permission_text() draw_text.color: blue draw_text.wrap: Words draw_text.text_style.font_size: 12}

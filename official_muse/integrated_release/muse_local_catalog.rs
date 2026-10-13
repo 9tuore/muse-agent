@@ -16,8 +16,8 @@ fn run() -> Result<(), String> {
         return Err("source commit must be a full Git SHA".into());
     }
     let manifest = AppManifest::parse(&std::fs::read_to_string(bundle.join("manifest.json")).map_err(|e| e.to_string())?)?;
-    if manifest.id != "muse-goals" || manifest.version != "0.4.0-rc9" {
-        return Err("this paired-host publisher accepts only muse-goals 0.4.0-rc9".into());
+    if manifest.id != "muse-goals" || manifest.version != "0.4.0-rc10" {
+        return Err("this paired-host publisher accepts only muse-goals 0.4.0-rc10".into());
     }
     const PUBLISHER: &str = "muse-integrated-local";
     const PUBLIC: &str = "79a4c263acba7309593edc38ec1256d5e30f22cc059500c733877d4fbc6d066b";
@@ -30,7 +30,7 @@ fn run() -> Result<(), String> {
     limits.offered_tools.extend(SIX.iter().map(|tool| (*tool).to_owned()));
     let report = check_bundle(&bundle, &limits, &keys, None)?;
     if !report.passed() { return Err(report.render()); }
-    if report.app_id != "muse-goals" || report.version != "0.4.0-rc9" {
+    if report.app_id != "muse-goals" || report.version != "0.4.0-rc10" {
         return Err("bundle identity changed during admission".into());
     }
     let review = packet(&bundle, &report)?;
@@ -43,7 +43,7 @@ fn run() -> Result<(), String> {
     let working = HubKey::from_bytes(&bytes);
     let certificate = std::fs::read_to_string(&argv[3]).map_err(|_| "working certificate is unavailable")?;
     let anchor = std::fs::read_to_string(&argv[4]).map_err(|_| "anchor public key is unavailable")?;
-    let mut catalog = Catalog::new(9, &today(), vec![entry]);
+    let mut catalog = Catalog::new(10, &today(), vec![entry]);
     working.sign_catalog(&mut catalog, certificate.trim())?;
     verify_catalog(&catalog, anchor.trim())?;
     std::fs::create_dir(&output).map_err(|e| e.to_string())?;
