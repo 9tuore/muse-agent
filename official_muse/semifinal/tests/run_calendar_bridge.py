@@ -5,20 +5,20 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[3]
 p=argparse.ArgumentParser();p.add_argument('--vm',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
 source=(ROOT/'official_muse/app/source/main.splash').read_text();spec=importlib.util.spec_from_file_location('parser',ROOT/'official_muse/prelim/tests/calendar_sync/run.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);f=m.functions_in(source)
-names='gm_object gm_array gm_text gm_string calendar_receipt_persisted calendar_agent_tool_name calendar_agent_receipt_status calendar_agent_delete_receipt calendar_history_request calendar_relay_run calendar_relay_query calendar_relay_wall_offset calendar_relay_normalize calendar_relay_plan calendar_agent_event_matches calendar_agent_add_digest_matches calendar_agent_creation_proof'.split()
-code='''let fs={sha256: |value| mod.fixture.sha256(value)}
+names='page_two page_time_floor page_month_days page_day_number page_date_parts page_parse_date page_two_number page_event_epoch calendar_iso_epoch calendar_display_time calendar_agent_wall gm_time_valid chat_payload_error gm_object gm_array gm_text gm_string calendar_receipt_persisted calendar_agent_tool_name calendar_agent_receipt_status calendar_agent_delete_receipt calendar_history_request calendar_relay_run calendar_relay_query calendar_relay_wall_offset calendar_relay_normalize calendar_relay_plan calendar_agent_event_matches calendar_agent_add_digest_matches calendar_agent_creation_proof'.split()
+code='''use mod.math.*
+use mod.std.*
+let gm_time_cache={}
+fn storage_write(path,text){return nil}
+let fs={sha256: |value| mod.fixture.sha256(value)}
 let calls=[] let checks=[] let answer=nil let model=nil
 let calendar_agent_state={request_id:"request-1" turn_id:"calendar-relay-one" binding:{payload:{title:"Test" start:"2030-12-12T15:00"}} previous_requests:[]}
 let calendar_agent_update_state={records:[]} let calendar_agent_delete_state={records:[]}
 let calendar_agent_preflight={status:"empty" request_id:""} let chat_selected_id="chat-1"
 fn fixture_transport(method,args,callback){calls.push({method:method args:args callback:callback})}
 fn time_now(){return 1791864000}
-fn page_time_floor(v){return 20739}
-fn page_date_parts(day){return {date:"2026-10-13"}}
 fn muse_model_request(text,session,goal,current,args,callback){model={text:text callback:callback current:current args:args}}
 fn chat_calendar_reference(){return "今天2026-10-13"}
-fn chat_payload_error(kind,payload){if payload.title == "" || payload.start == "" {return "请补充标题和时间"} return ""}
-fn calendar_agent_wall(value){return value}
 fn check(name,passed){checks.push({name:name passed:passed})}
 fn receive(r){answer=r}
 '''+ '\n'.join(f[n].replace('host.request(', 'fixture_transport(') for n in names)+'''
@@ -57,6 +57,9 @@ check("mail_add_does_not_become_query_from_quoted_subject",calls.len()==0 && mod
 calendar_agent_state.mail_source=nil
 let normalized=calendar_relay_normalize({start:"2030-12-12T15:00:00" end:"2030-12-12T16:00" time_zone:"Asia/Shanghai"})
 check("explicit_shanghai_missing_offset_normalized",normalized.start=="2030-12-12T15:00:00+08:00" && normalized.end=="2030-12-12T16:00:00+08:00")
+let minute_offset=calendar_relay_normalize({title:"Test" start:"2030-12-12T15:00+08:00" end:"2030-12-12T16:00+08:00" time_zone:"Asia/Shanghai" location:""})
+check("offset_minutes_pass_real_date_validator",chat_payload_error("calendar_candidate",minute_offset)=="" && calendar_agent_wall(minute_offset.start)=="2030-12-12T15:00")
+check("invalid_real_date_rejected",chat_payload_error("calendar_candidate",{title:"Test" start:"2030-02-30T15:00:00+08:00" end:"2030-02-30T16:00:00+08:00" time_zone:"Asia/Shanghai" location:""})!="")
 let payload={title:"Test" start:"2030-12-12T15:00" end:"2030-12-12T16:00" timezone:"Asia/Shanghai" location:"" notes:"" request_id:"request-1"}
 let event=payload.to_json().parse_json() event.id="event-1"
 let add_digest="sha256:"+fs.sha256("{\\"end\\":\\"2030-12-12T16:00\\",\\"location\\":\\"\\",\\"notes\\":\\"\\",\\"request_id\\":\\"request-1\\",\\"start\\":\\"2030-12-12T15:00\\",\\"timezone\\":\\"Asia/Shanghai\\",\\"title\\":\\"Test\\"}")
