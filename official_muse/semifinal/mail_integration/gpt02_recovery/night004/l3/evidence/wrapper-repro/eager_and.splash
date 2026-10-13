@@ -1,3 +1,0 @@
-use mod.std.*
-fn fixture_risky(value){return value["x"]}
-({checks:{and_guard:false && fixture_risky(nil)}}).to_json()

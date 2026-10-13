@@ -1,5 +1,0 @@
-SPRINT-005 检查点：独立预检发现新资料正文黑；NoGauss、Omarchy均未修复。关闭另一份已知生产Host并重新启动后，旧入口及新正式入口在单Host条件下正文恢复，照片逐张由Root view_image核对。此为有证据的规避路径，GPU根因尚未证明。
-
-启动器加入跨profile互斥及旧packaged muse-host识别，退出守护清理最多等待1秒。26项已签名C stub测试通过，原失败未删除；不计GUI/业务通过。Models正确显示名providers已实际导航，合成provider实际TestConnection返回Connected且独立服务计数+1；不能称真实MiniMax或Agent工具链通过。
-
-R5保底包和生产profile未复制、未改；正式三轮尚未开始。新Main候选947c5291仅裁剪不相关数组遍历，22坏输入结果与384实际VM区间归档一致，不据此宣称GUI提速；新候选版本rc8、catalog序列5在准备。

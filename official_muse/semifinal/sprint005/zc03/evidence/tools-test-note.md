@@ -1,1 +1,0 @@
-工具初次6项测试5通过/1ERROR：macOS ps comm即使-ww仍将Python实际路径截成/Library/Develop，无法核exe。已读现场libproc.h proc_pidpath和PROC_PIDPATHINFO_MAXSIZE定义，改用该只读ABI，随后6项PASS，新增丢失owner核验保存失败项后7项PASS。初次完整stderr仅在工具会话，未伪造raw日志；后续实际stdout/stderr原文件归档。实际被动采样只有本测试Python进程2秒，未观测生产Host或宣布长期稳定。

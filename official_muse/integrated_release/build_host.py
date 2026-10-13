@@ -25,14 +25,19 @@ def main():
     parser.add_argument('--sdk', type=Path, required=True)
     parser.add_argument('--target', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--online', action='store_true', help='Allow Cargo to download the locked public dependencies')
+    parser.add_argument('--jobs', type=int, default=2)
     args = parser.parse_args()
     sdk, target, output = (p.resolve() for p in (args.sdk, args.target, args.out))
     output.mkdir(parents=True, exist_ok=True)
     package = packaging(sdk)
     env = package.build_env(package.package_env('macos', sdk, os.environ), os.environ)
     env['CARGO_TARGET_DIR'] = str(target)
-    command = ['cargo', 'build', '--offline', '--locked', '--release', '-p', 'octosense',
+    env['CARGO_BUILD_JOBS'] = str(args.jobs)
+    command = ['cargo', 'build', '--locked', '--release', '-p', 'octosense',
         '--bin', 'octosense', '--no-default-features', '--features', FEATURES]
+    if not args.online:
+        command.append('--offline')
     lock = sdk / 'Cargo.lock'
     lock_sha = hashlib.sha256(lock.read_bytes()).hexdigest()
     start = time.monotonic()

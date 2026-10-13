@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = '0.4.0-rc16'
+VERSION = '0.4.0-rc23'
 
 
 def main():
@@ -22,8 +22,8 @@ def main():
     readable = output / 'readable-bundle'
     shutil.copytree(ROOT / 'bundle', readable)
     source = (ROOT / 'official_muse/app/source/main.splash').read_text()
-    assert source.count('Muse · 0.3.27-rc18') == 1
-    source = source.replace('Muse · 0.3.27-rc18', 'Muse · ' + VERSION)
+    assert source.count('Muse · 0.3.27-rc23') == 1
+    source = source.replace('Muse · 0.3.27-rc23', 'Muse · ' + VERSION)
     (readable / 'main.splash').write_text(source)
     manifest = json.loads((readable / 'manifest.json').read_text())
     assert manifest['id'] == 'muse-goals'
@@ -45,7 +45,7 @@ def main():
     listing = json.loads((readable / 'listing.json').read_text())
     listing['description'] = ('Muse 让对话、记忆和行动连在一起。用中文整理想法，保存和更正重要记忆，'
         '查看来信、起草回复，把邮件里的安排添加到日历。行动链显示事情进行到哪一步，重启后继续处理。')
-    listing['release_notes'] = (VERSION + '：持续事务展示：目标记忆、AI工具选择、新信息使旧计划失效、原日程更新与重启恢复。')
+    listing['release_notes'] = (VERSION + '：工作台直接启动；对话、记忆、邮箱、内置日历与行动链统一入口。')
     (readable / 'listing.json').write_text(json.dumps(listing, ensure_ascii=False, indent=2) + '\n')
     compact = subprocess.run([sys.executable, str(ROOT / 'official_muse/ui_memory/compact_bundle.py'),
         '--source', str(readable), '--out', str(output / 'bundle')], check=True,

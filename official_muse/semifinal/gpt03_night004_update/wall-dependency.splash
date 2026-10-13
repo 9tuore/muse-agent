@@ -1,5 +1,0 @@
-fn calendar_agent_wall(value){
-    let parts = calendar_display_time(value).split(" ")
-    if parts.len() != 3 || parts[2] != "+08:00" { return "" }
-    return parts[0] + "T" + parts[1]
-}

@@ -62,12 +62,12 @@ int main(int argc, char **argv) {
         shutil.copy2(binary, host / 'octos-kernel')
         (host / 'octos-kernel.json').write_text('{}')
         mirror = cls.resources / 'mirror'
-        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc16.bundle'
+        bundle = mirror / 'artifacts/muse-goals-0.4.0-rc20.bundle'
         bundle.mkdir(parents=True)
         (bundle / 'manifest.json').write_text('{}')
         (bundle / 'main.splash').write_text('// fixture')
         (mirror / 'catalog.json').write_text('{}')
-        (mirror / 'artifacts/muse-goals-0.4.0-rc16.bundle.pack.json').write_text('{}')
+        (mirror / 'artifacts/muse-goals-0.4.0-rc20.bundle.pack.json').write_text('{}')
         for item in [host / 'octos-kernel', helper, cls.app]:
             subprocess.run(['codesign', '--force', '--sign', '-', str(item)], check=True,
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -381,6 +381,22 @@ HTTPServer(('127.0.0.1', port), Handler).serve_forever()
         self.assertEqual(self.profile.read_bytes(), before)
         self.assertIn('OCTOSENSE_HOME=' + str(self.state / 'shell'),
                       (self.state / 'logs/host.log').read_text())
+
+    def test_fresh_catalog_uses_its_packaged_public_anchor(self):
+        app = self.root / 'Fresh catalog.app'
+        shutil.copytree(self.app, app)
+        anchor = 'ab' * 32
+        (app / 'Contents/Resources/launcher.json').write_text(json.dumps({
+            'model_mode': 'gpt', 'state_root': None, 'hub_anchor': anchor}))
+        subprocess.run(['codesign', '--force', '--sign', '-', str(app)], check=True,
+                       capture_output=True)
+        result = subprocess.run([str(app / 'Contents/MacOS/Launcher'), '--models'],
+                                env=self.launch_env({'OCTOSENSE_HUB_ANCHOR': 'wrong-inherited-value'}),
+                                capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        lines = (self.state / 'logs/host.log').read_text().splitlines()
+        self.assertIn('OCTOSENSE_HUB_ANCHOR=' + anchor, lines)
+        self.assertNotIn('OCTOSENSE_HUB_ANCHOR=wrong-inherited-value', lines)
 
     def test_repository_and_packaged_script_use_same_launcher(self):
         env = self.launch_env()

@@ -1,4 +1,4 @@
-# Muse 统一候选 0.4.0-rc16
+# Muse 统一候选 0.4.0-rc19
 
 NIGHT-006 的 rc9 基于官方 desktop-v0.1.0-rc.6 源码和 Muse 兼容补丁，统一构建 Intel Host、配套 Kernel、签名界面及本地模型。旧 rc8/rc7/R5 与用户资料保留；旧版本或组件测试不自动计入本候选三轮，也不代表生产账号全链通过。当前运行、候选身份和证据以 [CURRENT_STATE](../../MUSE_HANDOFF/CURRENT_STATE.md) 与 [三轮报告](../../MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md) 为准。
 
@@ -38,7 +38,7 @@ GPT 专用开发包可选 `--model-mode gpt` 并省略 `--model-source`；`--mod
 
 完整界面还依赖受限的 `fs.sha256` / `fs.sha256_file` 原生接口。rc.6 适配将这两个只读绑定与有界冷加载补丁一起锁定并重放；原生摘要测试覆盖标准向量、中文及文件访问边界。仅旧 VM fixture 通过无法证明最新 GUI 宿主具备这些方法，仍须真实检验聊天和记忆保存。
 
-`prepare_bundle.py` 从 `official_muse/app/source/main.splash` 创建新的可读/压缩 bundle。根 `bundle/` 已同步为当前 rc16 可编辑发布源；`scripts/check_current_bundle.py` 校验版本与源码一致。公开源包不携带本地 rehearsal 签名；本地运行在独立 build 目录准入和签名，签后不修改。
+`prepare_bundle.py` 从 `official_muse/app/source/main.splash` 创建新的可读/压缩 bundle。根 `bundle/` 已同步为当前 rc19 可编辑发布源；`scripts/check_current_bundle.py` 校验版本与源码一致。公开源包不携带本地 rehearsal 签名；本地运行在独立 build 目录准入和签名，签后不修改。
 
 `package_app.py` 输入显式 SDK、Host、Kernel receipt、签名 mirror 及公共本地模型目录；`--licenses` 加入收集的第三方声明。若 Host 旁存在 `.release-identity.json`，先核对其 SHA，再把源版本与输入 SHA 写入打包记录；签名后的实际 SHA 单列。输出新目录与 `Muse.app`、`PACKAGE.json`、`HOST_RESOURCES.json`、`launch_muse.sh`。普通模式按同一 features 的 Cargo closure 收集资源，并由官方 staging helper 为签名后的相同 Kernel revision 重建 receipt。原输入不改。
 
@@ -63,7 +63,7 @@ python3 official_muse/integrated_release/package_app.py \
 
 ## 签名目录与官方接口
 
-`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc16`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 17。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
+`muse_local_catalog.rs` 只接受 muse-goals `0.4.0-rc19`，使用原 Hub gate、packer 和签名 verifier；catalog sequence 为 20。仅为确切配套 Host 加入六个 Calendar offer：events、get_event、add_event、update_event、remove_event、notify，其他应用的默认上限不变。本地目录通过是 `ADMITTED_LOCAL_PAIRED_HOST_ONLY`，不能写成官方公开 App Hub 上架。
 
 将 helper 放在对应 Hub 的 `crates/app-hub/examples/`，按实际 SDK workspace 锁定依赖构建。六个参数依次为 BUNDLE、NEW_MIRROR、WORKING_KEY、CERTIFICATE_FILE、ANCHOR_PUBLIC_FILE、SOURCE_COMMIT。新目录不可已存在，提交号须完整；私钥只作为本机签名工具输入，不作为成品、日志或 Git 输入。使用官方 Hub stamp/sign-manifest 后，再运行 helper 准入与目录验签。
 

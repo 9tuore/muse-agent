@@ -1,0 +1,2210 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index eddd4b0..4015dcd 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -11395,7 +11395,6 @@ dependencies = [
+ [[package]]
+ name = "octosense-app-contract"
+ version = "1.12.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=386359153ed6377b5f047bd9ed2767a6a2ac2bc7#386359153ed6377b5f047bd9ed2767a6a2ac2bc7"
+ dependencies = [
+  "blake3",
+  "serde",
+@@ -11406,7 +11405,6 @@ dependencies = [
+ [[package]]
+ name = "octosense-app-hub"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=386359153ed6377b5f047bd9ed2767a6a2ac2bc7#386359153ed6377b5f047bd9ed2767a6a2ac2bc7"
+ dependencies = [
+  "base64 0.22.1",
+  "blake3",
+@@ -11433,7 +11431,6 @@ dependencies = [
+ [[package]]
+ name = "octosense-app-hub-app"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=386359153ed6377b5f047bd9ed2767a6a2ac2bc7#386359153ed6377b5f047bd9ed2767a6a2ac2bc7"
+ dependencies = [
+  "makepad-app-module",
+  "makepad-widgets",
+@@ -11461,7 +11458,6 @@ dependencies = [
+ [[package]]
+ name = "octosense-app-policy"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=386359153ed6377b5f047bd9ed2767a6a2ac2bc7#386359153ed6377b5f047bd9ed2767a6a2ac2bc7"
+ dependencies = [
+  "makepad-widgets",
+  "octosense-app-contract",
+@@ -11483,7 +11479,6 @@ dependencies = [
+ [[package]]
+ name = "octosense-appstore"
+ version = "0.1.0"
+-source = "git+https://github.com/OctoSense-org/OctoSense-App-Hub?rev=386359153ed6377b5f047bd9ed2767a6a2ac2bc7#386359153ed6377b5f047bd9ed2767a6a2ac2bc7"
+ dependencies = [
+  "makepad-app-module",
+  "makepad-widgets",
+@@ -11527,6 +11522,7 @@ dependencies = [
+  "octosense-appstore",
+  "serde",
+  "serde_json",
++ "uuid",
+ ]
+ 
+ [[package]]
+diff --git a/Cargo.toml b/Cargo.toml
+index bf6b9c9..abb58cf 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -443,7 +443,7 @@ ruma = { git = "https://github.com/project-robius/ruma.git", branch = "tsp" }
+ # -i octos-core` still sees one octos source.
+ [patch.crates-io]
+ # Keep the contract identical to the pinned SDK for this release candidate.
+-octosense-app-contract = { git = "https://github.com/OctoSense-org/OctoSense-App-Hub", rev = "386359153ed6377b5f047bd9ed2767a6a2ac2bc7" }
++octosense-app-contract = { path = ".sources/app-hub/crates/app-contract" }
+ nix = { git = "https://github.com/octos-org/octos.git", rev = "18fcd3f16e527d2b601d7ae244f056fb711bb6b8" }
+ 
+ # pdfcraft's bootstrap PDF stack: its workspace patches these five
+@@ -457,3 +457,11 @@ hayro-interpret = { git = "https://github.com/ymote/pdfcraft.git", rev = "d80140
+ hayro-jbig2 = { git = "https://github.com/ymote/pdfcraft.git", rev = "d801407a9f956281d612dee3d2d72c76d43ef399" }
+ hayro-syntax = { git = "https://github.com/ymote/pdfcraft.git", rev = "d801407a9f956281d612dee3d2d72c76d43ef399" }
+ lopdf = { git = "https://github.com/ymote/pdfcraft.git", rev = "d801407a9f956281d612dee3d2d72c76d43ef399" }
++
++# Reviewed Muse compatibility extension at the pinned App Hub revision.
++[patch."https://github.com/OctoSense-org/OctoSense-App-Hub"]
++octosense-app-hub = { path = ".sources/app-hub/crates/app-hub" }
++octosense-app-hub-app = { path = ".sources/app-hub/crates/app-hub-app" }
++octosense-appstore = { path = ".sources/app-hub/crates/appstore" }
++octosense-app-policy = { path = ".sources/app-hub/crates/app-policy" }
++octosense-app-contract = { path = ".sources/app-hub/crates/app-contract" }
+diff --git a/apps/ai-providers/host-service/src/complete/mod.rs b/apps/ai-providers/host-service/src/complete/mod.rs
+index 992209f..1f4d004 100644
+--- a/apps/ai-providers/host-service/src/complete/mod.rs
++++ b/apps/ai-providers/host-service/src/complete/mod.rs
+@@ -554,7 +554,7 @@ impl ModelHost {
+                         "{user}\n\nYour previous answer was refused: {why}. Answer again with only one JSON value that validates against the schema."
+                     ),
+                 };
+-                let text = match self.send(candidate, &system, &user) {
++                let text = match self.send(candidate, &system, &user, &request.schema) {
+                     Ok((text, used)) => {
+                         usage.add(used);
+                         self.ledger.lock().unwrap().charge(app, (self.clock)(), used.total());
+@@ -592,9 +592,9 @@ impl ModelHost {
+ 
+     /// One request to one provider: the reply text and its usage, or why the
+     /// provider failed (with the key removed).
+-    fn send(&self, c: &Candidate, system: &str, user: &str) -> Result<(String, Usage), String> {
++    fn send(&self, c: &Candidate, system: &str, user: &str, schema: &Value) -> Result<(String, Usage), String> {
+         let key = c.key.as_deref();
+-        let prepared = wire::prepare(&c.provider, key, system, user)?;
++        let prepared = wire::prepare(&c.provider, key, system, user, schema)?;
+         let (status, body) = self.transport.post(&prepared.url, &prepared.headers, &prepared.body).map_err(|e| {
+             format!("{}: {}", probe::transport_reason(&e), probe::describe_error(&e, key))
+         })?;
+diff --git a/apps/ai-providers/host-service/src/complete/wire.rs b/apps/ai-providers/host-service/src/complete/wire.rs
+index e20a778..7ea3cd9 100644
+--- a/apps/ai-providers/host-service/src/complete/wire.rs
++++ b/apps/ai-providers/host-service/src/complete/wire.rs
+@@ -1,7 +1,7 @@
+ //! One `model.complete` request on the wire, in the three protocols a
+ //! provider speaks, and the text and token usage out of its answer.
+ //!
+-//! No output-token cap is sent where the protocol allows none (OpenAI chat
++//! Cloud requests carry no output-token cap where the protocol allows none (OpenAI chat
+ //! completions, the Responses API): a reasoning model spends any cap on its
+ //! thinking first, and the schema plus the host's byte cap bound the reply.
+ //! Anthropic's Messages API requires `max_tokens`, so it gets the model's
+@@ -23,7 +23,7 @@ pub struct Prepared {
+ }
+ 
+ /// The request for `provider`: `system` and one `user` message.
+-pub fn prepare(provider: &Provider, key: Option<&str>, system: &str, user: &str) -> Result<Prepared, String> {
++pub fn prepare(provider: &Provider, key: Option<&str>, system: &str, user: &str, schema: &Value) -> Result<Prepared, String> {
+     let family = registry::lookup(&provider.family).map(|f| f.id).unwrap_or(provider.family.as_str());
+     if family == "vertex" {
+         return Err("Vertex AI is not supported for direct calls".into());
+@@ -69,6 +69,17 @@ pub fn prepare(provider: &Provider, key: Option<&str>, system: &str, user: &str)
+             (format!("{base}/responses"), json!({"model": model, "instructions": system, "input": user, "store": false}))
+         }
+     };
++    // The bundled CPU model is not a reasoning model. Its llama.cpp endpoint
++    // supports schema-constrained output; avoid spending the full context on
++    // malformed/repeating text before the host can validate a reply.
++    let mut body = body;
++    if family == "local" && model == "Qwen2.5-0.5B-Instruct-Q4_0-offline" && api == ApiType::OpenAi {
++        body["response_format"] = json!({"type": "json_object", "schema": schema});
++        if schema.pointer("/properties/reply/type").and_then(Value::as_str) == Some("string") {
++            body["max_tokens"] = json!(768);
++        }
++        body["temperature"] = json!(0.2);
++    }
+     Ok(Prepared { url, headers, body: body.to_string(), api })
+ }
+ 
+@@ -141,6 +152,23 @@ pub fn unwrap_json(text: &str) -> &str {
+ mod tests {
+     use super::*;
+ 
++    #[test]
++    fn bundled_local_model_receives_schema_and_output_bound() {
++        let schema = json!({"type":"object", "properties":{"reply":{"type":"string"}}, "required":["reply"]});
++        let local = Provider::new("local", Some("Qwen2.5-0.5B-Instruct-Q4_0-offline".into()));
++        let request = prepare(&local, None, "task", "input", &schema).unwrap();
++        let body: Value = serde_json::from_str(&request.body).unwrap();
++        assert_eq!(body["response_format"]["schema"], schema);
++        assert_eq!(body["max_tokens"], 768);
++        assert_eq!(body["messages"][1]["content"], "input");
++        for provider in [Provider::new("deepseek", Some("deepseek-chat".into())), Provider::new("local", Some("another-model".into()))] {
++            let request = prepare(&provider, None, "task", "input", &schema).unwrap();
++            let body: Value = serde_json::from_str(&request.body).unwrap();
++            assert!(body.get("response_format").is_none());
++            assert!(body.get("max_tokens").is_none());
++        }
++    }
++
+     #[test]
+     fn fences_and_thinking_are_removed() {
+         assert_eq!(unwrap_json("```json\n{\"a\":1}\n```"), "{\"a\":1}");
+diff --git a/apps/calendar/bundle/tools.json b/apps/calendar/bundle/tools.json
+index 243c04a..d2fb039 100644
+--- a/apps/calendar/bundle/tools.json
++++ b/apps/calendar/bundle/tools.json
+@@ -43,6 +43,49 @@
+       "implemented_by": "host-service",
+       "shareable": true
+     },
++    {
++      "name": "calendar.get_event",
++      "description": "Exact durable readback by one event id or stable request_id, including authoritative absence. Refuses unreadable or ambiguous records. This is the same built-in Calendar store.",
++      "input_schema": {
++        "type": "object",
++        "properties": {
++          "id": {
++            "type": "string",
++            "minLength": 1,
++            "maxLength": 64
++          },
++          "request_id": {
++            "type": "string",
++            "minLength": 1,
++            "maxLength": 160
++          }
++        },
++        "additionalProperties": false
++      },
++      "output_schema": {
++        "type": "object",
++        "properties": {
++          "found": {
++            "type": "boolean"
++          },
++          "event": {
++            "type": [
++              "object",
++              "null"
++            ]
++          }
++        },
++        "required": [
++          "found",
++          "event"
++        ]
++      },
++      "risk": "read",
++      "background": true,
++      "implemented_by": "host-service",
++      "shareable": true,
++      "private_data": true
++    },
+     {
+       "name": "calendar.add_event",
+       "description": "Add an event to the person's calendar. start (and end) are local times like 2026-10-02T15:00, or a date like 2026-10-02 for the whole day. Answers the new event's id. For retries supply the same stable request_id and exact event fields; it reuses the saved event. Changed fields with that key are refused instead of duplicating it. This is OctoSense local storage, not Google Calendar sync. Supply timezone (IANA, e.g. America/Los_Angeles) to preserve the event wall time independently of device settings. Missing timezone uses device local time. Do not guess an unspecified end.",
+@@ -109,7 +152,7 @@
+     },
+     {
+       "name": "calendar.update_event",
+-      "description": "Edit one saved Calendar event, keeping its id and original request_id. First read calendar.events and pass that exact event as expected; a stale snapshot is refused. Supply the full replacement title, start, end (omit if unknown), timezone, location and notes. This updates the same Calendar UI record and quietly refreshes its existing event cards. It does not send invites or sync Google Calendar.",
++      "description": "Edit one saved Calendar event, keeping its id and original request_id. First use calendar.get_event to read the exact id and pass that event as expected; a stale snapshot is refused. Supply the full replacement title, start, end (omit if unknown), timezone, location and notes. This updates the same Calendar UI record and quietly refreshes its existing event cards. It does not send invites or sync Google Calendar.",
+       "input_schema": {
+         "type": "object",
+         "properties": {
+@@ -168,13 +211,16 @@
+           "event"
+         ]
+       },
+-      "risk": "act",
++      "risk": "destructive",
+       "background": true,
+-      "implemented_by": "host-service"
++      "implemented_by": "host-service",
++      "shareable": true,
++      "confirm": "host",
++      "auto_approvable": false
+     },
+     {
+       "name": "calendar.remove_event",
+-      "description": "Remove an event from the person's calendar by its id (from calendar.events). It is gone for good, so the person approves it.",
++      "description": "Remove one saved Calendar event by its exact id. First use calendar.get_event and pass its exact event as expected; a stale snapshot is refused. The Host requires the person's approval. After removal, verify the same id with calendar.get_event: only found:false and event:null establish absence. A card warning does not undo an event deletion.",
+       "input_schema": {
+         "type": "object",
+         "properties": {
+@@ -182,10 +228,14 @@
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 64
++          },
++          "expected": {
++            "type": "object"
+           }
+         },
+         "required": [
+-          "id"
++          "id",
++          "expected"
+         ],
+         "additionalProperties": false
+       },
+@@ -203,7 +253,9 @@
+       "risk": "destructive",
+       "confirm": "host",
+       "background": true,
+-      "implemented_by": "host-service"
++      "implemented_by": "host-service",
++      "shareable": true,
++      "auto_approvable": false
+     },
+     {
+       "name": "calendar.notify",
+diff --git a/apps/calendar/host-service/Cargo.toml b/apps/calendar/host-service/Cargo.toml
+index b543529..9f8dbbe 100644
+--- a/apps/calendar/host-service/Cargo.toml
++++ b/apps/calendar/host-service/Cargo.toml
+@@ -15,3 +15,4 @@ serde = { workspace = true }
+ serde_json = { workspace = true }
+ chrono = { workspace = true }
+ chrono-tz = { workspace = true }
++uuid = { workspace = true }
+diff --git a/apps/calendar/host-service/src/gpt01_crud_tests.rs b/apps/calendar/host-service/src/gpt01_crud_tests.rs
+new file mode 100644
+index 0000000..3cd7bf4
+--- /dev/null
++++ b/apps/calendar/host-service/src/gpt01_crud_tests.rs
+@@ -0,0 +1,103 @@
++//! Synthetic owner-service checks. This does not exercise a GUI approval sheet.
++use super::*;
++
++struct Fixture(std::path::PathBuf);
++static FIXTURE_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
++impl Fixture {
++    fn new() -> Self {
++        let dir = std::env::temp_dir().join(format!("gpt01-calendar-crud-{}-{}-{}",
++            std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos(),
++            FIXTURE_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed)));
++        std::fs::create_dir(&dir).unwrap();
++        Self(dir)
++    }
++    fn call(&self, method: &str, args: Value) -> Result<Value, String> {
++        handle(APP, method, &args, &self.0, parse_time("2026-10-11T09:00").unwrap(), None)
++    }
++    fn create(&self) -> Value {
++        let result = self.call("add_event", json!({"title":"Synthetic CRUD", "start":"2026-10-12T15:00",
++            "timezone":"Asia/Shanghai", "request_id":"fixture-crud-1", "notes":"Synthetic only"})).unwrap();
++        self.call("get_event", json!({"id":result["id"]})).unwrap()["event"].clone()
++    }
++}
++
++#[test]
++fn gpt01_crud_same_clock_never_reuses_existing_or_deleted_event_identity() {
++    let f = Fixture::new();
++    let mut events = Vec::new();
++    for title in ["Synthetic A", "Synthetic B", "Synthetic C"] {
++        let created = f.call("add_event", json!({"title":title, "start":"2026-10-14T15:00", "timezone":"Asia/Shanghai"})).unwrap();
++        events.push(f.call("get_event", json!({"id":created["id"]})).unwrap()["event"].clone());
++    }
++    f.call("remove_event", json!({"id":events[1]["id"], "expected":events[1]})).unwrap();
++    let fourth = f.call("add_event", json!({"title":"Synthetic D", "start":"2026-10-14T16:00", "timezone":"Asia/Shanghai"})).unwrap();
++    let mut all_ids = events.iter().map(|event| event["id"].as_str().unwrap().to_owned()).collect::<std::collections::BTreeSet<_>>();
++    assert!(all_ids.insert(fourth["id"].as_str().unwrap().to_owned()), "New events must not reuse a deleted or existing identity");
++    assert_eq!(f.call("get_event", json!({"id":events[2]["id"]})).unwrap()["event"], events[2]);
++    assert_eq!(f.call("get_event", json!({"id":events[1]["id"]})).unwrap()["found"], false);
++    assert_eq!(f.call("get_event", json!({"id":fourth["id"]})).unwrap()["event"]["title"], "Synthetic D");
++    assert_eq!(f.call("events", json!({})).unwrap()["events"].as_array().unwrap().len(), 3);
++}
++impl Drop for Fixture {
++    fn drop(&mut self) { std::fs::remove_dir_all(&self.0).unwrap(); }
++}
++
++#[test]
++fn gpt01_crud_create_retry_update_delete_and_exact_absence() {
++    let f = Fixture::new();
++    let old = f.create();
++    let retry = f.call("add_event", json!({"title":"Synthetic CRUD", "start":"2026-10-12T15:00",
++        "timezone":"Asia/Shanghai", "request_id":"fixture-crud-1", "notes":"Synthetic only"})).unwrap();
++    assert_eq!(retry["id"], old["id"]);
++    assert_eq!(retry["reused"], true);
++    let edited = f.call("update_event", json!({"id":old["id"],"expected":old,
++        "title":"Synthetic revised", "start":"2026-10-12T16:00", "timezone":"Asia/Shanghai",
++        "notes":"Synthetic revised notes"})).unwrap()["event"].clone();
++    assert_eq!(edited["id"], old["id"]);
++    assert_eq!(edited["request_id"], old["request_id"]);
++    assert_eq!(f.call("get_event", json!({"id":old["id"]})).unwrap()["event"], edited);
++    assert_eq!(f.call("view", json!({"day":"2026-10-12"})).unwrap()["events"][0]["id"], edited["id"]);
++    assert_eq!(f.call("remove_event", json!({"id":edited["id"],"expected":edited})).unwrap()["removed"], true);
++    assert_eq!(f.call("get_event", json!({"id":edited["id"]})).unwrap(), json!({"found":false,"event":null}));
++    assert_eq!(f.call("view", json!({"day":"2026-10-12"})).unwrap()["events"], json!([]));
++    assert!(f.call("remove_event", json!({"id":edited["id"],"expected":edited})).is_err(),
++        "A repeated stale mutation is not another successful deletion; reconcile with get_event");
++}
++
++#[test]
++fn gpt01_crud_stale_or_wrong_event_snapshot_never_deletes() {
++    let f = Fixture::new();
++    let old = f.create();
++    let current = f.call("update_event", json!({"id":old["id"],"expected":old,
++        "title":"Synthetic changed", "start":"2026-10-12T15:00", "timezone":"Asia/Shanghai"})).unwrap()["event"].clone();
++    let bytes = std::fs::read(store_path(&f.0)).unwrap();
++    for expected in [old, json!({"id":"wrong","title":"Synthetic changed","start":"2026-10-12T15:00"})] {
++        assert!(f.call("remove_event", json!({"id":current["id"],"expected":expected})).is_err());
++        assert_eq!(std::fs::read(store_path(&f.0)).unwrap(), bytes);
++    }
++    assert_eq!(f.call("get_event", json!({"id":current["id"]})).unwrap()["event"], current);
++}
++
++#[test]
++fn gpt01_crud_mutation_rejects_foreign_owner_and_invalid_replacement() {
++    let f = Fixture::new();
++    let event = f.create();
++    let bytes = std::fs::read(store_path(&f.0)).unwrap();
++    let args = json!({"id":event["id"],"expected":event});
++    assert!(handle("muse-goals", "remove_event", &args, &f.0, parse_time("2026-10-11").unwrap(), None).is_err());
++    assert!(f.call("update_event", json!({"id":event["id"],"title":"No snapshot","start":"2026-10-12T15:00"})).is_err());
++    assert!(f.call("update_event", json!({"id":event["id"],"expected":event,
++        "title":"Bad range","start":"2026-10-12T17:00","end":"2026-10-12T16:00","timezone":"Asia/Shanghai"})).is_err());
++    assert_eq!(std::fs::read(store_path(&f.0)).unwrap(), bytes);
++}
++
++#[test]
++fn gpt01_crud_broken_projection_is_warning_after_authoritative_delete() {
++    let f = Fixture::new();
++    let event = f.create();
++    std::fs::write(f.0.join("calendar/cards.json"), b"{broken synthetic projection").unwrap();
++    let result = f.call("remove_event", json!({"id":event["id"],"expected":event})).unwrap();
++    assert_eq!(result["removed"], true);
++    assert!(result["card_warning"].as_str().unwrap().contains("Cannot read Calendar cards"));
++    assert_eq!(f.call("get_event", json!({"id":event["id"]})).unwrap(), json!({"found":false,"event":null}));
++}
+diff --git a/apps/calendar/host-service/src/lib.rs b/apps/calendar/host-service/src/lib.rs
+index 33f1a25..fdbc153 100644
+--- a/apps/calendar/host-service/src/lib.rs
++++ b/apps/calendar/host-service/src/lib.rs
+@@ -36,6 +36,8 @@ use std::sync::{Arc, Mutex};
+ 
+ mod ui;
+ mod cards;
++#[cfg(test)]
++mod gpt01_crud_tests;
+ pub use cards::{on_withdraw_card, publications, set_dismissed, Publication};
+ pub use ui::focus_event;
+ static EVENT_WRITES: Mutex<()> = Mutex::new(());
+@@ -181,12 +183,21 @@ fn store_path(host_dir: &Path) -> std::path::PathBuf {
+ 
+ /// The events kept under `host_dir`, soonest first.
+ pub fn load(host_dir: &Path) -> Vec<Event> {
+-    let mut events: Vec<Event> = std::fs::read(store_path(host_dir))
+-        .ok()
+-        .and_then(|b| serde_json::from_slice(&b).ok())
+-        .unwrap_or_default();
++    // Compatibility for existing callers; all tool and UI operations use
++    // the fallible reader below and never treat an unreadable store as empty.
++    load_checked(host_dir).unwrap_or_default()
++}
++
++fn load_checked(host_dir: &Path) -> Result<Vec<Event>, String> {
++    let bytes = match std::fs::read(store_path(host_dir)) {
++        Ok(bytes) => bytes,
++        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
++        Err(error) => return Err(format!("Calendar cannot read its events: {error}")),
++    };
++    let mut events: Vec<Event> = serde_json::from_slice(&bytes)
++        .map_err(|_| "Calendar events are unreadable. Keep the original file and repair it before editing.".to_string())?;
+     events.sort_by_cached_key(|e| (e.local_stamp(false), e.id.clone()));
+-    events
++    Ok(events)
+ }
+ 
+ fn save(host_dir: &Path, events: &[Event]) -> Result<(), String> {
+@@ -282,6 +293,17 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+             if let Err(error) = cards::refresh(host_dir,&event,publish) { result["card_warning"] = json!(error); }
+             Ok(result)
+         },
++        "get_event" => {
++            let id = bounded(text(args, "id"), 64, "An event id")?;
++            let request_id = bounded(text(args, "request_id"), 160, "A request id")?;
++            if (id.is_empty() && request_id.is_empty()) || (!id.is_empty() && !request_id.is_empty()) {
++                return Err("Supply exactly one event id or request_id for precise readback.".into());
++            }
++            let matches: Vec<Event> = load_checked(host_dir)?.into_iter()
++                .filter(|event| if id.is_empty() { event.request_id == request_id } else { event.id == id }).collect();
++            if matches.len() > 1 { return Err("Calendar event identity is ambiguous. Keep the records and reconcile them.".into()); }
++            Ok(json!({"found": !matches.is_empty(), "event": matches.first()}))
++        },
+         "events" => {
+             let from = match text(args, "from") {
+                 "" => None,
+@@ -292,7 +314,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+                 s => Some(stamp(parse_time(s)?)),
+             };
+             let limit = args["limit"].as_u64().unwrap_or(50).clamp(1, 200) as usize;
+-            let events: Vec<Event> = load(host_dir)
++            let events: Vec<Event> = load_checked(host_dir)?
+                 .into_iter()
+                 .filter(|e| from.as_ref().map_or(true, |f| e.local_stamp(true) >= *f))
+                 .filter(|e| to.as_ref().map_or(true, |t| e.local_stamp(false) <= *t))
+@@ -318,7 +340,9 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+                 }
+             };
+             let event = Event {
+-                id: format!("ev-{}", now.and_utc().timestamp_millis()),
++                // The clock alone (or a suffix from the current list length)
++                // can reuse an identity after a deletion or within one tick.
++                id: format!("ev-{}-{}", now.and_utc().timestamp_millis(), uuid::Uuid::new_v4().as_u128()),
+                 title,
+                 start: start.clone(),
+                 end,
+@@ -327,7 +351,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+                 request_id: bounded(text(args, "request_id"), 160, "A request id")?,
+                 timezone,
+             };
+-            let mut events = load(host_dir);
++            let mut events = load_checked(host_dir)?;
+             if !event.request_id.is_empty() {
+                 if let Some(existing) = events.iter().find(|e| e.request_id == event.request_id) {
+                     let mut same = event.clone(); same.id = existing.id.clone();
+@@ -337,8 +361,8 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+                     return Ok(json!({"id":existing.id,"start":existing.start,"reused":true,"card_warning":null}));
+                 }
+             }
+-            let id = if events.iter().any(|e| e.id == event.id) { format!("{}-{}", event.id, events.len()) } else { event.id.clone() };
+-            events.push(Event { id: id.clone(), ..event });
++            let id = event.id.clone();
++            events.push(event);
+             // Kept bounded: the oldest past events go first.
+             while events.len() > EVENTS_MAX {
+                 events.remove(0);
+@@ -348,7 +372,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+         }
+         "remove_event" => {
+             let id = text(args, "id");
+-            let mut events = load(host_dir);
++            let mut events = load_checked(host_dir)?;
+             if let Some(expected) = args.get("expected") {
+                 let expected: Event = serde_json::from_value(expected.clone()).map_err(|_| "Read the event before deleting it.")?;
+                 if !events.iter().any(|e| e.id == id && *e == expected) { return Err("This event changed elsewhere. Reload before deleting it.".into()); }
+@@ -366,7 +390,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+         "notify" => {
+             let priority = args["priority"].as_i64().unwrap_or(70);
+             if !text(args,"event").is_empty() {
+-                let event = load(host_dir).into_iter().find(|e| e.id == text(args,"event")).ok_or("This event is no longer in Calendar.")?;
++                let event = load_checked(host_dir)?.into_iter().find(|e| e.id == text(args,"event")).ok_or("This event is no longer in Calendar.")?;
+                 let card_id = if text(args,"card_id").is_empty() { &event.id } else { text(args,"card_id") };
+                 let publisher = publish.ok_or("This device shows no glance cards.")?;
+                 return cards::publish(host_dir,&event,card_id,priority,chrono::Utc::now().timestamp_millis().max(0) as u64,publisher);
+@@ -384,7 +408,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+                     (title, day_time, bounded(text(args, "location"), PLACE_MAX, "A place")?, bounded(text(args, "notes"), NOTES_MAX, "Notes")?, id)
+                 }
+                 id => {
+-                    let event = load(host_dir).into_iter().find(|e| e.id == id).ok_or_else(|| format!("There is no event {id:?}."))?;
++                    let event = load_checked(host_dir)?.into_iter().find(|e| e.id == id).ok_or_else(|| format!("There is no event {id:?}."))?;
+                     let (day, time) = day_and_time(&event.start, event.end.as_deref());
+                     let day_time = (day, format!("{time}{}", event.zone_label()));
+                     (event.title, day_time, event.location, event.notes, event.id)
+@@ -400,7 +424,7 @@ pub fn handle(app: &str, method: &str, args: &Value, host_dir: &Path, now: Naive
+             let days = args["days"].as_i64().unwrap_or(7).clamp(1, 60);
+             let from = stamp(now);
+             let to = stamp(now + Duration::days(days));
+-            let events: Vec<Event> = load(host_dir).into_iter().filter(|e| e.local_stamp(true) >= from && e.local_stamp(false) <= to).collect();
++            let events: Vec<Event> = load_checked(host_dir)?.into_iter().filter(|e| e.local_stamp(true) >= from && e.local_stamp(false) <= to).collect();
+             publish_card(agenda_card_args(&events, days, now))
+         }
+         other => Err(format!("calendar has no method {other:?}")),
+@@ -538,3 +562,69 @@ mod tests {
+         let _ = std::fs::remove_dir_all(&d);
+     }
+ }
++
++#[cfg(test)]
++mod reconciliation_tests {
++use super::*;
++
++fn fixture(tag: &str) -> std::path::PathBuf {
++    let root = std::env::temp_dir().join(format!("muse-calendar-review-{tag}-{}", std::process::id()));
++    let _ = std::fs::remove_dir_all(&root);
++    root
++}
++
++#[test]
++fn exact_readback_reconciles_create_update_and_delete() {
++    let root = fixture("lifecycle");
++    let now = parse_time("2026-10-10T18:00").unwrap();
++    let created = handle(APP, "add_event", &json!({"title":"Synthetic review", "start":"2026-10-11T15:00", "request_id":"synthetic-review"}), &root, now, None).unwrap();
++    let by_request = handle(APP, "get_event", &json!({"request_id":"synthetic-review"}), &root, now, None).unwrap();
++    assert_eq!(by_request["event"]["id"], created["id"]);
++    let snapshot = by_request["event"].clone();
++    let edit = json!({"id":created["id"],"expected":snapshot,"title":"Synthetic review", "start":"2026-10-11T16:00"});
++    handle(APP, "update_event", &edit, &root, now, None).unwrap();
++    assert!(handle(APP, "update_event", &edit, &root, now, None).is_err());
++    let current = handle(APP, "get_event", &json!({"id":created["id"]}), &root, now, None).unwrap();
++    assert_eq!(current["event"]["start"], "2026-10-11T16:00");
++    assert_eq!(current["event"]["request_id"], "synthetic-review");
++    handle(APP, "remove_event", &json!({"id":created["id"],"expected":current["event"]}), &root, now, None).unwrap();
++    let absent = handle(APP, "get_event", &json!({"id":created["id"]}), &root, now, None).unwrap();
++    assert_eq!(absent, json!({"found":false,"event":null}));
++    assert!(handle("muse-goals", "get_event", &json!({"id":created["id"]}), &root, now, None).is_err());
++    std::fs::remove_dir_all(root).unwrap();
++}
++
++#[test]
++fn unreadable_store_never_becomes_empty_or_overwritten() {
++    let root = fixture("corrupt");
++    std::fs::create_dir_all(root.join("calendar")).unwrap();
++    let original = b"{unfinished calendar records";
++    std::fs::write(store_path(&root), original).unwrap();
++    let now = parse_time("2026-10-10T18:00").unwrap();
++    for (method,args) in [
++        ("events",json!({})), ("view",json!({})), ("get_event",json!({"id":"synthetic"})),
++        ("add_event",json!({"title":"Synthetic", "start":"2026-10-11T15:00"})),
++        ("update_event",json!({"id":"synthetic"})), ("remove_event",json!({"id":"synthetic"}))
++    ] {
++        assert!(handle(APP,method,&args,&root,now,None).is_err(), "{method}");
++        assert_eq!(std::fs::read(store_path(&root)).unwrap(),original);
++    }
++    std::fs::remove_dir_all(root).unwrap();
++}
++
++#[test]
++fn exact_lookup_is_independent_of_list_cap_and_rejects_ambiguity() {
++    let root = fixture("cap");
++    let now = parse_time("2026-10-10T18:00").unwrap();
++    let events: Vec<Event> = (0..201).map(|n| Event { id:format!("synthetic-{n:04}"),title:"Synthetic".into(),
++        start:"2026-10-11T15:00".into(),end:None,location:String::new(),notes:String::new(),request_id:format!("request-{n:04}"),timezone:String::new() }).collect();
++    save(&root,&events).unwrap();
++    assert_eq!(handle(APP,"events",&json!({"limit":200}),&root,now,None).unwrap()["events"].as_array().unwrap().len(),200);
++    assert_eq!(handle(APP,"get_event",&json!({"id":"synthetic-0200"}),&root,now,None).unwrap()["event"]["id"],"synthetic-0200");
++    let mut duplicate = events.clone(); duplicate.push(events[0].clone()); save(&root,&duplicate).unwrap();
++    assert!(handle(APP,"get_event",&json!({"request_id":"request-0000"}),&root,now,None).unwrap_err().contains("ambiguous"));
++    assert!(handle(APP,"get_event",&json!({}),&root,now,None).is_err());
++    std::fs::remove_dir_all(root).unwrap();
++}
++
++}
+diff --git a/apps/calendar/host-service/src/ui.rs b/apps/calendar/host-service/src/ui.rs
+index a3413b9..438ec0c 100644
+--- a/apps/calendar/host-service/src/ui.rs
++++ b/apps/calendar/host-service/src/ui.rs
+@@ -9,7 +9,7 @@ static FOCUS: Mutex<BTreeMap<PathBuf, String>> = Mutex::new(BTreeMap::new());
+ 
+ /// A trusted shell navigation request. The target must exist in this store.
+ pub fn focus_event(host_dir: &Path, id: &str) -> Result<(), String> {
+-    if !load(host_dir).iter().any(|event| event.id == id) {
++    if !load_checked(host_dir)?.iter().any(|event| event.id == id) {
+         return Err("This event is no longer in Calendar.".into());
+     }
+     FOCUS
+@@ -53,7 +53,7 @@ fn event_row(event: &Event) -> Value {
+ }
+ 
+ pub fn view(host_dir: &Path, args: &Value, now: NaiveDateTime) -> Result<Value, String> {
+-    let events = load(host_dir);
++    let events = load_checked(host_dir)?;
+     let zone = events
+         .iter()
+         .find(|e| !e.timezone.is_empty())
+@@ -137,7 +137,7 @@ pub fn view(host_dir: &Path, args: &Value, now: NaiveDateTime) -> Result<Value,
+ }
+ 
+ pub fn update(host_dir: &Path, args: &Value) -> Result<Value, String> {
+-    let mut events = load(host_dir);
++    let mut events = load_checked(host_dir)?;
+     let event = events
+         .iter_mut()
+         .find(|e| e.id == text(args, "id"))
+diff --git a/apps/mail/host-service/src/lib.rs b/apps/mail/host-service/src/lib.rs
+index 1e124b7..8d88e48 100644
+--- a/apps/mail/host-service/src/lib.rs
++++ b/apps/mail/host-service/src/lib.rs
+@@ -647,10 +647,10 @@ fn account_from_form(form: &Value) -> Result<Value, String> {
+     let mut account = network::defaults();
+     let imap = text(form, "protocol") != "pop3";
+     account["protocol"] = json!(if imap { "imap" } else { "pop3" });
+-    if imap {
+-        account["host"] = json!("imap.gmail.com");
+-        account["port"] = json!("993");
+-    }
++    // The sheet must not silently route an unspecified provider to Gmail.
++    account["host"] = json!("");
++    account["smtp_host"] = json!("");
++    if imap { account["port"] = json!("993"); }
+     for key in ["address", "username", "password", "host", "port", "security", "smtp_host", "smtp_port", "smtp_security"] {
+         if let Some(value) = form[key].as_str().filter(|v| !v.trim().is_empty()) {
+             // A password is taken as typed: spaces can be part of it.
+@@ -662,6 +662,9 @@ fn account_from_form(form: &Value) -> Result<Value, String> {
+     if text(&account, "username").is_empty() {
+         account["username"] = account["address"].clone();
+     }
++    if text(&account, "host").is_empty() || text(&account, "smtp_host").is_empty() {
++        return Err("请填写收件和发件服务器，QQ 邮箱可点击使用 QQ 邮箱服务器。".into());
++    }
+     network::validate(&account)?;
+     Ok(account)
+ }
+@@ -961,23 +964,36 @@ fn choose(p){
+     ui.imap_off.set_visible(p != "imap")
+     ui.pop_on.set_visible(p == "pop3")
+     ui.pop_off.set_visible(p != "pop3")
+-    // Swap Gmail's servers for each other; anything typed stays.
++    // Only switch a recognized preset; preserve a custom server.
+     let h = ui.pop_host.text()
+     if p == "imap" {
+-        ui.incoming.set_text("Incoming (IMAP, TLS)")
+-        if h == "pop.gmail.com" || h == "" { ui.pop_host.set_text("imap.gmail.com") ui.pop_port.set_text("993") }
++        ui.incoming.set_text("收件服务器（IMAP，加密）")
++        if h == "pop.qq.com" { ui.pop_host.set_text("imap.qq.com") }
++        if h == "pop.gmail.com" { ui.pop_host.set_text("imap.gmail.com") }
++        ui.pop_port.set_text("993")
+     } else {
+-        ui.incoming.set_text("Incoming (POP3, TLS)")
+-        if h == "imap.gmail.com" || h == "" { ui.pop_host.set_text("pop.gmail.com") ui.pop_port.set_text("995") }
++        ui.incoming.set_text("收件服务器（POP3，加密）")
++        if h == "imap.qq.com" { ui.pop_host.set_text("pop.qq.com") }
++        if h == "imap.gmail.com" { ui.pop_host.set_text("pop.gmail.com") }
++        ui.pop_port.set_text("995")
+     }
+ }
++fn qq_servers(){
++    ui.pop_host.set_text(if protocol == "imap" {"imap.qq.com"} else {"pop.qq.com"})
++    ui.smtp_host.set_text("smtp.qq.com") ui.smtp_port.set_text("465")
++    ui.pop_port.set_text(if protocol == "imap" {"993"} else {"995"})
++}
++fn address_changed(text){
++    let parts = text.trim().split("@")
++    if parts.len() == 2 && parts[1] == "qq.com" && ui.pop_host.text() == "" && ui.smtp_host.text() == "" { qq_servers() }
++}
+ fn submit(){
+-    ui.status.set_text("Checking the account…")
++    ui.status.set_text("正在连接邮箱…")
+     host.request("mail.sheet.submit", {
+-        address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
++        address: ui.address.text() password: ui.password.text() protocol: protocol
+         host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
+         smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
+-    }, fn(r){ if r.is_ok { ui.status.set_text("Signed in") } else { ui.status.set_text(r.error) } })
++    }, fn(r){ if r.is_ok { ui.status.set_text("邮箱已连接") } else { ui.status.set_text(r.error) } })
+ }
+ fn cancel(){ host.request("mail.sheet.cancel", {}, fn(r){}) }
+ let Field = TextInput{width: Fill height: 40
+@@ -999,36 +1015,35 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
+     ScrollYView{width: Fill height: Fill flow: Down padding: Inset{left: 12 right: 12 top: 24 bottom: 24}
+     RoundedView{width: Fill height: Fit flow: Down spacing: 8 padding: 16 new_batch: true show_bg: true draw_bg.color: #xffffff draw_bg.border_radius: 18.0
+         View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
+-            ButtonFlat{text: "Cancel" height: 40 on_click: || cancel()
++            ButtonFlat{text: "取消" height: 40 on_click: || cancel()
+                 draw_bg +: {color: #x00000000 color_hover: #x0000000a color_down: #x00000014 border_size: 0.0}
+                 draw_text +: {color: #x007aff color_hover: #x007aff color_down: #x007aff text_style +: {font_size: 15}}}
+             View{width: Fill height: 1}
+-            ButtonFlat{text: "Sign in" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
++            ButtonFlat{text: "连接邮箱" height: 40 padding: Inset{left: 20 right: 20} on_click: || submit()
+                 draw_bg +: {border_radius: 20.0 color: #x007aff color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
+                 draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff text_style +: {font_size: 15}}}
+         }
+-        Label{width: Fill text: "OctoSense · Add a mail account" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
+-        Label{width: Fill text: "Your password stays with OctoSense. The app that asked only gets your mail." draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
++        Label{width: Fill text: "添加邮箱账号" draw_text.color: #x1c1c1e draw_text.text_style: theme.font_bold{font_size: 17}}
++        Label{width: Fill text: "密码或授权码由 OctoSense 安全保存。" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 12}
+         status := Label{width: Fill text: "" draw_text.color: #xff3b30 draw_text.text_style.font_size: 12}
+-        Caption{text: "Email address"}
+-        address := Field{empty_text: "you@example.com"}
+-        Caption{text: "Login (if not the address)"}
+-        username := Field{empty_text: "optional"}
+-        Caption{text: "Password or app password"}
+-        password := Field{empty_text: "password" is_password: true}
++        Caption{text: "邮箱地址"}
++        address := Field{empty_text: "请输入完整邮箱地址" on_change: |text| address_changed(text)}
++        Caption{text: "密码或邮箱授权码"}
++        password := Field{empty_text: "QQ 邮箱请填写授权码" is_password: true}
+         RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
+-            imap_on := Chosen{text: "IMAP: all folders"}
+-            imap_off := Choice{visible: false text: "IMAP: all folders" on_click: || choose("imap")}
+-            pop_on := Chosen{visible: false text: "POP3: inbox only"}
+-            pop_off := Choice{text: "POP3: inbox only" on_click: || choose("pop3")}
++            imap_on := Chosen{text: "IMAP · 同步所有文件夹"}
++            imap_off := Choice{visible: false text: "IMAP · 同步所有文件夹" on_click: || choose("imap")}
++            pop_on := Chosen{visible: false text: "POP3 · 仅收件箱"}
++            pop_off := Choice{text: "POP3 · 仅收件箱" on_click: || choose("pop3")}
+         }
++        ButtonFlat{text: "使用 QQ 邮箱服务器" height: 32 on_click: || qq_servers()}
+         View{width: Fill height: Fit flow: Right spacing: 8
+-            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "Incoming (IMAP, TLS)"} pop_host := Field{text: "imap.gmail.com"}}
+-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} pop_port := Field{text: "993"}}
++            View{width: Fill height: Fit flow: Down spacing: 4 incoming := Caption{text: "收件服务器（IMAP，加密）"} pop_host := Field{empty_text: "填写邮箱服务商的收件服务器"}}
++            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} pop_port := Field{text: "993"}}
+         }
+         View{width: Fill height: Fit flow: Right spacing: 8
+-            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "Outgoing (SMTP, TLS)"} smtp_host := Field{text: "smtp.gmail.com"}}
+-            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "Port"} smtp_port := Field{text: "465"}}
++            View{width: Fill height: Fit flow: Down spacing: 4 Caption{text: "发件服务器（SMTP，加密）"} smtp_host := Field{empty_text: "填写邮箱服务商的发件服务器"}}
++            View{width: 80 height: Fit flow: Down spacing: 4 Caption{text: "端口"} smtp_port := Field{text: "465"}}
+         }
+     }
+     }
+@@ -1120,6 +1135,21 @@ mod tests {
+         wait(heap)
+     }
+ 
++    #[test]
++    fn signin_form_does_not_default_to_google() {
++        let missing = json!({"address":"reader@qq.com", "password":"fixture-only"});
++        assert!(account_from_form(&missing).unwrap_err().contains("服务器"));
++        let explicit = json!({"address":"reader@qq.com", "password":"fixture-only", "host":"imap.qq.com", "smtp_host":"smtp.qq.com"});
++        let account = account_from_form(&explicit).unwrap();
++        assert_eq!(account["host"], "imap.qq.com");
++        assert_eq!(account["smtp_host"], "smtp.qq.com");
++        assert_eq!(account["username"], "reader@qq.com");
++        let sheet = signin_sheet();
++        assert!(!sheet.contains("Field{text: \"imap.gmail.com\"}"));
++        assert!(!sheet.contains("Field{text: \"smtp.gmail.com\"}"));
++        assert!(sheet.contains("添加邮箱账号"));
++    }
++
+     #[test]
+     fn pop_baseline_covers_undownloaded_old_mail_but_later_batches_do_not_skip_new_mail() {
+         let fetched = json!({"messages":[{"uid":"last"}], "skipped_uids":["oversized"], "uid_snapshot":["old","last","oversized","other-new"]});
+diff --git a/crates/app-peers/src/broker.rs b/crates/app-peers/src/broker.rs
+index 78a7405..dc4b6ed 100644
+--- a/crates/app-peers/src/broker.rs
++++ b/crates/app-peers/src/broker.rs
+@@ -343,6 +343,7 @@ struct Route {
+ 
+ /// A `peer/tool/call` the host is working on.
+ struct InFlight {
++    calendar_receipt: Option<Value>,
+     reply: ToolReply,
+     occurrence: String,
+     turn_id: String,
+@@ -353,7 +354,8 @@ struct InFlight {
+ enum Occurrence {
+     /// The call ids waiting on it (the first is the one the host runs).
+     Running(Vec<String>),
+-    Done(ToolOutcome),
++    Done(ToolOutcome, Option<Value>),
++    Cancelled(Value),
+ }
+ 
+ /// How many finished occurrences, interrupted turns and inputs are kept.
+@@ -1205,7 +1207,7 @@ impl Inner {
+             let contexts: Vec<Arc<ContextInner>> =
+                 st.contexts.iter().filter_map(Weak::upgrade).collect();
+             let calls: Vec<(String, ToolReply)> = st.calls.drain().map(|(id, f)| (id, f.reply)).collect();
+-            st.occurrences.retain(|_, o| matches!(o, Occurrence::Done(_)));
++            st.occurrences.retain(|_, o| matches!(o, Occurrence::Done(_, _) | Occurrence::Cancelled(_)));
+             // Queued inputs are the kernel's to fail with the connection.
+             st.queue.clear();
+             // What waited on the link can no longer be answered there: what
+@@ -1856,12 +1858,26 @@ impl Inner {
+         })
+     }
+ 
++    fn calendar_history(&self, session: &str, history: &mut Value) {
++        let st = self.lock();
++        let mut seen = std::collections::HashSet::new();
++        let receipts: Vec<Value> = st.occurrence_order.iter().filter(|key| seen.insert((*key).clone())).filter_map(|key| match st.occurrences.get(key) {
++            Some(Occurrence::Done(_, Some(receipt)) | Occurrence::Cancelled(receipt)) => Some(receipt.clone()),
++            _ => None,
++        }).collect();
++        crate::calendar_history::attach(history, session, st.generation, &receipts);
++    }
++
+     /// A call was answered: its occurrence is done, and every repeat of it
+     /// waiting gets the same answer.
+     fn settle(&self, call_id: &str, occurrence: &str, outcome: ToolOutcome) {
+         let others: Vec<ToolReply> = {
+             let mut st = self.lock();
+-            st.calls.remove(call_id);
++            let metadata = st.calls.remove(call_id).and_then(|flight| flight.calendar_receipt)
++                .or_else(|| match st.occurrences.get(occurrence) {
++                    Some(Occurrence::Done(_, receipt)) => receipt.clone(), _ => None,
++                });
++            let receipt = metadata.map(|m| crate::calendar_history::finished(m, &outcome));
+             let waiting = match st.occurrences.get(occurrence) {
+                 Some(Occurrence::Running(ids)) => ids.clone(),
+                 _ => Vec::new(),
+@@ -1869,10 +1885,10 @@ impl Inner {
+             if !st.occurrences.contains_key(occurrence) || !waiting.is_empty() {
+                 st.occurrence_order.push_back(occurrence.to_owned());
+             }
+-            st.occurrences.insert(occurrence.to_owned(), Occurrence::Done(outcome.clone()));
++            st.occurrences.insert(occurrence.to_owned(), Occurrence::Done(outcome.clone(), receipt));
+             while st.occurrence_order.len() > REMEMBERED {
+                 if let Some(old) = st.occurrence_order.pop_front() {
+-                    if matches!(st.occurrences.get(&old), Some(Occurrence::Done(_))) {
++                    if matches!(st.occurrences.get(&old), Some(Occurrence::Done(_, _) | Occurrence::Cancelled(_))) {
+                         st.occurrences.remove(&old);
+                     }
+                 }
+@@ -1961,18 +1977,19 @@ impl Inner {
+                 }
+             }
+             let repeat = match st.occurrences.get_mut(&occurrence) {
+-                Some(Occurrence::Done(outcome)) => Some(Some(outcome.clone())),
++                Some(Occurrence::Done(outcome, _)) => Some(Some(outcome.clone())),
+                 Some(Occurrence::Running(ids)) => {
+                     ids.push(call.call_id.clone());
+                     Some(None)
+                 }
+-                None => {
++                None | Some(Occurrence::Cancelled(_)) => {
+                     st.occurrences.insert(occurrence.clone(), Occurrence::Running(vec![call.call_id.clone()]));
+                     None
+                 }
+             };
+             if !matches!(repeat, Some(Some(_))) {
+-                st.calls.insert(call.call_id.clone(), InFlight { reply: reply.clone(), occurrence, turn_id: call.turn_id.clone() });
++                let generation = st.generation;
++                st.calls.insert(call.call_id.clone(), InFlight { calendar_receipt: crate::calendar_history::metadata(&call, generation), reply: reply.clone(), occurrence, turn_id: call.turn_id.clone() });
+             }
+             repeat
+         };
+@@ -2002,9 +2019,27 @@ impl Inner {
+                     }
+                 }
+             }
+-            flight.map(|f| f.reply)
++            flight
+         };
+-        if reply.is_some_and(|r| r.cancel()) {
++        if reply.is_some_and(|flight| {
++            if !flight.reply.cancel() { return false; }
++            if let Some(mut receipt) = flight.calendar_receipt {
++                receipt["terminal"] = json!("cancelled");
++                let mut st = self.lock();
++                if !st.occurrences.contains_key(&flight.occurrence) {
++                    st.occurrence_order.push_back(flight.occurrence.clone());
++                    st.occurrences.insert(flight.occurrence, Occurrence::Cancelled(receipt));
++                    while st.occurrence_order.len() > REMEMBERED {
++                        if let Some(old) = st.occurrence_order.pop_front() {
++                            if matches!(st.occurrences.get(&old), Some(Occurrence::Done(_, _) | Occurrence::Cancelled(_))) {
++                                st.occurrences.remove(&old);
++                            }
++                        }
++                    }
++                }
++            }
++            true
++        }) {
+             self.tool_host().tool_cancel(&self.cfg.app_id, call_id, reason);
+         }
+     }
+@@ -3162,12 +3197,13 @@ impl ContextInner {
+                 })),
+             })),
+             ContextOp::History => {
+-                let history = inner
++                let mut history = inner
+                     .request(
+                         "session/hydrate",
+                         json!({"session_id": session, "include": ["messages"]}),
+                     )
+                     .await;
++                if let Ok(value) = &mut history { inner.calendar_history(&session, value); }
+                 if self.conversation {
+                     // Both lanes: the person's context and the peer's session.
+                     // The person's lane includes the earlier handles of this
+@@ -3180,6 +3216,10 @@ impl ContextInner {
+                         for lane in &earlier {
+                             match inner.request("session/hydrate", json!({"session_id": lane, "include": ["messages"]})).await {
+                                 Ok(mut old) => {
++                                    inner.calendar_history(lane, &mut old);
++                                    if let Some(receipts) = old["host_calendar_receipts"].as_array() {
++                                        if let Some(all) = person["host_calendar_receipts"].as_array_mut() { all.extend(receipts.iter().cloned()); }
++                                    }
+                                     if let Value::Array(old) = old["messages"].take() {
+                                         rows.extend(old);
+                                     }
+@@ -3201,11 +3241,23 @@ impl ContextInner {
+                     }
+                     let peer_session = inner.lock().peer.as_ref().map(|(_, p)| p.session.clone());
+                     let system_agent = match peer_session.clone() {
+-                        Some(peer) => inner.request("session/hydrate", json!({"session_id": peer, "include": ["messages"]})).await?,
++                        Some(peer) => {
++                            let mut value = inner.request("session/hydrate", json!({"session_id": peer, "include": ["messages"]})).await?;
++                            inner.calendar_history(&peer, &mut value);
++                            value
++                        },
+                         None => json!({"messages": []}),
+                     };
+                     let requests: Vec<Request> = inner.lock().requests.iter().filter(|r| r.session == session || earlier.contains(&r.session) || peer_session.as_deref() == Some(r.session.as_str())).cloned().collect();
+-                    history.map(|person| merged_history(person, system_agent, &requests))
++                    history.map(|mut person| {
++                        if let Some(receipts) = system_agent["host_calendar_receipts"].as_array() {
++                            if let Some(all) = person["host_calendar_receipts"].as_array_mut() { all.extend(receipts.iter().cloned()); }
++                        }
++                        if let Some(all) = person["host_calendar_receipts"].as_array_mut() {
++                            if all.len() > 32 { all.truncate(32); }
++                        }
++                        merged_history(person, system_agent, &requests)
++                    })
+                 } else {
+                     history
+                 }
+diff --git a/crates/app-peers/src/calendar_history.rs b/crates/app-peers/src/calendar_history.rs
+new file mode 100644
+index 0000000..bd11fc3
+--- /dev/null
++++ b/crates/app-peers/src/calendar_history.rs
+@@ -0,0 +1,150 @@
++//! Host result receipts over the broker's existing bounded occurrence cache.
++use serde_json::{json, Value};
++use crate::host_tools::{HostToolCall, ToolOutcome};
++
++pub(crate) fn canonical(name: &str) -> Option<&'static str> {
++    match name {
++        "calendar.events" | "calendar_events" => Some("calendar.events"),
++        "calendar.get_event" | "calendar_get_event" => Some("calendar.get_event"),
++        "calendar.add_event" | "calendar_add_event" => Some("calendar.add_event"),
++        "calendar.update_event" | "calendar_update_event" => Some("calendar.update_event"),
++        "calendar.remove_event" | "calendar_remove_event" => Some("calendar.remove_event"),
++        "calendar.notify" | "calendar_notify" => Some("calendar.notify"),
++        _ => None,
++    }
++}
++
++pub(crate) fn metadata(call: &HostToolCall, generation: u64) -> Option<Value> {
++    let valid = |id: &str| !id.is_empty() && id.len() <= 256
++        && !id.chars().any(|c| c.is_whitespace() || c.is_control());
++    if !matches!(call.calling_app.as_str(), "muse-goals" | "card.muse-goals")
++        || call.app != "os.calendar" || canonical(&call.name) != Some(call.name.as_str())
++        || ![&call.session_id, &call.turn_id, &call.tool_call_id, &call.call_id].iter().all(|id| valid(id))
++    { return None; }
++    Some(json!({"source":"broker_tool_result", "caller":call.calling_app,
++        "owner":call.app, "tool":call.name, "session_id":call.session_id,
++        "context_id":call.context_id, "turn_id":call.turn_id,
++        "tool_call_id":call.tool_call_id, "call_id":call.call_id,
++        "args_digest":call.args_digest, "_generation":generation}))
++}
++
++pub(crate) fn finished(mut metadata: Value, outcome: &ToolOutcome) -> Value {
++    let result = outcome.to_params(metadata["call_id"].as_str().unwrap_or(""));
++    metadata["terminal"] = json!(if matches!(outcome, ToolOutcome::Ok(_)) { "ok" } else { "error" });
++    metadata["result_bytes"] = json!(result.to_string().len());
++    if result.to_string().len() <= 16 * 1024 { metadata["result"] = result; }
++    else { metadata["result_omitted"] = json!(true); }
++    metadata
++}
++
++pub(crate) fn attach(history: &mut Value, session: &str, generation: u64, receipts: &[Value]) {
++    let selected: Vec<Value> = receipts.iter().rev()
++        .filter(|r| r["session_id"] == session && r["_generation"] == generation)
++        .take(32).cloned().map(|mut r| {
++            r.as_object_mut().unwrap().remove("_generation"); r
++        }).collect();
++    for row in history["messages"].as_array_mut().into_iter().flatten() {
++        if row["role"] != "tool" { continue; }
++        let turn = match (row["turn_id"].as_str(), row["thread_id"].as_str()) {
++            (Some(a), Some(b)) if a != b => continue,
++            (Some(a), _) | (_, Some(a)) => a,
++            _ => continue,
++        };
++        let name = row["tool_name"].as_str().or_else(|| row["name"].as_str()).and_then(canonical);
++        let matches: Vec<_> = selected.iter().filter(|r| r["turn_id"] == turn
++            && r["tool_call_id"] == row["tool_call_id"] && r["tool"].as_str() == name).collect();
++        if matches.len() == 1 {
++            let mut receipt = matches[0].clone();
++            receipt["kernel_persisted"] = json!(true);
++            row["host_calendar_receipt"] = receipt;
++        }
++    }
++    history["host_calendar_receipts"] = json!(selected);
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn call() -> HostToolCall {
++        let mut call = HostToolCall::parse(&json!({"call_id":"ptc-1","tool_call_id":"tc-1",
++            "session_id":"s1","turn_id":"t1","app":"os.calendar","name":"calendar.events",
++            "args_digest":"fixture-digest","peer":"muse-peer","args":{"limit":10}})).unwrap();
++        call.calling_app = "card.muse-goals".into();
++        call
++    }
++    fn row() -> Value { json!({"role":"tool","thread_id":"t1","tool_call_id":"tc-1",
++        "tool_name":"calendar_events","content":"{\"events\":[]}"}) }
++    #[test]
++    fn exact_scope_and_six_tools_only() {
++        let mut c=call();
++        for tool in ["calendar.events","calendar.get_event","calendar.add_event","calendar.update_event","calendar.remove_event","calendar.notify"] {
++            c.name=tool.into();assert!(metadata(&c,1).is_some());
++        }
++        for tool in ["calendar.delete_event","calendar.agenda","calendar_events","calendar.events_extra"] {
++            c.name=tool.into();assert!(metadata(&c,1).is_none());
++        }
++        c.name="calendar.events".into();c.calling_app="card.another-app".into();assert!(metadata(&c,1).is_none());
++        c.calling_app="card.muse-goals".into();c.app="muse-goals".into();assert!(metadata(&c,1).is_none());
++    }
++    #[test]
++    fn actual_ids_and_errors_survive_history() {
++        let r=finished(metadata(&call(),7).unwrap(),&ToolOutcome::error("not_granted","Denied by actual fixture"));
++        let mut h=json!({"messages":[row()]});attach(&mut h,"s1",7,&[r]);
++        let bound=&h["messages"][0]["host_calendar_receipt"];
++        assert_eq!(bound["call_id"],"ptc-1");assert_eq!(bound["tool_call_id"],"tc-1");
++        assert_eq!(bound["terminal"],"error");assert_eq!(bound["result"]["error"]["kind"],"not_granted");
++        assert_eq!(bound["kernel_persisted"],true);assert!(bound.get("_generation").is_none());
++    }
++    #[test]
++    fn conflicting_turn_session_generation_and_missing_ids_do_not_bind() {
++        let r=finished(metadata(&call(),1).unwrap(),&ToolOutcome::Ok(json!({"events":[]})));
++        for (session,generation) in [("other",1),("s1",2)] {
++            let mut h=json!({"messages":[row()]});attach(&mut h,session,generation,&[r.clone()]);
++            assert!(h["messages"][0].get("host_calendar_receipt").is_none());
++        }
++        for (field,value) in [("turn_id",json!("wrong")),("tool_call_id",Value::Null),("tool_name",json!("calendar_events_extra"))] {
++            let mut bad=row();bad[field]=value;let mut h=json!({"messages":[bad]});attach(&mut h,"s1",1,&[r.clone()]);
++            assert!(h["messages"][0].get("host_calendar_receipt").is_none());
++        }
++    }
++    #[test]
++    fn acknowledgement_is_not_an_outcome_and_oversized_result_is_not_truncated() {
++        // finished is called only from the broker's final ToolReply branch;
++        // no API here accepts awaiting_confirmation as success.
++        let r=finished(metadata(&call(),1).unwrap(),&ToolOutcome::Ok(json!({"notes":"x".repeat(17*1024)})));
++        assert_eq!(r["result_omitted"],true);assert!(r.get("result").is_none());
++    }
++    #[test]
++    fn duplicate_or_cancelled_receipts_never_forge_success() {
++        let mut r=metadata(&call(),1).unwrap();r["terminal"]=json!("cancelled");
++        let mut h=json!({"messages":[row()]});attach(&mut h,"s1",1,&[r.clone()]);
++        assert_eq!(h["messages"][0]["host_calendar_receipt"]["terminal"],"cancelled");
++        assert!(h["messages"][0]["host_calendar_receipt"].get("result").is_none());
++        let mut h=json!({"messages":[row()]});attach(&mut h,"s1",1,&[r.clone(),r]);
++        assert!(h["messages"][0].get("host_calendar_receipt").is_none());
++    }
++    #[test]
++    fn history_receipt_count_is_bounded() {
++        let r=finished(metadata(&call(),1).unwrap(),&ToolOutcome::Ok(json!({"events":[]})));
++        let mut h=json!({"messages":[]});attach(&mut h,"s1",1,&vec![r;40]);
++        assert_eq!(h["host_calendar_receipts"].as_array().unwrap().len(),32);
++    }
++
++#[test]
++fn gpt01_mutation_receipts_bind_only_exact_terminal_calls() {
++    for tool in ["calendar.update_event", "calendar.remove_event"] {
++        let mut c = call(); c.name = tool.into();
++        let receipt = finished(metadata(&c, 3).unwrap(), &ToolOutcome::Ok(json!({"removed":true})));
++        let mut r = row(); r["tool_name"] = json!(tool.replace('.', "_"));
++        let mut h = json!({"messages":[r.clone()]}); attach(&mut h, "s1", 3, &[receipt.clone()]);
++        assert_eq!(h["messages"][0]["host_calendar_receipt"]["terminal"], "ok");
++        assert_eq!(h["messages"][0]["host_calendar_receipt"]["tool"], tool);
++        r["tool_call_id"] = json!("different-call");
++        let mut h = json!({"messages":[r]}); attach(&mut h, "s1", 3, &[receipt]);
++        assert!(h["messages"][0].get("host_calendar_receipt").is_none());
++        let rejected = finished(metadata(&c, 3).unwrap(), &ToolOutcome::error("declined", "fixture physical approval declined"));
++        assert_eq!(rejected["terminal"], "error");
++        assert_eq!(rejected["result"]["error"]["kind"], "declined");
++    }
++}
++}
+diff --git a/crates/app-peers/src/lib.rs b/crates/app-peers/src/lib.rs
+index cd16f12..5585572 100644
+--- a/crates/app-peers/src/lib.rs
++++ b/crates/app-peers/src/lib.rs
+@@ -33,6 +33,8 @@ pub mod storage;
+ #[cfg(feature = "broker")]
+ pub mod broker;
+ #[cfg(feature = "broker")]
++mod calendar_history;
++#[cfg(feature = "broker")]
+ pub mod peer_record;
+ #[cfg(feature = "broker")]
+ pub mod connectors;
+diff --git a/crates/shell/src/app_storage/lifecycle.rs b/crates/shell/src/app_storage/lifecycle.rs
+index a2b5665..b59465f 100644
+--- a/crates/shell/src/app_storage/lifecycle.rs
++++ b/crates/shell/src/app_storage/lifecycle.rs
+@@ -438,10 +438,21 @@ fn mail_account_claim_allowed(
+     app: &str,
+     account: &str,
+ ) -> Result<(), String> {
+-    if storage.is_signed_out(app, Some(account)) {
++    // Device-scoped apps resume their device identity when reinstalled. Their
++    // granted Mail accounts are not storage identities: checking an account
++    // hash here would keep every retained mailbox suspended after reinstall.
++    let account_scoped = app == "os.mail" || storage.spec(app).accounts;
++    let storage_account = account_scoped.then_some(account);
++    if storage.is_signed_out(app, storage_account) {
+         return Err("The Mail account is signed out; review is no longer valid".into());
+     }
+-    if octosense_mail_service::active_account(host_dir, app).as_deref() != Some(account) {
++    let granted = octosense_mail_service::account_ids(host_dir, app);
++    if !granted.iter().any(|id| id == account) {
++        return Err("This Mail account is no longer connected to the app".into());
++    }
++    // Account-scoped agents remain bound to their current account. A device
++    // app may explicitly compose from any account the person granted it.
++    if account_scoped && granted.last().map(String::as_str) != Some(account) {
+         return Err("The selected Mail account changed; review again under the original account".into());
+     }
+     Ok(())
+diff --git a/crates/shell/src/app_storage/lifecycle_tests.rs b/crates/shell/src/app_storage/lifecycle_tests.rs
+index 10c648a..b434d49 100644
+--- a/crates/shell/src/app_storage/lifecycle_tests.rs
++++ b/crates/shell/src/app_storage/lifecycle_tests.rs
+@@ -167,6 +167,7 @@ fn mail_send_claim_rechecks_current_host_selection_and_suspension() {
+ fn public_mail_send_claim_rechecks_selected_account_and_requires_admission() {
+     let home = Scratch::new("public-mail-send-claim");
+     let host = storage(&home.0);
++    host.set_spec("sample.mail", StorageSpec { accounts: true, ..Default::default() });
+     let dir = host.layout().apps_root().join(".host");
+     let accounts = dir.join("mail/accounts.json");
+     write_json(
+@@ -649,3 +650,29 @@ fn an_account_added_again_while_its_purge_runs_stays_signed_in() {
+     assert!(memory_notice(&host, "org.readd.mail").is_some());
+     set_purger(None);
+ }
++
++#[cfg(any(feature = "app-hub", native_mobile))]
++#[test]
++fn device_mail_claim_recovers_after_reinstall_without_reconnecting_accounts() {
++    let home = Scratch::new("device-mail-reinstall");
++    let host = storage(&home.0);
++    let dir = host.layout().apps_root().join(".host");
++    let accounts = dir.join("mail/accounts.json");
++    write_json(&accounts, &json!([
++        {"id":"one","address":"one@example.com","apps":["sample.device"],"signed_in":1},
++        {"id":"two","address":"two@example.com","apps":["sample.device"],"signed_in":2}
++    ]));
++    host.uninstall("sample.device").unwrap();
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_err());
++    host.installed("sample.device");
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_ok());
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "two").is_ok());
++    assert!(mail_account_claim_allowed(&host, &dir, "other.device", "one").is_err());
++    let restarted = storage(&home.0);
++    assert!(mail_account_claim_allowed(&restarted, &dir, "sample.device", "one").is_ok());
++    host.sign_out("sample.device", None);
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_err());
++    host.sign_in("sample.device", None);
++    write_json(&accounts, &json!([]));
++    assert!(mail_account_claim_allowed(&host, &dir, "sample.device", "one").is_err());
++}
+diff --git a/crates/shell/src/apps.rs b/crates/shell/src/apps.rs
+index 9da312e..14bb4c5 100644
+--- a/crates/shell/src/apps.rs
++++ b/crates/shell/src/apps.rs
+@@ -254,6 +254,7 @@ pub fn register_mail_services() {
+ 
+ #[cfg(any(feature = "app-hub", native_mobile))]
+ pub fn register_host_services() {
++    octosense_appstore::set_muse_calendar_integration_enabled(true);
+     register_mail_services();
+     static ONCE: std::sync::Once = std::sync::Once::new();
+     ONCE.call_once(|| {
+@@ -269,6 +270,7 @@ pub fn register_host_services() {
+             crate::app_storage::lifecycle::contained_account(app)
+                 .map(|account| crate::app_storage::account_hash(&account))
+         });
++        crate::host_tools::calendar_bridge::register();
+         crate::platform_services::register();
+         crate::device_calendar::register(|app| {
+             crate::app_storage::lifecycle::contained_account(app)
+diff --git a/crates/shell/src/desktop.rs b/crates/shell/src/desktop.rs
+index bd085ca..8bc84da 100644
+--- a/crates/shell/src/desktop.rs
++++ b/crates/shell/src/desktop.rs
+@@ -12,7 +12,7 @@ pub struct StyleSpec {
+     /// Tiling desk: Omarchy's ring and gaps; no floating chrome.
+     pub tiling: bool,
+     /// What the desk reserves at the bottom of the work area for the shelf;
+-    /// a floating shelf (the macOS dock) reserves nothing.
++    /// floating docks reserve their visible shelf and bottom margin as well.
+     pub reserved_height: f64,
+     pub title_height: f64,
+     /// Child inset from the tile rect: Omarchy's ring, the retro bevel frame,
+@@ -80,7 +80,7 @@ pub static SPECS: [StyleSpec; 8] = [
+     StyleSpec {
+         style: DesktopStyle::Macos,
+         tiling: false,
+-        reserved_height: 0.0, title_height: 32.0,
++        reserved_height: 88.0, title_height: 32.0,
+         frame_inset: 0.0, rounding: 14.0, chrome_radius: 10.0,
+         frame_width: 2.0, caption_width: 30.0, shelf_radius: 18.0, resize_bar: 0.0, shadow: 0.28,
+         glass_shelf: true, composes: true, caption_mac: true, bevel_classic: false, bevel_next: false,
+@@ -176,7 +176,7 @@ pub static SPECS: [StyleSpec; 8] = [
+     StyleSpec {
+         style: DesktopStyle::OctoSense,
+         tiling: false,
+-        reserved_height: 0.0, title_height: 32.0,
++        reserved_height: 88.0, title_height: 32.0,
+         frame_inset: 2.0, rounding: 12.0, chrome_radius: 10.0,
+         frame_width: 1.0, caption_width: 30.0, shelf_radius: 24.0, resize_bar: 0.0, shadow: 0.44,
+         glass_shelf: true, composes: true, caption_mac: true, bevel_classic: false, bevel_next: false,
+@@ -298,7 +298,7 @@ mod tests {
+         // The arrays these replace, verbatim from the pre-refactor code, padded
+         // with the zeros the phone rows must hold for a tween into them to land,
+         // then the OctoSense row appended after the table existed.
+-        let reserved = [0.0, 0.0, 54.0, 34.0, 0.0, 0.0, 0.0, 0.0];
++        let reserved = [0.0, 88.0, 54.0, 34.0, 0.0, 0.0, 0.0, 88.0];
+         let title = [0.0, 32.0, 34.0, 20.0, 22.0, 0.0, 0.0, 32.0];
+         let inset = [2.0, 0.0, 0.0, 3.0, 1.0, 0.0, 0.0, 2.0]; // BORDER_SIZE = 2.0
+         let rounding = [0.0, 14.0, 8.0, 0.0, 0.0, 0.0, 0.0, 12.0];
+@@ -478,7 +478,7 @@ mod tests {
+         assert_eq!(shelf_geometry(screen, &t, n), mac, "settled OctoSense");
+     }
+     #[test]
+-    fn the_dock_overlays_the_desk_only_where_it_floats_over_it() {
++    fn desktop_work_area_ends_above_the_visible_dock() {
+         // The hidden shell: a 1400 x 899 window, the desk from y = 32 to its
+         // bottom, a work area 10 points (the outer gap) inside it.
+         let (desk_bottom, gap) = (899.0, crate::desk::GAPS_OUT);
+@@ -487,10 +487,10 @@ mod tests {
+             t.select(style);
+             t.step(1.0);
+             let area_bottom = desk_bottom - gap - t.reserved_height();
+-            assert_eq!(dock_overlay(&t, desk_bottom, area_bottom), 78.0, "{style:?}");
++            assert_eq!(dock_overlay(&t, desk_bottom, area_bottom), 0.0, "{style:?}");
+             // The dock it covers with is the one the shelf draws.
+             let drawn = shelf_geometry(rect(0.0, 0.0, 1400.0, desk_bottom), &t, 20);
+-            assert_eq!(dock_overlay(&t, desk_bottom, area_bottom), area_bottom - drawn.pos.y, "{style:?}");
++            assert!(area_bottom <= drawn.pos.y, "maximized content overlaps the dock: {style:?}");
+         }
+         // Windows reserves its taskbar's strip; the other rows float nothing
+         // over the desk's bottom.
+@@ -1091,7 +1091,7 @@ pub fn dock_bounds(state: &WmState, size: Vec2d) -> Rect {
+ /// How many points of the work area's bottom the dock covers, on a desk
+ /// that ends at `desk_bottom` with a work area that ends at `area_bottom`
+ /// (window coordinates, where [`shelf_geometry`] places the shelf): macOS's
+-/// and OctoSense's docks float over the desk and reserve no strip. 0 for a
++/// and OctoSense's docks reserve their visible strip. 0 for a
+ /// shelf that reserves its strip (Windows: the work area already stops above
+ /// it), sits elsewhere (NeXTSTEP's column, Omarchy's bar) or is absent (the
+ /// phone rows). Read for the style the tween is heading to, settled. A window
+diff --git a/crates/shell/src/host_tools/admission.rs b/crates/shell/src/host_tools/admission.rs
+index 2f14cba..0f530c4 100644
+--- a/crates/shell/src/host_tools/admission.rs
++++ b/crates/shell/src/host_tools/admission.rs
+@@ -31,18 +31,14 @@ pub(crate) fn installed_bundle(root: &Path, app: &str) -> Result<PathBuf, String
+ 
+ fn installed_bundle_with_anchor(root: &Path, app: &str, anchor: &str) -> Result<PathBuf, String> {
+     let channel = octosense_appstore::source::CatalogChannel::from_environment(root)?;
+-    let mut store = channel.configure(octosense_app_hub::Store::new(
+-        anchor,
+-        root,
+-        octosense_app_contract::HostLimits::default(),
+-    )
+-    .with_host_api_versions(octosense_appstore::host_api::available_versions()));
++    let mut store = channel.configure(octosense_appstore::host_store(anchor, root));
+     let catalog = channel.read_cache(root)
+         .map_err(|_| "No verified App Hub catalog is available on this device".to_string())?;
+     store.accept_catalog(&catalog).map_err(|e| format!("App Hub catalog refused: {e}"))?;
+     octosense_app_hub_app::catalog::check_verified_catalog_floor(
+         root, anchor, store.catalog().map(|catalog| catalog.sequence),
+     )?;
++    octosense_appstore::configure_muse_calendar_offers(&mut store)?;
+     store.may_run(app).map_err(|e| format!("App agent is unavailable: {e}"))?;
+     Ok(store.install_dir(app))
+ }
+diff --git a/crates/shell/src/host_tools/calendar_bridge.rs b/crates/shell/src/host_tools/calendar_bridge.rs
+new file mode 100644
+index 0000000..590f7fb
+--- /dev/null
++++ b/crates/shell/src/host_tools/calendar_bridge.rs
+@@ -0,0 +1,195 @@
++//! Structured Calendar operations for admitted, consented app UIs.
++//! Arguments are data, never kernel RPC or a claimed owner identity. Every
++//! operation goes through the same grant/admission/approval/executor relay.
++//! Receipts explicitly identify this host bridge, not a kernel transcript.
++use super::{Event, script_apps};
++use crate::ai_host::app_peers::host_tools::{CallOrigin, CallerKind, HostToolCall, ToolReply};
++use octosense_appstore::services::{self, HostService, Replier, ServiceCall, ServiceHost};
++use serde_json::{json, Value};
++use sha2::{Digest, Sha256};
++use std::{path::{Path, PathBuf}, sync::{Mutex, mpsc}, time::Duration};
++
++const OWNER: &str = "os.calendar";
++static JOURNAL_GATE: Mutex<()> = Mutex::new(());
++fn hash(s: &str) -> String { format!("{:x}", Sha256::digest(s.as_bytes())) }
++fn canonical(v: &Value) -> Value {
++    match v {
++        Value::Object(map) => {
++            let sorted: std::collections::BTreeMap<_,_> = map.iter().map(|(k,v)|(k.clone(),canonical(v))).collect();
++            serde_json::to_value(sorted).unwrap()
++        }
++        Value::Array(a) => Value::Array(a.iter().map(canonical).collect()),
++        _ => v.clone(),
++    }
++}
++fn write(path: &Path, value: &Value) -> Result<(), String> {
++    use std::io::Write;
++    std::fs::create_dir_all(path.parent().ok_or("Missing journal directory")?).map_err(|e|e.to_string())?;
++    let temp = path.with_extension("tmp");
++    let mut file = std::fs::File::create(&temp).map_err(|e|e.to_string())?;
++    file.write_all(value.to_string().as_bytes()).and_then(|_|file.sync_all()).map_err(|e|e.to_string())?;
++    std::fs::rename(temp, path).map_err(|e|e.to_string())
++}
++fn read(path: &Path) -> Result<Value, String> {
++    let text = std::fs::read(path).map_err(|e|e.to_string())?;
++    if text.len() > 2 * 1024 * 1024 { return Err("Calendar receipt is too large".into()); }
++    serde_json::from_slice(&text).map_err(|e|e.to_string())
++}
++fn operation(args: &Value) -> Result<&str,String> {
++    let keys = args.as_object().ok_or("Expected Calendar request")?;
++    if keys.keys().any(|k| !["request_id","operation","args"].contains(&k.as_str())) { return Err("Unexpected Calendar request field".into()); }
++    let op = args["operation"].as_str().ok_or("Choose a Calendar operation")?;
++    if !["query","add","update","remove"].contains(&op) || !args["args"].is_object() { return Err("Unsupported Calendar operation".into()); }
++    Ok(op)
++}
++fn request_id(args: &Value) -> Result<&str,String> {
++    args["request_id"].as_str().filter(|id| !id.is_empty() && id.len() <= 160
++        && id.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b,b'-'|b'_'|b'.')))
++        .ok_or_else(||"Invalid Calendar request id".into())
++}
++fn method(op: &str) -> &'static str {
++    match op { "query"=>"calendar.events", "add"=>"calendar.add_event", "update"=>"calendar.update_event", _=>"calendar.remove_event" }
++}
++fn authorize(call: &ServiceCall, op: Option<&str>) -> Result<String,String> {
++    if call.from_sheet { return Err("Calendar requests must come from the app".into()); }
++    script_apps::admitted_host(&call.app_id, &call.host_dir)?;
++    crate::ai_host::contained::declared(&call.app_id)?;
++    let account = crate::ai_host::contained::account_of(&call.app_id).ok_or("No active app account")?;
++    if !crate::approvals::consent_granted(&call.app_id) { return Err("Allow this app's assistant in Settings first".into()); }
++    if super::suspended(&call.app_id, Some(&account)) { return Err("The app account is signed out".into()); }
++    super::ensure_loaded(&format!("card.{}", call.app_id));
++    let allowed = super::with_relay(|r| {
++        let grant = |tool| r.catalog.may_call(&call.app_id, OWNER, tool, false);
++        grant("calendar.get_event") && op.is_none_or(|op|grant(method(op)))
++    });
++    if !allowed { return Err("Calendar tool is not granted to this app".into()); }
++    if op.is_some_and(|op|op != "query") && !call.may_prompt { return Err("Open the app to review this Calendar change".into()); }
++    Ok(account)
++}
++fn journal_path(call: &ServiceCall, account: &str, id: &str) -> PathBuf {
++    call.host_dir.join("calendar-relay").join(hash(&format!("{}\n{account}",call.app_id))).join(format!("{}.json", hash(id)))
++}
++fn result(record: &Value) -> Value {
++    let mut value = record.clone();
++    value["context_state"] = json!({"session_id":record["session_id"]});
++    value
++}
++pub fn register() { services::register_host_service(Box::new(CalendarBridge)); }
++struct CalendarBridge;
++impl HostService for CalendarBridge {
++    fn family(&self) -> &'static str { "calendar_bridge" }
++    fn timeout(&self, _: &ServiceCall) -> Duration { Duration::from_secs(600) }
++    fn api_methods(&self) -> Vec<services::HostApiMethod> {
++        ["run","history"].into_iter().map(|m|services::HostApiMethod::new(
++            format!("calendar_bridge.{m}"),1,"calendar",
++            "Muse host adapter: authenticated Calendar relay with durable, separately labelled receipts",
++            json!({"type":"object"}),json!({"type":"object"}))
++            .with_platforms(&["macos"])
++            .with_agent_access(services::AgentAccess::ForegroundOnly)).collect()
++    }
++    fn call(&mut self, call: ServiceCall, reply: Replier, _: &mut dyn ServiceHost) {
++        let prepared = (|| {
++            let op = if call.method()=="run" { Some(operation(&call.args)?) } else if call.method()=="history" { None } else { return Err("Unknown Calendar bridge method".to_string()); };
++            let id = request_id(&call.args)?;
++            let account = authorize(&call, op)?;
++            let path = journal_path(&call,&account,id);
++            let _guard = JOURNAL_GATE.lock().unwrap_or_else(|e|e.into_inner());
++            if op.is_none() { let value=read_result(&path)?; return Ok((account,path,Some(value))); }
++            let digest=hash(&canonical(&call.args).to_string());
++            if path.exists() {
++                let saved=read(&path)?;
++                if saved["request_digest"] != digest { return Err("This request id belongs to a different Calendar action".into()); }
++                return Ok((account,path,Some(result(&saved))));
++            }
++            let turn=format!("calendar-relay-{}",uuid::Uuid::new_v4());
++            let session=format!("calendar-relay:{}:{}",call.app_id,hash(&account));
++            write(&path,&json!({"source":"host_calendar_relay","request_id":id,"request_digest":digest,
++                "turn_id":turn,"session_id":session,"status":"in_flight","messages":[]}))?;
++            Ok((account,path,None))
++        })();
++        match prepared {
++            Err(e)=>reply.send(Err(e)),
++            Ok((_,_,Some(value)))=>reply.send(Ok(value)),
++            Ok((account,path,None))=>{ std::thread::spawn(move || {
++                let completed=run(&call,&account,&path,&reply);
++                reply.send(completed);
++            }); }
++        }
++    }
++}
++fn read_result(path: &Path) -> Result<Value,String> { read(path).map(|v|result(&v)) }
++fn invoke(call: &ServiceCall, account: &str, record: &mut Value, path: &Path, reply: &Replier, name: &str, args: Value) -> Result<Value,String> {
++    if !reply.is_pending() { return Err("Calendar request was closed; check its saved result".into()); }
++    // Derive risk and approval from the admitted declaration, never app input.
++    let entry=super::with_relay(|r|r.catalog.entry(OWNER,name).cloned()).ok_or("Calendar tool is unavailable")?;
++    let risk=entry["risk"].as_str().ok_or("Calendar tool has no risk declaration")?.to_string();
++    let id=format!("calendar-ui-{}",uuid::Uuid::new_v4());
++    let args=canonical(&args);
++    let digest=format!("sha256:{}",hash(&args.to_string()));
++    let (tx,rx)=mpsc::channel();
++    let answer=ToolReply::new(id.clone(),move |r|{if r.get("ok").is_some(){let _=tx.send(r);}});
++    let tool_call=HostToolCall {call_id:id.clone(),tool_call_id:id.clone(),args_digest:digest.clone(),
++        name:name.into(),app:OWNER.into(),args,risk:risk.clone(),confirm_required:risk!="read",timeout_ms:590_000,
++        tools_version:1,peer:Some(format!("card.{}",call.app_id)),session_id:record["session_id"].as_str().unwrap().into(),
++        context_id:None,turn_id:record["turn_id"].as_str().unwrap().into(),caller_kind:CallerKind::AppPeer,
++        calling_app:format!("card.{}",call.app_id),account:Some(account.into()),client:None,
++        origin:CallOrigin::Context,trigger:crate::ai_host::app_peers::TurnTrigger::App};
++    super::submit(Event::AppUiCall {call:tool_call,reply:answer});
++    let outcome=loop {
++        match rx.recv_timeout(Duration::from_millis(200)) {
++            Ok(v)=>break v,
++            Err(mpsc::RecvTimeoutError::Timeout) if reply.is_pending()=>continue,
++            _=>{super::submit(Event::Cancel{call_id:id.clone(),reason:"Calendar app request closed".into()}); return Err("Calendar request interrupted; read its saved result before retrying".into());}
++        }
++    };
++    let ok=outcome["ok"]==true;
++    let now=std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_millis().to_string();
++    let row=json!({
++        "role":"tool","lane":"person","turn_id":record["turn_id"],"tool_name":name,"tool_call_id":id,
++        "persisted_at":now,"host_calendar_receipt":{"source":"host_calendar_relay","bridge_persisted":true,
++        "owner":OWNER,"caller":call.app_id,"turn_id":record["turn_id"],"session_id":record["session_id"],
++        "tool":name,"tool_call_id":id,"call_id":id,"args_digest":digest,"terminal":if ok {"ok"} else {"error"},"result":outcome}});
++    record["messages"].as_array_mut().ok_or("Invalid receipt journal")?.push(row);
++    write(path,record)?;
++    if ok {Ok(outcome["data"].clone())} else {Err(outcome["error"]["message"].as_str().unwrap_or("Calendar operation failed").into())}
++}
++fn run(call: &ServiceCall, account: &str, path: &Path, reply: &Replier) -> Result<Value,String> {
++    let mut record=read(path)?;
++    let work=(|| {
++        let op=operation(&call.args)?;
++        let mut args=call.args["args"].clone();
++        if op=="add" { args["request_id"]=call.args["request_id"].clone(); }
++        if op=="update" || op=="remove" {
++            let before=invoke(call,account,&mut record,path,reply,"calendar.get_event",json!({"id":args["id"]}))?;
++            if before["found"]!=true || before["event"]!=args["expected"] {return Err("The Calendar event changed; refresh it before editing".into());}
++        }
++        let executed=invoke(call,account,&mut record,path,reply,method(op),args.clone())?;
++        if op!="query" {
++            let id=if op=="add" {&executed["id"]} else {&args["id"]};
++            if !id.is_string(){return Err("Calendar did not return an event id".into());}
++            let after=invoke(call,account,&mut record,path,reply,"calendar.get_event",json!({"id":id}))?;
++            if op=="remove" {
++                if executed["removed"]!=true || after["found"]!=false || after.get("event")!=Some(&Value::Null) {return Err("Calendar deletion was not confirmed by readback".into());}
++            } else if after["found"]!=true || after["event"]["id"]!=*id {return Err("Calendar write was not confirmed by readback".into());}
++        }
++        Ok::<(),String>(())
++    })();
++    record["status"]=json!(if work.is_ok(){"completed"}else{"failed"});
++    if let Err(error)=work {record["error"]=json!(error);}
++    write(path,&record)?;
++    Ok(result(&record))
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test] fn request_rejects_claimed_identity_and_unlisted_operations() {
++        assert!(operation(&json!({"request_id":"a","operation":"remove","args":{},"app_id":"os.calendar"})).is_err());
++        assert!(operation(&json!({"operation":"shell","args":{}})).is_err());
++        assert!(request_id(&json!({"request_id":"../escape"})).is_err());
++        assert!(operation(&json!({"request_id":"a","operation":"query","args":{"limit":200}})).is_ok());
++    }
++    #[test] fn digest_is_sorted_recursively() {
++        assert_eq!(canonical(&json!({"z":{"b":1,"a":2},"a":3})).to_string(),"{\"a\":3,\"z\":{\"a\":2,\"b\":1}}");
++    }
++}
+diff --git a/crates/shell/src/host_tools/mod.rs b/crates/shell/src/host_tools/mod.rs
+index 0ae7391..4e9456c 100644
+--- a/crates/shell/src/host_tools/mod.rs
++++ b/crates/shell/src/host_tools/mod.rs
+@@ -41,6 +41,8 @@ pub mod files;
+ pub mod relay;
+ pub mod schema;
+ #[cfg(any(feature = "app-hub", native_mobile))]
++pub(crate) mod calendar_bridge;
++#[cfg(any(feature = "app-hub", native_mobile))]
+ pub(crate) mod admission;
+ #[cfg(feature = "toolbox-peers")]
+ pub mod toolbox;
+diff --git a/crates/shell/src/host_tools/relay.rs b/crates/shell/src/host_tools/relay.rs
+index b50d01c..1a7cd93 100644
+--- a/crates/shell/src/host_tools/relay.rs
++++ b/crates/shell/src/host_tools/relay.rs
+@@ -103,6 +103,8 @@ pub fn app_of_peer(app: &str) -> &str {
+ pub enum Event {
+     /// A `peer/tool/call`, stamped by its host (a broker or the system chat).
+     Call { call: HostToolCall, reply: ToolReply },
++    /// Host-stamped structured app UI call; approvals use the host surface.
++    AppUiCall { call: HostToolCall, reply: ToolReply },
+     /// The kernel cancelled a call, or its connection closed.
+     Cancel { call_id: String, reason: String },
+     /// A `host_tool` approval raised on `app`'s peer (or a context of it).
+@@ -598,7 +600,8 @@ impl Relay {
+ 
+     pub fn handle(&mut self, event: Event, env: &mut dyn Env) {
+         match event {
+-            Event::Call { call, reply } => self.call(call, reply, env),
++            Event::Call { call, reply } => self.call(call, reply, env, false),
++            Event::AppUiCall { call, reply } => self.call(call, reply, env, true),
+             Event::Cancel { call_id, reason } => self.cancel(&call_id, &reason, env),
+             Event::Approval { app, account, approval, answer } => self.approval(&app, account, approval, answer, env),
+             Event::ApprovalClosed { approval_id } => {
+@@ -654,7 +657,7 @@ impl Relay {
+         Ok(())
+     }
+ 
+-    fn call(&mut self, call: HostToolCall, reply: ToolReply, env: &mut dyn Env) {
++    fn call(&mut self, call: HostToolCall, reply: ToolReply, env: &mut dyn Env, host_confirmation: bool) {
+         if !reply.is_open() {
+             return;
+         }
+@@ -804,7 +807,7 @@ impl Relay {
+         if call.confirm_required {
+             reply.acknowledge();
+             let (auto, _) = self.tool_rule(&*env, &owner, &tool);
+-            let mut spec = ToolSpec::app(&tool);
++            let mut spec = if host_confirmation { ToolSpec::host(&tool) } else { ToolSpec::app(&tool) };
+             spec.auto_approvable = auto;
+             let id = format!("{CONFIRM_PREFIX}{}", call.call_id);
+             let context = RequestContext {
+diff --git a/crates/shell/src/host_tools/script_apps.rs b/crates/shell/src/host_tools/script_apps.rs
+index d652620..bd43dc7 100644
+--- a/crates/shell/src/host_tools/script_apps.rs
++++ b/crates/shell/src/host_tools/script_apps.rs
+@@ -768,7 +768,7 @@ pub(crate) mod tests {
+         let _ = std::fs::remove_dir_all(dir);
+     }
+ 
+-    /// Calendar's bundle gives its agent its six tools, all on its own
++    /// Calendar's bundle gives its agent its seven tools, all on its own
+     /// `calendar` host service; removing an event is destructive (the
+     /// person approves it); Calendar is granted `glance`.
+     #[test]
+@@ -776,14 +776,30 @@ pub(crate) mod tests {
+         let dir = stamped_bundle("calendar", "tools", |_, _| {});
+         let loaded = from_bundle(&dir).unwrap();
+         let names: Vec<&str> = loaded.tools.iter().filter_map(|t| t["name"].as_str()).collect();
+-        assert_eq!(names, ["calendar.events", "calendar.add_event", "calendar.update_event", "calendar.remove_event", "calendar.notify", "calendar.agenda"]);
+-        assert_eq!(loaded.host_service_tools.len(), 6);
++        assert_eq!(names, ["calendar.events", "calendar.get_event", "calendar.add_event", "calendar.update_event", "calendar.remove_event", "calendar.notify", "calendar.agenda"]);
++        assert_eq!(loaded.host_service_tools.len(), 7);
+         assert!(loaded.tools.iter().all(|t| t["input_schema"]["type"] == "object" && t["output_schema"]["type"] == "object"));
+         let remove = loaded.tools.iter().find(|t| t["name"] == "calendar.remove_event").unwrap();
+         assert_eq!(remove["risk"], "destructive");
+         assert!(loaded.families.contains("glance") && loaded.families.contains("calendar"));
+         let edit = loaded.tools.iter().find(|t| t["name"] == "calendar.update_event").unwrap();
+-        assert_ne!(edit["shareable"], true, "editing is not granted to other apps");
++        // Shareable metadata does not grant a caller or approve a write.
++        for tool in [edit, remove] {
++            assert_eq!(tool["shareable"], true);
++            assert_eq!(tool["risk"], "destructive");
++            // Host is the protocol default; the catalog only writes confirm: app.
++            assert!(tool.get("confirm").is_none());
++            let raw: Value = serde_json::from_str(&std::fs::read_to_string(dir.join("tools.json")).unwrap()).unwrap();
++            let spec: ToolSpec = serde_json::from_value(raw["tools"].as_array().unwrap().iter()
++                .find(|v| v["name"] == tool["name"]).unwrap().clone()).unwrap();
++            assert_eq!(spec.confirm, octosense_app_policy::Confirm::Host);
++            assert_eq!(spec.supervision(), octosense_app_policy::Supervision::HostApproval);
++            assert_eq!(tool["auto_approvable"], false);
++            assert!(tool["input_schema"]["required"].as_array().unwrap().iter().any(|v| v == "expected"));
++        }
++        let get = loaded.tools.iter().find(|t| t["name"] == "calendar.get_event").unwrap();
++        assert_eq!(get["risk"], "read");
++        assert_eq!(get["shareable"], true);
+         assert!(edit["input_schema"]["required"].as_array().unwrap().iter().any(|v| v == "expected"));
+         assert_eq!(loaded.generic, ["ask_user_question"]);
+         let _ = std::fs::remove_dir_all(dir);
+diff --git a/crates/shell/src/host_tools/tests.rs b/crates/shell/src/host_tools/tests.rs
+index 4c2cecf..8fed086 100644
+--- a/crates/shell/src/host_tools/tests.rs
++++ b/crates/shell/src/host_tools/tests.rs
+@@ -2035,3 +2035,47 @@ fn a_signed_out_accounts_engine_call_is_refused() {
+     assert_eq!(made["ok"], true, "{made}");
+     assert!(folder.join("a.docx").is_file(), "the account's own folder");
+ }
++
++#[test]
++fn structured_calendar_ui_uses_host_approval_and_keeps_grants() {
++    let mut entry = decl("calendar.remove_event", true, "host");
++    entry["risk"] = json!("destructive");
++    entry["auto_approvable"] = json!(false);
++    let (mut relay, exec) = relay_with("os.calendar", vec![entry]);
++    let mut world = World::new(FixedDevMode::off());
++    let mut request = call("calendar-ui-1", "calendar.remove_event", "card.muse-goals");
++    request.app = "os.calendar".into();
++    request.confirm_required = true;
++    request.risk = "destructive".into();
++    let (r,sent) = reply("calendar-ui-1");
++    relay.handle(Event::AppUiCall{call:request.clone(),reply:r}, &mut world);
++    assert_eq!(sent.lock().unwrap()[0]["error"]["kind"],"not_granted");
++    assert!(exec.0.lock().unwrap().is_empty());
++    relay.catalog.grant("muse-goals","os.calendar","calendar.remove_event");
++    request.call_id = "calendar-ui-2".into();
++    let (r,_) = reply("calendar-ui-2");
++    relay.handle(Event::AppUiCall{call:request,reply:r}, &mut world);
++    assert_eq!(world.asked.len(),1);
++    assert_eq!(world.asked[0].1.confirm, crate::approvals::Confirm::Host);
++    assert!(!world.asked[0].1.auto_approvable);
++    assert!(exec.0.lock().unwrap().is_empty(),"never execute before the actual host decision");
++}
++
++#[test]
++fn structured_calendar_read_preserves_caller_and_refuses_revocation() {
++    for allowed in [false,true] {
++        let mut entry=decl("calendar.events",true,"host"); entry["risk"]=json!("read");
++        let (mut relay,exec)=relay_with("os.calendar",vec![entry]);
++        relay.catalog.grant("muse-goals","os.calendar","calendar.events");
++        let mut world=World::new(FixedDevMode::off());world.consent=allowed;
++        let mut request=call("calendar-read","calendar.events","card.muse-goals");
++        request.app="os.calendar".into();request.risk="read".into();request.confirm_required=false;
++        let (r,sent)=reply("calendar-read");
++        relay.handle(Event::AppUiCall{call:request,reply:r},&mut world);
++        if allowed {
++            let calls=exec.0.lock().unwrap();assert_eq!(calls.len(),1);
++            assert_eq!(calls[0].0.calling_app,"card.muse-goals");assert_eq!(calls[0].0.app,"os.calendar");
++            assert!(world.asked.is_empty());
++        } else {assert!(exec.0.lock().unwrap().is_empty());assert_eq!(sent.lock().unwrap()[0]["error"]["kind"],"consent_pending");}
++    }
++}
+diff --git a/runtime-patches.lock.json b/runtime-patches.lock.json
+index 8b5c002..44e0108 100644
+--- a/runtime-patches.lock.json
++++ b/runtime-patches.lock.json
+@@ -4,7 +4,7 @@
+     "base_revision": "d653bc4493619ab979ccff165cf48c0c63b77d19",
+     "patch": "tools/runtime-patches/makepad-settings.patch",
+     "sha256": "3a79cddddc89dc4d064a9f0bdd17dc8111dcab9c796a334d95f61ecb9d5011aa",
+-    "tree": "3f4fd959f1ee43445bc7ef13cf72465bb1951829",
++    "tree": "db1ceb63df7f2dee2c1c6c45288cfb2e67a5117c",
+     "product_fixes": [
+       "Settings integration: Android IME synchronization, accessibility and reduced motion, GLES program-cache validation, obscured-gesture cancellation and scroll-position observation.",
+       "Contained-app isolation and secret-input restrictions come from the pinned upstream runtime; the Settings overlay preserves those gates.",
+@@ -48,7 +48,9 @@
+       "A native host may stage up to 64 MiB into an app's jail (MAX_IMPORT_BYTES; prepare_import and commit_import), so files.import can take documents above the 1 MiB script write limit. Staged bytes never enter the script heap; the jail's byte quota and entry cap still apply, and script writes, photo picks and exports keep 1 MiB.",
+       "An OS resume restarts only the Video playback its pause stopped, including a start it cancelled; a player paused by the person, or paused or stopped by its app during the pause, stays paused (#406).",
+       "Camera capture and recording use explicit per-call boolean audio/library options, defaulting to silent app-local output. Permission availability never opts into recording audio or exporting captures; async microphone checks retain capture intent and background provenance. Unsupported library export fails before capture.",
+-      "A hidden Android native composer remembers animated IME insets without requesting a root layout every frame; showing it applies the latest inset before its first visible frame."
++      "A hidden Android native composer remembers animated IME insets without requesting a root layout every frame; showing it applies the latest inset before its first visible frame.",
++      "Muse compatibility: cold Splash source above 64 KiB is prepared in bounded frames before one application execution; the ordinary 64 ms entry budget remains unchanged.",
++      "Muse compatibility: jailed fs.sha256 hashes bounded UTF-8 text and fs.sha256_file hashes bounded existing app files through the standard jail path and symlink checks; no write or new host permission."
+     ],
+     "stacked": [
+       {
+@@ -190,6 +192,16 @@
+       {
+         "patch": "tools/runtime-patches/makepad-hidden-composer-insets.patch",
+         "sha256": "75935d129cfe4adf09555d3a94b0a7ad387f2ea97cf357f9d60c728d87239037"
++      },
++      {
++        "patch": "tools/runtime-patches/muse-bounded-source-preparation.patch",
++        "sha256": "b4e7335bc41862d32575ecf456a23e9865d29f15ef28b64661138c766ae8a64a",
++        "tree": "d5748b965aac9c11639e5a2530eaeae4eea92874"
++      },
++      {
++        "patch": "tools/runtime-patches/muse-jailed-fs-digests.patch",
++        "sha256": "bbadc91029626d19a7ac4dd6128e61a4102184552b97da05f6649efb98a343b1",
++        "tree": "db1ceb63df7f2dee2c1c6c45288cfb2e67a5117c"
+       }
+     ]
+   }
+diff --git a/tools/runtime-patches/muse-bounded-source-preparation.patch b/tools/runtime-patches/muse-bounded-source-preparation.patch
+new file mode 100644
+index 0000000..7ea8a32
+--- /dev/null
++++ b/tools/runtime-patches/muse-bounded-source-preparation.patch
+@@ -0,0 +1,348 @@
++--- a/platform/script/src/vm.rs
+++++ b/platform/script/src/vm.rs
++@@ -1804,6 +1804,21 @@
++         code: &str,
++         source: ScriptObject,
++     ) -> ScriptValue {
+++        let body_id = match self.prepare_append_source(script_mod, code, source) {
+++            Ok(body_id) => body_id,
+++            Err(value) => return value,
+++        };
+++        self.eval_prepared_body(body_id)
+++    }
+++
+++    /// Prepare an append-only source prefix without executing app statements.
+++    /// The caller retains its existing wall-clock and heap limits.
+++    pub fn prepare_append_source(
+++        &mut self,
+++        script_mod: ScriptMod,
+++        code: &str,
+++        source: ScriptObject,
+++    ) -> Result<u16, ScriptValue> {
++         // Look for an existing body with matching file/line/column
++         let existing_body_id = {
++             let bodies = self.bx.code.bodies.borrow();
++@@ -1913,20 +1928,26 @@
++             if let Some(sink) = &mut self.bx.captured_errors {
++                 sink.extend(new_parse_errors);
++             }
++-            // Silence runtime errors during incremental eval — incomplete code
++-            // will inevitably produce errors that are meaningless until the
++-            // source is fully received.
++-            self.bx.silence_errors = true;
++-            let result = self.run_root(body_id);
++-            self.bx.silence_errors = false;
++-            if let Some(result_obj) = result.as_object() {
++-                self.bx.heap.set_from_eval(result_obj);
++-            }
++-            result
+++            if self.bx.run_budget.as_ref().is_some_and(|budget|
+++                crate::clock::monotonic_now() >= budget.hard_deadline) {
+++                return Err(self.bail_resource_limit("script time budget exceeded"));
+++            }
+++            Ok(body_id)
++         } else {
++-            NIL
++-        }
++-    }
+++            Err(NIL)
+++        }
+++    }
+++
+++    fn eval_prepared_body(&mut self, body_id: u16) -> ScriptValue {
+++        self.bx.silence_errors = true;
+++        let result = self.run_root(body_id);
+++        self.bx.silence_errors = false;
+++        if let Some(result_obj) = result.as_object() {
+++            self.bx.heap.set_from_eval(result_obj);
+++        }
+++        result
+++    }
+++
++ }
++ 
++ pub struct ScriptVmBase {
++@@ -2219,6 +2240,30 @@
++     }
++ 
++     #[test]
+++    fn source_preparation_does_not_execute_partial_application() {
+++        let mut host = ScriptVmHost::new((), ());
+++        let mut vm = plain_vm(&mut host);
+++        let hits = std::rc::Rc::new(std::cell::Cell::new(0u32));
+++        let counter = hits.clone();
+++        let probe = vm.bx.heap.new_module(id!(probe));
+++        vm.add_method(probe, id!(touch), &[], move |_, _| {
+++            counter.set(counter.get() + 1);
+++            41.into()
+++        });
+++        let module = || ScriptMod { file: "prepared-source.octoscript".into(), ..Default::default() };
+++        let prefix = "use mod.probe\nlet marker = probe.touch()\n";
+++        let code = format!("{prefix}return marker + 1\n;");
+++        vm.prepare_append_source(module(), prefix, ScriptObject::ZERO).unwrap();
+++        assert_eq!(hits.get(), 0, "preparing the first prefix must not call native actions");
+++        vm.prepare_append_source(module(), &code, ScriptObject::ZERO).unwrap();
+++        assert_eq!(hits.get(), 0, "preparing the complete body still must not execute it");
+++        let value = vm.with_instruction_limit(1000, |vm|
+++            vm.eval_with_append_source(module(), &code, ScriptObject::ZERO));
+++        assert_eq!(value.as_f64(), Some(42.0));
+++        assert_eq!(hits.get(), 1, "the complete application executes once");
+++    }
+++
+++    #[test]
++     fn hard_time_budget_drains_its_uncatchable_error() {
++         let mut host = ScriptVmHost::new((), ());
++         let mut vm = plain_vm(&mut host);
++--- a/widgets/src/splash.rs
+++++ b/widgets/src/splash.rs
++@@ -27,6 +27,14 @@
++     mod.widgets.Splash = set_type_default() do mod.widgets.SplashBase{
++         width: Fill height: Fit
++     }
+++}
+++
+++struct SplashSourcePreparation {
+++    code: String,
+++    offset: usize,
+++    chunks: usize,
+++    total_ms: f64,
+++    max_ms: f64,
++ }
++ 
++ #[derive(Script, WidgetRef, WidgetRegister)]
++@@ -102,6 +110,12 @@
++     stylesheet: Option<crate::desktop_style::StyleSheet>,
++     #[rust]
++     style_pending: bool,
+++    #[rust]
+++    source_preparation: Option<SplashSourcePreparation>,
+++    #[rust]
+++    source_next_frame: NextFrame,
+++    #[rust]
+++    prepared_source: String,
++     /// Script timers the body's top-level statements registered at its last
++     /// run. A style reapply runs those statements again, so these are stopped
++     /// first; timers a handler started later are left alone.
++@@ -214,7 +228,7 @@
++     }
++ 
++     fn eval_styled_body_with_apply(&mut self, cx: &mut Cx, preserve: bool, apply: &Apply) {
++-        if self.body.as_ref().is_empty() {
+++        if self.body.as_ref().is_empty() || (preserve && self.body_id.is_none()) {
++             return;
++         }
++ 
++@@ -258,6 +272,16 @@
++             code: String::new(),
++             values: vec![],
++         };
+++
+++        if !preserve && self.body_id.is_none() && code.len() > 65_536 && self.prepared_source != code {
+++            self.source_preparation = Some(SplashSourcePreparation {
+++                code, offset: 0, chunks: 0, total_ms: 0.0, max_ms: 0.0,
+++            });
+++            self.source_next_frame = cx.new_next_frame();
+++            self.style_pending = false;
+++            self.view.redraw(cx);
+++            return;
+++        }
++ 
++         let vm_id = self.vm_id;
++         let sheet=self.stylesheet.clone();
++@@ -282,8 +306,10 @@
++         // unwinding `with_script_vm_id` already restores the outer VM).
++         let mut eval_out = None;
++         crate::widget_async::contain_isolate_panic("app source eval", || {
++-        eval_out = Some(cx.with_script_vm_id(vm_id, |vm| {
++-            if let Some(sheet)=sheet {
+++        // Framework theme registration uses the trusted module entry; the
+++        // application body below keeps its existing per-entry script budget.
+++        if let Some(sheet)=sheet {
+++            cx.with_script_vm_id_trusted(vm_id, |vm| {
++                 if crate::desktop_style::current(vm).as_ref()!=Some(&sheet) {
++                     crate::desktop_style::install(vm,sheet);
++                     // Trusted framework themes need their packaged font resolver.
++@@ -298,10 +324,13 @@
++                         crate::widget_async::forget_granted_isolate_mods(heap_key);
++                     });
++                 }
++-            }
++-            // Vocabulary this app's grants entitle it to, now that its policy
++-            // is seated (see `register_splash_isolate_mod_for`).
+++            });
+++        }
+++        // Only host-registered modules for this app's existing grants run here.
+++        cx.with_script_vm_id_trusted(vm_id, |vm| {
++             crate::widget_async::apply_granted_isolate_mods(vm);
+++        });
+++        eval_out = Some(cx.with_script_vm_id(vm_id, |vm| {
++             // Everything on `mod` that is not the body's own; whatever the run
++             // adds beyond this is the body's.
++             let mut known = module_keys(vm);
++@@ -421,6 +450,64 @@
++         );
++     }
++ 
+++    fn prepare_source_frame(&mut self, cx: &mut Cx) {
+++        let Some(mut pending) = self.source_preparation.take() else { return; };
+++        // Leave more headroom inside the unchanged 64ms isolate deadline.
+++        // Preparation still executes no application code until all chunks parse.
+++        let mut end = (pending.offset + 1_024).min(pending.code.len());
+++        while !pending.code.is_char_boundary(end) { end -= 1; }
+++        if end < pending.code.len() {
+++            if let Some(newline) = pending.code[pending.offset..end].rfind('\n') {
+++                end = pending.offset + newline + 1;
+++            }
+++        }
+++        let script_mod = ScriptMod {
+++            module_path: self.body_key(), file: self.source_label(),
+++            ..Default::default()
+++        };
+++        let start = std::time::Instant::now();
+++        let mut result = None;
+++        crate::widget_async::contain_isolate_panic("app source preparation", || {
+++            result = Some(cx.with_script_vm_id(self.vm_id, |vm| {
+++                let previous = vm.bx.captured_errors.replace(Vec::new());
+++                let compiled = vm.prepare_append_source(script_mod, &pending.code[..end], NIL.into());
+++                let errors = vm.take_errors();
+++                vm.bx.captured_errors = previous;
+++                (compiled.is_ok(), errors)
+++            }));
+++        });
+++        let Some((compiled, errors)) = result else {
+++            self.style_pending = false;
+++            self.stop(cx);
+++            return;
+++        };
+++        let elapsed = start.elapsed().as_secs_f64() * 1000.0;
+++        pending.chunks += 1;
+++        pending.total_ms += elapsed;
+++        pending.max_ms = pending.max_ms.max(elapsed);
+++        if !compiled || !errors.is_empty() {
+++            log!("splash: source preparation failed at {} of {} bytes", end, pending.code.len());
+++            log!("[SPLASH_COMPILE_FAILED] elapsed_ms={:.3} total_ms={:.3} max_chunk_ms={:.3}",
+++                elapsed, pending.total_ms, pending.max_ms);
+++            for error in errors { log!("splash: {}", error); }
+++            self.style_pending = false;
+++            self.stop(cx);
+++            return;
+++        }
+++        pending.offset = end;
+++        if end < pending.code.len() {
+++            self.source_preparation = Some(pending);
+++            self.source_next_frame = cx.new_next_frame();
+++            self.view.redraw(cx);
+++            return;
+++        }
+++        log!("[SPLASH_COMPILE] bytes={} chunks={} total_ms={:.3} max_chunk_ms={:.3}",
+++            end, pending.chunks, pending.total_ms, pending.max_ms);
+++        self.prepared_source = pending.code;
+++        self.eval_body(cx);
+++        self.view.redraw(cx);
+++    }
+++
++     /// Tears down this Splash's isolate (if any), returning it to the empty
++     /// state a freshly-created Splash has. The isolate-minted view holds refs
++     /// into the isolate heap, so it is REPLACED with a fresh empty view built
++@@ -428,6 +515,9 @@
++     /// stops the isolate's timers and drops its storage-jail binding. A later
++     /// non-empty `set_text` allocates a fresh isolate as usual.
++     fn stop(&mut self, cx: &mut Cx) {
+++        self.source_preparation = None;
+++        self.source_next_frame = NextFrame::default();
+++        self.prepared_source.clear();
++         if self.vm_id == MAIN_SPLASH_VM_ID {
++             return; // nothing running
++         }
++@@ -626,6 +716,10 @@
++ 
++ impl Widget for Splash {
++     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+++        if self.source_next_frame.is_event(event).is_some() {
+++            self.source_next_frame = NextFrame::default();
+++            self.prepare_source_frame(cx);
+++        }
++         if self.allow_net {
++             if let Event::NetworkResponses(responses) = event {
++                 crate::widget_async::handle_splash_network_responses(cx, self.vm_id, responses);
++@@ -673,7 +767,7 @@
++     }
++ 
++     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
++-        if self.style_pending && self.vm_id!=MAIN_SPLASH_VM_ID {self.eval_styled_body(cx,true);}
+++        if self.style_pending && self.vm_id!=MAIN_SPLASH_VM_ID && self.source_preparation.is_none() {self.eval_styled_body(cx,true);}
++         //let tree = self.view.widget_tree();
++         //cx.with_vm(|vm| {
++         //    log!("{}", tree.display(vm.heap()));
++@@ -688,6 +782,9 @@
++     fn set_text(&mut self, cx: &mut Cx, v: &str) {
++         if self.body.as_ref() != v {
++             self.body.set(v);
+++            self.source_preparation = None;
+++            self.source_next_frame = NextFrame::default();
+++            self.prepared_source.clear();
++             // Empty body = tear down the app: reclaim its isolate (stopping its
++             // timers and dropping its storage jail) rather than leaving it
++             // running behind a blank view. A reused Splash (e.g. a live-preview
++@@ -1097,6 +1194,61 @@
++             let value = vm.eval(makepad_script::script! {use mod.widgets.* Splash{}});
++             Splash::script_from_value(vm, value)
++         })
+++    }
+++
+++    #[test]
+++    fn large_cold_source_is_prepared_before_one_application_run() {
+++        let mut cx = Cx::new(Box::new(|_, _| {}));
+++        let mut splash = new_splash(&mut cx);
+++        let body = format!("mod.state = {{starts: 1}}\nlabel := Label{{text: \"ready\"}}\n{}", "// bounded preparation padding\n".repeat(3000));
+++        splash.set_text(&mut cx, &body);
+++        assert!(splash.source_preparation.is_some());
+++        assert!(splash.body_id.is_none());
+++        assert!(splash.startup_timers.is_empty());
+++        splash.prepare_source_frame(&mut cx);
+++        assert!(splash.source_preparation.as_ref().unwrap().offset > 0);
+++        assert!(splash.source_preparation.as_ref().unwrap().offset <= 1_024);
+++        assert!(splash.body_id.is_none());
+++        assert!(!cx.with_script_vm_id(splash.vm_id, module_keys).contains(&id!(state)));
+++        for _ in 0..256 {
+++            if splash.source_preparation.is_none() { break; }
+++            splash.prepare_source_frame(&mut cx);
+++        }
+++        assert!(splash.source_preparation.is_none());
+++        assert!(splash.body_id.is_some());
+++        assert_eq!(splash.view.children.iter().find(|(id, _)| *id == id!(label)).unwrap().1.text(), "ready");
+++        splash.stop(&mut cx);
+++    }
+++
+++    #[test]
+++    fn closing_a_partly_prepared_source_cancels_the_remaining_frames() {
+++        let mut cx = Cx::new(Box::new(|_, _| {}));
+++        let mut splash = new_splash(&mut cx);
+++        let body = format!("mod.state = {{starts: 1}}\n{}", "// bounded preparation padding\n".repeat(3000));
+++        splash.set_text(&mut cx, &body);
+++        splash.prepare_source_frame(&mut cx);
+++        splash.stop(&mut cx);
+++        assert!(splash.source_preparation.is_none());
+++        assert!(splash.body_id.is_none());
+++        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+++        assert!(splash.startup_timers.is_empty());
+++    }
+++
+++    #[test]
+++    fn a_failed_cold_preparation_cannot_restart_through_style_reapply() {
+++        let mut cx = Cx::new(Box::new(|_, _| {}));
+++        let mut splash = new_splash(&mut cx);
+++        let body = format!("let loop = []\n{}", "// bounded preparation padding\n".repeat(3000));
+++        splash.set_text(&mut cx, &body);
+++        splash.style_pending = true;
+++        splash.prepare_source_frame(&mut cx);
+++        assert!(splash.source_preparation.is_none());
+++        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+++        assert!(!splash.style_pending);
+++        splash.eval_styled_body(&mut cx, true);
+++        assert_eq!(splash.vm_id, MAIN_SPLASH_VM_ID);
+++        assert!(splash.body_id.is_none());
+++        assert!(splash.startup_timers.is_empty());
++     }
++ 
++     /// What a host does on a style change: install the sheet, reapply the
+diff --git a/tools/runtime-patches/muse-jailed-fs-digests.patch b/tools/runtime-patches/muse-jailed-fs-digests.patch
+new file mode 100644
+index 0000000..67cb66b
+--- /dev/null
++++ b/tools/runtime-patches/muse-jailed-fs-digests.patch
+@@ -0,0 +1,144 @@
++diff --git a/widgets/src/splash_storage.rs b/widgets/src/splash_storage.rs
++index 8c3f2f9..6e587ba 100644
++--- a/widgets/src/splash_storage.rs
+++++ b/widgets/src/splash_storage.rs
++@@ -428,10 +428,45 @@ fn target(vm: &mut ScriptVm, path_value: ScriptValue) -> Result<(PathBuf, PathBu
++     Ok((root, real))
++ }
++
+++fn file_sha256(real: &Path) -> Result<String, String> {
+++    let bytes = read_storage_bytes(real)?;
+++    let digest = crate::makepad_platform::makepad_network::digest::sha256_hash(&bytes);
+++    Ok(digest.iter().map(|byte| format!("{byte:02x}")).collect())
+++}
+++
++ /// Registers the jailed `fs` module into an isolate VM.
++ pub fn script_mod(vm: &mut ScriptVm) {
++     let fs = vm.new_module(id!(fs));
++
+++    // Local UTF-8 provenance digest; available only to an already jailed isolate.
+++    // No file path, network request, or additional host capability is involved.
+++    vm.add_method(fs, id_lut!(sha256), script_args_def!(text = NIL), |vm, args| {
+++        if root_for_vm(vm).is_none() {
+++            return script_err_io!(vm.trap(), "storage not available in this context");
+++        }
+++        let text = script_value!(vm, args.text);
+++        let digest = vm.string_with(text, |_vm, s| {
+++            if s.len() > 65536 { return None; }
+++            let bytes = crate::makepad_platform::makepad_network::digest::sha256_hash(s.as_bytes());
+++            Some(bytes.iter().map(|byte| format!("{byte:02x}")).collect::<String>())
+++        });
+++        match digest {
+++            Some(Some(value)) => vm.bx.heap.new_string_from_str(&value).into(),
+++            _ => script_err_io!(vm.trap(), "sha256 requires UTF-8 text of at most 65536 bytes"),
+++        }
+++    });
+++
+++    // Local Muse overlay: digest an existing jailed snapshot using the same
+++    // path/symlink checks and per-file cap as storage. No network or new grant.
+++    // The provenance text digest above retains its separate 64 KiB input cap.
+++    vm.add_method(fs, id_lut!(sha256_file), script_args_def!(path = NIL), |vm, args| {
+++        let path = script_value!(vm, args.path);
+++        match target(vm, path).and_then(|(_root, real)| file_sha256(&real)) {
+++            Ok(value) => vm.bx.heap.new_string_from_str(&value).into(),
+++            Err(error) => script_err_io!(vm.trap(), "{}", error),
+++        }
+++    });
+++
++     vm.add_method(fs, id_lut!(read), script_args_def!(path = NIL), |vm, args| {
++         let path = script_value!(vm, args.path);
++         match target(vm, path) {
++@@ -595,6 +630,93 @@ pub fn script_mod(vm: &mut ScriptVm) {
++ mod tests {
++     use super::*;
++
+++    fn hash_script(root: Option<&Path>, code: &str) -> Result<String, Vec<String>> {
+++        let mut host = ScriptVmHost::new((), ());
+++        let mut vm = ScriptVm { host: &mut host, bx: Box::new(ScriptVmBase::new()) };
+++        let heap = vm.bx.heap.heap_key();
+++        set_root_for_heap(heap, root.map(Path::to_path_buf));
+++        script_mod(&mut vm);
+++        let value = vm.eval(ScriptMod {
+++            file: "jailed-hash-test.octoscript".into(),
+++            code: format!("let fs = mod.fs\n{code}\n;"),
+++            ..Default::default()
+++        });
+++        let errors = vm.take_errors();
+++        let text = vm.string_with(value, |_vm, text| text.to_string());
+++        set_root_for_heap(heap, None);
+++        if !errors.is_empty() { return Err(errors); }
+++        text.ok_or_else(|| vec!["expected a string digest".into()])
+++    }
+++
+++    #[test]
+++    fn sha256_script_standard_vectors_and_utf8() {
+++        let root = Path::new("/not-accessed-by-text-digest");
+++        for (text, expected) in [
+++            ("", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
+++            ("abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
+++            ("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq", "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"),
+++            ("Muse 日历 🐙\n记忆", "2a2f26ec22ab1716eb3d7e457dfcd440ac2e51c2a7d4f40d9d55a8583342ce1d"),
+++        ] {
+++            let literal = serde_json::to_string(text).unwrap();
+++            assert_eq!(hash_script(Some(root), &format!("fs.sha256({literal})")).unwrap(), expected);
+++        }
+++    }
+++
+++    #[test]
+++    fn sha256_script_requires_jail_text_and_bounded_utf8() {
+++        let root = Path::new("/not-accessed-by-text-digest");
+++        assert!(hash_script(None, "fs.sha256(\"abc\")").is_err());
+++        assert!(hash_script(Some(root), "fs.sha256(123)").is_err());
+++        for text in ["a".repeat(65537), "日".repeat(21846)] {
+++            let literal = serde_json::to_string(&text).unwrap();
+++            assert!(hash_script(Some(root), &format!("fs.sha256({literal})")).is_err());
+++        }
+++        let text = "a".repeat(65536);
+++        let expected = "bf718b6f653bebc184e1479f1935b8da974d701b893afcf49e701f3e2f9f9c5a";
+++        assert_eq!(hash_script(Some(root), &format!("fs.sha256({})", serde_json::to_string(&text).unwrap())).unwrap(), expected);
+++    }
+++
+++    #[test]
+++    fn sha256_file_script_reads_existing_jail_without_writing() {
+++        let root = std::env::temp_dir().join(format!("mp-hash-read-{}", std::process::id()));
+++        std::fs::create_dir_all(&root).unwrap();
+++        let path = root.join("snapshot.json");
+++        let bytes = b"abc";
+++        std::fs::write(&path, bytes).unwrap();
+++        let before = std::fs::metadata(&path).unwrap().modified().unwrap();
+++        assert_eq!(hash_script(Some(&root), "fs.sha256_file(\"/snapshot.json\")").unwrap(),
+++            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+++        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+++        assert_eq!(std::fs::metadata(&path).unwrap().modified().unwrap(), before);
+++        std::fs::write(&path, [0, 255, 128]).unwrap();
+++        assert_eq!(hash_script(Some(&root), "fs.sha256_file(\"snapshot.json\")").unwrap(),
+++            "f742b965f156c10374bc23aea96e3a8aff8facd6fc079defeaa30219ad86f211");
+++        std::fs::remove_dir_all(root).unwrap();
+++    }
+++
+++    #[test]
+++    fn sha256_file_script_refuses_escape_links_missing_and_large_files() {
+++        let root = std::env::temp_dir().join(format!("mp-hash-jail-{}", std::process::id()));
+++        std::fs::create_dir_all(&root).unwrap();
+++        assert!(hash_script(None, "fs.sha256_file(\"/x\")").is_err());
+++        for expr in ["fs.sha256_file(123)", "fs.sha256_file(\"../outside\")",
+++            "fs.sha256_file(\"/missing\")", "fs.sha256_file(\"/\")"] {
+++            assert!(hash_script(Some(&root), expr).is_err(), "{expr}");
+++        }
+++        std::fs::write(root.join("large"), vec![0; MAX_FILE_BYTES as usize + 1]).unwrap();
+++        assert!(hash_script(Some(&root), "fs.sha256_file(\"large\")").is_err());
+++        #[cfg(unix)] {
+++            let outside = root.with_extension("outside");
+++            std::fs::write(&outside, b"private test sentinel").unwrap();
+++            std::os::unix::fs::symlink(&outside, root.join("link")).unwrap();
+++            std::os::unix::fs::symlink(root.parent().unwrap(), root.join("directory-link")).unwrap();
+++            assert!(hash_script(Some(&root), "fs.sha256_file(\"link\")").is_err());
+++            assert!(hash_script(Some(&root), "fs.sha256_file(\"directory-link/missing\")").is_err());
+++            std::fs::remove_file(outside).unwrap();
+++        }
+++        std::fs::remove_dir_all(root).unwrap();
+++    }
+++
++     #[test]
++     fn existing_large_camera_files_remain_script_readable_but_not_exportable() {
++         let file = std::env::temp_dir().join(format!("mp-camera-read-{}", std::process::id()));

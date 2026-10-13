@@ -1,0 +1,4 @@
+#import <Foundation/Foundation.h>
+#import <Vision/Vision.h>
+#import <ImageIO/ImageIO.h>
+int main(int argc,const char**argv){@autoreleasepool{if(argc!=2)return 2;VNRecognizeTextRequest*r=[VNRecognizeTextRequest new];r.recognitionLevel=VNRequestTextRecognitionLevelFast;r.recognitionLanguages=@[@"en-US"];r.usesLanguageCorrection=NO;VNImageRequestHandler*h=[[VNImageRequestHandler alloc]initWithURL:[NSURL fileURLWithPath:@(argv[1])]options:@{}];NSError*e=nil;if(![h performRequests:@[r] error:&e])return 3;NSMutableArray*a=[NSMutableArray new];for(VNRecognizedTextObservation*o in r.results){VNRecognizedText*t=[[o topCandidates:1]firstObject];CGRect b=o.boundingBox;[a addObject:@{@"text":t.string,@"box":@[@(b.origin.x),@(1-b.origin.y-b.size.height),@(b.size.width),@(b.size.height)]}];}puts([[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:a options:0 error:nil]encoding:NSUTF8StringEncoding].UTF8String);}}

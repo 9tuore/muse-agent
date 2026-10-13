@@ -107,7 +107,8 @@ class Remote:
             raise AssertionError(f"{key} is clipped to {width}x{height}")
         # Focus and key-down may change no pixels. The remote's wait=1 then
         # times out waiting for a new frame despite delivering the input.
-        self.request("/click", x=int(x + width / 2), y=int(y + height / 2))
+        # Focus the first text line; empty multiline space may belong to its scroll view.
+        self.request("/click", x=int(x + min(width / 2, 24)), y=int(y + min(height / 2, 15)))
         if widget["val"]:
             # This remote surface does not deliver Cmd+A to Splash TextInput.
             # Individual key-downs do reach the focused field.

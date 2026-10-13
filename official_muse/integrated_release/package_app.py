@@ -65,11 +65,14 @@ def main():
         help='Copy matching verified app resources/Kernel; sign the staged Host as standalone; no Cargo')
     parser.add_argument('--state-root', type=Path,
         help='Reference an existing absolute state root in launcher.json; never copy its contents')
+    parser.add_argument('--hub-anchor', help='Public trust anchor for a newly built private local catalog; never a signing key')
     args = parser.parse_args()
     if args.model_mode != 'gpt' and args.model_source is None:
         parser.error('--model-source is required for offline/hybrid mode')
     if args.state_root is not None and not args.state_root.is_absolute():
         parser.error('--state-root must be absolute')
+    if args.hub_anchor is not None and re.fullmatch('[0-9a-f]{64}', args.hub_anchor) is None:
+        parser.error('--hub-anchor must be a 32-byte lowercase public key')
     directory_copies = []
     source_host_sha256 = sha(args.host)
     source_kernel_sha256 = sha(args.kernel)
@@ -134,8 +137,9 @@ def main():
     assert not list(resources.rglob('*.key')), 'A private key entered the package'
     # Preserve the original working LaunchServices identity and shell executable.
     shutil.copy2(HERE / 'workbuddy_info.plist', app / 'Contents/Info.plist')
-    (resources / 'launcher.json').write_text(json.dumps({'version': '0.4.0-rc16',
-        'model_mode': args.model_mode, 'state_root': str(args.state_root) if args.state_root else None}, indent=2) + '\n')
+    (resources / 'launcher.json').write_text(json.dumps({'version': '0.4.0-rc23',
+        'model_mode': args.model_mode, 'state_root': str(args.state_root) if args.state_root else None,
+        'hub_anchor': args.hub_anchor}, indent=2) + '\n')
     shutil.copy2(HERE / 'workbuddy_launcher.sh', executable / 'Launcher')
     (executable / 'Launcher').chmod(0o755)
     run(['clang', '-fobjc-arc', '-O2', '-framework', 'AppKit', HERE / 'muse_launcher.m',
@@ -172,7 +176,7 @@ def main():
     (output / 'HOST_RESOURCES.json').write_text(json.dumps(inventory, indent=2) + '\n')
     assert sha(executable / 'Launcher') == sha(HERE / 'workbuddy_launcher.sh'), 'Packaged entry differs from source script'
     assert (app / 'Contents/Info.plist').read_bytes() == (HERE / 'workbuddy_info.plist').read_bytes(), 'Working App Info changed'
-    record = {'version': '0.4.0-rc16', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
+    record = {'version': '0.4.0-rc23', 'status': 'PACKAGED_NOT_RUNTIME_VERIFIED',
         'signature': 'AD_HOC_LOCAL_ONLY', 'source_host_sha256': source_host_sha256,
         'source_host_release': source_release,
         'source_kernel_sha256': source_kernel_sha256,
@@ -187,7 +191,7 @@ def main():
         'host_resources_files': len(inventory),
         'state_root_reference': str(args.state_root) if args.state_root is not None else None,
         'catalog_sha256': sha(resources / 'mirror/catalog.json'),
-        'muse_main_sha256': sha(resources / 'mirror/artifacts/muse-goals-0.4.0-rc16.bundle/main.splash'),
+        'muse_main_sha256': sha(resources / 'mirror/artifacts/muse-goals-0.4.0-rc23.bundle/main.splash'),
         'host_sha256': sha(runtime / 'muse-host'),
         'host_hash_boundary': 'source_host_sha256 is the input; host_sha256 is the packaged executable after signing',
         'kernel_sha256': sha(runtime / 'octos-kernel'),

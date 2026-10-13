@@ -1,0 +1,91 @@
+{
+  "status": "REAL_UI_CREATE_AND_NATIVE_READBACK_PASS",
+  "version": "0.4.0-rc19",
+  "product_commit": "6a43da946e3f187acd8fa782f56675a635ade3e6",
+  "bundle_sha256": "c2419fb31ca6d8de9bf06b22b6483f8ca2cec48a642c6ab20dc251bcf527ecc2",
+  "input": "明天8点晚上吃饭",
+  "request_id": "muse-calendar-1791900160-2234804025",
+  "event": {
+    "end": "2026-10-14T21:00",
+    "id": "ev-1791929069417-164490595139760641431408527642868934579",
+    "location": "吃饭",
+    "notes": "",
+    "request_id": "muse-calendar-1791900160-2234804025",
+    "start": "2026-10-14T20:00",
+    "timezone": "Asia/Shanghai",
+    "title": "吃饭"
+  },
+  "messages": [
+    {
+      "host_calendar_receipt": {
+        "args_digest": "sha256:5228156171248b724bbf4fae2cc64ff6d8a042688fea521140dc8a8bf36d5f65",
+        "bridge_persisted": true,
+        "call_id": "calendar-ui-06a4e691-33d2-4760-a3ce-bd68dc80a507",
+        "caller": "muse-goals",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "calendar-ui-06a4e691-33d2-4760-a3ce-bd68dc80a507",
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791929069417-164490595139760641431408527642868934579",
+            "start": "2026-10-14T20:00"
+          },
+          "ok": true
+        },
+        "session_id": "calendar-relay:muse-goals:263a4dbe41488fb87214b0032339dbb9f0c8da14c16dfcf13084bf3c2552eca5",
+        "source": "host_calendar_relay",
+        "terminal": "ok",
+        "tool": "calendar.add_event",
+        "tool_call_id": "calendar-ui-06a4e691-33d2-4760-a3ce-bd68dc80a507",
+        "turn_id": "calendar-relay-2e7d4bed-a483-4b96-8c65-2c1df5cfdd54"
+      },
+      "lane": "person",
+      "persisted_at": "1791900270270",
+      "role": "tool",
+      "tool_call_id": "calendar-ui-06a4e691-33d2-4760-a3ce-bd68dc80a507",
+      "tool_name": "calendar.add_event",
+      "turn_id": "calendar-relay-2e7d4bed-a483-4b96-8c65-2c1df5cfdd54"
+    },
+    {
+      "host_calendar_receipt": {
+        "args_digest": "sha256:6577fb7ce29788b0013d784ecce0d40ec6ed201954a64ae4bb752cad1be80b71",
+        "bridge_persisted": true,
+        "call_id": "calendar-ui-e9c174e9-a3d0-4045-8d76-6a464b42e293",
+        "caller": "muse-goals",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "calendar-ui-e9c174e9-a3d0-4045-8d76-6a464b42e293",
+          "data": {
+            "event": {
+              "end": "2026-10-14T21:00",
+              "id": "ev-1791929069417-164490595139760641431408527642868934579",
+              "location": "吃饭",
+              "notes": "",
+              "request_id": "muse-calendar-1791900160-2234804025",
+              "start": "2026-10-14T20:00",
+              "timezone": "Asia/Shanghai",
+              "title": "吃饭"
+            },
+            "found": true
+          },
+          "ok": true
+        },
+        "session_id": "calendar-relay:muse-goals:263a4dbe41488fb87214b0032339dbb9f0c8da14c16dfcf13084bf3c2552eca5",
+        "source": "host_calendar_relay",
+        "terminal": "ok",
+        "tool": "calendar.get_event",
+        "tool_call_id": "calendar-ui-e9c174e9-a3d0-4045-8d76-6a464b42e293",
+        "turn_id": "calendar-relay-2e7d4bed-a483-4b96-8c65-2c1df5cfdd54"
+      },
+      "lane": "person",
+      "persisted_at": "1791900270452",
+      "role": "tool",
+      "tool_call_id": "calendar-ui-e9c174e9-a3d0-4045-8d76-6a464b42e293",
+      "tool_name": "calendar.get_event",
+      "turn_id": "calendar-relay-2e7d4bed-a483-4b96-8c65-2c1df5cfdd54"
+    }
+  ],
+  "journal_sha256": "748c63138efe5e36e7da709e563e7d9541849e534ed3d416d2c388795accede4",
+  "screenshot": "02-calendar-result.png",
+  "finished_at_utc": "2026-10-13T14:05:38Z"
+}

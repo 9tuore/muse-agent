@@ -1,22 +1,15 @@
 # Handoff
 
-## Task
-先同步当前代码到GitHub；根bundle/唯一发布入口。继续真实日历展示与110秒视频。
+Task：冻结 RC23，完成110秒视频、提交文案、GitHub收口；单AI，仅独立目录。
 
-## Result
-PARTIAL。rc16根Bundle与可读源同版本；rc15真实显示，rc16布局修正待运行。
+Result：PARTIAL（本地成片与应用已就绪，远端发布正在执行）。产品不再开发下一版。
 
-## Changed
-根Bundle升级、旧路径兼容链接、源码一致性检查与只读CI；展示页压缩默认高度。
+Changed：媒体合成工具支持多源剪辑、局部放大与旁白；统一标题、文案、教程、录制说明及提交入口。三条本地提醒已清除，原邮件保留。
 
-## Tests
-15项事务VM fixture、9项布局测试通过；根发布布局和源码字节一致。证据build/showcase-20261013。
+Tests：RC23 Bundle与发布布局PASS；成片110秒/1080p/中文配音字幕，执行全片解码与画面抽查。旧业务证据维持原版本归属。
 
-## Commit
-本地提交后按用户授权非强制push；远端结果待核验。
+Commit：发布收口提交见git log；远端SHA与Release资产将在发布回执独立核对。
 
-## Remaining
-rc16运行、真实Calendar创建/改期/恢复、110秒视频。
+Remaining：GitHub上传与工作流核验；比赛网站最终提交。
 
-## Important Boundaries
-代码push不等于正式发布或比赛提交；fixture不代替真实业务。
+Boundaries：记忆录屏RC23，日历成功录屏RC21；不是RC23同候选全链路或全功能三轮验收。配套宿主，不声明App Hub准入。旧失败证据保留，未脱敏原始资料不公开。

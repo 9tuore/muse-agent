@@ -1,0 +1,63 @@
+name: Release Muse native desktop source
+on:
+  push:
+    tags: ['v*']
+permissions: {}
+concurrency:
+  group: muse-native-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    if: vars.MUSE_APP_HUB_RELEASE != 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify the immutable version and source
+        run: |
+          python3 scripts/check_current_bundle.py
+          python3 scripts/check_release_layout.py --for-github-release
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          version = json.loads(Path('bundle/manifest.json').read_text())['version']
+          assert os.environ['GITHUB_REF_NAME'] == 'v' + version
+          assert os.environ['GITHUB_REF_TYPE'] == 'tag'
+          PY
+      - name: Archive tracked source and root bundle
+        run: |
+          mkdir -p build/release
+          git archive --format=tar.gz --prefix=Muse-source/ HEAD > build/release/Muse-source.tar.gz
+          git archive --format=zip HEAD bundle > build/release/Muse-bundle.zip
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          out = Path('build/release')
+          receipt = {
+            'version': json.loads(Path('bundle/manifest.json').read_text())['version'],
+            'commit': os.environ['GITHUB_SHA'], 'tag': os.environ['GITHUB_REF_NAME'],
+            'delivery': 'native host extension; paired OctoSense host required',
+            'host': json.loads(Path('dependencies.lock.json').read_text()),
+            'artifacts': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in out.iterdir()},
+            'app_hub_admission': False,
+          }
+          (out / 'release-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          PY
+      - name: Attest source provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: build/release/*
+      - name: Create reviewable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --verify-tag --draft \
+            --title "Muse $GITHUB_REF_NAME" --notes-file docs/NATIVE_DELIVERY.md \
+            build/release/Muse-source.tar.gz build/release/Muse-bundle.zip \
+            build/release/release-receipt.json

@@ -1,0 +1,89 @@
+{
+  "status": "LIVE_UI_CREATE_AND_NATIVE_READBACK_PASS",
+  "version": "0.4.0-rc18",
+  "bundle_sha256": "8ec8e7943f1e459776f892c15e5b7fc1771ad1bba2bed10c62f2ac6c2c03219d",
+  "request_id": "muse-calendar-1791896192-3884989223",
+  "turn_id": "calendar-relay-feeacb41-af5f-4570-824a-4784dd1bafc4",
+  "event": {
+    "end": "2026-10-14T16:00",
+    "id": "ev-1791925168874-339202693037603238500864993010134376451",
+    "location": "线上会议",
+    "notes": "",
+    "request_id": "muse-calendar-1791896192-3884989223",
+    "start": "2026-10-14T15:00",
+    "timezone": "Asia/Shanghai",
+    "title": "明天下午三点开星海项目评审会"
+  },
+  "messages": [
+    {
+      "host_calendar_receipt": {
+        "args_digest": "sha256:428fe8703d75b7244ed0a316a1badfb1ad6d5a719688b1aa5e4a8905e290c30c",
+        "bridge_persisted": true,
+        "call_id": "calendar-ui-52a7e0d2-d849-4634-a600-ecd08ee0238f",
+        "caller": "muse-goals",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "calendar-ui-52a7e0d2-d849-4634-a600-ecd08ee0238f",
+          "data": {
+            "card_warning": null,
+            "id": "ev-1791925168874-339202693037603238500864993010134376451",
+            "start": "2026-10-14T15:00"
+          },
+          "ok": true
+        },
+        "session_id": "calendar-relay:muse-goals:263a4dbe41488fb87214b0032339dbb9f0c8da14c16dfcf13084bf3c2552eca5",
+        "source": "host_calendar_relay",
+        "terminal": "ok",
+        "tool": "calendar.add_event",
+        "tool_call_id": "calendar-ui-52a7e0d2-d849-4634-a600-ecd08ee0238f",
+        "turn_id": "calendar-relay-feeacb41-af5f-4570-824a-4784dd1bafc4"
+      },
+      "lane": "person",
+      "persisted_at": "1791896369281",
+      "role": "tool",
+      "tool_call_id": "calendar-ui-52a7e0d2-d849-4634-a600-ecd08ee0238f",
+      "tool_name": "calendar.add_event",
+      "turn_id": "calendar-relay-feeacb41-af5f-4570-824a-4784dd1bafc4"
+    },
+    {
+      "host_calendar_receipt": {
+        "args_digest": "sha256:7f0b2c0d38ac23f7ce813ee1cb56cce0beae9b24c4db0b1afdbe1da75f7c3829",
+        "bridge_persisted": true,
+        "call_id": "calendar-ui-94ab3eac-aadb-45ed-b96a-876c47fdda26",
+        "caller": "muse-goals",
+        "owner": "os.calendar",
+        "result": {
+          "call_id": "calendar-ui-94ab3eac-aadb-45ed-b96a-876c47fdda26",
+          "data": {
+            "event": {
+              "end": "2026-10-14T16:00",
+              "id": "ev-1791925168874-339202693037603238500864993010134376451",
+              "location": "线上会议",
+              "notes": "",
+              "request_id": "muse-calendar-1791896192-3884989223",
+              "start": "2026-10-14T15:00",
+              "timezone": "Asia/Shanghai",
+              "title": "明天下午三点开星海项目评审会"
+            },
+            "found": true
+          },
+          "ok": true
+        },
+        "session_id": "calendar-relay:muse-goals:263a4dbe41488fb87214b0032339dbb9f0c8da14c16dfcf13084bf3c2552eca5",
+        "source": "host_calendar_relay",
+        "terminal": "ok",
+        "tool": "calendar.get_event",
+        "tool_call_id": "calendar-ui-94ab3eac-aadb-45ed-b96a-876c47fdda26",
+        "turn_id": "calendar-relay-feeacb41-af5f-4570-824a-4784dd1bafc4"
+      },
+      "lane": "person",
+      "persisted_at": "1791896370132",
+      "role": "tool",
+      "tool_call_id": "calendar-ui-94ab3eac-aadb-45ed-b96a-876c47fdda26",
+      "tool_name": "calendar.get_event",
+      "turn_id": "calendar-relay-feeacb41-af5f-4570-824a-4784dd1bafc4"
+    }
+  ],
+  "source_journal_sha256": "44e6e023cb1600a1002d482a1317e11594442d4c8acfcb5e39cd6485b78e8452",
+  "screenshot": "gui/03-calendar-result.png"
+}

@@ -295,6 +295,9 @@ return n-floor(n/7)*7
 
 
 fn calendar_display_time(value){
+if value!=nil&&value.is_string()&&regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}$","").test(value){
+value=value+":00+08:00"
+}
 let epoch=page_event_epoch(value)
 if epoch==nil{return ""}
 let local=epoch+28800
@@ -539,10 +542,147 @@ if value.len()==19{return value+"+08:00"}
 return value
 }
 fn calendar_relay_normalize(payload){
-if!gm_object(payload)||payload["time_zone"]!="Asia/Shanghai"{return payload}
-return{title:payload["title"]start:calendar_relay_wall_offset(payload["start"])
-end:calendar_relay_wall_offset(payload["end"])time_zone:payload["time_zone"]location:payload["location"]}
+if!gm_object(payload){return payload}
+let zone=payload["time_zone"]
+if!gm_text(zone)||zone.trim()==""{zone="Asia/Shanghai"}
+let start=payload["start"]let end=payload["end"]
+if zone=="Asia/Shanghai"{
+start=calendar_relay_wall_offset(start)
+end=calendar_relay_wall_offset(end)
+if!gm_text(end)||end.trim()==""{
+let epoch=calendar_iso_epoch(start)
+if epoch!=nil{end=core_utc_iso(epoch+3600+28800).split("Z")[0]+"+08:00"}
 }
+}
+let location=payload["location"]
+if!gm_text(location){location=""}
+return{title:payload["title"]start:start end:end time_zone:zone location:location}
+}
+fn calendar_relay_replace(text,from,to){
+let result="" let separator=""
+for part in text.split(from){result=result+separator+part separator=to}
+return result
+}
+fn calendar_relay_ascii_time(text){
+let numbers=["零","一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十","二十一","二十二","二十三"]
+for i in numbers.len(){let n=numbers.len()-1-i text=calendar_relay_replace(text,numbers[n],""+n)}
+for pair in[["两","2"],["小时","H"],["分钟","M"],["年","-"],["月","-"],["日"," "],["点","h"],["时","h"],["分",""],["至","~"],["到","~"],["半","30"],["：",":"]]{
+text=calendar_relay_replace(text,pair[0],pair[1])
+}
+let ascii="".to_chars()
+for c in text.to_chars(){if c<128{ascii.push(c)}else{ascii.push(32)}}
+return ascii.to_string()
+}
+fn calendar_relay_clock(token){
+let parts=token.split("h")
+if parts.len()!=2{parts=token.split(":")}
+if parts.len()<2||parts[0]==""{return nil}
+let hour=parts[0].to_f64()let minute=0
+if parts[1]!=""{minute=parts[1].to_f64()}
+if hour!=hour||minute!=minute||hour<0||hour>23||minute<0||minute>59{return nil}
+return{hour:hour minute:minute}
+}
+fn calendar_relay_event_title(title,text){
+if!gm_text(title)||title.trim()==""{title=text}
+let number="[0-9零〇一二两三四五六七八九十]+"
+let day="今天|明天|后天|大后天|周[一二三四五六日天]|(?:下|本|这)(?:周|星期)[一二三四五六日天]"
+let period="凌晨|早上|早晨|上午|中午|下午|傍晚|晚上|晚间"
+
+for pattern in[
+"[0-9]{4}[-年/][0-9]{1,2}[-月/][0-9]{1,2}日?",
+"[0-9]{1,2}月[0-9]{1,2}[日号]",
+"[0-9]{1,2}[:：][0-9]{2}(?::[0-9]{2})?",
+number+"(?:点|时)(?:半|一刻|三刻|"+number+"分?)?"
+]{title=title.replace(regex(pattern,"g"),"")}
+for i in 5{
+title=title.trim().replace(regex("^[，,。；;：:、~—–到至的 ]+|[，,。；;：:、~—– ]+$","g"),"")
+title=title.replace(regex("^(?:请帮我|请给我|请为我|帮我|给我|为我|麻烦你|麻烦|请|提醒我|我要|我想|安排一下|安排|添加一个日程|添加日程)",""),"")
+title=title.replace(regex("^(?:"+day+"|"+period+")|(?:"+day+"|"+period+")$","g"),"")
+}
+title=title.replace(regex("[，,；; ]*地点[：: ]*.*$",""),"").trim()
+return title
+}
+fn calendar_relay_request_time(payload,text){
+payload=calendar_relay_normalize(payload)
+if!gm_object(payload){return payload}
+payload.title=calendar_relay_event_title(payload["title"],text)
+let places=text.split("地点")
+if places.len()==2{
+let place=places[1]
+for delimiter in["，","。","；",",",";"]{place=place.split(delimiter)[0]}
+payload.location=calendar_relay_replace(calendar_relay_replace(place,"：",""),":","").trim()
+}else if payload.location==payload.title||text.search(payload.location)<0{
+payload.location=""
+}
+
+
+if text.len()<=140&&text.search("\n")<0&&text.search("T")<0
+&&regex("[0-9零〇一二两三四五六七八九十]+(?:点|时)|[0-9]{1,2}[:：][0-9]{2}","").test(text){
+let activity=calendar_relay_event_title(text,"")
+if payload.location!=""{activity=calendar_relay_replace(activity,"在"+payload.location,"").trim()}
+if regex("^开.+会$","").test(activity){activity=activity.replace(regex("^开",""),"")}
+let direct=activity!=""&&activity.len()<=80
+for word in["请","根据","按照","安排","邮件","改到","改为","改期"]{if activity.search(word)>=0{direct=false}}
+if direct{payload.title=activity}
+}
+if payload.time_zone!="Asia/Shanghai"{return payload}
+if text.search("T")>=0&&calendar_iso_epoch(payload.start)!=nil&&calendar_iso_epoch(payload.end)!=nil{return payload}
+let ascii=calendar_relay_ascii_time(text)
+for delimiter in[",",";","~"]{ascii=calendar_relay_replace(ascii,delimiter," ")}
+let day=page_time_floor((time_now()+28800)/86400)let explicit_day=false
+if text.search("大后天")>=0{day=day+3 explicit_day=true}
+else if text.search("后天")>=0{day=day+2 explicit_day=true}
+else if text.search("明天")>=0{day=day+1 explicit_day=true}
+else if text.search("今天")>=0{explicit_day=true}
+let clocks=[]let duration=3600
+for token in ascii.split(" "){
+if token!=""{
+let dates=token.split("-")
+if dates.len()==3&&dates[0].len()==4{
+let parsed=page_parse_date(dates[0]+"-"+page_two(dates[1].to_f64())+"-"+page_two(dates[2].to_f64()))
+if parsed!=nil{day=parsed.number explicit_day=true}
+}
+let clock=calendar_relay_clock(token)
+if clock!=nil{clocks.push(clock)}
+let hours=token.split("H")
+if hours.len()==2{let n=hours[0].to_f64()if n>0&&n<=24{duration=n*3600}}
+let minutes=token.split("M")
+if minutes.len()==2{let n=minutes[0].to_f64()if n>0&&n<=1440{duration=n*60}}
+}
+}
+if clocks.len()==0{return payload}
+let hour=clocks[0].hour
+if(text.search("下午")>=0||text.search("晚上")>=0)&&hour<12{hour=hour+12}
+let start=day*86400+hour*3600+clocks[0].minute*60-28800
+if!explicit_day&&start<=time_now(){start=start+86400}
+let end=start+duration
+if clocks.len()>1{
+let eh=clocks[1].hour
+if(text.search("下午")>=0||text.search("晚上")>=0)&&eh<12{eh=eh+12}
+end=page_time_floor((start+28800)/86400)*86400+eh*3600+clocks[1].minute*60-28800
+if end<=start{end=end+86400}
+}
+payload.start=core_utc_iso(start+28800).split("Z")[0]+"+08:00"
+payload.end=core_utc_iso(end+28800).split("Z")[0]+"+08:00"
+return payload
+}
+
+fn calendar_relay_edit_time(payload,text,original){
+
+let reference=text
+let has_date=false
+for word in["今天","明天","后天","月","年"]{if text.search(word)>=0{has_date=true}}
+if text.replace(regex("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}",""),"")!=text{has_date=true}
+if!has_date{reference=original.start.split("T")[0]+" "+text}
+let normalized=calendar_relay_normalize({start:original.start end:original.end time_zone:original.timezone})
+let duration=calendar_iso_epoch(normalized.end)-calendar_iso_epoch(normalized.start)
+if duration>0&&text.search("小时")<0&&text.search("分钟")<0{reference=(duration/60)+"分钟 "+reference}
+payload=calendar_relay_request_time(payload,reference)
+payload.title=original.title
+if text.search("地点")<0{payload.location=original.location}
+return payload
+}
+
 fn calendar_relay_plan(text,id,binding,callback){
 if binding!=nil{calendar_relay_run(id,"add",calendar_agent_state.binding.payload,callback)return}
 if calendar_agent_preflight.status=="query"&&calendar_agent_preflight.request_id==id{
@@ -559,15 +699,15 @@ calendar_relay_run(id,"query",args,callback)return
 }
 let session=chat_selected_id
 muse_model_request(text,session,"",||calendar_agent_state.request_id==id&&chat_selected_id==session,{
-task:chat_calendar_reference()+"提取用户要求新建的日程。只返回title、start、end、time_zone、location五个字符串。开始结束格式YYYY-MM-DDTHH:MM:00+08:00，默认Asia/Shanghai。标题用用户给出的事项。只给开始时结束为一小时后。没有明确日期或开始时间则留空。不要执行任何操作。"
+task:chat_calendar_reference()+"提取用户要求新建的日程。只返回title、start、end、time_zone、location五个字符串。开始结束格式YYYY-MM-DDTHH:MM:00+08:00，默认Asia/Shanghai。title只保留具体事项名称，不含日期、时间、地点或请帮我等指令；例如“明天8点晚上吃饭”的title为“吃饭”，“明天下午三点开项目评审会”的title为“项目评审会”。时间写入start/end，地点写入location。只给开始时结束为一小时后。没有明确日期或开始时间则留空。不要执行任何操作。"
 input:{question:text}
-schema:{type:"object" properties:{title:{type:"string" maxLength:80}start:{type:"string" maxLength:40 pattern:"^$|^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:00[+]08:00$"}
-end:{type:"string" maxLength:40 pattern:"^$|^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:00[+]08:00$"}time_zone:{type:"string" maxLength:64}location:{type:"string" maxLength:120}}
+schema:{type:"object" properties:{title:{type:"string" maxLength:80}start:{type:"string" maxLength:40}
+end:{type:"string" maxLength:40}time_zone:{type:"string" maxLength:64}location:{type:"string" maxLength:120}}
 required:["title","start","end","time_zone","location"]additionalProperties:false}
 class:"fast"
 },fn(r){
-if!r.is_ok|| !gm_object(r["data"])|| !gm_object(r.data["output"]){callback({is_ok:false error:"无法整理日程，请补充标题和日期时间。"})return}
-let payload=calendar_relay_normalize(r.data.output)
+if!r.is_ok|| !gm_object(r["data"])|| !gm_object(r.data["output"]){callback({is_ok:false error:"暂时无法理解这句话，请稍后重试。"})return}
+let payload=calendar_relay_request_time(r.data.output,text)
 let error=chat_payload_error("calendar_candidate",payload)
 storage_write("calendar-last-plan.json",{request_id:id raw:r.data.output normalized:payload validation:error}.to_json())
 if error!=""{callback({is_ok:false error:error})return}
@@ -891,7 +1031,7 @@ binding.payload.notes=""
 binding.receipt_status="unknown"
 if!calendar_agent_binding_current(binding){ui_error="候选已变化，未准备官方请求。" redraw()return false}
 calendar_agent_candidate=binding
-calendar_agent_notice="候选已关联当前事项；请核对后单独提交官方请求，需要批准时由本人在宿主决定。"
+calendar_agent_notice="安排已准备好，可以添加到日历。"
 return true
 }
 fn calendar_agent_same_candidate(a,b){
@@ -1315,10 +1455,10 @@ let binding=request["binding"]
 if!calendar_agent_binding_current(binding)||goal.id!=binding.goal_id{return false}
 let status=request.status
 if status=="turn_completed"{status=binding.receipt_status}
-ac_add(view,"官方日历请求",status,"请求与当前事项版本绑定；模型回复不算工具回执",request.request_id)
+ac_add(view,"保存日程",status,"请求与当前事项版本绑定；模型回复不算工具回执",request.request_id)
 if status=="verified"{
-ac_add(view,"官方日历精确读回","verified","新建稳定 ID 与精确事件字段一致 · "+binding.verification.event_id,request.request_id)
-view.next="日历已精确核验；确认草稿需单独审阅，收件端本人核验后保存事项完成记录。可本人选择新候选同ID改期。"
+ac_add(view,"查看保存结果","verified",binding.payload.title+" · "+binding.payload.start+" → "+binding.payload.end,request.request_id)
+view.next="日程已保存。需要调整时，直接输入新的时间；也可以写一封确认邮件。"
 if goal.status=="completed"&&mail_native_completion_matches(goal,nil){
 view.next="最新日历与收件核验声明已保存；事项已完成，可在全局记忆回读完成结果。"
 }
@@ -1351,10 +1491,10 @@ if text==""||text.len()>6000{calendar_agent_notice="请写下新的日期和时�
 let snapshot=authority.to_json()let session=chat_selected_id
 calendar_agent_busy=true calendar_agent_notice="正在整理新的安排…" redraw()
 muse_model_request(text,session,authority.current_binding.goal_id,||calendar_agent_authority_current(snapshot.parse_json()),{
-task:"根据用户要求修改这个已存在日程，只输出新的title、start、end、time_zone、location五个字符串，不执行日历。保留用户没有修改的字段和原时长。start/end使用带+08:00的完整ISO8601时间，时区Asia/Shanghai。只说几点时沿用原事件日期。日期或时间不明确则对应字段留空，不猜测。"
+task:chat_calendar_reference()+"根据用户要求修改这个已存在日程，只输出新的title、start、end、time_zone、location五个字符串，不执行日历。保留用户没有修改的字段和原时长。start/end使用带+08:00的完整ISO8601时间，时区Asia/Shanghai。只说几点时沿用原事件日期。日期或时间不明确则对应字段留空，不猜测。"
 input:{original_event:authority.event user_request:text source_account:authority.current_binding.account_id}
-schema:{type:"object" properties:{title:{type:"string" maxLength:80}start:{type:"string" maxLength:40 pattern:"^$|^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:00[+]08:00$"}
-end:{type:"string" maxLength:40 pattern:"^$|^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:00[+]08:00$"}time_zone:{type:"string" maxLength:64}location:{type:"string" maxLength:120}}
+schema:{type:"object" properties:{title:{type:"string" maxLength:80}start:{type:"string" maxLength:40}
+end:{type:"string" maxLength:40}time_zone:{type:"string" maxLength:64}location:{type:"string" maxLength:120}}
 required:["title","start","end","time_zone","location"]additionalProperties:false}
 class:"fast"
 },fn(r){
@@ -1365,7 +1505,7 @@ calendar_agent_notice="当前事项已切换，原日程未改动。" redraw()re
 if!r.is_ok|| !gm_object(r["data"])|| !gm_object(r.data["output"]){
 calendar_agent_notice="暂时没能整理出新时间，请补充日期和时间后重试。" redraw()return
 }
-let payload=calendar_relay_normalize(r.data.output.to_json().parse_json())
+let payload=calendar_relay_edit_time(r.data.output.to_json().parse_json(),text,authority.event)
 let error=chat_payload_error("calendar_candidate",payload)
 if error!=""{calendar_agent_notice=error redraw()return}
 payload={to:"" subject:"" body:"" objective:"" source:"" title:payload.title
@@ -1379,8 +1519,12 @@ memory_refs:[]revision:1 project:binding.project_id owner:binding.owner_id goal_
 chat_sessions[i].proposals.push(card)
 if!chat_save(){calendar_agent_notice="新的安排未保存，请稍后重试。" redraw()return}
 if!calendar_agent_prepare_candidate(card){calendar_agent_notice=ui_error redraw()return}
+
+
+start_timeout(0.05,||{
 calendar_agent_update_select()
-calendar_agent_update_confirm()
+start_timeout(0.05,||calendar_agent_update_confirm())
+})
 })
 }
 fn calendar_agent_submit_bound(text,binding){
@@ -1731,7 +1875,7 @@ calendar_agent_notice="改期计划或旧草稿未可靠保存，未派发；原
 }
 calendar_agent_update_selected=record.to_json()
 calendar_agent_candidate=record.binding.to_json().parse_json()
-calendar_agent_notice="已冻结原事件ID和八字段、新候选及计划版本；请核对后明确确认改期，宿主仍须本人批准。"
+calendar_agent_notice="新安排已准备好，请确认改期。"
 redraw()
 }
 fn calendar_agent_update_confirm(){
@@ -1745,7 +1889,7 @@ calendar_agent_update_selected="" calendar_agent_notice="改期选择、身份�
 record.status="in_flight" record.transport="host_calendar_relay" calendar_agent_update_selected=""
 if!calendar_agent_update_save(){redraw()return}
 let id=record.request_id let snapshot=record.to_json()
-calendar_agent_busy=true calendar_agent_notice="正在提交所选事件的同ID改期请求。" redraw()
+calendar_agent_busy=true calendar_agent_notice="正在更新这项日程…" redraw()
 host.request("octos.session.open",{},fn(opened){
 if index>=calendar_agent_update_state.records.len()||calendar_agent_update_state.records[index].request_id!=id
 ||calendar_agent_update_state.records[index].to_json()!=snapshot{return}
@@ -1769,7 +1913,7 @@ if r.is_ok&&gm_object(r["data"])&&gm_string(r.data["turn_id"],160)&&r.data.turn_
 calendar_agent_update_state.records[index].turn_id=r.data.turn_id
 if calendar_agent_update_current(record){calendar_agent_update_state.records[index].status="turn_completed"}
 }
-calendar_agent_notice="改期结果按原回合的三条官方回执核对；未知不重发，事项未整体完成。"
+calendar_agent_notice="正在确认新的安排…"
 if calendar_agent_update_save()&&calendar_agent_update_state.records[index].status=="turn_completed"{calendar_agent_update_history(index)}
 redraw()
 })
@@ -1845,9 +1989,10 @@ calendar_agent_update_state.records[index].receipt_status=result.status
 if result.status=="verified"{
 calendar_agent_update_state.records[index].status="turn_completed"
 calendar_agent_update_state.records[index].verification=result
+calendar_agent_candidate=nil
 }
 if!calendar_agent_update_save(){redraw()return}
-calendar_agent_notice="同ID改期回执状态："+ac_state(result.status)+"；三步精确核验后才使用新事件。整体事项完成还需收件核验并保存结果。"
+calendar_agent_notice=if result.status=="verified"{"改期已完成。"}else{"改期："+ac_state(result.status)+"。"}
 redraw()
 })
 }
@@ -1859,10 +2004,10 @@ if i<0{return false}
 let record=calendar_agent_update_state.records[i]
 if!calendar_agent_update_current(record)||record.binding.goal_id!=goal.id{return false}
 let status=record.status if status=="turn_completed"{status=record.receipt_status}
-ac_add(view,"官方日历同ID改期",status,"原创建证据保留；计划版本 "+record.binding.plan_revision,record.request_id)
+ac_add(view,"更新原日程",status,"原创建证据保留；计划版本 "+record.binding.plan_revision,record.request_id)
 if record.receipt_status=="verified"{
-ac_add(view,"改期精确读回","verified",record.event.title+" · "+record.event.start+" → "+record.event.end,record.request_id)
-view.next="新安排已按同ID精确核验；可另行准备邮件，旧审阅失效。收件端本人核验后保存事项完成记录。"
+ac_add(view,"新安排已保存","verified",record.event.title+" · "+record.event.start+" → "+record.event.end,record.request_id)
+view.next="原日程已更新，没有重复新建。接下来可以按新时间写确认邮件。"
 if goal.status=="completed"&&mail_native_completion_matches(goal,record){
 view.next="同ID改期与最新邮件核验结果已保存；事项已完成，可在全局记忆回读完成结果。"
 }
@@ -1989,7 +2134,7 @@ fn calendar_agent_delete_select(){
 let target=calendar_agent_delete_target()
 if target==nil{calendar_agent_delete_selected="" calendar_agent_notice="请本人选择当前事项的已核验事件；原删除请求不能重发。" redraw()return}
 calendar_agent_delete_selected=target.to_json()
-calendar_agent_notice="已选择这个稳定ID及全部字段；请核对后再明确确认删除，宿主仍须本人批准。"
+calendar_agent_notice="已选中这项日程，请确认删除。"
 redraw()
 }
 fn calendar_agent_delete_confirm(){
@@ -2008,7 +2153,7 @@ calendar_agent_delete_state.records.push(record)
 calendar_agent_delete_selected=""
 if!calendar_agent_delete_save(){redraw()return}
 let id=record.request_id
-calendar_agent_busy=true calendar_agent_notice="正在提交这一个事件的删除请求；需要批准时由本人在宿主决定。" redraw()
+calendar_agent_busy=true calendar_agent_notice="正在删除这项日程…" redraw()
 host.request("octos.session.open",{},fn(opened){
 if calendar_agent_delete_state.records[index].request_id!=id{return}
 if!opened.is_ok|| !gm_object(opened["data"])||opened.data["open"]!=true|| !calendar_agent_delete_current(record){
@@ -2030,7 +2175,7 @@ if r.is_ok&&gm_object(r["data"])&&gm_string(r.data["turn_id"],160)&&r.data.turn_
 calendar_agent_delete_state.records[index].turn_id=r.data.turn_id
 if calendar_agent_delete_current(record){calendar_agent_delete_state.records[index].status="turn_completed"}
 }
-calendar_agent_notice="删除结果仅按原请求的官方工具回执核对；未知不重发，事项未整体完成。"
+calendar_agent_notice="正在确认删除结果…"
 if calendar_agent_delete_save()&&calendar_agent_delete_state.records[index].status=="turn_completed"{calendar_agent_delete_history(index)}
 redraw()
 })
@@ -2118,7 +2263,7 @@ let result=calendar_agent_delete_result(r.data.messages,record)
 calendar_agent_delete_state.records[index].receipt_status=result.status
 if result.status=="verified"{calendar_agent_delete_state.records[index].verification=result}
 if!calendar_agent_delete_save(){redraw()return}
-calendar_agent_notice="删除回执状态："+ac_state(result.status)+"；只有精确读取、带expected删除、同ID权威缺席三步才核验。事项未整体完成。"
+calendar_agent_notice=if result.status=="verified"{"日程已删除。"}else{"删除："+ac_state(result.status)+"。"}
 redraw()
 })
 }
@@ -2130,10 +2275,10 @@ if index<0{return}
 let record=calendar_agent_delete_state.records[index]
 if!calendar_agent_delete_current(record)||record.binding.goal_id!=goal.id{return}
 let status=record.status if status=="turn_completed"{status=record.receipt_status}
-ac_add(view,"官方日历删除请求",status,"仅所选稳定ID；未知不重发",record.request_id)
+ac_add(view,"删除日程",status,"仅所选稳定ID；未知不重发",record.request_id)
 if record.receipt_status=="verified"{
-ac_add(view,"官方日历删除精确核验","verified","同ID已权威读回缺席 · "+record.expected.id,record.request_id)
-view.next="该事件删除已精确核验；原创建记录保留，当前事项未整体完成。"
+ac_add(view,"日程已删除","verified",record.expected.title,record.request_id)
+view.next="这项日程已删除，处理记录仍保留在当前事项中。"
 }else{view.next="按原删除请求核对宿主回执；模型文字不算删除成功，未知不重发。"}
 }
 
@@ -5977,7 +6122,7 @@ mail_calendar_hold(context)
 fn mail_compose_from_agent_calendar(){
 if!mail_calendar_verified()||mail_account==nil|| !gm_account_allowed(mail_account.id)
 ||mail_watch_account(mail_account.id)==nil{
-mail_error="请先精确读回当前事项，并选择已授权的发送账号。" calendar_agent_notice=mail_error mail_redraw()return
+mail_error="请先保存当前日程，并在邮箱页选择发送账号。" calendar_agent_notice=mail_error mail_redraw()return
 }
 let authority=calendar_agent_authority()
 let request=calendar_agent_request_for_matter()
@@ -6004,11 +6149,12 @@ mail_draft.link_run_id=""
 let event=authority.event
 ui.mail_to.set_text("")
 ui.mail_subject.set_text("关于 "+event.title)
-ui.mail_body.set_text("已核对日历安排："+event.start+" 至 "+event.end+"（"+event.timezone
-+"）。\n地点："+event.location+"。请核对后回复。")
+let body=event.title+"已安排在 "+calendar_display_time(event.start)+" 至 "+calendar_display_time(event.end)+"。"
+if event.location!=""{body=body+"\n地点："+event.location+"。"}
+ui.mail_body.set_text(body+"\n请确认是否方便参加。")
 mail_edit()
 if!mail_save(){return}
-mail_notice="已建立可选关联草稿；请本人填写收件人、核对内容，再单独进入官方审阅。尚未发送，事项尚未整体完成。"
+mail_notice="草稿已准备好，填写收件人后即可发送。"
 core_record_event("MAIL_DRAFT_CREATED","当前版本的官方日历已精确读回；关联草稿尚未发送。",binding.goal_id,"","",mail_account.id)
 set_page("Mail")
 }
@@ -9809,7 +9955,6 @@ for field in missing{fields=fields+separator+field separator="、"}
 return "请补充明确的"+fields+"。"
 }
 if end<=start{return "结束时间须晚于开始时间，请核对起止时间。"}
-if start<=time_now(){return "这个时间已经过去，请提供新的日期和时间。"}
 }
 if action=="goal_plan"{
 if payload.objective.trim()==""||payload.source.trim()==""||chat_periodic_request(payload.objective){
@@ -10974,9 +11119,7 @@ fn boot(){
 
 
 ui.main_mount.render()
-ui.main_mount.set_visible(false)
-start_timeout(0.03,||showcase_load())
-start_timeout(0.06,||boot_load(-1,""))
+start_timeout(0.03,||boot_load(-1,""))
 }
 
 fn boot_load(step,boot_error){
@@ -11445,241 +11588,6 @@ core_record_event("Goal created","目标计划更新为版本 "+version,id,"",""
 set_page("Goal Detail")
 }
 
-
-let showcase_open=true
-let showcase_busy=false
-let showcase_restored=false
-let showcase_detail=false
-let showcase_notice=""
-let showcase_model_epoch=0
-fn showcase_empty(){
-return{schema:1 id:"" revision:0 phase:"ready" date:"" hour:"15:00" end:"16:00"
-goal:"为星海项目安排一次评审" source:"明天下午 3 点，与项目组评审一小时，采用线上会议。"
-preference:"会前保留 30 分钟准备；默认线上会议。" changed:false decision:"" calendar:"" draft:""
-old_draft:"" old_hour:"" events:[]model:"" recovered:0 calendar_event:nil calendar_request_id:"" calendar_status:"idle"}
-}
-let showcase_state=showcase_empty()
-fn showcase_paint(){ui.showcase_view.render()}
-fn showcase_store(){
-let raw=showcase_state.to_json()
-if fs.exists("showcase-transaction.json"){
-let old=storage_read("showcase-transaction.json")
-if storage_write("showcase-transaction.backup.json",old)!=nil{showcase_notice="暂时无法保存，请稍后重试。" return false}
-}
-if storage_write("showcase-transaction.json",raw)!=nil||storage_read("showcase-transaction.json")!=raw{
-showcase_notice="暂时无法保存，请稍后重试。" return false
-}
-return true
-}
-fn showcase_trace(tool,detail){
-if showcase_state.events.len()>=24{return}
-showcase_state.events.push({tool:tool detail:detail revision:showcase_state.revision at:time_now()})
-}
-fn showcase_load(){
-showcase_restored=false
-if fs.exists("showcase-transaction.json"){
-let saved=storage_read("showcase-transaction.json").parse_json()
-if gm_object(saved)&&saved["schema"]==1&&gm_array(saved["events"])&&gm_text(saved["phase"])
-&&gm_text(saved["id"])&&gm_text(saved["draft"])&&gm_text(saved["source"])&&gm_number(saved["revision"]){
-showcase_state=saved
-if saved.id!=""{
-showcase_restored=true
-if!gm_number(showcase_state["recovered"]){showcase_state.recovered=0}
-showcase_state.recovered=showcase_state.recovered+1
-if saved.phase=="thinking"||saved.phase=="reading"{showcase_state.phase="resume"}
-showcase_trace("memory.restore","重新打开后，读回同一事务与最新计划")
-showcase_store()
-}
-}else{showcase_notice="事务记录暂时无法读取，原记录仍然保留。"}
-}
-showcase_paint()
-if showcase_state["calendar_status"]=="pending"{start_timeout(0.3,||showcase_calendar_recover())}
-}
-fn showcase_switch(open){
-showcase_open=open
-ui.showcase_view.set_visible(open)
-ui.main_mount.set_visible(!open)
-if open{showcase_paint()}else{redraw()}
-}
-fn showcase_new(){
-if showcase_busy{return}
-
-if showcase_state.id!=""{
-storage_write("showcase-previous-transaction.json",showcase_state.to_json())
-}
-showcase_model_epoch=showcase_model_epoch+1
-showcase_state=showcase_empty()showcase_restored=false showcase_notice="" showcase_detail=false
-showcase_store()showcase_paint()
-}
-fn showcase_finish(){
-if!showcase_busy{return}
-showcase_state.draft="项目组好，星海项目评审安排在 "+showcase_state.date+" "+showcase_state.hour+"—"+showcase_state.end
-+"，采用线上会议。我会提前 30 分钟准备材料。请确认这个时间是否合适。"
-let result={transaction_id:showcase_state.id revision:showcase_state.revision kind:"local_mail_draft"
-subject:"星海项目评审 · "+showcase_state.hour body:showcase_state.draft sent:false}
-let raw=result.to_json()
-if storage_write("showcase-draft.json",raw)!=nil||storage_read("showcase-draft.json")!=raw{
-showcase_notice="草稿未保存，请稍后继续。" showcase_busy=false showcase_state.phase="resume" showcase_store()showcase_paint()return
-}
-showcase_trace("draft.prepare","确认草稿已保存，等待你审阅")
-showcase_state.phase="ready_for_review"
-showcase_busy=false
-if showcase_store(){showcase_notice=""}
-showcase_paint()
-}
-fn showcase_calendar(epoch){
-showcase_state.phase="reading" showcase_store()showcase_paint()
-host.request("octos.session.open",{},fn(opened){
-if epoch!=showcase_model_epoch|| !showcase_busy{return}
-if!opened.is_ok|| !gm_object(opened["data"])||opened.data["open"]!=true{
-showcase_state.phase="resume" showcase_busy=false
-showcase_notice="请在宿主中允许 Muse 助手，然后点击继续。"
-showcase_store()showcase_paint()return
-}
-let id="muse-showcase-"+showcase_state.id+"-v"+showcase_state.revision
-host.request("calendar_bridge.run",{request_id:id operation:"query" args:{from:showcase_state.date to:page_date_parts(page_parse_date(showcase_state.date).number+1).date limit:50}},fn(r){
-if epoch!=showcase_model_epoch|| !showcase_busy{return}
-let found=false let count=0
-if r.is_ok&&gm_object(r["data"])&&r.data["status"]=="completed"&&gm_array(r.data["messages"]){
-for row in r.data.messages{
-if row["tool_name"]=="calendar.events"&&gm_object(row["host_calendar_receipt"]){
-let receipt=row.host_calendar_receipt
-if showcase_receipt_ok(row)
-&&gm_object(receipt["result"])&&receipt.result["ok"]==true
-&&gm_object(receipt.result["data"])&&gm_array(receipt.result.data["events"]){
-found=true count=receipt.result.data.events.len()
-}
-}
-}
-storage_write("showcase-calendar-receipt.json",r.data.to_json())
-}
-if!found{
-showcase_state.phase="resume" showcase_busy=false
-showcase_notice="日历暂时未返回结果。可以继续整理本地计划与草稿。"
-showcase_store()showcase_paint()return
-}
-showcase_state.calendar="内置日历已读取 · "+count+" 项安排"
-showcase_trace("calendar.events",showcase_state.calendar)
-showcase_store()showcase_paint()
-start_timeout(0.15,||showcase_finish())
-})
-})
-}
-fn showcase_plan(){
-if showcase_busy{return}
-showcase_notice="" showcase_busy=true showcase_model_epoch=showcase_model_epoch+1
-let epoch=showcase_model_epoch
-showcase_state.phase="thinking" showcase_store()showcase_paint()
-let memory=storage_read("showcase-memory.json").parse_json()
-if!gm_object(memory)||memory["transaction_id"]!=showcase_state.id{
-showcase_busy=false showcase_state.phase="resume" showcase_notice="事务记忆尚未保存，请重新开始这次委托。" showcase_store()showcase_paint()return
-}
-showcase_trace("memory.search","召回会议形式和会前准备偏好")
-let changed="首次处理" if showcase_state.changed{changed="新时间替代旧时间，旧版草稿已失效"}
-host.request("model.complete",{task:"你是事务助手。用户要安排一次会议，记忆已读回。选择下一步工具：calendar.events 用于读取真实日历；draft.prepare 用于直接准备本地草稿。会议的日期时间已知时，应先读取日历。只返回 JSON 字段 tool，不输出其他内容。"
-input:{goal:showcase_state.goal date:showcase_state.date time:showcase_state.hour memory:memory.preference change:changed}
-schema:{type:"object" properties:{tool:{type:"string" enum:["calendar.events","draft.prepare"]}}required:["tool"]additionalProperties:false}
-class:"fast"},fn(r){
-if epoch!=showcase_model_epoch|| !showcase_busy{return}
-if!r.is_ok|| !gm_object(r["data"])|| !gm_object(r.data["output"]){
-showcase_busy=false showcase_state.phase="resume" showcase_notice="AI 暂时没有返回，可继续本地整理。" showcase_store()showcase_paint()return
-}
-let tool=r.data.output["tool"]
-if tool!="calendar.events"&&tool!="draft.prepare"{
-showcase_busy=false showcase_state.phase="resume" showcase_notice="AI 建议暂不可执行，请重试。" showcase_store()showcase_paint()return
-}
-showcase_state.model="AI 实时决策"
-showcase_state.decision=tool
-showcase_trace("model.complete","AI 选择 "+tool)
-storage_write("showcase-model-decision.json",{transaction_id:showcase_state.id revision:showcase_state.revision output:r.data.output}.to_json())
-showcase_store()showcase_paint()
-if tool=="calendar.events"{showcase_calendar(epoch)}else{showcase_finish()}
-})
-}
-fn showcase_start(){
-if showcase_busy||showcase_state.id!=""{return}
-showcase_state.id=""+floor(time_now())+"-"+random_u32()
-showcase_state.revision=1
-showcase_state.date=page_date_parts(page_time_floor((time_now()+28800)/86400)+1).date
-let memory={schema:1 transaction_id:showcase_state.id preference:showcase_state.preference goal:showcase_state.goal}
-let raw=memory.to_json()
-if storage_write("showcase-memory.json",raw)!=nil||storage_read("showcase-memory.json")!=raw{showcase_notice="暂时无法保存事务记忆。" showcase_paint()return}
-showcase_trace("memory.write","保存目标、线上会议与提前准备偏好")
-if showcase_store(){showcase_plan()}
-}
-fn showcase_change(){
-if showcase_busy||showcase_state.phase!="ready_for_review"||showcase_state.changed{return}
-let invalid={transaction_id:showcase_state.id revision:showcase_state.revision kind:"local_mail_draft" status:"superseded" sent:false}
-let raw=invalid.to_json()
-if storage_write("showcase-draft.json",raw)!=nil||storage_read("showcase-draft.json")!=raw{showcase_notice="旧草稿尚未更新，暂不继续。" showcase_paint()return}
-showcase_state.old_draft=showcase_state.draft showcase_state.old_hour=showcase_state.hour
-showcase_state.draft="" showcase_state.hour="16:00" showcase_state.end="17:00"
-showcase_state.source="项目组补充：明天 15 点临时有事，请改到 16 点。会议时长和形式不变。"
-showcase_state.changed=true showcase_state.revision=showcase_state.revision+1
-showcase_state.calendar="" showcase_state.decision="" showcase_state.phase="changed"
-if showcase_state.calendar_event!=nil{showcase_state.calendar_status="outdated"}
-showcase_trace("plan.invalidate","新时间使 V1 计划和旧草稿失效；目标和偏好继续有效")
-if showcase_store(){showcase_paint()start_timeout(0.25,||showcase_plan())}
-}
-fn showcase_local_continue(){
-if showcase_busy||showcase_state.id==""{return}
-showcase_busy=true showcase_state.model="本地规则整理" showcase_state.decision="draft.prepare"
-showcase_trace("plan.local","按你选择的时间整理本地草稿")showcase_finish()
-}
-
-
-fn showcase_receipt_ok(row){
-let r=row["host_calendar_receipt"]
-return gm_object(r)&&r["source"]=="host_calendar_relay"&&r["bridge_persisted"]==true
-&&r["owner"]=="os.calendar"&&(r["caller"]=="muse-goals"||r["caller"]=="card.muse-goals")
-&&r["tool"]==row["tool_name"]&&r["tool_call_id"]==row["tool_call_id"]
-&&r["terminal"]=="ok"&&gm_object(r["result"])&&r.result["ok"]==true
-}
-fn showcase_calendar_result(r){
-showcase_busy=false
-let event=nil
-if r.is_ok&&gm_object(r["data"])&&r.data["status"]=="completed"&&gm_array(r.data["messages"]){
-for row in r.data.messages{
-if row["tool_name"]=="calendar.get_event"&&showcase_receipt_ok(row){
-let data=row.host_calendar_receipt.result["data"]
-if gm_object(data)&&data["found"]==true&&gm_object(data["event"]){event=data.event}
-}
-}
-storage_write("showcase-calendar-write-receipt.json",r.data.to_json())
-}
-if event!=nil&&event["title"]=="星海项目评审"&&event["start"]==showcase_state.date+"T"+showcase_state.hour
-&&event["end"]==showcase_state.date+"T"+showcase_state.end&&event["timezone"]=="Asia/Shanghai"
-&&(showcase_state.calendar_event==nil||event["id"]==showcase_state.calendar_event.id){
-showcase_state.calendar_event=event showcase_state.calendar_status="saved"
-showcase_trace("calendar.saved","内置日历已保存 "+showcase_state.hour+"—"+showcase_state.end)
-showcase_notice="日历已更新，安排与你的最新计划保持一致。"
-}else{
-showcase_state.calendar_status="unresolved"
-showcase_notice="日历尚未确认完成。请查看执行结果后继续。"
-}
-showcase_store()showcase_paint()
-}
-fn showcase_calendar_write(){
-if showcase_busy||showcase_state.phase!="ready_for_review"||showcase_state.calendar_status=="saved"{return}
-if showcase_state.calendar_status=="pending"||showcase_state.calendar_status=="unresolved"{showcase_calendar_recover()return}
-let op="add"
-let id="muse-showcase-"+showcase_state.id+"-write-v"+showcase_state.revision
-let args={title:"星海项目评审" start:showcase_state.date+"T"+showcase_state.hour end:showcase_state.date+"T"+showcase_state.end
-timezone:"Asia/Shanghai" location:"线上会议" notes:"Muse 事务 "+showcase_state.id+" · 会前准备 30 分钟"}
-if showcase_state.calendar_event!=nil{
-op="update" args.id=showcase_state.calendar_event.id args.expected=showcase_state.calendar_event
-}
-showcase_state.calendar_request_id=id showcase_state.calendar_status="pending"
-if!showcase_store(){showcase_paint()return}
-showcase_busy=true showcase_notice="请在日历确认卡中确认这次安排。" showcase_paint()
-host.request("calendar_bridge.run",{request_id:id operation:op args:args},fn(r){showcase_calendar_result(r)})
-}
-fn showcase_calendar_recover(){
-if showcase_busy||showcase_state["calendar_request_id"]==""{return}
-showcase_busy=true showcase_notice="正在读取这次日历操作的结果…" showcase_paint()
-host.request("calendar_bridge.history",{request_id:showcase_state.calendar_request_id},fn(r){showcase_calendar_result(r)})
-}
-
 start_timeout(0.05,||boot())
 
 
@@ -11852,7 +11760,13 @@ view.title=ac_text(goal.goal)
 view.sources.push("任务记录")
 if ac_field(goal,"status")=="planned"{view.next="查看现有计划，核对后再确认执行。"}
 if view.next=="关联事项后，已有来源、计划和回执会显示在这里。"{view.next="查看事项详情或原结果卡；本链只展示已有记录。"}
-ac_add(view,"事项 · 当前计划",ac_field(goal,"status"),"版本 "+goal.version+" · 计划不等于执行成功",goal.id)
+let plan_state=ac_field(goal,"status")let plan_name="当前计划"
+let authority=calendar_agent_authority()
+if authority!=nil&&authority.current_binding.goal_id==goal.id{plan_state="verified" plan_name="当前安排"}
+ac_add(view,plan_name,plan_state,"版本 "+goal.version+" · "+goal.goal,goal.id)
+if goal.version>1{
+ac_add(view,"根据新信息重新安排","verified","当前采用第 "+goal.version+" 版计划；之前的处理记录仍保留。",goal.id)
+}
 let alert=ac_current_alert()
 if alert!=nil{
 view.sources.push("邮件")
@@ -12216,99 +12130,7 @@ if chat_shows_goal()||mail_watch_current()!=nil||ui_error!=""{Secondary{text:"�
 }
 }}
 SolidView{width:Fill height:Fill flow:Right container_id:@muse_shell draw_bg.color:paper
-showcase_view:=SolidView{width:Fill height:Fill flow:Down padding:16 spacing:10 draw_bg.color:#xf4f3f9 on_render: ||{
-let si=#x29243b let sm=#x797387 let sa=#x6950da let sg=#x33846c
-View{width:Fill height:38 flow:Right spacing:12 align:Align{y:0.5}
-Label{text:"Muse" draw_text.color:si draw_text.text_style:theme.font_bold{font_size:19}}
-Label{width:Fill text:"让记忆推动行动" draw_text.color:sm draw_text.text_style.font_size:10}
-Secondary{text:"新建事务" draw_text.color:sm on_click: ||showcase_new()}
-Secondary{text:"工作台" draw_text.color:sm on_click: ||showcase_switch(false)}
-}
-View{width:Fill height:Fit flow:Down spacing:6
-Label{text:"事情变了，Muse 接着办。" draw_text.color:si draw_text.text_style:theme.font_bold{font_size:22}}
-Label{width:Fill text:"记住目标 · 理解变化 · 推进下一步" draw_text.color:sm draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-View{width:Fill height:Fill flow:Right spacing:14
-RoundedView{width:230 height:Fill flow:Down padding:12 spacing:6 new_batch:true draw_bg.color:#xeae6f7 draw_bg.border_radius:12
-Label{text:"01  持续事务" draw_text.color:sa draw_text.text_style:theme.font_bold{font_size:10}}
-Label{width:Fill text:"星海项目评审" draw_text.color:si draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:15}}
-Label{width:Fill text:showcase_state.source draw_text.color:si draw_text.wrap:Words draw_text.text_style.font_size:10}
-View{width:Fill height:1}
-Label{text:"一直记得" draw_text.color:sa draw_text.text_style:theme.font_bold{font_size:10}}
-Label{width:Fill text:"线上会议\n提前 30 分钟准备" draw_text.color:si draw_text.wrap:Words draw_text.text_style.font_size:10}
-View{width:Fill height:Fill}
-if showcase_restored{
-Label{width:Fill text:"已回到上次的事务" draw_text.color:sg draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:10}}
-}
-if showcase_state.id==""{
-Primary{width:Fill height:40 text:"交给 Muse" on_click: ||showcase_start()}
-}
-if showcase_state.phase=="ready_for_review"&& !showcase_state.changed&& !showcase_busy{
-Primary{width:Fill height:40 text:"补充：改到 16 点" on_click: ||showcase_change()}
-}
-if showcase_state.changed{
-Label{width:Fill text:"时间更新了\n目标与偏好继续保留" draw_text.color:sa draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-}
-ScrollYView{width:Fill height:Fill flow:Down spacing:8
-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:8 new_batch:true draw_bg.color:#xffffff draw_bg.border_radius:12
-View{width:Fill height:Fit flow:Right
-Label{width:Fill text:"02  行动链" draw_text.color:sa draw_text.text_style:theme.font_bold{font_size:10}}
-if showcase_state.revision>0{Label{text:"V"+showcase_state.revision draw_text.color:sa draw_text.text_style:theme.font_bold{font_size:10}}}
-}
-Label{width:Fill text:if showcase_state.id==""{"从一次委托开始"}else{"每一步，都围绕同一个目标"}draw_text.color:si draw_text.wrap:Words draw_text.text_style:theme.font_bold{font_size:10}}
-Label{width:Fill text:if showcase_state.id==""{"○ 理解目标与偏好"}else{"✓ 目标与偏好已保存"}draw_text.color:if showcase_state.id==""{sm}else{sg}draw_text.wrap:Words draw_text.text_style.font_size:10}
-Label{width:Fill text:if showcase_state.model==""{"○ 判断下一步"}else{"✓ "+showcase_state.model}draw_text.color:if showcase_state.model==""{sm}else{sg}draw_text.wrap:Words draw_text.text_style.font_size:10}
-Label{width:Fill text:if showcase_state.calendar==""{"○ 读取内置日历"}else{"✓ "+showcase_state.calendar}draw_text.color:if showcase_state.calendar==""{sm}else{sg}draw_text.wrap:Words draw_text.text_style.font_size:10}
-Label{width:Fill text:if showcase_state.draft==""{"○ 整理确认草稿"}else{"✓ 确认草稿已保存"}draw_text.color:if showcase_state.draft==""{sm}else{sg}draw_text.wrap:Words draw_text.text_style.font_size:10}
-if showcase_state.changed{
-RoundedView{width:Fill height:Fit flow:Down padding:12 spacing:5 new_batch:true draw_bg.color:#xfff3e6 draw_bg.border_radius:10
-Label{text:"旧计划已失效" draw_text.color:#xa16b28 draw_text.text_style:theme.font_bold{font_size:10}}
-Label{width:Fill text:"15:00 → 16:00\n重新读取日历，更新确认草稿。" draw_text.color:#x8a6946 draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-}
-if showcase_busy{
-Label{width:Fill text:if showcase_state.calendar_status=="pending"{"等待日历确认…"}else{"Muse 正在继续处理…"}draw_text.color:sa draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-if showcase_state.phase=="resume"&& !showcase_busy{
-Primary{text:"继续处理" on_click: ||showcase_plan()}
-Secondary{text:"先整理草稿" draw_text.color:sm on_click: ||showcase_local_continue()}
-}
-}
-if showcase_notice!=""{
-Label{width:Fill text:showcase_notice draw_text.color:sa draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-Secondary{text:if showcase_detail{"收起过程"}else{"查看过程"}draw_text.color:sm on_click: ||{showcase_detail= !showcase_detail showcase_paint()}}
-if showcase_detail{
-for event in showcase_state.events{
-Label{width:Fill text:"V"+event.revision+" · "+event.detail draw_text.color:sm draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-}
-}
-RoundedView{width:270 height:Fill flow:Down padding:12 spacing:8 new_batch:true draw_bg.color:#xffffff draw_bg.border_radius:12
-Label{text:"03  当前安排" draw_text.color:sa draw_text.text_style:theme.font_bold{font_size:10}}
-Label{text:showcase_state.hour draw_text.color:si draw_text.text_style:theme.font_bold{font_size:22}}
-Label{width:Fill text:if showcase_state.date==""{"明天 · 1 小时 · 线上会议"}else{showcase_state.date+" · 1 小时 · 线上会议"}draw_text.color:sm draw_text.wrap:Words draw_text.text_style.font_size:10}
-if showcase_state.calendar_status=="saved"{
-Label{text:"✓ 已加入内置日历" draw_text.color:sg draw_text.text_style:theme.font_bold{font_size:10}}
-}
-if showcase_state.calendar_status=="outdated"{
-Label{width:Fill text:"日历中原安排为 15:00，点击下方更新。" draw_text.color:#xa16b28 draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-View{width:Fill height:1}
-Label{text:"确认草稿" draw_text.color:si draw_text.text_style:theme.font_bold{font_size:10}}
-ScrollYView{width:Fill height:Fill flow:Down
-Label{width:Fill text:if showcase_state.draft==""{"Muse 会把最新安排整理成一份可审阅的草稿。"}else{showcase_state.draft}draw_text.color:sm draw_text.wrap:Words draw_text.text_style.font_size:10}
-}
-if showcase_state.phase=="ready_for_review"&& !showcase_busy&&showcase_state.calendar_status!="saved"{
-Primary{width:Fill height:38 text:if showcase_state.calendar_status=="unresolved"{"查看日历结果"}else{if showcase_state.calendar_event==nil{"加入内置日历"}else{"更新原日程"}}on_click: ||showcase_calendar_write()}
-}
-if showcase_state.draft!=""{Label{text:"草稿已保存，待你审阅" draw_text.color:sm draw_text.text_style.font_size:10}}
-}
-}
-Label{text:"MUSE  /  星海队" draw_text.color:#x9d97ad draw_text.text_style.font_size:10}
-}}
-main_mount:=SolidView{visible:false width:Fill height:Fill flow:Right draw_bg.color:paper on_render: ||{
+main_mount:=SolidView{width:Fill height:Fill flow:Right draw_bg.color:paper on_render: ||{
 left_rail:=View{visible:false width:36 height:Fill flow:Down padding:2 spacing:8
 Nav{width:32 text:"☰" on_click: ||sidebar_toggle()}
 Nav{width:32 text:"+" on_click: ||chat_new_session()}
@@ -12344,8 +12166,7 @@ Nav{width:40 text:"删除" draw_text.color:muted draw_text.text_style.font_size:
 }
 }
 }}
-shortcuts:=ScrollYView{width:Fill height:"clamp(80px, 22cqh, 205px)" flow:Down spacing:3 on_render: ||{
-Nav{text:"持续事务" on_click: ||showcase_switch(true)}
+shortcuts:=ScrollYView{width:Fill height:"clamp(186px, 36cqh, 220px)" flow:Down spacing:3 on_render: ||{
 Nav{text:"对话" on_click: ||set_page("Chat")}
 Nav{text:"邮箱" on_click: ||set_page("Mail")}
 Nav{text:"日历" on_click: ||set_page("Calendar")}
@@ -12681,7 +12502,7 @@ Secondary{text:"删除当前对话…" on_click: ||chat_request_delete(chat_sele
 
 Label{text:"设置与关于" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:17}}
 SolidView{width:Fill height:Fit flow:Down padding:12 spacing:7 draw_bg.color:panel
-Label{text:"Muse · 0.4.0-rc16" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
+Label{text:"Muse · 0.4.0-rc23" draw_text.color:ink draw_text.text_style:theme.font_bold{font_size:14}}
 Label{width:Fill text:"让对话、记忆和行动连在一起。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
 Secondary{text:"诊断" on_click: ||set_page("Diagnostics")}
 }
@@ -12793,11 +12614,15 @@ Label{width:Fill text:"来自邮件 · "+calendar_agent_mail_source.subject draw
 }
 if calendar_agent_binding_current(calendar_agent_candidate){
 Label{width:Fill text:calendar_agent_candidate.payload.title+"\n"+calendar_agent_candidate.payload.start+" → "+calendar_agent_candidate.payload.end draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+if calendar_agent_update_selected!=""{
+Primary{text:"确认改期" enabled: !calendar_agent_busy on_click: ||calendar_agent_update_confirm()}
+}else if calendar_agent_update_index(calendar_agent_candidate)<0{
 Primary{text:"添加到日历" enabled: !calendar_agent_busy&&calendar_agent_writable on_click: ||calendar_agent_submit_candidate()}
+}
 }
 }}
 Label{width:Fill text:"用一句话写清事项和时间，例如：明天15点到16点开项目会。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
-calendar_agent_input:=TextInput{width:Fill height:100 is_multiline:true empty_text:"明天15点到16点开项目会，地点会议室"
+calendar_agent_input:=TextInput{width:Fill height:76 is_multiline:true empty_text:"明天15点到16点开项目会，地点会议室"
 on_change: |text|calendar_agent_input_changed(text)}
 calendar_agent_controls:=View{width:Fill height:Fit flow:Right spacing:8 on_render: ||{
 Primary{text:if calendar_agent_mail_source!=nil{"添加到日历"}else{"处理日程"}
@@ -12805,24 +12630,25 @@ enabled: !calendar_agent_busy&&calendar_agent_writable on_click: ||calendar_agen
 Secondary{text:"查询今天" enabled: !calendar_agent_busy on_click: ||{calendar_agent_mail_source=nil calendar_agent_submit("查询今天的日程，按开始时间列出。")}}
 }}
 calendar_agent_output:=View{width:Fill height:Fit flow:Down spacing:8 on_render: ||{
-if calendar_agent_busy{Label{text:"处理中…" draw_text.color:blue draw_text.text_style.font_size:12}}
-if calendar_agent_notice!=""{Label{width:Fill text:calendar_agent_notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
-if calendar_agent_reply!=""&&calendar_agent_identity_current(calendar_agent_state){
-ScrollYView{width:Fill height:180 flow:Down
-Label{width:Fill text:calendar_agent_reply draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
-}
-}
 let calendar_matter=calendar_agent_request_for_matter()
 let calendar_authority=calendar_agent_authority()
-if calendar_authority!=nil{
-Label{width:Fill text:"要改期可输入：改到明天16点到17点。要删除请点下方按钮。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
-Label{width:Fill text:"当前日程 · "+calendar_authority.event.title+"\n"+calendar_authority.event.start+" → "+calendar_authority.event.end draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+let delete_index= -1 if calendar_matter!=nil{delete_index=calendar_agent_delete_index(calendar_matter["binding"])}
+let deleted=delete_index>=0&&calendar_agent_delete_state.records[delete_index].receipt_status=="verified"
+if calendar_agent_busy{Label{text:"处理中…" draw_text.color:blue draw_text.text_style.font_size:12}}
+if calendar_agent_notice!=""{Label{width:Fill text:calendar_agent_notice draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}}
+if calendar_agent_reply!=""&&calendar_agent_identity_current(calendar_agent_state)&&calendar_authority==nil&& !deleted{
+Label{width:Fill text:calendar_agent_reply draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
 }
+if calendar_authority!=nil&& !deleted{
+Label{width:Fill text:"当前日程 · "+calendar_authority.event.title+"\n"+calendar_authority.event.start+" → "+calendar_authority.event.end draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}
+Label{width:Fill text:"改期可输入：改到明天16点到17点。" draw_text.color:muted draw_text.wrap:Words draw_text.text_style.font_size:12}
+}
+if deleted{Label{width:Fill text:"这项日程已删除，可以直接输入下一项安排。" draw_text.color:ink draw_text.wrap:Words draw_text.text_style.font_size:13}}
 if mail_calendar_verified(){
 Secondary{text:"写确认邮件" enabled: !calendar_agent_busy&&mail_account!=nil on_click: ||mail_compose_from_agent_calendar()}
 }
 if calendar_agent_update_target()!=nil{
-Secondary{text:"按新时间改期" enabled: !calendar_agent_busy on_click: ||{calendar_agent_update_select()calendar_agent_update_confirm()}}
+Secondary{text:"按新时间改期" enabled: !calendar_agent_busy on_click: ||{calendar_agent_update_select()start_timeout(0.05,||calendar_agent_update_confirm())}}
 }
 let update_index= -1 if calendar_matter!=nil{update_index=calendar_agent_update_index(calendar_matter["binding"])}
 if update_index>=0&&(calendar_agent_update_state.records[update_index].turn_id!=""||calendar_agent_update_state.records[update_index]["transport"]=="host_calendar_relay")&&calendar_agent_update_state.records[update_index].receipt_status!="verified"{
@@ -12831,8 +12657,7 @@ Secondary{text:"刷新改期结果" enabled: !calendar_agent_busy on_click: ||ca
 if calendar_agent_delete_target()!=nil{
 Secondary{text:"删除这项日程" enabled: !calendar_agent_busy on_click: ||{calendar_agent_delete_select()calendar_agent_delete_confirm()}}
 }
-let delete_index= -1 if calendar_matter!=nil{delete_index=calendar_agent_delete_index(calendar_matter["binding"])}
-if delete_index>=0&&calendar_agent_delete_current(calendar_agent_delete_state.records[delete_index]){
+if delete_index>=0&& !deleted&&calendar_agent_delete_current(calendar_agent_delete_state.records[delete_index]){
 Secondary{text:"刷新删除结果" enabled: !calendar_agent_busy on_click: ||calendar_agent_delete_history(delete_index)}
 }
 if calendar_agent_mail_source!=nil||calendar_agent_state["mail_source"]!=nil{
