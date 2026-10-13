@@ -1,3 +1,7 @@
+## 2026-10-13 GitHub 根 Bundle 同步
+
+用户明确要求代码同步GitHub并确认根bundle/唯一入口。当前rc16可编辑Bundle已由同一Main生成，旧official_muse/app/bundle保留相对链接。根版本、AGENT、清单和源码一致性检查通过；9项便携布局测试通过。新增只读root-bundle CI，不触发Tag/Release/比赛提交；原稳定包、生产资料和旧证据保持。rc15已真实打开，rc16收紧默认窗口布局待GUI验证。
+
 ## 2026-10-13 展示主线 rc15 开发
 
 按最新战略缩小为持续事务、行动链、真实日历和110秒视频；单人实施，沿用rc14配套Host与授权环境。新增独立事务入口，真实model.complete选择工具，日历经既有calendar_bridge与owner保存/读回，草稿为本地待审阅草稿。变更输入先失效旧计划，保存原事件ID供改期，重启仅恢复不重放。15项Splash fixture首轮通过；GUI与视频尚未验证。历史失败与稳定包保留，无push、发布或比赛提交。

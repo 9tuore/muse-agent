@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-两小时内完成持续事务展示主线、真实日历联动与110秒视频。单人，基线1274024e。
+先同步当前代码到GitHub；根bundle/唯一发布入口。继续真实日历展示与110秒视频。
 
 ## Result
-PARTIAL；rc15展示入口已实现，GUI待验。
+PARTIAL。rc16根Bundle与可读源同版本；rc15真实显示，rc16布局修正待运行。
 
 ## Changed
-Main新增独立持续事务页、真实模型工具选择、既有Calendar Relay创建/同ID改期、保存与恢复。打包版本rc15 seq16。
+根Bundle升级、旧路径兼容链接、源码一致性检查与只读CI；展示页压缩默认高度。
 
 ## Tests
-15项Splash VM fixture首轮通过，真实传输待验证。证据build/showcase-20261013。
+15项事务VM fixture、9项布局测试通过；根发布布局和源码字节一致。证据build/showcase-20261013。
 
 ## Commit
-本地提交，未推送。
+本地提交后按用户授权非强制push；远端结果待核验。
 
 ## Remaining
-统一打包、原环境GUI真实日历与重启、110秒视频。
+rc16运行、真实Calendar创建/改期/恢复、110秒视频。
 
 ## Important Boundaries
-fixture不是真实业务；草稿未发送；旧证据不继承。
+代码push不等于正式发布或比赛提交；fixture不代替真实业务。

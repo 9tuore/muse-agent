@@ -1,11 +1,37 @@
 {
-  "agent": null,
+  "agent": {
+    "profile": "read-only",
+    "instructions": "AGENT.md",
+    "tools": [
+      "ask_user_question",
+      "calendar.events",
+      "calendar.get_event",
+      "calendar.add_event",
+      "calendar.update_event",
+      "calendar.remove_event",
+      "calendar.notify"
+    ],
+    "model": {
+      "tier": "standard",
+      "needs": [
+        "tool_calling"
+      ],
+      "local_only": false
+    },
+    "token_budget": null,
+    "max_iterations": null
+  },
   "capabilities": [
     "storage",
     "model",
     "mail",
     "calendar",
-    "glance"
+    "glance",
+    "runtime",
+    "octos.session.open",
+    "octos.session.history",
+    "octos.turn.start",
+    "octos.turn.interrupt"
   ],
   "compute": {
     "instruction_budget": null,
@@ -13,11 +39,7 @@
   },
   "id": "muse-goals",
   "integrity": {
-    "bundle_blake3": "80a463327f375a1dd0856fc986ab5e6cf2624fcc54e980f762eaf9066472fc17",
-    "signature": {
-      "key_id": "muse-local-rehearsal",
-      "value": "d295c19070a150713ff5f07220dd80ad098e51889319f45eea10921207ba96855e3224d9c8d802659277eb574ada4cbc7a3c3627668f64b170edf1851e3d8506"
-    }
+    "bundle_blake3": ""
   },
   "name": "Muse",
   "network": {
@@ -27,5 +49,18 @@
   "storage": {
     "max_bytes": null
   },
-  "version": "0.3.27-rc17"
+  "version": "0.4.0-rc16",
+  "requires": [
+    "host-api-v1"
+  ],
+  "host_api": {
+    "required": {
+      "runtime.list": 1,
+      "mail.compose": 1,
+      "mail.compose_status": 1,
+      "mail.review_send": 1,
+      "calendar_bridge.run": 1,
+      "calendar_bridge.history": 1
+    }
+  }
 }

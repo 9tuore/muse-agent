@@ -58,12 +58,12 @@ int main(int argc, char **argv) {
         self.before = {p.relative_to(self.source).as_posix(): p.read_bytes()
                        for p in self.source.rglob('*') if p.is_file()}
         self.mirror = self.root / 'mirror'
-        bundle = self.mirror / 'artifacts/muse-goals-0.4.0-rc15.bundle'
+        bundle = self.mirror / 'artifacts/muse-goals-0.4.0-rc16.bundle'
         bundle.mkdir(parents=True)
         (bundle / 'manifest.json').write_text('{}')
         (bundle / 'main.splash').write_text('// fixture')
         (self.mirror / 'catalog.json').write_text('{}')
-        (self.mirror / 'artifacts/muse-goals-0.4.0-rc15.bundle.pack.json').write_text('{}')
+        (self.mirror / 'artifacts/muse-goals-0.4.0-rc16.bundle.pack.json').write_text('{}')
         self.output = self.root / 'candidate'
         self.state = self.root / 'existing state'
         self.state.mkdir()
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
         subprocess.run(['codesign', '--verify', '--strict', str(runtime / 'muse-host')],
                        check=True, capture_output=True)
         record = json.loads((self.output / 'PACKAGE.json').read_text())
-        self.assertEqual(record['version'], '0.4.0-rc15')
+        self.assertEqual(record['version'], '0.4.0-rc16')
         self.assertFalse(record['reused_signed_pair'])
         self.assertTrue(record['reused_signed_kernel'])
         self.assertTrue(record['standalone_host'])

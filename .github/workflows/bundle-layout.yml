@@ -1,0 +1,36 @@
+name: Muse root bundle
+
+'on':
+  workflow_dispatch:
+  push:
+    branches: [main, codex/muse-showcase-110s]
+    paths:
+      - bundle/**
+      - official_muse/app/source/**
+      - official_muse/integrated_release/prepare_bundle.py
+      - official_muse/integrated_release/AGENT.md
+      - official_muse/ui_memory/compact_bundle.py
+      - scripts/check_current_bundle.py
+      - scripts/check_release_layout.py
+      - .gitattributes
+      - .github/workflows/bundle-layout.yml
+  pull_request:
+    paths:
+      - bundle/**
+      - official_muse/app/source/**
+      - scripts/check_current_bundle.py
+      - scripts/check_release_layout.py
+      - .github/workflows/bundle-layout.yml
+
+permissions:
+  contents: read
+
+jobs:
+  root-bundle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - run: python3 scripts/check_release_layout.py --for-github-release
+      - run: python3 scripts/check_current_bundle.py

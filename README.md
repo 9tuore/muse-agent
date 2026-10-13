@@ -1,15 +1,3 @@
-## 最新本机独立APP
-
-桌面 `Muse-rc8-正式版-20261012.app` 已实际启动，配套Host为Intel x86_64；嵌入产品提交d550b975，包含邮箱账号移除与多账号入口。保留原正式资料，不含模拟账号/生产数据。正式资料当前已安装仍rc7，App Hub已打开rc8更新权限页；最新模块尚未完成原生Install和GUI验收。24项账号管理定向VM通过仅为fixture，不能称真实邮箱通过。详情见 [当前状态](MUSE_HANDOFF/CURRENT_STATE.md)。
-
-## 当前交付边界：0.4.0-rc8 seq8 本机候选，独立验收尚未完成
-
-最新产品冻结提交 `9a61040c86efbe967b207a058f717733df422391`，可读Main SHA-256 `c09836478cdd5fe58f34634002400ebc517185deb30fe4a29a469705c1ac6bd7`；签名compact Main `58b97a56…`、manifest `8d2f8ee9…`、catalog `b05b01b8…`/seq8。Intel本机候选 `build/sprint005/rc8-candidate-r4/Muse.app` 使用统一WorkBuddy Launcher入口和原配套Host。独立GUI验收包 `build/sprint005/zc05-final-r4/Muse.app` 使用限定双marker/loopback CA的专用测试Host，实际窗口已显示，日历query/create有真实owner回执和独立保存读回；合成模型/账号/数据只计 `SIMULATION_PASS`。
-
-最终三轮尚未完成。官方Mail原生发送要求本人physical activation，自动化被拒绝且SMTP DATA=0，不能称真实发送或自发自收通过。生产资料及R5保底 `build/night-004/rc7-integrated-candidate-r5/package/Muse.app` 保留；新候选未在生产资料中完成安装/整链验收。详细状态见 [当前状态](MUSE_HANDOFF/CURRENT_STATE.md)、[七小时报告](MUSE_SPRINT_20261012_7H_REPORT.md) 和 [独立三轮报告](MUSE_USER_ACCEPTANCE_3ROUNDS_REPORT.md)。
-
-根 [bundle/](bundle/) 保留 `0.3.27-rc17` 历史包；build是未跟踪的本机产物，干净检出需重新准备、签名与验收。正常开发分支同步不等于公开发布或比赛提交。R5历史范围见 [NIGHT-004报告](MUSE_STABILIZATION_20261012_REPORT.md)，不能拼作本候选三轮。
-
 # Muse · 让记忆推动行动
 
 ![Muse · 星海队](official_muse/rc/rc49-completion-20261006-r1/media/rc51-public/Muse-rc51-cover-v2.png)
@@ -57,29 +45,25 @@
 | [dependencies.lock.json](dependencies.lock.json)、[sdk-overlays/](sdk-overlays/) | 官方 SDK 固定来源及配套扩展 |
 | [scripts/bootstrap_sdk.py](scripts/bootstrap_sdk.py) | 依赖恢复与逐文件核对 |
 
-布局迁移基线：**0.3.27-rc17**。日历仍依赖配套 Host 扩展；A 线后续业务整改不属于本轮目录迁移验收。
+当前源码候选：**0.4.0-rc16**。日历通过配套 OctoSense Host 的 Calendar Relay 接入内置 Calendar。
 
-## 源码构建
+## 当前源码与发布入口
 
-开发环境：macOS、Rust、Apple Command Line Tools、Python 3。
+新发布流程仅使用仓库根目录 **`bundle/`**。`official_muse/app/bundle` 是指向它的相对兼容链接，不维护第二份应用包。
 
-```sh
-python3 scripts/bootstrap_sdk.py
-python3 scripts/bootstrap_sdk.py --verify
-cd vendor/octosense
-cargo build --locked --release -p octosense --bin octosense --no-default-features --features app-hub
-python3 tools/package_calendar_candidate.py --release --output ../../build/Muse-OctoSense.app
-```
-
-以上命令构建既有配套 Shell；本轮未重建或运行 Host。应用提交入口是根 `bundle/`，构建输出、模型和本地资料都在包外。既有 ZIP 与验收记录保留各自历史版本，不代表这次复赛发布。
-
-## 发布前检查
+- `bundle/main.splash`：当前 rc16 应用入口。
+- `official_muse/app/source/main.splash`：对应可读源码。
+- `official_muse/integrated_release/`：统一 Host 补丁、Intel 启动器与打包工具。
+- [统一构建与启动说明](official_muse/integrated_release/README.md)：沿用已验证的 Muse.app / WorkBuddy 启动路径。
 
 ```sh
-python3 scripts/check_release_layout.py
+python3 scripts/check_release_layout.py --for-github-release
+python3 scripts/check_current_bundle.py
 ```
 
-`.github/workflows/publish-app.yml` 保留仅手动触发的只读布局检查草稿。正式 GitHub publisher 证明要求官方 tag-push 流程；现有本地 rehearsal 签名按原字节保留，尚不能作为该流程的可编辑发布源。审查步骤与未完成项见 [发布布局说明](docs/semifinal-release-layout.md)。
+持续事务页围绕项目评审展示：保存目标和偏好，调用模型选择下一步，读取内置日历，整理确认草稿；补充新时间后失效旧计划，更新原日程并恢复同一事务。真实运行和验收记录见 [当前状态](MUSE_HANDOFF/CURRENT_STATE.md)。
+
+根 Bundle 是供正式发布工具准备的可编辑源包；本地 .app 使用另行签名的镜像。代码同步不会自动创建比赛提交或 GitHub Release。正式发布流程见 [发布布局说明](docs/semifinal-release-layout.md)。
 
 ## 新手使用教程
 

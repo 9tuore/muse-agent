@@ -12216,29 +12216,29 @@ let ResultContent = ScrollYView{width: Fill height: Fill flow: Down spacing: 10 
             }
 }}
 SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg.color: paper
-    showcase_view := SolidView{width: Fill height: Fill flow: Down padding: 22 spacing: 16 draw_bg.color: #xf4f3f9 on_render: || {
+    showcase_view := SolidView{width: Fill height: Fill flow: Down padding: 16 spacing: 10 draw_bg.color: #xf4f3f9 on_render: || {
         let si = #x29243b let sm = #x797387 let sa = #x6950da let sg = #x33846c
-        View{width: Fill height: 34 flow: Right spacing: 12 align: Align{y: 0.5}
-            Label{text: "Muse" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 24}}
-            Label{width: Fill text: "让记忆推动行动" draw_text.color: sm draw_text.text_style.font_size: 12}
+        View{width: Fill height: 38 flow: Right spacing: 12 align: Align{y: 0.5}
+            Label{text: "Muse" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 19}}
+            Label{width: Fill text: "让记忆推动行动" draw_text.color: sm draw_text.text_style.font_size: 10}
             Secondary{text: "新建事务" draw_text.color: sm on_click: || showcase_new()}
             Secondary{text: "工作台" draw_text.color: sm on_click: || showcase_switch(false)}
         }
         View{width: Fill height: Fit flow: Down spacing: 6
-            Label{text: "事情变了，Muse 接着办。" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 27}}
-            Label{width: Fill text: "记住目标 · 理解变化 · 推进下一步" draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 13}
+            Label{text: "事情变了，Muse 接着办。" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 22}}
+            Label{width: Fill text: "记住目标 · 理解变化 · 推进下一步" draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 10}
         }
         View{width: Fill height: Fill flow: Right spacing: 14
-            RoundedView{width: 230 height: Fill flow: Down padding: 18 spacing: 13 new_batch: true draw_bg.color: #xeae6f7 draw_bg.border_radius: 16
-                Label{text: "01  持续事务" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
-                Label{width: Fill text: showcase_state.goal draw_text.color: si draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 20}}
-                Label{width: Fill text: showcase_state.source draw_text.color: si draw_text.wrap: Words draw_text.text_style.font_size: 13}
+            RoundedView{width: 230 height: Fill flow: Down padding: 12 spacing: 6 new_batch: true draw_bg.color: #xeae6f7 draw_bg.border_radius: 12
+                Label{text: "01  持续事务" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 10}}
+                Label{width: Fill text: "星海项目评审" draw_text.color: si draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 15}}
+                Label{width: Fill text: showcase_state.source draw_text.color: si draw_text.wrap: Words draw_text.text_style.font_size: 10}
                 View{width: Fill height: 1}
-                Label{text: "一直记得" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
-                Label{width: Fill text: "线上会议\n提前 30 分钟准备" draw_text.color: si draw_text.wrap: Words draw_text.text_style.font_size: 14}
+                Label{text: "一直记得" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 10}}
+                Label{width: Fill text: "线上会议\n提前 30 分钟准备" draw_text.color: si draw_text.wrap: Words draw_text.text_style.font_size: 10}
                 View{width: Fill height: Fill}
                 if showcase_restored {
-                    Label{width: Fill text: "已回到上次的事务" draw_text.color: sg draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 13}}
+                    Label{width: Fill text: "已回到上次的事务" draw_text.color: sg draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 10}}
                 }
                 if showcase_state.id == "" {
                     Primary{width: Fill height: 40 text: "交给 Muse" on_click: || showcase_start()}
@@ -12247,28 +12247,28 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                     Primary{width: Fill height: 40 text: "补充：改到 16 点" on_click: || showcase_change()}
                 }
                 if showcase_state.changed {
-                    Label{width: Fill text: "时间更新了\n目标与偏好继续保留" draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    Label{width: Fill text: "时间更新了\n目标与偏好继续保留" draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 10}
                 }
             }
-            ScrollYView{width: Fill height: Fill flow: Down spacing: 12
-                RoundedView{width: Fill height: Fit flow: Down padding: 18 spacing: 12 new_batch: true draw_bg.color: #xffffff draw_bg.border_radius: 16
+            ScrollYView{width: Fill height: Fill flow: Down spacing: 8
+                RoundedView{width: Fill height: Fit flow: Down padding: 12 spacing: 8 new_batch: true draw_bg.color: #xffffff draw_bg.border_radius: 12
                     View{width: Fill height: Fit flow: Right
-                        Label{width: Fill text: "02  行动链" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
-                        if showcase_state.revision > 0 { Label{text: "V" + showcase_state.revision draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}} }
+                        Label{width: Fill text: "02  行动链" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 10}}
+                        if showcase_state.revision > 0 { Label{text: "V" + showcase_state.revision draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 10}} }
                     }
-                    Label{width: Fill text: if showcase_state.id == "" {"从一次委托开始"} else {"每一步，都围绕同一个目标"} draw_text.color: si draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 17}}
-                    Label{width: Fill text: if showcase_state.id == "" {"○ 理解目标与偏好"} else {"✓ 目标与偏好已保存"} draw_text.color: if showcase_state.id == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
-                    Label{width: Fill text: if showcase_state.model == "" {"○ 判断下一步"} else {"✓ " + showcase_state.model} draw_text.color: if showcase_state.model == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
-                    Label{width: Fill text: if showcase_state.calendar == "" {"○ 读取内置日历"} else {"✓ " + showcase_state.calendar} draw_text.color: if showcase_state.calendar == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
-                    Label{width: Fill text: if showcase_state.draft == "" {"○ 整理确认草稿"} else {"✓ 确认草稿已保存"} draw_text.color: if showcase_state.draft == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    Label{width: Fill text: if showcase_state.id == "" {"从一次委托开始"} else {"每一步，都围绕同一个目标"} draw_text.color: si draw_text.wrap: Words draw_text.text_style: theme.font_bold{font_size: 10}}
+                    Label{width: Fill text: if showcase_state.id == "" {"○ 理解目标与偏好"} else {"✓ 目标与偏好已保存"} draw_text.color: if showcase_state.id == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 10}
+                    Label{width: Fill text: if showcase_state.model == "" {"○ 判断下一步"} else {"✓ " + showcase_state.model} draw_text.color: if showcase_state.model == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 10}
+                    Label{width: Fill text: if showcase_state.calendar == "" {"○ 读取内置日历"} else {"✓ " + showcase_state.calendar} draw_text.color: if showcase_state.calendar == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 10}
+                    Label{width: Fill text: if showcase_state.draft == "" {"○ 整理确认草稿"} else {"✓ 确认草稿已保存"} draw_text.color: if showcase_state.draft == "" {sm} else {sg} draw_text.wrap: Words draw_text.text_style.font_size: 10}
                     if showcase_state.changed {
                         RoundedView{width: Fill height: Fit flow: Down padding: 12 spacing: 5 new_batch: true draw_bg.color: #xfff3e6 draw_bg.border_radius: 10
-                            Label{text: "旧计划已失效" draw_text.color: #xa16b28 draw_text.text_style: theme.font_bold{font_size: 13}}
-                            Label{width: Fill text: "15:00 → 16:00\n重新读取日历，更新确认草稿。" draw_text.color: #x8a6946 draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                            Label{text: "旧计划已失效" draw_text.color: #xa16b28 draw_text.text_style: theme.font_bold{font_size: 10}}
+                            Label{width: Fill text: "15:00 → 16:00\n重新读取日历，更新确认草稿。" draw_text.color: #x8a6946 draw_text.wrap: Words draw_text.text_style.font_size: 10}
                         }
                     }
                     if showcase_busy {
-                        Label{width: Fill text: if showcase_state.calendar_status == "pending" {"等待日历确认…"} else {"Muse 正在继续处理…"} draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                        Label{width: Fill text: if showcase_state.calendar_status == "pending" {"等待日历确认…"} else {"Muse 正在继续处理…"} draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 10}
                     }
                     if showcase_state.phase == "resume" && !showcase_busy {
                         Primary{text: "继续处理" on_click: || showcase_plan()}
@@ -12276,34 +12276,34 @@ SolidView{width: Fill height: Fill flow: Right container_id: @muse_shell draw_bg
                     }
                 }
                 if showcase_notice != "" {
-                    Label{width: Fill text: showcase_notice draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                    Label{width: Fill text: showcase_notice draw_text.color: sa draw_text.wrap: Words draw_text.text_style.font_size: 10}
                 }
                 Secondary{text: if showcase_detail {"收起过程"} else {"查看过程"} draw_text.color: sm on_click: || {showcase_detail = !showcase_detail showcase_paint()}}
                 if showcase_detail {
                     for event in showcase_state.events {
-                        Label{width: Fill text: "V" + event.revision + " · " + event.detail draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 11}
+                        Label{width: Fill text: "V" + event.revision + " · " + event.detail draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 10}
                     }
                 }
             }
-            RoundedView{width: 270 height: Fill flow: Down padding: 18 spacing: 12 new_batch: true draw_bg.color: #xffffff draw_bg.border_radius: 16
-                Label{text: "03  当前安排" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 12}}
-                Label{text: showcase_state.hour draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 34}}
-                Label{width: Fill text: if showcase_state.date == "" {"明天 · 1 小时 · 线上会议"} else {showcase_state.date + " · 1 小时 · 线上会议"} draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 12}
+            RoundedView{width: 270 height: Fill flow: Down padding: 12 spacing: 8 new_batch: true draw_bg.color: #xffffff draw_bg.border_radius: 12
+                Label{text: "03  当前安排" draw_text.color: sa draw_text.text_style: theme.font_bold{font_size: 10}}
+                Label{text: showcase_state.hour draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 22}}
+                Label{width: Fill text: if showcase_state.date == "" {"明天 · 1 小时 · 线上会议"} else {showcase_state.date + " · 1 小时 · 线上会议"} draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 10}
                 if showcase_state.calendar_status == "saved" {
-                    Label{text: "✓ 已加入内置日历" draw_text.color: sg draw_text.text_style: theme.font_bold{font_size: 13}}
+                    Label{text: "✓ 已加入内置日历" draw_text.color: sg draw_text.text_style: theme.font_bold{font_size: 10}}
                 }
                 if showcase_state.calendar_status == "outdated" {
-                    Label{width: Fill text: "日历中原安排为 15:00，点击下方更新。" draw_text.color: #xa16b28 draw_text.wrap: Words draw_text.text_style.font_size: 12}
+                    Label{width: Fill text: "日历中原安排为 15:00，点击下方更新。" draw_text.color: #xa16b28 draw_text.wrap: Words draw_text.text_style.font_size: 10}
                 }
                 View{width: Fill height: 1}
-                Label{text: "确认草稿" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 13}}
+                Label{text: "确认草稿" draw_text.color: si draw_text.text_style: theme.font_bold{font_size: 10}}
                 ScrollYView{width: Fill height: Fill flow: Down
-                    Label{width: Fill text: if showcase_state.draft == "" {"Muse 会把最新安排整理成一份可审阅的草稿。"} else {showcase_state.draft} draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 13}
+                    Label{width: Fill text: if showcase_state.draft == "" {"Muse 会把最新安排整理成一份可审阅的草稿。"} else {showcase_state.draft} draw_text.color: sm draw_text.wrap: Words draw_text.text_style.font_size: 10}
                 }
                 if showcase_state.phase == "ready_for_review" && !showcase_busy && showcase_state.calendar_status != "saved" {
                     Primary{width: Fill height: 38 text: if showcase_state.calendar_status == "unresolved" {"查看日历结果"} else {if showcase_state.calendar_event == nil {"加入内置日历"} else {"更新原日程"}} on_click: || showcase_calendar_write()}
                 }
-                if showcase_state.draft != "" { Label{text: "草稿已保存，待你审阅" draw_text.color: sm draw_text.text_style.font_size: 11} }
+                if showcase_state.draft != "" { Label{text: "草稿已保存，待你审阅" draw_text.color: sm draw_text.text_style.font_size: 10} }
             }
         }
         Label{text: "MUSE  /  星海队" draw_text.color: #x9d97ad draw_text.text_style.font_size: 10}

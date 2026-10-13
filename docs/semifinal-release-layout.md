@@ -1,3 +1,13 @@
+# 当前发布入口 · 2026-10-13
+
+用户确认仓库根目录 `bundle/` 为唯一入口。当前版本为 `0.4.0-rc16`，从同一可读主源生成；旧 `official_muse/app/bundle -> ../../bundle` 仅用于兼容。根 manifest 是可编辑的正式发布准备输入，不复用历史本地 rehearsal 签名。旧签名包和迁移记录保留在 Git 历史及本机回退目录。
+
+执行 `python3 scripts/check_release_layout.py --for-github-release` 和 `python3 scripts/check_current_bundle.py` 核对布局、资源和源包同版本；CI 对根 bundle 与源文件变更执行相同检查。源码 push 与正式 Release/App Hub/比赛提交是独立步骤，本次只同步代码。
+
+下面保留既往迁移证据，所述 rc17 为历史状态。
+
+---
+
 # Muse 复赛发布布局：B 线
 
 本轮仅迁移实际活动的 rc17 应用包、统一有效入口并准备只读发布前检查。没有修改 readable 业务源码、SDK、A 线状态/报告或用户资料；没有 Host 构建、GUI、外部业务动作、push、tag 或发布。

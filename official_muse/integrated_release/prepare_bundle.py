@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = '0.4.0-rc15'
+VERSION = '0.4.0-rc16'
 
 
 def main():
@@ -26,7 +26,7 @@ def main():
     source = source.replace('Muse · 0.3.27-rc18', 'Muse · ' + VERSION)
     (readable / 'main.splash').write_text(source)
     manifest = json.loads((readable / 'manifest.json').read_text())
-    assert manifest['id'] == 'muse-goals' and manifest['agent'] is None
+    assert manifest['id'] == 'muse-goals'
     manifest['version'] = VERSION
     manifest['integrity'] = {'bundle_blake3': ''}
     manifest.pop('github', None)
