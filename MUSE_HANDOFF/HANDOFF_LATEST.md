@@ -1,22 +1,22 @@
 # Handoff
 
 ## Task
-按用户要求删除邮箱连接页的登录名输入栏，避免误导。
+单人修复邮箱、对话、日历；基线05930a71，已部署rc11/1b5d0990。
 
 ## Result
-PASS（输入页面范围）。桌面 Muse.app 已重建、更新并打开新版中文邮箱页，资料保留。
+PARTIAL。用户确认邮箱正常；原生发送回执accepted。rc12待构建部署后GUI复核。
 
 ## Changed
-SDK Mail 原生表单删除登录名标签、控件及 ui.username 引用；表单仅提交地址，后端原有回退逻辑使用邮箱地址登录。Main与Calendar修复字节未变。
+Main恢复授权邮箱选择、简化对话输入；SDK patch仅随包本地模型传递JSON schema并限制普通回复长度。版本rc12。保留rc11可运行包。
 
 ## Tests
-1项原生表单/地址回退单测通过；实际GUI确认登录名标签和控件不存在，邮箱与密码栏存在；成品签名及动态身份通过。证据 official_muse/integrated_release/evidence/input-fix-20261013/no-username-verification.json，原生截图留本机build。
+Mail Splash VM fixture42/42；本地模型wire单测3/3；真实SMTP accepted，未独立匹配收件ID。rc12打包5/6，另一项被运行宿主互斥阻止，待停宿主再跑。证据build/recovery-20261013；原生私有GUI图在旧总控worktree同目录，失败保留。
 
 ## Commit
-产品 ff70f1b1；仅本地，未推送。
+本地提交，未推送。
 
 ## Remaining
-本项未重测真实登录、发信；前轮Calendar/全功能验收限制仍见CURRENT_STATE。
+真实新包聊天、邮箱重启回归；Calendar AI调用未通过。当前干净资料仅Qwen0.5B，无MiniMax配置，不能把模型文字当执行。原生Calendar输入自动化未成功，未写事件。
 
 ## Important Boundaries
-未读取或复制凭据，未修改用户资料。旧版app保留rollback-rc10-with-username。
+用户要求清理已完成：3缓存、23旧app；源码、账户、日志、截图及回退保留。fixture与真实结果分开，当前未完成三轮全功能验收。

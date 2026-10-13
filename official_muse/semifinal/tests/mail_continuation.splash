@@ -4,7 +4,7 @@ use mod.math.*
 use mod.std.*
 let fixture_files = {} let fixture_tasks = [] let fixture_cursor = 0
 let fixture_calls = [] let fixture_events = [] let fixture_reply = "accepted"
-let fixture_composer = {}
+let fixture_composer = {} let mail_accounts = [] let fixture_accounts = []
 let mail_error_detail = "" let mail_error_detail_user = "" let mail_error_detail_open = false
 let fixture_count = 0 let fixture_serial = 0 let fixture_fail_archive = false
 let field_to = "" let field_subject = "" let field_body = ""
@@ -31,6 +31,8 @@ fn time_now(){ return 1791840000 }
 fn random_u32(){ fixture_serial = fixture_serial + 1 return fixture_serial }
 fn mail_redraw(){}
 fn mail_compose(){ mail_compose_open = true }
+fn mail_enabled(){ return true }
+fn gm_set_accounts(ids){}
 fn mail_folders(){}
 fn mail_list(){}
 fn mail_attach_reply_headers(snapshot){}
@@ -49,6 +51,7 @@ fn core_commit_goals(next_goals,next_runs,next_actions,next_selected){
 }
 fn fixture_transport(method,args,callback){
     fixture_calls.push({method: method args: args.to_json().parse_json()})
+    if method == "mail.accounts" { callback({is_ok:true data:fixture_accounts}) return }
     if method == "mail.compose" {
         fixture_count = fixture_count + 1
         let data = args.to_json().parse_json()
@@ -164,4 +167,16 @@ fixture_composer.attempts[0].payload.body = fixture_composer.body
 let prior = {operation_id: "previous" status: "unknown"}
 fixture_composer.attempts = [prior,fixture_composer.attempts[0]]
 check("uncertain-prior-delivery-stays-unknown",mail_host_receipt_status(fixture_composer) == "unknown")
+fixture_seed("accepted") mail_account = nil fixture_accounts = [{id:"A" address:"a@fixture.invalid"},{id:"B" address:"b@fixture.invalid"}]
+mail_accounts_load()
+check("restart-restores-draft-account",mail_account.id == "A" && mail_draft.status == "accepted" && mail_draft.body == "synthetic body")
+fixture_seed("DRAFT") mail_account = nil mail_draft.account = "" fixture_accounts = [{id:"A" address:"a@fixture.invalid"}]
+mail_accounts_load()
+check("sole-connected-account-selected",mail_account.id == "A" && mail_draft.account == "A")
+fixture_seed("DRAFT") mail_account = nil mail_draft.account = "" fixture_accounts = [{id:"A"},{id:"B"}]
+mail_accounts_load()
+check("multiple-accounts-no-guess",mail_account == nil)
+fixture_seed("DRAFT") mail_account = {id:"B"} fixture_accounts = [{id:"A"},{id:"B"}]
+mail_accounts_load()
+check("refresh-preserves-explicit-selection",mail_account.id == "B")
 results.to_json()

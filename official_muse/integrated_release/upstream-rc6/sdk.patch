@@ -75,6 +75,95 @@ index bf6b9c9..abb58cf 100644
 +octosense-appstore = { path = ".sources/app-hub/crates/appstore" }
 +octosense-app-policy = { path = ".sources/app-hub/crates/app-policy" }
 +octosense-app-contract = { path = ".sources/app-hub/crates/app-contract" }
+diff --git a/apps/ai-providers/host-service/src/complete/mod.rs b/apps/ai-providers/host-service/src/complete/mod.rs
+index 992209f..1f4d004 100644
+--- a/apps/ai-providers/host-service/src/complete/mod.rs
++++ b/apps/ai-providers/host-service/src/complete/mod.rs
+@@ -554,7 +554,7 @@ impl ModelHost {
+                         "{user}\n\nYour previous answer was refused: {why}. Answer again with only one JSON value that validates against the schema."
+                     ),
+                 };
+-                let text = match self.send(candidate, &system, &user) {
++                let text = match self.send(candidate, &system, &user, &request.schema) {
+                     Ok((text, used)) => {
+                         usage.add(used);
+                         self.ledger.lock().unwrap().charge(app, (self.clock)(), used.total());
+@@ -592,9 +592,9 @@ impl ModelHost {
+ 
+     /// One request to one provider: the reply text and its usage, or why the
+     /// provider failed (with the key removed).
+-    fn send(&self, c: &Candidate, system: &str, user: &str) -> Result<(String, Usage), String> {
++    fn send(&self, c: &Candidate, system: &str, user: &str, schema: &Value) -> Result<(String, Usage), String> {
+         let key = c.key.as_deref();
+-        let prepared = wire::prepare(&c.provider, key, system, user)?;
++        let prepared = wire::prepare(&c.provider, key, system, user, schema)?;
+         let (status, body) = self.transport.post(&prepared.url, &prepared.headers, &prepared.body).map_err(|e| {
+             format!("{}: {}", probe::transport_reason(&e), probe::describe_error(&e, key))
+         })?;
+diff --git a/apps/ai-providers/host-service/src/complete/wire.rs b/apps/ai-providers/host-service/src/complete/wire.rs
+index e20a778..7ea3cd9 100644
+--- a/apps/ai-providers/host-service/src/complete/wire.rs
++++ b/apps/ai-providers/host-service/src/complete/wire.rs
+@@ -1,7 +1,7 @@
+ //! One `model.complete` request on the wire, in the three protocols a
+ //! provider speaks, and the text and token usage out of its answer.
+ //!
+-//! No output-token cap is sent where the protocol allows none (OpenAI chat
++//! Cloud requests carry no output-token cap where the protocol allows none (OpenAI chat
+ //! completions, the Responses API): a reasoning model spends any cap on its
+ //! thinking first, and the schema plus the host's byte cap bound the reply.
+ //! Anthropic's Messages API requires `max_tokens`, so it gets the model's
+@@ -23,7 +23,7 @@ pub struct Prepared {
+ }
+ 
+ /// The request for `provider`: `system` and one `user` message.
+-pub fn prepare(provider: &Provider, key: Option<&str>, system: &str, user: &str) -> Result<Prepared, String> {
++pub fn prepare(provider: &Provider, key: Option<&str>, system: &str, user: &str, schema: &Value) -> Result<Prepared, String> {
+     let family = registry::lookup(&provider.family).map(|f| f.id).unwrap_or(provider.family.as_str());
+     if family == "vertex" {
+         return Err("Vertex AI is not supported for direct calls".into());
+@@ -69,6 +69,17 @@ pub fn prepare(provider: &Provider, key: Option<&str>, system: &str, user: &str)
+             (format!("{base}/responses"), json!({"model": model, "instructions": system, "input": user, "store": false}))
+         }
+     };
++    // The bundled CPU model is not a reasoning model. Its llama.cpp endpoint
++    // supports schema-constrained output; avoid spending the full context on
++    // malformed/repeating text before the host can validate a reply.
++    let mut body = body;
++    if family == "local" && model == "Qwen2.5-0.5B-Instruct-Q4_0-offline" && api == ApiType::OpenAi {
++        body["response_format"] = json!({"type": "json_object", "schema": schema});
++        if schema.pointer("/properties/reply/type").and_then(Value::as_str) == Some("string") {
++            body["max_tokens"] = json!(768);
++        }
++        body["temperature"] = json!(0.2);
++    }
+     Ok(Prepared { url, headers, body: body.to_string(), api })
+ }
+ 
+@@ -141,6 +152,23 @@ pub fn unwrap_json(text: &str) -> &str {
+ mod tests {
+     use super::*;
+ 
++    #[test]
++    fn bundled_local_model_receives_schema_and_output_bound() {
++        let schema = json!({"type":"object", "properties":{"reply":{"type":"string"}}, "required":["reply"]});
++        let local = Provider::new("local", Some("Qwen2.5-0.5B-Instruct-Q4_0-offline".into()));
++        let request = prepare(&local, None, "task", "input", &schema).unwrap();
++        let body: Value = serde_json::from_str(&request.body).unwrap();
++        assert_eq!(body["response_format"]["schema"], schema);
++        assert_eq!(body["max_tokens"], 768);
++        assert_eq!(body["messages"][1]["content"], "input");
++        for provider in [Provider::new("deepseek", Some("deepseek-chat".into())), Provider::new("local", Some("another-model".into()))] {
++            let request = prepare(&provider, None, "task", "input", &schema).unwrap();
++            let body: Value = serde_json::from_str(&request.body).unwrap();
++            assert!(body.get("response_format").is_none());
++            assert!(body.get("max_tokens").is_none());
++        }
++    }
++
+     #[test]
+     fn fences_and_thinking_are_removed() {
+         assert_eq!(unwrap_json("```json\n{\"a\":1}\n```"), "{\"a\":1}");
 diff --git a/apps/calendar/bundle/tools.json b/apps/calendar/bundle/tools.json
 index 243c04a..d2fb039 100644
 --- a/apps/calendar/bundle/tools.json

@@ -1,3 +1,13 @@
+## 2026-10-13 rc12 邮箱恢复与本地对话格式修复
+
+单人恢复工作区，rc11 产品提交1b5d0990。真实GUI中旧草稿通过检查发送状态恢复DRAFT，原生审阅不再误报signed out；用户本人发送后，Host compose receipt.accepted=true，Muse记录accepted。来信页也出现本次自发自收测试，尚未独立匹配收件message-id，不扩大为完整收发验收。
+
+rc12补充重启自动选择已保存草稿的授权邮箱/唯一邮箱，不替用户猜多账号；实际Splash VM 42项fixture通过。聊天用明确question/history/context替代嵌套消息输入；仅随包Qwen增加JSON schema格式约束、普通reply最多768 token，其他模型不改。原生wire 3项单测通过，合成真实模型探测问候/算术返回有效回答；正式GUI待新包。
+
+日历真实查询无成功回执；16k上下文已生效，但当前干净环境AI providers仅有Qwen0.5B，没有MiniMax。模型生成过普通JSON文字而非工具调用，不能计入Calendar执行。未复制旧凭据。原生Calendar打开成功，自动化输入未读回成功，没有保存或删除测试事件。
+
+用户要求清理空间：删除3处旧Cargo缓存与23个旧Muse.app，源码、资料、日志和截图保留；工作副本63GiB降至41GiB，可用盘约13GiB，用户已要求停止清理继续修复。当前Host target保留。rc12打包6项测试5通过、1因当前Muse运行互斥退出待停宿主后重跑，原失败日志保留。新Host正在构建；不宣称三功能均修复，不自动push。
+
 ## 2026-10-13 rc11 三服务故障修复进行中
 
 单人工作区 muse-service-recovery，基线05930a71。真实邮箱UI复现 "The Mail account is signed out"；宿主suspension为muse-goals已恢复device，错误按邮箱hash检查导致误拒绝。按声明storage.accounts修复身份选择，device应用仍检查具体邮箱grant，账号型应用仍检查当前账号。3项原生生命周期测试通过。Muse恢复等待批准但从未发送的草稿，保留发送日志与失败详情；38项真实Splash VM fixture通过。未向私人收件人测试发送。
