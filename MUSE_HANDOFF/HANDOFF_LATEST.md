@@ -2,14 +2,14 @@
 
 Task：冻结 RC23，完成110秒视频、提交文案、GitHub收口；单AI，仅独立目录。
 
-Result：PARTIAL（本地成片与应用已就绪，远端发布正在执行）。产品不再开发下一版。
+Result：PASS（限定为冻结候选的视频、文案、源码及 GitHub Release 交付）。产品不再开发下一版。
 
 Changed：媒体合成工具支持多源剪辑、局部放大与旁白；统一标题、文案、教程、录制说明及提交入口。三条本地提醒已清除，原邮件保留。
 
 Tests：RC23 Bundle与发布布局PASS；成片110秒/1080p/中文配音字幕，执行全片解码与画面抽查。旧业务证据维持原版本归属。
 
-Commit：发布收口提交见git log；远端SHA与Release资产将在发布回执独立核对。
+Commit：本地收口758de4f；GitHub固定源码12b8879，树内容一致；v0.4.0-rc23已公开。14项附件齐备，11项本地资产SHA-256核对一致。
 
-Remaining：GitHub上传与工作流核验；比赛网站最终提交。
+Remaining：比赛网站最终提交。GitHub发布与原生源码工作流已完成，记录见docs/RELEASE_RC23.json。
 
 Boundaries：记忆录屏RC23，日历成功录屏RC21；不是RC23同候选全链路或全功能三轮验收。配套宿主，不声明App Hub准入。旧失败证据保留，未脱敏原始资料不公开。

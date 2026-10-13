@@ -10,7 +10,7 @@
 - 视频：110 秒、1920×1080、30 fps、中文配音及字幕；跨会话记忆采用 RC23 录屏，日历沿用 RC21 的真实成功录屏。准确镜头、版本和合成演示资料范围见 `参赛材料/Muse-录制说明.txt` 与 `Muse-镜头索引.json`，不宣称 RC23 同候选全链路验收。
 - 参赛文案：定位、摘要、正式介绍与三个创新亮点已统一为“让记忆推动行动”，见 `参赛材料/Muse-最终提交文案.txt`。
 - 上游反哺：Shell/Dock issue https://github.com/OctoSense-org/OctoSense/issues/535 ；Calendar 实现与真实 CRUD 证据 https://github.com/OctoSense-org/OctoSense/issues/427#issuecomment-6150775532 。
-- GitHub：用户已明确授权代码、视频及正式 Release。正在执行最终发布，完成以远端 SHA、Release 资产和校验清单为准。比赛网站提交不等于 GitHub 发布；本次不声明 App Hub 审核通过。
+- GitHub：`v0.4.0-rc23` 已正式发布，固定源码 `12b8879bdd69da91008c9590b49a18a205919a05`；发布工作流成功，14 项附件完整，11 个本地上传文件逐一匹配 GitHub SHA-256。记录见 `docs/RELEASE_RC23.json`。此次为 GitHub 发布，比赛网站尚未提交；本次不声明 App Hub 审核通过。
 
 本轮只收口媒体、提交材料及发布，不继续扩大开发范围。GitHub 原版宿主仍需相应扩展，适用条件见 `docs/NATIVE_DELIVERY.md`。
 
