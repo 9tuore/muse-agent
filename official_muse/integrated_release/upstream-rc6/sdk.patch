@@ -539,7 +539,7 @@ index a3413b9..438ec0c 100644
          .iter_mut()
          .find(|e| e.id == text(args, "id"))
 diff --git a/apps/mail/host-service/src/lib.rs b/apps/mail/host-service/src/lib.rs
-index 1e124b7..e963ccf 100644
+index 1e124b7..8d88e48 100644
 --- a/apps/mail/host-service/src/lib.rs
 +++ b/apps/mail/host-service/src/lib.rs
 @@ -647,10 +647,10 @@ fn account_from_form(form: &Value) -> Result<Value, String> {
@@ -603,7 +603,8 @@ index 1e124b7..e963ccf 100644
 -    ui.status.set_text("Checking the account…")
 +    ui.status.set_text("正在连接邮箱…")
      host.request("mail.sheet.submit", {
-         address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
+-        address: ui.address.text() username: ui.username.text() password: ui.password.text() protocol: protocol
++        address: ui.address.text() password: ui.password.text() protocol: protocol
          host: ui.pop_host.text() port: ui.pop_port.text() security: "tls"
          smtp_host: ui.smtp_host.text() smtp_port: ui.smtp_port.text() smtp_security: "tls"
 -    }, fn(r){ if r.is_ok { ui.status.set_text("Signed in") } else { ui.status.set_text(r.error) } })
@@ -611,7 +612,7 @@ index 1e124b7..e963ccf 100644
  }
  fn cancel(){ host.request("mail.sheet.cancel", {}, fn(r){}) }
  let Field = TextInput{width: Fill height: 40
-@@ -999,36 +1015,37 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
+@@ -999,36 +1015,35 @@ SolidView{width: Fill height: Fill flow: Down draw_bg.color: #x000000aa new_batc
      ScrollYView{width: Fill height: Fill flow: Down padding: Inset{left: 12 right: 12 top: 24 bottom: 24}
      RoundedView{width: Fill height: Fit flow: Down spacing: 8 padding: 16 new_batch: true show_bg: true draw_bg.color: #xffffff draw_bg.border_radius: 18.0
          View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
@@ -638,8 +639,6 @@ index 1e124b7..e963ccf 100644
 -        password := Field{empty_text: "password" is_password: true}
 +        Caption{text: "邮箱地址"}
 +        address := Field{empty_text: "请输入完整邮箱地址" on_change: |text| address_changed(text)}
-+        Caption{text: "登录名（可选，默认使用邮箱地址）"}
-+        username := Field{empty_text: "留空即可"}
 +        Caption{text: "密码或邮箱授权码"}
 +        password := Field{empty_text: "QQ 邮箱请填写授权码" is_password: true}
          RoundedView{width: Fill height: Fit flow: Right padding: 2 show_bg: true draw_bg.color: #xe5e5ea draw_bg.border_radius: 10.0
@@ -667,7 +666,7 @@ index 1e124b7..e963ccf 100644
          }
      }
      }
-@@ -1120,6 +1137,21 @@ mod tests {
+@@ -1120,6 +1135,21 @@ mod tests {
          wait(heap)
      }
  
