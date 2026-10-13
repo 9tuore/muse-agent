@@ -1,11 +1,22 @@
-# NIGHT-006 收口交接
+# Handoff
 
-任务：最新rc.6统一Intel候选、UI与稳定性修复、真实验收。
+## Task
+修复用户报告的日历只能输入一字、邮箱连接页英文及默认谷歌服务器。基线 6a7a48a7，codex/muse-pivot-20261010。
 
-结果：桌面Muse-正式候选-20261013/Muse.app已以空资料打开，r5/Main45847985，源码ab30195c。实际晚于05:00，未按时完成全量验收。原资料保留。
+## Result
+PASS（本轮输入与连接页范围）。rc10-r2 已更新并打开桌面原入口，保留原资料和 rc9 应用回退。
 
-实现：冷加载分帧、原生hash绑定、连续新邮件解锁、编辑器限高、技术说明收纳、日历来源/同ID绑定及账号隔离。
+## Changed
+main.splash 常驻日历编辑器，输入只刷新预览；rc.6 SDK 原生邮箱页中文化、空服务器、QQ 自动/按钮填写；rc10 打包版本。
 
-验证：原生hash4项；日历/联动/scope为定向VM。真实MiniMax→内置Calendar新建与owner读回通过；改期审批撤回，unknown恢复仍有缺口。测试日程MUSE-N006-QA-20261013仍在原资料16:00。删除未执行、邮件闭环未验收。独立r5为1首轮PASS/269 NOT_TESTED、0三轮；冷启动首轮导航断言失败，0/20。
+## Tests
+2026-10-13：26启动器+6打包 fixture、1原生邮箱单测通过。最终GUI逐字中英文、退格、插字、换行、跨页保留通过。相同Host rc10-r1 QQ自动填写/POP3通过；r2空中文表单验证，自动填写补测断言失败未计通过。旧失败和截图均保留，索引 integrated_release/evidence/input-fix-20261013/verification.json。
 
-提交：ab30195c为产品；0c4bcdbb整合独立报告，后续仅文档。CI be82e5ab通过。证据见CURRENT_STATE最新段。无比赛发布，无Secret复制，无用户资料覆盖；停止新增开发，下一轮先修Calendar审批恢复。
+## Commit
+产品 7a6f2f22、5f94cae1；本地，未推送。
+
+## Remaining
+真实发信/日程执行、物理拼音组合态及独立三轮未重测。夜间Calendar审批恢复问题仍待处理。
+
+## Important Boundaries
+测试未输入真实密码或发送邮件/新建日程；未修改生产数据库。桌面应用签名与安装字节匹配。

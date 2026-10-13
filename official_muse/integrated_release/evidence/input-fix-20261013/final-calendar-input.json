@@ -1,0 +1,141 @@
+[
+  {
+    "at": 1791861594.313925,
+    "action": "single_click",
+    "key": "日历"
+  },
+  {
+    "at": 1791861594.943617,
+    "action": "single_click",
+    "key": "calendar_agent_input"
+  },
+  {
+    "at": 1791861595.1605818,
+    "action": "incremental_input",
+    "sent": "a",
+    "actual": "a",
+    "expected": "a",
+    "passed": true
+  },
+  {
+    "at": 1791861595.3770869,
+    "action": "incremental_input",
+    "sent": "b",
+    "actual": "ab",
+    "expected": "ab",
+    "passed": true
+  },
+  {
+    "at": 1791861595.590281,
+    "action": "incremental_input",
+    "sent": "c",
+    "actual": "abc",
+    "expected": "abc",
+    "passed": true
+  },
+  {
+    "at": 1791861595.808832,
+    "action": "incremental_input",
+    "sent": "d",
+    "actual": "abcd",
+    "expected": "abcd",
+    "passed": true
+  },
+  {
+    "at": 1791861596.028961,
+    "action": "incremental_input",
+    "sent": "e",
+    "actual": "abcde",
+    "expected": "abcde",
+    "passed": true
+  },
+  {
+    "at": 1791861596.2420301,
+    "action": "incremental_input",
+    "sent": "f",
+    "actual": "abcdef",
+    "expected": "abcdef",
+    "passed": true
+  },
+  {
+    "at": 1791861596.4590359,
+    "action": "incremental_input",
+    "sent": "中",
+    "actual": "abcdef中",
+    "expected": "abcdef中",
+    "passed": true
+  },
+  {
+    "at": 1791861596.673792,
+    "action": "incremental_input",
+    "sent": "文",
+    "actual": "abcdef中文",
+    "expected": "abcdef中文",
+    "passed": true
+  },
+  {
+    "at": 1791861596.886934,
+    "action": "incremental_input",
+    "sent": "日",
+    "actual": "abcdef中文日",
+    "expected": "abcdef中文日",
+    "passed": true
+  },
+  {
+    "at": 1791861597.1013288,
+    "action": "incremental_input",
+    "sent": "程",
+    "actual": "abcdef中文日程",
+    "expected": "abcdef中文日程",
+    "passed": true
+  },
+  {
+    "at": 1791861597.318078,
+    "action": "backspace",
+    "actual": "abcdef中文日",
+    "expected": "abcdef中文日",
+    "passed": true
+  },
+  {
+    "at": 1791861597.534545,
+    "action": "insert_at_caret",
+    "actual": "abcdef中文改日",
+    "expected": "abcdef中文改日",
+    "passed": true
+  },
+  {
+    "at": 1791861597.748569,
+    "action": "multiline_input",
+    "actual": "abcdef中文改日\n",
+    "expected": "abcdef中文改日\n",
+    "passed": true
+  },
+  {
+    "at": 1791861597.962776,
+    "action": "multiline_input",
+    "actual": "abcdef中文改日\n第",
+    "expected": "abcdef中文改日\n第",
+    "passed": true
+  },
+  {
+    "at": 1791861598.176506,
+    "action": "multiline_input",
+    "actual": "abcdef中文改日\n第二",
+    "expected": "abcdef中文改日\n第二",
+    "passed": true
+  },
+  {
+    "at": 1791861598.389539,
+    "action": "multiline_input",
+    "actual": "abcdef中文改日\n第二行",
+    "expected": "abcdef中文改日\n第二行",
+    "passed": true
+  },
+  {
+    "at": 1791861599.016535,
+    "action": "native_screenshot",
+    "path": "calendar-typing.png",
+    "pid": 11168,
+    "window": "3624"
+  }
+]

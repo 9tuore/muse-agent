@@ -1,0 +1,185 @@
+{
+  "date": "2026-10-13T11:35:41.261040+08:00",
+  "scope": "calendar text entry and native mail sign-in UI only",
+  "version": "0.4.0-rc10",
+  "source_commit": "5f94cae1",
+  "main_sha256": "e740ecd4b914e54d42d4cd069343b81b3b52bdb2cde002c966d0a1e21c4fe2a7",
+  "host_sha256": "f1ad16c697dce2ad5f9b9a2e3f59d070368de0d9fac75328c7b521554aee5aee",
+  "kernel_sha256": "6e6d821b939a6fe7cd9f3d1d277dbb0fec799ff671c4cad0c26435e30edb0467",
+  "host_release": "desktop-v0.1.0-rc.6 f9f6fea90b52182790cb2641fd0145c425af4d84 plus reviewed Muse compatibility patch",
+  "automated_checks": {
+    "launcher_fixture": 26,
+    "package_fixture": 6,
+    "native_mail_form_unit": 1
+  },
+  "calendar_gui": {
+    "candidate": "rc10-r2",
+    "real_ui": true,
+    "incremental_english_and_chinese": true,
+    "backspace": true,
+    "caret_insertion": true,
+    "multiline": true,
+    "navigation_preserves_text": true,
+    "physical_pinyin_composition_tested": false
+  },
+  "mail_gui": {
+    "host_sha_same_across_rc10_r1_r2": true,
+    "chinese_labels": true,
+    "blank_provider_hosts": true,
+    "incremental_qq_address_autofill": true,
+    "pop3_switch": true,
+    "autofill_evidence_candidate": "rc10-r1; identical native Mail Host bytes in final rc10-r2",
+    "r2_autofill_retry": "NOT_PASSED: text input/readback assertion failed; empty form screenshot, not counted as autofill PASS",
+    "real_account_login_or_send_tested": false
+  },
+  "prior_failures_preserved": [
+    "rc9 only first character",
+    "rc10-r1 caret reset reverses second character",
+    "package fixture first run while user Host held global instance lock",
+    "mail automation focus/readback attempts"
+  ],
+  "desktop": {
+    "app": "/Users/mima0000/Desktop/Muse-正式候选-20261013/Muse.app",
+    "data_preserved": true,
+    "installed_main_matches_final": true,
+    "dynamic_code_identity": "VALIDATED",
+    "view": "Chinese mail sign-in open"
+  },
+  "files": [
+    {
+      "path": "build/input-fix-20261013/before-input-repro.json",
+      "sha256": "9b0c60ede1d9fd96b37e60c52983c332233305670117d93f3adf847ad916f762",
+      "bytes": 424
+    },
+    {
+      "path": "build/input-fix-20261013/before-input-repro.png",
+      "sha256": "235488bf0889d4209d222a5ad5a50d1921211cff1ff85d5296b31111b1574c75",
+      "bytes": 3199845
+    },
+    {
+      "path": "build/input-fix-20261013/gui/calendar-typing.json",
+      "sha256": "8dee54306afc1eadbeb504f9d66cda7b62307020629b52dea63e37d7a1473fa6",
+      "bytes": 494
+    },
+    {
+      "path": "build/input-fix-20261013/gui/calendar-caret-failure.png",
+      "sha256": "9eda33cf89b2b7256a2ef7d8f4014df7aa84667d9c99c7429c34a851292a386c",
+      "bytes": 3409494
+    },
+    {
+      "path": "build/input-fix-20261013/gui/mail-empty-cn.png",
+      "sha256": "89de99f860009e8acd830486a0e95f34b762f60bb8df759b85af11a6f378f02d",
+      "bytes": 3437482
+    },
+    {
+      "path": "build/input-fix-20261013/gui/mail-empty-servers.png",
+      "sha256": "4c7d58266eeb5bf4a56f98c9972177e22b977a73d0eb25b510e5a760364f38ed",
+      "bytes": 3469855
+    },
+    {
+      "path": "build/input-fix-20261013/gui/mail-qq-verified.json",
+      "sha256": "03714e9a7a539691d2c69eb30724a50880f59e3e14aefc556772f20122b911eb",
+      "bytes": 104
+    },
+    {
+      "path": "build/input-fix-20261013/gui/mail-qq-servers-verified.png",
+      "sha256": "d109b422aa8a629ecf573abf8beacfff4b38339891ebc02416c93f0f20e12d51",
+      "bytes": 3431400
+    },
+    {
+      "path": "build/input-fix-20261013/gui/mail-pop3.json",
+      "sha256": "2cbe912d0cdcdc38ee5beae310fb64bc2c329e0f2705f4ffd40166846be973f5",
+      "bytes": 103
+    },
+    {
+      "path": "build/input-fix-20261013/gui/mail-pop3.png",
+      "sha256": "dde6e5eeb0c955adb695e3753a95836bc11654b5135c4ce474bcc6f4f452cf6f",
+      "bytes": 3431435
+    },
+    {
+      "path": "build/input-fix-20261013/gui-r2/calendar-typing.json",
+      "sha256": "0d5222fd4ee972a8002cc5a75f47b3d985516740471d9c85deebd31710dcee9a",
+      "bytes": 2996
+    },
+    {
+      "path": "build/input-fix-20261013/gui-r2/calendar-typing.png",
+      "sha256": "f986c4515db16341f4d832272a42ea85924344bc364e7a94e5beb65041712faf",
+      "bytes": 3379195
+    },
+    {
+      "path": "build/input-fix-20261013/gui-r2/navigation.json",
+      "sha256": "6d6bf350cef8ba6a536232ca19a0ab722f0e4fe8dbaf045fdead87f877878958",
+      "bytes": 81
+    },
+    {
+      "path": "build/input-fix-20261013/gui-r2/identity.json",
+      "sha256": "ee24ef5abbd7cf17ce8e9bda658351558cdf2d86a422eaf0e1b0d0d1924a4777",
+      "bytes": 891
+    },
+    {
+      "path": "build/input-fix-20261013/gui-r2/installed-identity.json",
+      "sha256": "6acf10b588556456cdd0d34415521ba988fe34827db8bdcd05cea300cca40b6a",
+      "bytes": 167
+    },
+    {
+      "path": "build/input-fix-20261013/gui-r2/mail-empty.json",
+      "sha256": "bda093eca586934d2dac27c3877e42d34d479fa26d4cd9f44bed85b9a3cf65a0",
+      "bytes": 72
+    },
+    {
+      "path": "build/input-fix-20261013/gui-r2/mail-cn-final.png",
+      "sha256": "3ec0ef7da0b9a3012023aadfa575b401915372612213d0dd031ed5145faa8f35",
+      "bytes": 3409972
+    },
+    {
+      "path": "build/input-fix-20261013/calendar-typing-r2.py",
+      "sha256": "049eba314d8857290f0a3c25e13746473e6e4d6ac9ef56577178679328ef24f0",
+      "bytes": 2434
+    },
+    {
+      "path": "build/input-fix-20261013/package-unit-test.log",
+      "sha256": "80c58323d2b4fef28350a8f3f58e60f24e6f11dfa5b065f84b99bafcc12ced06",
+      "bytes": 4832
+    },
+    {
+      "path": "build/input-fix-20261013/package-unit-test-retry.log",
+      "sha256": "d7600ff50cf1eb579ee8b99a49beb00936389ffd506fb5d2b87d05e95f90528a",
+      "bytes": 3713
+    },
+    {
+      "path": "build/input-fix-20261013/launcher-unit-test.log",
+      "sha256": "5669c3ebd1e0a0082311c6ebee4c035563a8d90afa3d8cb800a48aee467a5de6",
+      "bytes": 1018
+    },
+    {
+      "path": "build/input-fix-20261013/mail-unit-test.log",
+      "sha256": "c5282365279f5b0825b7d71612ec343d917b2c93bb3cf6c23eee9ecba1f2944c",
+      "bytes": 11177
+    },
+    {
+      "path": "build/input-fix-20261013/host-build-command.log",
+      "sha256": "3b708a2313e3a1e8214eecf11f824a3e5840924338a01136debf76a6f83847a8",
+      "bytes": 1959
+    },
+    {
+      "path": "build/input-fix-20261013/desktop-deploy.json",
+      "sha256": "042dce4219717fe0b420c01fe917f390e35b0a47bbc87d1bdb7e46625bdfd76e",
+      "bytes": 799
+    },
+    {
+      "path": "build/input-fix-20261013/desktop/identity.json",
+      "sha256": "050e9cd86c9b7abb71c5caa89dc0c3d544a3f6cb9a109be25d8c27ce3f792ac3",
+      "bytes": 735
+    },
+    {
+      "path": "build/input-fix-20261013/desktop/installed-identity.json",
+      "sha256": "80f3a395671e0e2cbe22b1bee139c5d55d7f488b2421cb8113f0d3dde12a77e3",
+      "bytes": 114
+    },
+    {
+      "path": "build/input-fix-20261013/desktop/mail-chinese-ready.png",
+      "sha256": "b96dd98727a5f1984c0d6e78d77f979544659f8c18317be816c57a4712db69fe",
+      "bytes": 3419230
+    }
+  ]
+}
